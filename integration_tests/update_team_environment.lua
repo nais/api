@@ -65,6 +65,14 @@ Test.gql("Update environment", function(t)
 								slackAlertsChannel = "#dev"
 							},
 							{
+								name = "dev-fss",
+								slackAlertsChannel = "#default"
+							},
+							{
+								name = "dev-gcp",
+								slackAlertsChannel = "#default"
+							},
+							{
 								name = "staging",
 								slackAlertsChannel = "#default"
 							}
@@ -173,6 +181,14 @@ Test.gql("Remove channel", function(t)
 						environments = {
 							{
 								name = "dev",
+								slackAlertsChannel = "#default"
+							},
+							{
+								name = "dev-fss",
+								slackAlertsChannel = "#default"
+							},
+							{
+								name = "dev-gcp",
 								slackAlertsChannel = "#default"
 							},
 							{

@@ -4,14 +4,19 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/workload"
+	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type (
@@ -30,6 +35,56 @@ func (Application) IsWorkload()   {}
 
 func (a Application) ID() ident.Ident {
 	return newIdent(a.TeamSlug, a.EnvironmentName, a.Name)
+}
+
+type Instance struct {
+	Name     string    `json:"name"`
+	Restarts int       `json:"restarts"`
+	Created  time.Time `json:"created"`
+
+	ImageString             string `json:"-"`
+	EnvironmentName         string `json:"-"`
+	Spec                    *corev1.Pod
+	WorkloadContainerStatus corev1.ContainerStatus
+}
+
+func toGraphInstance(pod *corev1.Pod, environmentName string, workloadName string) *Instance {
+	ret := &Instance{
+		Name:            pod.Name,
+		Restarts:        int(pod.Status.ContainerStatuses[0].RestartCount),
+		Created:         pod.CreationTimestamp.Time,
+		Spec:            pod,
+		EnvironmentName: environmentName,
+		ImageString:     pod.Spec.Containers[0].Image,
+	}
+
+	for _, c := range pod.Status.ContainerStatuses {
+		if c.Name == workloadName {
+			ret.WorkloadContainerStatus = c
+			break
+		}
+	}
+
+	return ret
+}
+
+func (i Instance) Image() *workload.ContainerImage {
+	name, tag, _ := strings.Cut(i.ImageString, ":")
+	return &workload.ContainerImage{
+		Name: name,
+		Tag:  tag,
+	}
+}
+
+func (i *Instance) State() InstanceState {
+	switch {
+	case i.WorkloadContainerStatus.State.Running != nil:
+		return InstanceStateRunning
+	case i.WorkloadContainerStatus.State.Waiting != nil:
+		return InstanceStateFailing
+	default:
+		return InstanceStateUnknown
+	}
 }
 
 type ApplicationManifest struct {
@@ -180,12 +235,22 @@ func (a *Application) Resources() *ApplicationResources {
 }
 
 func toGraphApplication(application *nais_io_v1alpha1.Application, environmentName string) *Application {
+	getConditions := func(status nais_io_v1.Status) []metav1.Condition {
+		if status.Conditions == nil {
+			return nil
+		}
+
+		return *status.Conditions
+	}
+
 	return &Application{
 		Base: workload.Base{
 			Name:            application.Name,
 			EnvironmentName: environmentName,
 			TeamSlug:        slug.Slug(application.Namespace),
 			ImageString:     application.Spec.Image,
+			Conditions:      getConditions(application.Status),
+			AccessPolicy:    application.Spec.AccessPolicy,
 		},
 		Spec: &application.Spec,
 	}
@@ -211,4 +276,47 @@ type RestartApplicationPayload struct {
 	TeamSlug        slug.Slug `json:"-"`
 	ApplicationName string    `json:"-"`
 	EnvironmentName string    `json:"-"`
+}
+
+type InstanceState string
+
+const (
+	InstanceStateRunning InstanceState = "RUNNING"
+	InstanceStateFailing InstanceState = "FAILING"
+	InstanceStateUnknown InstanceState = "UNKNOWN"
+)
+
+var AllInstanceState = []InstanceState{
+	InstanceStateRunning,
+	InstanceStateFailing,
+	InstanceStateUnknown,
+}
+
+func (e InstanceState) IsValid() bool {
+	switch e {
+	case InstanceStateRunning, InstanceStateFailing, InstanceStateUnknown:
+		return true
+	}
+	return false
+}
+
+func (e InstanceState) String() string {
+	return string(e)
+}
+
+func (e *InstanceState) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = InstanceState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid InstanceState", str)
+	}
+	return nil
+}
+
+func (e InstanceState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

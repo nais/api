@@ -12,6 +12,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
 	"github.com/nais/api/internal/v1/searchv1"
+	"github.com/nais/api/internal/v1/workload"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
@@ -155,4 +156,17 @@ func Restart(ctx context.Context, teamSlug slug.Slug, environmentName, name stri
 	}
 
 	return nil
+}
+
+func ListAllInstances(ctx context.Context, environmentName string, teamSlug slug.Slug, appName string) ([]*Instance, error) {
+	pods, err := workload.ListAllPods(ctx, environmentName, teamSlug, appName)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := make([]*Instance, len(pods))
+	for i, pod := range pods {
+		ret[i] = toGraphInstance(pod, environmentName, appName)
+	}
+	return ret, nil
 }

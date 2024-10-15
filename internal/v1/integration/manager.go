@@ -44,7 +44,7 @@ func TestRunner(ctx context.Context, skipSetup bool) (*testmanager.Manager, erro
 }
 
 func clusters() []string {
-	return []string{"dev", "staging"}
+	return []string{"dev", "staging", "dev-fss", "dev-gcp"}
 }
 
 func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {

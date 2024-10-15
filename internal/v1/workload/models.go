@@ -10,6 +10,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -23,13 +24,19 @@ type Workload interface {
 	IsWorkload()
 	GetName() string
 	GetEnvironmentName() string
+	GetConditions() []metav1.Condition
+	GetTeamSlug() slug.Slug
+	GetImageString() string
+	GetAccessPolicy() *nais_io_v1.AccessPolicy
 }
 
 type Base struct {
-	Name            string    `json:"name"`
-	EnvironmentName string    `json:"-"`
-	TeamSlug        slug.Slug `json:"-"`
-	ImageString     string    `json:"-"`
+	Name            string                   `json:"name"`
+	EnvironmentName string                   `json:"-"`
+	TeamSlug        slug.Slug                `json:"-"`
+	ImageString     string                   `json:"-"`
+	Conditions      []metav1.Condition       `json:"-"`
+	AccessPolicy    *nais_io_v1.AccessPolicy `json:"-"`
 }
 
 func (b Base) Image() *ContainerImage {
@@ -40,8 +47,12 @@ func (b Base) Image() *ContainerImage {
 	}
 }
 
-func (b Base) GetName() string            { return b.Name }
-func (b Base) GetEnvironmentName() string { return b.EnvironmentName }
+func (b Base) GetName() string                           { return b.Name }
+func (b Base) GetEnvironmentName() string                { return b.EnvironmentName }
+func (b Base) GetConditions() []metav1.Condition         { return b.Conditions }
+func (b Base) GetTeamSlug() slug.Slug                    { return b.TeamSlug }
+func (b Base) GetImageString() string                    { return b.ImageString }
+func (b Base) GetAccessPolicy() *nais_io_v1.AccessPolicy { return b.AccessPolicy }
 
 type ContainerImage struct {
 	Name string `json:"name"`

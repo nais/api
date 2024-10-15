@@ -32,6 +32,7 @@ import (
 	"github.com/nais/api/internal/v1/persistence/sqlinstance"
 	"github.com/nais/api/internal/v1/reconciler"
 	"github.com/nais/api/internal/v1/searchv1"
+	"github.com/nais/api/internal/v1/status"
 	"github.com/nais/api/internal/v1/team"
 	"github.com/nais/api/internal/v1/user"
 	"github.com/nais/api/internal/v1/utilization"
@@ -137,6 +138,7 @@ type ComplexityRoot struct {
 		RedisInstances   func(childComplexity int, orderBy *redis.RedisInstanceOrder) int
 		Resources        func(childComplexity int) int
 		SQLInstances     func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
+		Status           func(childComplexity int) int
 		Team             func(childComplexity int) int
 		Utilization      func(childComplexity int) int
 	}
@@ -379,6 +381,7 @@ type ComplexityRoot struct {
 		Runs             func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		SQLInstances     func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
 		Schedule         func(childComplexity int) int
+		Status           func(childComplexity int) int
 		Team             func(childComplexity int) int
 	}
 
@@ -1214,6 +1217,59 @@ type ComplexityRoot struct {
 		Memory func(childComplexity int) int
 	}
 
+	WorkloadStatus struct {
+		Errors func(childComplexity int) int
+		State  func(childComplexity int) int
+	}
+
+	WorkloadStatusDeprecatedIngress struct {
+		Ingress func(childComplexity int) int
+		Level   func(childComplexity int) int
+	}
+
+	WorkloadStatusDeprecatedRegistry struct {
+		Level      func(childComplexity int) int
+		Name       func(childComplexity int) int
+		Registry   func(childComplexity int) int
+		Repository func(childComplexity int) int
+		Tag        func(childComplexity int) int
+	}
+
+	WorkloadStatusFailedRun struct {
+		Detail func(childComplexity int) int
+		Level  func(childComplexity int) int
+		Name   func(childComplexity int) int
+	}
+
+	WorkloadStatusInboundNetwork struct {
+		Level  func(childComplexity int) int
+		Policy func(childComplexity int) int
+	}
+
+	WorkloadStatusInvalidNaisYaml struct {
+		Detail func(childComplexity int) int
+		Level  func(childComplexity int) int
+	}
+
+	WorkloadStatusNewInstancesFailing struct {
+		FailingInstances func(childComplexity int) int
+		Level            func(childComplexity int) int
+	}
+
+	WorkloadStatusNoRunningInstances struct {
+		Level func(childComplexity int) int
+	}
+
+	WorkloadStatusOutboundNetwork struct {
+		Level  func(childComplexity int) int
+		Policy func(childComplexity int) int
+	}
+
+	WorkloadStatusSynchronizationFailing struct {
+		Detail func(childComplexity int) int
+		Level  func(childComplexity int) int
+	}
+
 	WorkloadUtilization struct {
 		Current   func(childComplexity int, resourceType utilization.UtilizationResourceType) int
 		Requested func(childComplexity int, resourceType utilization.UtilizationResourceType) int
@@ -1241,6 +1297,7 @@ type ApplicationResolver interface {
 	Buckets(ctx context.Context, obj *application.Application, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
 	KafkaTopicAcls(ctx context.Context, obj *application.Application, orderBy *kafkatopic.KafkaTopicACLOrder) (*pagination.Connection[*kafkatopic.KafkaTopicACL], error)
 	SQLInstances(ctx context.Context, obj *application.Application, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
+	Status(ctx context.Context, obj *application.Application) (*status.WorkloadStatus, error)
 	Utilization(ctx context.Context, obj *application.Application) (*utilization.WorkloadUtilization, error)
 }
 type BigQueryDatasetResolver interface {
@@ -1289,6 +1346,7 @@ type JobResolver interface {
 	Buckets(ctx context.Context, obj *job.Job, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
 	KafkaTopicAcls(ctx context.Context, obj *job.Job, orderBy *kafkatopic.KafkaTopicACLOrder) (*pagination.Connection[*kafkatopic.KafkaTopicACL], error)
 	SQLInstances(ctx context.Context, obj *job.Job, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
+	Status(ctx context.Context, obj *job.Job) (*status.WorkloadStatus, error)
 }
 type KafkaTopicResolver interface {
 	Team(ctx context.Context, obj *kafkatopic.KafkaTopic) (*team.Team, error)
@@ -1655,6 +1713,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Application.SQLInstances(childComplexity, args["orderBy"].(*sqlinstance.SQLInstanceOrder)), true
+
+	case "Application.status":
+		if e.complexity.Application.Status == nil {
+			break
+		}
+
+		return e.complexity.Application.Status(childComplexity), true
 
 	case "Application.team":
 		if e.complexity.Application.Team == nil {
@@ -2554,6 +2619,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Job.Schedule(childComplexity), true
+
+	case "Job.status":
+		if e.complexity.Job.Status == nil {
+			break
+		}
+
+		return e.complexity.Job.Status(childComplexity), true
 
 	case "Job.team":
 		if e.complexity.Job.Team == nil {
@@ -6196,6 +6268,167 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.WorkloadResourceQuantity.Memory(childComplexity), true
 
+	case "WorkloadStatus.errors":
+		if e.complexity.WorkloadStatus.Errors == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatus.Errors(childComplexity), true
+
+	case "WorkloadStatus.state":
+		if e.complexity.WorkloadStatus.State == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatus.State(childComplexity), true
+
+	case "WorkloadStatusDeprecatedIngress.ingress":
+		if e.complexity.WorkloadStatusDeprecatedIngress.Ingress == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusDeprecatedIngress.Ingress(childComplexity), true
+
+	case "WorkloadStatusDeprecatedIngress.level":
+		if e.complexity.WorkloadStatusDeprecatedIngress.Level == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusDeprecatedIngress.Level(childComplexity), true
+
+	case "WorkloadStatusDeprecatedRegistry.level":
+		if e.complexity.WorkloadStatusDeprecatedRegistry.Level == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusDeprecatedRegistry.Level(childComplexity), true
+
+	case "WorkloadStatusDeprecatedRegistry.name":
+		if e.complexity.WorkloadStatusDeprecatedRegistry.Name == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusDeprecatedRegistry.Name(childComplexity), true
+
+	case "WorkloadStatusDeprecatedRegistry.registry":
+		if e.complexity.WorkloadStatusDeprecatedRegistry.Registry == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusDeprecatedRegistry.Registry(childComplexity), true
+
+	case "WorkloadStatusDeprecatedRegistry.repository":
+		if e.complexity.WorkloadStatusDeprecatedRegistry.Repository == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusDeprecatedRegistry.Repository(childComplexity), true
+
+	case "WorkloadStatusDeprecatedRegistry.tag":
+		if e.complexity.WorkloadStatusDeprecatedRegistry.Tag == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusDeprecatedRegistry.Tag(childComplexity), true
+
+	case "WorkloadStatusFailedRun.detail":
+		if e.complexity.WorkloadStatusFailedRun.Detail == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusFailedRun.Detail(childComplexity), true
+
+	case "WorkloadStatusFailedRun.level":
+		if e.complexity.WorkloadStatusFailedRun.Level == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusFailedRun.Level(childComplexity), true
+
+	case "WorkloadStatusFailedRun.name":
+		if e.complexity.WorkloadStatusFailedRun.Name == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusFailedRun.Name(childComplexity), true
+
+	case "WorkloadStatusInboundNetwork.level":
+		if e.complexity.WorkloadStatusInboundNetwork.Level == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusInboundNetwork.Level(childComplexity), true
+
+	case "WorkloadStatusInboundNetwork.policy":
+		if e.complexity.WorkloadStatusInboundNetwork.Policy == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusInboundNetwork.Policy(childComplexity), true
+
+	case "WorkloadStatusInvalidNaisYaml.detail":
+		if e.complexity.WorkloadStatusInvalidNaisYaml.Detail == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusInvalidNaisYaml.Detail(childComplexity), true
+
+	case "WorkloadStatusInvalidNaisYaml.level":
+		if e.complexity.WorkloadStatusInvalidNaisYaml.Level == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusInvalidNaisYaml.Level(childComplexity), true
+
+	case "WorkloadStatusNewInstancesFailing.failingInstances":
+		if e.complexity.WorkloadStatusNewInstancesFailing.FailingInstances == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusNewInstancesFailing.FailingInstances(childComplexity), true
+
+	case "WorkloadStatusNewInstancesFailing.level":
+		if e.complexity.WorkloadStatusNewInstancesFailing.Level == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusNewInstancesFailing.Level(childComplexity), true
+
+	case "WorkloadStatusNoRunningInstances.level":
+		if e.complexity.WorkloadStatusNoRunningInstances.Level == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusNoRunningInstances.Level(childComplexity), true
+
+	case "WorkloadStatusOutboundNetwork.level":
+		if e.complexity.WorkloadStatusOutboundNetwork.Level == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusOutboundNetwork.Level(childComplexity), true
+
+	case "WorkloadStatusOutboundNetwork.policy":
+		if e.complexity.WorkloadStatusOutboundNetwork.Policy == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusOutboundNetwork.Policy(childComplexity), true
+
+	case "WorkloadStatusSynchronizationFailing.detail":
+		if e.complexity.WorkloadStatusSynchronizationFailing.Detail == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusSynchronizationFailing.Detail(childComplexity), true
+
+	case "WorkloadStatusSynchronizationFailing.level":
+		if e.complexity.WorkloadStatusSynchronizationFailing.Level == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusSynchronizationFailing.Level(childComplexity), true
+
 	case "WorkloadUtilization.current":
 		if e.complexity.WorkloadUtilization.Current == nil {
 			break
@@ -8379,6 +8612,134 @@ type SecretVariable {
 
 	"The value of the secret."
 	value: String!
+}
+`, BuiltIn: false},
+	{Name: "../schema/status.graphqls", Input: `extend interface Workload {
+	"Status of the workload"
+	status: WorkloadStatus!
+}
+
+extend type Application {
+	"Status of the application"
+	status: WorkloadStatus!
+}
+
+extend type Job {
+	"Status of the job"
+	status: WorkloadStatus!
+}
+
+type WorkloadStatus {
+	"State of the workload"
+	state: WorkloadState!
+	"Errors related to the workload"
+	errors: [WorkloadStatusError!]!
+}
+
+"Error describing usage of a deprecated registry"
+type WorkloadStatusDeprecatedRegistry implements WorkloadStatusError {
+	"Error level"
+	level: WorkloadStatusErrorLevel!
+	"Image registry"
+	registry: String!
+	"Image repository"
+	repository: String!
+	"Image name"
+	name: String!
+	"Image tag"
+	tag: String!
+}
+
+"Error describing usage of a deprecated ingress"
+type WorkloadStatusDeprecatedIngress implements WorkloadStatusError {
+	"Error level"
+	level: WorkloadStatusErrorLevel!
+	"Deprecated ingress"
+	ingress: String!
+}
+
+"A workload does not have any active instances, but is requested to have some"
+type WorkloadStatusNoRunningInstances implements WorkloadStatusError {
+	"Error level"
+	level: WorkloadStatusErrorLevel!
+}
+
+"Error describing that a workload has new instances that are failing"
+type WorkloadStatusNewInstancesFailing implements WorkloadStatusError {
+	"Error level"
+	level: WorkloadStatusErrorLevel!
+	"Names of the failing instances"
+	failingInstances: [String!]!
+}
+
+"The last deployed YAML is invalid"
+type WorkloadStatusInvalidNaisYaml implements WorkloadStatusError {
+	"Error level"
+	level: WorkloadStatusErrorLevel!
+	"Error message"
+	detail: String!
+}
+
+"Error describing that the workload is failing to synchronize"
+type WorkloadStatusSynchronizationFailing implements WorkloadStatusError {
+	"Error level"
+	level: WorkloadStatusErrorLevel!
+	"Error message"
+	detail: String!
+}
+
+"An inbound network policies are not met"
+type WorkloadStatusInboundNetwork implements WorkloadStatusError {
+	"Error level"
+	level: WorkloadStatusErrorLevel!
+	"Network policy"
+	policy: NetworkPolicyRule!
+}
+
+"An outbound network policies are not met"
+type WorkloadStatusOutboundNetwork implements WorkloadStatusError {
+	"Error level"
+	level: WorkloadStatusErrorLevel!
+	"Network policy"
+	policy: NetworkPolicyRule!
+}
+
+"Error describing that the workload is failing to run"
+type WorkloadStatusFailedRun implements WorkloadStatusError {
+	"Error level"
+	level: WorkloadStatusErrorLevel!
+	"Error message"
+	detail: String!
+	"Name of the run"
+	name: String!
+}
+
+"An error for a workload"
+interface WorkloadStatusError {
+	"Error level"
+	level: WorkloadStatusErrorLevel!
+}
+
+"Workload status error level"
+enum WorkloadStatusErrorLevel {
+	"TODO are errors that should be fixed when possible"
+	TODO
+	"WARNING are errors that should be fixed, but are not critical"
+	WARNING
+	"ERROR are errors that must be fixed"
+	ERROR
+}
+
+"State of the workload"
+enum WorkloadState {
+	"Everything is nais"
+	NAIS
+	"Something is not nais"
+	NOT_NAIS
+	"Something is failing"
+	FAILING
+	"Unknown state"
+	UNKNOWN
 }
 `, BuiltIn: false},
 	{Name: "../schema/teams.graphqls", Input: `extend type Query {
@@ -16556,6 +16917,56 @@ func (ec *executionContext) fieldContext_Application_sqlInstances(ctx context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _Application_status(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Application_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Application().Status(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*status.WorkloadStatus)
+	fc.Result = res
+	return ec.marshalNWorkloadStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Application_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Application",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "state":
+				return ec.fieldContext_WorkloadStatus_state(ctx, field)
+			case "errors":
+				return ec.fieldContext_WorkloadStatus_errors(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WorkloadStatus", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Application_utilization(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Application_utilization(ctx, field)
 	if err != nil {
@@ -16741,6 +17152,8 @@ func (ec *executionContext) fieldContext_ApplicationConnection_nodes(_ context.C
 				return ec.fieldContext_Application_kafkaTopicAcls(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Application_sqlInstances(ctx, field)
+			case "status":
+				return ec.fieldContext_Application_status(ctx, field)
 			case "utilization":
 				return ec.fieldContext_Application_utilization(ctx, field)
 			}
@@ -16917,6 +17330,8 @@ func (ec *executionContext) fieldContext_ApplicationEdge_node(_ context.Context,
 				return ec.fieldContext_Application_kafkaTopicAcls(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Application_sqlInstances(ctx, field)
+			case "status":
+				return ec.fieldContext_Application_status(ctx, field)
 			case "utilization":
 				return ec.fieldContext_Application_utilization(ctx, field)
 			}
@@ -23078,6 +23493,56 @@ func (ec *executionContext) fieldContext_Job_sqlInstances(ctx context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Job_status(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Job_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Job().Status(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*status.WorkloadStatus)
+	fc.Result = res
+	return ec.marshalNWorkloadStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Job_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "state":
+				return ec.fieldContext_WorkloadStatus_state(ctx, field)
+			case "errors":
+				return ec.fieldContext_WorkloadStatus_errors(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WorkloadStatus", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _JobConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*job.Job]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_JobConnection_pageInfo(ctx, field)
 	if err != nil {
@@ -23213,6 +23678,8 @@ func (ec *executionContext) fieldContext_JobConnection_nodes(_ context.Context, 
 				return ec.fieldContext_Job_kafkaTopicAcls(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Job_sqlInstances(ctx, field)
+			case "status":
+				return ec.fieldContext_Job_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
 		},
@@ -23389,6 +23856,8 @@ func (ec *executionContext) fieldContext_JobEdge_node(_ context.Context, field g
 				return ec.fieldContext_Job_kafkaTopicAcls(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Job_sqlInstances(ctx, field)
+			case "status":
+				return ec.fieldContext_Job_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
 		},
@@ -32844,6 +33313,8 @@ func (ec *executionContext) fieldContext_RestartApplicationPayload_application(_
 				return ec.fieldContext_Application_kafkaTopicAcls(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Application_sqlInstances(ctx, field)
+			case "status":
+				return ec.fieldContext_Application_status(ctx, field)
 			case "utilization":
 				return ec.fieldContext_Application_utilization(ctx, field)
 			}
@@ -41684,6 +42155,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_application(ctx context
 				return ec.fieldContext_Application_kafkaTopicAcls(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Application_sqlInstances(ctx, field)
+			case "status":
+				return ec.fieldContext_Application_status(ctx, field)
 			case "utilization":
 				return ec.fieldContext_Application_utilization(ctx, field)
 			}
@@ -41779,6 +42252,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_job(ctx context.Context
 				return ec.fieldContext_Job_kafkaTopicAcls(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Job_sqlInstances(ctx, field)
+			case "status":
+				return ec.fieldContext_Job_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
 		},
@@ -46583,6 +47058,8 @@ func (ec *executionContext) fieldContext_TriggerJobPayload_job(_ context.Context
 				return ec.fieldContext_Job_kafkaTopicAcls(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Job_sqlInstances(ctx, field)
+			case "status":
+				return ec.fieldContext_Job_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
 		},
@@ -48146,6 +48623,1042 @@ func (ec *executionContext) fieldContext_WorkloadResourceQuantity_memory(_ conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatus_state(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatus_state(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.State, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(status.WorkloadState)
+	fc.Result = res
+	return ec.marshalNWorkloadState2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadState(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatus_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type WorkloadState does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatus_errors(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatus_errors(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Errors, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]status.WorkloadStatusError)
+	fc.Result = res
+	return ec.marshalNWorkloadStatusError2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatusErrorᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatus_errors(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusDeprecatedIngress_level(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusDeprecatedIngress) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusDeprecatedIngress_level(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Level, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(status.WorkloadStatusErrorLevel)
+	fc.Result = res
+	return ec.marshalNWorkloadStatusErrorLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatusErrorLevel(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusDeprecatedIngress_level(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusDeprecatedIngress",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type WorkloadStatusErrorLevel does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusDeprecatedIngress_ingress(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusDeprecatedIngress) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusDeprecatedIngress_ingress(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Ingress, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusDeprecatedIngress_ingress(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusDeprecatedIngress",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusDeprecatedRegistry_level(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusDeprecatedRegistry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusDeprecatedRegistry_level(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Level, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(status.WorkloadStatusErrorLevel)
+	fc.Result = res
+	return ec.marshalNWorkloadStatusErrorLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatusErrorLevel(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusDeprecatedRegistry_level(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusDeprecatedRegistry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type WorkloadStatusErrorLevel does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusDeprecatedRegistry_registry(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusDeprecatedRegistry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusDeprecatedRegistry_registry(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Registry, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusDeprecatedRegistry_registry(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusDeprecatedRegistry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusDeprecatedRegistry_repository(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusDeprecatedRegistry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusDeprecatedRegistry_repository(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Repository, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusDeprecatedRegistry_repository(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusDeprecatedRegistry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusDeprecatedRegistry_name(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusDeprecatedRegistry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusDeprecatedRegistry_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusDeprecatedRegistry_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusDeprecatedRegistry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusDeprecatedRegistry_tag(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusDeprecatedRegistry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusDeprecatedRegistry_tag(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Tag, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusDeprecatedRegistry_tag(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusDeprecatedRegistry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusFailedRun_level(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusFailedRun) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusFailedRun_level(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Level, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(status.WorkloadStatusErrorLevel)
+	fc.Result = res
+	return ec.marshalNWorkloadStatusErrorLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatusErrorLevel(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusFailedRun_level(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusFailedRun",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type WorkloadStatusErrorLevel does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusFailedRun_detail(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusFailedRun) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusFailedRun_detail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Detail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusFailedRun_detail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusFailedRun",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusFailedRun_name(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusFailedRun) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusFailedRun_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusFailedRun_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusFailedRun",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusInboundNetwork_level(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusInboundNetwork) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusInboundNetwork_level(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Level, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(status.WorkloadStatusErrorLevel)
+	fc.Result = res
+	return ec.marshalNWorkloadStatusErrorLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatusErrorLevel(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusInboundNetwork_level(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusInboundNetwork",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type WorkloadStatusErrorLevel does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusInboundNetwork_policy(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusInboundNetwork) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusInboundNetwork_policy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Policy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*netpol.NetworkPolicyRule)
+	fc.Result = res
+	return ec.marshalNNetworkPolicyRule2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋnetpolᚐNetworkPolicyRule(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusInboundNetwork_policy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusInboundNetwork",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "targetWorkloadName":
+				return ec.fieldContext_NetworkPolicyRule_targetWorkloadName(ctx, field)
+			case "targetWorkload":
+				return ec.fieldContext_NetworkPolicyRule_targetWorkload(ctx, field)
+			case "targetTeamSlug":
+				return ec.fieldContext_NetworkPolicyRule_targetTeamSlug(ctx, field)
+			case "targetTeam":
+				return ec.fieldContext_NetworkPolicyRule_targetTeam(ctx, field)
+			case "mutual":
+				return ec.fieldContext_NetworkPolicyRule_mutual(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type NetworkPolicyRule", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusInvalidNaisYaml_level(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusInvalidNaisYaml) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusInvalidNaisYaml_level(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Level, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(status.WorkloadStatusErrorLevel)
+	fc.Result = res
+	return ec.marshalNWorkloadStatusErrorLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatusErrorLevel(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusInvalidNaisYaml_level(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusInvalidNaisYaml",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type WorkloadStatusErrorLevel does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusInvalidNaisYaml_detail(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusInvalidNaisYaml) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusInvalidNaisYaml_detail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Detail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusInvalidNaisYaml_detail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusInvalidNaisYaml",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusNewInstancesFailing_level(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusNewInstancesFailing) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusNewInstancesFailing_level(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Level, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(status.WorkloadStatusErrorLevel)
+	fc.Result = res
+	return ec.marshalNWorkloadStatusErrorLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatusErrorLevel(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusNewInstancesFailing_level(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusNewInstancesFailing",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type WorkloadStatusErrorLevel does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusNewInstancesFailing_failingInstances(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusNewInstancesFailing) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusNewInstancesFailing_failingInstances(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FailingInstances, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusNewInstancesFailing_failingInstances(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusNewInstancesFailing",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusNoRunningInstances_level(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusNoRunningInstances) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusNoRunningInstances_level(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Level, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(status.WorkloadStatusErrorLevel)
+	fc.Result = res
+	return ec.marshalNWorkloadStatusErrorLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatusErrorLevel(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusNoRunningInstances_level(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusNoRunningInstances",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type WorkloadStatusErrorLevel does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusOutboundNetwork_level(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusOutboundNetwork) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusOutboundNetwork_level(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Level, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(status.WorkloadStatusErrorLevel)
+	fc.Result = res
+	return ec.marshalNWorkloadStatusErrorLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatusErrorLevel(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusOutboundNetwork_level(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusOutboundNetwork",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type WorkloadStatusErrorLevel does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusOutboundNetwork_policy(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusOutboundNetwork) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusOutboundNetwork_policy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Policy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*netpol.NetworkPolicyRule)
+	fc.Result = res
+	return ec.marshalNNetworkPolicyRule2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋnetpolᚐNetworkPolicyRule(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusOutboundNetwork_policy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusOutboundNetwork",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "targetWorkloadName":
+				return ec.fieldContext_NetworkPolicyRule_targetWorkloadName(ctx, field)
+			case "targetWorkload":
+				return ec.fieldContext_NetworkPolicyRule_targetWorkload(ctx, field)
+			case "targetTeamSlug":
+				return ec.fieldContext_NetworkPolicyRule_targetTeamSlug(ctx, field)
+			case "targetTeam":
+				return ec.fieldContext_NetworkPolicyRule_targetTeam(ctx, field)
+			case "mutual":
+				return ec.fieldContext_NetworkPolicyRule_mutual(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type NetworkPolicyRule", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusSynchronizationFailing_level(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusSynchronizationFailing) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusSynchronizationFailing_level(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Level, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(status.WorkloadStatusErrorLevel)
+	fc.Result = res
+	return ec.marshalNWorkloadStatusErrorLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatusErrorLevel(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusSynchronizationFailing_level(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusSynchronizationFailing",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type WorkloadStatusErrorLevel does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusSynchronizationFailing_detail(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusSynchronizationFailing) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusSynchronizationFailing_detail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Detail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusSynchronizationFailing_detail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusSynchronizationFailing",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -52459,6 +53972,78 @@ func (ec *executionContext) _WorkloadResources(ctx context.Context, sel ast.Sele
 	}
 }
 
+func (ec *executionContext) _WorkloadStatusError(ctx context.Context, sel ast.SelectionSet, obj status.WorkloadStatusError) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case status.WorkloadStatusDeprecatedRegistry:
+		return ec._WorkloadStatusDeprecatedRegistry(ctx, sel, &obj)
+	case *status.WorkloadStatusDeprecatedRegistry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadStatusDeprecatedRegistry(ctx, sel, obj)
+	case status.WorkloadStatusDeprecatedIngress:
+		return ec._WorkloadStatusDeprecatedIngress(ctx, sel, &obj)
+	case *status.WorkloadStatusDeprecatedIngress:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadStatusDeprecatedIngress(ctx, sel, obj)
+	case status.WorkloadStatusNoRunningInstances:
+		return ec._WorkloadStatusNoRunningInstances(ctx, sel, &obj)
+	case *status.WorkloadStatusNoRunningInstances:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadStatusNoRunningInstances(ctx, sel, obj)
+	case status.WorkloadStatusNewInstancesFailing:
+		return ec._WorkloadStatusNewInstancesFailing(ctx, sel, &obj)
+	case *status.WorkloadStatusNewInstancesFailing:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadStatusNewInstancesFailing(ctx, sel, obj)
+	case status.WorkloadStatusInvalidNaisYaml:
+		return ec._WorkloadStatusInvalidNaisYaml(ctx, sel, &obj)
+	case *status.WorkloadStatusInvalidNaisYaml:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadStatusInvalidNaisYaml(ctx, sel, obj)
+	case status.WorkloadStatusSynchronizationFailing:
+		return ec._WorkloadStatusSynchronizationFailing(ctx, sel, &obj)
+	case *status.WorkloadStatusSynchronizationFailing:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadStatusSynchronizationFailing(ctx, sel, obj)
+	case status.WorkloadStatusInboundNetwork:
+		return ec._WorkloadStatusInboundNetwork(ctx, sel, &obj)
+	case *status.WorkloadStatusInboundNetwork:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadStatusInboundNetwork(ctx, sel, obj)
+	case status.WorkloadStatusOutboundNetwork:
+		return ec._WorkloadStatusOutboundNetwork(ctx, sel, &obj)
+	case *status.WorkloadStatusOutboundNetwork:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadStatusOutboundNetwork(ctx, sel, obj)
+	case status.WorkloadStatusFailedRun:
+		return ec._WorkloadStatusFailedRun(ctx, sel, &obj)
+	case *status.WorkloadStatusFailedRun:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadStatusFailedRun(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
@@ -52974,6 +54559,42 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 					}
 				}()
 				res = ec._Application_sqlInstances(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "status":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Application_status(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -55810,6 +57431,42 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 					}
 				}()
 				res = ec._Job_sqlInstances(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "status":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Job_status(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -65030,6 +66687,461 @@ func (ec *executionContext) _WorkloadResourceQuantity(ctx context.Context, sel a
 	return out
 }
 
+var workloadStatusImplementors = []string{"WorkloadStatus"}
+
+func (ec *executionContext) _WorkloadStatus(ctx context.Context, sel ast.SelectionSet, obj *status.WorkloadStatus) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadStatusImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkloadStatus")
+		case "state":
+			out.Values[i] = ec._WorkloadStatus_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "errors":
+			out.Values[i] = ec._WorkloadStatus_errors(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var workloadStatusDeprecatedIngressImplementors = []string{"WorkloadStatusDeprecatedIngress", "WorkloadStatusError"}
+
+func (ec *executionContext) _WorkloadStatusDeprecatedIngress(ctx context.Context, sel ast.SelectionSet, obj *status.WorkloadStatusDeprecatedIngress) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadStatusDeprecatedIngressImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkloadStatusDeprecatedIngress")
+		case "level":
+			out.Values[i] = ec._WorkloadStatusDeprecatedIngress_level(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "ingress":
+			out.Values[i] = ec._WorkloadStatusDeprecatedIngress_ingress(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var workloadStatusDeprecatedRegistryImplementors = []string{"WorkloadStatusDeprecatedRegistry", "WorkloadStatusError"}
+
+func (ec *executionContext) _WorkloadStatusDeprecatedRegistry(ctx context.Context, sel ast.SelectionSet, obj *status.WorkloadStatusDeprecatedRegistry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadStatusDeprecatedRegistryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkloadStatusDeprecatedRegistry")
+		case "level":
+			out.Values[i] = ec._WorkloadStatusDeprecatedRegistry_level(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "registry":
+			out.Values[i] = ec._WorkloadStatusDeprecatedRegistry_registry(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "repository":
+			out.Values[i] = ec._WorkloadStatusDeprecatedRegistry_repository(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._WorkloadStatusDeprecatedRegistry_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "tag":
+			out.Values[i] = ec._WorkloadStatusDeprecatedRegistry_tag(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var workloadStatusFailedRunImplementors = []string{"WorkloadStatusFailedRun", "WorkloadStatusError"}
+
+func (ec *executionContext) _WorkloadStatusFailedRun(ctx context.Context, sel ast.SelectionSet, obj *status.WorkloadStatusFailedRun) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadStatusFailedRunImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkloadStatusFailedRun")
+		case "level":
+			out.Values[i] = ec._WorkloadStatusFailedRun_level(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "detail":
+			out.Values[i] = ec._WorkloadStatusFailedRun_detail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._WorkloadStatusFailedRun_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var workloadStatusInboundNetworkImplementors = []string{"WorkloadStatusInboundNetwork", "WorkloadStatusError"}
+
+func (ec *executionContext) _WorkloadStatusInboundNetwork(ctx context.Context, sel ast.SelectionSet, obj *status.WorkloadStatusInboundNetwork) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadStatusInboundNetworkImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkloadStatusInboundNetwork")
+		case "level":
+			out.Values[i] = ec._WorkloadStatusInboundNetwork_level(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "policy":
+			out.Values[i] = ec._WorkloadStatusInboundNetwork_policy(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var workloadStatusInvalidNaisYamlImplementors = []string{"WorkloadStatusInvalidNaisYaml", "WorkloadStatusError"}
+
+func (ec *executionContext) _WorkloadStatusInvalidNaisYaml(ctx context.Context, sel ast.SelectionSet, obj *status.WorkloadStatusInvalidNaisYaml) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadStatusInvalidNaisYamlImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkloadStatusInvalidNaisYaml")
+		case "level":
+			out.Values[i] = ec._WorkloadStatusInvalidNaisYaml_level(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "detail":
+			out.Values[i] = ec._WorkloadStatusInvalidNaisYaml_detail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var workloadStatusNewInstancesFailingImplementors = []string{"WorkloadStatusNewInstancesFailing", "WorkloadStatusError"}
+
+func (ec *executionContext) _WorkloadStatusNewInstancesFailing(ctx context.Context, sel ast.SelectionSet, obj *status.WorkloadStatusNewInstancesFailing) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadStatusNewInstancesFailingImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkloadStatusNewInstancesFailing")
+		case "level":
+			out.Values[i] = ec._WorkloadStatusNewInstancesFailing_level(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "failingInstances":
+			out.Values[i] = ec._WorkloadStatusNewInstancesFailing_failingInstances(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var workloadStatusNoRunningInstancesImplementors = []string{"WorkloadStatusNoRunningInstances", "WorkloadStatusError"}
+
+func (ec *executionContext) _WorkloadStatusNoRunningInstances(ctx context.Context, sel ast.SelectionSet, obj *status.WorkloadStatusNoRunningInstances) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadStatusNoRunningInstancesImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkloadStatusNoRunningInstances")
+		case "level":
+			out.Values[i] = ec._WorkloadStatusNoRunningInstances_level(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var workloadStatusOutboundNetworkImplementors = []string{"WorkloadStatusOutboundNetwork", "WorkloadStatusError"}
+
+func (ec *executionContext) _WorkloadStatusOutboundNetwork(ctx context.Context, sel ast.SelectionSet, obj *status.WorkloadStatusOutboundNetwork) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadStatusOutboundNetworkImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkloadStatusOutboundNetwork")
+		case "level":
+			out.Values[i] = ec._WorkloadStatusOutboundNetwork_level(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "policy":
+			out.Values[i] = ec._WorkloadStatusOutboundNetwork_policy(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var workloadStatusSynchronizationFailingImplementors = []string{"WorkloadStatusSynchronizationFailing", "WorkloadStatusError"}
+
+func (ec *executionContext) _WorkloadStatusSynchronizationFailing(ctx context.Context, sel ast.SelectionSet, obj *status.WorkloadStatusSynchronizationFailing) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadStatusSynchronizationFailingImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkloadStatusSynchronizationFailing")
+		case "level":
+			out.Values[i] = ec._WorkloadStatusSynchronizationFailing_level(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "detail":
+			out.Values[i] = ec._WorkloadStatusSynchronizationFailing_detail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var workloadUtilizationImplementors = []string{"WorkloadUtilization"}
 
 func (ec *executionContext) _WorkloadUtilization(ctx context.Context, sel ast.SelectionSet, obj *utilization.WorkloadUtilization) graphql.Marshaler {
@@ -70725,6 +72837,94 @@ func (ec *executionContext) marshalNWorkloadResourceQuantity2ᚖgithubᚗcomᚋn
 		return graphql.Null
 	}
 	return ec._WorkloadResourceQuantity(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNWorkloadState2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadState(ctx context.Context, v interface{}) (status.WorkloadState, error) {
+	var res status.WorkloadState
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNWorkloadState2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadState(ctx context.Context, sel ast.SelectionSet, v status.WorkloadState) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNWorkloadStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatus(ctx context.Context, sel ast.SelectionSet, v status.WorkloadStatus) graphql.Marshaler {
+	return ec._WorkloadStatus(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNWorkloadStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatus(ctx context.Context, sel ast.SelectionSet, v *status.WorkloadStatus) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._WorkloadStatus(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNWorkloadStatusError2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatusError(ctx context.Context, sel ast.SelectionSet, v status.WorkloadStatusError) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._WorkloadStatusError(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNWorkloadStatusError2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatusErrorᚄ(ctx context.Context, sel ast.SelectionSet, v []status.WorkloadStatusError) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNWorkloadStatusError2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatusError(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNWorkloadStatusErrorLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatusErrorLevel(ctx context.Context, v interface{}) (status.WorkloadStatusErrorLevel, error) {
+	var res status.WorkloadStatusErrorLevel
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNWorkloadStatusErrorLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatusErrorLevel(ctx context.Context, sel ast.SelectionSet, v status.WorkloadStatusErrorLevel) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNWorkloadUtilization2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋutilizationᚐWorkloadUtilization(ctx context.Context, sel ast.SelectionSet, v utilization.WorkloadUtilization) graphql.Marshaler {

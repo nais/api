@@ -16,6 +16,7 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/ptr"
 )
 
@@ -35,6 +36,21 @@ func (Job) IsNode()       {}
 func (Job) IsSearchNode() {}
 func (Job) IsWorkload()   {}
 
+type Run struct {
+	Name           string     `json:"name"`
+	PodNames       []string   `json:"podNames"`
+	StartTime      *time.Time `json:"startTime,omitempty"`
+	CompletionTime *time.Time `json:"completionTime,omitempty"`
+	Duration       string     `json:"duration"`
+	Image          string     `json:"image"`
+	Message        string     `json:"message"`
+	Failed         bool       `json:"failed"`
+
+	EnvironmentName string    `json:"-"`
+	TeamSlug        slug.Slug `json:"-"`
+	JobName         string    `json:"-"`
+}
+
 type JobManifest struct {
 	Content string `json:"content"`
 }
@@ -52,6 +68,8 @@ type JobRun struct {
 	CreationTime    time.Time  `json:"-"`
 	EnvironmentName string     `json:"-"`
 	TeamSlug        slug.Slug  `json:"-"`
+	Failed          bool       `json:"-"`
+	Message         string     `json:"-"`
 
 	spec *batchv1.Job
 }
@@ -246,11 +264,22 @@ func (j *Job) Schedule() *JobSchedule {
 }
 
 func toGraphJob(job *nais_io_v1.Naisjob, environmentName string) *Job {
+	getConditions := func(status nais_io_v1.Status) []metav1.Condition {
+		if status.Conditions == nil {
+			return nil
+		}
+
+		return *status.Conditions
+	}
+
 	return &Job{
 		Base: workload.Base{
 			Name:            job.Name,
 			EnvironmentName: environmentName,
 			TeamSlug:        slug.Slug(job.Namespace),
+			ImageString:     job.Spec.Image,
+			Conditions:      getConditions(job.Status),
+			AccessPolicy:    job.Spec.AccessPolicy,
 		},
 		Spec: &job.Spec,
 	}
@@ -287,10 +316,11 @@ func toGraphJobRun(run *batchv1.Job, environmentName string) *JobRun {
 		StartTime:       startTime,
 		CreationTime:    run.CreationTimestamp.Time,
 
-		spec: run,
+		spec:    run,
+		Failed:  run.Status.Failed > 0,
+		Message: statusMessage(run),
 		/*
 			PodNames:       podNames,
-			Message:        Message(job),
 		*/
 	}
 }
@@ -321,4 +351,50 @@ type TriggerJobPayload struct {
 	TeamSlug        slug.Slug `json:"teamSlug"`
 	EnvironmentName string    `json:"environmentName"`
 	JobRun          *JobRun   `json:"jobRun"`
+}
+
+func statusMessage(job *batchv1.Job) string {
+	if failed(job) {
+		return fmt.Sprintf("Run failed after %d attempts", job.Status.Failed)
+	}
+	target := completionTarget(job)
+	if job.Status.Active > 0 {
+		msg := ""
+		if job.Status.Active == 1 {
+			msg = "1 instance running"
+		} else {
+			msg = fmt.Sprintf("%d instances running", job.Status.Active)
+		}
+		return fmt.Sprintf("%s. %d/%d completed (%d failed %s)", msg, job.Status.Succeeded, target, job.Status.Failed, pluralize("attempt", job.Status.Failed))
+	} else if job.Status.Succeeded == target {
+		return fmt.Sprintf("%d/%d instances completed (%d failed %s)", job.Status.Succeeded, target, job.Status.Failed, pluralize("attempt", job.Status.Failed))
+	}
+	return ""
+}
+
+func failed(job *batchv1.Job) bool {
+	for _, cs := range job.Status.Conditions {
+		if cs.Status == corev1.ConditionTrue && cs.Type == batchv1.JobFailed {
+			return true
+		}
+	}
+	return false
+}
+
+// completion target is the number of successful runs we want to see based on parallelism and completions
+func completionTarget(job *batchv1.Job) int32 {
+	if job.Spec.Completions == nil && job.Spec.Parallelism == nil {
+		return 1
+	}
+	if job.Spec.Completions != nil {
+		return *job.Spec.Completions
+	}
+	return *job.Spec.Parallelism
+}
+
+func pluralize(s string, count int32) string {
+	if count == 1 {
+		return s
+	}
+	return s + "s"
 }

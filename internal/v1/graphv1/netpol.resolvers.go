@@ -12,11 +12,11 @@ import (
 )
 
 func (r *applicationResolver) NetworkPolicy(ctx context.Context, obj *application.Application) (*netpol.NetworkPolicy, error) {
-	return netpol.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, obj.Spec.AccessPolicy)
+	return netpol.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, obj.Spec.AccessPolicy), nil
 }
 
 func (r *jobResolver) NetworkPolicy(ctx context.Context, obj *job.Job) (*netpol.NetworkPolicy, error) {
-	return netpol.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, obj.Spec.AccessPolicy)
+	return netpol.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, obj.Spec.AccessPolicy), nil
 }
 
 func (r *networkPolicyRuleResolver) TargetWorkload(ctx context.Context, obj *netpol.NetworkPolicyRule) (workload.Workload, error) {

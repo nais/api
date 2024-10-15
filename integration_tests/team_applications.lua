@@ -1,4 +1,4 @@
-Helper.readK8sResources("k8s_resources")
+Helper.readK8sResources("k8s_resources/simple")
 
 Test.gql("Team with multiple applications", function(t)
 	t.query [[

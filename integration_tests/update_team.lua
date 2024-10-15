@@ -62,6 +62,14 @@ Test.gql("Update team", function(t)
 							slackAlertsChannel = "#new-slack-channel"
 						},
 						{
+							name = "dev-fss",
+							slackAlertsChannel = "#new-slack-channel"
+						},
+						{
+							name = "dev-gcp",
+							slackAlertsChannel = "#new-slack-channel"
+						},
+						{
 							name = "staging",
 							slackAlertsChannel = "#new-slack-channel"
 						}

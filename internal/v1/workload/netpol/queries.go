@@ -9,12 +9,12 @@ import (
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 )
 
-func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, workloadName string, policy *nais_io_v1.AccessPolicy) (*NetworkPolicy, error) {
+func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, workloadName string, policy *nais_io_v1.AccessPolicy) *NetworkPolicy {
 	if policy == nil {
 		return &NetworkPolicy{
 			Inbound:  &InboundNetworkPolicy{},
 			Outbound: &OutboundNetworkPolicy{},
-		}, nil
+		}
 	}
 
 	defaultSlug := func(s string) slug.Slug {
@@ -69,7 +69,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 	return &NetworkPolicy{
 		Inbound:  inbound,
 		Outbound: outbound,
-	}, nil
+	}
 }
 
 func AllowsInboundWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string, allowsTeamSlug slug.Slug, allowsWorkloadName string) bool {
