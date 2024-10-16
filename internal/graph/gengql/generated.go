@@ -1444,9 +1444,10 @@ type ComplexityRoot struct {
 	}
 
 	VulnerabilityRanking struct {
-		Rank       func(childComplexity int) int
-		TotalTeams func(childComplexity int) int
-		Trend      func(childComplexity int) int
+		Rank            func(childComplexity int) int
+		TotalTeams      func(childComplexity int) int
+		Trend           func(childComplexity int) int
+		VulnerableScore func(childComplexity int) int
 	}
 
 	VulnerabilityStatus struct {
@@ -7932,6 +7933,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.VulnerabilityRanking.Trend(childComplexity), true
 
+	case "VulnerabilityRanking.vulnerableScore":
+		if e.complexity.VulnerabilityRanking.VulnerableScore == nil {
+			break
+		}
+
+		return e.complexity.VulnerabilityRanking.VulnerableScore(childComplexity), true
+
 	case "VulnerabilityStatus.description":
 		if e.complexity.VulnerabilityStatus.Description == nil {
 			break
@@ -10973,7 +10981,14 @@ type VulnerabilitySummaryForTeam {
 type VulnerabilityRanking {
   rank: Int!
   totalTeams: Int!
+  vulnerableScore: VulnerableScore!
   trend: VulnerabilityRankingTrend!
+}
+
+enum VulnerableScore {
+  UPPER
+  MIDDLE
+  BOTTOM
 }
 
 enum VulnerabilityRankingTrend {
@@ -56669,6 +56684,50 @@ func (ec *executionContext) fieldContext_VulnerabilityRanking_totalTeams(_ conte
 	return fc, nil
 }
 
+func (ec *executionContext) _VulnerabilityRanking_vulnerableScore(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityRanking) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityRanking_vulnerableScore(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VulnerableScore, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.VulnerableScore)
+	fc.Result = res
+	return ec.marshalNVulnerableScore2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerableScore(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VulnerabilityRanking_vulnerableScore(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VulnerabilityRanking",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type VulnerableScore does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _VulnerabilityRanking_trend(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityRanking) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_VulnerabilityRanking_trend(ctx, field)
 	if err != nil {
@@ -57284,6 +57343,8 @@ func (ec *executionContext) fieldContext_VulnerabilitySummaryForTeam_teamRanking
 				return ec.fieldContext_VulnerabilityRanking_rank(ctx, field)
 			case "totalTeams":
 				return ec.fieldContext_VulnerabilityRanking_totalTeams(ctx, field)
+			case "vulnerableScore":
+				return ec.fieldContext_VulnerabilityRanking_vulnerableScore(ctx, field)
 			case "trend":
 				return ec.fieldContext_VulnerabilityRanking_trend(ctx, field)
 			}
@@ -74825,6 +74886,11 @@ func (ec *executionContext) _VulnerabilityRanking(ctx context.Context, sel ast.S
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "vulnerableScore":
+			out.Values[i] = ec._VulnerabilityRanking_vulnerableScore(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "trend":
 			out.Values[i] = ec._VulnerabilityRanking_trend(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -79996,6 +80062,16 @@ func (ec *executionContext) marshalNVulnerabilitySummaryForTeam2ᚖgithubᚗcom�
 		return graphql.Null
 	}
 	return ec._VulnerabilitySummaryForTeam(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNVulnerableScore2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerableScore(ctx context.Context, v interface{}) (model.VulnerableScore, error) {
+	var res model.VulnerableScore
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNVulnerableScore2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerableScore(ctx context.Context, sel ast.SelectionSet, v model.VulnerableScore) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkload(ctx context.Context, sel ast.SelectionSet, v model.Workload) graphql.Marshaler {

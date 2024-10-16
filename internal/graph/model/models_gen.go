@@ -1003,9 +1003,10 @@ type VulnerabilityNode struct {
 }
 
 type VulnerabilityRanking struct {
-	Rank       int                       `json:"rank"`
-	TotalTeams int                       `json:"totalTeams"`
-	Trend      VulnerabilityRankingTrend `json:"trend"`
+	Rank            int                       `json:"rank"`
+	TotalTeams      int                       `json:"totalTeams"`
+	VulnerableScore VulnerableScore           `json:"vulnerableScore"`
+	Trend           VulnerabilityRankingTrend `json:"trend"`
 }
 
 type VulnerabilityStatus struct {
@@ -1754,6 +1755,49 @@ func (e *VulnerabilityState) UnmarshalGQL(v interface{}) error {
 }
 
 func (e VulnerabilityState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type VulnerableScore string
+
+const (
+	VulnerableScoreUpper  VulnerableScore = "UPPER"
+	VulnerableScoreMiddle VulnerableScore = "MIDDLE"
+	VulnerableScoreBottom VulnerableScore = "BOTTOM"
+)
+
+var AllVulnerableScore = []VulnerableScore{
+	VulnerableScoreUpper,
+	VulnerableScoreMiddle,
+	VulnerableScoreBottom,
+}
+
+func (e VulnerableScore) IsValid() bool {
+	switch e {
+	case VulnerableScoreUpper, VulnerableScoreMiddle, VulnerableScoreBottom:
+		return true
+	}
+	return false
+}
+
+func (e VulnerableScore) String() string {
+	return string(e)
+}
+
+func (e *VulnerableScore) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = VulnerableScore(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid VulnerableScore", str)
+	}
+	return nil
+}
+
+func (e VulnerableScore) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

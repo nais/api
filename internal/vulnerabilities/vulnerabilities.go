@@ -255,6 +255,18 @@ func (m *Manager) teamRanking(ctx context.Context, team string, teams int) (mode
 		retVal.Trend = model.VulnerabilityRankingTrendFlat
 	}
 
+	t := float64(teams)
+	c := float64(currentRank)
+
+	switch {
+	case t*0.1 >= c:
+		retVal.VulnerableScore = model.VulnerableScoreUpper
+	case t*0.5 >= c:
+		retVal.VulnerableScore = model.VulnerableScoreMiddle
+	case t*0.9 <= c:
+		retVal.VulnerableScore = model.VulnerableScoreBottom
+	}
+
 	return retVal, nil
 }
 

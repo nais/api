@@ -44,7 +44,14 @@ type VulnerabilitySummaryForTeam {
 type VulnerabilityRanking {
   rank: Int!
   totalTeams: Int!
+  vulnerableScore: VulnerableScore!
   trend: VulnerabilityRankingTrend!
+}
+
+enum VulnerableScore {
+  UPPER
+  MIDDLE
+  BOTTOM
 }
 
 enum VulnerabilityRankingTrend {

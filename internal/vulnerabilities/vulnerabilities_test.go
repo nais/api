@@ -16,17 +16,9 @@ import (
 )
 
 func TestManager_GetSummaryForTeam(t *testing.T) {
-	log := logrus.New().WithField("test", "vulnerabilities")
 	md := NewMockInternalClient(t)
 	mp := NewMockPrometheus(t)
-	c := NewDependencyTrackClient(DependencyTrackConfig{}, log, WithClient(md))
-
-	m := NewManager(
-		&Config{Prometheus: PrometheusConfig{Clusters: []string{"test"}}},
-		WithDependencyTrackClient(c),
-		WithPrometheusClients(map[string]Prometheus{"test": mp}),
-	)
-
+	m := setupManager(md, mp)
 	ctx := context.Background()
 
 	tt := []struct {
@@ -83,6 +75,75 @@ func TestManager_GetSummaryForTeam(t *testing.T) {
 		assert.NoError(t, err)
 		tc.assertions(summary)
 	}
+}
+
+func TestManager_TeamRanking(t *testing.T) {
+	md := NewMockInternalClient(t)
+	mp := NewMockPrometheus(t)
+	m := setupManager(md, mp)
+	ctx := context.Background()
+
+	mp.EXPECT().Query(ctx, "sum(slsa_workload_riskscore) by (workload_namespace)", mock.Anything).Return(
+		promRiskScores(map[string]float64{
+			"team1":  1,
+			"team2":  2,
+			"team3":  3,
+			"team4":  4,
+			"team5":  5,
+			"team6":  6,
+			"team7":  7,
+			"team8":  8,
+			"team9":  9,
+			"team10": 10,
+		}), nil, nil)
+
+	tt := []struct {
+		name         string
+		team         string
+		expectations func()
+		assertions   func(rank model.VulnerabilityRanking)
+	}{
+		{
+			name: "team is in the 10th percentile",
+			team: "team10",
+			assertions: func(rank model.VulnerabilityRanking) {
+				assert.Equal(t, model.VulnerableScoreUpper, rank.VulnerableScore)
+			},
+		},
+		{
+			name: "team is in the 90th percentile",
+			team: "team1",
+			assertions: func(rank model.VulnerabilityRanking) {
+				assert.Equal(t, model.VulnerableScoreBottom, rank.VulnerableScore)
+			},
+		},
+		{
+			name: "team is in the 50th percentile",
+			team: "team8",
+			assertions: func(rank model.VulnerabilityRanking) {
+				assert.Equal(t, model.VulnerableScoreMiddle, rank.VulnerableScore)
+			},
+		},
+	}
+
+	for _, tc := range tt {
+		rank, err := m.teamRanking(ctx, tc.team, 10)
+		assert.NoError(t, err)
+		tc.assertions(rank)
+	}
+}
+
+func setupManager(md *MockInternalClient, mp *MockPrometheus) *Manager {
+	log := logrus.New().WithField("test", "vulnerabilities")
+
+	c := NewDependencyTrackClient(DependencyTrackConfig{}, log, WithClient(md))
+
+	m := NewManager(
+		&Config{Prometheus: PrometheusConfig{Clusters: []string{"test"}}},
+		WithDependencyTrackClient(c),
+		WithPrometheusClients(map[string]Prometheus{"test": mp}),
+	)
+	return m
 }
 
 func promRiskScores(scores map[string]float64) prom_model.Vector {
