@@ -6,9 +6,11 @@ import (
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
+	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/team"
 	"github.com/nais/api/internal/v1/user"
+	"github.com/nais/api/internal/v1/workload"
 	"github.com/nais/api/internal/v1/workload/application"
 	"github.com/nais/api/internal/v1/workload/job"
 	"github.com/nais/api/internal/v1/workload/secret"
@@ -109,7 +111,29 @@ func (r *secretResolver) Jobs(ctx context.Context, obj *secret.Secret, first *in
 	allJobs := job.ListAllForTeam(ctx, obj.TeamSlug)
 
 	ret := make([]*job.Job, 0)
-	for _, app := range allJobs {
+	for _, j := range allJobs {
+		ok := slices.ContainsFunc(j.Spec.EnvFrom, func(o nais_io_v1.EnvFrom) bool {
+			return o.Secret == obj.Name
+		})
+		if ok {
+			ret = append(ret, j)
+		}
+	}
+
+	jobs := pagination.Slice(ret, page)
+	return pagination.NewConnection(jobs, page, int32(len(ret))), nil
+}
+
+func (r *secretResolver) Workloads(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.Workload], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := make([]workload.Workload, 0)
+
+	applications := application.ListAllForTeam(ctx, obj.TeamSlug)
+	for _, app := range applications {
 		ok := slices.ContainsFunc(app.Spec.EnvFrom, func(o nais_io_v1.EnvFrom) bool {
 			return o.Secret == obj.Name
 		})
@@ -118,8 +142,21 @@ func (r *secretResolver) Jobs(ctx context.Context, obj *secret.Secret, first *in
 		}
 	}
 
-	apps := pagination.Slice(ret, page)
-	return pagination.NewConnection(apps, page, int32(len(ret))), nil
+	jobs := job.ListAllForTeam(ctx, obj.TeamSlug)
+	for _, j := range jobs {
+		ok := slices.ContainsFunc(j.Spec.EnvFrom, func(o nais_io_v1.EnvFrom) bool {
+			return o.Secret == obj.Name
+		})
+		if ok {
+			ret = append(ret, j)
+		}
+	}
+
+	workloads := pagination.Slice(ret, page)
+	slices.SortStableFunc(workloads, func(a, b workload.Workload) int {
+		return modelv1.Compare(a.GetName(), b.GetName(), modelv1.OrderDirectionAsc)
+	})
+	return pagination.NewConnection(workloads, page, int32(len(ret))), nil
 }
 
 func (r *secretResolver) LastModifiedBy(ctx context.Context, obj *secret.Secret) (*user.User, error) {

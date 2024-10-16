@@ -737,6 +737,7 @@ type ComplexityRoot struct {
 		LastModifiedBy func(childComplexity int) int
 		Name           func(childComplexity int) int
 		Team           func(childComplexity int) int
+		Workloads      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 	}
 
 	SecretConnection struct {
@@ -1456,6 +1457,7 @@ type SecretResolver interface {
 	Data(ctx context.Context, obj *secret.Secret) ([]*secret.SecretVariable, error)
 	Applications(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*application.Application], error)
 	Jobs(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*job.Job], error)
+	Workloads(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.Workload], error)
 
 	LastModifiedBy(ctx context.Context, obj *secret.Secret) (*user.User, error)
 }
@@ -4163,6 +4165,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Secret.Team(childComplexity), true
+
+	case "Secret.workloads":
+		if e.complexity.Secret.Workloads == nil {
+			break
+		}
+
+		args, err := ec.field_Secret_workloads_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Secret.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "SecretConnection.edges":
 		if e.complexity.SecretConnection.Edges == nil {
@@ -8579,6 +8593,21 @@ enum SearchType {
 		"Get items before this cursor."
 		before: Cursor
 	): JobConnection!
+
+	"Workloads that use the secret."
+	workloads(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): WorkloadConnection!
 
 	"Last time the secret was modified."
 	lastModifiedAt: Time
@@ -13030,6 +13059,119 @@ func (ec *executionContext) field_Secret_jobs_argsLast(
 }
 
 func (ec *executionContext) field_Secret_jobs_argsBefore(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*pagination.Cursor, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["before"]
+	if !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+	if tmp, ok := rawArgs["before"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Secret_workloads_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Secret_workloads_argsFirst(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := ec.field_Secret_workloads_argsAfter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := ec.field_Secret_workloads_argsLast(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := ec.field_Secret_workloads_argsBefore(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	return args, nil
+}
+func (ec *executionContext) field_Secret_workloads_argsFirst(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*int, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["first"]
+	if !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+	if tmp, ok := rawArgs["first"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Secret_workloads_argsAfter(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*pagination.Cursor, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["after"]
+	if !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+	if tmp, ok := rawArgs["after"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Secret_workloads_argsLast(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*int, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["last"]
+	if !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+	if tmp, ok := rawArgs["last"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Secret_workloads_argsBefore(
 	ctx context.Context,
 	rawArgs map[string]interface{},
 ) (*pagination.Cursor, error) {
@@ -20962,6 +21104,8 @@ func (ec *executionContext) fieldContext_CreateSecretPayload_secret(_ context.Co
 				return ec.fieldContext_Secret_applications(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Secret_jobs(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Secret_workloads(ctx, field)
 			case "lastModifiedAt":
 				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
 			case "lastModifiedBy":
@@ -34137,6 +34281,69 @@ func (ec *executionContext) fieldContext_Secret_jobs(ctx context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Secret_workloads(ctx context.Context, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Secret_workloads(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Secret().Workloads(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*pagination.Connection[workload.Workload])
+	fc.Result = res
+	return ec.marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Secret_workloads(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Secret",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pageInfo":
+				return ec.fieldContext_WorkloadConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_WorkloadConnection_nodes(ctx, field)
+			case "edges":
+				return ec.fieldContext_WorkloadConnection_edges(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WorkloadConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Secret_workloads_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Secret_lastModifiedAt(ctx context.Context, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Secret_lastModifiedAt(ctx, field)
 	if err != nil {
@@ -34344,6 +34551,8 @@ func (ec *executionContext) fieldContext_SecretConnection_nodes(_ context.Contex
 				return ec.fieldContext_Secret_applications(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Secret_jobs(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Secret_workloads(ctx, field)
 			case "lastModifiedAt":
 				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
 			case "lastModifiedBy":
@@ -34943,6 +35152,8 @@ func (ec *executionContext) fieldContext_SecretEdge_node(_ context.Context, fiel
 				return ec.fieldContext_Secret_applications(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Secret_jobs(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Secret_workloads(ctx, field)
 			case "lastModifiedAt":
 				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
 			case "lastModifiedBy":
@@ -43357,6 +43568,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_secret(ctx context.Cont
 				return ec.fieldContext_Secret_applications(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Secret_jobs(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Secret_workloads(ctx, field)
 			case "lastModifiedAt":
 				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
 			case "lastModifiedBy":
@@ -47737,6 +47950,8 @@ func (ec *executionContext) fieldContext_UpdateSecretPayload_secret(_ context.Co
 				return ec.fieldContext_Secret_applications(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Secret_jobs(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Secret_workloads(ctx, field)
 			case "lastModifiedAt":
 				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
 			case "lastModifiedBy":
@@ -61962,6 +62177,42 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 					}
 				}()
 				res = ec._Secret_jobs(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "workloads":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Secret_workloads(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
