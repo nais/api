@@ -96,8 +96,7 @@ func (s *Secret) GetObjectKind() schema.ObjectKind {
 }
 
 func toGraphSecret(o *unstructured.Unstructured, environmentName string) (*Secret, bool) {
-	managedByConsole := secretIsManagedByConsole(o)
-	if !managedByConsole {
+	if !secretIsManagedByConsole(o) {
 		return nil, false
 	}
 
@@ -129,15 +128,11 @@ type SecretVariable struct {
 }
 
 type DeleteSecretInput struct {
-	// The name of the secret.
-	Name string `json:"name"`
-	// The environment the secret is deployed to.
-	Environment string `json:"environment"`
-	// The team that owns the secret.
-	Team slug.Slug `json:"team"`
+	Name        string    `json:"name"`
+	Environment string    `json:"environment"`
+	Team        slug.Slug `json:"team"`
 }
 
 type DeleteSecretPayload struct {
-	// The deleted secret.
 	SecretDeleted bool `json:"secretDeleted"`
 }

@@ -28,9 +28,7 @@ var ErrSecretUnmanaged = errors.New("secret is not managed by console")
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*SecretConnection, error) {
 	all := fromContext(ctx).secretWatcher.GetByNamespace(teamSlug.String())
-
 	secrets := pagination.Slice(watcher.Objects(all), page)
-
 	return pagination.NewConnection(secrets, page, int32(len(all))), nil
 }
 
@@ -83,13 +81,12 @@ func GetSecretData(ctx context.Context, teamSlug slug.Slug, environmentName, nam
 }
 
 func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) (bool, error) {
-	_, err := fromContext(ctx).secretWatcher.Get(environment, teamSlug.String(), name)
-	if err != nil {
+	sw := fromContext(ctx).secretWatcher
+	if _, err := sw.Get(environment, teamSlug.String(), name); err != nil {
 		return false, err
 	}
 
-	err = fromContext(ctx).secretWatcher.Delete(ctx, environment, teamSlug.String(), name)
-	if err != nil {
+	if err := sw.Delete(ctx, environment, teamSlug.String(), name); err != nil {
 		return false, err
 	}
 
@@ -102,8 +99,7 @@ func Update(ctx context.Context, teamSlug slug.Slug, environment, name string, d
 		return nil, err
 	}
 
-	err = validateSecretData(data)
-	if err != nil {
+	if err := validateSecretData(data); err != nil {
 		return nil, err
 	}
 
@@ -113,13 +109,11 @@ func Update(ctx context.Context, teamSlug slug.Slug, environment, name string, d
 	}
 
 	existingSecret := &corev1.Secret{}
-	err = runtime.DefaultUnstructuredConverter.FromUnstructured(obj.Object, &existingSecret)
-	if err != nil {
+	if err = runtime.DefaultUnstructuredConverter.FromUnstructured(obj.Object, &existingSecret); err != nil {
 		return nil, err
 	}
 
-	secretIsManaged := secretIsManagedByConsole(obj)
-	if !secretIsManaged {
+	if !secretIsManagedByConsole(obj) {
 		return nil, fmt.Errorf("%q: %w", name, ErrSecretUnmanaged)
 	}
 
@@ -152,13 +146,11 @@ func Create(ctx context.Context, teamSlug slug.Slug, environment, name string, d
 		return nil, err
 	}
 
-	nameErrs := validation.IsDNS1123Subdomain(name)
-	if len(nameErrs) > 0 {
+	if nameErrs := validation.IsDNS1123Subdomain(name); len(nameErrs) > 0 {
 		return nil, fmt.Errorf("invalid name %q: %s", name, strings.Join(nameErrs, ", "))
 	}
 
-	err = validateSecretData(data)
-	if err != nil {
+	if err = validateSecretData(data); err != nil {
 		return nil, err
 	}
 
@@ -233,8 +225,7 @@ func validateSecretData(data []*SecretVariableInput) error {
 	seen := make(map[string]bool)
 
 	for _, d := range data {
-		_, found := seen[d.Name]
-		if found {
+		if _, found := seen[d.Name]; found {
 			return fmt.Errorf("duplicate key: %q", d.Name)
 		}
 
@@ -244,8 +235,7 @@ func validateSecretData(data []*SecretVariableInput) error {
 			return fmt.Errorf("%q is too long: %d characters, max %d", d.Name, len(d.Name), validation.DNS1123SubdomainMaxLength)
 		}
 
-		isEnvVarName := validation.IsEnvVarName(d.Name)
-		if len(isEnvVarName) > 0 {
+		if isEnvVarName := validation.IsEnvVarName(d.Name); len(isEnvVarName) > 0 {
 			return fmt.Errorf("%q: %s", d.Name, strings.Join(isEnvVarName, ", "))
 		}
 	}
