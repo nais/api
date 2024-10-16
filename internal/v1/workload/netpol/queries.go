@@ -25,44 +25,50 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 	}
 
 	inbound := &InboundNetworkPolicy{}
-	for _, rule := range policy.Inbound.Rules {
-		inbound.Rules = append(inbound.Rules, &NetworkPolicyRule{
-			TargetWorkloadName: rule.Application,
-			TargetTeamSlug:     defaultSlug(rule.Namespace),
-			EnvironmentName:    environmentName,
-			TeamSlug:           teamSlug,
-			WorkloadName:       workloadName,
-		})
+	if policy.Inbound != nil {
+		for _, rule := range policy.Inbound.Rules {
+			inbound.Rules = append(inbound.Rules, &NetworkPolicyRule{
+				TargetWorkloadName: rule.Application,
+				TargetTeamSlug:     defaultSlug(rule.Namespace),
+				EnvironmentName:    environmentName,
+				TeamSlug:           teamSlug,
+				WorkloadName:       workloadName,
+			})
+		}
 	}
 
 	outbound := &OutboundNetworkPolicy{}
-	for _, rule := range policy.Outbound.Rules {
-		outbound.Rules = append(outbound.Rules, &NetworkPolicyRule{
-			TargetWorkloadName: rule.Application,
-			TargetTeamSlug:     defaultSlug(rule.Namespace),
-			EnvironmentName:    environmentName,
-			IsOutbound:         true,
-			TeamSlug:           teamSlug,
-			WorkloadName:       workloadName,
-		})
-	}
-
-	for _, ext := range policy.Outbound.External {
-		// TODO: Add default ports?
-		ports := make([]int, 0)
-		for _, port := range ext.Ports {
-			ports = append(ports, int(port.Port))
+	if policy.Outbound != nil {
+		for _, rule := range policy.Outbound.Rules {
+			outbound.Rules = append(outbound.Rules, &NetworkPolicyRule{
+				TargetWorkloadName: rule.Application,
+				TargetTeamSlug:     defaultSlug(rule.Namespace),
+				EnvironmentName:    environmentName,
+				IsOutbound:         true,
+				TeamSlug:           teamSlug,
+				WorkloadName:       workloadName,
+			})
 		}
-		if ext.Host != "" {
-			outbound.External = append(outbound.External, &ExternalNetworkPolicyHost{
-				Target: ext.Host,
-				Ports:  ports,
-			})
-		} else {
-			outbound.External = append(outbound.External, &ExternalNetworkPolicyIpv4{
-				Target: ext.IPv4,
-				Ports:  ports,
-			})
+
+		if policy.Outbound.External != nil {
+			for _, ext := range policy.Outbound.External {
+				// TODO: Add default ports?
+				ports := make([]int, 0)
+				for _, port := range ext.Ports {
+					ports = append(ports, int(port.Port))
+				}
+				if ext.Host != "" {
+					outbound.External = append(outbound.External, &ExternalNetworkPolicyHost{
+						Target: ext.Host,
+						Ports:  ports,
+					})
+				} else {
+					outbound.External = append(outbound.External, &ExternalNetworkPolicyIpv4{
+						Target: ext.IPv4,
+						Ports:  ports,
+					})
+				}
+			}
 		}
 	}
 

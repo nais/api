@@ -25,6 +25,8 @@ spec:
             roles:
               - rap-read
         - application: dataproduct-apps-topics
+        - application: nais-deploy-canary
+          namespace: nais
     outbound:
       rules:
         - application: some-app
@@ -43,7 +45,7 @@ spec:
           ports:
             - port: 443
             - port: 444
-  image: navikt/app-w-all-storage:latest
+  image: ghcr.io/navikt/app-w-all-storage:latest
   ingresses:
     - "https://storageapp.example.com"
   gcp:
