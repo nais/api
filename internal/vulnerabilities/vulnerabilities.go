@@ -255,15 +255,17 @@ func (m *Manager) teamRanking(ctx context.Context, team string, teams int) (mode
 		retVal.Trend = model.VulnerabilityRankingTrendFlat
 	}
 
-	t := float64(teams)
-	c := float64(currentRank)
+	// Divide teams into three parts
+	upperLimit := teams / 3        // Upper third
+	middleLimit := 2 * (teams / 3) // Middle third (everything before bottom third)
 
+	// Determine vulnerable score based on rank
 	switch {
-	case t*0.1 >= c:
+	case currentRank <= upperLimit: // Top third
 		retVal.VulnerableScore = model.VulnerableScoreUpper
-	case t*0.5 >= c:
+	case currentRank > upperLimit && currentRank <= middleLimit: // Middle third
 		retVal.VulnerableScore = model.VulnerableScoreMiddle
-	case t*0.9 <= c:
+	default: // Bottom third
 		retVal.VulnerableScore = model.VulnerableScoreBottom
 	}
 

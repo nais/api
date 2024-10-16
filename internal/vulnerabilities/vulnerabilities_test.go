@@ -85,16 +85,9 @@ func TestManager_TeamRanking(t *testing.T) {
 
 	mp.EXPECT().Query(ctx, "sum(slsa_workload_riskscore) by (workload_namespace)", mock.Anything).Return(
 		promRiskScores(map[string]float64{
-			"team1":  1,
-			"team2":  2,
-			"team3":  3,
-			"team4":  4,
-			"team5":  5,
-			"team6":  6,
-			"team7":  7,
-			"team8":  8,
-			"team9":  9,
-			"team10": 10,
+			"team1": 1,
+			"team2": 2,
+			"team3": 3,
 		}), nil, nil)
 
 	tt := []struct {
@@ -105,7 +98,7 @@ func TestManager_TeamRanking(t *testing.T) {
 	}{
 		{
 			name: "team is in the 10th percentile",
-			team: "team10",
+			team: "team3",
 			assertions: func(rank model.VulnerabilityRanking) {
 				assert.Equal(t, model.VulnerableScoreUpper, rank.VulnerableScore)
 			},
@@ -119,7 +112,7 @@ func TestManager_TeamRanking(t *testing.T) {
 		},
 		{
 			name: "team is in the 50th percentile",
-			team: "team8",
+			team: "team2",
 			assertions: func(rank model.VulnerabilityRanking) {
 				assert.Equal(t, model.VulnerableScoreMiddle, rank.VulnerableScore)
 			},
@@ -127,9 +120,32 @@ func TestManager_TeamRanking(t *testing.T) {
 	}
 
 	for _, tc := range tt {
-		rank, err := m.teamRanking(ctx, tc.team, 10)
+		rank, err := m.teamRanking(ctx, tc.team, 3)
 		assert.NoError(t, err)
 		tc.assertions(rank)
+	}
+}
+
+func Test_Yolo_Test(t *testing.T) {
+	teams := 257
+	for i := 0; i < teams; i++ {
+		// Divide teams into three parts
+		upperLimit := teams / 3        // Upper third
+		middleLimit := 2 * (teams / 3) // Middle third (everything before bottom third)
+
+		// Determine vulnerable score based on rank
+		currentRank := i + 1
+		switch {
+		case currentRank <= upperLimit: // Top third
+			fmt.Println("Top")
+			fmt.Println(currentRank)
+		case currentRank > upperLimit && currentRank <= middleLimit: // Middle third
+			fmt.Println("Middle")
+			fmt.Println(currentRank)
+		default: // Bottom third
+			fmt.Println("Bottom")
+			fmt.Println(currentRank)
+		}
 	}
 }
 
