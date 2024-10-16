@@ -402,12 +402,12 @@ func (t TeamDeleteKey) Key() string {
 	return t.KeyUUID.String()
 }
 
-func (k *TeamDeleteKey) Expires() time.Time {
-	return k.CreatedAt.Add(time.Hour)
+func (t *TeamDeleteKey) Expires() time.Time {
+	return t.CreatedAt.Add(time.Hour)
 }
 
-func (k *TeamDeleteKey) HasExpired() bool {
-	return time.Now().After(k.Expires())
+func (t *TeamDeleteKey) HasExpired() bool {
+	return time.Now().After(t.Expires())
 }
 
 type ConfirmTeamDeletionInput struct {
