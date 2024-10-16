@@ -166,3 +166,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
 	}, nil
 }
+
+type TeamInventoryCountOpenSearchInstances struct {
+	Total int
+}

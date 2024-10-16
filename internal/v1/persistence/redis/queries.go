@@ -27,13 +27,16 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Re
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *RedisInstanceOrder) (*RedisInstanceConnection, error) {
+	all := ListAllForTeam(ctx, teamSlug)
+	orderRedisInstance(all, orderBy)
+
+	instances := pagination.Slice(all, page)
+	return pagination.NewConnection(instances, page, int32(len(all))), nil
+}
+
+func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*RedisInstance {
 	all := fromContext(ctx).client.watcher.GetByNamespace(teamSlug.String())
-	ret := watcher.Objects(all)
-
-	orderRedisInstance(ret, orderBy)
-
-	instances := pagination.Slice(ret, page)
-	return pagination.NewConnection(instances, page, int32(len(ret))), nil
+	return watcher.Objects(all)
 }
 
 func ListAccess(ctx context.Context, redis *RedisInstance, page *pagination.Pagination, orderBy *RedisInstanceAccessOrder) (*RedisInstanceAccessConnection, error) {

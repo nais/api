@@ -31,13 +31,16 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Bi
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *BigQueryDatasetOrder) (*BigQueryDatasetConnection, error) {
+	all := ListAllForTeam(ctx, teamSlug)
+	orderDatasets(all, orderBy)
+
+	datasets := pagination.Slice(all, page)
+	return pagination.NewConnection(datasets, page, int32(len(all))), nil
+}
+
+func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*BigQueryDataset {
 	all := fromContext(ctx).watcher.GetByNamespace(teamSlug.String())
-	ret := watcher.Objects(all)
-
-	orderDatasets(ret, orderBy)
-
-	datasets := pagination.Slice(ret, page)
-	return pagination.NewConnection(datasets, page, int32(len(ret))), nil
+	return watcher.Objects(all)
 }
 
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, datasets []nais_io_v1.CloudBigQueryDataset, orderBy *BigQueryDatasetOrder) (*BigQueryDatasetConnection, error) {

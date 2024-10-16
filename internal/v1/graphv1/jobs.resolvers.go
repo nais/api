@@ -6,6 +6,7 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	"github.com/nais/api/internal/v1/status"
 	"github.com/nais/api/internal/v1/team"
 	"github.com/nais/api/internal/v1/workload"
 	"github.com/nais/api/internal/v1/workload/job"
@@ -85,6 +86,23 @@ func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, aft
 
 func (r *teamEnvironmentResolver) Job(ctx context.Context, obj *team.TeamEnvironment, name string) (*job.Job, error) {
 	return job.Get(ctx, obj.TeamSlug, obj.Name, name)
+}
+
+func (r *teamInventoryCountsResolver) Jobs(ctx context.Context, obj *team.TeamInventoryCounts) (*job.TeamInventoryCountJobs, error) {
+	apps := job.ListAllForTeam(ctx, obj.TeamSlug)
+	notNais := 0
+
+	for _, app := range apps {
+		s := status.ForWorkload(ctx, app)
+		if s.State == status.WorkloadStateNotNais {
+			notNais++
+		}
+	}
+
+	return &job.TeamInventoryCountJobs{
+		Total:   len(apps),
+		NotNais: notNais,
+	}, nil
 }
 
 func (r *triggerJobPayloadResolver) Job(ctx context.Context, obj *job.TriggerJobPayload) (*job.Job, error) {

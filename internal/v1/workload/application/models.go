@@ -320,3 +320,10 @@ func (e *InstanceState) UnmarshalGQL(v interface{}) error {
 func (e InstanceState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
+
+type TeamInventoryCountApplications struct {
+	// Total number of applications.
+	Total int `json:"total"`
+	// Number of applications considered not nais.
+	NotNais int `json:"notNais"`
+}

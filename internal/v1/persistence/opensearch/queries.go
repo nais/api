@@ -27,13 +27,16 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Op
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *OpenSearchOrder) (*OpenSearchConnection, error) {
+	all := ListAllForTeam(ctx, teamSlug)
+	orderOpenSearch(all, orderBy)
+
+	instances := pagination.Slice(all, page)
+	return pagination.NewConnection(instances, page, int32(len(all))), nil
+}
+
+func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*OpenSearch {
 	all := fromContext(ctx).client.watcher.GetByNamespace(teamSlug.String())
-	ret := watcher.Objects(all)
-
-	orderOpenSearch(ret, orderBy)
-
-	instances := pagination.Slice(ret, page)
-	return pagination.NewConnection(instances, page, int32(len(ret))), nil
+	return watcher.Objects(all)
 }
 
 func ListAccess(ctx context.Context, openSearch *OpenSearch, page *pagination.Pagination, orderBy *OpenSearchAccessOrder) (*OpenSearchAccessConnection, error) {

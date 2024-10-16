@@ -6,6 +6,7 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	"github.com/nais/api/internal/v1/status"
 	"github.com/nais/api/internal/v1/team"
 	"github.com/nais/api/internal/v1/workload"
 	"github.com/nais/api/internal/v1/workload/application"
@@ -91,6 +92,23 @@ func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *
 
 func (r *teamEnvironmentResolver) Application(ctx context.Context, obj *team.TeamEnvironment, name string) (*application.Application, error) {
 	return application.Get(ctx, obj.TeamSlug, obj.Name, name)
+}
+
+func (r *teamInventoryCountsResolver) Applications(ctx context.Context, obj *team.TeamInventoryCounts) (*application.TeamInventoryCountApplications, error) {
+	apps := application.ListAllForTeam(ctx, obj.TeamSlug)
+	notNais := 0
+
+	for _, app := range apps {
+		s := status.ForWorkload(ctx, app)
+		if s.State == status.WorkloadStateNotNais {
+			notNais++
+		}
+	}
+
+	return &application.TeamInventoryCountApplications{
+		Total:   len(apps),
+		NotNais: notNais,
+	}, nil
 }
 
 func (r *Resolver) Application() gengqlv1.ApplicationResolver { return &applicationResolver{r} }

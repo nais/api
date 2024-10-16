@@ -409,6 +409,42 @@ func (r *teamEnvironmentResolver) SQLInstance(ctx context.Context, obj *team.Tea
 	return sqlinstance.Get(ctx, obj.TeamSlug, obj.Name, name)
 }
 
+func (r *teamInventoryCountsResolver) BigQueryDatasets(ctx context.Context, obj *team.TeamInventoryCounts) (*bigquery.TeamInventoryCountBigQueryDatasets, error) {
+	return &bigquery.TeamInventoryCountBigQueryDatasets{
+		Total: len(bigquery.ListAllForTeam(ctx, obj.TeamSlug)),
+	}, nil
+}
+
+func (r *teamInventoryCountsResolver) RedisInstances(ctx context.Context, obj *team.TeamInventoryCounts) (*redis.TeamInventoryCountRedisInstances, error) {
+	return &redis.TeamInventoryCountRedisInstances{
+		Total: len(redis.ListAllForTeam(ctx, obj.TeamSlug)),
+	}, nil
+}
+
+func (r *teamInventoryCountsResolver) OpenSearchInstances(ctx context.Context, obj *team.TeamInventoryCounts) (*opensearch.TeamInventoryCountOpenSearchInstances, error) {
+	return &opensearch.TeamInventoryCountOpenSearchInstances{
+		Total: len(opensearch.ListAllForTeam(ctx, obj.TeamSlug)),
+	}, nil
+}
+
+func (r *teamInventoryCountsResolver) Buckets(ctx context.Context, obj *team.TeamInventoryCounts) (*bucket.TeamInventoryCountBuckets, error) {
+	return &bucket.TeamInventoryCountBuckets{
+		Total: len(bucket.ListAllForTeam(ctx, obj.TeamSlug)),
+	}, nil
+}
+
+func (r *teamInventoryCountsResolver) KafkaTopics(ctx context.Context, obj *team.TeamInventoryCounts) (*kafkatopic.TeamInventoryCountKafkaTopics, error) {
+	return &kafkatopic.TeamInventoryCountKafkaTopics{
+		Total: len(kafkatopic.ListAllForTeam(ctx, obj.TeamSlug)),
+	}, nil
+}
+
+func (r *teamInventoryCountsResolver) SQLInstances(ctx context.Context, obj *team.TeamInventoryCounts) (*sqlinstance.TeamInventoryCountSQLInstances, error) {
+	return &sqlinstance.TeamInventoryCountSQLInstances{
+		Total: len(sqlinstance.ListAllForTeam(ctx, obj.TeamSlug)),
+	}, nil
+}
+
 func (r *Resolver) BigQueryDataset() gengqlv1.BigQueryDatasetResolver {
 	return &bigQueryDatasetResolver{r}
 }

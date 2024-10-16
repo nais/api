@@ -27,13 +27,16 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Bu
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *BucketOrder) (*BucketConnection, error) {
-	outer := fromContext(ctx).watcher.GetByNamespace(teamSlug.String())
-
-	all := watcher.Objects(outer)
+	all := ListAllForTeam(ctx, teamSlug)
 	orderBuckets(all, orderBy)
 
 	slice := pagination.Slice(all, page)
 	return pagination.NewConnection(slice, page, int32(len(all))), nil
+}
+
+func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*Bucket {
+	all := fromContext(ctx).watcher.GetByNamespace(teamSlug.String())
+	return watcher.Objects(all)
 }
 
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, references []nais_io_v1.CloudStorageBucket, orderBy *BucketOrder) (*BucketConnection, error) {

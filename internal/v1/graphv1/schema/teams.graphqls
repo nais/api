@@ -179,6 +179,9 @@ type Team implements Node {
 
 	"Get a delete key for the team."
 	deleteKey(key: String!): TeamDeleteKey!
+
+	"Overall inventory of resources for the team."
+	inventoryCounts: TeamInventoryCounts!
 }
 
 type TeamEnvironment implements Node {
@@ -311,6 +314,8 @@ type TeamMemberEdge {
 	"The team member."
 	node: TeamMember!
 }
+
+type TeamInventoryCounts
 
 input CreateTeamInput {
 	"""

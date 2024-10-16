@@ -308,6 +308,12 @@ func (r *teamResolver) DeleteKey(ctx context.Context, obj *team.Team, key string
 	return team.GetDeleteKey(ctx, obj.Slug, uid)
 }
 
+func (r *teamResolver) InventoryCounts(ctx context.Context, obj *team.Team) (*team.TeamInventoryCounts, error) {
+	return &team.TeamInventoryCounts{
+		TeamSlug: obj.Slug,
+	}, nil
+}
+
 func (r *teamDeleteKeyResolver) CreatedBy(ctx context.Context, obj *team.TeamDeleteKey) (*user.User, error) {
 	return user.Get(ctx, obj.CreatedByUserID)
 }
@@ -352,6 +358,10 @@ func (r *Resolver) TeamEnvironment() gengqlv1.TeamEnvironmentResolver {
 	return &teamEnvironmentResolver{r}
 }
 
+func (r *Resolver) TeamInventoryCounts() gengqlv1.TeamInventoryCountsResolver {
+	return &teamInventoryCountsResolver{r}
+}
+
 func (r *Resolver) TeamMember() gengqlv1.TeamMemberResolver { return &teamMemberResolver{r} }
 
 func (r *Resolver) TeamMemberAddedAuditEntryData() gengqlv1.TeamMemberAddedAuditEntryDataResolver {
@@ -371,6 +381,7 @@ type (
 	teamResolver                            struct{ *Resolver }
 	teamDeleteKeyResolver                   struct{ *Resolver }
 	teamEnvironmentResolver                 struct{ *Resolver }
+	teamInventoryCountsResolver             struct{ *Resolver }
 	teamMemberResolver                      struct{ *Resolver }
 	teamMemberAddedAuditEntryDataResolver   struct{ *Resolver }
 	teamMemberRemovedAuditEntryDataResolver struct{ *Resolver }

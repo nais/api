@@ -31,6 +31,10 @@ extend type TeamEnvironment {
 	job(name: String!): Job!
 }
 
+extend type TeamInventoryCounts {
+	jobs: TeamInventoryCountJobs!
+}
+
 type Job implements Node & Workload {
 	"The globally unique ID of the job."
 	id: ID!
@@ -173,6 +177,14 @@ type JobRunEdge {
 
 	"The job run."
 	node: JobRun!
+}
+
+type TeamInventoryCountJobs {
+	"Total number of jobs."
+	total: Int!
+
+	"Number of jobs considered not nais."
+	notNais: Int!
 }
 
 input JobOrder {

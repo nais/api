@@ -474,3 +474,7 @@ func (input *UpdateTeamEnvironmentInput) Sanitized() *UpdateTeamEnvironmentInput
 type UpdateTeamEnvironmentPayload struct {
 	Environment *TeamEnvironment `json:"environment"`
 }
+
+type TeamInventoryCounts struct {
+	TeamSlug slug.Slug `json:"-"`
+}

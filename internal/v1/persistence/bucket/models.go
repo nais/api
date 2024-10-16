@@ -153,3 +153,7 @@ func toBucket(u *unstructured.Unstructured, env string) (*Bucket, error) {
 		Status:                   toBucketStatus(obj.Status),
 	}, nil
 }
+
+type TeamInventoryCountBuckets struct {
+	Total int
+}

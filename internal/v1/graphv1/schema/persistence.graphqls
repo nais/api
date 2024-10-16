@@ -249,6 +249,45 @@ extend type Job {
 	): SqlInstanceConnection!
 }
 
+extend type TeamInventoryCounts {
+	bigQueryDatasets: TeamInventoryCountBigQueryDatasets!
+	redisInstances: TeamInventoryCountRedisInstances!
+	openSearchInstances: TeamInventoryCountOpenSearchInstances!
+	buckets: TeamInventoryCountBuckets!
+	kafkaTopics: TeamInventoryCountKafkaTopics!
+	sqlInstances: TeamInventoryCountSqlInstances!
+}
+
+type TeamInventoryCountBigQueryDatasets {
+	"Total number of BigQuery datasets."
+	total: Int!
+}
+
+type TeamInventoryCountRedisInstances {
+	"Total number of Redis instances."
+	total: Int!
+}
+
+type TeamInventoryCountOpenSearchInstances {
+	"Total number of OpenSearch instances."
+	total: Int!
+}
+
+type TeamInventoryCountBuckets {
+	"Total number of Google Cloud Storage buckets."
+	total: Int!
+}
+
+type TeamInventoryCountKafkaTopics {
+	"Total number of Kafka topics."
+	total: Int!
+}
+
+type TeamInventoryCountSqlInstances {
+	"Total number of SQL instances."
+	total: Int!
+}
+
 interface Persistence implements Node {
 	id: ID!
 	name: String!

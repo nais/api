@@ -226,3 +226,7 @@ func toKafkaTopic(u *unstructured.Unstructured, envName string) (*KafkaTopic, er
 		EnvironmentName: envName,
 	}, nil
 }
+
+type TeamInventoryCountKafkaTopics struct {
+	Total int
+}

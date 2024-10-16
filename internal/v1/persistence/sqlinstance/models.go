@@ -342,3 +342,7 @@ func toSQLInstanceUser(user *sqladmin.User) *SQLInstanceUser {
 		}(user.Type),
 	}
 }
+
+type TeamInventoryCountSQLInstances struct {
+	Total int
+}

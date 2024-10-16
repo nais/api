@@ -171,3 +171,7 @@ func toRedisInstance(u *unstructured.Unstructured, envName string) (*RedisInstan
 		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
 	}, nil
 }
+
+type TeamInventoryCountRedisInstances struct {
+	Total int
+}

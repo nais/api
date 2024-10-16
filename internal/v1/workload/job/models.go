@@ -398,3 +398,10 @@ func pluralize(s string, count int32) string {
 	}
 	return s + "s"
 }
+
+type TeamInventoryCountJobs struct {
+	// Total number of jobs.
+	Total int `json:"total"`
+	// Number of jobs considered not nais.
+	NotNais int `json:"notNais"`
+}

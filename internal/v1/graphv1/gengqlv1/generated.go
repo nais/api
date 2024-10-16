@@ -96,6 +96,7 @@ type ResolverRoot interface {
 	TeamCost() TeamCostResolver
 	TeamDeleteKey() TeamDeleteKeyResolver
 	TeamEnvironment() TeamEnvironmentResolver
+	TeamInventoryCounts() TeamInventoryCountsResolver
 	TeamMember() TeamMemberResolver
 	TeamMemberAddedAuditEntryData() TeamMemberAddedAuditEntryDataResolver
 	TeamMemberRemovedAuditEntryData() TeamMemberRemovedAuditEntryDataResolver
@@ -907,6 +908,7 @@ type ComplexityRoot struct {
 		GoogleArtifactRegistry func(childComplexity int) int
 		GoogleGroupEmail       func(childComplexity int) int
 		ID                     func(childComplexity int) int
+		InventoryCounts        func(childComplexity int) int
 		Jobs                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder) int
 		KafkaTopics            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder) int
 		LastSuccessfulSync     func(childComplexity int) int
@@ -1037,6 +1039,51 @@ type ComplexityRoot struct {
 		Field    func(childComplexity int) int
 		NewValue func(childComplexity int) int
 		OldValue func(childComplexity int) int
+	}
+
+	TeamInventoryCountApplications struct {
+		NotNais func(childComplexity int) int
+		Total   func(childComplexity int) int
+	}
+
+	TeamInventoryCountBigQueryDatasets struct {
+		Total func(childComplexity int) int
+	}
+
+	TeamInventoryCountBuckets struct {
+		Total func(childComplexity int) int
+	}
+
+	TeamInventoryCountJobs struct {
+		NotNais func(childComplexity int) int
+		Total   func(childComplexity int) int
+	}
+
+	TeamInventoryCountKafkaTopics struct {
+		Total func(childComplexity int) int
+	}
+
+	TeamInventoryCountOpenSearchInstances struct {
+		Total func(childComplexity int) int
+	}
+
+	TeamInventoryCountRedisInstances struct {
+		Total func(childComplexity int) int
+	}
+
+	TeamInventoryCountSqlInstances struct {
+		Total func(childComplexity int) int
+	}
+
+	TeamInventoryCounts struct {
+		Applications        func(childComplexity int) int
+		BigQueryDatasets    func(childComplexity int) int
+		Buckets             func(childComplexity int) int
+		Jobs                func(childComplexity int) int
+		KafkaTopics         func(childComplexity int) int
+		OpenSearchInstances func(childComplexity int) int
+		RedisInstances      func(childComplexity int) int
+		SQLInstances        func(childComplexity int) int
 	}
 
 	TeamMember struct {
@@ -1486,6 +1533,7 @@ type TeamResolver interface {
 	Environments(ctx context.Context, obj *team.Team) ([]*team.TeamEnvironment, error)
 	Environment(ctx context.Context, obj *team.Team, name string) (*team.TeamEnvironment, error)
 	DeleteKey(ctx context.Context, obj *team.Team, key string) (*team.TeamDeleteKey, error)
+	InventoryCounts(ctx context.Context, obj *team.Team) (*team.TeamInventoryCounts, error)
 	Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder) (*pagination.Connection[*application.Application], error)
 	AuditEntries(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[auditv1.AuditEntry], error)
 	Cost(ctx context.Context, obj *team.Team) (*cost.TeamCost, error)
@@ -1521,6 +1569,16 @@ type TeamEnvironmentResolver interface {
 	RedisInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*redis.RedisInstance, error)
 	SQLInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*sqlinstance.SQLInstance, error)
 	Secret(ctx context.Context, obj *team.TeamEnvironment, name string) (*secret.Secret, error)
+}
+type TeamInventoryCountsResolver interface {
+	Applications(ctx context.Context, obj *team.TeamInventoryCounts) (*application.TeamInventoryCountApplications, error)
+	Jobs(ctx context.Context, obj *team.TeamInventoryCounts) (*job.TeamInventoryCountJobs, error)
+	BigQueryDatasets(ctx context.Context, obj *team.TeamInventoryCounts) (*bigquery.TeamInventoryCountBigQueryDatasets, error)
+	RedisInstances(ctx context.Context, obj *team.TeamInventoryCounts) (*redis.TeamInventoryCountRedisInstances, error)
+	OpenSearchInstances(ctx context.Context, obj *team.TeamInventoryCounts) (*opensearch.TeamInventoryCountOpenSearchInstances, error)
+	Buckets(ctx context.Context, obj *team.TeamInventoryCounts) (*bucket.TeamInventoryCountBuckets, error)
+	KafkaTopics(ctx context.Context, obj *team.TeamInventoryCounts) (*kafkatopic.TeamInventoryCountKafkaTopics, error)
+	SQLInstances(ctx context.Context, obj *team.TeamInventoryCounts) (*sqlinstance.TeamInventoryCountSQLInstances, error)
 }
 type TeamMemberResolver interface {
 	Team(ctx context.Context, obj *team.TeamMember) (*team.Team, error)
@@ -4902,6 +4960,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.ID(childComplexity), true
 
+	case "Team.inventoryCounts":
+		if e.complexity.Team.InventoryCounts == nil {
+			break
+		}
+
+		return e.complexity.Team.InventoryCounts(childComplexity), true
+
 	case "Team.jobs":
 		if e.complexity.Team.Jobs == nil {
 			break
@@ -5622,6 +5687,132 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamEnvironmentUpdatedAuditEntryDataUpdatedField.OldValue(childComplexity), true
+
+	case "TeamInventoryCountApplications.notNais":
+		if e.complexity.TeamInventoryCountApplications.NotNais == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCountApplications.NotNais(childComplexity), true
+
+	case "TeamInventoryCountApplications.total":
+		if e.complexity.TeamInventoryCountApplications.Total == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCountApplications.Total(childComplexity), true
+
+	case "TeamInventoryCountBigQueryDatasets.total":
+		if e.complexity.TeamInventoryCountBigQueryDatasets.Total == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCountBigQueryDatasets.Total(childComplexity), true
+
+	case "TeamInventoryCountBuckets.total":
+		if e.complexity.TeamInventoryCountBuckets.Total == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCountBuckets.Total(childComplexity), true
+
+	case "TeamInventoryCountJobs.notNais":
+		if e.complexity.TeamInventoryCountJobs.NotNais == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCountJobs.NotNais(childComplexity), true
+
+	case "TeamInventoryCountJobs.total":
+		if e.complexity.TeamInventoryCountJobs.Total == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCountJobs.Total(childComplexity), true
+
+	case "TeamInventoryCountKafkaTopics.total":
+		if e.complexity.TeamInventoryCountKafkaTopics.Total == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCountKafkaTopics.Total(childComplexity), true
+
+	case "TeamInventoryCountOpenSearchInstances.total":
+		if e.complexity.TeamInventoryCountOpenSearchInstances.Total == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCountOpenSearchInstances.Total(childComplexity), true
+
+	case "TeamInventoryCountRedisInstances.total":
+		if e.complexity.TeamInventoryCountRedisInstances.Total == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCountRedisInstances.Total(childComplexity), true
+
+	case "TeamInventoryCountSqlInstances.total":
+		if e.complexity.TeamInventoryCountSqlInstances.Total == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCountSqlInstances.Total(childComplexity), true
+
+	case "TeamInventoryCounts.applications":
+		if e.complexity.TeamInventoryCounts.Applications == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCounts.Applications(childComplexity), true
+
+	case "TeamInventoryCounts.bigQueryDatasets":
+		if e.complexity.TeamInventoryCounts.BigQueryDatasets == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCounts.BigQueryDatasets(childComplexity), true
+
+	case "TeamInventoryCounts.buckets":
+		if e.complexity.TeamInventoryCounts.Buckets == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCounts.Buckets(childComplexity), true
+
+	case "TeamInventoryCounts.jobs":
+		if e.complexity.TeamInventoryCounts.Jobs == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCounts.Jobs(childComplexity), true
+
+	case "TeamInventoryCounts.kafkaTopics":
+		if e.complexity.TeamInventoryCounts.KafkaTopics == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCounts.KafkaTopics(childComplexity), true
+
+	case "TeamInventoryCounts.openSearchInstances":
+		if e.complexity.TeamInventoryCounts.OpenSearchInstances == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCounts.OpenSearchInstances(childComplexity), true
+
+	case "TeamInventoryCounts.redisInstances":
+		if e.complexity.TeamInventoryCounts.RedisInstances == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCounts.RedisInstances(childComplexity), true
+
+	case "TeamInventoryCounts.sqlInstances":
+		if e.complexity.TeamInventoryCounts.SQLInstances == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCounts.SQLInstances(childComplexity), true
 
 	case "TeamMember.role":
 		if e.complexity.TeamMember.Role == nil {
@@ -6785,6 +6976,18 @@ extend type Mutation {
 	restartApplication(input: RestartApplicationInput!): RestartApplicationPayload!
 }
 
+extend type TeamInventoryCounts {
+	applications: TeamInventoryCountApplications!
+}
+
+type TeamInventoryCountApplications {
+	"Total number of applications."
+	total: Int!
+
+	"Number of applications considered not nais."
+	notNais: Int!
+}
+
 """
 TODO: write
 """
@@ -7175,6 +7378,10 @@ extend type TeamEnvironment {
 	job(name: String!): Job!
 }
 
+extend type TeamInventoryCounts {
+	jobs: TeamInventoryCountJobs!
+}
+
 type Job implements Node & Workload {
 	"The globally unique ID of the job."
 	id: ID!
@@ -7317,6 +7524,14 @@ type JobRunEdge {
 
 	"The job run."
 	node: JobRun!
+}
+
+type TeamInventoryCountJobs {
+	"Total number of jobs."
+	total: Int!
+
+	"Number of jobs considered not nais."
+	notNais: Int!
 }
 
 input JobOrder {
@@ -7679,6 +7894,45 @@ extend type Job {
 		"Ordering options for items returned from the connection."
 		orderBy: SqlInstanceOrder
 	): SqlInstanceConnection!
+}
+
+extend type TeamInventoryCounts {
+	bigQueryDatasets: TeamInventoryCountBigQueryDatasets!
+	redisInstances: TeamInventoryCountRedisInstances!
+	openSearchInstances: TeamInventoryCountOpenSearchInstances!
+	buckets: TeamInventoryCountBuckets!
+	kafkaTopics: TeamInventoryCountKafkaTopics!
+	sqlInstances: TeamInventoryCountSqlInstances!
+}
+
+type TeamInventoryCountBigQueryDatasets {
+	"Total number of BigQuery datasets."
+	total: Int!
+}
+
+type TeamInventoryCountRedisInstances {
+	"Total number of Redis instances."
+	total: Int!
+}
+
+type TeamInventoryCountOpenSearchInstances {
+	"Total number of OpenSearch instances."
+	total: Int!
+}
+
+type TeamInventoryCountBuckets {
+	"Total number of Google Cloud Storage buckets."
+	total: Int!
+}
+
+type TeamInventoryCountKafkaTopics {
+	"Total number of Kafka topics."
+	total: Int!
+}
+
+type TeamInventoryCountSqlInstances {
+	"Total number of SQL instances."
+	total: Int!
 }
 
 interface Persistence implements Node {
@@ -9073,6 +9327,9 @@ type Team implements Node {
 
 	"Get a delete key for the team."
 	deleteKey(key: String!): TeamDeleteKey!
+
+	"Overall inventory of resources for the team."
+	inventoryCounts: TeamInventoryCounts!
 }
 
 type TeamEnvironment implements Node {
@@ -9205,6 +9462,8 @@ type TeamMemberEdge {
 	"The team member."
 	node: TeamMember!
 }
+
+type TeamInventoryCounts
 
 input CreateTeamInput {
 	"""
@@ -16347,6 +16606,8 @@ func (ec *executionContext) fieldContext_Application_team(_ context.Context, fie
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -18337,6 +18598,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(_ context.Context,
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -19655,6 +19918,8 @@ func (ec *executionContext) fieldContext_Bucket_team(_ context.Context, field gr
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -21189,6 +21454,8 @@ func (ec *executionContext) fieldContext_CreateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -21298,6 +21565,8 @@ func (ec *executionContext) fieldContext_DeleteApplicationPayload_team(_ context
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -21407,6 +21676,8 @@ func (ec *executionContext) fieldContext_DeleteJobPayload_team(_ context.Context
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -22861,6 +23132,8 @@ func (ec *executionContext) fieldContext_Job_team(_ context.Context, field graph
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -25201,6 +25474,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_team(_ context.Context, fiel
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -25730,6 +26005,8 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_team(_ context.Context, f
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -28406,6 +28683,8 @@ func (ec *executionContext) fieldContext_NetworkPolicyRule_targetTeam(_ context.
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -28650,6 +28929,8 @@ func (ec *executionContext) fieldContext_OpenSearch_team(_ context.Context, fiel
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -30387,6 +30668,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -31775,6 +32058,8 @@ func (ec *executionContext) fieldContext_RedisInstance_team(_ context.Context, f
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -32960,6 +33245,8 @@ func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_team(_ context.
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -33160,6 +33447,8 @@ func (ec *executionContext) fieldContext_Repository_team(_ context.Context, fiel
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -34068,6 +34357,8 @@ func (ec *executionContext) fieldContext_Secret_team(_ context.Context, field gr
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -35691,6 +35982,8 @@ func (ec *executionContext) fieldContext_SqlDatabase_team(_ context.Context, fie
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -36132,6 +36425,8 @@ func (ec *executionContext) fieldContext_SqlInstance_team(_ context.Context, fie
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -38582,6 +38877,8 @@ func (ec *executionContext) fieldContext_SynchronizeTeamPayload_team(_ context.C
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -39521,6 +39818,68 @@ func (ec *executionContext) fieldContext_Team_deleteKey(ctx context.Context, fie
 	if fc.Args, err = ec.field_Team_deleteKey_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Team_inventoryCounts(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_inventoryCounts(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().InventoryCounts(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamInventoryCounts)
+	fc.Result = res
+	return ec.marshalNTeamInventoryCounts2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamInventoryCounts(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_inventoryCounts(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "applications":
+				return ec.fieldContext_TeamInventoryCounts_applications(ctx, field)
+			case "jobs":
+				return ec.fieldContext_TeamInventoryCounts_jobs(ctx, field)
+			case "bigQueryDatasets":
+				return ec.fieldContext_TeamInventoryCounts_bigQueryDatasets(ctx, field)
+			case "redisInstances":
+				return ec.fieldContext_TeamInventoryCounts_redisInstances(ctx, field)
+			case "openSearchInstances":
+				return ec.fieldContext_TeamInventoryCounts_openSearchInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_TeamInventoryCounts_buckets(ctx, field)
+			case "kafkaTopics":
+				return ec.fieldContext_TeamInventoryCounts_kafkaTopics(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_TeamInventoryCounts_sqlInstances(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCounts", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -40940,6 +41299,8 @@ func (ec *executionContext) fieldContext_TeamConnection_nodes(_ context.Context,
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -42377,6 +42738,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(_ context.Context, f
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -42533,6 +42896,8 @@ func (ec *executionContext) fieldContext_TeamEdge_node(_ context.Context, field 
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -42818,6 +43183,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_team(_ context.Context,
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -44213,6 +44580,834 @@ func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntryDataUpd
 	return fc, nil
 }
 
+func (ec *executionContext) _TeamInventoryCountApplications_total(ctx context.Context, field graphql.CollectedField, obj *application.TeamInventoryCountApplications) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventoryCountApplications_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCountApplications_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCountApplications",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamInventoryCountApplications_notNais(ctx context.Context, field graphql.CollectedField, obj *application.TeamInventoryCountApplications) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventoryCountApplications_notNais(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NotNais, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCountApplications_notNais(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCountApplications",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamInventoryCountBigQueryDatasets_total(ctx context.Context, field graphql.CollectedField, obj *bigquery.TeamInventoryCountBigQueryDatasets) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventoryCountBigQueryDatasets_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCountBigQueryDatasets_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCountBigQueryDatasets",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamInventoryCountBuckets_total(ctx context.Context, field graphql.CollectedField, obj *bucket.TeamInventoryCountBuckets) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventoryCountBuckets_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCountBuckets_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCountBuckets",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamInventoryCountJobs_total(ctx context.Context, field graphql.CollectedField, obj *job.TeamInventoryCountJobs) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventoryCountJobs_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCountJobs_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCountJobs",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamInventoryCountJobs_notNais(ctx context.Context, field graphql.CollectedField, obj *job.TeamInventoryCountJobs) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventoryCountJobs_notNais(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NotNais, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCountJobs_notNais(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCountJobs",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamInventoryCountKafkaTopics_total(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.TeamInventoryCountKafkaTopics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventoryCountKafkaTopics_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCountKafkaTopics_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCountKafkaTopics",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamInventoryCountOpenSearchInstances_total(ctx context.Context, field graphql.CollectedField, obj *opensearch.TeamInventoryCountOpenSearchInstances) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventoryCountOpenSearchInstances_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCountOpenSearchInstances_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCountOpenSearchInstances",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamInventoryCountRedisInstances_total(ctx context.Context, field graphql.CollectedField, obj *redis.TeamInventoryCountRedisInstances) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventoryCountRedisInstances_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCountRedisInstances_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCountRedisInstances",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamInventoryCountSqlInstances_total(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamInventoryCountSQLInstances) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventoryCountSqlInstances_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCountSqlInstances_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCountSqlInstances",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamInventoryCounts_applications(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventoryCounts_applications(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamInventoryCounts().Applications(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*application.TeamInventoryCountApplications)
+	fc.Result = res
+	return ec.marshalNTeamInventoryCountApplications2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐTeamInventoryCountApplications(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCounts_applications(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCounts",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_TeamInventoryCountApplications_total(ctx, field)
+			case "notNais":
+				return ec.fieldContext_TeamInventoryCountApplications_notNais(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountApplications", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamInventoryCounts_jobs(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventoryCounts_jobs(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamInventoryCounts().Jobs(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*job.TeamInventoryCountJobs)
+	fc.Result = res
+	return ec.marshalNTeamInventoryCountJobs2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐTeamInventoryCountJobs(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCounts_jobs(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCounts",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_TeamInventoryCountJobs_total(ctx, field)
+			case "notNais":
+				return ec.fieldContext_TeamInventoryCountJobs_notNais(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountJobs", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamInventoryCounts_bigQueryDatasets(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventoryCounts_bigQueryDatasets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamInventoryCounts().BigQueryDatasets(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*bigquery.TeamInventoryCountBigQueryDatasets)
+	fc.Result = res
+	return ec.marshalNTeamInventoryCountBigQueryDatasets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbigqueryᚐTeamInventoryCountBigQueryDatasets(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCounts_bigQueryDatasets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCounts",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_TeamInventoryCountBigQueryDatasets_total(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountBigQueryDatasets", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamInventoryCounts_redisInstances(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventoryCounts_redisInstances(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamInventoryCounts().RedisInstances(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*redis.TeamInventoryCountRedisInstances)
+	fc.Result = res
+	return ec.marshalNTeamInventoryCountRedisInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋredisᚐTeamInventoryCountRedisInstances(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCounts_redisInstances(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCounts",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_TeamInventoryCountRedisInstances_total(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountRedisInstances", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamInventoryCounts_openSearchInstances(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventoryCounts_openSearchInstances(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamInventoryCounts().OpenSearchInstances(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*opensearch.TeamInventoryCountOpenSearchInstances)
+	fc.Result = res
+	return ec.marshalNTeamInventoryCountOpenSearchInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐTeamInventoryCountOpenSearchInstances(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCounts_openSearchInstances(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCounts",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_TeamInventoryCountOpenSearchInstances_total(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountOpenSearchInstances", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamInventoryCounts_buckets(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventoryCounts_buckets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamInventoryCounts().Buckets(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*bucket.TeamInventoryCountBuckets)
+	fc.Result = res
+	return ec.marshalNTeamInventoryCountBuckets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbucketᚐTeamInventoryCountBuckets(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCounts_buckets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCounts",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_TeamInventoryCountBuckets_total(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountBuckets", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamInventoryCounts_kafkaTopics(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventoryCounts_kafkaTopics(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamInventoryCounts().KafkaTopics(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*kafkatopic.TeamInventoryCountKafkaTopics)
+	fc.Result = res
+	return ec.marshalNTeamInventoryCountKafkaTopics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐTeamInventoryCountKafkaTopics(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCounts_kafkaTopics(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCounts",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_TeamInventoryCountKafkaTopics_total(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountKafkaTopics", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamInventoryCounts_sqlInstances(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventoryCounts_sqlInstances(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamInventoryCounts().SQLInstances(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*sqlinstance.TeamInventoryCountSQLInstances)
+	fc.Result = res
+	return ec.marshalNTeamInventoryCountSqlInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐTeamInventoryCountSQLInstances(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCounts_sqlInstances(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCounts",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_TeamInventoryCountSqlInstances_total(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountSqlInstances", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TeamMember_team(ctx context.Context, field graphql.CollectedField, obj *team.TeamMember) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamMember_team(ctx, field)
 	if err != nil {
@@ -44288,6 +45483,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, fiel
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -47048,6 +48245,8 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_team(_ context.Cont
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -48106,6 +49305,8 @@ func (ec *executionContext) fieldContext_UpdateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_environment(ctx, field)
 			case "deleteKey":
 				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -63952,6 +65153,42 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "inventoryCounts":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_inventoryCounts(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "applications":
 			field := field
 
@@ -65731,6 +66968,650 @@ func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntryDataUpdatedField(ct
 			out.Values[i] = ec._TeamEnvironmentUpdatedAuditEntryDataUpdatedField_oldValue(ctx, field, obj)
 		case "newValue":
 			out.Values[i] = ec._TeamEnvironmentUpdatedAuditEntryDataUpdatedField_newValue(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamInventoryCountApplicationsImplementors = []string{"TeamInventoryCountApplications"}
+
+func (ec *executionContext) _TeamInventoryCountApplications(ctx context.Context, sel ast.SelectionSet, obj *application.TeamInventoryCountApplications) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountApplicationsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamInventoryCountApplications")
+		case "total":
+			out.Values[i] = ec._TeamInventoryCountApplications_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "notNais":
+			out.Values[i] = ec._TeamInventoryCountApplications_notNais(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamInventoryCountBigQueryDatasetsImplementors = []string{"TeamInventoryCountBigQueryDatasets"}
+
+func (ec *executionContext) _TeamInventoryCountBigQueryDatasets(ctx context.Context, sel ast.SelectionSet, obj *bigquery.TeamInventoryCountBigQueryDatasets) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountBigQueryDatasetsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamInventoryCountBigQueryDatasets")
+		case "total":
+			out.Values[i] = ec._TeamInventoryCountBigQueryDatasets_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamInventoryCountBucketsImplementors = []string{"TeamInventoryCountBuckets"}
+
+func (ec *executionContext) _TeamInventoryCountBuckets(ctx context.Context, sel ast.SelectionSet, obj *bucket.TeamInventoryCountBuckets) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountBucketsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamInventoryCountBuckets")
+		case "total":
+			out.Values[i] = ec._TeamInventoryCountBuckets_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamInventoryCountJobsImplementors = []string{"TeamInventoryCountJobs"}
+
+func (ec *executionContext) _TeamInventoryCountJobs(ctx context.Context, sel ast.SelectionSet, obj *job.TeamInventoryCountJobs) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountJobsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamInventoryCountJobs")
+		case "total":
+			out.Values[i] = ec._TeamInventoryCountJobs_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "notNais":
+			out.Values[i] = ec._TeamInventoryCountJobs_notNais(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamInventoryCountKafkaTopicsImplementors = []string{"TeamInventoryCountKafkaTopics"}
+
+func (ec *executionContext) _TeamInventoryCountKafkaTopics(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.TeamInventoryCountKafkaTopics) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountKafkaTopicsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamInventoryCountKafkaTopics")
+		case "total":
+			out.Values[i] = ec._TeamInventoryCountKafkaTopics_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamInventoryCountOpenSearchInstancesImplementors = []string{"TeamInventoryCountOpenSearchInstances"}
+
+func (ec *executionContext) _TeamInventoryCountOpenSearchInstances(ctx context.Context, sel ast.SelectionSet, obj *opensearch.TeamInventoryCountOpenSearchInstances) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountOpenSearchInstancesImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamInventoryCountOpenSearchInstances")
+		case "total":
+			out.Values[i] = ec._TeamInventoryCountOpenSearchInstances_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamInventoryCountRedisInstancesImplementors = []string{"TeamInventoryCountRedisInstances"}
+
+func (ec *executionContext) _TeamInventoryCountRedisInstances(ctx context.Context, sel ast.SelectionSet, obj *redis.TeamInventoryCountRedisInstances) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountRedisInstancesImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamInventoryCountRedisInstances")
+		case "total":
+			out.Values[i] = ec._TeamInventoryCountRedisInstances_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamInventoryCountSqlInstancesImplementors = []string{"TeamInventoryCountSqlInstances"}
+
+func (ec *executionContext) _TeamInventoryCountSqlInstances(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.TeamInventoryCountSQLInstances) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountSqlInstancesImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamInventoryCountSqlInstances")
+		case "total":
+			out.Values[i] = ec._TeamInventoryCountSqlInstances_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamInventoryCountsImplementors = []string{"TeamInventoryCounts"}
+
+func (ec *executionContext) _TeamInventoryCounts(ctx context.Context, sel ast.SelectionSet, obj *team.TeamInventoryCounts) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamInventoryCounts")
+		case "applications":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamInventoryCounts_applications(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "jobs":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamInventoryCounts_jobs(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "bigQueryDatasets":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamInventoryCounts_bigQueryDatasets(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "redisInstances":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamInventoryCounts_redisInstances(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "openSearchInstances":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamInventoryCounts_openSearchInstances(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "buckets":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamInventoryCounts_buckets(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "kafkaTopics":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamInventoryCounts_kafkaTopics(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "sqlInstances":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamInventoryCounts_sqlInstances(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -73009,6 +74890,132 @@ func (ec *executionContext) marshalNTeamEnvironmentUpdatedAuditEntryDataUpdatedF
 		return graphql.Null
 	}
 	return ec._TeamEnvironmentUpdatedAuditEntryDataUpdatedField(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountApplications2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐTeamInventoryCountApplications(ctx context.Context, sel ast.SelectionSet, v application.TeamInventoryCountApplications) graphql.Marshaler {
+	return ec._TeamInventoryCountApplications(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountApplications2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐTeamInventoryCountApplications(ctx context.Context, sel ast.SelectionSet, v *application.TeamInventoryCountApplications) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamInventoryCountApplications(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountBigQueryDatasets2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbigqueryᚐTeamInventoryCountBigQueryDatasets(ctx context.Context, sel ast.SelectionSet, v bigquery.TeamInventoryCountBigQueryDatasets) graphql.Marshaler {
+	return ec._TeamInventoryCountBigQueryDatasets(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountBigQueryDatasets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbigqueryᚐTeamInventoryCountBigQueryDatasets(ctx context.Context, sel ast.SelectionSet, v *bigquery.TeamInventoryCountBigQueryDatasets) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamInventoryCountBigQueryDatasets(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountBuckets2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbucketᚐTeamInventoryCountBuckets(ctx context.Context, sel ast.SelectionSet, v bucket.TeamInventoryCountBuckets) graphql.Marshaler {
+	return ec._TeamInventoryCountBuckets(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountBuckets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbucketᚐTeamInventoryCountBuckets(ctx context.Context, sel ast.SelectionSet, v *bucket.TeamInventoryCountBuckets) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamInventoryCountBuckets(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountJobs2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐTeamInventoryCountJobs(ctx context.Context, sel ast.SelectionSet, v job.TeamInventoryCountJobs) graphql.Marshaler {
+	return ec._TeamInventoryCountJobs(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountJobs2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐTeamInventoryCountJobs(ctx context.Context, sel ast.SelectionSet, v *job.TeamInventoryCountJobs) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamInventoryCountJobs(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountKafkaTopics2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐTeamInventoryCountKafkaTopics(ctx context.Context, sel ast.SelectionSet, v kafkatopic.TeamInventoryCountKafkaTopics) graphql.Marshaler {
+	return ec._TeamInventoryCountKafkaTopics(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountKafkaTopics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐTeamInventoryCountKafkaTopics(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.TeamInventoryCountKafkaTopics) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamInventoryCountKafkaTopics(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountOpenSearchInstances2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐTeamInventoryCountOpenSearchInstances(ctx context.Context, sel ast.SelectionSet, v opensearch.TeamInventoryCountOpenSearchInstances) graphql.Marshaler {
+	return ec._TeamInventoryCountOpenSearchInstances(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountOpenSearchInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐTeamInventoryCountOpenSearchInstances(ctx context.Context, sel ast.SelectionSet, v *opensearch.TeamInventoryCountOpenSearchInstances) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamInventoryCountOpenSearchInstances(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountRedisInstances2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋredisᚐTeamInventoryCountRedisInstances(ctx context.Context, sel ast.SelectionSet, v redis.TeamInventoryCountRedisInstances) graphql.Marshaler {
+	return ec._TeamInventoryCountRedisInstances(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountRedisInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋredisᚐTeamInventoryCountRedisInstances(ctx context.Context, sel ast.SelectionSet, v *redis.TeamInventoryCountRedisInstances) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamInventoryCountRedisInstances(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountSqlInstances2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐTeamInventoryCountSQLInstances(ctx context.Context, sel ast.SelectionSet, v sqlinstance.TeamInventoryCountSQLInstances) graphql.Marshaler {
+	return ec._TeamInventoryCountSqlInstances(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountSqlInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐTeamInventoryCountSQLInstances(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.TeamInventoryCountSQLInstances) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamInventoryCountSqlInstances(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCounts2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamInventoryCounts(ctx context.Context, sel ast.SelectionSet, v team.TeamInventoryCounts) graphql.Marshaler {
+	return ec._TeamInventoryCounts(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCounts2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamInventoryCounts(ctx context.Context, sel ast.SelectionSet, v *team.TeamInventoryCounts) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamInventoryCounts(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNTeamMember2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMember(ctx context.Context, sel ast.SelectionSet, v team.TeamMember) graphql.Marshaler {

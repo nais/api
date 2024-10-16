@@ -206,3 +206,7 @@ func toBigQueryDataset(u *unstructured.Unstructured, environmentName string) (*B
 
 	return ret, nil
 }
+
+type TeamInventoryCountBigQueryDatasets struct {
+	Total int
+}

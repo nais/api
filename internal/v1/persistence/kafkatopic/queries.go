@@ -28,13 +28,16 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Ka
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *KafkaTopicOrder) (*KafkaTopicConnection, error) {
-	outer := fromContext(ctx).watcher.GetByNamespace(teamSlug.String())
-
-	all := watcher.Objects(outer)
+	all := ListAllForTeam(ctx, teamSlug)
 	orderTopics(all, orderBy)
 
 	slice := pagination.Slice(all, page)
 	return pagination.NewConnection(slice, page, int32(len(all))), nil
+}
+
+func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*KafkaTopic {
+	all := fromContext(ctx).watcher.GetByNamespace(teamSlug.String())
+	return watcher.Objects(all)
 }
 
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, workloadName, poolName string, orderBy *KafkaTopicACLOrder) (*KafkaTopicACLConnection, error) {

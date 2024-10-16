@@ -31,6 +31,18 @@ extend type Mutation {
 	restartApplication(input: RestartApplicationInput!): RestartApplicationPayload!
 }
 
+extend type TeamInventoryCounts {
+	applications: TeamInventoryCountApplications!
+}
+
+type TeamInventoryCountApplications {
+	"Total number of applications."
+	total: Int!
+
+	"Number of applications considered not nais."
+	notNais: Int!
+}
+
 """
 TODO: write
 """
