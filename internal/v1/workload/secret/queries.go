@@ -11,6 +11,7 @@ import (
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/v1/auditv1"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
@@ -20,6 +21,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/validation"
+	"k8s.io/utils/ptr"
 )
 
 var ErrSecretUnmanaged = errors.New("secret is not managed by console")
@@ -184,6 +186,26 @@ func Create(ctx context.Context, teamSlug slug.Slug, environment, name string, d
 			return nil, fmt.Errorf("%q: %w", name, ErrSecretUnmanaged)
 		}
 		return nil, fmt.Errorf("creating secret: %w", err)
+	}
+
+	err = auditv1.Create(ctx, auditv1.CreateInput{
+		Action:       auditActionCreateSecret,
+		Actor:        actor.User,
+		ResourceType: auditResourceTypeSecret,
+		ResourceName: name,
+		TeamSlug:     ptr.To(teamSlug),
+		Data: &SecretCreatedAuditEntryData{
+			Keys: func(data []*SecretVariableInput) []string {
+				keys := make([]string, len(data))
+				for i, d := range data {
+					keys[i] = d.Name
+				}
+				return keys
+			}(data),
+		},
+	})
+	if err != nil {
+		fromContext(ctx).log.WithError(err).Errorf("unable to create audit log entry")
 	}
 
 	retVal, ok := toGraphSecret(s, environment)

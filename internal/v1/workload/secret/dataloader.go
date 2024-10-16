@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
+	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
@@ -12,9 +13,10 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, secretWatcher *watcher.Watcher[*Secret]) context.Context {
+func NewLoaderContext(ctx context.Context, secretWatcher *watcher.Watcher[*Secret], log logrus.FieldLogger) context.Context {
 	return context.WithValue(ctx, loadersKey, &loaders{
 		secretWatcher: secretWatcher,
+		log:           log,
 	})
 }
 
@@ -35,4 +37,5 @@ func fromContext(ctx context.Context) *loaders {
 
 type loaders struct {
 	secretWatcher *watcher.Watcher[*Secret]
+	log           logrus.FieldLogger
 }

@@ -190,7 +190,7 @@ func ConfigureV1Graph(ctx context.Context, fakeClients bool, watcherMgr *watcher
 		ctx = job.NewLoaderContext(ctx, jobWatcher, runWatcher)
 		ctx = kafkatopic.NewLoaderContext(ctx, kafkaTopicWatcher)
 		ctx = workload.NewLoaderContext(ctx, podWatcher)
-		ctx = secret.NewLoaderContext(ctx, secretWatcher)
+		ctx = secret.NewLoaderContext(ctx, secretWatcher, log)
 		ctx = opensearch.NewLoaderContext(ctx, openSearchWatcher)
 		ctx = redis.NewLoaderContext(ctx, redisWatcher)
 		ctx = utilization.NewLoaderContext(ctx, utilizationClient)

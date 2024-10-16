@@ -745,6 +745,22 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
+	SecretCreatedAuditEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	SecretCreatedAuditEntryData struct {
+		Keys func(childComplexity int) int
+	}
+
 	SecretEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
@@ -4168,6 +4184,76 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SecretConnection.PageInfo(childComplexity), true
+
+	case "SecretCreatedAuditEntry.actor":
+		if e.complexity.SecretCreatedAuditEntry.Actor == nil {
+			break
+		}
+
+		return e.complexity.SecretCreatedAuditEntry.Actor(childComplexity), true
+
+	case "SecretCreatedAuditEntry.createdAt":
+		if e.complexity.SecretCreatedAuditEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.SecretCreatedAuditEntry.CreatedAt(childComplexity), true
+
+	case "SecretCreatedAuditEntry.data":
+		if e.complexity.SecretCreatedAuditEntry.Data == nil {
+			break
+		}
+
+		return e.complexity.SecretCreatedAuditEntry.Data(childComplexity), true
+
+	case "SecretCreatedAuditEntry.environmentName":
+		if e.complexity.SecretCreatedAuditEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.complexity.SecretCreatedAuditEntry.EnvironmentName(childComplexity), true
+
+	case "SecretCreatedAuditEntry.id":
+		if e.complexity.SecretCreatedAuditEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.SecretCreatedAuditEntry.ID(childComplexity), true
+
+	case "SecretCreatedAuditEntry.message":
+		if e.complexity.SecretCreatedAuditEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.SecretCreatedAuditEntry.Message(childComplexity), true
+
+	case "SecretCreatedAuditEntry.resourceName":
+		if e.complexity.SecretCreatedAuditEntry.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.SecretCreatedAuditEntry.ResourceName(childComplexity), true
+
+	case "SecretCreatedAuditEntry.resourceType":
+		if e.complexity.SecretCreatedAuditEntry.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.SecretCreatedAuditEntry.ResourceType(childComplexity), true
+
+	case "SecretCreatedAuditEntry.teamSlug":
+		if e.complexity.SecretCreatedAuditEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.complexity.SecretCreatedAuditEntry.TeamSlug(childComplexity), true
+
+	case "SecretCreatedAuditEntryData.keys":
+		if e.complexity.SecretCreatedAuditEntryData.Keys == nil {
+			break
+		}
+
+		return e.complexity.SecretCreatedAuditEntryData.Keys(childComplexity), true
 
 	case "SecretEdge.cursor":
 		if e.complexity.SecretEdge.Cursor == nil {
@@ -8584,7 +8670,8 @@ extend type Team {
 }
 
 extend type TeamEnvironment {
-	secret("The name of the secret." name: String!): Secret!
+	"Get a secret by name."
+	secret(name: String!): Secret!
 }
 
 type SecretConnection {
@@ -8612,6 +8699,40 @@ type SecretVariable {
 
 	"The value of the secret."
 	value: String!
+}
+
+type SecretCreatedAuditEntry implements AuditEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: AuditResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the entry."
+	data: SecretCreatedAuditEntryData!
+}
+
+type SecretCreatedAuditEntryData {
+	"The keys added to the secret."
+	keys: [String!]!
 }
 `, BuiltIn: false},
 	{Name: "../schema/status.graphqls", Input: `extend interface Workload {
@@ -34284,6 +34405,447 @@ func (ec *executionContext) fieldContext_SecretConnection_edges(_ context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _SecretCreatedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedAuditEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretCreatedAuditEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretCreatedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedAuditEntry_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretCreatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretCreatedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedAuditEntry_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretCreatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretCreatedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedAuditEntry_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretCreatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretCreatedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedAuditEntry_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(auditv1.AuditResourceType)
+	fc.Result = res
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretCreatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretCreatedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedAuditEntry_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretCreatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretCreatedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedAuditEntry_teamSlug(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TeamSlug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*slug.Slug)
+	fc.Result = res
+	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretCreatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretCreatedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedAuditEntry_environmentName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnvironmentName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretCreatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretCreatedAuditEntry_data(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedAuditEntry_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*secret.SecretCreatedAuditEntryData)
+	fc.Result = res
+	return ec.marshalNSecretCreatedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSecretCreatedAuditEntryData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretCreatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "keys":
+				return ec.fieldContext_SecretCreatedAuditEntryData_keys(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SecretCreatedAuditEntryData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretCreatedAuditEntryData_keys(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedAuditEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedAuditEntryData_keys(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Keys, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SecretCreatedAuditEntryData_keys(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretCreatedAuditEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SecretEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*secret.Secret]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SecretEdge_cursor(ctx, field)
 	if err != nil {
@@ -53393,6 +53955,13 @@ func (ec *executionContext) _AuditEntry(ctx context.Context, sel ast.SelectionSe
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
+	case secret.SecretCreatedAuditEntry:
+		return ec._SecretCreatedAuditEntry(ctx, sel, &obj)
+	case *secret.SecretCreatedAuditEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretCreatedAuditEntry(ctx, sel, obj)
 	case team.TeamCreatedAuditEntry:
 		return ec._TeamCreatedAuditEntry(ctx, sel, &obj)
 	case *team.TeamCreatedAuditEntry:
@@ -53555,6 +54124,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
+	case secret.SecretCreatedAuditEntry:
+		return ec._SecretCreatedAuditEntry(ctx, sel, &obj)
+	case *secret.SecretCreatedAuditEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretCreatedAuditEntry(ctx, sel, obj)
 	case team.TeamMemberRemovedAuditEntry:
 		return ec._TeamMemberRemovedAuditEntry(ctx, sel, &obj)
 	case *team.TeamMemberRemovedAuditEntry:
@@ -53562,20 +54138,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamMemberRemovedAuditEntry(ctx, sel, obj)
-	case team.TeamConfirmDeleteKeyAuditEntry:
-		return ec._TeamConfirmDeleteKeyAuditEntry(ctx, sel, &obj)
-	case *team.TeamConfirmDeleteKeyAuditEntry:
+	case application.Application:
+		return ec._Application(ctx, sel, &obj)
+	case *application.Application:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamConfirmDeleteKeyAuditEntry(ctx, sel, obj)
-	case job.Job:
-		return ec._Job(ctx, sel, &obj)
-	case *job.Job:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Job(ctx, sel, obj)
+		return ec._Application(ctx, sel, obj)
 	case team.TeamEnvironmentUpdatedAuditEntry:
 		return ec._TeamEnvironmentUpdatedAuditEntry(ctx, sel, &obj)
 	case *team.TeamEnvironmentUpdatedAuditEntry:
@@ -53632,20 +54201,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._SqlDatabase(ctx, sel, obj)
-	case sqlinstance.SQLInstance:
-		return ec._SqlInstance(ctx, sel, &obj)
-	case *sqlinstance.SQLInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SqlInstance(ctx, sel, obj)
-	case application.Application:
-		return ec._Application(ctx, sel, &obj)
-	case *application.Application:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Application(ctx, sel, obj)
 	case team.TeamMemberAddedAuditEntry:
 		return ec._TeamMemberAddedAuditEntry(ctx, sel, &obj)
 	case *team.TeamMemberAddedAuditEntry:
@@ -53653,6 +54208,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamMemberAddedAuditEntry(ctx, sel, obj)
+	case team.TeamConfirmDeleteKeyAuditEntry:
+		return ec._TeamConfirmDeleteKeyAuditEntry(ctx, sel, &obj)
+	case *team.TeamConfirmDeleteKeyAuditEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamConfirmDeleteKeyAuditEntry(ctx, sel, obj)
 	case team.TeamCreateDeleteKeyAuditEntry:
 		return ec._TeamCreateDeleteKeyAuditEntry(ctx, sel, &obj)
 	case *team.TeamCreateDeleteKeyAuditEntry:
@@ -53660,6 +54222,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamCreateDeleteKeyAuditEntry(ctx, sel, obj)
+	case job.Job:
+		return ec._Job(ctx, sel, &obj)
+	case *job.Job:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Job(ctx, sel, obj)
 	case team.TeamUpdatedAuditEntry:
 		return ec._TeamUpdatedAuditEntry(ctx, sel, &obj)
 	case *team.TeamUpdatedAuditEntry:
@@ -53667,6 +54236,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamUpdatedAuditEntry(ctx, sel, obj)
+	case sqlinstance.SQLInstance:
+		return ec._SqlInstance(ctx, sel, &obj)
+	case *sqlinstance.SQLInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SqlInstance(ctx, sel, obj)
 	case team.TeamCreatedAuditEntry:
 		return ec._TeamCreatedAuditEntry(ctx, sel, &obj)
 	case *team.TeamCreatedAuditEntry:
@@ -53674,6 +54250,25 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamCreatedAuditEntry(ctx, sel, obj)
+	case persistence.Persistence:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Persistence(ctx, sel, obj)
+	case secret.Secret:
+		return ec._Secret(ctx, sel, &obj)
+	case *secret.Secret:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Secret(ctx, sel, obj)
+	case repository.Repository:
+		return ec._Repository(ctx, sel, &obj)
+	case *repository.Repository:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Repository(ctx, sel, obj)
 	case team.TeamEnvironment:
 		return ec._TeamEnvironment(ctx, sel, &obj)
 	case *team.TeamEnvironment:
@@ -53681,6 +54276,11 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamEnvironment(ctx, sel, obj)
+	case auditv1.AuditEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AuditEntry(ctx, sel, obj)
 	case team.Team:
 		return ec._Team(ctx, sel, &obj)
 	case *team.Team:
@@ -53688,30 +54288,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Team(ctx, sel, obj)
-	case auditv1.AuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._AuditEntry(ctx, sel, obj)
-	case vulnerability.ImageVulnerability:
-		return ec._ImageVulnerability(ctx, sel, &obj)
-	case *vulnerability.ImageVulnerability:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ImageVulnerability(ctx, sel, obj)
-	case workload.ContainerImage:
-		return ec._ContainerImage(ctx, sel, &obj)
-	case *workload.ContainerImage:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ContainerImage(ctx, sel, obj)
-	case persistence.Persistence:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Persistence(ctx, sel, obj)
 	case job.JobRun:
 		return ec._JobRun(ctx, sel, &obj)
 	case *job.JobRun:
@@ -53726,25 +54302,25 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._User(ctx, sel, obj)
-	case secret.Secret:
-		return ec._Secret(ctx, sel, &obj)
-	case *secret.Secret:
+	case vulnerability.ImageVulnerability:
+		return ec._ImageVulnerability(ctx, sel, &obj)
+	case *vulnerability.ImageVulnerability:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Secret(ctx, sel, obj)
+		return ec._ImageVulnerability(ctx, sel, obj)
 	case workload.Workload:
 		if obj == nil {
 			return graphql.Null
 		}
 		return ec._Workload(ctx, sel, obj)
-	case repository.Repository:
-		return ec._Repository(ctx, sel, &obj)
-	case *repository.Repository:
+	case workload.ContainerImage:
+		return ec._ContainerImage(ctx, sel, &obj)
+	case *workload.ContainerImage:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Repository(ctx, sel, obj)
+		return ec._ContainerImage(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -61493,6 +62069,121 @@ func (ec *executionContext) _SecretConnection(ctx context.Context, sel ast.Selec
 			}
 		case "edges":
 			out.Values[i] = ec._SecretConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var secretCreatedAuditEntryImplementors = []string{"SecretCreatedAuditEntry", "AuditEntry", "Node"}
+
+func (ec *executionContext) _SecretCreatedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretCreatedAuditEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, secretCreatedAuditEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SecretCreatedAuditEntry")
+		case "id":
+			out.Values[i] = ec._SecretCreatedAuditEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			out.Values[i] = ec._SecretCreatedAuditEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._SecretCreatedAuditEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._SecretCreatedAuditEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			out.Values[i] = ec._SecretCreatedAuditEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			out.Values[i] = ec._SecretCreatedAuditEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			out.Values[i] = ec._SecretCreatedAuditEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			out.Values[i] = ec._SecretCreatedAuditEntry_environmentName(ctx, field, obj)
+		case "data":
+			out.Values[i] = ec._SecretCreatedAuditEntry_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var secretCreatedAuditEntryDataImplementors = []string{"SecretCreatedAuditEntryData"}
+
+func (ec *executionContext) _SecretCreatedAuditEntryData(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretCreatedAuditEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, secretCreatedAuditEntryDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SecretCreatedAuditEntryData")
+		case "keys":
+			out.Values[i] = ec._SecretCreatedAuditEntryData_keys(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -70980,6 +71671,16 @@ func (ec *executionContext) marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋap
 		return graphql.Null
 	}
 	return ec._SecretConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNSecretCreatedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSecretCreatedAuditEntryData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretCreatedAuditEntryData) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SecretCreatedAuditEntryData(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNSecretEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*secret.Secret]) graphql.Marshaler {
