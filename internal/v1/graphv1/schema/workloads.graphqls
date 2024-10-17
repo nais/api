@@ -41,7 +41,6 @@ interface Workload implements Node {
 	manifest: WorkloadManifest!
 
 	# deployInfo: DeployInfo!
-	# status: WorkloadStatus!
 	# secrets: [Secret!]!
 }
 

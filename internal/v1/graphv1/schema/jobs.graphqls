@@ -115,16 +115,22 @@ type JobRun implements Node {
 	"The status of the job run."
 	status: JobRunStatus!
 
+	"The container image of the job run."
 	image: ContainerImage!
 
-	# podNames: [String!]!
 	# duration: String!
-	# image: String!
-	# message: String!
-	# failed: Boolean!
+	# podNames: [String!]!
 }
 
-enum JobRunStatus {
+type JobRunStatus {
+	"The state of the job run."
+	state: JobRunState!
+
+	"Human readable job run status."
+	message: String!
+}
+
+enum JobRunState {
 	"Job run is pending."
 	PENDING
 

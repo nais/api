@@ -87,7 +87,6 @@ type Application implements Node & Workload {
 		"Get items before this cursor."
 		before: Cursor
 	): InstanceConnection!
-	# autoScaling: AutoScaling!
 }
 
 type ApplicationManifest implements WorkloadManifest {

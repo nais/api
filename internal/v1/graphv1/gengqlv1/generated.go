@@ -458,6 +458,11 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	JobRunStatus struct {
+		Message func(childComplexity int) int
+		State   func(childComplexity int) int
+	}
+
 	JobSchedule struct {
 		Expression func(childComplexity int) int
 		TimeZone   func(childComplexity int) int
@@ -3055,6 +3060,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.JobRunEdge.Node(childComplexity), true
+
+	case "JobRunStatus.message":
+		if e.complexity.JobRunStatus.Message == nil {
+			break
+		}
+
+		return e.complexity.JobRunStatus.Message(childComplexity), true
+
+	case "JobRunStatus.state":
+		if e.complexity.JobRunStatus.State == nil {
+			break
+		}
+
+		return e.complexity.JobRunStatus.State(childComplexity), true
 
 	case "JobSchedule.expression":
 		if e.complexity.JobSchedule.Expression == nil {
@@ -7517,7 +7536,6 @@ type Application implements Node & Workload {
 		"Get items before this cursor."
 		before: Cursor
 	): InstanceConnection!
-	# autoScaling: AutoScaling!
 }
 
 type ApplicationManifest implements WorkloadManifest {
@@ -8247,16 +8265,22 @@ type JobRun implements Node {
 	"The status of the job run."
 	status: JobRunStatus!
 
+	"The container image of the job run."
 	image: ContainerImage!
 
-	# podNames: [String!]!
 	# duration: String!
-	# image: String!
-	# message: String!
-	# failed: Boolean!
+	# podNames: [String!]!
 }
 
-enum JobRunStatus {
+type JobRunStatus {
+	"The state of the job run."
+	state: JobRunState!
+
+	"Human readable job run status."
+	message: String!
+}
+
+enum JobRunState {
 	"Job run is pending."
 	PENDING
 
@@ -11105,7 +11129,6 @@ interface Workload implements Node {
 	manifest: WorkloadManifest!
 
 	# deployInfo: DeployInfo!
-	# status: WorkloadStatus!
 	# secrets: [Secret!]!
 }
 
@@ -26454,9 +26477,9 @@ func (ec *executionContext) _JobRun_status(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(job.JobRunStatus)
+	res := resTmp.(*job.JobRunStatus)
 	fc.Result = res
-	return ec.marshalNJobRunStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobRunStatus(ctx, field.Selections, res)
+	return ec.marshalNJobRunStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobRunStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_JobRun_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -26466,7 +26489,13 @@ func (ec *executionContext) fieldContext_JobRun_status(_ context.Context, field 
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type JobRunStatus does not have child fields")
+			switch field.Name {
+			case "state":
+				return ec.fieldContext_JobRunStatus_state(ctx, field)
+			case "message":
+				return ec.fieldContext_JobRunStatus_message(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type JobRunStatus", field.Name)
 		},
 	}
 	return fc, nil
@@ -26797,6 +26826,94 @@ func (ec *executionContext) fieldContext_JobRunEdge_node(_ context.Context, fiel
 				return ec.fieldContext_JobRun_image(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type JobRun", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobRunStatus_state(ctx context.Context, field graphql.CollectedField, obj *job.JobRunStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobRunStatus_state(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.State, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(job.JobRunState)
+	fc.Result = res
+	return ec.marshalNJobRunState2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobRunState(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobRunStatus_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobRunStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type JobRunState does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobRunStatus_message(ctx context.Context, field graphql.CollectedField, obj *job.JobRunStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobRunStatus_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobRunStatus_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobRunStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -63650,6 +63767,50 @@ func (ec *executionContext) _JobRunEdge(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
+var jobRunStatusImplementors = []string{"JobRunStatus"}
+
+func (ec *executionContext) _JobRunStatus(ctx context.Context, sel ast.SelectionSet, obj *job.JobRunStatus) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jobRunStatusImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("JobRunStatus")
+		case "state":
+			out.Values[i] = ec._JobRunStatus_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._JobRunStatus_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var jobScheduleImplementors = []string{"JobSchedule"}
 
 func (ec *executionContext) _JobSchedule(ctx context.Context, sel ast.SelectionSet, obj *job.JobSchedule) graphql.Marshaler {
@@ -76660,14 +76821,24 @@ func (ec *executionContext) marshalNJobRunEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 	return ret
 }
 
-func (ec *executionContext) unmarshalNJobRunStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobRunStatus(ctx context.Context, v interface{}) (job.JobRunStatus, error) {
-	var res job.JobRunStatus
+func (ec *executionContext) unmarshalNJobRunState2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobRunState(ctx context.Context, v interface{}) (job.JobRunState, error) {
+	var res job.JobRunState
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNJobRunStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobRunStatus(ctx context.Context, sel ast.SelectionSet, v job.JobRunStatus) graphql.Marshaler {
+func (ec *executionContext) marshalNJobRunState2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobRunState(ctx context.Context, sel ast.SelectionSet, v job.JobRunState) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) marshalNJobRunStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobRunStatus(ctx context.Context, sel ast.SelectionSet, v *job.JobRunStatus) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._JobRunStatus(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNKafkaTopic2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx context.Context, sel ast.SelectionSet, v kafkatopic.KafkaTopic) graphql.Marshaler {

@@ -80,33 +80,48 @@ func (j JobRun) ID() ident.Ident {
 	return newJobRunIdent(j.TeamSlug, j.EnvironmentName, j.Name)
 }
 
-func (j *JobRun) Status() JobRunStatus {
+func (j *JobRun) Status() *JobRunStatus {
 	if j.spec.Status.StartTime == nil {
-		return JobRunStatusPending
+		return &JobRunStatus{
+			State:   JobRunStatePending,
+			Message: "Pending",
+		}
 	}
 
 	if ptr.Deref(j.spec.Status.Ready, 0) > 0 || ptr.Deref(j.spec.Status.Terminating, 0) > 0 {
-		return JobRunStatusRunning
+		return &JobRunStatus{
+			State:   JobRunStateRunning,
+			Message: "Running",
+		}
 	}
 
 	if j.spec.Status.CompletionTime == nil {
 		for _, cs := range j.spec.Status.Conditions {
 			if cs.Status == corev1.ConditionTrue && cs.Type == batchv1.JobFailed {
-				return JobRunStatusFailed
+				return &JobRunStatus{
+					State:   JobRunStateFailed,
+					Message: "Failed",
+				}
 			}
 		}
 
-		return JobRunStatusRunning
+		return &JobRunStatus{
+			State:   JobRunStateRunning,
+			Message: "Running",
+		}
 	}
 
-	return JobRunStatusSucceeded
+	return &JobRunStatus{
+		State:   JobRunStateSucceeded,
+		Message: "Succeeded",
+	}
 }
 
 func (j *JobRun) CompletionTime() *time.Time {
-	switch j.Status() {
-	case JobRunStatusSucceeded:
+	switch j.Status().State {
+	case JobRunStateSucceeded:
 		return &j.spec.Status.CompletionTime.Time
-	case JobRunStatusFailed:
+	case JobRunStateFailed:
 		for _, cs := range j.spec.Status.Conditions {
 			if cs.Status == corev1.ConditionTrue && cs.Type == batchv1.JobFailed {
 				return &cs.LastTransitionTime.Time
@@ -124,43 +139,43 @@ func (j *JobRun) Image() *workload.ContainerImage {
 	}
 }
 
-type JobRunStatus int
+type JobRunState int
 
 const (
-	JobRunStatusUnknown JobRunStatus = iota
-	JobRunStatusPending
-	JobRunStatusRunning
-	JobRunStatusSucceeded
-	JobRunStatusFailed
+	JobRunStateUnknown JobRunState = iota
+	JobRunStatePending
+	JobRunStateRunning
+	JobRunStateSucceeded
+	JobRunStateFailed
 )
 
-func (e JobRunStatus) IsValid() bool {
+func (e JobRunState) IsValid() bool {
 	switch e {
-	case JobRunStatusUnknown, JobRunStatusPending, JobRunStatusRunning, JobRunStatusSucceeded, JobRunStatusFailed:
+	case JobRunStateUnknown, JobRunStatePending, JobRunStateRunning, JobRunStateSucceeded, JobRunStateFailed:
 		return true
 	}
 	return false
 }
 
-func (e JobRunStatus) String() string {
+func (e JobRunState) String() string {
 	switch e {
-	case JobRunStatusPending:
+	case JobRunStatePending:
 		return "PENDING"
-	case JobRunStatusRunning:
+	case JobRunStateRunning:
 		return "RUNNING"
-	case JobRunStatusSucceeded:
+	case JobRunStateSucceeded:
 		return "SUCCEEDED"
-	case JobRunStatusFailed:
+	case JobRunStateFailed:
 		return "FAILED"
 	}
 	return "UNKNOWN"
 }
 
-func (e *JobRunStatus) UnmarshalGQL(v interface{}) error {
+func (e *JobRunState) UnmarshalGQL(v interface{}) error {
 	panic("not implemented")
 }
 
-func (e JobRunStatus) MarshalGQL(w io.Writer) {
+func (e JobRunState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -336,14 +351,10 @@ type DeleteJobPayload struct {
 }
 
 type TriggerJobInput struct {
-	// Name of the job.
-	Name string `json:"name"`
-	// Slug of the team that owns the job.
-	TeamSlug slug.Slug `json:"teamSlug"`
-	// Name of the environment where the job runs.
-	EnvironmentName string `json:"environmentName"`
-	// Name of the new run. Must be unique within the team.
-	RunName string `json:"runName"`
+	Name            string    `json:"name"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
+	EnvironmentName string    `json:"environmentName"`
+	RunName         string    `json:"runName"`
 }
 
 type TriggerJobPayload struct {
@@ -400,8 +411,11 @@ func pluralize(s string, count int32) string {
 }
 
 type TeamInventoryCountJobs struct {
-	// Total number of jobs.
-	Total int `json:"total"`
-	// Number of jobs considered not nais.
+	Total   int `json:"total"`
 	NotNais int `json:"notNais"`
+}
+
+type JobRunStatus struct {
+	State   JobRunState `json:"state"`
+	Message string      `json:"message"`
 }
