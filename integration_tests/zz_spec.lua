@@ -1,6 +1,16 @@
 -- This file is generated. Do not edit.
 
 
+--- Ensure the field contains a substring
+---@param substr string The contained string
+---@param caseSensitive? boolean Whether to do a case sensitive check. Defaults to true
+---@return userdata
+function Contains(contains, caseSensitive)
+	print("Contains: ", contains, caseSensitive)
+	---@diagnostic disable-next-line: return-type-mismatch
+	return {}
+end
+
 --- Ignore the field regardless of its value
 ---@return userdata
 function Ignore()

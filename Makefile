@@ -94,8 +94,6 @@ integration_test:
 tester_spec:
 	go run ./cmd/tester_spec
 
-	LUA_FORMATTER_VERSION ?= latest  # Default version to latest
-
 LUA_FORMATTER_URL := https://github.com/CppCXY/EmmyLuaCodeStyle/releases/download/$(LUA_FORMATTER_VERSION)
 OS := $(shell uname -s)
 ARCH := $(shell uname -m)

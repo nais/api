@@ -22,7 +22,7 @@ func (r *mutationResolver) CreateSecret(ctx context.Context, input secret.Create
 		return nil, err
 	}
 
-	s, err := secret.Create(ctx, input.Team, input.Environment, input.Name, input.Data)
+	s, err := secret.Create(ctx, input.Team, input.Environment, input.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -32,35 +32,47 @@ func (r *mutationResolver) CreateSecret(ctx context.Context, input secret.Create
 	}, nil
 }
 
-func (r *mutationResolver) UpdateSecret(ctx context.Context, input secret.UpdateSecretInput) (*secret.UpdateSecretPayload, error) {
+func (r *mutationResolver) SetSecretValue(ctx context.Context, input secret.SetSecretValueInput) (*secret.SetSecretValuePayload, error) {
 	if err := authz.RequireTeamMembershipCtx(ctx, input.Team); err != nil {
-		return nil, nil
+		return nil, err
 	}
 
-	s, err := secret.Update(ctx, input.Team, input.Environment, input.Name, input.Data)
+	s, err := secret.SetSecretValue(ctx, input.Team, input.Environment, input.Name, input.Value)
 	if err != nil {
 		return nil, err
 	}
 
-	return &secret.UpdateSecretPayload{
+	return &secret.SetSecretValuePayload{
+		Secret: s,
+	}, nil
+}
+
+func (r *mutationResolver) RemoveSecretValue(ctx context.Context, input secret.RemoveSecretValueInput) (*secret.RemoveSecretValuePayload, error) {
+	if err := authz.RequireTeamMembershipCtx(ctx, input.Team); err != nil {
+		return nil, err
+	}
+
+	s, err := secret.RemoveSecretValue(ctx, input.Team, input.Environment, input.SecretName, input.ValueName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &secret.RemoveSecretValuePayload{
 		Secret: s,
 	}, nil
 }
 
 func (r *mutationResolver) DeleteSecret(ctx context.Context, input secret.DeleteSecretInput) (*secret.DeleteSecretPayload, error) {
 	if err := authz.RequireTeamMembershipCtx(ctx, input.Team); err != nil {
-		return nil, nil
+		return nil, err
 	}
 
-	deleted, err := secret.Delete(ctx, input.Team, input.Environment, input.Name)
-	if err != nil {
-		return &secret.DeleteSecretPayload{
-			SecretDeleted: deleted,
-		}, err
+	if err := secret.Delete(ctx, input.Team, input.Environment, input.Name); err != nil {
+		return nil, err
 	}
 
 	return &secret.DeleteSecretPayload{
-		SecretDeleted: deleted,
+		SecretDeleted: true,
 	}, nil
 }
 
@@ -72,12 +84,12 @@ func (r *secretResolver) Team(ctx context.Context, obj *secret.Secret) (*team.Te
 	return team.Get(ctx, obj.TeamSlug)
 }
 
-func (r *secretResolver) Data(ctx context.Context, obj *secret.Secret) ([]*secret.SecretVariable, error) {
+func (r *secretResolver) Values(ctx context.Context, obj *secret.Secret) ([]*secret.SecretValue, error) {
 	if err := authz.RequireTeamMembershipCtx(ctx, obj.TeamSlug); err != nil {
-		return nil, nil
+		return nil, err
 	}
 
-	return secret.GetSecretData(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
+	return secret.GetSecretValues(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
 }
 
 func (r *secretResolver) Applications(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*application.Application], error) {

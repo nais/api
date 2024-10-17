@@ -33,34 +33,23 @@ type Secret struct {
 }
 
 type CreateSecretInput struct {
-	// The name of the secret.
-	Name string `json:"name"`
-	// The environment the secret is deployed to.
-	Environment string `json:"environment"`
-	// The team that owns the secret.
-	Team slug.Slug `json:"team"`
-	// The secret data.
-	Data []*SecretVariableInput `json:"data"`
+	Name        string    `json:"name"`
+	Environment string    `json:"environment"`
+	Team        slug.Slug `json:"team"`
 }
 
 type CreateSecretPayload struct {
-	// The created secret.
 	Secret *Secret `json:"secret"`
 }
 
 type UpdateSecretInput struct {
-	// The name of the secret.
-	Name string `json:"name"`
-	// The environment the secret is deployed to.
-	Environment string `json:"environment"`
-	// The team that owns the secret.
-	Team slug.Slug `json:"team"`
-	// The secret data.
-	Data []*SecretVariableInput `json:"data"`
+	Name        string                 `json:"name"`
+	Environment string                 `json:"environment"`
+	Team        slug.Slug              `json:"team"`
+	Data        []*SecretVariableInput `json:"data"`
 }
 
 type UpdateSecretPayload struct {
-	// The created secret.
 	Secret *Secret `json:"secret"`
 }
 
@@ -122,7 +111,7 @@ func toGraphSecret(o *unstructured.Unstructured, environmentName string) (*Secre
 	}, true
 }
 
-type SecretVariable struct {
+type SecretValue struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
@@ -135,4 +124,31 @@ type DeleteSecretInput struct {
 
 type DeleteSecretPayload struct {
 	SecretDeleted bool `json:"secretDeleted"`
+}
+
+type RemoveSecretValueInput struct {
+	SecretName  string    `json:"secretName"`
+	Environment string    `json:"environment"`
+	Team        slug.Slug `json:"team"`
+	ValueName   string    `json:"valueName"`
+}
+
+type RemoveSecretValuePayload struct {
+	Secret *Secret `json:"secret,omitempty"`
+}
+
+type SecretValueInput struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+type SetSecretValueInput struct {
+	Name        string            `json:"name"`
+	Environment string            `json:"environment"`
+	Team        slug.Slug         `json:"team"`
+	Value       *SecretValueInput `json:"value"`
+}
+
+type SetSecretValuePayload struct {
+	Secret *Secret `json:"secret,omitempty"`
 }
