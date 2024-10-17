@@ -138,6 +138,26 @@ status:
   synchronizationState: RolloutComplete
   synchronizationTime: 1704981603962494011
 ---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nais-deploy-chicken
+  labels:
+    app: nais-deploy-chicken
+spec:
+  ingressClassName: other-ingress-class
+  rules:
+    - host: chicken.deprecated.adeo.no
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: nais-deploy-chicken
+                port:
+                  number: 80
+---
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:

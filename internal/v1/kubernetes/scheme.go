@@ -12,6 +12,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -24,6 +25,7 @@ func NewScheme() (*runtime.Scheme, error) {
 		kafka_nais_io_v1.AddToScheme,
 		corev1.AddToScheme,
 		appsv1.AddToScheme,
+		netv1.AddToScheme,
 		sql_cnrm_cloud_google_com_v1beta1.AddToScheme,
 		storage_cnrm_cloud_gogle_com_v1beta1.AddToScheme,
 		bigquery_nais_io_v1.AddToScheme,

@@ -159,6 +159,7 @@ func ConfigureV1Graph(ctx context.Context, fakeClients bool, watcherMgr *watcher
 	kafkaTopicWatcher := kafkatopic.NewWatcher(ctx, watcherMgr)
 	secretWatcher := secret.NewWatcher(ctx, watcherMgr)
 	podWatcher := workload.NewWatcher(ctx, watcherMgr)
+	ingressWatcher := application.NewIngressWatcher(ctx, watcherMgr)
 
 	var utilizationClient utilization.ResourceUsageClient
 	if fakeClients {
@@ -184,7 +185,7 @@ func ConfigureV1Graph(ctx context.Context, fakeClients bool, watcherMgr *watcher
 	}
 	return loaderv1.Middleware(func(ctx context.Context) context.Context {
 		ctx = podlog.NewLoaderContext(ctx, k8sClientSets, log)
-		ctx = application.NewLoaderContext(ctx, appWatcher)
+		ctx = application.NewLoaderContext(ctx, appWatcher, ingressWatcher)
 		ctx = bigquery.NewLoaderContext(ctx, bqWatcher, dataloaderOpts)
 		ctx = bucket.NewLoaderContext(ctx, bucketWatcher)
 		ctx = job.NewLoaderContext(ctx, jobWatcher, runWatcher)

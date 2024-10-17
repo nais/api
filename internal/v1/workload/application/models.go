@@ -168,10 +168,15 @@ type KafkaLagScalingStrategy struct {
 
 func (KafkaLagScalingStrategy) IsScalingStrategy() {}
 
-func (a *Application) Ingresses() []string {
-	ret := make([]string, len(a.Spec.Ingresses))
+func (a *Application) Ingresses() []*Ingress {
+	ret := make([]*Ingress, len(a.Spec.Ingresses))
 	for i, ingress := range a.Spec.Ingresses {
-		ret[i] = string(ingress)
+		ret[i] = &Ingress{
+			URL:             string(ingress),
+			EnvironmentName: a.EnvironmentName,
+			TeamSlug:        a.TeamSlug,
+			ApplicationName: a.Name,
+		}
 	}
 	return ret
 }
@@ -326,4 +331,56 @@ type TeamInventoryCountApplications struct {
 	Total int `json:"total"`
 	// Number of applications considered not nais.
 	NotNais int `json:"notNais"`
+}
+
+type Ingress struct {
+	URL             string    `json:"url"`
+	EnvironmentName string    `json:"-"`
+	TeamSlug        slug.Slug `json:"-"`
+	ApplicationName string    `json:"-"`
+}
+
+type IngressType string
+
+const (
+	IngressTypeUnknown       IngressType = "UNKNOWN"
+	IngressTypeExternal      IngressType = "EXTERNAL"
+	IngressTypeInternal      IngressType = "INTERNAL"
+	IngressTypeAuthenticated IngressType = "AUTHENTICATED"
+)
+
+var AllIngressType = []IngressType{
+	IngressTypeUnknown,
+	IngressTypeExternal,
+	IngressTypeInternal,
+	IngressTypeAuthenticated,
+}
+
+func (e IngressType) IsValid() bool {
+	switch e {
+	case IngressTypeUnknown, IngressTypeExternal, IngressTypeInternal, IngressTypeAuthenticated:
+		return true
+	}
+	return false
+}
+
+func (e IngressType) String() string {
+	return string(e)
+}
+
+func (e *IngressType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = IngressType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid IngressType", str)
+	}
+	return nil
+}
+
+func (e IngressType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

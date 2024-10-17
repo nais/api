@@ -85,3 +85,24 @@ spec:
     requests:
       cpu: 100m
       memory: 128Mi
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-w-all-storage
+  labels:
+    app: app-w-all-storage
+spec:
+  ingressClassName: nais-ingress
+  rules:
+    - host: storageapp.example.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: app-w-all-storage
+                port:
+                  number: 80

@@ -43,12 +43,12 @@ func (checkDeprecatedIngress) Run(ctx context.Context, w workload.Workload) ([]W
 	app := w.(*application.Application)
 	var ret []WorkloadStatusError
 	for _, ingress := range app.Ingresses() {
-		i := strings.Join(strings.Split(ingress, ".")[1:], ".")
+		i := strings.Join(strings.Split(ingress.URL, ".")[1:], ".")
 		for _, deprecatedIngress := range deprecatedIngresses[app.EnvironmentName] {
 			if i == deprecatedIngress {
 				ret = append(ret, &WorkloadStatusDeprecatedIngress{
 					Level:   WorkloadStatusErrorLevelTodo,
-					Ingress: ingress,
+					Ingress: ingress.URL,
 				})
 			}
 		}

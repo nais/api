@@ -20,6 +20,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -109,6 +110,7 @@ func newScheme() *runtime.Scheme {
 	liberator_aiven_io_v1alpha1.AddToScheme(scheme)
 	unleash_nais_io_v1.AddToScheme(scheme)
 	batchv1.AddToScheme(scheme)
+	netv1.AddToScheme(scheme)
 	return scheme
 }
 

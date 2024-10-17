@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"slices"
 	"time"
 
@@ -14,8 +15,11 @@ import (
 	"github.com/nais/api/internal/v1/searchv1"
 	"github.com/nais/api/internal/v1/workload"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/yaml"
 )
 
@@ -169,4 +173,36 @@ func ListAllInstances(ctx context.Context, environmentName string, teamSlug slug
 		ret[i] = toGraphInstance(pod, environmentName, appName)
 	}
 	return ret, nil
+}
+
+func GetIngressType(ctx context.Context, ingress *Ingress) IngressType {
+	uri, err := url.Parse(ingress.URL)
+	if err != nil {
+		return IngressTypeUnknown
+	}
+
+	selector := labels.NewSelector()
+	req, err := labels.NewRequirement("app", selection.Equals, []string{ingress.ApplicationName})
+	if err != nil {
+		return IngressTypeUnknown
+	}
+	selector = selector.Add(*req)
+
+	ings := fromContext(ctx).ingressWatcher.GetByNamespace(ingress.TeamSlug.String(), watcher.WithLabels(selector))
+	for _, ing := range ings {
+		if ing.Cluster != ingress.EnvironmentName {
+			continue
+		}
+
+		for _, rule := range ing.Obj.Spec.Rules {
+			if rule.Host == uri.Host {
+				if ret, ok := ingressClassMapping[ptr.Deref(ing.Obj.Spec.IngressClassName, "")]; ok {
+					return ret
+				}
+				return IngressTypeUnknown
+			}
+		}
+	}
+
+	return IngressTypeUnknown
 }

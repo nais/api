@@ -74,6 +74,7 @@ type ResolverRoot interface {
 	ContainerImageWorkloadReference() ContainerImageWorkloadReferenceResolver
 	DeleteApplicationPayload() DeleteApplicationPayloadResolver
 	DeleteJobPayload() DeleteJobPayloadResolver
+	Ingress() IngressResolver
 	Job() JobResolver
 	KafkaTopic() KafkaTopicResolver
 	KafkaTopicAcl() KafkaTopicAclResolver
@@ -362,6 +363,11 @@ type ComplexityRoot struct {
 
 	InboundNetworkPolicy struct {
 		Rules func(childComplexity int) int
+	}
+
+	Ingress struct {
+		Type func(childComplexity int) int
+		URL  func(childComplexity int) int
 	}
 
 	Job struct {
@@ -1393,6 +1399,9 @@ type DeleteApplicationPayloadResolver interface {
 }
 type DeleteJobPayloadResolver interface {
 	Team(ctx context.Context, obj *job.DeleteJobPayload) (*team.Team, error)
+}
+type IngressResolver interface {
+	Type(ctx context.Context, obj *application.Ingress) (application.IngressType, error)
 }
 type JobResolver interface {
 	Team(ctx context.Context, obj *job.Job) (*team.Team, error)
@@ -2546,6 +2555,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.InboundNetworkPolicy.Rules(childComplexity), true
+
+	case "Ingress.type":
+		if e.complexity.Ingress.Type == nil {
+			break
+		}
+
+		return e.complexity.Ingress.Type(childComplexity), true
+
+	case "Ingress.url":
+		if e.complexity.Ingress.URL == nil {
+			break
+		}
+
+		return e.complexity.Ingress.URL(childComplexity), true
 
 	case "Job.authIntegrations":
 		if e.complexity.Job.AuthIntegrations == nil {
@@ -7011,7 +7034,7 @@ type Application implements Node & Workload {
 	resources: ApplicationResources!
 
 	"List of ingresses for the application."
-	ingresses: [String!]!
+	ingresses: [Ingress!]!
 
 	"List of authentication and authorization for the application."
 	authIntegrations: [ApplicationAuthIntegrations!]!
@@ -7155,6 +7178,20 @@ input RestartApplicationInput {
 type RestartApplicationPayload {
 	"The application that was restarted."
 	application: Application
+}
+
+type Ingress {
+	"URL for the ingress."
+	url: String!
+	"Type of ingress."
+	type: IngressType!
+}
+
+enum IngressType {
+	UNKNOWN
+	EXTERNAL
+	INTERNAL
+	AUTHENTICATED
 }
 `, BuiltIn: false},
 	{Name: "../schema/auditlog.graphqls", Input: `extend type Team {
@@ -16926,9 +16963,9 @@ func (ec *executionContext) _Application_ingresses(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]string)
+	res := resTmp.([]*application.Ingress)
 	fc.Result = res
-	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+	return ec.marshalNIngress2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐIngressᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Application_ingresses(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -16938,7 +16975,13 @@ func (ec *executionContext) fieldContext_Application_ingresses(_ context.Context
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "url":
+				return ec.fieldContext_Ingress_url(ctx, field)
+			case "type":
+				return ec.fieldContext_Ingress_type(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Ingress", field.Name)
 		},
 	}
 	return fc, nil
@@ -23033,6 +23076,94 @@ func (ec *executionContext) fieldContext_InboundNetworkPolicy_rules(_ context.Co
 				return ec.fieldContext_NetworkPolicyRule_mutual(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type NetworkPolicyRule", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Ingress_url(ctx context.Context, field graphql.CollectedField, obj *application.Ingress) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Ingress_url(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Ingress_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Ingress",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Ingress_type(ctx context.Context, field graphql.CollectedField, obj *application.Ingress) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Ingress_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Ingress().Type(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(application.IngressType)
+	fc.Result = res
+	return ec.marshalNIngressType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐIngressType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Ingress_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Ingress",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type IngressType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -59020,6 +59151,81 @@ func (ec *executionContext) _InboundNetworkPolicy(ctx context.Context, sel ast.S
 	return out
 }
 
+var ingressImplementors = []string{"Ingress"}
+
+func (ec *executionContext) _Ingress(ctx context.Context, sel ast.SelectionSet, obj *application.Ingress) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, ingressImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Ingress")
+		case "url":
+			out.Values[i] = ec._Ingress_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "type":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Ingress_type(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var jobImplementors = []string{"Job", "Node", "Workload", "SearchNode"}
 
 func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj *job.Job) graphql.Marshaler {
@@ -71908,6 +72114,70 @@ func (ec *executionContext) marshalNInboundNetworkPolicy2ᚖgithubᚗcomᚋnais�
 		return graphql.Null
 	}
 	return ec._InboundNetworkPolicy(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNIngress2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐIngressᚄ(ctx context.Context, sel ast.SelectionSet, v []*application.Ingress) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNIngress2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐIngress(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNIngress2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐIngress(ctx context.Context, sel ast.SelectionSet, v *application.Ingress) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Ingress(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNIngressType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐIngressType(ctx context.Context, v interface{}) (application.IngressType, error) {
+	var res application.IngressType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNIngressType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐIngressType(ctx context.Context, sel ast.SelectionSet, v application.IngressType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {

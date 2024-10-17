@@ -4,3 +4,27 @@ metadata:
   name: app-name
 spec:
   image: navikt/app-name:latest
+  ingresses:
+    - "https://my-app.server.com"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-name
+  labels:
+    name: app-name
+    app: app-name
+spec:
+  ingressClassName: nais-ingress
+  rules:
+    - host: my-app.server.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: my-app
+                port:
+                  number: 80

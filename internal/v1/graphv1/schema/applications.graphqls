@@ -66,7 +66,7 @@ type Application implements Node & Workload {
 	resources: ApplicationResources!
 
 	"List of ingresses for the application."
-	ingresses: [String!]!
+	ingresses: [Ingress!]!
 
 	"List of authentication and authorization for the application."
 	authIntegrations: [ApplicationAuthIntegrations!]!
@@ -210,4 +210,18 @@ input RestartApplicationInput {
 type RestartApplicationPayload {
 	"The application that was restarted."
 	application: Application
+}
+
+type Ingress {
+	"URL for the ingress."
+	url: String!
+	"Type of ingress."
+	type: IngressType!
+}
+
+enum IngressType {
+	UNKNOWN
+	EXTERNAL
+	INTERNAL
+	AUTHENTICATED
 }

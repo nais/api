@@ -54,6 +54,10 @@ func (r *deleteApplicationPayloadResolver) Team(ctx context.Context, obj *applic
 	return team.Get(ctx, *obj.TeamSlug)
 }
 
+func (r *ingressResolver) Type(ctx context.Context, obj *application.Ingress) (application.IngressType, error) {
+	return application.GetIngressType(ctx, obj), nil
+}
+
 func (r *mutationResolver) DeleteApplication(ctx context.Context, input application.DeleteApplicationInput) (*application.DeleteApplicationPayload, error) {
 	if err := authz.RequireTeamMembershipCtx(ctx, input.TeamSlug); err != nil {
 		return nil, err
@@ -117,6 +121,8 @@ func (r *Resolver) DeleteApplicationPayload() gengqlv1.DeleteApplicationPayloadR
 	return &deleteApplicationPayloadResolver{r}
 }
 
+func (r *Resolver) Ingress() gengqlv1.IngressResolver { return &ingressResolver{r} }
+
 func (r *Resolver) RestartApplicationPayload() gengqlv1.RestartApplicationPayloadResolver {
 	return &restartApplicationPayloadResolver{r}
 }
@@ -124,5 +130,6 @@ func (r *Resolver) RestartApplicationPayload() gengqlv1.RestartApplicationPayloa
 type (
 	applicationResolver               struct{ *Resolver }
 	deleteApplicationPayloadResolver  struct{ *Resolver }
+	ingressResolver                   struct{ *Resolver }
 	restartApplicationPayloadResolver struct{ *Resolver }
 )
