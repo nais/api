@@ -1,6 +1,6 @@
 package grpc
 
-import "github.com/nais/api/pkg/protoapi"
+import "github.com/nais/api/pkg/apiclient/protoapi"
 
 type Paginatable interface {
 	GetLimit() int64

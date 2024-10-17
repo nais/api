@@ -13,6 +13,12 @@ metadata:
   resourceVersion: "3701834314"
   uid: 91ba6c9d-0199-4123-aff6-aa27ce5d2056
 spec:
+  accessPolicy:
+    outbound:
+      rules:
+        - application: app-w-all-storage
+          namespace: devteam
+
   envFrom:
     - secret: my-secret
     - secret: other-secret

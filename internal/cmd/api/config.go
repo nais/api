@@ -151,8 +151,11 @@ type oAuthConfig struct {
 }
 
 type slackConfig struct {
-	Token           string `env:"SLACK_API_TOKEN"`
-	FeedbackChannel string `env:"SLACK_FEEDBACK_CHANNEL"`
+	// ApiToken is the OAuth token for the Slack application that will post the feedback message.
+	ApiToken string `env:"SLACK_API_TOKEN"`
+
+	// FeedbackChannelID is the ID of the Slack channel where feedback messages will be posted.
+	FeedbackChannelID string `env:"SLACK_FEEDBACK_CHANNEL_ID"`
 }
 
 type unleashConfig struct {

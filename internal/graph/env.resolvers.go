@@ -19,7 +19,7 @@ func (r *envResolver) ID(ctx context.Context, obj *model.Env) (*scalar.Ident, er
 	return &id, nil
 }
 
-func (r *envResolver) GcpProjectID(ctx context.Context, obj *model.Env) (*string, error) {
+func (r *envResolver) GCPProjectID(ctx context.Context, obj *model.Env) (*string, error) {
 	if obj.DBType == nil {
 		te, err := loader.GetTeamEnvironment(ctx, slug.Slug(obj.Team), obj.Name)
 		if err != nil {

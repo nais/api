@@ -8,7 +8,7 @@ import (
 
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/pkg/protoapi"
+	"github.com/nais/api/pkg/apiclient/protoapi"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"golang.org/x/sync/errgroup"

@@ -12,16 +12,16 @@ import (
 
 const costForInstance = `-- name: CostForInstance :one
 SELECT
-    COALESCE(SUM(daily_cost), 0)::real
+	COALESCE(SUM(daily_cost), 0)::real
 FROM
-    cost
+	cost
 WHERE
-    team_slug = $1
-  AND cost_type = $2
-  AND app = $3
-  AND date >= $4
-  AND date <= $5
-  AND environment = $6::text
+	team_slug = $1
+	AND cost_type = $2
+	AND app = $3
+	AND date >= $4
+	AND date <= $5
+	AND environment = $6::text
 `
 
 type CostForInstanceParams struct {
@@ -49,14 +49,14 @@ func (q *Queries) CostForInstance(ctx context.Context, arg CostForInstanceParams
 
 const costForTeam = `-- name: CostForTeam :one
 SELECT
-    COALESCE(SUM(daily_cost), 0)::real
+	COALESCE(SUM(daily_cost), 0)::real
 FROM
-    cost
+	cost
 WHERE
-    team_slug = $1
-    AND cost_type = $2
-    AND date >= $3
-    AND date <= $4
+	team_slug = $1
+	AND cost_type = $2
+	AND date >= $3
+	AND date <= $4
 `
 
 type CostForTeamParams struct {
@@ -80,14 +80,14 @@ func (q *Queries) CostForTeam(ctx context.Context, arg CostForTeamParams) (float
 
 const currentSqlInstancesCostForTeam = `-- name: CurrentSqlInstancesCostForTeam :one
 SELECT
-    COALESCE(SUM(daily_cost), 0)::real
+	COALESCE(SUM(daily_cost), 0)::real
 FROM
-    cost
+	cost
 WHERE
-    team_slug = $1
-    AND cost_type = 'Cloud SQL'
-    AND date >= $2
-    AND date <= $3
+	team_slug = $1
+	AND cost_type = 'Cloud SQL'
+	AND date >= $2
+	AND date <= $3
 `
 
 type CurrentSqlInstancesCostForTeamParams struct {
@@ -105,17 +105,18 @@ func (q *Queries) CurrentSqlInstancesCostForTeam(ctx context.Context, arg Curren
 
 const dailyCostForApp = `-- name: DailyCostForApp :many
 SELECT
-    id, environment, team_slug, app, cost_type, date, daily_cost
+	id, environment, team_slug, app, cost_type, date, daily_cost
 FROM
-    cost
+	cost
 WHERE
-    date >= $1::date
-    AND date <= $2::date
-    AND environment = $3::text
-    AND team_slug = $4::slug
-    AND app = $5
+	date >= $1::date
+	AND date <= $2::date
+	AND environment = $3::text
+	AND team_slug = $4::slug
+	AND app = $5
 ORDER BY
-    date, cost_type ASC
+	date,
+	cost_type ASC
 `
 
 type DailyCostForAppParams struct {
@@ -164,15 +165,18 @@ func (q *Queries) DailyCostForApp(ctx context.Context, arg DailyCostForAppParams
 
 const dailyCostForTeam = `-- name: DailyCostForTeam :many
 SELECT
-    id, environment, team_slug, app, cost_type, date, daily_cost
+	id, environment, team_slug, app, cost_type, date, daily_cost
 FROM
-    cost
+	cost
 WHERE
-    date >= $1::date
-    AND date <= $2::date
-    AND team_slug = $3::slug
+	date >= $1::date
+	AND date <= $2::date
+	AND team_slug = $3::slug
 ORDER BY
-    date, environment, app, cost_type ASC
+	date,
+	environment,
+	app,
+	cost_type ASC
 `
 
 type DailyCostForTeamParams struct {
@@ -212,21 +216,24 @@ func (q *Queries) DailyCostForTeam(ctx context.Context, arg DailyCostForTeamPara
 
 const dailyEnvCostForTeam = `-- name: DailyEnvCostForTeam :many
 SELECT
-    team_slug,
-    app,
-    date,
-    SUM(daily_cost)::real AS daily_cost
+	team_slug,
+	app,
+	date,
+	SUM(daily_cost)::real AS daily_cost
 FROM
-    cost
+	cost
 WHERE
-    date >= $1::date
-    AND date <= $2::date
-    AND environment = $3
-    AND team_slug = $4::slug
+	date >= $1::date
+	AND date <= $2::date
+	AND environment = $3
+	AND team_slug = $4::slug
 GROUP BY
-    team_slug, app, date
+	team_slug,
+	app,
+	date
 ORDER BY
-    date, app ASC
+	date,
+	app ASC
 `
 
 type DailyEnvCostForTeamParams struct {
@@ -276,9 +283,9 @@ func (q *Queries) DailyEnvCostForTeam(ctx context.Context, arg DailyEnvCostForTe
 
 const lastCostDate = `-- name: LastCostDate :one
 SELECT
-    MAX(date)::date AS date
+	MAX(date)::date AS date
 FROM
-    cost
+	cost
 `
 
 // LastCostDate will return the last date that has a cost.
@@ -290,30 +297,43 @@ func (q *Queries) LastCostDate(ctx context.Context) (pgtype.Date, error) {
 }
 
 const monthlyCostForApp = `-- name: MonthlyCostForApp :many
-WITH last_run AS (
-    SELECT MAX(date)::date AS "last_run"
-    FROM cost
-)
+WITH
+	last_run AS (
+		SELECT
+			MAX(date)::date AS "last_run"
+		FROM
+			cost
+	)
 SELECT
-    team_slug,
-    app,
-    environment,
-    date_trunc('month', date)::date AS month,
-    -- Extract last day of known cost samples for the month, or the last recorded date
-    -- This helps with estimation etc
-    MAX(CASE
-        WHEN date_trunc('month', date) < date_trunc('month', last_run) THEN date_trunc('month', date) + interval '1 month' - interval '1 day'
-        ELSE date_trunc('day', last_run)
-    END)::date AS last_recorded_date,
-    SUM(daily_cost)::real AS daily_cost
-FROM cost c
-LEFT JOIN last_run ON true
-WHERE c.team_slug = $1::slug
-AND c.app = $2
-AND c.environment = $3::text
-GROUP BY team_slug, app, environment, month
-ORDER BY month DESC
-LIMIT 12
+	team_slug,
+	app,
+	environment,
+	date_trunc('month', date)::date AS month,
+	-- Extract last day of known cost samples for the month, or the last recorded date
+	-- This helps with estimation etc
+	MAX(
+		CASE
+			WHEN date_trunc('month', date) < date_trunc('month', last_run) THEN date_trunc('month', date) + interval '1 month' - interval '1 day'
+			ELSE date_trunc('day', last_run)
+		END
+	)::date AS last_recorded_date,
+	SUM(daily_cost)::real AS daily_cost
+FROM
+	cost c
+	LEFT JOIN last_run ON true
+WHERE
+	c.team_slug = $1::slug
+	AND c.app = $2
+	AND c.environment = $3::text
+GROUP BY
+	team_slug,
+	app,
+	environment,
+	month
+ORDER BY
+	month DESC
+LIMIT
+	12
 `
 
 type MonthlyCostForAppParams struct {
@@ -359,10 +379,16 @@ func (q *Queries) MonthlyCostForApp(ctx context.Context, arg MonthlyCostForAppPa
 }
 
 const monthlyCostForTeam = `-- name: MonthlyCostForTeam :many
-SELECT team_slug, month, last_recorded_date, daily_cost FROM cost_monthly_team
-WHERE team_slug = $1::slug
-ORDER BY month DESC
-LIMIT 12
+SELECT
+	team_slug, month, last_recorded_date, daily_cost
+FROM
+	cost_monthly_team
+WHERE
+	team_slug = $1::slug
+ORDER BY
+	month DESC
+LIMIT
+	12
 `
 
 func (q *Queries) MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*CostMonthlyTeam, error) {

@@ -1,0 +1,100 @@
+extend type Team {
+	"Google Cloud Storage buckets owned by the team."
+	buckets(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Ordering options for items returned from the connection."
+		orderBy: BucketOrder
+	): BucketConnection!
+}
+
+extend type TeamEnvironment {
+	"Storage bucket in the team environment."
+	bucket(name: String!): Bucket!
+}
+
+extend interface Workload {
+	"Google Cloud Storage referenced by the workload. This does not currently support pagination, but will return all available buckets."
+	buckets(
+		"Ordering options for items returned from the connection."
+		orderBy: BucketOrder
+	): BucketConnection!
+}
+
+extend type Application {
+	"Google Cloud Storage referenced by the application. This does not currently support pagination, but will return all available buckets."
+	buckets(
+		"Ordering options for items returned from the connection."
+		orderBy: BucketOrder
+	): BucketConnection!
+}
+
+extend type Job {
+	"Google Cloud Storage referenced by the job. This does not currently support pagination, but will return all available buckets."
+	buckets(
+		"Ordering options for items returned from the connection."
+		orderBy: BucketOrder
+	): BucketConnection!
+}
+
+extend type TeamInventoryCounts {
+	buckets: TeamInventoryCountBuckets!
+}
+
+type TeamInventoryCountBuckets {
+	"Total number of Google Cloud Storage buckets."
+	total: Int!
+}
+
+type Bucket implements Persistence & Node {
+	id: ID!
+	name: String!
+	team: Team!
+	environment: TeamEnvironment!
+	cascadingDelete: Boolean!
+	publicAccessPrevention: String!
+	uniformBucketLevelAccess: Boolean!
+	workload: Workload
+	status: BucketStatus!
+}
+
+type BucketStatus {
+	state: String!
+}
+
+type BucketConnection {
+	pageInfo: PageInfo!
+	nodes: [Bucket!]!
+	edges: [BucketEdge!]!
+}
+
+type BucketEdge {
+	cursor: Cursor!
+	node: Bucket!
+}
+
+input BucketOrder {
+	field: BucketOrderField!
+	direction: OrderDirection!
+}
+
+enum BucketOrderField {
+	NAME
+	ENVIRONMENT
+}
+
+extend union SearchNode = Bucket
+
+extend enum SearchType {
+	BUCKET
+}

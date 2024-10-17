@@ -13,36 +13,36 @@ metadata:
       uid: 6957e4dd-2997-46b3-8f6f-b6d1e0606b1d
 spec:
   acl:
-  - access: write
-    application: xxx
-    team: yyy
-  - access: readwrite
-    application: syfosmregister
-    team: teamsykmelding
-  - access: read
-    application: syfosmvarsel
-    team: teamsykmelding
-  - access: read
-    application: syfosmsak-stream
-    team: teamsykmelding
-  - access: read
-    application: sykmeldinger-backend-kafka
-    team: teamsykmelding
-  - access: read
-    application: k143566
-    team: teamsykmelding
-  - access: read
-    application: migrator
-    team: tsm
-  - access: write
-    application: app-w-all-storage
-    team: devteam
-  - access: read
-    application: "*"
-    team: devteam
-  - access: read
-    application: "*"
-    team: "*"
+    - access: write
+      application: xxx
+      team: yyy
+    - access: readwrite
+      application: syfosmregister
+      team: teamsykmelding
+    - access: read
+      application: syfosmvarsel
+      team: teamsykmelding
+    - access: read
+      application: syfosmsak-stream
+      team: teamsykmelding
+    - access: read
+      application: sykmeldinger-backend-kafka
+      team: teamsykmelding
+    - access: read
+      application: k143566
+      team: teamsykmelding
+    - access: read
+      application: migrator
+      team: tsm
+    - access: write
+      application: app-w-all-storage
+      team: devteam
+    - access: read
+      application: "*"
+      team: devteam
+    - access: read
+      application: "*"
+      team: "*"
   config:
     cleanupPolicy: delete
     maxMessageBytes: 1048588
@@ -70,9 +70,9 @@ metadata:
   namespace: devteam
 spec:
   acl:
-  - access: read
-    application: migrator
-    team: tsm
+    - access: read
+      application: migrator
+      team: tsm
   config:
     cleanupPolicy: delete
     maxMessageBytes: 1048588

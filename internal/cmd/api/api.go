@@ -9,19 +9,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/nais/api/internal/audit"
-	"github.com/nais/api/internal/bigquery"
-	"github.com/nais/api/internal/kafka"
-	"github.com/nais/api/internal/opensearch"
-	"github.com/nais/api/internal/slack"
-
-	"github.com/nais/api/internal/unleash"
-
 	"cloud.google.com/go/pubsub"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
+	"github.com/nais/api/internal/audit"
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auth/authn"
+	"github.com/nais/api/internal/bigquery"
 	"github.com/nais/api/internal/bucket"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/fixtures"
@@ -31,7 +25,9 @@ import (
 	"github.com/nais/api/internal/grpc"
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/k8s/fake"
+	"github.com/nais/api/internal/kafka"
 	"github.com/nais/api/internal/logger"
+	"github.com/nais/api/internal/opensearch"
 	"github.com/nais/api/internal/redis"
 	"github.com/nais/api/internal/resourceusage"
 	fakeresourceusage "github.com/nais/api/internal/resourceusage/fake"
@@ -39,6 +35,13 @@ import (
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
+	"github.com/nais/api/internal/unleash"
+	"github.com/nais/api/internal/v1/graphv1"
+	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
+	"github.com/nais/api/internal/v1/kubernetes"
+	fakev1 "github.com/nais/api/internal/v1/kubernetes/fake"
+	"github.com/nais/api/internal/v1/kubernetes/watcher"
+	"github.com/nais/api/internal/v1/vulnerability"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2/google"
@@ -219,7 +222,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		kafka.NewClient(k8sClient.Informers(), log, db),
 		unleashMgr,
 		audit.NewAuditor(db),
-		slack.New(cfg.Slack.Token, cfg.Slack.FeedbackChannel),
 	)
 
 	graphHandler, err := graph.NewHandler(gengql.Config{
@@ -231,6 +233,41 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}, log)
 	if err != nil {
 		return fmt.Errorf("create graph handler: %w", err)
+	}
+
+	scheme, err := kubernetes.NewScheme()
+	if err != nil {
+		return fmt.Errorf("create k8s scheme: %w", err)
+	}
+
+	watcherOpts := []watcher.Option{}
+	if cfg.WithFakeClients {
+		watcherOpts = append(watcherOpts, watcher.WithClientCreator(fakev1.Clients(os.DirFS("./data/k8s"))))
+	}
+
+	clusterConfig, err := kubernetes.CreateClusterConfigMap(cfg.Tenant, cfg.K8s.Clusters)
+	if err != nil {
+		return fmt.Errorf("creating cluster config map: %w", err)
+	}
+
+	watcherMgr, err := watcher.NewManager(scheme, clusterConfig, log.WithField("subsystem", "k8s_watcher"), watcherOpts...)
+	if err != nil {
+		return fmt.Errorf("create k8s watcher manager: %w", err)
+	}
+
+	k8sClientSets, err := kubernetes.NewClientSets(clusterConfig)
+	if err != nil {
+		return fmt.Errorf("create k8s client sets: %w", err)
+	}
+
+	graphv1Handler, err := graphv1.NewHandler(gengqlv1.Config{
+		Resolvers: graphv1.NewResolver(
+			&graphv1.TopicWrapper{Topic: pubsubTopic},
+			graphv1.WithLogger(log),
+		),
+	}, log)
+	if err != nil {
+		return fmt.Errorf("create graphv1 handler: %w", err)
 	}
 
 	wg, ctx := errgroup.WithContext(ctx)
@@ -253,9 +290,16 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return err
 	}
 
+	vulnClient := vulnerability.New(cfg.DependencyTrack.Endpoint,
+		cfg.DependencyTrack.Username,
+		cfg.DependencyTrack.Password,
+		cfg.DependencyTrack.Frontend,
+		log.WithField("client", "dependencytrack"),
+	)
+
 	// HTTP server
 	wg.Go(func() error {
-		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, db, authHandler, graphHandler, promReg, log)
+		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, cfg.Tenant, cfg.K8s.Clusters, db, k8sClientSets, watcherMgr, sqlInstanceClient.Admin, authHandler, graphHandler, graphv1Handler, promReg, vulnClient, log)
 	})
 
 	wg.Go(func() error {
