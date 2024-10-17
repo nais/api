@@ -118,20 +118,20 @@ metadata:
 spec:
   ingressClassName: nais-ingress-external
   rules:
-  - host: storageapp.eksternius.example.com
-    http:
-      paths:
-      - backend:
-          service:
-            name: app-w-all-storage
-            port:
-              number: 80
-        path: /
-        pathType: Prefix
+    - host: storageapp.eksternius.example.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: app-w-all-storage
+                port:
+                  number: 80
+            path: /
+            pathType: Prefix
 status:
   loadBalancer:
     ingress:
-    - ip: 192.169.69.69
+      - ip: 192.169.69.69
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -142,17 +142,17 @@ metadata:
 spec:
   ingressClassName: nais-ingress-fa
   rules:
-  - host: storageapp.ansatt.dev.nav.no
-    http:
-      paths:
-      - backend:
-          service:
-            name: app-w-all-storage
-            port:
-              number: 80
-        path: /
-        pathType: ImplementationSpecific
+    - host: storageapp.ansatt.dev.nav.no
+      http:
+        paths:
+          - backend:
+              service:
+                name: app-w-all-storage
+                port:
+                  number: 80
+            path: /
+            pathType: ImplementationSpecific
 status:
   loadBalancer:
     ingress:
-    - ip: 192.169.69.70
+      - ip: 192.169.69.70
