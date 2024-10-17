@@ -1,23 +1,10 @@
-import SqlPlugin, * as pps from "prettier-plugin-sql";
-
-const SQLCFormat = {
-	...SqlPlugin,
-	printers: {
-		sql: {
-			print(path, opts) {
-				const source = SqlPlugin.printers.sql.print(path, opts);
-				return source.replaceAll(/(sqlc\.\w+)\s\(/g, "$1(");
-			},
-		},
-	},
-};
-
-const config = {
+/** @type {import('prettier').Options} */
+module.exports = {
 	useTabs: true,
 	singleQuote: false,
 	trailingComma: "all",
 	printWidth: 100,
-	plugins: [SQLCFormat],
+	plugins: [require.resolve("prettier-plugin-sql-custom")],
 	overrides: [
 		{
 			files: "*.sql",
@@ -32,5 +19,3 @@ const config = {
 		},
 	],
 };
-
-export default config;
