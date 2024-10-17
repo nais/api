@@ -8,7 +8,6 @@ import (
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
-	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
 	"github.com/nais/api/internal/v1/searchv1"
@@ -20,29 +19,6 @@ import (
 	"k8s.io/apimachinery/pkg/selection"
 	"sigs.k8s.io/yaml"
 )
-
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *JobOrder) (*JobConnection, error) {
-	ret := ListAllForTeam(ctx, teamSlug)
-	if orderBy != nil {
-		switch orderBy.Field {
-		case JobOrderFieldName:
-			slices.SortStableFunc(ret, func(a, b *Job) int {
-				return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
-			})
-		case JobOrderFieldEnvironment:
-			slices.SortStableFunc(ret, func(a, b *Job) int {
-				return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
-			})
-		case JobOrderFieldDeploymentTime:
-			panic("not implemented yet")
-		case JobOrderFieldStatus:
-			panic("not implemented yet")
-		}
-	}
-
-	jobs := pagination.Slice(ret, page)
-	return pagination.NewConnection(jobs, page, int32(len(ret))), nil
-}
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*Job {
 	allJobs := fromContext(ctx).jobWatcher.GetByNamespace(teamSlug.String())

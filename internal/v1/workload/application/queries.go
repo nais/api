@@ -4,12 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"slices"
 	"time"
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
-	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
 	"github.com/nais/api/internal/v1/searchv1"
@@ -23,40 +21,8 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *ApplicationOrder) (*ApplicationConnection, error) {
-	ret := ListAllForTeam(ctx, teamSlug)
-
-	if orderBy == nil {
-		orderBy = &ApplicationOrder{
-			Field:     ApplicationOrderFieldName,
-			Direction: modelv1.OrderDirectionAsc,
-		}
-	}
-
-	switch orderBy.Field {
-	case ApplicationOrderFieldName:
-		slices.SortStableFunc(ret, func(a, b *Application) int {
-			return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
-		})
-	case ApplicationOrderFieldEnvironment:
-		slices.SortStableFunc(ret, func(a, b *Application) int {
-			return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
-		})
-	case ApplicationOrderFieldDeploymentTime:
-		slices.SortStableFunc(ret, func(a, b *Application) int {
-			return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
-		})
-	case ApplicationOrderFieldStatus:
-		panic("not implemented yet")
-	}
-
-	apps := pagination.Slice(ret, page)
-	return pagination.NewConnection(apps, page, int32(len(ret))), nil
-}
-
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*Application {
 	k8s := fromContext(ctx).appWatcher
-
 	allApplications := k8s.GetByNamespace(teamSlug.String())
 
 	ret := make([]*Application, len(allApplications))

@@ -2,9 +2,11 @@ package graphv1
 
 import (
 	"context"
+	"slices"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
+	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/status"
 	"github.com/nais/api/internal/v1/team"
@@ -99,7 +101,37 @@ func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *
 		return nil, err
 	}
 
-	return application.ListForTeam(ctx, obj.Slug, page, orderBy)
+	if orderBy == nil {
+		orderBy = &application.ApplicationOrder{
+			Field:     application.ApplicationOrderFieldName,
+			Direction: modelv1.OrderDirectionAsc,
+		}
+	}
+
+	ret := application.ListAllForTeam(ctx, obj.Slug)
+	switch orderBy.Field {
+	case application.ApplicationOrderFieldName:
+		slices.SortStableFunc(ret, func(a, b *application.Application) int {
+			return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
+		})
+	case application.ApplicationOrderFieldEnvironment:
+		slices.SortStableFunc(ret, func(a, b *application.Application) int {
+			return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
+		})
+	case application.ApplicationOrderFieldDeploymentTime:
+		panic("not implemented yet")
+	case application.ApplicationOrderFieldStatus:
+		slices.SortStableFunc(ret, func(a, b *application.Application) int {
+			return modelv1.Compare(
+				status.ForWorkload(ctx, a).State,
+				status.ForWorkload(ctx, b).State,
+				orderBy.Direction,
+			)
+		})
+	}
+
+	apps := pagination.Slice(ret, page)
+	return pagination.NewConnection(apps, page, int32(len(ret))), nil
 }
 
 func (r *teamEnvironmentResolver) Application(ctx context.Context, obj *team.TeamEnvironment, name string) (*application.Application, error) {

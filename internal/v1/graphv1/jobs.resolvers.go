@@ -2,9 +2,11 @@ package graphv1
 
 import (
 	"context"
+	"slices"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
+	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/status"
 	"github.com/nais/api/internal/v1/team"
@@ -81,7 +83,39 @@ func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, aft
 		return nil, err
 	}
 
-	return job.ListForTeam(ctx, obj.Slug, page, orderBy)
+	if orderBy == nil {
+		orderBy = &job.JobOrder{
+			Field:     job.JobOrderFieldName,
+			Direction: modelv1.OrderDirectionAsc,
+		}
+	}
+
+	ret := job.ListAllForTeam(ctx, obj.Slug)
+	if orderBy != nil {
+		switch orderBy.Field {
+		case job.JobOrderFieldName:
+			slices.SortStableFunc(ret, func(a, b *job.Job) int {
+				return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
+			})
+		case job.JobOrderFieldEnvironment:
+			slices.SortStableFunc(ret, func(a, b *job.Job) int {
+				return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
+			})
+		case job.JobOrderFieldDeploymentTime:
+			panic("not implemented yet")
+		case job.JobOrderFieldStatus:
+			slices.SortStableFunc(ret, func(a, b *job.Job) int {
+				return modelv1.Compare(
+					status.ForWorkload(ctx, a).State,
+					status.ForWorkload(ctx, b).State,
+					orderBy.Direction,
+				)
+			})
+		}
+	}
+
+	jobs := pagination.Slice(ret, page)
+	return pagination.NewConnection(jobs, page, int32(len(ret))), nil
 }
 
 func (r *teamEnvironmentResolver) Job(ctx context.Context, obj *team.TeamEnvironment, name string) (*job.Job, error) {
