@@ -127,8 +127,11 @@ func (j *JobRun) CompletionTime() *time.Time {
 				return &cs.LastTransitionTime.Time
 			}
 		}
+
+		return nil
+	default:
+		return nil
 	}
-	return nil
 }
 
 func (j *JobRun) Image() *workload.ContainerImage {
@@ -167,8 +170,9 @@ func (e JobRunState) String() string {
 		return "SUCCEEDED"
 	case JobRunStateFailed:
 		return "FAILED"
+	default:
+		return "UNKNOWN"
 	}
-	return "UNKNOWN"
 }
 
 func (e *JobRunState) UnmarshalGQL(v interface{}) error {

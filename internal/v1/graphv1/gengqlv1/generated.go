@@ -157,6 +157,31 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	ApplicationInstance struct {
+		Created  func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Image    func(childComplexity int) int
+		Name     func(childComplexity int) int
+		Restarts func(childComplexity int) int
+		Status   func(childComplexity int) int
+	}
+
+	ApplicationInstanceConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	ApplicationInstanceEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	ApplicationInstanceStatus struct {
+		Message func(childComplexity int) int
+		State   func(childComplexity int) int
+	}
+
 	ApplicationManifest struct {
 		Content func(childComplexity int) int
 	}
@@ -369,31 +394,6 @@ type ComplexityRoot struct {
 	Ingress struct {
 		Type func(childComplexity int) int
 		URL  func(childComplexity int) int
-	}
-
-	Instance struct {
-		Created  func(childComplexity int) int
-		ID       func(childComplexity int) int
-		Image    func(childComplexity int) int
-		Name     func(childComplexity int) int
-		Restarts func(childComplexity int) int
-		Status   func(childComplexity int) int
-	}
-
-	InstanceConnection struct {
-		Edges    func(childComplexity int) int
-		Nodes    func(childComplexity int) int
-		PageInfo func(childComplexity int) int
-	}
-
-	InstanceEdge struct {
-		Cursor func(childComplexity int) int
-		Node   func(childComplexity int) int
-	}
-
-	InstanceStatus struct {
-		Message func(childComplexity int) int
-		State   func(childComplexity int) int
 	}
 
 	Job struct {
@@ -1449,7 +1449,7 @@ type ApplicationResolver interface {
 
 	AuthIntegrations(ctx context.Context, obj *application.Application) ([]workload.ApplicationAuthIntegrations, error)
 	Manifest(ctx context.Context, obj *application.Application) (*application.ApplicationManifest, error)
-	Instances(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*application.Instance], error)
+	Instances(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*application.ApplicationInstance], error)
 	BigQueryDatasets(ctx context.Context, obj *application.Application, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
 	Buckets(ctx context.Context, obj *application.Application, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
 	Cost(ctx context.Context, obj *application.Application) (*cost.WorkloadCost, error)
@@ -1958,6 +1958,97 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ApplicationEdge.Node(childComplexity), true
+
+	case "ApplicationInstance.created":
+		if e.complexity.ApplicationInstance.Created == nil {
+			break
+		}
+
+		return e.complexity.ApplicationInstance.Created(childComplexity), true
+
+	case "ApplicationInstance.id":
+		if e.complexity.ApplicationInstance.ID == nil {
+			break
+		}
+
+		return e.complexity.ApplicationInstance.ID(childComplexity), true
+
+	case "ApplicationInstance.image":
+		if e.complexity.ApplicationInstance.Image == nil {
+			break
+		}
+
+		return e.complexity.ApplicationInstance.Image(childComplexity), true
+
+	case "ApplicationInstance.name":
+		if e.complexity.ApplicationInstance.Name == nil {
+			break
+		}
+
+		return e.complexity.ApplicationInstance.Name(childComplexity), true
+
+	case "ApplicationInstance.restarts":
+		if e.complexity.ApplicationInstance.Restarts == nil {
+			break
+		}
+
+		return e.complexity.ApplicationInstance.Restarts(childComplexity), true
+
+	case "ApplicationInstance.status":
+		if e.complexity.ApplicationInstance.Status == nil {
+			break
+		}
+
+		return e.complexity.ApplicationInstance.Status(childComplexity), true
+
+	case "ApplicationInstanceConnection.edges":
+		if e.complexity.ApplicationInstanceConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.ApplicationInstanceConnection.Edges(childComplexity), true
+
+	case "ApplicationInstanceConnection.nodes":
+		if e.complexity.ApplicationInstanceConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.ApplicationInstanceConnection.Nodes(childComplexity), true
+
+	case "ApplicationInstanceConnection.pageInfo":
+		if e.complexity.ApplicationInstanceConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.ApplicationInstanceConnection.PageInfo(childComplexity), true
+
+	case "ApplicationInstanceEdge.cursor":
+		if e.complexity.ApplicationInstanceEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.ApplicationInstanceEdge.Cursor(childComplexity), true
+
+	case "ApplicationInstanceEdge.node":
+		if e.complexity.ApplicationInstanceEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.ApplicationInstanceEdge.Node(childComplexity), true
+
+	case "ApplicationInstanceStatus.message":
+		if e.complexity.ApplicationInstanceStatus.Message == nil {
+			break
+		}
+
+		return e.complexity.ApplicationInstanceStatus.Message(childComplexity), true
+
+	case "ApplicationInstanceStatus.state":
+		if e.complexity.ApplicationInstanceStatus.State == nil {
+			break
+		}
+
+		return e.complexity.ApplicationInstanceStatus.State(childComplexity), true
 
 	case "ApplicationManifest.content":
 		if e.complexity.ApplicationManifest.Content == nil {
@@ -2673,97 +2764,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Ingress.URL(childComplexity), true
-
-	case "Instance.created":
-		if e.complexity.Instance.Created == nil {
-			break
-		}
-
-		return e.complexity.Instance.Created(childComplexity), true
-
-	case "Instance.id":
-		if e.complexity.Instance.ID == nil {
-			break
-		}
-
-		return e.complexity.Instance.ID(childComplexity), true
-
-	case "Instance.image":
-		if e.complexity.Instance.Image == nil {
-			break
-		}
-
-		return e.complexity.Instance.Image(childComplexity), true
-
-	case "Instance.name":
-		if e.complexity.Instance.Name == nil {
-			break
-		}
-
-		return e.complexity.Instance.Name(childComplexity), true
-
-	case "Instance.restarts":
-		if e.complexity.Instance.Restarts == nil {
-			break
-		}
-
-		return e.complexity.Instance.Restarts(childComplexity), true
-
-	case "Instance.status":
-		if e.complexity.Instance.Status == nil {
-			break
-		}
-
-		return e.complexity.Instance.Status(childComplexity), true
-
-	case "InstanceConnection.edges":
-		if e.complexity.InstanceConnection.Edges == nil {
-			break
-		}
-
-		return e.complexity.InstanceConnection.Edges(childComplexity), true
-
-	case "InstanceConnection.nodes":
-		if e.complexity.InstanceConnection.Nodes == nil {
-			break
-		}
-
-		return e.complexity.InstanceConnection.Nodes(childComplexity), true
-
-	case "InstanceConnection.pageInfo":
-		if e.complexity.InstanceConnection.PageInfo == nil {
-			break
-		}
-
-		return e.complexity.InstanceConnection.PageInfo(childComplexity), true
-
-	case "InstanceEdge.cursor":
-		if e.complexity.InstanceEdge.Cursor == nil {
-			break
-		}
-
-		return e.complexity.InstanceEdge.Cursor(childComplexity), true
-
-	case "InstanceEdge.node":
-		if e.complexity.InstanceEdge.Node == nil {
-			break
-		}
-
-		return e.complexity.InstanceEdge.Node(childComplexity), true
-
-	case "InstanceStatus.message":
-		if e.complexity.InstanceStatus.Message == nil {
-			break
-		}
-
-		return e.complexity.InstanceStatus.Message(childComplexity), true
-
-	case "InstanceStatus.state":
-		if e.complexity.InstanceStatus.State == nil {
-			break
-		}
-
-		return e.complexity.InstanceStatus.State(childComplexity), true
 
 	case "Job.authIntegrations":
 		if e.complexity.Job.AuthIntegrations == nil {
@@ -7535,7 +7535,7 @@ type Application implements Node & Workload {
 
 		"Get items before this cursor."
 		before: Cursor
-	): InstanceConnection!
+	): ApplicationInstanceConnection!
 }
 
 type ApplicationManifest implements WorkloadManifest {
@@ -7686,43 +7686,43 @@ enum IngressType {
 	AUTHENTICATED
 }
 
-type Instance implements Node {
+type ApplicationInstance implements Node {
 	id: ID!
 	name: String!
 	image: ContainerImage!
 	restarts: Int!
 	created: Time!
-	status: InstanceStatus!
+	status: ApplicationInstanceStatus!
 }
 
-type InstanceStatus {
-	state: InstanceState!
+type ApplicationInstanceStatus {
+	state: ApplicationInstanceState!
 	message: String!
 }
 
-enum InstanceState {
+enum ApplicationInstanceState {
 	RUNNING
 	FAILING
 	UNKNOWN
 }
 
-type InstanceConnection {
+type ApplicationInstanceConnection {
 	"Pagination information."
 	pageInfo: PageInfo!
 
 	"List of nodes."
-	nodes: [Instance!]!
+	nodes: [ApplicationInstance!]!
 
 	"List of edges."
-	edges: [InstanceEdge!]!
+	edges: [ApplicationInstanceEdge!]!
 }
 
-type InstanceEdge {
+type ApplicationInstanceEdge {
 	"Cursor for this edge that can be used for pagination."
 	cursor: Cursor!
 
 	"The instance."
-	node: Instance!
+	node: ApplicationInstance!
 }
 `, BuiltIn: false},
 	{Name: "../schema/auditlog.graphqls", Input: `extend type Team {
@@ -17934,9 +17934,9 @@ func (ec *executionContext) _Application_instances(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*pagination.Connection[*application.Instance])
+	res := resTmp.(*pagination.Connection[*application.ApplicationInstance])
 	fc.Result = res
-	return ec.marshalNInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
+	return ec.marshalNApplicationInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Application_instances(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -17948,13 +17948,13 @@ func (ec *executionContext) fieldContext_Application_instances(ctx context.Conte
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "pageInfo":
-				return ec.fieldContext_InstanceConnection_pageInfo(ctx, field)
+				return ec.fieldContext_ApplicationInstanceConnection_pageInfo(ctx, field)
 			case "nodes":
-				return ec.fieldContext_InstanceConnection_nodes(ctx, field)
+				return ec.fieldContext_ApplicationInstanceConnection_nodes(ctx, field)
 			case "edges":
-				return ec.fieldContext_InstanceConnection_edges(ctx, field)
+				return ec.fieldContext_ApplicationInstanceConnection_edges(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type InstanceConnection", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ApplicationInstanceConnection", field.Name)
 		},
 	}
 	defer func() {
@@ -18868,6 +18868,650 @@ func (ec *executionContext) fieldContext_ApplicationEdge_node(_ context.Context,
 				return ec.fieldContext_Application_utilization(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationInstance_id(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationInstance_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationInstance_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationInstance_name(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationInstance_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationInstance_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationInstance_image(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationInstance_image(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Image(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*workload.ContainerImage)
+	fc.Result = res
+	return ec.marshalNContainerImage2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚐContainerImage(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationInstance_image(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ContainerImage_id(ctx, field)
+			case "name":
+				return ec.fieldContext_ContainerImage_name(ctx, field)
+			case "tag":
+				return ec.fieldContext_ContainerImage_tag(ctx, field)
+			case "hasSBOM":
+				return ec.fieldContext_ContainerImage_hasSBOM(ctx, field)
+			case "vulnerabilities":
+				return ec.fieldContext_ContainerImage_vulnerabilities(ctx, field)
+			case "vulnerabilitySummary":
+				return ec.fieldContext_ContainerImage_vulnerabilitySummary(ctx, field)
+			case "workloadReferences":
+				return ec.fieldContext_ContainerImage_workloadReferences(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ContainerImage", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationInstance_restarts(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationInstance_restarts(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Restarts, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationInstance_restarts(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationInstance_created(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationInstance_created(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Created, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationInstance_created(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationInstance_status(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationInstance_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*application.ApplicationInstanceStatus)
+	fc.Result = res
+	return ec.marshalNApplicationInstanceStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationInstanceStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationInstance_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "state":
+				return ec.fieldContext_ApplicationInstanceStatus_state(ctx, field)
+			case "message":
+				return ec.fieldContext_ApplicationInstanceStatus_message(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ApplicationInstanceStatus", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationInstanceConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*application.ApplicationInstance]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationInstanceConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationInstanceConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationInstanceConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "endCursor":
+				return ec.fieldContext_PageInfo_endCursor(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			case "startCursor":
+				return ec.fieldContext_PageInfo_startCursor(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationInstanceConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*application.ApplicationInstance]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationInstanceConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*application.ApplicationInstance)
+	fc.Result = res
+	return ec.marshalNApplicationInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationInstanceᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationInstanceConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationInstanceConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ApplicationInstance_id(ctx, field)
+			case "name":
+				return ec.fieldContext_ApplicationInstance_name(ctx, field)
+			case "image":
+				return ec.fieldContext_ApplicationInstance_image(ctx, field)
+			case "restarts":
+				return ec.fieldContext_ApplicationInstance_restarts(ctx, field)
+			case "created":
+				return ec.fieldContext_ApplicationInstance_created(ctx, field)
+			case "status":
+				return ec.fieldContext_ApplicationInstance_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ApplicationInstance", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationInstanceConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*application.ApplicationInstance]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationInstanceConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]pagination.Edge[*application.ApplicationInstance])
+	fc.Result = res
+	return ec.marshalNApplicationInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationInstanceConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationInstanceConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cursor":
+				return ec.fieldContext_ApplicationInstanceEdge_cursor(ctx, field)
+			case "node":
+				return ec.fieldContext_ApplicationInstanceEdge_node(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ApplicationInstanceEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationInstanceEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*application.ApplicationInstance]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationInstanceEdge_cursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.Cursor)
+	fc.Result = res
+	return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐCursor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationInstanceEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationInstanceEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Cursor does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationInstanceEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*application.ApplicationInstance]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationInstanceEdge_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*application.ApplicationInstance)
+	fc.Result = res
+	return ec.marshalNApplicationInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationInstance(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationInstanceEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationInstanceEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ApplicationInstance_id(ctx, field)
+			case "name":
+				return ec.fieldContext_ApplicationInstance_name(ctx, field)
+			case "image":
+				return ec.fieldContext_ApplicationInstance_image(ctx, field)
+			case "restarts":
+				return ec.fieldContext_ApplicationInstance_restarts(ctx, field)
+			case "created":
+				return ec.fieldContext_ApplicationInstance_created(ctx, field)
+			case "status":
+				return ec.fieldContext_ApplicationInstance_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ApplicationInstance", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationInstanceStatus_state(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationInstanceStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationInstanceStatus_state(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.State, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(application.ApplicationInstanceState)
+	fc.Result = res
+	return ec.marshalNApplicationInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationInstanceState(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationInstanceStatus_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationInstanceStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ApplicationInstanceState does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationInstanceStatus_message(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationInstanceStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationInstanceStatus_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationInstanceStatus_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationInstanceStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -24054,650 +24698,6 @@ func (ec *executionContext) fieldContext_Ingress_type(_ context.Context, field g
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type IngressType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Instance_id(ctx context.Context, field graphql.CollectedField, obj *application.Instance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Instance_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID(), nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(ident.Ident)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋidentᚐIdent(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Instance_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Instance",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Instance_name(ctx context.Context, field graphql.CollectedField, obj *application.Instance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Instance_name(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Instance_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Instance",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Instance_image(ctx context.Context, field graphql.CollectedField, obj *application.Instance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Instance_image(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Image(), nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*workload.ContainerImage)
-	fc.Result = res
-	return ec.marshalNContainerImage2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚐContainerImage(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Instance_image(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Instance",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_ContainerImage_id(ctx, field)
-			case "name":
-				return ec.fieldContext_ContainerImage_name(ctx, field)
-			case "tag":
-				return ec.fieldContext_ContainerImage_tag(ctx, field)
-			case "hasSBOM":
-				return ec.fieldContext_ContainerImage_hasSBOM(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_ContainerImage_vulnerabilities(ctx, field)
-			case "vulnerabilitySummary":
-				return ec.fieldContext_ContainerImage_vulnerabilitySummary(ctx, field)
-			case "workloadReferences":
-				return ec.fieldContext_ContainerImage_workloadReferences(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ContainerImage", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Instance_restarts(ctx context.Context, field graphql.CollectedField, obj *application.Instance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Instance_restarts(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Restarts, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Instance_restarts(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Instance",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Instance_created(ctx context.Context, field graphql.CollectedField, obj *application.Instance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Instance_created(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Created, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Instance_created(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Instance",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Instance_status(ctx context.Context, field graphql.CollectedField, obj *application.Instance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Instance_status(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Status(), nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*application.InstanceStatus)
-	fc.Result = res
-	return ec.marshalNInstanceStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐInstanceStatus(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Instance_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Instance",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "state":
-				return ec.fieldContext_InstanceStatus_state(ctx, field)
-			case "message":
-				return ec.fieldContext_InstanceStatus_message(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type InstanceStatus", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _InstanceConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*application.Instance]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstanceConnection_pageInfo(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PageInfo, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(pagination.PageInfo)
-	fc.Result = res
-	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐPageInfo(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_InstanceConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "endCursor":
-				return ec.fieldContext_PageInfo_endCursor(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			case "startCursor":
-				return ec.fieldContext_PageInfo_startCursor(ctx, field)
-			case "totalCount":
-				return ec.fieldContext_PageInfo_totalCount(ctx, field)
-			case "pageStart":
-				return ec.fieldContext_PageInfo_pageStart(ctx, field)
-			case "pageEnd":
-				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _InstanceConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*application.Instance]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstanceConnection_nodes(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Nodes(), nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*application.Instance)
-	fc.Result = res
-	return ec.marshalNInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐInstanceᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_InstanceConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceConnection",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Instance_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Instance_name(ctx, field)
-			case "image":
-				return ec.fieldContext_Instance_image(ctx, field)
-			case "restarts":
-				return ec.fieldContext_Instance_restarts(ctx, field)
-			case "created":
-				return ec.fieldContext_Instance_created(ctx, field)
-			case "status":
-				return ec.fieldContext_Instance_status(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Instance", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _InstanceConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*application.Instance]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstanceConnection_edges(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Edges, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]pagination.Edge[*application.Instance])
-	fc.Result = res
-	return ec.marshalNInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_InstanceConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "cursor":
-				return ec.fieldContext_InstanceEdge_cursor(ctx, field)
-			case "node":
-				return ec.fieldContext_InstanceEdge_node(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type InstanceEdge", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _InstanceEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*application.Instance]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstanceEdge_cursor(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Cursor, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(pagination.Cursor)
-	fc.Result = res
-	return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐCursor(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_InstanceEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Cursor does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _InstanceEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*application.Instance]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstanceEdge_node(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Node, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*application.Instance)
-	fc.Result = res
-	return ec.marshalNInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐInstance(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_InstanceEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Instance_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Instance_name(ctx, field)
-			case "image":
-				return ec.fieldContext_Instance_image(ctx, field)
-			case "restarts":
-				return ec.fieldContext_Instance_restarts(ctx, field)
-			case "created":
-				return ec.fieldContext_Instance_created(ctx, field)
-			case "status":
-				return ec.fieldContext_Instance_status(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Instance", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _InstanceStatus_state(ctx context.Context, field graphql.CollectedField, obj *application.InstanceStatus) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstanceStatus_state(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.State, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(application.InstanceState)
-	fc.Result = res
-	return ec.marshalNInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐInstanceState(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_InstanceStatus_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceStatus",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type InstanceState does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _InstanceStatus_message(ctx context.Context, field graphql.CollectedField, obj *application.InstanceStatus) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstanceStatus_message(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Message, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_InstanceStatus_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "InstanceStatus",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -59304,13 +59304,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Persistence(ctx, sel, obj)
-	case application.Instance:
-		return ec._Instance(ctx, sel, &obj)
-	case *application.Instance:
+	case application.ApplicationInstance:
+		return ec._ApplicationInstance(ctx, sel, &obj)
+	case *application.ApplicationInstance:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Instance(ctx, sel, obj)
+		return ec._ApplicationInstance(ctx, sel, obj)
 	case secret.Secret:
 		return ec._Secret(ctx, sel, &obj)
 	case *secret.Secret:
@@ -60401,6 +60401,207 @@ func (ec *executionContext) _ApplicationEdge(ctx context.Context, sel ast.Select
 			}
 		case "node":
 			out.Values[i] = ec._ApplicationEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var applicationInstanceImplementors = []string{"ApplicationInstance", "Node"}
+
+func (ec *executionContext) _ApplicationInstance(ctx context.Context, sel ast.SelectionSet, obj *application.ApplicationInstance) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, applicationInstanceImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ApplicationInstance")
+		case "id":
+			out.Values[i] = ec._ApplicationInstance_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._ApplicationInstance_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "image":
+			out.Values[i] = ec._ApplicationInstance_image(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "restarts":
+			out.Values[i] = ec._ApplicationInstance_restarts(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "created":
+			out.Values[i] = ec._ApplicationInstance_created(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "status":
+			out.Values[i] = ec._ApplicationInstance_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var applicationInstanceConnectionImplementors = []string{"ApplicationInstanceConnection"}
+
+func (ec *executionContext) _ApplicationInstanceConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*application.ApplicationInstance]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, applicationInstanceConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ApplicationInstanceConnection")
+		case "pageInfo":
+			out.Values[i] = ec._ApplicationInstanceConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._ApplicationInstanceConnection_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._ApplicationInstanceConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var applicationInstanceEdgeImplementors = []string{"ApplicationInstanceEdge"}
+
+func (ec *executionContext) _ApplicationInstanceEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*application.ApplicationInstance]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, applicationInstanceEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ApplicationInstanceEdge")
+		case "cursor":
+			out.Values[i] = ec._ApplicationInstanceEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "node":
+			out.Values[i] = ec._ApplicationInstanceEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var applicationInstanceStatusImplementors = []string{"ApplicationInstanceStatus"}
+
+func (ec *executionContext) _ApplicationInstanceStatus(ctx context.Context, sel ast.SelectionSet, obj *application.ApplicationInstanceStatus) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, applicationInstanceStatusImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ApplicationInstanceStatus")
+		case "state":
+			out.Values[i] = ec._ApplicationInstanceStatus_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._ApplicationInstanceStatus_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -62659,207 +62860,6 @@ func (ec *executionContext) _Ingress(ctx context.Context, sel ast.SelectionSet, 
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var instanceImplementors = []string{"Instance", "Node"}
-
-func (ec *executionContext) _Instance(ctx context.Context, sel ast.SelectionSet, obj *application.Instance) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, instanceImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Instance")
-		case "id":
-			out.Values[i] = ec._Instance_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "name":
-			out.Values[i] = ec._Instance_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "image":
-			out.Values[i] = ec._Instance_image(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "restarts":
-			out.Values[i] = ec._Instance_restarts(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "created":
-			out.Values[i] = ec._Instance_created(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "status":
-			out.Values[i] = ec._Instance_status(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var instanceConnectionImplementors = []string{"InstanceConnection"}
-
-func (ec *executionContext) _InstanceConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*application.Instance]) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, instanceConnectionImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("InstanceConnection")
-		case "pageInfo":
-			out.Values[i] = ec._InstanceConnection_pageInfo(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "nodes":
-			out.Values[i] = ec._InstanceConnection_nodes(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "edges":
-			out.Values[i] = ec._InstanceConnection_edges(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var instanceEdgeImplementors = []string{"InstanceEdge"}
-
-func (ec *executionContext) _InstanceEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*application.Instance]) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, instanceEdgeImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("InstanceEdge")
-		case "cursor":
-			out.Values[i] = ec._InstanceEdge_cursor(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "node":
-			out.Values[i] = ec._InstanceEdge_node(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var instanceStatusImplementors = []string{"InstanceStatus"}
-
-func (ec *executionContext) _InstanceStatus(ctx context.Context, sel ast.SelectionSet, obj *application.InstanceStatus) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, instanceStatusImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("InstanceStatus")
-		case "state":
-			out.Values[i] = ec._InstanceStatus_state(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "message":
-			out.Values[i] = ec._InstanceStatus_message(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -75104,6 +75104,142 @@ func (ec *executionContext) marshalNApplicationEdge2ᚕgithubᚗcomᚋnaisᚋapi
 	return ret
 }
 
+func (ec *executionContext) marshalNApplicationInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationInstanceᚄ(ctx context.Context, sel ast.SelectionSet, v []*application.ApplicationInstance) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNApplicationInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationInstance(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNApplicationInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationInstance(ctx context.Context, sel ast.SelectionSet, v *application.ApplicationInstance) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ApplicationInstance(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNApplicationInstanceConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*application.ApplicationInstance]) graphql.Marshaler {
+	return ec._ApplicationInstanceConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNApplicationInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*application.ApplicationInstance]) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ApplicationInstanceConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNApplicationInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*application.ApplicationInstance]) graphql.Marshaler {
+	return ec._ApplicationInstanceEdge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNApplicationInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*application.ApplicationInstance]) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNApplicationInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNApplicationInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationInstanceState(ctx context.Context, v interface{}) (application.ApplicationInstanceState, error) {
+	var res application.ApplicationInstanceState
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNApplicationInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationInstanceState(ctx context.Context, sel ast.SelectionSet, v application.ApplicationInstanceState) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNApplicationInstanceStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationInstanceStatus(ctx context.Context, sel ast.SelectionSet, v *application.ApplicationInstanceStatus) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ApplicationInstanceStatus(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNApplicationManifest2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationManifest(ctx context.Context, sel ast.SelectionSet, v application.ApplicationManifest) graphql.Marshaler {
 	return ec._ApplicationManifest(ctx, sel, &v)
 }
@@ -76282,142 +76418,6 @@ func (ec *executionContext) unmarshalNIngressType2githubᚗcomᚋnaisᚋapiᚋin
 
 func (ec *executionContext) marshalNIngressType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐIngressType(ctx context.Context, sel ast.SelectionSet, v application.IngressType) graphql.Marshaler {
 	return v
-}
-
-func (ec *executionContext) marshalNInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐInstanceᚄ(ctx context.Context, sel ast.SelectionSet, v []*application.Instance) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐInstance(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐInstance(ctx context.Context, sel ast.SelectionSet, v *application.Instance) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Instance(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNInstanceConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*application.Instance]) graphql.Marshaler {
-	return ec._InstanceConnection(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*application.Instance]) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._InstanceConnection(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*application.Instance]) graphql.Marshaler {
-	return ec._InstanceEdge(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*application.Instance]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) unmarshalNInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐInstanceState(ctx context.Context, v interface{}) (application.InstanceState, error) {
-	var res application.InstanceState
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐInstanceState(ctx context.Context, sel ast.SelectionSet, v application.InstanceState) graphql.Marshaler {
-	return v
-}
-
-func (ec *executionContext) marshalNInstanceStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐInstanceStatus(ctx context.Context, sel ast.SelectionSet, v *application.InstanceStatus) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._InstanceStatus(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {

@@ -86,7 +86,7 @@ type Application implements Node & Workload {
 
 		"Get items before this cursor."
 		before: Cursor
-	): InstanceConnection!
+	): ApplicationInstanceConnection!
 }
 
 type ApplicationManifest implements WorkloadManifest {
@@ -237,41 +237,41 @@ enum IngressType {
 	AUTHENTICATED
 }
 
-type Instance implements Node {
+type ApplicationInstance implements Node {
 	id: ID!
 	name: String!
 	image: ContainerImage!
 	restarts: Int!
 	created: Time!
-	status: InstanceStatus!
+	status: ApplicationInstanceStatus!
 }
 
-type InstanceStatus {
-	state: InstanceState!
+type ApplicationInstanceStatus {
+	state: ApplicationInstanceState!
 	message: String!
 }
 
-enum InstanceState {
+enum ApplicationInstanceState {
 	RUNNING
 	FAILING
 	UNKNOWN
 }
 
-type InstanceConnection {
+type ApplicationInstanceConnection {
 	"Pagination information."
 	pageInfo: PageInfo!
 
 	"List of nodes."
-	nodes: [Instance!]!
+	nodes: [ApplicationInstance!]!
 
 	"List of edges."
-	edges: [InstanceEdge!]!
+	edges: [ApplicationInstanceEdge!]!
 }
 
-type InstanceEdge {
+type ApplicationInstanceEdge {
 	"Cursor for this edge that can be used for pagination."
 	cursor: Cursor!
 
 	"The instance."
-	node: Instance!
+	node: ApplicationInstance!
 }

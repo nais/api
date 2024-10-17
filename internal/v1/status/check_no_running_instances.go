@@ -42,10 +42,10 @@ func (checkAppNoRunningInstances) Supports(w workload.Workload) bool {
 	return ok
 }
 
-func failingInstances(instances []*application.Instance) []*application.Instance {
-	ret := []*application.Instance{}
+func failingInstances(instances []*application.ApplicationInstance) []*application.ApplicationInstance {
+	ret := []*application.ApplicationInstance{}
 	for _, instance := range instances {
-		if instance.State() == application.InstanceStateFailing {
+		if instance.State() == application.ApplicationInstanceStateFailing {
 			ret = append(ret, instance)
 		}
 	}

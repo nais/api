@@ -128,7 +128,7 @@ func Restart(ctx context.Context, teamSlug slug.Slug, environmentName, name stri
 	return nil
 }
 
-func ListInstances(ctx context.Context, teamSlug slug.Slug, environmentName, appName string, page *pagination.Pagination) (*InstanceConnection, error) {
+func ListInstances(ctx context.Context, teamSlug slug.Slug, environmentName, appName string, page *pagination.Pagination) (*ApplicationInstanceConnection, error) {
 	ret, err := ListAllInstances(ctx, teamSlug, environmentName, appName)
 	if err != nil {
 		return nil, err
@@ -138,20 +138,20 @@ func ListInstances(ctx context.Context, teamSlug slug.Slug, environmentName, app
 	return pagination.NewConnection(apps, page, int32(len(ret))), nil
 }
 
-func ListAllInstances(ctx context.Context, teamSlug slug.Slug, environmentName, appName string) ([]*Instance, error) {
+func ListAllInstances(ctx context.Context, teamSlug slug.Slug, environmentName, appName string) ([]*ApplicationInstance, error) {
 	pods, err := workload.ListAllPods(ctx, environmentName, teamSlug, appName)
 	if err != nil {
 		return nil, err
 	}
 
-	ret := make([]*Instance, len(pods))
+	ret := make([]*ApplicationInstance, len(pods))
 	for i, pod := range pods {
 		ret[i] = toGraphInstance(pod, teamSlug, environmentName, appName)
 	}
 	return ret, nil
 }
 
-func getInstanceByIdent(ctx context.Context, ident ident.Ident) (*Instance, error) {
+func getInstanceByIdent(ctx context.Context, ident ident.Ident) (*ApplicationInstance, error) {
 	teamSlug, env, appName, instanceName, err := parseInstanceIdent(ident)
 	if err != nil {
 		return nil, err

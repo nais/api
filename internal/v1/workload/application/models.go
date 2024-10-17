@@ -20,10 +20,10 @@ import (
 )
 
 type (
-	ApplicationConnection = pagination.Connection[*Application]
-	ApplicationEdge       = pagination.Edge[*Application]
-	InstanceConnection    = pagination.Connection[*Instance]
-	InstanceEdge          = pagination.Edge[*Instance]
+	ApplicationConnection         = pagination.Connection[*Application]
+	ApplicationEdge               = pagination.Edge[*Application]
+	ApplicationInstanceConnection = pagination.Connection[*ApplicationInstance]
+	ApplicationInstanceEdge       = pagination.Edge[*ApplicationInstance]
 )
 
 type Application struct {
@@ -39,7 +39,7 @@ func (a Application) ID() ident.Ident {
 	return newIdent(a.TeamSlug, a.EnvironmentName, a.Name)
 }
 
-type Instance struct {
+type ApplicationInstance struct {
 	Name     string    `json:"name"`
 	Restarts int       `json:"restarts"`
 	Created  time.Time `json:"created"`
@@ -52,33 +52,33 @@ type Instance struct {
 	ApplicationContainerStatus corev1.ContainerStatus `json:"-"`
 }
 
-func (Instance) IsNode() {}
+func (ApplicationInstance) IsNode() {}
 
-func (i Instance) ID() ident.Ident {
+func (i ApplicationInstance) ID() ident.Ident {
 	return newInstanceIdent(i.TeamSlug, i.EnvironmentName, i.ApplicationName, i.Name)
 }
 
-func (i *Instance) Status() *InstanceStatus {
+func (i *ApplicationInstance) Status() *ApplicationInstanceStatus {
 	switch {
 	case i.ApplicationContainerStatus.State.Running != nil:
-		return &InstanceStatus{
-			State:   InstanceStateRunning,
+		return &ApplicationInstanceStatus{
+			State:   ApplicationInstanceStateRunning,
 			Message: "Running",
 		}
 	case i.ApplicationContainerStatus.State.Terminated != nil:
-		return &InstanceStatus{
-			State:   InstanceStateFailing,
+		return &ApplicationInstanceStatus{
+			State:   ApplicationInstanceStateFailing,
 			Message: i.ApplicationContainerStatus.State.Waiting.Reason,
 		}
 	default:
-		return &InstanceStatus{
-			State:   InstanceStateUnknown,
+		return &ApplicationInstanceStatus{
+			State:   ApplicationInstanceStateUnknown,
 			Message: "Unknown",
 		}
 	}
 }
 
-func toGraphInstance(pod *corev1.Pod, teamSlug slug.Slug, environmentName string, applicationName string) *Instance {
+func toGraphInstance(pod *corev1.Pod, teamSlug slug.Slug, environmentName string, applicationName string) *ApplicationInstance {
 	var containerStatus corev1.ContainerStatus
 	for _, c := range pod.Status.ContainerStatuses {
 		if c.Name == applicationName {
@@ -87,7 +87,7 @@ func toGraphInstance(pod *corev1.Pod, teamSlug slug.Slug, environmentName string
 		}
 	}
 
-	ret := &Instance{
+	ret := &ApplicationInstance{
 		Name:            pod.Name,
 		Restarts:        int(containerStatus.RestartCount),
 		Created:         pod.CreationTimestamp.Time,
@@ -108,7 +108,7 @@ func toGraphInstance(pod *corev1.Pod, teamSlug slug.Slug, environmentName string
 	return ret
 }
 
-func (i Instance) Image() *workload.ContainerImage {
+func (i ApplicationInstance) Image() *workload.ContainerImage {
 	name, tag, _ := strings.Cut(i.ImageString, ":")
 	return &workload.ContainerImage{
 		Name: name,
@@ -116,14 +116,14 @@ func (i Instance) Image() *workload.ContainerImage {
 	}
 }
 
-func (i *Instance) State() InstanceState {
+func (i *ApplicationInstance) State() ApplicationInstanceState {
 	switch {
 	case i.ApplicationContainerStatus.State.Running != nil:
-		return InstanceStateRunning
+		return ApplicationInstanceStateRunning
 	case i.ApplicationContainerStatus.State.Waiting != nil:
-		return InstanceStateFailing
+		return ApplicationInstanceStateFailing
 	default:
-		return InstanceStateUnknown
+		return ApplicationInstanceStateUnknown
 	}
 }
 
@@ -323,46 +323,46 @@ type RestartApplicationPayload struct {
 	EnvironmentName string    `json:"-"`
 }
 
-type InstanceState string
+type ApplicationInstanceState string
 
 const (
-	InstanceStateRunning InstanceState = "RUNNING"
-	InstanceStateFailing InstanceState = "FAILING"
-	InstanceStateUnknown InstanceState = "UNKNOWN"
+	ApplicationInstanceStateRunning ApplicationInstanceState = "RUNNING"
+	ApplicationInstanceStateFailing ApplicationInstanceState = "FAILING"
+	ApplicationInstanceStateUnknown ApplicationInstanceState = "UNKNOWN"
 )
 
-var AllInstanceState = []InstanceState{
-	InstanceStateRunning,
-	InstanceStateFailing,
-	InstanceStateUnknown,
+var AllApplicationInstanceState = []ApplicationInstanceState{
+	ApplicationInstanceStateRunning,
+	ApplicationInstanceStateFailing,
+	ApplicationInstanceStateUnknown,
 }
 
-func (e InstanceState) IsValid() bool {
+func (e ApplicationInstanceState) IsValid() bool {
 	switch e {
-	case InstanceStateRunning, InstanceStateFailing, InstanceStateUnknown:
+	case ApplicationInstanceStateRunning, ApplicationInstanceStateFailing, ApplicationInstanceStateUnknown:
 		return true
 	}
 	return false
 }
 
-func (e InstanceState) String() string {
+func (e ApplicationInstanceState) String() string {
 	return string(e)
 }
 
-func (e *InstanceState) UnmarshalGQL(v interface{}) error {
+func (e *ApplicationInstanceState) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = InstanceState(str)
+	*e = ApplicationInstanceState(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid InstanceState", str)
+		return fmt.Errorf("%s is not a valid ApplicationInstanceState", str)
 	}
 	return nil
 }
 
-func (e InstanceState) MarshalGQL(w io.Writer) {
+func (e ApplicationInstanceState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -425,7 +425,7 @@ func (e IngressType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-type InstanceStatus struct {
-	State   InstanceState `json:"state"`
-	Message string        `json:"message"`
+type ApplicationInstanceStatus struct {
+	State   ApplicationInstanceState `json:"state"`
+	Message string                   `json:"message"`
 }

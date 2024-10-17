@@ -48,7 +48,7 @@ func (r *applicationResolver) Manifest(ctx context.Context, obj *application.App
 	return application.Manifest(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
 }
 
-func (r *applicationResolver) Instances(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*application.Instance], error) {
+func (r *applicationResolver) Instances(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*application.ApplicationInstance], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
