@@ -48,6 +48,8 @@ spec:
   image: ghcr.io/navikt/app-w-all-storage:latest
   ingresses:
     - "https://storageapp.example.com"
+    - "https://storageapp.eksternius.example.com"
+    - "https://storageapp.ansatt.dev.nav.no"
   gcp:
     sqlInstances:
       - type: POSTGRES_15
@@ -90,7 +92,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: app-w-all-storage
+  name: app-w-all-storage-0
   labels:
     app: app-w-all-storage
 spec:
@@ -106,3 +108,51 @@ spec:
                 name: app-w-all-storage
                 port:
                   number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app: app-w-all-storage
+  name: app-w-all-storage-1
+spec:
+  ingressClassName: nais-ingress-external
+  rules:
+  - host: storageapp.eksternius.example.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: app-w-all-storage
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+status:
+  loadBalancer:
+    ingress:
+    - ip: 192.169.69.69
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app: app-w-all-storage
+  name: app-w-all-storage-2
+spec:
+  ingressClassName: nais-ingress-fa
+  rules:
+  - host: storageapp.ansatt.dev.nav.no
+    http:
+      paths:
+      - backend:
+          service:
+            name: app-w-all-storage
+            port:
+              number: 80
+        path: /
+        pathType: ImplementationSpecific
+status:
+  loadBalancer:
+    ingress:
+    - ip: 192.169.69.70
