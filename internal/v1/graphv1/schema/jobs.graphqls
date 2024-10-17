@@ -223,8 +223,10 @@ extend enum SearchType {
 input DeleteJobInput {
 	"Name of the job."
 	name: String!
+
 	"Slug of the team that owns the job."
 	teamSlug: Slug!
+
 	"Name of the environment where the job runs."
 	environmentName: String!
 }
@@ -237,10 +239,13 @@ type DeleteJobPayload {
 input TriggerJobInput {
 	"Name of the job."
 	name: String!
+
 	"Slug of the team that owns the job."
 	teamSlug: Slug!
+
 	"Name of the environment where the job runs."
 	environmentName: String!
+
 	"Name of the new run. Must be unique within the team."
 	runName: String!
 }
@@ -248,6 +253,7 @@ input TriggerJobInput {
 type TriggerJobPayload {
 	"The job that was triggered."
 	job: Job
+
 	"The new job run."
 	jobRun: JobRun
 }

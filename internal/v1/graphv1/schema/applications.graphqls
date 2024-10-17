@@ -198,8 +198,10 @@ extend enum SearchType {
 input DeleteApplicationInput {
 	"Name of the application."
 	name: String!
+
 	"Slug of the team that owns the application."
 	teamSlug: Slug!
+
 	"Name of the environment where the application runs."
 	environmentName: String!
 }
@@ -212,8 +214,10 @@ type DeleteApplicationPayload {
 input RestartApplicationInput {
 	"Name of the application."
 	name: String!
+
 	"Slug of the team that owns the application."
 	teamSlug: Slug!
+
 	"Name of the environment where the application runs."
 	environmentName: String!
 }
@@ -226,6 +230,7 @@ type RestartApplicationPayload {
 type Ingress {
 	"URL for the ingress."
 	url: String!
+
 	"Type of ingress."
 	type: IngressType!
 }

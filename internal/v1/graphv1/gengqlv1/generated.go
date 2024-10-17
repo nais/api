@@ -7647,8 +7647,10 @@ extend enum SearchType {
 input DeleteApplicationInput {
 	"Name of the application."
 	name: String!
+
 	"Slug of the team that owns the application."
 	teamSlug: Slug!
+
 	"Name of the environment where the application runs."
 	environmentName: String!
 }
@@ -7661,8 +7663,10 @@ type DeleteApplicationPayload {
 input RestartApplicationInput {
 	"Name of the application."
 	name: String!
+
 	"Slug of the team that owns the application."
 	teamSlug: Slug!
+
 	"Name of the environment where the application runs."
 	environmentName: String!
 }
@@ -7675,6 +7679,7 @@ type RestartApplicationPayload {
 type Ingress {
 	"URL for the ingress."
 	url: String!
+
 	"Type of ingress."
 	type: IngressType!
 }
@@ -8373,8 +8378,10 @@ extend enum SearchType {
 input DeleteJobInput {
 	"Name of the job."
 	name: String!
+
 	"Slug of the team that owns the job."
 	teamSlug: Slug!
+
 	"Name of the environment where the job runs."
 	environmentName: String!
 }
@@ -8387,10 +8394,13 @@ type DeleteJobPayload {
 input TriggerJobInput {
 	"Name of the job."
 	name: String!
+
 	"Slug of the team that owns the job."
 	teamSlug: Slug!
+
 	"Name of the environment where the job runs."
 	environmentName: String!
+
 	"Name of the new run. Must be unique within the team."
 	runName: String!
 }
@@ -8398,6 +8408,7 @@ input TriggerJobInput {
 type TriggerJobPayload {
 	"The job that was triggered."
 	job: Job
+
 	"The new job run."
 	jobRun: JobRun
 }
