@@ -29,6 +29,7 @@ type VulnerabilityNode {
 
 type VulnerabilitySummaryForTeam {
   riskScore: Int!
+  riskScoreTrend: VulnerabilityRiskScoreTrend!
   critical: Int!
   high: Int!
   medium: Int!
@@ -37,24 +38,18 @@ type VulnerabilitySummaryForTeam {
   unassigned: Int!
   coverage: Float!
   totalWorkloads: Int!
-  teamRanking: VulnerabilityRanking!
+  vulnerabilityRanking: VulnerabilityRanking!
   status: [VulnerabilityStatus!]!
 }
 
-type VulnerabilityRanking {
-  rank: Int!
-  totalTeams: Int!
-  vulnerableScore: VulnerableScore!
-  trend: VulnerabilityRankingTrend!
-}
-
-enum VulnerableScore {
-  UPPER
+enum VulnerabilityRanking {
+  MOST_VULNERABLE
   MIDDLE
-  BOTTOM
+  LEAST_VULNERABLE
+  UNKNOWN
 }
 
-enum VulnerabilityRankingTrend {
+enum VulnerabilityRiskScoreTrend {
   UP
   DOWN
   FLAT

@@ -7,25 +7,19 @@ import (
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
-	promapi "github.com/prometheus/client_golang/api"
-	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	log "github.com/sirupsen/logrus"
 )
 
 type Manager struct {
 	Client
-	prometheusClients clusterPrometheusClients
-	cfg               *Config
+	prometheus *PrometheusClients
+	cfg        *Config
 }
 
 type Config struct {
 	DependencyTrack DependencyTrackConfig
 	Prometheus      PrometheusConfig
 }
-
-type (
-	clusterPrometheusClients map[string]Prometheus
-)
 
 type Options = func(*Manager)
 
@@ -45,12 +39,12 @@ func NewManager(cfg *Config, opts ...Options) *Manager {
 		)
 	}
 
-	if m.prometheusClients == nil {
-		prometheusClientMap, err := cfg.prometheusClients()
+	if m.prometheus == nil {
+		pc, err := NewPrometheusClients(&cfg.Prometheus)
 		if err != nil {
 			log.WithError(err).Fatal("Failed to create prometheus clients")
 		}
-		m.prometheusClients = prometheusClientMap
+		m.prometheus = pc
 	}
 
 	return m
@@ -62,9 +56,9 @@ func WithDependencyTrackClient(client Client) func(*Manager) {
 	}
 }
 
-func WithPrometheusClients(clients clusterPrometheusClients) func(*Manager) {
+func WithPrometheusClients(clients *PrometheusClients) func(*Manager) {
 	return func(m *Manager) {
-		m.prometheusClients = clients
+		m.prometheus = clients
 	}
 }
 
@@ -153,11 +147,17 @@ func (m *Manager) GetSummaryForTeam(ctx context.Context, workloads []model.Workl
 		})
 	}
 
-	ranking, err := m.teamRanking(ctx, team, totalTeams)
+	ranking, err := m.getVulnerabilityRanking(ctx, team, totalTeams)
 	if err != nil {
 		return nil, fmt.Errorf("getting team ranking: %w", err)
 	}
-	retVal.TeamRanking = ranking
+	retVal.VulnerabilityRanking = ranking
+
+	trend, err := m.getRiskScoreTrend(ctx, team, time.Now())
+	if err != nil {
+		return nil, fmt.Errorf("getting team risk score trend: %w", err)
+	}
+	retVal.RiskScoreTrend = trend
 
 	return retVal, nil
 }
@@ -230,46 +230,46 @@ func getVulnerabilityState(summary *model.ImageVulnerabilitySummary) model.Vulne
 	return model.VulnerabilityStateOk
 }
 
-func (m *Manager) teamRanking(ctx context.Context, team string, teams int) (model.VulnerabilityRanking, error) {
-	currentRank, err := m.ranking(ctx, team, time.Now())
+func (m *Manager) getRiskScoreTrend(ctx context.Context, team string, time time.Time) (model.VulnerabilityRiskScoreTrend, error) {
+	current, err := m.prometheus.riskScoreTotal(ctx, team, time)
 	if err != nil {
-		return model.VulnerabilityRanking{}, fmt.Errorf("getting team ranking: %w", err)
+		return "", fmt.Errorf("getting team risk score: %w", err)
 	}
-
-	previousRank, err := m.ranking(ctx, team, time.Now().AddDate(0, -1, 0))
+	previous, err := m.prometheus.riskScoreTotal(ctx, team, time.AddDate(0, 0, -30))
 	if err != nil {
-		return model.VulnerabilityRanking{}, fmt.Errorf("getting previous ranking: %w", err)
+		return "", fmt.Errorf("getting team risk score: %w", err)
 	}
-
-	retVal := model.VulnerabilityRanking{
-		Rank:       currentRank,
-		TotalTeams: teams,
-	}
-
 	switch {
-	case currentRank > previousRank:
-		retVal.Trend = model.VulnerabilityRankingTrendDown
-	case currentRank < previousRank:
-		retVal.Trend = model.VulnerabilityRankingTrendUp
+	case current > previous:
+		return model.VulnerabilityRiskScoreTrendUp, nil
+	case current < previous:
+		return model.VulnerabilityRiskScoreTrendDown, nil
 	default:
-		retVal.Trend = model.VulnerabilityRankingTrendFlat
+		return model.VulnerabilityRiskScoreTrendFlat, nil
+	}
+}
+
+func (m *Manager) getVulnerabilityRanking(ctx context.Context, team string, teams int) (model.VulnerabilityRanking, error) {
+	currentRank, err := m.prometheus.ranking(ctx, team, time.Now())
+	if err != nil {
+		return "", fmt.Errorf("getting team ranking: %w", err)
 	}
 
 	// Divide teams into three parts
 	upperLimit := teams / 3        // Upper third
 	middleLimit := 2 * (teams / 3) // Middle third (everything before bottom third)
 
-	// Determine vulnerable score based on rank
+	// Determine vulnerability score based on rank
 	switch {
+	case currentRank == 0:
+		return model.VulnerabilityRankingUnknown, nil
 	case currentRank <= upperLimit: // Top third
-		retVal.VulnerableScore = model.VulnerableScoreUpper
+		return model.VulnerabilityRankingMostVulnerable, nil
 	case currentRank > upperLimit && currentRank <= middleLimit: // Middle third
-		retVal.VulnerableScore = model.VulnerableScoreMiddle
+		return model.VulnerabilityRankingMiddle, nil
 	default: // Bottom third
-		retVal.VulnerableScore = model.VulnerableScoreBottom
+		return model.VulnerabilityRankingLeastVulnerable, nil
 	}
-
-	return retVal, nil
 }
 
 func getImageDetails(images []*model.ImageDetails, env, team, wType, name string) (image *model.ImageDetails) {
@@ -292,24 +292,4 @@ func workloadDetails(workload model.Workload) (env, wType, name string) {
 		return w.Env.Name, "job", w.Name
 	}
 	return "", "", ""
-}
-
-func (c *Config) prometheusClients() (clusterPrometheusClients, error) {
-	clients := clusterPrometheusClients{}
-	for _, cluster := range c.Prometheus.Clusters {
-		if c.Prometheus.EnableFakes {
-			clients[cluster] = NewFakePrometheusClient()
-			continue
-		}
-		prometheusUrl := fmt.Sprintf("https://nais-prometheus.%s.%s.cloud.nais.io", cluster, c.Prometheus.Tenant)
-		promClient, err := promapi.NewClient(promapi.Config{
-			Address: prometheusUrl,
-		})
-		if err != nil {
-			return nil, err
-		}
-		clients[cluster] = promv1.NewAPI(promClient)
-	}
-
-	return clients, nil
 }

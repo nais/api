@@ -6,6 +6,8 @@ import (
 	"sort"
 	"time"
 
+	promapi "github.com/prometheus/client_golang/api"
+
 	prom "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom_model "github.com/prometheus/common/model"
 )
@@ -20,16 +22,57 @@ type PrometheusConfig struct {
 	Clusters    []string
 }
 
+type PrometheusClients struct {
+	cfg     *PrometheusConfig
+	clients map[string]Prometheus
+}
+
+type (
+	clusterPrometheusClients map[string]Prometheus
+)
+
 type Prometheus interface {
 	Query(ctx context.Context, query string, ts time.Time, opts ...prom.Option) (prom_model.Value, prom.Warnings, error)
 }
 
-func (m *Manager) promQuery(ctx context.Context, q, cluster string, time time.Time) (prom_model.Vector, error) {
-	if m.prometheusClients == nil {
+func NewPrometheusClients(cfg *PrometheusConfig) (*PrometheusClients, error) {
+	clients, err := cfg.prometheusClients()
+	if err != nil {
+		return nil, err
+	}
+
+	return &PrometheusClients{
+		cfg:     cfg,
+		clients: clients,
+	}, nil
+}
+
+func (c *PrometheusConfig) prometheusClients() (clusterPrometheusClients, error) {
+	clients := clusterPrometheusClients{}
+	for _, cluster := range c.Clusters {
+		if c.EnableFakes {
+			clients[cluster] = NewFakePrometheusClient()
+			continue
+		}
+		prometheusUrl := fmt.Sprintf("https://nais-prometheus.%s.%s.cloud.nais.io", cluster, c.Tenant)
+		promClient, err := promapi.NewClient(promapi.Config{
+			Address: prometheusUrl,
+		})
+		if err != nil {
+			return nil, err
+		}
+		clients[cluster] = prom.NewAPI(promClient)
+	}
+
+	return clients, nil
+}
+
+func (p *PrometheusClients) promQuery(ctx context.Context, q, cluster string, time time.Time) (prom_model.Vector, error) {
+	if p.clients == nil {
 		return nil, fmt.Errorf("no prometheus clients configured")
 	}
 
-	prometheusClient, ok := m.prometheusClients[cluster]
+	prometheusClient, ok := p.clients[cluster]
 	if !ok {
 		return nil, fmt.Errorf("no prometheus client configured for cluster: %s", cluster)
 	}
@@ -50,11 +93,28 @@ func (m *Manager) promQuery(ctx context.Context, q, cluster string, time time.Ti
 	return val.(prom_model.Vector), nil
 }
 
-func (m *Manager) ranking(ctx context.Context, team string, time time.Time) (int, error) {
+func (p *PrometheusClients) riskScoreTotal(ctx context.Context, team string, time time.Time) (float64, error) {
+	total := 0.0
+	for _, e := range p.cfg.Clusters {
+		query := fmt.Sprintf(`sum(slsa_workload_riskscore{workload_namespace="%s"})`, team)
+		res, err := p.promQuery(ctx, query, e, time)
+		if err != nil {
+			return 0, fmt.Errorf("getting prometheus query result: %w", err)
+		}
+
+		for _, s := range res {
+			total += float64(s.Value)
+		}
+	}
+
+	return total, nil
+}
+
+func (p *PrometheusClients) ranking(ctx context.Context, team string, time time.Time) (int, error) {
 	samples := make(prom_model.Vector, 0)
-	for _, e := range m.cfg.Prometheus.Clusters {
+	for _, e := range p.cfg.Clusters {
 		query := "sum(slsa_workload_riskscore) by (workload_namespace)"
-		res, err := m.promQuery(ctx, query, e, time)
+		res, err := p.promQuery(ctx, query, e, time)
 		if err != nil {
 			return 0, fmt.Errorf("getting prometheus query result: %w", err)
 		}

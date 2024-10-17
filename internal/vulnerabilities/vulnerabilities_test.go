@@ -42,6 +42,10 @@ func TestManager_GetSummaryForTeam(t *testing.T) {
 						"team2": 250,
 						"team3": 25,
 					}), nil, nil)
+				mp.EXPECT().Query(ctx, `sum(slsa_workload_riskscore{workload_namespace="team1"})`, mock.Anything).Return(
+					promRiskScores(map[string]float64{
+						"team1": 174,
+					}), nil, nil)
 			},
 			workloads: []model.Workload{
 				createWorkload("dev", "app1"),
@@ -64,7 +68,7 @@ func TestManager_GetSummaryForTeam(t *testing.T) {
 					states = append(states, st.State)
 				}
 				assert.Contains(t, states, model.VulnerabilityStateCoverageTooLow, model.VulnerabilityStateTooManyVulnerableWorkloads)
-				assert.Equal(t, 2, s.TeamRanking.Rank)
+				assert.Equal(t, model.VulnerabilityRankingMiddle, s.VulnerabilityRanking)
 			},
 		},
 	}
@@ -77,7 +81,7 @@ func TestManager_GetSummaryForTeam(t *testing.T) {
 	}
 }
 
-func TestManager_TeamRanking(t *testing.T) {
+func TestManager_getVulnerabilityScore(t *testing.T) {
 	md := NewMockInternalClient(t)
 	mp := NewMockPrometheus(t)
 	m := setupManager(md, mp)
@@ -97,55 +101,39 @@ func TestManager_TeamRanking(t *testing.T) {
 		assertions   func(rank model.VulnerabilityRanking)
 	}{
 		{
-			name: "team is in the 10th percentile",
+			name: "team is in the most vulnerable percentile",
 			team: "team3",
 			assertions: func(rank model.VulnerabilityRanking) {
-				assert.Equal(t, model.VulnerableScoreUpper, rank.VulnerableScore)
+				assert.Equal(t, model.VulnerabilityRankingMostVulnerable, rank)
 			},
 		},
 		{
-			name: "team is in the 90th percentile",
+			name: "team is in the least vulnerable percentile",
 			team: "team1",
 			assertions: func(rank model.VulnerabilityRanking) {
-				assert.Equal(t, model.VulnerableScoreBottom, rank.VulnerableScore)
+				assert.Equal(t, model.VulnerabilityRankingLeastVulnerable, rank)
 			},
 		},
 		{
-			name: "team is in the 50th percentile",
+			name: "team is in the middle percentile",
 			team: "team2",
 			assertions: func(rank model.VulnerabilityRanking) {
-				assert.Equal(t, model.VulnerableScoreMiddle, rank.VulnerableScore)
+				assert.Equal(t, model.VulnerabilityRankingMiddle, rank)
+			},
+		},
+		{
+			name: "team ranking is unknown",
+			team: "teamUnknown",
+			assertions: func(rank model.VulnerabilityRanking) {
+				assert.Equal(t, model.VulnerabilityRankingUnknown, rank)
 			},
 		},
 	}
 
 	for _, tc := range tt {
-		rank, err := m.teamRanking(ctx, tc.team, 3)
+		rank, err := m.getVulnerabilityRanking(ctx, tc.team, 3)
 		assert.NoError(t, err)
 		tc.assertions(rank)
-	}
-}
-
-func Test_Yolo_Test(t *testing.T) {
-	teams := 257
-	for i := 0; i < teams; i++ {
-		// Divide teams into three parts
-		upperLimit := teams / 3        // Upper third
-		middleLimit := 2 * (teams / 3) // Middle third (everything before bottom third)
-
-		// Determine vulnerable score based on rank
-		currentRank := i + 1
-		switch {
-		case currentRank <= upperLimit: // Top third
-			fmt.Println("Top")
-			fmt.Println(currentRank)
-		case currentRank > upperLimit && currentRank <= middleLimit: // Middle third
-			fmt.Println("Middle")
-			fmt.Println(currentRank)
-		default: // Bottom third
-			fmt.Println("Bottom")
-			fmt.Println(currentRank)
-		}
 	}
 }
 
@@ -154,10 +142,14 @@ func setupManager(md *MockInternalClient, mp *MockPrometheus) *Manager {
 
 	c := NewDependencyTrackClient(DependencyTrackConfig{}, log, WithClient(md))
 
+	pc := &PrometheusClients{
+		cfg:     &PrometheusConfig{Clusters: []string{"test"}},
+		clients: map[string]Prometheus{"test": mp},
+	}
 	m := NewManager(
 		&Config{Prometheus: PrometheusConfig{Clusters: []string{"test"}}},
 		WithDependencyTrackClient(c),
-		WithPrometheusClients(map[string]Prometheus{"test": mp}),
+		WithPrometheusClients(pc),
 	)
 	return m
 }
