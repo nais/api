@@ -100,7 +100,7 @@ func (j *JobRun) Status() *JobRunStatus {
 			if cs.Status == corev1.ConditionTrue && cs.Type == batchv1.JobFailed {
 				return &JobRunStatus{
 					State:   JobRunStateFailed,
-					Message: "Failed",
+					Message: cs.Message,
 				}
 			}
 		}
