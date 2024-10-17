@@ -123,51 +123,6 @@ func (c *dependencyTrackClient) GetVulnerabilityError(ctx context.Context, image
 	return stateToVulnerabilityError(sum, revision), nil
 }
 
-func (c *dependencyTrackClient) GetProjectMetrics(ctx context.Context, instance *WorkloadInstance, date string) (*ProjectMetric, error) {
-	p, err := c.retrieveProject(ctx, instance.Image)
-	if err != nil {
-		return nil, fmt.Errorf("getting project by workload %s: %w", instance.ID(), err)
-	}
-	if p == nil {
-		return nil, nil
-	}
-	metrics, err := c.client.GetProjectMetricsByDate(ctx, p.Uuid, date)
-	if err != nil {
-		if dependencytrack.IsNotFound(err) {
-			return nil, nil
-		}
-		return nil, fmt.Errorf("getting current project metric: %w", err)
-	}
-	if metrics == nil {
-		return nil, nil
-	}
-
-	vulnMetrics := make([]*VulnerabilityMetrics, len(metrics))
-	for i, metric := range metrics {
-		vulnMetrics[i] = &VulnerabilityMetrics{
-			Total:           metric.FindingsTotal,
-			RiskScore:       int(metric.InheritedRiskScore),
-			Critical:        metric.Critical,
-			High:            metric.High,
-			Medium:          metric.Medium,
-			Low:             metric.Low,
-			Unassigned:      metric.Unassigned,
-			FirstOccurrence: metric.FirstOccurrence,
-			LastOccurrence:  metric.LastOccurrence,
-		}
-	}
-
-	id, err := uuid.Parse(p.Uuid)
-	if err != nil {
-		return nil, fmt.Errorf("parsing project uuid: %w", err)
-	}
-
-	return &ProjectMetric{
-		ProjectID:            id,
-		VulnerabilityMetrics: vulnMetrics,
-	}, nil
-}
-
 func (c *dependencyTrackClient) GetMetadataForImage(ctx context.Context, image string) (*model.ImageDetails, error) {
 	name, version, _ := strings.Cut(image, ":")
 	p, err := c.client.GetProject(ctx, name, version)
@@ -393,6 +348,7 @@ func (c *dependencyTrackClient) retrieveProjectsForTeam(ctx context.Context, tea
 	teamTag := dependencytrack.TeamTagPrefix.With(team)
 	tag := url.QueryEscape(teamTag)
 	if v, ok := c.cache.Get(teamTag); ok {
+		c.log.Debugf("retrieved %d projects for team %s from cache", len(v.([]*dependencytrack.Project)), teamTag)
 		return v.([]*dependencytrack.Project), nil
 	}
 
@@ -401,6 +357,7 @@ func (c *dependencyTrackClient) retrieveProjectsForTeam(ctx context.Context, tea
 		return nil, fmt.Errorf("getting projects from DependencyTrack: %w", err)
 	}
 
+	c.log.Debugf("retrieved %d projects for team %s", len(projects), teamTag)
 	for _, project := range projects {
 		if project == nil {
 			continue
@@ -419,6 +376,7 @@ func (c *dependencyTrackClient) retrieveProject(ctx context.Context, image strin
 	tag := url.QueryEscape(instanceImageTag)
 
 	if v, ok := c.cache.Get(instanceImageTag); ok {
+		c.log.Debugf("retrieved project for image %s from cache", image)
 		return v.(*dependencytrack.Project), nil
 	}
 
@@ -431,6 +389,7 @@ func (c *dependencyTrackClient) retrieveProject(ctx context.Context, image strin
 		return nil, nil
 	}
 
+	c.log.Debugf("retrieved %d projects for image %s", len(projects), image)
 	var p *dependencytrack.Project
 	for _, project := range projects {
 		if containsAllTags(project.Tags, instanceImageTag) {
