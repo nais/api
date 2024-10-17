@@ -28,3 +28,22 @@ spec:
                 name: app-name
                 port:
                   number: 80
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: another-app-23422-2sdf
+  labels:
+    app: another-app
+  creationTimestamp: "2022-07-06T09:45:18Z"
+spec:
+  containers:
+    - name: another-app
+      image: navikt/app-name:latest
+      resources:
+        limits:
+          memory: "128Mi"
+          cpu: "500m"
+      ports:
+        - containerPort: 80

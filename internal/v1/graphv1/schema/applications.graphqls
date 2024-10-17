@@ -74,7 +74,19 @@ type Application implements Node & Workload {
 	"The application manifest."
 	manifest: ApplicationManifest!
 
-	# instances: [Instance!]!
+	instances(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): InstanceConnection!
 	# autoScaling: AutoScaling!
 }
 
@@ -224,4 +236,43 @@ enum IngressType {
 	EXTERNAL
 	INTERNAL
 	AUTHENTICATED
+}
+
+type Instance implements Node {
+	id: ID!
+	name: String!
+	image: ContainerImage!
+	restarts: Int!
+	created: Time!
+	status: InstanceStatus!
+}
+
+type InstanceStatus {
+	state: InstanceState!
+	message: String!
+}
+
+enum InstanceState {
+	RUNNING
+	FAILING
+	UNKNOWN
+}
+
+type InstanceConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+
+	"List of nodes."
+	nodes: [Instance!]!
+
+	"List of edges."
+	edges: [InstanceEdge!]!
+}
+
+type InstanceEdge {
+	"Cursor for this edge that can be used for pagination."
+	cursor: Cursor!
+
+	"The instance."
+	node: Instance!
 }

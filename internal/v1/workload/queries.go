@@ -71,8 +71,8 @@ func ListAllPods(ctx context.Context, environmentName string, teamSlug slug.Slug
 	if err != nil {
 		return nil, err
 	}
-
 	selector := labels.NewSelector().Add(*nameReq)
+
 	pods := fromContext(ctx).podWatcher.GetByNamespace(teamSlug.String(), watcher.WithLabels(selector))
 	ret := []*v1.Pod{}
 	for _, pod := range pods {
@@ -84,4 +84,8 @@ func ListAllPods(ctx context.Context, environmentName string, teamSlug slug.Slug
 	}
 
 	return ret, nil
+}
+
+func GetPod(ctx context.Context, environmentName string, teamSlug slug.Slug, instanceName string) (*v1.Pod, error) {
+	return fromContext(ctx).podWatcher.Get(environmentName, teamSlug.String(), instanceName)
 }

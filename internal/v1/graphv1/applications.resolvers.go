@@ -46,6 +46,14 @@ func (r *applicationResolver) Manifest(ctx context.Context, obj *application.App
 	return application.Manifest(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
 }
 
+func (r *applicationResolver) Instances(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*application.Instance], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+	return application.ListInstances(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, page)
+}
+
 func (r *deleteApplicationPayloadResolver) Team(ctx context.Context, obj *application.DeleteApplicationPayload) (*team.Team, error) {
 	if obj.TeamSlug == nil {
 		return nil, nil
@@ -133,3 +141,16 @@ type (
 	ingressResolver                   struct{ *Resolver }
 	restartApplicationPayloadResolver struct{ *Resolver }
 )
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+/*
+	func (r *instanceResolver) Status(ctx context.Context, obj *application.Instance) (*application.InstanceStatus, error) {
+	panic(fmt.Errorf("not implemented: Status - status"))
+}
+func (r *Resolver) Instance() gengqlv1.InstanceResolver { return &instanceResolver{r} }
+*/

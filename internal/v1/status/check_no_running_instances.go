@@ -20,7 +20,7 @@ func (c checkAppNoRunningInstances) Run(ctx context.Context, w workload.Workload
 func (checkAppNoRunningInstances) run(ctx context.Context, w workload.Workload) WorkloadStatusError {
 	app := w.(*application.Application)
 
-	instances, err := application.ListAllInstances(ctx, app.EnvironmentName, app.TeamSlug, app.Name)
+	instances, err := application.ListAllInstances(ctx, app.TeamSlug, app.EnvironmentName, app.Name)
 	if err != nil {
 		return nil
 	}

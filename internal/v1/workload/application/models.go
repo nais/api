@@ -22,6 +22,8 @@ import (
 type (
 	ApplicationConnection = pagination.Connection[*Application]
 	ApplicationEdge       = pagination.Edge[*Application]
+	InstanceConnection    = pagination.Connection[*Instance]
+	InstanceEdge          = pagination.Edge[*Instance]
 )
 
 type Application struct {
@@ -42,25 +44,63 @@ type Instance struct {
 	Restarts int       `json:"restarts"`
 	Created  time.Time `json:"created"`
 
-	ImageString             string `json:"-"`
-	EnvironmentName         string `json:"-"`
-	Spec                    *corev1.Pod
-	WorkloadContainerStatus corev1.ContainerStatus
+	ImageString                string                 `json:"-"`
+	EnvironmentName            string                 `json:"-"`
+	TeamSlug                   slug.Slug              `json:"-"`
+	ApplicationName            string                 `json:"-"`
+	Spec                       *corev1.Pod            `json:"-"`
+	ApplicationContainerStatus corev1.ContainerStatus `json:"-"`
 }
 
-func toGraphInstance(pod *corev1.Pod, environmentName string, workloadName string) *Instance {
+func (Instance) IsNode() {}
+
+func (i Instance) ID() ident.Ident {
+	return newInstanceIdent(i.TeamSlug, i.EnvironmentName, i.ApplicationName, i.Name)
+}
+
+func (i *Instance) Status() *InstanceStatus {
+	switch {
+	case i.ApplicationContainerStatus.State.Running != nil:
+		return &InstanceStatus{
+			State:   InstanceStateRunning,
+			Message: "Running",
+		}
+	case i.ApplicationContainerStatus.State.Terminated != nil:
+		return &InstanceStatus{
+			State:   InstanceStateFailing,
+			Message: i.ApplicationContainerStatus.State.Waiting.Reason,
+		}
+	default:
+		return &InstanceStatus{
+			State:   InstanceStateUnknown,
+			Message: "Unknown",
+		}
+	}
+}
+
+func toGraphInstance(pod *corev1.Pod, teamSlug slug.Slug, environmentName string, applicationName string) *Instance {
+	var containerStatus corev1.ContainerStatus
+	for _, c := range pod.Status.ContainerStatuses {
+		if c.Name == applicationName {
+			containerStatus = c
+			break
+		}
+	}
+
 	ret := &Instance{
 		Name:            pod.Name,
-		Restarts:        int(pod.Status.ContainerStatuses[0].RestartCount),
+		Restarts:        int(containerStatus.RestartCount),
 		Created:         pod.CreationTimestamp.Time,
 		Spec:            pod,
 		EnvironmentName: environmentName,
 		ImageString:     pod.Spec.Containers[0].Image,
+		TeamSlug:        teamSlug,
+		ApplicationName: applicationName,
 	}
 
 	for _, c := range pod.Status.ContainerStatuses {
-		if c.Name == workloadName {
-			ret.WorkloadContainerStatus = c
+		if c.Name == applicationName {
+			ret.ApplicationContainerStatus = c
 			break
 		}
 	}
@@ -78,9 +118,9 @@ func (i Instance) Image() *workload.ContainerImage {
 
 func (i *Instance) State() InstanceState {
 	switch {
-	case i.WorkloadContainerStatus.State.Running != nil:
+	case i.ApplicationContainerStatus.State.Running != nil:
 		return InstanceStateRunning
-	case i.WorkloadContainerStatus.State.Waiting != nil:
+	case i.ApplicationContainerStatus.State.Waiting != nil:
 		return InstanceStateFailing
 	default:
 		return InstanceStateUnknown
@@ -383,4 +423,9 @@ func (e *IngressType) UnmarshalGQL(v interface{}) error {
 
 func (e IngressType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type InstanceStatus struct {
+	State   InstanceState `json:"state"`
+	Message string        `json:"message"`
 }
