@@ -37,14 +37,8 @@ type seedConfig struct {
 	NumTeams          *int
 	NumOwnersPerTeam  *int
 	NumMembersPerTeam *int
-	VulnSeed          *VulnSeed
 	ForceSeed         *bool
 	ProvisionPubSub   *bool
-}
-
-type VulnSeed struct {
-	NumVulnAppsForTeam *int
-	NumVulnPerApp      *int
 }
 
 func newSeedConfig(ctx context.Context) (*seedConfig, error) {
@@ -60,8 +54,6 @@ func newSeedConfig(ctx context.Context) (*seedConfig, error) {
 	cfg.NumMembersPerTeam = flag.Int("members", 10, "number of members per team")
 	cfg.ForceSeed = flag.Bool("force", false, "seed regardless of existing database content")
 	cfg.ProvisionPubSub = flag.Bool("provision_pub_sub", true, "set up pubsub credentials")
-	cfg.VulnSeed.NumVulnAppsForTeam = flag.Int("vuln-apps", 5, "number of vulnerable apps per team")
-	cfg.VulnSeed.NumVulnPerApp = flag.Int("vuln-per-app", 10, "number of vulnerabilities per app")
 	flag.Parse()
 
 	return cfg, nil

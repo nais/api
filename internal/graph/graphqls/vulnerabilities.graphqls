@@ -1,0 +1,83 @@
+extend enum OrderByField {
+  "Order by appName."
+  APP_NAME
+  "Order by env."
+  ENV_NAME
+  "Order by risk score"
+  RISK_SCORE
+  "Order apps by vulnerability severity critical"
+  SEVERITY_CRITICAL
+  "Order apps by vulnerability severity high"
+  SEVERITY_HIGH
+  "Order apps by vulnerability severity medium"
+  SEVERITY_MEDIUM
+  "Order apps by vulnerability severity low"
+  SEVERITY_LOW
+  "Order apps by vulnerability severity unassigned"
+  SEVERITY_UNASSIGNED
+}
+
+type VulnerabilityNode {
+  id: ID!
+  workloadName: String!
+  workloadType: String!
+  env: String!
+  summary: ImageVulnerabilitySummary
+  hasSbom: Boolean!
+  status: WorkloadStatus!
+}
+
+type VulnerabilitySummaryForTeam {
+  riskScore: Int!
+  riskScoreTrend: VulnerabilityRiskScoreTrend!
+  critical: Int!
+  high: Int!
+  medium: Int!
+  low: Int!
+  bomCount: Int!
+  unassigned: Int!
+  coverage: Float!
+  totalWorkloads: Int!
+  vulnerabilityRanking: VulnerabilityRanking!
+  status: [VulnerabilityStatus!]!
+}
+
+enum VulnerabilityRanking {
+  MOST_VULNERABLE
+  MIDDLE
+  LEAST_VULNERABLE
+  UNKNOWN
+}
+
+enum VulnerabilityRiskScoreTrend {
+  UP
+  DOWN
+  FLAT
+}
+
+type VulnerabilityStatus {
+  state: VulnerabilityState!
+  title: String!
+  description: String!
+}
+
+enum VulnerabilityState {
+  OK
+  TOO_MANY_VULNERABLE_WORKLOADS
+  COVERAGE_TOO_LOW
+  VULNERABLE
+  MISSING_SBOM
+}
+
+type VulnerabilityList {
+  nodes: [VulnerabilityNode!]!
+  pageInfo: PageInfo!
+}
+
+input VulnerabilityFilter {
+  "Filter by environment"
+  envs: [String!]
+
+  "Require the presence of a Software Bill of Materials (SBOM) in the vulnerability report."
+  requireSbom: Boolean
+}
