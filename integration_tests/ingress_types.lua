@@ -30,25 +30,25 @@ Test.gql("Ingress types", function(t)
 							ingresses = {
 								{
 									type = "EXTERNAL",
-									url = "https://another-app.external.server.com"
-								}
-							}
+									url = "https://another-app.external.server.com",
+								},
+							},
 						},
 						{
 							name = "app-name",
 							ingresses = {
 								{
 									type = "INTERNAL",
-									url = "https://my-app.server.com"
-								}
-							}
-						}
+									url = "https://my-app.server.com",
+								},
+							},
+						},
 					},
 					pageInfo = {
-						totalCount = 2
-					}
-				}
-			}
-		}
+						totalCount = 2,
+					},
+				},
+			},
+		},
 	}
 end)

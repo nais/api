@@ -58,16 +58,16 @@ Test.gql("Check team is viewer / owner", function(t)
 		data = {
 			team1 = {
 				viewerIsMember = true,
-				viewerIsOwner = false
+				viewerIsOwner = false,
 			},
 			team2 = {
 				viewerIsMember = true,
-				viewerIsOwner = true
+				viewerIsOwner = true,
 			},
 			team3 = {
 				viewerIsMember = false,
-				viewerIsOwner = false
-			}
-		}
+				viewerIsOwner = false,
+			},
+		},
 	}
 end)

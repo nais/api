@@ -49,10 +49,10 @@ Test.gql("Request team deletion", function(t)
 		data = {
 			requestTeamDeletion = {
 				key = {
-					key = Save("deleteKey")
-				}
-			}
-		}
+					key = Save("deleteKey"),
+				},
+			},
+		},
 	}
 end)
 
@@ -72,6 +72,6 @@ Test.sql("Validate delete key", function(t)
 	t.check {
 		confirmed_at = Null,
 		team_slug = TeamSlug,
-		email = "authenticated@example.com"
+		email = "authenticated@example.com",
 	}
 end)

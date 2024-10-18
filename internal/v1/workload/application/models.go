@@ -39,6 +39,18 @@ func (a Application) ID() ident.Ident {
 	return newIdent(a.TeamSlug, a.EnvironmentName, a.Name)
 }
 
+// GetSecrets returns a list of secret names used by the application
+func (a *Application) GetSecrets() []string {
+	ret := make([]string, 0)
+	for _, v := range a.Spec.EnvFrom {
+		ret = append(ret, v.Secret)
+	}
+	for _, v := range a.Spec.FilesFrom {
+		ret = append(ret, v.Secret)
+	}
+	return ret
+}
+
 type ApplicationInstance struct {
 	Name     string    `json:"name"`
 	Restarts int       `json:"restarts"`

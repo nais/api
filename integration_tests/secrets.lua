@@ -21,10 +21,10 @@ Test.gql("Create team", function(t)
 			createTeam = {
 				team = {
 					id = Save("teamID"),
-					slug = "myteam"
-				}
-			}
-		}
+					slug = "myteam",
+				},
+			},
+		},
 	}
 end)
 
@@ -48,11 +48,11 @@ Test.gql("Create secret for team that does not exist", function(t)
 			{
 				message = Contains("You are authenticated"),
 				path = {
-					"createSecret"
-				}
+					"createSecret",
+				},
 			},
 		},
-		data = Null
+		data = Null,
 	}
 end)
 
@@ -79,10 +79,10 @@ Test.gql("Create secret", function(t)
 			createSecret = {
 				secret = {
 					name = "secret-name",
-					values = {}
-				}
-			}
-		}
+					values = {},
+				},
+			},
+		},
 	}
 end)
 
@@ -117,12 +117,12 @@ Test.gql("Add secret value", function(t)
 					values = {
 						{
 							name = "value-name",
-							value = "value"
-						}
-					}
-				}
-			}
-		}
+							value = "value",
+						},
+					},
+				},
+			},
+		},
 	}
 end)
 
@@ -150,11 +150,11 @@ Test.gql("Add secret value that already exists", function(t)
 			{
 				message = "The secret already contains a secret value with the name \"value-name\".",
 				path = {
-					"addSecretValue"
-				}
-			}
+					"addSecretValue",
+				},
+			},
 		},
-		data = Null
+		data = Null,
 	}
 end)
 
@@ -189,12 +189,12 @@ Test.gql("Update secret value", function(t)
 					values = {
 						{
 							name = "value-name",
-							value = "new value"
-						}
-					}
-				}
-			}
-		}
+							value = "new value",
+						},
+					},
+				},
+			},
+		},
 	}
 end)
 
@@ -222,11 +222,11 @@ Test.gql("Update secret value that does not exist", function(t)
 			{
 				message = "The secret does not contain a secret value with the name \"does-not-exist\".",
 				path = {
-					"updateSecretValue"
-				}
-			}
+					"updateSecretValue",
+				},
+			},
 		},
-		data = Null
+		data = Null,
 	}
 end)
 
@@ -252,10 +252,10 @@ Test.gql("Remove secret value that does not exist", function(t)
 			{
 				message = "The secret does not contain a secret value with the name: \"foobar\".",
 				path = {
-					"removeSecretValue"
-				}
-			}
-		}
+					"removeSecretValue",
+				},
+			},
+		},
 	}
 end)
 
@@ -288,15 +288,15 @@ Test.gql("Remove secret value that already exists", function(t)
 					name = "secret-name",
 					values = {
 						{
-							name = "dont-remove"
+							name = "dont-remove",
 						},
 						{
-							name = "value-name"
-						}
-					}
-				}
-			}
-		}
+							name = "value-name",
+						},
+					},
+				},
+			},
+		},
 	}
 
 	t.query [[
@@ -324,12 +324,12 @@ Test.gql("Remove secret value that already exists", function(t)
 					name = "secret-name",
 					values = {
 						{
-							name = "dont-remove"
-						}
-					}
-				}
-			}
-		}
+							name = "dont-remove",
+						},
+					},
+				},
+			},
+		},
 	}
 end)
 
@@ -352,10 +352,10 @@ Test.gql("Delete secret that does not exist", function(t)
 			{
 				message = Contains("Resource not found"),
 				path = {
-					"deleteSecret"
-				}
-			}
-		}
+					"deleteSecret",
+				},
+			},
+		},
 	}
 end)
 
@@ -375,8 +375,8 @@ Test.gql("Delete secret that exists", function(t)
 	t.check {
 		data = {
 			deleteSecret = {
-				secretDeleted = true
-			}
-		}
+				secretDeleted = true,
+			},
+		},
 	}
 end)

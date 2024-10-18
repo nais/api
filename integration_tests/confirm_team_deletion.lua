@@ -51,9 +51,9 @@ Test.gql("Confirm team deletion", function(t)
 	t.check {
 		data = {
 			confirmTeamDeletion = {
-				deletionStarted = true
-			}
-		}
+				deletionStarted = true,
+			},
+		},
 	}
 end)
 
@@ -61,11 +61,11 @@ Test.pubsub("Team deleted event", function(t)
 	t.check("topic", {
 		attributes = {
 			CorrelationID = NotNull(),
-			EventType = "EVENT_TEAM_DELETED"
+			EventType = "EVENT_TEAM_DELETED",
 		},
 		data = {
-			slug = TeamSlug
-		}
+			slug = TeamSlug,
+		},
 	})
 end)
 
@@ -81,6 +81,6 @@ Test.sql("Delete key confirmed", function(t)
 	]], DeleteKey.key)
 
 	t.check {
-		team_slug = TeamSlug
+		team_slug = TeamSlug,
 	}
 end)

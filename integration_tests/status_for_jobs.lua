@@ -31,12 +31,12 @@ Test.gql("job with no errors", function(t)
 					job = {
 						status = {
 							state = "NAIS",
-							errors = {}
-						}
-					}
-				}
-			}
-		}
+							errors = {},
+						},
+					},
+				},
+			},
+		},
 	}
 end)
 
@@ -65,13 +65,13 @@ Test.gql("job with deprecated registry", function(t)
 									registry = "ghcr.io",
 									repository = "navikt",
 									tag = "latest",
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 end)
 
@@ -94,14 +94,14 @@ Test.gql("job with naiserator invalid yaml", function(t)
 								{
 									__typename = "WorkloadStatusInvalidNaisYaml",
 									level = "ERROR",
-									detail = "Human text from the operator, received from yaml"
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+									detail = "Human text from the operator, received from yaml",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 end)
 
@@ -124,14 +124,14 @@ Test.gql("job with naiserator failed synchronization", function(t)
 								{
 									__typename = "WorkloadStatusSynchronizationFailing",
 									level = "ERROR",
-									detail = "Human text from the operator, received from yaml"
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+									detail = "Human text from the operator, received from yaml",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 end)
 
@@ -180,11 +180,11 @@ Test.gql("job with failing netpols", function(t)
 										targetWorkloadName = "other-app",
 									},
 								},
-							}
-						}
-					}
-				}
-			}
-		}
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 end)

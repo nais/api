@@ -21,10 +21,10 @@ Test.gql("Create team", function(t)
 		data = {
 			createTeam = {
 				team = {
-					slug = TeamSlug
-				}
-			}
-		}
+					slug = TeamSlug,
+				},
+			},
+		},
 	}
 end)
 
@@ -62,25 +62,25 @@ Test.gql("Update environment", function(t)
 						environments = {
 							{
 								name = "dev",
-								slackAlertsChannel = "#dev"
+								slackAlertsChannel = "#dev",
 							},
 							{
 								name = "dev-fss",
-								slackAlertsChannel = "#default"
+								slackAlertsChannel = "#default",
 							},
 							{
 								name = "dev-gcp",
-								slackAlertsChannel = "#default"
+								slackAlertsChannel = "#default",
 							},
 							{
 								name = "staging",
-								slackAlertsChannel = "#default"
-							}
-						}
-					}
-				}
-			}
-		}
+								slackAlertsChannel = "#default",
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 end)
 
@@ -107,14 +107,14 @@ Test.gql("Invalid channel name", function(t)
 			{
 				extensions = {
 					field = "slackAlertsChannel",
-					rule = "optionalslackchannel"
+					rule = "optionalslackchannel",
 				},
 				message = "\"dev\" is not a valid Slack channel name. A valid channel name starts with a '#' and is between 3 and 80 characters long.",
 				path = {
-					"updateTeamEnvironment"
-				}
-			}
-		}
+					"updateTeamEnvironment",
+				},
+			},
+		},
 	}
 end)
 
@@ -140,10 +140,10 @@ Test.gql("Nothing to update", function(t)
 			{
 				message = "Nothing to update.",
 				path = {
-					"updateTeamEnvironment"
-				}
-			}
-		}
+					"updateTeamEnvironment",
+				},
+			},
+		},
 	}
 end)
 
@@ -181,24 +181,24 @@ Test.gql("Remove channel", function(t)
 						environments = {
 							{
 								name = "dev",
-								slackAlertsChannel = "#default"
+								slackAlertsChannel = "#default",
 							},
 							{
 								name = "dev-fss",
-								slackAlertsChannel = "#default"
+								slackAlertsChannel = "#default",
 							},
 							{
 								name = "dev-gcp",
-								slackAlertsChannel = "#default"
+								slackAlertsChannel = "#default",
 							},
 							{
 								name = "staging",
-								slackAlertsChannel = "#default"
-							}
-						}
-					}
-				}
-			}
-		}
+								slackAlertsChannel = "#default",
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 end)

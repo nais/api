@@ -31,6 +31,9 @@ type Workload interface {
 	GetAnnotations() map[string]string
 	GetRolloutCompleteTime() int64
 	GetType() Type
+
+	// GetSecrets returns a list of secret names used by the workload
+	GetSecrets() []string
 }
 
 type Base struct {

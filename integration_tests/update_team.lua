@@ -21,10 +21,10 @@ Test.gql("Create team", function(t)
 		data = {
 			createTeam = {
 				team = {
-					slug = TeamSlug
-				}
-			}
-		}
+					slug = TeamSlug,
+				},
+			},
+		},
 	}
 end)
 
@@ -59,24 +59,24 @@ Test.gql("Update team", function(t)
 					environments = {
 						{
 							name = "dev",
-							slackAlertsChannel = "#new-slack-channel"
+							slackAlertsChannel = "#new-slack-channel",
 						},
 						{
 							name = "dev-fss",
-							slackAlertsChannel = "#new-slack-channel"
+							slackAlertsChannel = "#new-slack-channel",
 						},
 						{
 							name = "dev-gcp",
-							slackAlertsChannel = "#new-slack-channel"
+							slackAlertsChannel = "#new-slack-channel",
 						},
 						{
 							name = "staging",
-							slackAlertsChannel = "#new-slack-channel"
-						}
-					}
-				}
-			}
-		}
+							slackAlertsChannel = "#new-slack-channel",
+						},
+					},
+				},
+			},
+		},
 	}
 end)
 
@@ -101,9 +101,9 @@ Test.gql("Nothing to update", function(t)
 			{
 				message = "Nothing to update.",
 				path = {
-					"updateTeam"
-				}
-			}
-		}
+					"updateTeam",
+				},
+			},
+		},
 	}
 end)

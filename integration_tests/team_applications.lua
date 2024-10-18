@@ -22,18 +22,18 @@ Test.gql("Team with multiple applications", function(t)
 				applications = {
 					nodes = {
 						{
-							name = "another-app"
+							name = "another-app",
 						},
 						{
-							name = "app-name"
-						}
+							name = "app-name",
+						},
 					},
 					pageInfo = {
-						totalCount = 2
-					}
-				}
-			}
-		}
+						totalCount = 2,
+					},
+				},
+			},
+		},
 	}
 end)
 
@@ -59,15 +59,15 @@ Test.gql("Team with one application", function(t)
 				applications = {
 					nodes = {
 						{
-							name = "app-name"
-						}
+							name = "app-name",
+						},
 					},
 					pageInfo = {
-						totalCount = 1
-					}
-				}
-			}
-		}
+						totalCount = 1,
+					},
+				},
+			},
+		},
 	}
 end)
 
@@ -89,11 +89,11 @@ Test.gql("Team with no applications", function(t)
 			team = {
 				applications = {
 					pageInfo = {
-						totalCount = 0
-					}
-				}
-			}
-		}
+						totalCount = 0,
+					},
+				},
+			},
+		},
 	}
 end)
 
@@ -141,10 +141,10 @@ Test.gql("Team with multiple applications and instances", function(t)
 										restarts = 0,
 										status = {
 											message = "Unknown",
-											state = "UNKNOWN"
+											state = "UNKNOWN",
 										},
-									}
-								}
+									},
+								},
 							},
 						},
 						{
@@ -158,18 +158,18 @@ Test.gql("Team with multiple applications and instances", function(t)
 										restarts = 0,
 										status = {
 											message = "Running",
-											state = "RUNNING"
+											state = "RUNNING",
 										},
-									}
-								}
+									},
+								},
 							},
-						}
+						},
 					},
 					pageInfo = {
-						totalCount = 2
-					}
-				}
-			}
-		}
+						totalCount = 2,
+					},
+				},
+			},
+		},
 	}
 end)

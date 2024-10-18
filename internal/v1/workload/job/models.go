@@ -36,6 +36,18 @@ func (Job) IsNode()       {}
 func (Job) IsSearchNode() {}
 func (Job) IsWorkload()   {}
 
+// GetSecrets returns a list of secret names used by the job
+func (j *Job) GetSecrets() []string {
+	ret := make([]string, 0)
+	for _, v := range j.Spec.EnvFrom {
+		ret = append(ret, v.Secret)
+	}
+	for _, v := range j.Spec.FilesFrom {
+		ret = append(ret, v.Secret)
+	}
+	return ret
+}
+
 type Run struct {
 	Name           string     `json:"name"`
 	PodNames       []string   `json:"podNames"`

@@ -14,8 +14,8 @@ Test.gql("list users with unauthenticated request", function(t)
 	t.check {
 		errors = {
 			{
-				message = "Unauthorized"
-			}
-		}
+				message = "Unauthorized",
+			},
+		},
 	}
 end)

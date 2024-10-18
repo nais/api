@@ -149,6 +149,7 @@ type ComplexityRoot struct {
 		RedisInstances   func(childComplexity int, orderBy *redis.RedisInstanceOrder) int
 		Resources        func(childComplexity int) int
 		SQLInstances     func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
+		Secrets          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Status           func(childComplexity int) int
 		Team             func(childComplexity int) int
 		Utilization      func(childComplexity int) int
@@ -477,6 +478,7 @@ type ComplexityRoot struct {
 		Runs             func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		SQLInstances     func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
 		Schedule         func(childComplexity int) int
+		Secrets          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Status           func(childComplexity int) int
 		Team             func(childComplexity int) int
 	}
@@ -1525,6 +1527,7 @@ type ApplicationResolver interface {
 	NetworkPolicy(ctx context.Context, obj *application.Application) (*netpol.NetworkPolicy, error)
 	OpenSearch(ctx context.Context, obj *application.Application) (*opensearch.OpenSearch, error)
 	RedisInstances(ctx context.Context, obj *application.Application, orderBy *redis.RedisInstanceOrder) (*pagination.Connection[*redis.RedisInstance], error)
+	Secrets(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*secret.Secret], error)
 	SQLInstances(ctx context.Context, obj *application.Application, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
 	Status(ctx context.Context, obj *application.Application) (*status.WorkloadStatus, error)
 	Utilization(ctx context.Context, obj *application.Application) (*utilization.WorkloadUtilization, error)
@@ -1586,6 +1589,7 @@ type JobResolver interface {
 	NetworkPolicy(ctx context.Context, obj *job.Job) (*netpol.NetworkPolicy, error)
 	OpenSearch(ctx context.Context, obj *job.Job) (*opensearch.OpenSearch, error)
 	RedisInstances(ctx context.Context, obj *job.Job, orderBy *redis.RedisInstanceOrder) (*pagination.Connection[*redis.RedisInstance], error)
+	Secrets(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*secret.Secret], error)
 	SQLInstances(ctx context.Context, obj *job.Job, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
 	Status(ctx context.Context, obj *job.Job) (*status.WorkloadStatus, error)
 }
@@ -1997,6 +2001,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Application.SQLInstances(childComplexity, args["orderBy"].(*sqlinstance.SQLInstanceOrder)), true
+
+	case "Application.secrets":
+		if e.complexity.Application.Secrets == nil {
+			break
+		}
+
+		args, err := ec.field_Application_secrets_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Application.Secrets(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "Application.status":
 		if e.complexity.Application.Status == nil {
@@ -3230,6 +3246,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Job.Schedule(childComplexity), true
+
+	case "Job.secrets":
+		if e.complexity.Job.Secrets == nil {
+			break
+		}
+
+		args, err := ec.field_Job_secrets_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Job.Secrets(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "Job.status":
 		if e.complexity.Job.Status == nil {
@@ -9832,6 +9860,57 @@ extend type TeamEnvironment {
 	secret(name: String!): Secret!
 }
 
+extend interface Workload {
+	"Secrets used by the workload."
+	secrets(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): SecretConnection!
+}
+
+extend type Application {
+	"Secrets used by the application."
+	secrets(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): SecretConnection!
+}
+
+extend type Job {
+	"Secrets used by the job."
+	secrets(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): SecretConnection!
+}
+
 "A secret is a collection of secret values."
 type Secret implements Node {
 	"The globally unique ID of the secret."
@@ -12036,6 +12115,119 @@ func (ec *executionContext) field_Application_redisInstances_argsOrderBy(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Application_secrets_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Application_secrets_argsFirst(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := ec.field_Application_secrets_argsAfter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := ec.field_Application_secrets_argsLast(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := ec.field_Application_secrets_argsBefore(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	return args, nil
+}
+func (ec *executionContext) field_Application_secrets_argsFirst(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*int, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["first"]
+	if !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+	if tmp, ok := rawArgs["first"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Application_secrets_argsAfter(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*pagination.Cursor, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["after"]
+	if !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+	if tmp, ok := rawArgs["after"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Application_secrets_argsLast(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*int, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["last"]
+	if !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+	if tmp, ok := rawArgs["last"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Application_secrets_argsBefore(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*pagination.Cursor, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["before"]
+	if !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+	if tmp, ok := rawArgs["before"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Application_sqlInstances_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -12794,6 +12986,119 @@ func (ec *executionContext) field_Job_runs_argsLast(
 }
 
 func (ec *executionContext) field_Job_runs_argsBefore(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*pagination.Cursor, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["before"]
+	if !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+	if tmp, ok := rawArgs["before"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Job_secrets_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Job_secrets_argsFirst(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := ec.field_Job_secrets_argsAfter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := ec.field_Job_secrets_argsLast(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := ec.field_Job_secrets_argsBefore(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	return args, nil
+}
+func (ec *executionContext) field_Job_secrets_argsFirst(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*int, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["first"]
+	if !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+	if tmp, ok := rawArgs["first"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Job_secrets_argsAfter(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*pagination.Cursor, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["after"]
+	if !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+	if tmp, ok := rawArgs["after"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Job_secrets_argsLast(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*int, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["last"]
+	if !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+	if tmp, ok := rawArgs["last"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Job_secrets_argsBefore(
 	ctx context.Context,
 	rawArgs map[string]interface{},
 ) (*pagination.Cursor, error) {
@@ -19352,6 +19657,69 @@ func (ec *executionContext) fieldContext_Application_redisInstances(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _Application_secrets(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Application_secrets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Application().Secrets(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*pagination.Connection[*secret.Secret])
+	fc.Result = res
+	return ec.marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Application_secrets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Application",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pageInfo":
+				return ec.fieldContext_SecretConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_SecretConnection_nodes(ctx, field)
+			case "edges":
+				return ec.fieldContext_SecretConnection_edges(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SecretConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Application_secrets_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Application_sqlInstances(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Application_sqlInstances(ctx, field)
 	if err != nil {
@@ -19652,6 +20020,8 @@ func (ec *executionContext) fieldContext_ApplicationConnection_nodes(_ context.C
 				return ec.fieldContext_Application_openSearch(ctx, field)
 			case "redisInstances":
 				return ec.fieldContext_Application_redisInstances(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Application_secrets(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Application_sqlInstances(ctx, field)
 			case "status":
@@ -19834,6 +20204,8 @@ func (ec *executionContext) fieldContext_ApplicationEdge_node(_ context.Context,
 				return ec.fieldContext_Application_openSearch(ctx, field)
 			case "redisInstances":
 				return ec.fieldContext_Application_redisInstances(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Application_secrets(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Application_sqlInstances(ctx, field)
 			case "status":
@@ -28265,6 +28637,69 @@ func (ec *executionContext) fieldContext_Job_redisInstances(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Job_secrets(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Job_secrets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Job().Secrets(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*pagination.Connection[*secret.Secret])
+	fc.Result = res
+	return ec.marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Job_secrets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pageInfo":
+				return ec.fieldContext_SecretConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_SecretConnection_nodes(ctx, field)
+			case "edges":
+				return ec.fieldContext_SecretConnection_edges(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SecretConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Job_secrets_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Job_sqlInstances(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Job_sqlInstances(ctx, field)
 	if err != nil {
@@ -28513,6 +28948,8 @@ func (ec *executionContext) fieldContext_JobConnection_nodes(_ context.Context, 
 				return ec.fieldContext_Job_openSearch(ctx, field)
 			case "redisInstances":
 				return ec.fieldContext_Job_redisInstances(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Job_secrets(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Job_sqlInstances(ctx, field)
 			case "status":
@@ -28693,6 +29130,8 @@ func (ec *executionContext) fieldContext_JobEdge_node(_ context.Context, field g
 				return ec.fieldContext_Job_openSearch(ctx, field)
 			case "redisInstances":
 				return ec.fieldContext_Job_redisInstances(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Job_secrets(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Job_sqlInstances(ctx, field)
 			case "status":
@@ -38536,6 +38975,8 @@ func (ec *executionContext) fieldContext_RestartApplicationPayload_application(_
 				return ec.fieldContext_Application_openSearch(ctx, field)
 			case "redisInstances":
 				return ec.fieldContext_Application_redisInstances(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Application_secrets(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Application_sqlInstances(ctx, field)
 			case "status":
@@ -49685,6 +50126,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_application(ctx context
 				return ec.fieldContext_Application_openSearch(ctx, field)
 			case "redisInstances":
 				return ec.fieldContext_Application_redisInstances(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Application_secrets(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Application_sqlInstances(ctx, field)
 			case "status":
@@ -49936,6 +50379,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_job(ctx context.Context
 				return ec.fieldContext_Job_openSearch(ctx, field)
 			case "redisInstances":
 				return ec.fieldContext_Job_redisInstances(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Job_secrets(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Job_sqlInstances(ctx, field)
 			case "status":
@@ -55434,6 +55879,8 @@ func (ec *executionContext) fieldContext_TriggerJobPayload_job(_ context.Context
 				return ec.fieldContext_Job_openSearch(ctx, field)
 			case "redisInstances":
 				return ec.fieldContext_Job_redisInstances(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Job_secrets(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Job_sqlInstances(ctx, field)
 			case "status":
@@ -62497,15 +62944,11 @@ func (ec *executionContext) _Workload(ctx context.Context, sel ast.SelectionSet,
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case application.Application:
-		return ec._Application(ctx, sel, &obj)
 	case *application.Application:
 		if obj == nil {
 			return graphql.Null
 		}
 		return ec._Application(ctx, sel, obj)
-	case job.Job:
-		return ec._Job(ctx, sel, &obj)
 	case *job.Job:
 		if obj == nil {
 			return graphql.Null
@@ -63221,6 +63664,42 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 					}
 				}()
 				res = ec._Application_redisInstances(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "secrets":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Application_secrets(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -66896,6 +67375,42 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 					}
 				}()
 				res = ec._Job_redisInstances(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "secrets":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Job_secrets(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

@@ -14,8 +14,25 @@ import (
 	"github.com/nais/api/internal/v1/workload/application"
 	"github.com/nais/api/internal/v1/workload/job"
 	"github.com/nais/api/internal/v1/workload/secret"
-	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 )
+
+func (r *applicationResolver) Secrets(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*secret.Secret], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return secret.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj, page)
+}
+
+func (r *jobResolver) Secrets(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*secret.Secret], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return secret.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj, page)
+}
 
 func (r *mutationResolver) CreateSecret(ctx context.Context, input secret.CreateSecretInput) (*secret.CreateSecretPayload, error) {
 	if err := authz.RequireTeamMembershipCtx(ctx, input.Team); err != nil {
@@ -117,10 +134,7 @@ func (r *secretResolver) Applications(ctx context.Context, obj *secret.Secret, f
 
 	ret := make([]*application.Application, 0)
 	for _, app := range allApps {
-		ok := slices.ContainsFunc(app.Spec.EnvFrom, func(o nais_io_v1.EnvFrom) bool {
-			return o.Secret == obj.Name
-		})
-		if ok {
+		if slices.Contains(app.GetSecrets(), obj.Name) {
 			ret = append(ret, app)
 		}
 	}
@@ -139,10 +153,7 @@ func (r *secretResolver) Jobs(ctx context.Context, obj *secret.Secret, first *in
 
 	ret := make([]*job.Job, 0)
 	for _, j := range allJobs {
-		ok := slices.ContainsFunc(j.Spec.EnvFrom, func(o nais_io_v1.EnvFrom) bool {
-			return o.Secret == obj.Name
-		})
-		if ok {
+		if slices.Contains(j.GetSecrets(), obj.Name) {
 			ret = append(ret, j)
 		}
 	}
@@ -161,20 +172,14 @@ func (r *secretResolver) Workloads(ctx context.Context, obj *secret.Secret, firs
 
 	applications := application.ListAllForTeam(ctx, obj.TeamSlug)
 	for _, app := range applications {
-		ok := slices.ContainsFunc(app.Spec.EnvFrom, func(o nais_io_v1.EnvFrom) bool {
-			return o.Secret == obj.Name
-		})
-		if ok {
+		if slices.Contains(app.GetSecrets(), obj.Name) {
 			ret = append(ret, app)
 		}
 	}
 
 	jobs := job.ListAllForTeam(ctx, obj.TeamSlug)
 	for _, j := range jobs {
-		ok := slices.ContainsFunc(j.Spec.EnvFrom, func(o nais_io_v1.EnvFrom) bool {
-			return o.Secret == obj.Name
-		})
-		if ok {
+		if slices.Contains(j.GetSecrets(), obj.Name) {
 			ret = append(ret, j)
 		}
 	}

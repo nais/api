@@ -15,6 +15,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
+	"github.com/nais/api/internal/v1/workload"
 	corev1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -23,6 +24,16 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/utils/ptr"
 )
+
+func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, workload workload.Workload, page *pagination.Pagination) (*SecretConnection, error) {
+	all := fromContext(ctx).secretWatcher.GetByNamespace(
+		teamSlug.String(),
+		watcher.InCluster(environmentName),
+		watcher.WithObjectNames(workload.GetSecrets()),
+	)
+	paginated := pagination.Slice(watcher.Objects(all), page)
+	return pagination.NewConnection(paginated, page, int32(len(all))), nil
+}
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*SecretConnection, error) {
 	all := fromContext(ctx).secretWatcher.GetByNamespace(teamSlug.String())

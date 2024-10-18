@@ -69,7 +69,7 @@ deadcode:
 
 fmt: prettier install-lua-formatter
 	go run mvdan.cc/gofumpt@latest -w ./
-	$(LUAFMT)/bin/CodeFormat format -w . --ignores-file ".gitignore" -c ./.configs/luafmt.conf
+	$(LUAFMT)/bin/CodeFormat format -w . --ignores-file ".gitignore" -c ./integration_tests/.editorconfig
 
 prettier:
 	npm install

@@ -31,12 +31,12 @@ Test.gql("app with no errors", function(t)
 					application = {
 						status = {
 							state = "NAIS",
-							errors = {}
-						}
-					}
-				}
-			}
-		}
+							errors = {},
+						},
+					},
+				},
+			},
+		},
 	}
 end)
 
@@ -58,14 +58,14 @@ Test.gql("app with deprecated ingress", function(t)
 								{
 									__typename = "WorkloadStatusDeprecatedIngress",
 									ingress = "https://error.dev-gcp.nais.io",
-									level = "TODO"
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+									level = "TODO",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 end)
 
@@ -94,13 +94,13 @@ Test.gql("app with deprecated registry", function(t)
 									registry = "navikt",
 									repository = "",
 									tag = "latest",
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 end)
 
@@ -123,14 +123,14 @@ Test.gql("app with naiserator invalid yaml", function(t)
 								{
 									__typename = "WorkloadStatusInvalidNaisYaml",
 									level = "ERROR",
-									detail = "Human text from the operator, received from yaml"
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+									detail = "Human text from the operator, received from yaml",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 end)
 
@@ -153,14 +153,14 @@ Test.gql("app with naiserator failed synchronization", function(t)
 								{
 									__typename = "WorkloadStatusSynchronizationFailing",
 									level = "ERROR",
-									detail = "Human text from the operator, received from yaml"
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+									detail = "Human text from the operator, received from yaml",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 end)
 
@@ -209,11 +209,11 @@ Test.gql("app with failing netpols", function(t)
 										targetWorkloadName = "other-app",
 									},
 								},
-							}
-						}
-					}
-				}
-			}
-		}
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 end)

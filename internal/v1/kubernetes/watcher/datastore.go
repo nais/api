@@ -41,8 +41,20 @@ func (e *ErrorNotFound) Is(v error) bool {
 type Filter func(obj Object, cluster string) bool
 
 func WithLabels(lbls labels.Selector) Filter {
-	return func(obj Object, cluster string) bool {
+	return func(obj Object, _ string) bool {
 		return lbls.Matches(labels.Set(obj.GetLabels()))
+	}
+}
+
+func InCluster(clusterName string) Filter {
+	return func(_ Object, cluster string) bool {
+		return clusterName == cluster
+	}
+}
+
+func WithObjectNames(objectNames []string) Filter {
+	return func(obj Object, _ string) bool {
+		return slices.Contains(objectNames, obj.GetName())
 	}
 }
 

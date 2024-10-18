@@ -23,10 +23,10 @@ Test.gql("Create team", function(t)
 		data = {
 			createTeam = {
 				team = {
-					slug = TeamSlug
-				}
-			}
-		}
+					slug = TeamSlug,
+				},
+			},
+		},
 	}
 end)
 
@@ -53,10 +53,10 @@ Test.gql("Set role on user that is not a member", function(t)
 			{
 				message = "User is not a member of the team.",
 				path = {
-					"setTeamMemberRole"
-				}
-			}
-		}
+					"setTeamMemberRole",
+				},
+			},
+		},
 	}
 end)
 
@@ -85,10 +85,10 @@ Test.gql("Add user that does not exist", function(t)
 			{
 				message = "The specified user was not found.",
 				path = {
-					"addTeamMember"
-				}
-			}
-		}
+					"addTeamMember",
+				},
+			},
+		},
 	}
 end)
 
@@ -115,10 +115,10 @@ Test.gql("Add member", function(t)
 		data = {
 			addTeamMember = {
 				member = {
-					role = "MEMBER"
-				}
-			}
-		}
+					role = "MEMBER",
+				},
+			},
+		},
 	}
 end)
 
@@ -126,11 +126,11 @@ Test.pubsub("Check if pubsub message was sent", function(t)
 	t.check("topic", {
 		attributes = {
 			CorrelationID = NotNull(),
-			EventType = "EVENT_TEAM_UPDATED"
+			EventType = "EVENT_TEAM_UPDATED",
 		},
 		data = {
-			slug = TeamSlug
-		}
+			slug = TeamSlug,
+		},
 	})
 end)
 
@@ -157,10 +157,10 @@ Test.gql("Change role", function(t)
 		data = {
 			setTeamMemberRole = {
 				member = {
-					role = "OWNER"
-				}
-			}
-		}
+					role = "OWNER",
+				},
+			},
+		},
 	}
 end)
 
@@ -168,11 +168,11 @@ Test.pubsub("Check if pubsub message was sent", function(t)
 	t.check("topic", {
 		attributes = {
 			CorrelationID = NotNull(),
-			EventType = "EVENT_TEAM_UPDATED"
+			EventType = "EVENT_TEAM_UPDATED",
 		},
 		data = {
-			slug = TeamSlug
-		}
+			slug = TeamSlug,
+		},
 	})
 end)
 
@@ -216,28 +216,28 @@ Test.gql("Add owner", function(t)
 									role = "OWNER",
 									user = {
 										email = "authenticated@example.com",
-										name = "Authenticated User"
-									}
+										name = "Authenticated User",
+									},
 								},
 								{
 									role = "OWNER",
 									user = {
 										email = MemberToAdd,
-										name = "name-1"
-									}
+										name = "name-1",
+									},
 								},
 								{
 									role = "OWNER",
 									user = {
 										email = OwnerToAdd,
-										name = "name-2"
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+										name = "name-2",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 end)

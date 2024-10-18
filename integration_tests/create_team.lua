@@ -21,10 +21,10 @@ Test.gql("Create team", function(t)
 			createTeam = {
 				team = {
 					id = Save("teamID"),
-					slug = "newteam"
-				}
-			}
-		}
+					slug = "newteam",
+				},
+			},
+		},
 	}
 end)
 
@@ -33,11 +33,11 @@ Test.pubsub("Check if pubsub message was sent", function(t)
 	t.check("topic", {
 		attributes = {
 			CorrelationID = NotNull(),
-			EventType = "EVENT_TEAM_CREATED"
+			EventType = "EVENT_TEAM_CREATED",
 		},
 		data = {
-			slug = "newteam"
-		}
+			slug = "newteam",
+		},
 	})
 end)
 
@@ -54,7 +54,7 @@ Test.sql("Check database", function(t)
 		delete_key_confirmed_at = Null,
 		purpose = "some purpose",
 		slack_channel = "#channel",
-		slug = "newteam"
+		slug = "newteam",
 	}
 end)
 
@@ -72,8 +72,8 @@ Test.gql("Team node query", function(t)
 	t.check {
 		data = {
 			node = {
-				slug = "newteam"
-			}
-		}
+				slug = "newteam",
+			},
+		},
 	}
 end)
