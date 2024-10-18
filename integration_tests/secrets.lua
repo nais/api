@@ -86,10 +86,10 @@ Test.gql("Create secret", function(t)
 	}
 end)
 
-Test.gql("Set secret value that does not exist (create)", function(t)
+Test.gql("Add secret value", function(t)
 	t.query [[
 		mutation {
-			setSecretValue(input: {
+			addSecretValue(input: {
 				name: "secret-name"
 				environment: "dev"
 				team: "myteam"
@@ -111,7 +111,7 @@ Test.gql("Set secret value that does not exist (create)", function(t)
 
 	t.check {
 		data = {
-			setSecretValue = {
+			addSecretValue = {
 				secret = {
 					name = "secret-name",
 					values = {
@@ -126,10 +126,42 @@ Test.gql("Set secret value that does not exist (create)", function(t)
 	}
 end)
 
-Test.gql("Set secret value that already exists (update)", function(t)
+Test.gql("Add secret value that already exists", function(t)
 	t.query [[
 		mutation {
-			setSecretValue(input: {
+			addSecretValue(input: {
+				name: "secret-name"
+				environment: "dev"
+				team: "myteam"
+				value: {
+					name: "value-name",
+					value: "value"
+				}
+			}) {
+				secret {
+					name
+				}
+			}
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = "The secret already contains a secret value with the name \"value-name\".",
+				path = {
+					"addSecretValue"
+				}
+			}
+		},
+		data = Null
+	}
+end)
+
+Test.gql("Update secret value", function(t)
+	t.query [[
+		mutation {
+			updateSecretValue(input: {
 				name: "secret-name"
 				environment: "dev"
 				team: "myteam"
@@ -151,7 +183,7 @@ Test.gql("Set secret value that already exists (update)", function(t)
 
 	t.check {
 		data = {
-			setSecretValue = {
+			updateSecretValue = {
 				secret = {
 					name = "secret-name",
 					values = {
@@ -163,6 +195,38 @@ Test.gql("Set secret value that already exists (update)", function(t)
 				}
 			}
 		}
+	}
+end)
+
+Test.gql("Update secret value that does not exist", function(t)
+	t.query [[
+		mutation {
+			updateSecretValue(input: {
+				name: "secret-name"
+				environment: "dev"
+				team: "myteam"
+				value: {
+					name: "does-not-exist",
+					value: "new value"
+				}
+			}) {
+				secret {
+					name
+				}
+			}
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = "The secret does not contain a secret value with the name \"does-not-exist\".",
+				path = {
+					"updateSecretValue"
+				}
+			}
+		},
+		data = Null
 	}
 end)
 
@@ -186,7 +250,7 @@ Test.gql("Remove secret value that does not exist", function(t)
 		data = Null,
 		errors = {
 			{
-				message = "No such secret value exists: \"foobar\"",
+				message = "The secret does not contain a secret value with the name: \"foobar\".",
 				path = {
 					"removeSecretValue"
 				}
@@ -198,7 +262,7 @@ end)
 Test.gql("Remove secret value that already exists", function(t)
 	t.query [[
 		mutation {
-			setSecretValue(input: {
+			addSecretValue(input: {
 				name: "secret-name"
 				environment: "dev"
 				team: "myteam"
@@ -219,7 +283,7 @@ Test.gql("Remove secret value that already exists", function(t)
 
 	t.check {
 		data = {
-			setSecretValue = {
+			addSecretValue = {
 				secret = {
 					name = "secret-name",
 					values = {

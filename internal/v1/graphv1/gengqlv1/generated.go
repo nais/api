@@ -119,6 +119,10 @@ type ComplexityRoot struct {
 		Repository func(childComplexity int) int
 	}
 
+	AddSecretValuePayload struct {
+		Secret func(childComplexity int) int
+	}
+
 	AddTeamMemberPayload struct {
 		Member func(childComplexity int) int
 	}
@@ -537,6 +541,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		AddRepositoryToTeam      func(childComplexity int, input repository.AddRepositoryToTeamInput) int
+		AddSecretValue           func(childComplexity int, input secret.AddSecretValueInput) int
 		AddTeamMember            func(childComplexity int, input team.AddTeamMemberInput) int
 		ConfigureReconciler      func(childComplexity int, name string, config []*reconciler.ReconcilerConfigInput) int
 		ConfirmTeamDeletion      func(childComplexity int, input team.ConfirmTeamDeletionInput) int
@@ -552,10 +557,10 @@ type ComplexityRoot struct {
 		RemoveTeamMember         func(childComplexity int, input team.RemoveTeamMemberInput) int
 		RequestTeamDeletion      func(childComplexity int, input team.RequestTeamDeletionInput) int
 		RestartApplication       func(childComplexity int, input application.RestartApplicationInput) int
-		SetSecretValue           func(childComplexity int, input secret.SetSecretValueInput) int
 		SetTeamMemberRole        func(childComplexity int, input team.SetTeamMemberRoleInput) int
 		SynchronizeTeam          func(childComplexity int, input team.SynchronizeTeamInput) int
 		TriggerJob               func(childComplexity int, input job.TriggerJobInput) int
+		UpdateSecretValue        func(childComplexity int, input secret.UpdateSecretValueInput) int
 		UpdateTeam               func(childComplexity int, input team.UpdateTeamInput) int
 		UpdateTeamEnvironment    func(childComplexity int, input team.UpdateTeamEnvironmentInput) int
 	}
@@ -878,10 +883,6 @@ type ComplexityRoot struct {
 		Date     func(childComplexity int) int
 		Services func(childComplexity int) int
 		Sum      func(childComplexity int) int
-	}
-
-	SetSecretValuePayload struct {
-		Secret func(childComplexity int) int
 	}
 
 	SetTeamMemberRolePayload struct {
@@ -1313,6 +1314,10 @@ type ComplexityRoot struct {
 		JobRun func(childComplexity int) int
 	}
 
+	UpdateSecretValuePayload struct {
+		Secret func(childComplexity int) int
+	}
+
 	UpdateTeamEnvironmentPayload struct {
 		Environment func(childComplexity int) int
 	}
@@ -1533,7 +1538,8 @@ type MutationResolver interface {
 	AddRepositoryToTeam(ctx context.Context, input repository.AddRepositoryToTeamInput) (*repository.AddRepositoryToTeamPayload, error)
 	RemoveRepositoryFromTeam(ctx context.Context, input repository.RemoveRepositoryFromTeamInput) (*repository.RemoveRepositoryFromTeamPayload, error)
 	CreateSecret(ctx context.Context, input secret.CreateSecretInput) (*secret.CreateSecretPayload, error)
-	SetSecretValue(ctx context.Context, input secret.SetSecretValueInput) (*secret.SetSecretValuePayload, error)
+	AddSecretValue(ctx context.Context, input secret.AddSecretValueInput) (*secret.AddSecretValuePayload, error)
+	UpdateSecretValue(ctx context.Context, input secret.UpdateSecretValueInput) (*secret.UpdateSecretValuePayload, error)
 	RemoveSecretValue(ctx context.Context, input secret.RemoveSecretValueInput) (*secret.RemoveSecretValuePayload, error)
 	DeleteSecret(ctx context.Context, input secret.DeleteSecretInput) (*secret.DeleteSecretPayload, error)
 	CreateTeam(ctx context.Context, input team.CreateTeamInput) (*team.CreateTeamPayload, error)
@@ -1746,6 +1752,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AddRepositoryToTeamPayload.Repository(childComplexity), true
+
+	case "AddSecretValuePayload.secret":
+		if e.complexity.AddSecretValuePayload.Secret == nil {
+			break
+		}
+
+		return e.complexity.AddSecretValuePayload.Secret(childComplexity), true
 
 	case "AddTeamMemberPayload.member":
 		if e.complexity.AddTeamMemberPayload.Member == nil {
@@ -3365,6 +3378,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.AddRepositoryToTeam(childComplexity, args["input"].(repository.AddRepositoryToTeamInput)), true
 
+	case "Mutation.addSecretValue":
+		if e.complexity.Mutation.AddSecretValue == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_addSecretValue_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AddSecretValue(childComplexity, args["input"].(secret.AddSecretValueInput)), true
+
 	case "Mutation.addTeamMember":
 		if e.complexity.Mutation.AddTeamMember == nil {
 			break
@@ -3545,18 +3570,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.RestartApplication(childComplexity, args["input"].(application.RestartApplicationInput)), true
 
-	case "Mutation.setSecretValue":
-		if e.complexity.Mutation.SetSecretValue == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_setSecretValue_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.SetSecretValue(childComplexity, args["input"].(secret.SetSecretValueInput)), true
-
 	case "Mutation.setTeamMemberRole":
 		if e.complexity.Mutation.SetTeamMemberRole == nil {
 			break
@@ -3592,6 +3605,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.TriggerJob(childComplexity, args["input"].(job.TriggerJobInput)), true
+
+	case "Mutation.updateSecretValue":
+		if e.complexity.Mutation.UpdateSecretValue == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateSecretValue_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateSecretValue(childComplexity, args["input"].(secret.UpdateSecretValueInput)), true
 
 	case "Mutation.updateTeam":
 		if e.complexity.Mutation.UpdateTeam == nil {
@@ -4892,13 +4917,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ServiceCostSeries.Sum(childComplexity), true
-
-	case "SetSecretValuePayload.secret":
-		if e.complexity.SetSecretValuePayload.Secret == nil {
-			break
-		}
-
-		return e.complexity.SetSecretValuePayload.Secret(childComplexity), true
 
 	case "SetTeamMemberRolePayload.member":
 		if e.complexity.SetTeamMemberRolePayload.Member == nil {
@@ -6856,6 +6874,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TriggerJobPayload.JobRun(childComplexity), true
 
+	case "UpdateSecretValuePayload.secret":
+		if e.complexity.UpdateSecretValuePayload.Secret == nil {
+			break
+		}
+
+		return e.complexity.UpdateSecretValuePayload.Secret(childComplexity), true
+
 	case "UpdateTeamEnvironmentPayload.environment":
 		if e.complexity.UpdateTeamEnvironmentPayload.Environment == nil {
 			break
@@ -7289,6 +7314,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputAddRepositoryToTeamInput,
+		ec.unmarshalInputAddSecretValueInput,
 		ec.unmarshalInputAddTeamMemberInput,
 		ec.unmarshalInputApplicationOrder,
 		ec.unmarshalInputBigQueryDatasetAccessOrder,
@@ -7317,7 +7343,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRestartApplicationInput,
 		ec.unmarshalInputSearchFilter,
 		ec.unmarshalInputSecretValueInput,
-		ec.unmarshalInputSetSecretValueInput,
 		ec.unmarshalInputSetTeamMemberRoleInput,
 		ec.unmarshalInputSqlInstanceOrder,
 		ec.unmarshalInputSqlInstanceUserOrder,
@@ -7326,6 +7351,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTeamOrder,
 		ec.unmarshalInputTeamRepositoryFilter,
 		ec.unmarshalInputTriggerJobInput,
+		ec.unmarshalInputUpdateSecretValueInput,
 		ec.unmarshalInputUpdateTeamEnvironmentInput,
 		ec.unmarshalInputUpdateTeamInput,
 		ec.unmarshalInputUserOrder,
@@ -9273,13 +9299,16 @@ enum SearchType {
 	"Create a new secret."
 	createSecret(input: CreateSecretInput!): CreateSecretPayload!
 
-	"Set a secret value in a secret. If the value already exists the secret value will be updated."
-	setSecretValue(input: SetSecretValueInput!): SetSecretValuePayload!
+	"Add a secret value to a secret."
+	addSecretValue(input: AddSecretValueInput!): AddSecretValuePayload!
+
+	"Update a secret value within a secret."
+	updateSecretValue(input: UpdateSecretValueInput!): UpdateSecretValuePayload!
 
 	"Remove a secret value from a secret."
 	removeSecretValue(input: RemoveSecretValueInput!): RemoveSecretValuePayload!
 
-	"Delete a secret and the values it contains."
+	"Delete a secret, and the values it contains."
 	deleteSecret(input: DeleteSecretInput!): DeleteSecretPayload!
 }
 
@@ -9393,7 +9422,21 @@ input CreateSecretInput {
 	team: Slug!
 }
 
-input SetSecretValueInput {
+input AddSecretValueInput {
+	"The name of the secret."
+	name: String!
+
+	"The environment the secret exists in."
+	environment: String!
+
+	"The team that owns the secret."
+	team: Slug!
+
+	"The secret value to set."
+	value: SecretValueInput!
+}
+
+input UpdateSecretValueInput {
 	"The name of the secret."
 	name: String!
 
@@ -9437,8 +9480,13 @@ type CreateSecretPayload {
 	secret: Secret
 }
 
-type SetSecretValuePayload {
-	"The added / updated secret."
+type AddSecretValuePayload {
+	"The updated secret."
+	secret: Secret
+}
+
+type UpdateSecretValuePayload {
+	"The updated secret."
 	secret: Secret
 }
 
@@ -12387,6 +12435,38 @@ func (ec *executionContext) field_Mutation_addRepositoryToTeam_argsInput(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Mutation_addSecretValue_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_addSecretValue_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_addSecretValue_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (secret.AddSecretValueInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal secret.AddSecretValueInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNAddSecretValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐAddSecretValueInput(ctx, tmp)
+	}
+
+	var zeroVal secret.AddSecretValueInput
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Mutation_addTeamMember_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -12894,38 +12974,6 @@ func (ec *executionContext) field_Mutation_restartApplication_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_setSecretValue_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_setSecretValue_argsInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_setSecretValue_argsInput(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (secret.SetSecretValueInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
-		var zeroVal secret.SetSecretValueInput
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNSetSecretValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSetSecretValueInput(ctx, tmp)
-	}
-
-	var zeroVal secret.SetSecretValueInput
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Mutation_setTeamMemberRole_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -13019,6 +13067,38 @@ func (ec *executionContext) field_Mutation_triggerJob_argsInput(
 	}
 
 	var zeroVal job.TriggerJobInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateSecretValue_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_updateSecretValue_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_updateSecretValue_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (secret.UpdateSecretValueInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal secret.UpdateSecretValueInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateSecretValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐUpdateSecretValueInput(ctx, tmp)
+	}
+
+	var zeroVal secret.UpdateSecretValueInput
 	return zeroVal, nil
 }
 
@@ -17335,6 +17415,69 @@ func (ec *executionContext) fieldContext_AddRepositoryToTeamPayload_repository(_
 				return ec.fieldContext_Repository_team(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Repository", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AddSecretValuePayload_secret(ctx context.Context, field graphql.CollectedField, obj *secret.AddSecretValuePayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AddSecretValuePayload_secret(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Secret, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*secret.Secret)
+	fc.Result = res
+	return ec.marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSecret(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AddSecretValuePayload_secret(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AddSecretValuePayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Secret_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Secret_name(ctx, field)
+			case "environment":
+				return ec.fieldContext_Secret_environment(ctx, field)
+			case "team":
+				return ec.fieldContext_Secret_team(ctx, field)
+			case "values":
+				return ec.fieldContext_Secret_values(ctx, field)
+			case "applications":
+				return ec.fieldContext_Secret_applications(ctx, field)
+			case "jobs":
+				return ec.fieldContext_Secret_jobs(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Secret_workloads(ctx, field)
+			case "lastModifiedAt":
+				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
+			case "lastModifiedBy":
+				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
 		},
 	}
 	return fc, nil
@@ -29572,8 +29715,8 @@ func (ec *executionContext) fieldContext_Mutation_createSecret(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_setSecretValue(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_setSecretValue(ctx, field)
+func (ec *executionContext) _Mutation_addSecretValue(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_addSecretValue(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -29586,7 +29729,7 @@ func (ec *executionContext) _Mutation_setSecretValue(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().SetSecretValue(rctx, fc.Args["input"].(secret.SetSecretValueInput))
+		return ec.resolvers.Mutation().AddSecretValue(rctx, fc.Args["input"].(secret.AddSecretValueInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -29598,12 +29741,12 @@ func (ec *executionContext) _Mutation_setSecretValue(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*secret.SetSecretValuePayload)
+	res := resTmp.(*secret.AddSecretValuePayload)
 	fc.Result = res
-	return ec.marshalNSetSecretValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSetSecretValuePayload(ctx, field.Selections, res)
+	return ec.marshalNAddSecretValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐAddSecretValuePayload(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_setSecretValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_addSecretValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -29612,9 +29755,9 @@ func (ec *executionContext) fieldContext_Mutation_setSecretValue(ctx context.Con
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "secret":
-				return ec.fieldContext_SetSecretValuePayload_secret(ctx, field)
+				return ec.fieldContext_AddSecretValuePayload_secret(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type SetSecretValuePayload", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type AddSecretValuePayload", field.Name)
 		},
 	}
 	defer func() {
@@ -29624,7 +29767,66 @@ func (ec *executionContext) fieldContext_Mutation_setSecretValue(ctx context.Con
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_setSecretValue_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_addSecretValue_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateSecretValue(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateSecretValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateSecretValue(rctx, fc.Args["input"].(secret.UpdateSecretValueInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*secret.UpdateSecretValuePayload)
+	fc.Result = res
+	return ec.marshalNUpdateSecretValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐUpdateSecretValuePayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateSecretValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "secret":
+				return ec.fieldContext_UpdateSecretValuePayload_secret(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UpdateSecretValuePayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateSecretValue_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -39299,69 +39501,6 @@ func (ec *executionContext) fieldContext_ServiceCostSeries_services(_ context.Co
 				return ec.fieldContext_ServiceCost_cost(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ServiceCost", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SetSecretValuePayload_secret(ctx context.Context, field graphql.CollectedField, obj *secret.SetSecretValuePayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SetSecretValuePayload_secret(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Secret, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*secret.Secret)
-	fc.Result = res
-	return ec.marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSecret(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SetSecretValuePayload_secret(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SetSecretValuePayload",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Secret_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Secret_name(ctx, field)
-			case "environment":
-				return ec.fieldContext_Secret_environment(ctx, field)
-			case "team":
-				return ec.fieldContext_Secret_team(ctx, field)
-			case "values":
-				return ec.fieldContext_Secret_values(ctx, field)
-			case "applications":
-				return ec.fieldContext_Secret_applications(ctx, field)
-			case "jobs":
-				return ec.fieldContext_Secret_jobs(ctx, field)
-			case "workloads":
-				return ec.fieldContext_Secret_workloads(ctx, field)
-			case "lastModifiedAt":
-				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
-			case "lastModifiedBy":
-				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
 		},
 	}
 	return fc, nil
@@ -52695,6 +52834,69 @@ func (ec *executionContext) fieldContext_TriggerJobPayload_jobRun(_ context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _UpdateSecretValuePayload_secret(ctx context.Context, field graphql.CollectedField, obj *secret.UpdateSecretValuePayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateSecretValuePayload_secret(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Secret, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*secret.Secret)
+	fc.Result = res
+	return ec.marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSecret(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateSecretValuePayload_secret(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateSecretValuePayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Secret_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Secret_name(ctx, field)
+			case "environment":
+				return ec.fieldContext_Secret_environment(ctx, field)
+			case "team":
+				return ec.fieldContext_Secret_team(ctx, field)
+			case "values":
+				return ec.fieldContext_Secret_values(ctx, field)
+			case "applications":
+				return ec.fieldContext_Secret_applications(ctx, field)
+			case "jobs":
+				return ec.fieldContext_Secret_jobs(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Secret_workloads(ctx, field)
+			case "lastModifiedAt":
+				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
+			case "lastModifiedBy":
+				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _UpdateTeamEnvironmentPayload_environment(ctx context.Context, field graphql.CollectedField, obj *team.UpdateTeamEnvironmentPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UpdateTeamEnvironmentPayload_environment(ctx, field)
 	if err != nil {
@@ -57285,6 +57487,54 @@ func (ec *executionContext) unmarshalInputAddRepositoryToTeamInput(ctx context.C
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputAddSecretValueInput(ctx context.Context, obj interface{}) (secret.AddSecretValueInput, error) {
+	var it secret.AddSecretValueInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "environment", "team", "value"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "environment":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Environment = data
+		case "team":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Team = data
+		case "value":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
+			data, err := ec.unmarshalNSecretValueInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSecretValueInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Value = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputAddTeamMemberInput(ctx context.Context, obj interface{}) (team.AddTeamMemberInput, error) {
 	var it team.AddTeamMemberInput
 	asMap := map[string]interface{}{}
@@ -58293,54 +58543,6 @@ func (ec *executionContext) unmarshalInputSecretValueInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSetSecretValueInput(ctx context.Context, obj interface{}) (secret.SetSecretValueInput, error) {
-	var it secret.SetSecretValueInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"name", "environment", "team", "value"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "name":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Name = data
-		case "environment":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Environment = data
-		case "team":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Team = data
-		case "value":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			data, err := ec.unmarshalNSecretValueInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSecretValueInput(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Value = data
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputSetTeamMemberRoleInput(ctx context.Context, obj interface{}) (team.SetTeamMemberRoleInput, error) {
 	var it team.SetTeamMemberRoleInput
 	asMap := map[string]interface{}{}
@@ -58614,6 +58816,54 @@ func (ec *executionContext) unmarshalInputTriggerJobInput(ctx context.Context, o
 				return it, err
 			}
 			it.RunName = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateSecretValueInput(ctx context.Context, obj interface{}) (secret.UpdateSecretValueInput, error) {
+	var it secret.UpdateSecretValueInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "environment", "team", "value"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "environment":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Environment = data
+		case "team":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Team = data
+		case "value":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
+			data, err := ec.unmarshalNSecretValueInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSecretValueInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Value = data
 		}
 	}
 
@@ -59690,6 +59940,42 @@ func (ec *executionContext) _AddRepositoryToTeamPayload(ctx context.Context, sel
 			out.Values[i] = graphql.MarshalString("AddRepositoryToTeamPayload")
 		case "repository":
 			out.Values[i] = ec._AddRepositoryToTeamPayload_repository(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var addSecretValuePayloadImplementors = []string{"AddSecretValuePayload"}
+
+func (ec *executionContext) _AddSecretValuePayload(ctx context.Context, sel ast.SelectionSet, obj *secret.AddSecretValuePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, addSecretValuePayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AddSecretValuePayload")
+		case "secret":
+			out.Values[i] = ec._AddSecretValuePayload_secret(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -64633,9 +64919,16 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "setSecretValue":
+		case "addSecretValue":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_setSecretValue(ctx, field)
+				return ec._Mutation_addSecretValue(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateSecretValue":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateSecretValue(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -68213,42 +68506,6 @@ func (ec *executionContext) _ServiceCostSeries(ctx context.Context, sel ast.Sele
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var setSecretValuePayloadImplementors = []string{"SetSecretValuePayload"}
-
-func (ec *executionContext) _SetSecretValuePayload(ctx context.Context, sel ast.SelectionSet, obj *secret.SetSecretValuePayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, setSecretValuePayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("SetSecretValuePayload")
-		case "secret":
-			out.Values[i] = ec._SetSecretValuePayload_secret(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -73265,6 +73522,42 @@ func (ec *executionContext) _TriggerJobPayload(ctx context.Context, sel ast.Sele
 	return out
 }
 
+var updateSecretValuePayloadImplementors = []string{"UpdateSecretValuePayload"}
+
+func (ec *executionContext) _UpdateSecretValuePayload(ctx context.Context, sel ast.SelectionSet, obj *secret.UpdateSecretValuePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, updateSecretValuePayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UpdateSecretValuePayload")
+		case "secret":
+			out.Values[i] = ec._UpdateSecretValuePayload_secret(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var updateTeamEnvironmentPayloadImplementors = []string{"UpdateTeamEnvironmentPayload"}
 
 func (ec *executionContext) _UpdateTeamEnvironmentPayload(ctx context.Context, sel ast.SelectionSet, obj *team.UpdateTeamEnvironmentPayload) graphql.Marshaler {
@@ -74920,6 +75213,25 @@ func (ec *executionContext) marshalNAddRepositoryToTeamPayload2ᚖgithubᚗcom�
 		return graphql.Null
 	}
 	return ec._AddRepositoryToTeamPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNAddSecretValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐAddSecretValueInput(ctx context.Context, v interface{}) (secret.AddSecretValueInput, error) {
+	res, err := ec.unmarshalInputAddSecretValueInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAddSecretValuePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐAddSecretValuePayload(ctx context.Context, sel ast.SelectionSet, v secret.AddSecretValuePayload) graphql.Marshaler {
+	return ec._AddSecretValuePayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAddSecretValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐAddSecretValuePayload(ctx context.Context, sel ast.SelectionSet, v *secret.AddSecretValuePayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AddSecretValuePayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNAddTeamMemberInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐAddTeamMemberInput(ctx context.Context, v interface{}) (team.AddTeamMemberInput, error) {
@@ -78639,25 +78951,6 @@ func (ec *executionContext) marshalNServiceCostSeries2ᚖgithubᚗcomᚋnaisᚋa
 	return ec._ServiceCostSeries(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNSetSecretValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSetSecretValueInput(ctx context.Context, v interface{}) (secret.SetSecretValueInput, error) {
-	res, err := ec.unmarshalInputSetSecretValueInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNSetSecretValuePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSetSecretValuePayload(ctx context.Context, sel ast.SelectionSet, v secret.SetSecretValuePayload) graphql.Marshaler {
-	return ec._SetSecretValuePayload(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNSetSecretValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSetSecretValuePayload(ctx context.Context, sel ast.SelectionSet, v *secret.SetSecretValuePayload) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._SetSecretValuePayload(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalNSetTeamMemberRoleInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐSetTeamMemberRoleInput(ctx context.Context, v interface{}) (team.SetTeamMemberRoleInput, error) {
 	res, err := ec.unmarshalInputSetTeamMemberRoleInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -79963,6 +80256,25 @@ func (ec *executionContext) marshalNTriggerJobPayload2ᚖgithubᚗcomᚋnaisᚋa
 		return graphql.Null
 	}
 	return ec._TriggerJobPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUpdateSecretValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐUpdateSecretValueInput(ctx context.Context, v interface{}) (secret.UpdateSecretValueInput, error) {
+	res, err := ec.unmarshalInputUpdateSecretValueInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateSecretValuePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐUpdateSecretValuePayload(ctx context.Context, sel ast.SelectionSet, v secret.UpdateSecretValuePayload) graphql.Marshaler {
+	return ec._UpdateSecretValuePayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUpdateSecretValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐUpdateSecretValuePayload(ctx context.Context, sel ast.SelectionSet, v *secret.UpdateSecretValuePayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UpdateSecretValuePayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNUpdateTeamEnvironmentInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐUpdateTeamEnvironmentInput(ctx context.Context, v interface{}) (team.UpdateTeamEnvironmentInput, error) {

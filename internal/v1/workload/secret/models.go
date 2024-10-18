@@ -25,8 +25,8 @@ type (
 
 type Secret struct {
 	Name                string     `json:"name"`
-	LastModifiedAt      *time.Time `json:"lastModifiedAt,omitempty"`
-	ModifiedByUserEmail *string    `json:"lastModifiedBy,omitempty"`
+	LastModifiedAt      *time.Time `json:"lastModifiedAt"`
+	ModifiedByUserEmail *string    `json:"lastModifiedBy"`
 
 	TeamSlug        slug.Slug `json:"-"`
 	EnvironmentName string    `json:"-"`
@@ -126,6 +126,25 @@ type DeleteSecretPayload struct {
 	SecretDeleted bool `json:"secretDeleted"`
 }
 
+type SecretValueInput struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+type AddSecretValueInput struct {
+	Name        string            `json:"name"`
+	Environment string            `json:"environment"`
+	Team        slug.Slug         `json:"team"`
+	Value       *SecretValueInput `json:"value"`
+}
+
+type UpdateSecretValueInput struct {
+	Name        string            `json:"name"`
+	Environment string            `json:"environment"`
+	Team        slug.Slug         `json:"team"`
+	Value       *SecretValueInput `json:"value"`
+}
+
 type RemoveSecretValueInput struct {
 	SecretName  string    `json:"secretName"`
 	Environment string    `json:"environment"`
@@ -133,22 +152,14 @@ type RemoveSecretValueInput struct {
 	ValueName   string    `json:"valueName"`
 }
 
+type AddSecretValuePayload struct {
+	Secret *Secret `json:"secret"`
+}
+
+type UpdateSecretValuePayload struct {
+	Secret *Secret `json:"secret"`
+}
+
 type RemoveSecretValuePayload struct {
-	Secret *Secret `json:"secret,omitempty"`
-}
-
-type SecretValueInput struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-
-type SetSecretValueInput struct {
-	Name        string            `json:"name"`
-	Environment string            `json:"environment"`
-	Team        slug.Slug         `json:"team"`
-	Value       *SecretValueInput `json:"value"`
-}
-
-type SetSecretValuePayload struct {
-	Secret *Secret `json:"secret,omitempty"`
+	Secret *Secret `json:"secret"`
 }

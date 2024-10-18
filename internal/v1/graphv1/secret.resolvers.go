@@ -32,17 +32,32 @@ func (r *mutationResolver) CreateSecret(ctx context.Context, input secret.Create
 	}, nil
 }
 
-func (r *mutationResolver) SetSecretValue(ctx context.Context, input secret.SetSecretValueInput) (*secret.SetSecretValuePayload, error) {
+func (r *mutationResolver) AddSecretValue(ctx context.Context, input secret.AddSecretValueInput) (*secret.AddSecretValuePayload, error) {
 	if err := authz.RequireTeamMembershipCtx(ctx, input.Team); err != nil {
 		return nil, err
 	}
 
-	s, err := secret.SetSecretValue(ctx, input.Team, input.Environment, input.Name, input.Value)
+	s, err := secret.AddSecretValue(ctx, input.Team, input.Environment, input.Name, input.Value)
 	if err != nil {
 		return nil, err
 	}
 
-	return &secret.SetSecretValuePayload{
+	return &secret.AddSecretValuePayload{
+		Secret: s,
+	}, nil
+}
+
+func (r *mutationResolver) UpdateSecretValue(ctx context.Context, input secret.UpdateSecretValueInput) (*secret.UpdateSecretValuePayload, error) {
+	if err := authz.RequireTeamMembershipCtx(ctx, input.Team); err != nil {
+		return nil, err
+	}
+
+	s, err := secret.UpdateSecretValue(ctx, input.Team, input.Environment, input.Name, input.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	return &secret.UpdateSecretValuePayload{
 		Secret: s,
 	}, nil
 }

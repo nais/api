@@ -3,7 +3,6 @@ package secret
 import (
 	"context"
 	"encoding/base64"
-	"errors"
 	"fmt"
 	"slices"
 	"strings"
@@ -24,8 +23,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/utils/ptr"
 )
-
-var ErrSecretUnmanaged = errors.New("secret is not managed by console")
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*SecretConnection, error) {
 	all := fromContext(ctx).secretWatcher.GetByNamespace(teamSlug.String())
@@ -111,7 +108,7 @@ func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (
 	s, err := client.Namespace(teamSlug.String()).Create(ctx, &unstructured.Unstructured{Object: u}, v1.CreateOptions{})
 	if err != nil {
 		if k8serrors.IsAlreadyExists(err) {
-			return nil, fmt.Errorf("%q: %w", name, ErrSecretUnmanaged)
+			return nil, fmt.Errorf("%q: %w", name, ErrUnmanagedSecret)
 		}
 		return nil, fmt.Errorf("creating secret: %w", err)
 	}
@@ -134,98 +131,27 @@ func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (
 	return retVal, nil
 }
 
-func SetSecretValue(ctx context.Context, teamSlug slug.Slug, environment, name string, value *SecretValueInput) (*Secret, error) {
-	client, err := fromContext(ctx).secretWatcher.ImpersonatedClient(ctx, environment)
+func AddSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secretName string, valueToAdd *SecretValueInput) (*Secret, error) {
+	if err := validateSecretValue(valueToAdd); err != nil {
+		return nil, err
+	}
+
+	secretValues, err := GetSecretValues(ctx, teamSlug, environment, secretName)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := validateSecretValue(value); err != nil {
-		return nil, err
-	}
-
-	obj, err := client.Namespace(teamSlug.String()).Get(ctx, name, v1.GetOptions{})
-	if err != nil {
-		return nil, err
-	}
-
-	existingSecret := &corev1.Secret{}
-	if err = runtime.DefaultUnstructuredConverter.FromUnstructured(obj.Object, &existingSecret); err != nil {
-		return nil, err
-	}
-
-	if !secretIsManagedByConsole(obj) {
-		return nil, fmt.Errorf("%q: %w", name, ErrSecretUnmanaged)
-	}
-
-	secretValues, err := GetSecretValues(ctx, teamSlug, environment, name)
-	if err != nil {
-		return nil, err
-	}
-
-	updateExisting := false
-	for i, v := range secretValues {
-		if v.Name == value.Name {
-			updateExisting = true
-			secretValues[i].Value = value.Value
-			break
+	for _, v := range secretValues {
+		if v.Name == valueToAdd.Name {
+			return nil, apierror.Errorf("The secret already contains a secret value with the name %q.", valueToAdd.Name)
 		}
 	}
 
-	if !updateExisting {
-		secretValues = append(secretValues, &SecretValue{
-			Name:  value.Name,
-			Value: value.Value,
-		})
-	}
+	secretValues = append(secretValues, &SecretValue{
+		Name:  valueToAdd.Name,
+		Value: valueToAdd.Value,
+	})
 
-	actor := authz.ActorFromContext(ctx)
-
-	existingSecret.Annotations = annotations(actor.User.Identity())
-	existingSecret.Labels = labels()
-	existingSecret.Data = secretTupleToMap(secretValues)
-
-	unstructeredMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(existingSecret)
-	if err != nil {
-		return nil, err
-	}
-
-	u := &unstructured.Unstructured{Object: unstructeredMap}
-	if _, err := client.Namespace(teamSlug.String()).Update(ctx, u, v1.UpdateOptions{}); err != nil {
-		return nil, err
-	}
-
-	if updateExisting {
-		err = auditv1.Create(ctx, auditv1.CreateInput{
-			Action:       auditActionUpdateSecretValue,
-			Actor:        actor.User,
-			ResourceType: auditResourceTypeSecret,
-			ResourceName: name,
-			TeamSlug:     ptr.To(teamSlug),
-			Data: &SecretValueUpdatedAuditEntryData{
-				ValueName: value.Name,
-			},
-		})
-	} else {
-		err = auditv1.Create(ctx, auditv1.CreateInput{
-			Action:       auditActionAddSecretValue,
-			Actor:        actor.User,
-			ResourceType: auditResourceTypeSecret,
-			ResourceName: name,
-			TeamSlug:     ptr.To(teamSlug),
-			Data: &SecretValueAddedAuditEntryData{
-				ValueName: value.Name,
-			},
-		})
-	}
-	if err != nil {
-		fromContext(ctx).log.WithError(err).Errorf("unable to create audit log entry")
-	}
-
-	return Get(ctx, teamSlug, environment, name)
-}
-
-func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secretName, valueName string) (*Secret, error) {
 	client, err := fromContext(ctx).secretWatcher.ImpersonatedClient(ctx, environment)
 	if err != nil {
 		return nil, err
@@ -236,13 +162,50 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 		return nil, err
 	}
 
-	existingSecret := &corev1.Secret{}
-	if err = runtime.DefaultUnstructuredConverter.FromUnstructured(obj.Object, &existingSecret); err != nil {
+	if !secretIsManagedByConsole(obj) {
+		return nil, ErrUnmanagedSecret
+	}
+
+	secret := &corev1.Secret{}
+	if err = runtime.DefaultUnstructuredConverter.FromUnstructured(obj.Object, secret); err != nil {
 		return nil, err
 	}
 
-	if !secretIsManagedByConsole(obj) {
-		return nil, fmt.Errorf("%q: %w", secretName, ErrSecretUnmanaged)
+	actor := authz.ActorFromContext(ctx)
+	secret.Annotations = annotations(actor.User.Identity())
+	secret.Labels = labels()
+	secret.Data = secretTupleToMap(secretValues)
+
+	unstructeredMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(secret)
+	if err != nil {
+		return nil, err
+	}
+
+	u := &unstructured.Unstructured{Object: unstructeredMap}
+	if _, err := client.Namespace(teamSlug.String()).Update(ctx, u, v1.UpdateOptions{}); err != nil {
+		return nil, err
+	}
+
+	err = auditv1.Create(ctx, auditv1.CreateInput{
+		Action:       auditActionAddSecretValue,
+		Actor:        actor.User,
+		ResourceType: auditResourceTypeSecret,
+		ResourceName: secretName,
+		TeamSlug:     ptr.To(teamSlug),
+		Data: &SecretValueAddedAuditEntryData{
+			ValueName: valueToAdd.Name,
+		},
+	})
+	if err != nil {
+		fromContext(ctx).log.WithError(err).Errorf("unable to create audit log entry")
+	}
+
+	return Get(ctx, teamSlug, environment, secretName)
+}
+
+func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secretName string, valueToUpdate *SecretValueInput) (*Secret, error) {
+	if err := validateSecretValue(valueToUpdate); err != nil {
+		return nil, err
 	}
 
 	secretValues, err := GetSecretValues(ctx, teamSlug, environment, secretName)
@@ -250,20 +213,107 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 		return nil, err
 	}
 
+	found := false
+	for i, v := range secretValues {
+		if v.Name == valueToUpdate.Name {
+			found = true
+			secretValues[i].Value = valueToUpdate.Value
+			break
+		}
+	}
+	if !found {
+		return nil, apierror.Errorf("The secret does not contain a secret value with the name %q.", valueToUpdate.Name)
+	}
+
+	client, err := fromContext(ctx).secretWatcher.ImpersonatedClient(ctx, environment)
+	if err != nil {
+		return nil, err
+	}
+
+	obj, err := client.Namespace(teamSlug.String()).Get(ctx, secretName, v1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	if !secretIsManagedByConsole(obj) {
+		return nil, ErrUnmanagedSecret
+	}
+
+	secret := &corev1.Secret{}
+	if err = runtime.DefaultUnstructuredConverter.FromUnstructured(obj.Object, secret); err != nil {
+		return nil, err
+	}
+
+	actor := authz.ActorFromContext(ctx)
+	secret.Annotations = annotations(actor.User.Identity())
+	secret.Labels = labels()
+	secret.Data = secretTupleToMap(secretValues)
+
+	unstructeredMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(secret)
+	if err != nil {
+		return nil, err
+	}
+
+	u := &unstructured.Unstructured{Object: unstructeredMap}
+	if _, err := client.Namespace(teamSlug.String()).Update(ctx, u, v1.UpdateOptions{}); err != nil {
+		return nil, err
+	}
+
+	err = auditv1.Create(ctx, auditv1.CreateInput{
+		Action:       auditActionUpdateSecretValue,
+		Actor:        actor.User,
+		ResourceType: auditResourceTypeSecret,
+		ResourceName: secretName,
+		TeamSlug:     ptr.To(teamSlug),
+		Data: &SecretValueUpdatedAuditEntryData{
+			ValueName: valueToUpdate.Name,
+		},
+	})
+	if err != nil {
+		fromContext(ctx).log.WithError(err).Errorf("unable to create audit log entry")
+	}
+
+	return Get(ctx, teamSlug, environment, secretName)
+}
+
+func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secretName, valueName string) (*Secret, error) {
+	secretValues, err := GetSecretValues(ctx, teamSlug, environment, secretName)
+	if err != nil {
+		return nil, err
+	}
+
 	secretMap := secretTupleToMap(secretValues)
 	if _, exists := secretMap[valueName]; !exists {
-		return nil, apierror.Errorf("No such secret value exists: %q", valueName)
+		return nil, apierror.Errorf("The secret does not contain a secret value with the name: %q.", valueName)
 	}
 
 	delete(secretMap, valueName)
 
+	client, err := fromContext(ctx).secretWatcher.ImpersonatedClient(ctx, environment)
+	if err != nil {
+		return nil, err
+	}
+
+	obj, err := client.Namespace(teamSlug.String()).Get(ctx, secretName, v1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	if !secretIsManagedByConsole(obj) {
+		return nil, ErrUnmanagedSecret
+	}
+
+	secret := &corev1.Secret{}
+	if err = runtime.DefaultUnstructuredConverter.FromUnstructured(obj.Object, secret); err != nil {
+		return nil, err
+	}
+
 	actor := authz.ActorFromContext(ctx)
+	secret.Annotations = annotations(actor.User.Identity())
+	secret.Labels = labels()
+	secret.Data = secretMap
 
-	existingSecret.Annotations = annotations(actor.User.Identity())
-	existingSecret.Labels = labels()
-	existingSecret.Data = secretMap
-
-	unstructeredMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(existingSecret)
+	unstructeredMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(secret)
 	if err != nil {
 		return nil, err
 	}
