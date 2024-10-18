@@ -6,6 +6,12 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/v1/graphv1/ident"
+	"github.com/nais/api/internal/v1/graphv1/pagination"
+)
+
+type (
+	DeploymentConnection = pagination.Connection[*Deployment]
+	DeploymentEdge       = pagination.Edge[*Deployment]
 )
 
 type ChangeDeploymentKeyInput struct {
@@ -44,3 +50,65 @@ func (d DeploymentKey) ID() ident.Ident {
 }
 
 func (DeploymentKey) IsNode() {}
+
+type Deployment struct {
+	Resources       []*DeploymentResource `json:"resources"`
+	Statuses        []*DeploymentStatus   `json:"statuses"`
+	Created         time.Time             `json:"created"`
+	Repository      string                `json:"repository"`
+	TeamSlug        slug.Slug             `json:"-"`
+	EnvironmentName string                `json:"-"`
+}
+
+func toGraphDeployment(d hookd.Deploy) *Deployment {
+	statuses := make([]*DeploymentStatus, len(d.Statuses))
+	for i, s := range d.Statuses {
+		var msg *string
+		if s.Message != "" {
+			msg = &s.Message
+		}
+		statuses[i] = &DeploymentStatus{
+			Status:  s.Status,
+			Message: msg,
+			Created: s.Created,
+		}
+	}
+
+	resources := make([]*DeploymentResource, len(d.Resources))
+	for i, r := range d.Resources {
+		resources[i] = &DeploymentResource{
+			Group:     r.Group,
+			Kind:      r.Kind,
+			Name:      r.Name,
+			Version:   r.Version,
+			Namespace: r.Namespace,
+		}
+	}
+
+	return &Deployment{
+		Created:         d.DeploymentInfo.Created,
+		Repository:      d.DeploymentInfo.GithubRepository,
+		TeamSlug:        d.DeploymentInfo.Team,
+		EnvironmentName: d.DeploymentInfo.Cluster,
+	}
+}
+
+func (d Deployment) ID() ident.Ident {
+	return newIdent(d.TeamSlug)
+}
+
+func (Deployment) IsNode() {}
+
+type DeploymentResource struct {
+	Group     string `json:"group"`
+	Kind      string `json:"kind"`
+	Name      string `json:"name"`
+	Version   string `json:"version"`
+	Namespace string `json:"namespace"`
+}
+
+type DeploymentStatus struct {
+	Status  string    `json:"status"`
+	Message *string   `json:"message,omitempty"`
+	Created time.Time `json:"created"`
+}
