@@ -194,7 +194,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	resolver := graph.NewResolver(
 		hookdClient,
 		k8sClient,
-		vulnerabilities.NewManager(cfg.ToVulnerabilitiesConfig(cfg.K8s.PkgConfig().Clusters)),
+		vulnerabilities.NewManager(cfg.ToVulnerabilitiesConfig(cfg.K8s.AllClusterNames())),
 		resourceUsageClient,
 		db,
 		cfg.Tenant,

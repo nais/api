@@ -802,6 +802,7 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 		if err != nil {
 			return nil, fmt.Errorf("getting vulnerability status for all images: %w", err)
 		}
+		notNais += len(vulnErrs)
 
 		return model.AppsStatus{
 			Failing:         failingApps,
@@ -832,6 +833,7 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 		if err != nil {
 			return nil, fmt.Errorf("getting vulnerability status for all images: %w", err)
 		}
+		notNais += len(vulnErrs)
 
 		return model.JobsStatus{
 			Failing:         failingJobs,
