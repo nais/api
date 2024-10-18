@@ -21,8 +21,12 @@ import (
 
 const (
 	dependencyTrackAdminTeam = "Administrators"
-	platformImagePrefix      = "europe-north1-docker.pkg.dev/nais-io/nais"
 )
+
+var imagesToExclude = []string{
+	"europe-north1-docker.pkg.dev/nais-io/nais/images/wonderwall",
+	"europe-north1-docker.pkg.dev/nais-io/nais/images/elector@",
+}
 
 var _ Client = &dependencyTrackClient{}
 
@@ -221,7 +225,7 @@ func (c *dependencyTrackClient) GetMetadataForTeam(ctx context.Context, team str
 		}
 
 		// skip platform images as the team does not own them
-		if strings.HasPrefix(p.Name, platformImagePrefix) {
+		if excludeProject(p) {
 			continue
 		}
 
@@ -498,4 +502,13 @@ func containsAllTags(tags []dependencytrack.Tag, s ...string) bool {
 		}
 	}
 	return found == len(s)
+}
+
+func excludeProject(p *dependencytrack.Project) bool {
+	for _, i := range imagesToExclude {
+		if i == p.Name {
+			return true
+		}
+	}
+	return false
 }
