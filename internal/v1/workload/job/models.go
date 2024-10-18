@@ -293,12 +293,15 @@ func toGraphJob(job *nais_io_v1.Naisjob, environmentName string) *Job {
 
 	return &Job{
 		Base: workload.Base{
-			Name:            job.Name,
-			EnvironmentName: environmentName,
-			TeamSlug:        slug.Slug(job.Namespace),
-			ImageString:     job.Spec.Image,
-			Conditions:      getConditions(job.Status),
-			AccessPolicy:    job.Spec.AccessPolicy,
+			Name:                job.Name,
+			EnvironmentName:     environmentName,
+			TeamSlug:            slug.Slug(job.Namespace),
+			ImageString:         job.Spec.Image,
+			Conditions:          getConditions(job.Status),
+			AccessPolicy:        job.Spec.AccessPolicy,
+			Annotations:         job.GetAnnotations(),
+			RolloutCompleteTime: job.GetStatus().RolloutCompleteTime,
+			Type:                workload.TypeJob,
 		},
 		Spec: &job.Spec,
 	}

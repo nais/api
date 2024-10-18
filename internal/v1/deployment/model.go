@@ -7,6 +7,7 @@ import (
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	"github.com/nais/api/internal/v1/workload"
 )
 
 type (
@@ -111,4 +112,16 @@ type DeploymentStatus struct {
 	Status  string    `json:"status"`
 	Message *string   `json:"message,omitempty"`
 	Created time.Time `json:"created"`
+}
+
+type DeploymentInfo struct {
+	Deployer  *string    `json:"deployer,omitempty"`
+	Timestamp *time.Time `json:"timestamp,omitempty"`
+	CommitSha *string    `json:"commitSha,omitempty"`
+	URL       *string    `json:"url,omitempty"`
+
+	TeamSlug        slug.Slug     `json:"-"`
+	EnvironmentName string        `json:"-"`
+	WorkloadName    string        `json:"-"`
+	WorkloadType    workload.Type `json:"-"`
 }

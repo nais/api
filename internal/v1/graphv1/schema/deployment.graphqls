@@ -22,6 +22,33 @@ extend type Team {
 	): DeploymentConnection!
 }
 
+extend interface Workload {
+	"""
+	Deployment information for the job.
+	DO NOT USE
+	This is a work in progress, and will be changed in the future.
+	"""
+	deploymentInfo: DeploymentInfo!
+}
+
+extend type Application {
+	"""
+	Deployment information for the application.
+	DO NOT USE
+	This is a work in progress, and will be changed in the future.
+	"""
+	deploymentInfo: DeploymentInfo!
+}
+
+extend type Job {
+	"""
+	Deployment information for the job.
+	DO NOT USE
+	This is a work in progress, and will be changed in the future.
+	"""
+	deploymentInfo: DeploymentInfo!
+}
+
 extend type Mutation {
 	"Update the deploy key of a team. Returns the updated deploy key."
 	changeDeploymentKey(input: ChangeDeploymentKeyInput!): ChangeDeploymentKeyPayload!
@@ -108,28 +135,27 @@ type DeploymentStatus {
 	created: Time!
 }
 
-# type TeamDeploymentKeyChangedAuditEntry implements AuditEntry & Node {
-# 	"ID of the entry."
-# 	id: ID!
+"""
+Deployment information for a workload.
+DO NOT USE
+This is a work in progress, and will be changed in the future.
+"""
+type DeploymentInfo {
+	deployer: String
+	timestamp: Time
+	commitSha: String
+	url: String
+	history(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
 
-# 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
-# 	actor: String!
+		"Get items after this cursor."
+		after: Cursor
 
-# 	"Creation time of the entry."
-# 	createdAt: Time!
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
 
-# 	"Message that summarizes the entry."
-# 	message: String!
-
-# 	"Type of the resource that was affected by the action."
-# 	resourceType: AuditResourceType!
-
-# 	"Name of the resource that was affected by the action."
-# 	resourceName: String!
-
-# 	"The team slug that the entry belongs to."
-# 	teamSlug: Slug!
-
-# 	"The environment name that the entry belongs to."
-# 	environmentName: String
-# }
+		"Get items before this cursor."
+		before: Cursor
+	): DeploymentConnection!
+}

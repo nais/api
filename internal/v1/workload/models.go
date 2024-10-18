@@ -24,19 +24,25 @@ type Workload interface {
 	IsWorkload()
 	GetName() string
 	GetEnvironmentName() string
-	GetConditions() []metav1.Condition
 	GetTeamSlug() slug.Slug
 	GetImageString() string
 	GetAccessPolicy() *nais_io_v1.AccessPolicy
+	GetConditions() []metav1.Condition
+	GetAnnotations() map[string]string
+	GetRolloutCompleteTime() int64
+	GetType() Type
 }
 
 type Base struct {
-	Name            string                   `json:"name"`
-	EnvironmentName string                   `json:"-"`
-	TeamSlug        slug.Slug                `json:"-"`
-	ImageString     string                   `json:"-"`
-	Conditions      []metav1.Condition       `json:"-"`
-	AccessPolicy    *nais_io_v1.AccessPolicy `json:"-"`
+	Name                string                   `json:"name"`
+	EnvironmentName     string                   `json:"-"`
+	TeamSlug            slug.Slug                `json:"-"`
+	ImageString         string                   `json:"-"`
+	Conditions          []metav1.Condition       `json:"-"`
+	AccessPolicy        *nais_io_v1.AccessPolicy `json:"-"`
+	Annotations         map[string]string        `json:"-"`
+	RolloutCompleteTime int64                    `json:"-"`
+	Type                Type                     `json:"-"`
 }
 
 func (b Base) Image() *ContainerImage {
@@ -53,6 +59,9 @@ func (b Base) GetConditions() []metav1.Condition         { return b.Conditions }
 func (b Base) GetTeamSlug() slug.Slug                    { return b.TeamSlug }
 func (b Base) GetImageString() string                    { return b.ImageString }
 func (b Base) GetAccessPolicy() *nais_io_v1.AccessPolicy { return b.AccessPolicy }
+func (b Base) GetAnnotations() map[string]string         { return b.Annotations }
+func (b Base) GetRolloutCompleteTime() int64             { return b.RolloutCompleteTime }
+func (b Base) GetType() Type                             { return b.Type }
 
 type ContainerImage struct {
 	Name string `json:"name"`

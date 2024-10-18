@@ -290,12 +290,15 @@ func toGraphApplication(application *nais_io_v1alpha1.Application, environmentNa
 
 	return &Application{
 		Base: workload.Base{
-			Name:            application.Name,
-			EnvironmentName: environmentName,
-			TeamSlug:        slug.Slug(application.Namespace),
-			ImageString:     application.Spec.Image,
-			Conditions:      getConditions(application.Status),
-			AccessPolicy:    application.Spec.AccessPolicy,
+			Name:                application.Name,
+			EnvironmentName:     environmentName,
+			TeamSlug:            slug.Slug(application.Namespace),
+			ImageString:         application.Spec.Image,
+			Conditions:          getConditions(application.Status),
+			AccessPolicy:        application.Spec.AccessPolicy,
+			Annotations:         application.GetAnnotations(),
+			RolloutCompleteTime: application.GetStatus().RolloutCompleteTime,
+			Type:                workload.TypeApplication,
 		},
 		Spec: &application.Spec,
 	}
