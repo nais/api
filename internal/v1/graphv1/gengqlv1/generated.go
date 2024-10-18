@@ -18,6 +18,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/auditv1"
 	"github.com/nais/api/internal/v1/cost"
+	"github.com/nais/api/internal/v1/deployment"
 	"github.com/nais/api/internal/v1/github/repository"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
@@ -293,6 +294,10 @@ type ComplexityRoot struct {
 		Threshold func(childComplexity int) int
 	}
 
+	ChangeDeploymentKeyPayload struct {
+		DeploymentKey func(childComplexity int) int
+	}
+
 	ConfirmTeamDeletionPayload struct {
 		DeletionStarted func(childComplexity int) int
 	}
@@ -340,6 +345,13 @@ type ComplexityRoot struct {
 
 	DeleteSecretPayload struct {
 		SecretDeleted func(childComplexity int) int
+	}
+
+	DeploymentKey struct {
+		Created func(childComplexity int) int
+		Expires func(childComplexity int) int
+		ID      func(childComplexity int) int
+		Key     func(childComplexity int) int
 	}
 
 	EntraIDAuthIntegration struct {
@@ -543,6 +555,7 @@ type ComplexityRoot struct {
 		AddRepositoryToTeam      func(childComplexity int, input repository.AddRepositoryToTeamInput) int
 		AddSecretValue           func(childComplexity int, input secret.AddSecretValueInput) int
 		AddTeamMember            func(childComplexity int, input team.AddTeamMemberInput) int
+		ChangeDeploymentKey      func(childComplexity int, input deployment.ChangeDeploymentKeyInput) int
 		ConfigureReconciler      func(childComplexity int, name string, config []*reconciler.ReconcilerConfigInput) int
 		ConfirmTeamDeletion      func(childComplexity int, input team.ConfirmTeamDeletionInput) int
 		CreateSecret             func(childComplexity int, input secret.CreateSecretInput) int
@@ -1003,6 +1016,7 @@ type ComplexityRoot struct {
 		Cost                   func(childComplexity int) int
 		DeleteKey              func(childComplexity int, key string) int
 		DeletionInProgress     func(childComplexity int) int
+		DeploymentKey          func(childComplexity int) int
 		Environment            func(childComplexity int, name string) int
 		Environments           func(childComplexity int) int
 		GitHubTeamSlug         func(childComplexity int) int
@@ -1530,6 +1544,7 @@ type KafkaTopicAclResolver interface {
 type MutationResolver interface {
 	DeleteApplication(ctx context.Context, input application.DeleteApplicationInput) (*application.DeleteApplicationPayload, error)
 	RestartApplication(ctx context.Context, input application.RestartApplicationInput) (*application.RestartApplicationPayload, error)
+	ChangeDeploymentKey(ctx context.Context, input deployment.ChangeDeploymentKeyInput) (*deployment.ChangeDeploymentKeyPayload, error)
 	DeleteJob(ctx context.Context, input job.DeleteJobInput) (*job.DeleteJobPayload, error)
 	TriggerJob(ctx context.Context, input job.TriggerJobInput) (*job.TriggerJobPayload, error)
 	EnableReconciler(ctx context.Context, name string) (*reconciler.Reconciler, error)
@@ -1646,6 +1661,7 @@ type TeamResolver interface {
 	BigQueryDatasets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
 	Buckets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
 	Cost(ctx context.Context, obj *team.Team) (*cost.TeamCost, error)
+	DeploymentKey(ctx context.Context, obj *team.Team) (*deployment.DeploymentKey, error)
 	Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder) (*pagination.Connection[*job.Job], error)
 	KafkaTopics(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder) (*pagination.Connection[*kafkatopic.KafkaTopic], error)
 	OpenSearchInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) (*pagination.Connection[*opensearch.OpenSearch], error)
@@ -2439,6 +2455,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CPUScalingStrategy.Threshold(childComplexity), true
 
+	case "ChangeDeploymentKeyPayload.deploymentKey":
+		if e.complexity.ChangeDeploymentKeyPayload.DeploymentKey == nil {
+			break
+		}
+
+		return e.complexity.ChangeDeploymentKeyPayload.DeploymentKey(childComplexity), true
+
 	case "ConfirmTeamDeletionPayload.deletionStarted":
 		if e.complexity.ConfirmTeamDeletionPayload.DeletionStarted == nil {
 			break
@@ -2581,6 +2604,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.DeleteSecretPayload.SecretDeleted(childComplexity), true
+
+	case "DeploymentKey.created":
+		if e.complexity.DeploymentKey.Created == nil {
+			break
+		}
+
+		return e.complexity.DeploymentKey.Created(childComplexity), true
+
+	case "DeploymentKey.expires":
+		if e.complexity.DeploymentKey.Expires == nil {
+			break
+		}
+
+		return e.complexity.DeploymentKey.Expires(childComplexity), true
+
+	case "DeploymentKey.id":
+		if e.complexity.DeploymentKey.ID == nil {
+			break
+		}
+
+		return e.complexity.DeploymentKey.ID(childComplexity), true
+
+	case "DeploymentKey.key":
+		if e.complexity.DeploymentKey.Key == nil {
+			break
+		}
+
+		return e.complexity.DeploymentKey.Key(childComplexity), true
 
 	case "EntraIDAuthIntegration.name":
 		if e.complexity.EntraIDAuthIntegration.Name == nil {
@@ -3401,6 +3452,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.AddTeamMember(childComplexity, args["input"].(team.AddTeamMemberInput)), true
+
+	case "Mutation.changeDeploymentKey":
+		if e.complexity.Mutation.ChangeDeploymentKey == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_changeDeploymentKey_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ChangeDeploymentKey(childComplexity, args["input"].(deployment.ChangeDeploymentKeyInput)), true
 
 	case "Mutation.configureReconciler":
 		if e.complexity.Mutation.ConfigureReconciler == nil {
@@ -5441,6 +5504,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.DeletionInProgress(childComplexity), true
 
+	case "Team.deploymentKey":
+		if e.complexity.Team.DeploymentKey == nil {
+			break
+		}
+
+		return e.complexity.Team.DeploymentKey(childComplexity), true
+
 	case "Team.environment":
 		if e.complexity.Team.Environment == nil {
 			break
@@ -7320,6 +7390,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputBigQueryDatasetAccessOrder,
 		ec.unmarshalInputBigQueryDatasetOrder,
 		ec.unmarshalInputBucketOrder,
+		ec.unmarshalInputChangeDeploymentKeyInput,
 		ec.unmarshalInputConfirmTeamDeletionInput,
 		ec.unmarshalInputCreateSecretInput,
 		ec.unmarshalInputCreateTeamInput,
@@ -8178,6 +8249,67 @@ extend type BigQueryDataset {
 type BigQueryDatasetCost {
 	sum: Float!
 }
+`, BuiltIn: false},
+	{Name: "../schema/deployment.graphqls", Input: `extend type Team {
+	"Deployment key for the team."
+	deploymentKey: DeploymentKey
+}
+
+extend type Mutation {
+	"Update the deploy key of a team. Returns the updated deploy key."
+	changeDeploymentKey(input: ChangeDeploymentKeyInput!): ChangeDeploymentKeyPayload!
+}
+
+input ChangeDeploymentKeyInput {
+	"The name of the team to update the deploy key for."
+	teamSlug: Slug!
+}
+
+type ChangeDeploymentKeyPayload {
+	"The updated deploy key."
+	deploymentKey: DeploymentKey
+}
+
+"Deployment key type."
+type DeploymentKey implements Node {
+	"The unique identifier of the deployment key."
+	id: ID!
+
+	"The actual key."
+	key: String!
+
+	"The date the deployment key was created."
+	created: Time!
+
+	"The date the deployment key expires."
+	expires: Time!
+}
+
+# type TeamDeploymentKeyChangedAuditEntry implements AuditEntry & Node {
+# 	"ID of the entry."
+# 	id: ID!
+
+# 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+# 	actor: String!
+
+# 	"Creation time of the entry."
+# 	createdAt: Time!
+
+# 	"Message that summarizes the entry."
+# 	message: String!
+
+# 	"Type of the resource that was affected by the action."
+# 	resourceType: AuditResourceType!
+
+# 	"Name of the resource that was affected by the action."
+# 	resourceName: String!
+
+# 	"The team slug that the entry belongs to."
+# 	teamSlug: Slug!
+
+# 	"The environment name that the entry belongs to."
+# 	environmentName: String
+# }
 `, BuiltIn: false},
 	{Name: "../schema/jobs.graphqls", Input: `extend type Team {
 	"NAIS jobs owned by the team."
@@ -12496,6 +12628,38 @@ func (ec *executionContext) field_Mutation_addTeamMember_argsInput(
 	}
 
 	var zeroVal team.AddTeamMemberInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_changeDeploymentKey_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_changeDeploymentKey_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_changeDeploymentKey_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (deployment.ChangeDeploymentKeyInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal deployment.ChangeDeploymentKeyInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNChangeDeploymentKeyInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋdeploymentᚐChangeDeploymentKeyInput(ctx, tmp)
+	}
+
+	var zeroVal deployment.ChangeDeploymentKeyInput
 	return zeroVal, nil
 }
 
@@ -17707,6 +17871,8 @@ func (ec *executionContext) fieldContext_Application_team(_ context.Context, fie
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -20416,6 +20582,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(_ context.Context,
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -21736,6 +21904,8 @@ func (ec *executionContext) fieldContext_Bucket_team(_ context.Context, field gr
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -22423,6 +22593,57 @@ func (ec *executionContext) fieldContext_CPUScalingStrategy_threshold(_ context.
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ChangeDeploymentKeyPayload_deploymentKey(ctx context.Context, field graphql.CollectedField, obj *deployment.ChangeDeploymentKeyPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ChangeDeploymentKeyPayload_deploymentKey(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeploymentKey, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*deployment.DeploymentKey)
+	fc.Result = res
+	return ec.marshalODeploymentKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋdeploymentᚐDeploymentKey(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ChangeDeploymentKeyPayload_deploymentKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ChangeDeploymentKeyPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_DeploymentKey_id(ctx, field)
+			case "key":
+				return ec.fieldContext_DeploymentKey_key(ctx, field)
+			case "created":
+				return ec.fieldContext_DeploymentKey_created(ctx, field)
+			case "expires":
+				return ec.fieldContext_DeploymentKey_expires(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeploymentKey", field.Name)
 		},
 	}
 	return fc, nil
@@ -23269,6 +23490,8 @@ func (ec *executionContext) fieldContext_CreateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -23380,6 +23603,8 @@ func (ec *executionContext) fieldContext_DeleteApplicationPayload_team(_ context
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -23491,6 +23716,8 @@ func (ec *executionContext) fieldContext_DeleteJobPayload_team(_ context.Context
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -23554,6 +23781,182 @@ func (ec *executionContext) fieldContext_DeleteSecretPayload_secretDeleted(_ con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DeploymentKey_id(ctx context.Context, field graphql.CollectedField, obj *deployment.DeploymentKey) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeploymentKey_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeploymentKey_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeploymentKey",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DeploymentKey_key(ctx context.Context, field graphql.CollectedField, obj *deployment.DeploymentKey) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeploymentKey_key(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Key, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeploymentKey_key(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeploymentKey",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DeploymentKey_created(ctx context.Context, field graphql.CollectedField, obj *deployment.DeploymentKey) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeploymentKey_created(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Created, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeploymentKey_created(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeploymentKey",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DeploymentKey_expires(ctx context.Context, field graphql.CollectedField, obj *deployment.DeploymentKey) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeploymentKey_expires(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Expires, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeploymentKey_expires(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeploymentKey",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -25032,6 +25435,8 @@ func (ec *executionContext) fieldContext_Job_team(_ context.Context, field graph
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -27468,6 +27873,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_team(_ context.Context, fiel
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -27999,6 +28406,8 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_team(_ context.Context, f
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -29205,6 +29614,65 @@ func (ec *executionContext) fieldContext_Mutation_restartApplication(ctx context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_restartApplication_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_changeDeploymentKey(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_changeDeploymentKey(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().ChangeDeploymentKey(rctx, fc.Args["input"].(deployment.ChangeDeploymentKeyInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*deployment.ChangeDeploymentKeyPayload)
+	fc.Result = res
+	return ec.marshalNChangeDeploymentKeyPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋdeploymentᚐChangeDeploymentKeyPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_changeDeploymentKey(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "deploymentKey":
+				return ec.fieldContext_ChangeDeploymentKeyPayload_deploymentKey(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ChangeDeploymentKeyPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_changeDeploymentKey_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -30795,6 +31263,8 @@ func (ec *executionContext) fieldContext_NetworkPolicyRule_targetTeam(_ context.
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -31041,6 +31511,8 @@ func (ec *executionContext) fieldContext_OpenSearch_team(_ context.Context, fiel
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -32780,6 +33252,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -34170,6 +34644,8 @@ func (ec *executionContext) fieldContext_RedisInstance_team(_ context.Context, f
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -35420,6 +35896,8 @@ func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_team(_ context.
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -35622,6 +36100,8 @@ func (ec *executionContext) fieldContext_Repository_team(_ context.Context, fiel
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -36534,6 +37014,8 @@ func (ec *executionContext) fieldContext_Secret_team(_ context.Context, field gr
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -39730,6 +40212,8 @@ func (ec *executionContext) fieldContext_SqlDatabase_team(_ context.Context, fie
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -40173,6 +40657,8 @@ func (ec *executionContext) fieldContext_SqlInstance_team(_ context.Context, fie
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -42625,6 +43111,8 @@ func (ec *executionContext) fieldContext_SynchronizeTeamPayload_team(_ context.C
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -43922,6 +44410,57 @@ func (ec *executionContext) fieldContext_Team_cost(_ context.Context, field grap
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_deploymentKey(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_deploymentKey(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().DeploymentKey(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*deployment.DeploymentKey)
+	fc.Result = res
+	return ec.marshalODeploymentKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋdeploymentᚐDeploymentKey(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_deploymentKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_DeploymentKey_id(ctx, field)
+			case "key":
+				return ec.fieldContext_DeploymentKey_key(ctx, field)
+			case "created":
+				return ec.fieldContext_DeploymentKey_created(ctx, field)
+			case "expires":
+				return ec.fieldContext_DeploymentKey_expires(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeploymentKey", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_jobs(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_jobs(ctx, field)
 	if err != nil {
@@ -45047,6 +45586,8 @@ func (ec *executionContext) fieldContext_TeamConnection_nodes(_ context.Context,
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -46486,6 +47027,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(_ context.Context, f
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -46644,6 +47187,8 @@ func (ec *executionContext) fieldContext_TeamEdge_node(_ context.Context, field 
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -46931,6 +47476,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_team(_ context.Context,
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -49233,6 +49780,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, fiel
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -51995,6 +52544,8 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_team(_ context.Cont
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -53052,6 +53603,8 @@ func (ec *executionContext) fieldContext_UpdateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "cost":
 				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
 			case "jobs":
 				return ec.fieldContext_Team_jobs(ctx, field)
 			case "kafkaTopics":
@@ -57712,6 +58265,33 @@ func (ec *executionContext) unmarshalInputBucketOrder(ctx context.Context, obj i
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputChangeDeploymentKeyInput(ctx context.Context, obj interface{}) (deployment.ChangeDeploymentKeyInput, error) {
+	var it deployment.ChangeDeploymentKeyInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"teamSlug"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputConfirmTeamDeletionInput(ctx context.Context, obj interface{}) (team.ConfirmTeamDeletionInput, error) {
 	var it team.ConfirmTeamDeletionInput
 	asMap := map[string]interface{}{}
@@ -59392,27 +59972,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case secret.SecretValueRemovedAuditEntry:
-		return ec._SecretValueRemovedAuditEntry(ctx, sel, &obj)
-	case *secret.SecretValueRemovedAuditEntry:
+	case secret.SecretValueUpdatedAuditEntry:
+		return ec._SecretValueUpdatedAuditEntry(ctx, sel, &obj)
+	case *secret.SecretValueUpdatedAuditEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueRemovedAuditEntry(ctx, sel, obj)
-	case kafkatopic.KafkaTopic:
-		return ec._KafkaTopic(ctx, sel, &obj)
-	case *kafkatopic.KafkaTopic:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._KafkaTopic(ctx, sel, obj)
-	case team.TeamEnvironmentUpdatedAuditEntry:
-		return ec._TeamEnvironmentUpdatedAuditEntry(ctx, sel, &obj)
-	case *team.TeamEnvironmentUpdatedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamEnvironmentUpdatedAuditEntry(ctx, sel, obj)
+		return ec._SecretValueUpdatedAuditEntry(ctx, sel, obj)
 	case bigquery.BigQueryDataset:
 		return ec._BigQueryDataset(ctx, sel, &obj)
 	case *bigquery.BigQueryDataset:
@@ -59427,20 +59993,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Application(ctx, sel, obj)
-	case job.Job:
-		return ec._Job(ctx, sel, &obj)
-	case *job.Job:
+	case secret.SecretValueRemovedAuditEntry:
+		return ec._SecretValueRemovedAuditEntry(ctx, sel, &obj)
+	case *secret.SecretValueRemovedAuditEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Job(ctx, sel, obj)
-	case team.TeamMemberSetRoleAuditEntry:
-		return ec._TeamMemberSetRoleAuditEntry(ctx, sel, &obj)
-	case *team.TeamMemberSetRoleAuditEntry:
+		return ec._SecretValueRemovedAuditEntry(ctx, sel, obj)
+	case bucket.Bucket:
+		return ec._Bucket(ctx, sel, &obj)
+	case *bucket.Bucket:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamMemberSetRoleAuditEntry(ctx, sel, obj)
+		return ec._Bucket(ctx, sel, obj)
 	case secret.SecretDeletedAuditEntry:
 		return ec._SecretDeletedAuditEntry(ctx, sel, &obj)
 	case *secret.SecretDeletedAuditEntry:
@@ -59448,6 +60014,27 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._SecretDeletedAuditEntry(ctx, sel, obj)
+	case job.Job:
+		return ec._Job(ctx, sel, &obj)
+	case *job.Job:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Job(ctx, sel, obj)
+	case team.TeamEnvironmentUpdatedAuditEntry:
+		return ec._TeamEnvironmentUpdatedAuditEntry(ctx, sel, &obj)
+	case *team.TeamEnvironmentUpdatedAuditEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamEnvironmentUpdatedAuditEntry(ctx, sel, obj)
+	case kafkatopic.KafkaTopic:
+		return ec._KafkaTopic(ctx, sel, &obj)
+	case *kafkatopic.KafkaTopic:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._KafkaTopic(ctx, sel, obj)
 	case opensearch.OpenSearch:
 		return ec._OpenSearch(ctx, sel, &obj)
 	case *opensearch.OpenSearch:
@@ -59455,13 +60042,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._OpenSearch(ctx, sel, obj)
-	case sqlinstance.SQLDatabase:
-		return ec._SqlDatabase(ctx, sel, &obj)
-	case *sqlinstance.SQLDatabase:
+	case team.TeamMemberSetRoleAuditEntry:
+		return ec._TeamMemberSetRoleAuditEntry(ctx, sel, &obj)
+	case *team.TeamMemberSetRoleAuditEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SqlDatabase(ctx, sel, obj)
+		return ec._TeamMemberSetRoleAuditEntry(ctx, sel, obj)
 	case redis.RedisInstance:
 		return ec._RedisInstance(ctx, sel, &obj)
 	case *redis.RedisInstance:
@@ -59497,20 +60084,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._SecretValueAddedAuditEntry(ctx, sel, obj)
-	case secret.SecretValueUpdatedAuditEntry:
-		return ec._SecretValueUpdatedAuditEntry(ctx, sel, &obj)
-	case *secret.SecretValueUpdatedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SecretValueUpdatedAuditEntry(ctx, sel, obj)
-	case bucket.Bucket:
-		return ec._Bucket(ctx, sel, &obj)
-	case *bucket.Bucket:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Bucket(ctx, sel, obj)
 	case team.TeamConfirmDeleteKeyAuditEntry:
 		return ec._TeamConfirmDeleteKeyAuditEntry(ctx, sel, &obj)
 	case *team.TeamConfirmDeleteKeyAuditEntry:
@@ -59525,13 +60098,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamCreateDeleteKeyAuditEntry(ctx, sel, obj)
-	case sqlinstance.SQLInstance:
-		return ec._SqlInstance(ctx, sel, &obj)
-	case *sqlinstance.SQLInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SqlInstance(ctx, sel, obj)
 	case team.TeamUpdatedAuditEntry:
 		return ec._TeamUpdatedAuditEntry(ctx, sel, &obj)
 	case *team.TeamUpdatedAuditEntry:
@@ -59539,6 +60105,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamUpdatedAuditEntry(ctx, sel, obj)
+	case sqlinstance.SQLDatabase:
+		return ec._SqlDatabase(ctx, sel, &obj)
+	case *sqlinstance.SQLDatabase:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SqlDatabase(ctx, sel, obj)
+	case sqlinstance.SQLInstance:
+		return ec._SqlInstance(ctx, sel, &obj)
+	case *sqlinstance.SQLInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SqlInstance(ctx, sel, obj)
 	case team.TeamCreatedAuditEntry:
 		return ec._TeamCreatedAuditEntry(ctx, sel, &obj)
 	case *team.TeamCreatedAuditEntry:
@@ -59546,32 +60126,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamCreatedAuditEntry(ctx, sel, obj)
-	case team.TeamEnvironment:
-		return ec._TeamEnvironment(ctx, sel, &obj)
-	case *team.TeamEnvironment:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamEnvironment(ctx, sel, obj)
-	case team.Team:
-		return ec._Team(ctx, sel, &obj)
-	case *team.Team:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Team(ctx, sel, obj)
-	case persistence.Persistence:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Persistence(ctx, sel, obj)
-	case application.ApplicationInstance:
-		return ec._ApplicationInstance(ctx, sel, &obj)
-	case *application.ApplicationInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ApplicationInstance(ctx, sel, obj)
 	case secret.Secret:
 		return ec._Secret(ctx, sel, &obj)
 	case *secret.Secret:
@@ -59579,6 +60133,39 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Secret(ctx, sel, obj)
+	case team.Team:
+		return ec._Team(ctx, sel, &obj)
+	case *team.Team:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Team(ctx, sel, obj)
+	case deployment.DeploymentKey:
+		return ec._DeploymentKey(ctx, sel, &obj)
+	case *deployment.DeploymentKey:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._DeploymentKey(ctx, sel, obj)
+	case application.ApplicationInstance:
+		return ec._ApplicationInstance(ctx, sel, &obj)
+	case *application.ApplicationInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationInstance(ctx, sel, obj)
+	case workload.Workload:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Workload(ctx, sel, obj)
+	case team.TeamEnvironment:
+		return ec._TeamEnvironment(ctx, sel, &obj)
+	case *team.TeamEnvironment:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamEnvironment(ctx, sel, obj)
 	case repository.Repository:
 		return ec._Repository(ctx, sel, &obj)
 	case *repository.Repository:
@@ -59586,18 +60173,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Repository(ctx, sel, obj)
-	case job.JobRun:
-		return ec._JobRun(ctx, sel, &obj)
-	case *job.JobRun:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._JobRun(ctx, sel, obj)
-	case auditv1.AuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._AuditEntry(ctx, sel, obj)
 	case user.User:
 		return ec._User(ctx, sel, &obj)
 	case *user.User:
@@ -59605,6 +60180,18 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._User(ctx, sel, obj)
+	case job.JobRun:
+		return ec._JobRun(ctx, sel, &obj)
+	case *job.JobRun:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._JobRun(ctx, sel, obj)
+	case persistence.Persistence:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Persistence(ctx, sel, obj)
 	case vulnerability.ImageVulnerability:
 		return ec._ImageVulnerability(ctx, sel, &obj)
 	case *vulnerability.ImageVulnerability:
@@ -59612,11 +60199,11 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ImageVulnerability(ctx, sel, obj)
-	case workload.Workload:
+	case auditv1.AuditEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Workload(ctx, sel, obj)
+		return ec._AuditEntry(ctx, sel, obj)
 	case workload.ContainerImage:
 		return ec._ContainerImage(ctx, sel, &obj)
 	case *workload.ContainerImage:
@@ -62038,6 +62625,42 @@ func (ec *executionContext) _CPUScalingStrategy(ctx context.Context, sel ast.Sel
 	return out
 }
 
+var changeDeploymentKeyPayloadImplementors = []string{"ChangeDeploymentKeyPayload"}
+
+func (ec *executionContext) _ChangeDeploymentKeyPayload(ctx context.Context, sel ast.SelectionSet, obj *deployment.ChangeDeploymentKeyPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, changeDeploymentKeyPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ChangeDeploymentKeyPayload")
+		case "deploymentKey":
+			out.Values[i] = ec._ChangeDeploymentKeyPayload_deploymentKey(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var confirmTeamDeletionPayloadImplementors = []string{"ConfirmTeamDeletionPayload"}
 
 func (ec *executionContext) _ConfirmTeamDeletionPayload(ctx context.Context, sel ast.SelectionSet, obj *team.ConfirmTeamDeletionPayload) graphql.Marshaler {
@@ -62646,6 +63269,60 @@ func (ec *executionContext) _DeleteSecretPayload(ctx context.Context, sel ast.Se
 			out.Values[i] = graphql.MarshalString("DeleteSecretPayload")
 		case "secretDeleted":
 			out.Values[i] = ec._DeleteSecretPayload_secretDeleted(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var deploymentKeyImplementors = []string{"DeploymentKey", "Node"}
+
+func (ec *executionContext) _DeploymentKey(ctx context.Context, sel ast.SelectionSet, obj *deployment.DeploymentKey) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deploymentKeyImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeploymentKey")
+		case "id":
+			out.Values[i] = ec._DeploymentKey_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "key":
+			out.Values[i] = ec._DeploymentKey_key(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "created":
+			out.Values[i] = ec._DeploymentKey_created(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "expires":
+			out.Values[i] = ec._DeploymentKey_expires(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -64859,6 +65536,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "restartApplication":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_restartApplication(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "changeDeploymentKey":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_changeDeploymentKey(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -70032,6 +70716,39 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "deploymentKey":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_deploymentKey(ctx, field, obj)
 				return res
 			}
 
@@ -76184,6 +76901,25 @@ func (ec *executionContext) marshalNBucketStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋ
 	return ec._BucketStatus(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNChangeDeploymentKeyInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋdeploymentᚐChangeDeploymentKeyInput(ctx context.Context, v interface{}) (deployment.ChangeDeploymentKeyInput, error) {
+	res, err := ec.unmarshalInputChangeDeploymentKeyInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNChangeDeploymentKeyPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋdeploymentᚐChangeDeploymentKeyPayload(ctx context.Context, sel ast.SelectionSet, v deployment.ChangeDeploymentKeyPayload) graphql.Marshaler {
+	return ec._ChangeDeploymentKeyPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNChangeDeploymentKeyPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋdeploymentᚐChangeDeploymentKeyPayload(ctx context.Context, sel ast.SelectionSet, v *deployment.ChangeDeploymentKeyPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ChangeDeploymentKeyPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNConfirmTeamDeletionInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐConfirmTeamDeletionInput(ctx context.Context, v interface{}) (team.ConfirmTeamDeletionInput, error) {
 	res, err := ec.unmarshalInputConfirmTeamDeletionInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -81179,6 +81915,13 @@ func (ec *executionContext) marshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 		return graphql.Null
 	}
 	return graphql.WrapContextMarshaler(ctx, v)
+}
+
+func (ec *executionContext) marshalODeploymentKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋdeploymentᚐDeploymentKey(ctx context.Context, sel ast.SelectionSet, v *deployment.DeploymentKey) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._DeploymentKey(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOImageVulnerabilityOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerabilityOrder(ctx context.Context, v interface{}) (*vulnerability.ImageVulnerabilityOrder, error) {

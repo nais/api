@@ -1,0 +1,60 @@
+extend type Team {
+	"Deployment key for the team."
+	deploymentKey: DeploymentKey
+}
+
+extend type Mutation {
+	"Update the deploy key of a team. Returns the updated deploy key."
+	changeDeploymentKey(input: ChangeDeploymentKeyInput!): ChangeDeploymentKeyPayload!
+}
+
+input ChangeDeploymentKeyInput {
+	"The name of the team to update the deploy key for."
+	teamSlug: Slug!
+}
+
+type ChangeDeploymentKeyPayload {
+	"The updated deploy key."
+	deploymentKey: DeploymentKey
+}
+
+"Deployment key type."
+type DeploymentKey implements Node {
+	"The unique identifier of the deployment key."
+	id: ID!
+
+	"The actual key."
+	key: String!
+
+	"The date the deployment key was created."
+	created: Time!
+
+	"The date the deployment key expires."
+	expires: Time!
+}
+
+# type TeamDeploymentKeyChangedAuditEntry implements AuditEntry & Node {
+# 	"ID of the entry."
+# 	id: ID!
+
+# 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+# 	actor: String!
+
+# 	"Creation time of the entry."
+# 	createdAt: Time!
+
+# 	"Message that summarizes the entry."
+# 	message: String!
+
+# 	"Type of the resource that was affected by the action."
+# 	resourceType: AuditResourceType!
+
+# 	"Name of the resource that was affected by the action."
+# 	resourceName: String!
+
+# 	"The team slug that the entry belongs to."
+# 	teamSlug: Slug!
+
+# 	"The environment name that the entry belongs to."
+# 	environmentName: String
+# }

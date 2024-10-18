@@ -17,6 +17,7 @@ import (
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/cmd/api"
 	"github.com/nais/api/internal/database"
+	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/usersync"
 	"github.com/nais/api/internal/v1/graphv1"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
@@ -132,7 +133,7 @@ func newGQLRunner(ctx context.Context, config *Config, db database.Database, top
 		return nil, fmt.Errorf("failed to create k8s client sets: %w", err)
 	}
 
-	graphMiddleware, err := api.ConfigureV1Graph(ctx, true, watcherMgr, db, k8sClientSets, nil, nil, config.TenantName, clusters(), log)
+	graphMiddleware, err := api.ConfigureV1Graph(ctx, true, watcherMgr, db, k8sClientSets, nil, nil, config.TenantName, clusters(), fakeHookd.New(), log)
 	if err != nil {
 		return nil, fmt.Errorf("failed to configure v1 graph: %w", err)
 	}
@@ -153,6 +154,10 @@ func newGQLRunner(ctx context.Context, config *Config, db database.Database, top
 			email := "authenticated@example.com"
 			if config.Admin {
 				email = "admin@example.com"
+			}
+
+			if xemail := r.Header.Get("x-user-email"); xemail != "" {
+				email = xemail
 			}
 
 			usr, err := db.GetUserByEmail(ctx, email)

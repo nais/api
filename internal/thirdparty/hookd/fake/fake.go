@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -34,28 +35,59 @@ var statuses = []string{
 	"failure",
 }
 
-type FakeHookdClient struct{}
+type knownKeys struct {
+	lock sync.RWMutex
+	mp   map[string]*hookd.DeployKey
+}
+
+func (k *knownKeys) Get(team string) *hookd.DeployKey {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+	return k.mp[team]
+}
+
+func (k *knownKeys) Set(team string, key *hookd.DeployKey) {
+	k.lock.Lock()
+	defer k.lock.Unlock()
+	k.mp[team] = key
+}
+
+func (k *knownKeys) Has(team string) bool {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+	_, ok := k.mp[team]
+	return ok
+}
+
+type FakeHookdClient struct {
+	keys knownKeys
+}
 
 func New() *FakeHookdClient {
-	return &FakeHookdClient{}
+	return &FakeHookdClient{
+		keys: knownKeys{
+			mp: make(map[string]*hookd.DeployKey),
+		},
+	}
 }
 
 func (f *FakeHookdClient) ChangeDeployKey(ctx context.Context, team string) (*hookd.DeployKey, error) {
-	return &hookd.DeployKey{
+	n := &hookd.DeployKey{
 		Team:    team,
 		Key:     uuid.New().String(),
 		Expires: time.Now().Add(365 * 24 * time.Hour),
 		Created: time.Now(),
-	}, nil
+	}
+
+	f.keys.Set(team, n)
+	return n, nil
 }
 
 func (f *FakeHookdClient) DeployKey(ctx context.Context, team string) (*hookd.DeployKey, error) {
-	return &hookd.DeployKey{
-		Team:    team,
-		Key:     uuid.New().String(),
-		Expires: time.Now().Add(365 * 24 * time.Hour),
-		Created: time.Now(),
-	}, nil
+	if !f.keys.Has(team) {
+		return f.ChangeDeployKey(ctx, team)
+	}
+	return f.keys.Get(team), nil
 }
 
 func (f *FakeHookdClient) Deployments(ctx context.Context, opts ...hookd.RequestOption) ([]hookd.Deploy, error) {
