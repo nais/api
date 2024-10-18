@@ -162,6 +162,64 @@ func (m *Manager) GetSummaryForTeam(ctx context.Context, workloads []model.Workl
 	return retVal, nil
 }
 
+func (m *Manager) UpdateAppStatus(ctx context.Context, apps []*model.App, team string) error {
+	images, err := m.GetMetadataForTeam(ctx, team)
+	if err != nil {
+		return fmt.Errorf("getting metadata for team %q: %w", team, err)
+	}
+	updateWithErrors(images, apps, team)
+	return nil
+}
+
+func (m *Manager) UpdateJobStatus(ctx context.Context, jobs []*model.NaisJob, team string) error {
+	images, err := m.GetMetadataForTeam(ctx, team)
+	if err != nil {
+		return fmt.Errorf("getting metadata for team %q: %w", team, err)
+	}
+	updateWithErrors(images, jobs, team)
+	return nil
+}
+
+type workload interface {
+	*model.App | *model.NaisJob
+}
+
+// TODO: move to bottom of file
+func updateWithErrors[T workload](images []*model.ImageDetails, workloads []T, team string) {
+	for _, work := range workloads {
+		revision := ""
+		switch w := any(work).(type) {
+		case *model.App:
+			revision = w.DeployInfo.CommitSha
+			var summary *model.ImageVulnerabilitySummary
+			if image := getImageDetails(images, w.Env.Name, team, "app", w.Name); image != nil {
+				summary = image.Summary
+			}
+
+			vulnErr := stateToVulnerabilityError(summary, revision)
+			if vulnErr != nil {
+				w.Status.Errors = append(w.Status.Errors, vulnErr)
+				if w.Status.State == model.StateNais {
+					w.Status.State = model.StateNotnais
+				}
+			}
+		case *model.NaisJob:
+			revision = w.DeployInfo.CommitSha
+			var summary *model.ImageVulnerabilitySummary
+			if image := getImageDetails(images, w.Env.Name, team, "job", w.Name); image != nil {
+				summary = image.Summary
+			}
+			vulnErr := stateToVulnerabilityError(summary, revision)
+			if vulnErr != nil {
+				w.Status.Errors = append(w.Status.Errors, vulnErr)
+				if w.Status.State == model.StateNais {
+					w.Status.State = model.StateNotnais
+				}
+			}
+		}
+	}
+}
+
 func (m *Manager) GetVulnerabilityErrors(ctx context.Context, workloads []model.Workload, team string) ([]model.StateError, error) {
 	images, err := m.GetMetadataForTeam(ctx, team)
 	if err != nil {

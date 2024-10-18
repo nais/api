@@ -1292,8 +1292,13 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 
 	pagination := model.NewPagination(offset, limit)
 	apps, pageInfo := model.PaginatedSlice(apps, pagination)
+
 	for _, app := range apps {
 		app.GQLVars = model.WorkloadBaseGQLVars{Team: obj.Slug}
+	}
+
+	if err = r.vulnerabilities.UpdateAppStatus(ctx, apps, obj.Slug.String()); err != nil {
+		return nil, err
 	}
 
 	return &model.AppList{
@@ -1445,6 +1450,10 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 	jobs, pageInfo := model.PaginatedSlice(naisjobs, pagination)
 	for _, job := range jobs {
 		job.GQLVars = model.WorkloadBaseGQLVars{Team: obj.Slug}
+	}
+
+	if err = r.vulnerabilities.UpdateJobStatus(ctx, jobs, obj.Slug.String()); err != nil {
+		return nil, err
 	}
 
 	return &model.NaisJobList{
