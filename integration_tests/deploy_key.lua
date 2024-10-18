@@ -66,7 +66,7 @@ Test.gql("Get deploy key for team not member of", function(t)
 				}
 			}
 		}
-	]], { ["x-user-email"] = "email-12@example.com", })
+	]], { ["x-user-email"] = "email-12@example.com" })
 
 	t.check {
 		data = {
@@ -77,7 +77,7 @@ Test.gql("Get deploy key for team not member of", function(t)
 		errors = {
 			{
 				message = Contains("You are authenticated, but your account is not authorized to perform this action"),
-				path = { "team", "deploymentKey", },
+				path = { "team", "deploymentKey" },
 			},
 		},
 	}
