@@ -1287,69 +1287,6 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 				}
 				return aIndex > bIndex
 			})
-		case model.OrderByFieldSeverityCritical:
-			severities := map[string]int{}
-			images := []*model.ImageDetails{}
-			for _, app := range apps {
-				image, err := r.vulnerabilities.GetMetadataForImage(ctx, app.Image)
-				if err != nil {
-					return nil, fmt.Errorf("getting metadata for image %q: %w", app.Image, err)
-				}
-				images = append(images, image)
-			}
-
-			for _, image := range images {
-				if image == nil || image.Summary == nil {
-					severities[image.Name] = -1
-					continue
-				}
-				severities[image.Name] = image.Summary.Critical
-			}
-
-			model.SortWith(apps, func(a, b *model.App) bool {
-				if orderBy.Direction == model.SortOrderAsc {
-					if severities[a.Image] == severities[b.Image] {
-						return a.Name < b.Name
-					}
-					return severities[a.Image] < severities[b.Image]
-				}
-				if severities[a.Image] == severities[b.Image] {
-					return a.Name > b.Name
-				}
-				return severities[a.Image] > severities[b.Image]
-			})
-
-		case model.OrderByFieldRiskScore:
-			riskScores := map[string]int{}
-			images := []*model.ImageDetails{}
-			for _, app := range apps {
-				image, err := r.vulnerabilities.GetMetadataForImage(ctx, app.Image)
-				if err != nil {
-					return nil, fmt.Errorf("getting metadata for image %q: %w", app.Image, err)
-				}
-				images = append(images, image)
-			}
-
-			for _, image := range images {
-				if image == nil || image.Summary == nil {
-					riskScores[image.Name] = -1
-					continue
-				}
-				riskScores[image.Name] = image.Summary.RiskScore
-			}
-
-			model.SortWith(apps, func(a, b *model.App) bool {
-				if orderBy.Direction == model.SortOrderAsc {
-					if riskScores[a.Image] == riskScores[b.Image] {
-						return a.Name < b.Name
-					}
-					return riskScores[a.Image] < riskScores[b.Image]
-				}
-				if riskScores[a.Image] == riskScores[b.Image] {
-					return a.Name > b.Name
-				}
-				return riskScores[a.Image] > riskScores[b.Image]
-			})
 		}
 	}
 
