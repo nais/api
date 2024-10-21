@@ -130,7 +130,9 @@ func (r *queryResolver) App(ctx context.Context, name string, team slug.Slug, en
 	}
 
 	if vuln != nil {
-		app.Status.State = model.StateNotnais
+		if app.Status.State != model.StateFailing {
+			app.Status.State = model.StateNotnais
+		}
 		app.Status.Errors = append(app.Status.Errors, vuln)
 	}
 

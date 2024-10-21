@@ -86,7 +86,9 @@ func (r *queryResolver) Naisjob(ctx context.Context, name string, team slug.Slug
 	}
 
 	if vuln != nil {
-		job.Status.State = model.StateNotnais
+		if job.Status.State != model.StateFailing {
+			job.Status.State = model.StateNotnais
+		}
 		job.Status.Errors = append(job.Status.Errors, vuln)
 	}
 
