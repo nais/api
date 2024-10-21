@@ -32,7 +32,6 @@ import (
 	"github.com/nais/api/internal/resourceusage"
 	fakeresourceusage "github.com/nais/api/internal/resourceusage/fake"
 	"github.com/nais/api/internal/sqlinstance"
-	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/unleash"
@@ -42,6 +41,7 @@ import (
 	fakev1 "github.com/nais/api/internal/v1/kubernetes/fake"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
 	"github.com/nais/api/internal/v1/vulnerability"
+	"github.com/nais/api/internal/vulnerabilities"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2/google"
@@ -175,14 +175,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	pubsubTopic := pubsubClient.Topic("nais-api")
 
-	dependencyTrackClient := dependencytrack.New(
-		cfg.DependencyTrack.Endpoint,
-		cfg.DependencyTrack.Username,
-		cfg.DependencyTrack.Password,
-		cfg.DependencyTrack.Frontend,
-		log.WithField("client", "dependencytrack"),
-	)
-
 	var hookdClient graph.HookdClient
 	var resourceUsageClient resourceusage.ResourceUsageClient
 	if cfg.WithFakeClients {
@@ -204,7 +196,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	resolver := graph.NewResolver(
 		hookdClient,
 		k8sClient,
-		dependencyTrackClient,
+		vulnerabilities.NewManager(cfg.ToVulnerabilitiesConfig(cfg.K8s.AllClusterNames())),
 		resourceUsageClient,
 		db,
 		cfg.Tenant,

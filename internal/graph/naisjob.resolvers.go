@@ -40,7 +40,7 @@ func (r *naisJobResolver) Persistence(ctx context.Context, obj *model.NaisJob) (
 }
 
 func (r *naisJobResolver) ImageDetails(ctx context.Context, obj *model.NaisJob) (*model.ImageDetails, error) {
-	image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, obj.Image)
+	image, err := r.vulnerabilities.GetMetadataForImage(ctx, obj.Image)
 	if err != nil {
 		return nil, fmt.Errorf("getting metadata for image %q: %w", obj.Image, err)
 	}
@@ -78,6 +78,18 @@ func (r *queryResolver) Naisjob(ctx context.Context, name string, team slug.Slug
 	job, err := r.k8sClient.NaisJob(ctx, name, team.String(), env)
 	if err != nil {
 		return nil, err
+	}
+
+	vuln, err := r.vulnerabilities.GetVulnerabilityError(ctx, job.Image, job.DeployInfo.CommitSha)
+	if err != nil {
+		return nil, fmt.Errorf("getting vulnerability status for image %q: %w", job.Image, err)
+	}
+
+	if vuln != nil {
+		if job.Status.State != model.StateFailing {
+			job.Status.State = model.StateNotnais
+		}
+		job.Status.Errors = append(job.Status.Errors, vuln)
 	}
 
 	return job, nil

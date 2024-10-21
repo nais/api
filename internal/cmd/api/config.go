@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/nais/api/internal/vulnerabilities"
+
 	"github.com/nais/api/internal/fixtures"
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/k8s"
@@ -223,4 +225,21 @@ func NewConfig(ctx context.Context, lookuper envconfig.Lookuper) (*Config, error
 	}
 
 	return cfg, nil
+}
+
+func (c *Config) ToVulnerabilitiesConfig(clusters []string) *vulnerabilities.Config {
+	return &vulnerabilities.Config{
+		DependencyTrack: vulnerabilities.DependencyTrackConfig{
+			EnableFakes: c.WithFakeClients,
+			Endpoint:    c.DependencyTrack.Endpoint,
+			FrontendUrl: c.DependencyTrack.Frontend,
+			Username:    c.DependencyTrack.Username,
+			Password:    c.DependencyTrack.Password,
+		},
+		Prometheus: vulnerabilities.PrometheusConfig{
+			Tenant:      c.Tenant,
+			Clusters:    clusters,
+			EnableFakes: c.WithFakeClients,
+		},
+	}
 }

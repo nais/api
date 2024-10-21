@@ -32,7 +32,7 @@ import (
 	"github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/unleash"
-
+	"github.com/nais/api/internal/vulnerabilities"
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -116,19 +116,10 @@ type HookdClient interface {
 	DeployKey(ctx context.Context, team string) (*hookd.DeployKey, error)
 }
 
-type DependencytrackClient interface {
-	GetMetadataForImageByProjectID(ctx context.Context, projectID string) (*model.ImageDetails, error)
-	GetMetadataForImage(ctx context.Context, image string) (*model.ImageDetails, error)
-	GetFindingsForImageByProjectID(ctx context.Context, projectID string, suppressed bool) ([]*model.Finding, error)
-	GetMetadataForTeam(ctx context.Context, team string) ([]*model.ImageDetails, error)
-	SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.AnalysisTrail, error)
-	GetAnalysisTrailForImage(ctx context.Context, projectID, componentID, vulnerabilityID string) (*model.AnalysisTrail, error)
-}
-
 type Resolver struct {
 	hookdClient           HookdClient
 	k8sClient             *k8s.Client
-	dependencyTrackClient DependencytrackClient
+	vulnerabilities       *vulnerabilities.Manager
 	resourceUsageClient   resourceusage.ResourceUsageClient
 	searcher              *search.Searcher
 	log                   logrus.FieldLogger
@@ -152,7 +143,7 @@ type Resolver struct {
 // NewResolver creates a new GraphQL resolver with the given dependencies
 func NewResolver(hookdClient HookdClient,
 	k8sClient *k8s.Client,
-	dependencyTrackClient DependencytrackClient,
+	vulnerabilitiesMgr *vulnerabilities.Manager,
 	resourceUsageClient resourceusage.ResourceUsageClient,
 	db database.Database,
 	tenant string,
@@ -174,7 +165,7 @@ func NewResolver(hookdClient HookdClient,
 	return &Resolver{
 		hookdClient:           hookdClient,
 		k8sClient:             k8sClient,
-		dependencyTrackClient: dependencyTrackClient,
+		vulnerabilities:       vulnerabilitiesMgr,
 		resourceUsageClient:   resourceUsageClient,
 		tenant:                tenant,
 		tenantDomain:          tenantDomain,
