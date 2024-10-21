@@ -88,7 +88,7 @@ func InfoForWorkload(ctx context.Context, workload workload.Workload) (*Deployme
 
 	var timestamp *time.Time
 	if ts := workload.GetRolloutCompleteTime(); ts > 0 {
-		t := time.Unix(ts, 0)
+		t := time.Unix(0, ts)
 		timestamp = &t
 	}
 
