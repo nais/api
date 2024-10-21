@@ -15,6 +15,9 @@ extend type Team {
 
 		"Ordering options for items returned from the connection."
 		orderBy: WorkloadOrder
+
+		"Filter the returned objects"
+		filter: TeamWorkloadsFilter
 	): WorkloadConnection!
 }
 
@@ -138,4 +141,9 @@ enum WorkloadOrderField {
 
 	"Order Workloads by the deployment time."
 	DEPLOYMENT_TIME
+}
+
+input TeamWorkloadsFilter {
+	"Only return workloads from the given named environments."
+	environments: [String!]
 }

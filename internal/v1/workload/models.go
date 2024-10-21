@@ -221,3 +221,7 @@ func ReferenceFromOwnerReferences(ownerReferences []metav1.OwnerReference) *Refe
 	}
 	return nil
 }
+
+type TeamWorkloadsFilter struct {
+	Environments []string `json:"environments"`
+}

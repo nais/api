@@ -2,8 +2,6 @@ package graphv1
 
 import (
 	"context"
-	"slices"
-	"strings"
 
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
@@ -14,7 +12,7 @@ import (
 	"github.com/nais/api/internal/v1/workload/job"
 )
 
-func (r *teamResolver) Workloads(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder) (*pagination.Connection[workload.Workload], error) {
+func (r *teamResolver) Workloads(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) (*pagination.Connection[workload.Workload], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -31,42 +29,14 @@ func (r *teamResolver) Workloads(ctx context.Context, obj *team.Team, first *int
 		workloads = append(workloads, job)
 	}
 
-	// Sort by name first, then the other defined by the order
-	nameOrder := func(a workload.Workload, b workload.Workload) int {
-		return strings.Compare(a.GetName(), b.GetName())
-	}
-	slices.SortStableFunc(workloads, nameOrder)
-
-	if orderBy == nil {
-		orderBy = &workload.WorkloadOrder{
-			Field: workload.WorkloadOrderFieldName,
-		}
+	filtered := workload.SortFilter.Filter(ctx, workloads, filter)
+	workload.SortFilter.Sort(ctx, filtered, workload.WorkloadOrderFieldName, modelv1.OrderDirectionAsc)
+	if orderBy != nil {
+		workload.SortFilter.Sort(ctx, filtered, orderBy.Field, orderBy.Direction)
 	}
 
-	var cmp func(a workload.Workload, b workload.Workload) int
-
-	switch orderBy.Field {
-	case workload.WorkloadOrderFieldName:
-		// already sorted by name
-	case workload.WorkloadOrderFieldDeploymentTime:
-		// not supported yet
-	case workload.WorkloadOrderFieldEnvironment:
-		cmp = func(a, b workload.Workload) int {
-			return strings.Compare(a.GetEnvironmentName(), b.GetEnvironmentName())
-		}
-	}
-
-	if cmp != nil {
-		slices.SortStableFunc(workloads, func(a, b workload.Workload) int {
-			if orderBy.Direction == modelv1.OrderDirectionDesc {
-				return cmp(b, a) * -1
-			}
-			return cmp(a, b)
-		})
-	}
-
-	ret := pagination.Slice(workloads, page)
-	return pagination.NewConnection(ret, page, int32(len(workloads))), nil
+	ret := pagination.Slice(filtered, page)
+	return pagination.NewConnection(ret, page, int32(len(filtered))), nil
 }
 
 func (r *Resolver) ContainerImage() gengqlv1.ContainerImageResolver {

@@ -1093,7 +1093,7 @@ type ComplexityRoot struct {
 		ViewerIsOwner          func(childComplexity int) int
 		VulnerabilitySummary   func(childComplexity int) int
 		WorkloadUtilization    func(childComplexity int, resourceType utilization.UtilizationResourceType) int
-		Workloads              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder) int
+		Workloads              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) int
 	}
 
 	TeamConfirmDeleteKeyAuditEntry struct {
@@ -1739,7 +1739,7 @@ type TeamResolver interface {
 	SQLInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
 	WorkloadUtilization(ctx context.Context, obj *team.Team, resourceType utilization.UtilizationResourceType) ([]*utilization.WorkloadUtilizationData, error)
 	VulnerabilitySummary(ctx context.Context, obj *team.Team) (*vulnerability.TeamVulnerabilitySummary, error)
-	Workloads(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder) (*pagination.Connection[workload.Workload], error)
+	Workloads(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) (*pagination.Connection[workload.Workload], error)
 }
 type TeamCostResolver interface {
 	Daily(ctx context.Context, obj *cost.TeamCost, from scalar.Date, to scalar.Date) (*cost.TeamCostPeriod, error)
@@ -6049,7 +6049,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Team.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*workload.WorkloadOrder)), true
+		return e.complexity.Team.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*workload.WorkloadOrder), args["filter"].(*workload.TeamWorkloadsFilter)), true
 
 	case "TeamConfirmDeleteKeyAuditEntry.actor":
 		if e.complexity.TeamConfirmDeleteKeyAuditEntry.Actor == nil {
@@ -7726,6 +7726,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTeamMemberOrder,
 		ec.unmarshalInputTeamOrder,
 		ec.unmarshalInputTeamRepositoryFilter,
+		ec.unmarshalInputTeamWorkloadsFilter,
 		ec.unmarshalInputTriggerJobInput,
 		ec.unmarshalInputUpdateSecretValueInput,
 		ec.unmarshalInputUpdateTeamEnvironmentInput,
@@ -11753,6 +11754,9 @@ type TeamVulnerabilitySummary {
 
 		"Ordering options for items returned from the connection."
 		orderBy: WorkloadOrder
+
+		"Filter the returned objects"
+		filter: TeamWorkloadsFilter
 	): WorkloadConnection!
 }
 
@@ -11876,6 +11880,11 @@ enum WorkloadOrderField {
 
 	"Order Workloads by the deployment time."
 	DEPLOYMENT_TIME
+}
+
+input TeamWorkloadsFilter {
+	"Only return workloads from the given named environments."
+	environments: [String!]
 }
 `, BuiltIn: false},
 }
@@ -17964,6 +17973,11 @@ func (ec *executionContext) field_Team_workloads_args(ctx context.Context, rawAr
 		return nil, err
 	}
 	args["orderBy"] = arg4
+	arg5, err := ec.field_Team_workloads_argsFilter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg5
 	return args, nil
 }
 func (ec *executionContext) field_Team_workloads_argsFirst(
@@ -18073,6 +18087,28 @@ func (ec *executionContext) field_Team_workloads_argsOrderBy(
 	}
 
 	var zeroVal *workload.WorkloadOrder
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Team_workloads_argsFilter(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*workload.TeamWorkloadsFilter, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["filter"]
+	if !ok {
+		var zeroVal *workload.TeamWorkloadsFilter
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+	if tmp, ok := rawArgs["filter"]; ok {
+		return ec.unmarshalOTeamWorkloadsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚐTeamWorkloadsFilter(ctx, tmp)
+	}
+
+	var zeroVal *workload.TeamWorkloadsFilter
 	return zeroVal, nil
 }
 
@@ -47638,7 +47674,7 @@ func (ec *executionContext) _Team_workloads(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().Workloads(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*workload.WorkloadOrder))
+		return ec.resolvers.Team().Workloads(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*workload.WorkloadOrder), fc.Args["filter"].(*workload.TeamWorkloadsFilter))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -61973,6 +62009,33 @@ func (ec *executionContext) unmarshalInputTeamRepositoryFilter(ctx context.Conte
 				return it, err
 			}
 			it.Name = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTeamWorkloadsFilter(ctx context.Context, obj interface{}) (workload.TeamWorkloadsFilter, error) {
+	var it workload.TeamWorkloadsFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"environments"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "environments":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Environments = data
 		}
 	}
 
@@ -85781,6 +85844,14 @@ func (ec *executionContext) marshalOTeamUpdatedAuditEntryData2ᚖgithubᚗcomᚋ
 		return graphql.Null
 	}
 	return ec._TeamUpdatedAuditEntryData(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOTeamWorkloadsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚐTeamWorkloadsFilter(ctx context.Context, v interface{}) (*workload.TeamWorkloadsFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTeamWorkloadsFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
