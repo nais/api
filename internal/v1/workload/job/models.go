@@ -48,21 +48,6 @@ func (j *Job) GetSecrets() []string {
 	return ret
 }
 
-type Run struct {
-	Name           string     `json:"name"`
-	PodNames       []string   `json:"podNames"`
-	StartTime      *time.Time `json:"startTime,omitempty"`
-	CompletionTime *time.Time `json:"completionTime,omitempty"`
-	Duration       string     `json:"duration"`
-	Image          string     `json:"image"`
-	Message        string     `json:"message"`
-	Failed         bool       `json:"failed"`
-
-	EnvironmentName string    `json:"-"`
-	TeamSlug        slug.Slug `json:"-"`
-	JobName         string    `json:"-"`
-}
-
 type JobManifest struct {
 	Content string `json:"content"`
 }
@@ -152,6 +137,23 @@ func (j *JobRun) Image() *workload.ContainerImage {
 		Name: name,
 		Tag:  tag,
 	}
+}
+
+// Duration returns the duration of the job run.
+func (j *JobRun) Duration() time.Duration {
+	if j.spec.Status.StartTime == nil {
+		return 0
+	}
+
+	if j.spec.Status.CompletionTime != nil {
+		return j.spec.Status.CompletionTime.Sub(j.spec.Status.StartTime.Time)
+	}
+
+	if failed := failedTime(j.spec); failed != nil {
+		return failed.Sub(j.spec.Status.StartTime.Time)
+	}
+
+	return time.Since(j.spec.Status.StartTime.Time)
 }
 
 type JobRunState int
@@ -349,13 +351,11 @@ func toGraphJobRun(run *batchv1.Job, environmentName string) *JobRun {
 		TeamSlug:        slug.Slug(run.Namespace),
 		StartTime:       startTime,
 		CreationTime:    run.CreationTimestamp.Time,
+		Failed:          run.Status.Failed > 0,
+		Message:         statusMessage(run),
+		// PodNames:       podNames,
 
-		spec:    run,
-		Failed:  run.Status.Failed > 0,
-		Message: statusMessage(run),
-		/*
-			PodNames:       podNames,
-		*/
+		spec: run,
 	}
 }
 
@@ -384,7 +384,7 @@ type TriggerJobPayload struct {
 }
 
 func statusMessage(job *batchv1.Job) string {
-	if failed(job) {
+	if failedTime(job) != nil {
 		return fmt.Sprintf("Run failed after %d attempts", job.Status.Failed)
 	}
 	target := completionTarget(job)
@@ -402,16 +402,17 @@ func statusMessage(job *batchv1.Job) string {
 	return ""
 }
 
-func failed(job *batchv1.Job) bool {
-	for _, cs := range job.Status.Conditions {
-		if cs.Status == corev1.ConditionTrue && cs.Type == batchv1.JobFailed {
-			return true
+// failedTime returns a possible timestamp representing when the job run failed.
+func failedTime(job *batchv1.Job) *time.Time {
+	for _, cond := range job.Status.Conditions {
+		if cond.Status == corev1.ConditionTrue && cond.Type == batchv1.JobFailed {
+			return &cond.LastTransitionTime.Time
 		}
 	}
-	return false
+	return nil
 }
 
-// completion target is the number of successful runs we want to see based on parallelism and completions
+// completionTarget is the number of successful runs we want to see based on parallelism and completions
 func completionTarget(job *batchv1.Job) int32 {
 	if job.Spec.Completions == nil && job.Spec.Parallelism == nil {
 		return 1

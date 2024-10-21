@@ -79,6 +79,7 @@ type ResolverRoot interface {
 	DeploymentInfo() DeploymentInfoResolver
 	Ingress() IngressResolver
 	Job() JobResolver
+	JobRun() JobRunResolver
 	KafkaTopic() KafkaTopicResolver
 	KafkaTopicAcl() KafkaTopicAclResolver
 	Mutation() MutationResolver
@@ -505,6 +506,7 @@ type ComplexityRoot struct {
 
 	JobRun struct {
 		CompletionTime func(childComplexity int) int
+		Duration       func(childComplexity int) int
 		ID             func(childComplexity int) int
 		Image          func(childComplexity int) int
 		Name           func(childComplexity int) int
@@ -1592,6 +1594,9 @@ type JobResolver interface {
 	Secrets(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*secret.Secret], error)
 	SQLInstances(ctx context.Context, obj *job.Job, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
 	Status(ctx context.Context, obj *job.Job) (*status.WorkloadStatus, error)
+}
+type JobRunResolver interface {
+	Duration(ctx context.Context, obj *job.JobRun) (int, error)
 }
 type KafkaTopicResolver interface {
 	Team(ctx context.Context, obj *kafkatopic.KafkaTopic) (*team.Team, error)
@@ -3335,6 +3340,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.JobRun.CompletionTime(childComplexity), true
+
+	case "JobRun.duration":
+		if e.complexity.JobRun.Duration == nil {
+			break
+		}
+
+		return e.complexity.JobRun.Duration(childComplexity), true
 
 	case "JobRun.id":
 		if e.complexity.JobRun.ID == nil {
@@ -8825,7 +8837,9 @@ type JobRun implements Node {
 	"The container image of the job run."
 	image: ContainerImage!
 
-	# duration: String!
+	"Duration of the job in seconds."
+	duration: Int!
+
 	# podNames: [String!]!
 }
 
@@ -11763,9 +11777,6 @@ interface Workload implements Node {
 
 	"The workload manifest."
 	manifest: WorkloadManifest!
-
-	# deployInfo: DeployInfo!
-	# secrets: [Secret!]!
 }
 
 interface WorkloadManifest {
@@ -29567,6 +29578,50 @@ func (ec *executionContext) fieldContext_JobRun_image(_ context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _JobRun_duration(ctx context.Context, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobRun_duration(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.JobRun().Duration(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobRun_duration(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobRun",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _JobRunConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*job.JobRun]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_JobRunConnection_pageInfo(ctx, field)
 	if err != nil {
@@ -29678,6 +29733,8 @@ func (ec *executionContext) fieldContext_JobRunConnection_nodes(_ context.Contex
 				return ec.fieldContext_JobRun_status(ctx, field)
 			case "image":
 				return ec.fieldContext_JobRun_image(ctx, field)
+			case "duration":
+				return ec.fieldContext_JobRun_duration(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type JobRun", field.Name)
 		},
@@ -29830,6 +29887,8 @@ func (ec *executionContext) fieldContext_JobRunEdge_node(_ context.Context, fiel
 				return ec.fieldContext_JobRun_status(ctx, field)
 			case "image":
 				return ec.fieldContext_JobRun_image(ctx, field)
+			case "duration":
+				return ec.fieldContext_JobRun_duration(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type JobRun", field.Name)
 		},
@@ -55940,6 +55999,8 @@ func (ec *executionContext) fieldContext_TriggerJobPayload_jobRun(_ context.Cont
 				return ec.fieldContext_JobRun_status(ctx, field)
 			case "image":
 				return ec.fieldContext_JobRun_image(ctx, field)
+			case "duration":
+				return ec.fieldContext_JobRun_duration(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type JobRun", field.Name)
 		},
@@ -67722,12 +67783,12 @@ func (ec *executionContext) _JobRun(ctx context.Context, sel ast.SelectionSet, o
 		case "id":
 			out.Values[i] = ec._JobRun_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
 			out.Values[i] = ec._JobRun_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "startTime":
 			out.Values[i] = ec._JobRun_startTime(ctx, field, obj)
@@ -67736,13 +67797,49 @@ func (ec *executionContext) _JobRun(ctx context.Context, sel ast.SelectionSet, o
 		case "status":
 			out.Values[i] = ec._JobRun_status(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "image":
 			out.Values[i] = ec._JobRun_image(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "duration":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._JobRun_duration(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

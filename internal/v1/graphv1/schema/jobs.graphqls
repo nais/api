@@ -118,7 +118,9 @@ type JobRun implements Node {
 	"The container image of the job run."
 	image: ContainerImage!
 
-	# duration: String!
+	"Duration of the job in seconds."
+	duration: Int!
+
 	# podNames: [String!]!
 }
 

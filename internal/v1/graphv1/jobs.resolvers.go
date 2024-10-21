@@ -2,6 +2,7 @@ package graphv1
 
 import (
 	"context"
+	"math"
 	"slices"
 
 	"github.com/nais/api/internal/auth/authz"
@@ -54,6 +55,10 @@ func (r *jobResolver) Runs(ctx context.Context, obj *job.Job, first *int, after 
 
 func (r *jobResolver) Manifest(ctx context.Context, obj *job.Job) (*job.JobManifest, error) {
 	return job.Manifest(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
+}
+
+func (r *jobRunResolver) Duration(ctx context.Context, obj *job.JobRun) (int, error) {
+	return int(math.Round(obj.Duration().Seconds())), nil
 }
 
 func (r *mutationResolver) DeleteJob(ctx context.Context, input job.DeleteJobInput) (*job.DeleteJobPayload, error) {
@@ -149,6 +154,8 @@ func (r *Resolver) DeleteJobPayload() gengqlv1.DeleteJobPayloadResolver {
 
 func (r *Resolver) Job() gengqlv1.JobResolver { return &jobResolver{r} }
 
+func (r *Resolver) JobRun() gengqlv1.JobRunResolver { return &jobRunResolver{r} }
+
 func (r *Resolver) TriggerJobPayload() gengqlv1.TriggerJobPayloadResolver {
 	return &triggerJobPayloadResolver{r}
 }
@@ -156,5 +163,6 @@ func (r *Resolver) TriggerJobPayload() gengqlv1.TriggerJobPayloadResolver {
 type (
 	deleteJobPayloadResolver  struct{ *Resolver }
 	jobResolver               struct{ *Resolver }
+	jobRunResolver            struct{ *Resolver }
 	triggerJobPayloadResolver struct{ *Resolver }
 )
