@@ -164,8 +164,10 @@ func ConfigureV1Graph(ctx context.Context, fakeClients bool, watcherMgr *watcher
 	ingressWatcher := application.NewIngressWatcher(ctx, watcherMgr)
 
 	var utilizationClient utilization.ResourceUsageClient
+	var costOpts []cost.Option
 	if fakeClients {
 		utilizationClient = utilization.NewFakeClient(clusters, nil, nil)
+		costOpts = append(costOpts, cost.WithClient(cost.NewFakeClient()))
 	} else {
 		var err error
 		utilizationClient, err = utilization.NewClient(clusters, tenantName, log)
@@ -202,7 +204,7 @@ func ConfigureV1Graph(ctx context.Context, fakeClients bool, watcherMgr *watcher
 		ctx = databasev1.NewLoaderContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, dataloaderOpts)
 		ctx = user.NewLoaderContext(ctx, pool, dataloaderOpts)
-		ctx = cost.NewLoaderContext(ctx, pool)
+		ctx = cost.NewLoaderContext(ctx, pool, costOpts...)
 		ctx = repository.NewLoaderContext(ctx, pool)
 		ctx = role.NewLoaderContext(ctx, pool)
 		ctx = auditv1.NewLoaderContext(ctx, pool, dataloaderOpts)

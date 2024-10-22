@@ -12,8 +12,25 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, dbConn *pgxpool.Pool) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(dbConn))
+type Option func(l *loaders)
+
+func WithClient(client Client) Option {
+	return func(l *loaders) {
+		l.client = client
+	}
+}
+
+func NewLoaderContext(ctx context.Context, dbConn *pgxpool.Pool, opts ...Option) context.Context {
+	ldrs := newLoaders(dbConn)
+	for _, f := range opts {
+		f(ldrs)
+	}
+
+	if ldrs.client == nil {
+		ldrs.client = &client{}
+	}
+
+	return context.WithValue(ctx, loadersKey, ldrs)
 }
 
 func fromContext(ctx context.Context) *loaders {
@@ -21,6 +38,7 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
+	client          Client
 	internalQuerier *costsql.Queries
 }
 

@@ -17,7 +17,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (r *applicationResolver) Cost(ctx context.Context, obj *application.Application) (*cost.WorkloadCost, error) {
+func (r *applicationResolver) Cost(_ context.Context, obj *application.Application) (*cost.WorkloadCost, error) {
 	return &cost.WorkloadCost{
 		EnvironmentName: obj.EnvironmentName,
 		WorkloadName:    obj.Name,
@@ -26,7 +26,7 @@ func (r *applicationResolver) Cost(ctx context.Context, obj *application.Applica
 }
 
 func (r *bigQueryDatasetResolver) Cost(ctx context.Context, obj *bigquery.BigQueryDataset) (*cost.BigQueryDatasetCost, error) {
-	sum, err := cost.MonthlyCostForService(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name, "BigQuery")
+	sum, err := cost.MonthlyForService(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name, "BigQuery")
 	if err != nil {
 		r.log.WithError(err).WithFields(logrus.Fields{
 			"EnvironmentName": obj.EnvironmentName,
@@ -52,7 +52,7 @@ func (r *jobResolver) Cost(ctx context.Context, obj *job.Job) (*cost.WorkloadCos
 }
 
 func (r *openSearchResolver) Cost(ctx context.Context, obj *opensearch.OpenSearch) (*cost.OpenSearchCost, error) {
-	sum, err := cost.MonthlyCostForService(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name, "Redis")
+	sum, err := cost.MonthlyForService(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name, "Redis")
 	if err != nil {
 		r.log.WithError(err).WithFields(logrus.Fields{
 			"EnvironmentName": obj.EnvironmentName,
@@ -70,7 +70,7 @@ func (r *openSearchResolver) Cost(ctx context.Context, obj *opensearch.OpenSearc
 }
 
 func (r *redisInstanceResolver) Cost(ctx context.Context, obj *redis.RedisInstance) (*cost.RedisInstanceCost, error) {
-	sum, err := cost.MonthlyCostForService(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name, "Redis")
+	sum, err := cost.MonthlyForService(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name, "Redis")
 	if err != nil {
 		r.log.WithError(err).WithFields(logrus.Fields{
 			"EnvironmentName": obj.EnvironmentName,
@@ -92,10 +92,10 @@ func (r *teamResolver) Cost(ctx context.Context, obj *team.Team) (*cost.TeamCost
 }
 
 func (r *teamCostResolver) Daily(ctx context.Context, obj *cost.TeamCost, from scalar.Date, to scalar.Date) (*cost.TeamCostPeriod, error) {
-	if to.Time().Before(from.Time()) {
-		return nil, apierror.Errorf("to date cannot be before from date")
+	if !to.Time().After(from.Time()) {
+		return nil, apierror.Errorf("`to` must be after `from`.")
 	} else if to.Time().After(time.Now()) {
-		return nil, apierror.Errorf("to date cannot be in the future")
+		return nil, apierror.Errorf("`to` cannot be in the future.")
 	}
 
 	return cost.DailyForTeam(ctx, obj.TeamSlug, from.Time(), to.Time())
@@ -106,10 +106,10 @@ func (r *teamCostResolver) MonthlySummary(ctx context.Context, obj *cost.TeamCos
 }
 
 func (r *workloadCostResolver) Daily(ctx context.Context, obj *cost.WorkloadCost, from scalar.Date, to scalar.Date) (*cost.WorkloadCostPeriod, error) {
-	if to.Time().Before(from.Time()) {
-		return nil, apierror.Errorf("to date cannot be before from date")
+	if !to.Time().After(from.Time()) {
+		return nil, apierror.Errorf("`to` must be after `from`.")
 	} else if to.Time().After(time.Now()) {
-		return nil, apierror.Errorf("to date cannot be in the future")
+		return nil, apierror.Errorf("`to` cannot be in the future.")
 	}
 
 	return cost.DailyForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadName, from.Time(), to.Time())
