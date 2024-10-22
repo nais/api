@@ -11736,6 +11736,21 @@ type TeamVulnerabilitySummary {
 	"Coverage of the team."
 	coverage: Float!
 }
+
+extend enum WorkloadOrderField {
+	"Order by risk score"
+	VULNERABILITY_RISK_SCORE
+	"Order apps by vulnerability severity critical"
+	VULNERABILITY_SEVERITY_CRITICAL
+	"Order apps by vulnerability severity high"
+	VULNERABILITY_SEVERITY_HIGH
+	"Order apps by vulnerability severity medium"
+	VULNERABILITY_SEVERITY_MEDIUM
+	"Order apps by vulnerability severity low"
+	VULNERABILITY_SEVERITY_LOW
+	"Order apps by vulnerability severity unassigned"
+	VULNERABILITY_SEVERITY_UNASSIGNED
+}
 `, BuiltIn: false},
 	{Name: "../schema/workloads.graphqls", Input: `extend type Team {
 	"NAIS Workloads owned by the team."

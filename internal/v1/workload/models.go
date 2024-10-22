@@ -151,9 +151,10 @@ var AllWorkloadOrderField = []WorkloadOrderField{
 }
 
 func (e WorkloadOrderField) IsValid() bool {
-	switch e {
-	case WorkloadOrderFieldName, WorkloadOrderFieldStatus, WorkloadOrderFieldEnvironment, WorkloadOrderFieldDeploymentTime:
-		return true
+	for _, f := range AllWorkloadOrderField {
+		if e == f {
+			return true
+		}
 	}
 	return false
 }
