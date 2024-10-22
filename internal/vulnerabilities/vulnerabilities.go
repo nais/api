@@ -274,6 +274,7 @@ func (m *Manager) getVulnerabilityRanking(ctx context.Context, team string, team
 
 func getImageDetails(images []*model.ImageDetails, env, team, wType, name string) (image *model.ImageDetails) {
 	for _, i := range images {
+		// TODO we ignore images without summary for now, but we should probably handle this case
 		if i.Summary == nil {
 			continue
 		}

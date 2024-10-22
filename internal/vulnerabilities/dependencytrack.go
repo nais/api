@@ -314,7 +314,7 @@ func hasSbom(p *dependencytrack.Project) bool {
 		return false
 	}
 
-	return p.Metrics != nil && p.Metrics.Components > 0
+	return p.Metrics != nil
 }
 
 func (c *dependencyTrackClient) retrieveFindings(ctx context.Context, uuid string, suppressed bool) ([]*dependencytrack.Finding, error) {
