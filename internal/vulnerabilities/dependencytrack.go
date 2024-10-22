@@ -25,7 +25,7 @@ const (
 
 var imagesToExclude = []string{
 	"europe-north1-docker.pkg.dev/nais-io/nais/images/wonderwall",
-	"europe-north1-docker.pkg.dev/nais-io/nais/images/elector@",
+	"europe-north1-docker.pkg.dev/nais-io/nais/images/elector",
 }
 
 var _ Client = &dependencyTrackClient{}
@@ -507,7 +507,7 @@ func containsAllTags(tags []dependencytrack.Tag, s ...string) bool {
 
 func excludeProject(p *dependencytrack.Project) bool {
 	for _, i := range imagesToExclude {
-		if i == p.Name {
+		if strings.HasPrefix(p.Name, i) {
 			return true
 		}
 	}
