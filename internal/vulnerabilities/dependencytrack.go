@@ -91,7 +91,7 @@ func NewDependencyTrackClient(cfg DependencyTrackConfig, log *logrus.Entry, opts
 		dependencytrack.WithLogger(log),
 		dependencytrack.WithHttpClient(&http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}),
 	)
-	ch := cache.New(5*time.Minute, 5*time.Minute)
+	ch := cache.New(2*time.Minute, 5*time.Minute)
 
 	if cfg.EnableFakes {
 		c = NewFakeDependencyTrackClient(c)
@@ -313,7 +313,8 @@ func hasSbom(p *dependencytrack.Project) bool {
 	if p == nil {
 		return false
 	}
-	return p.LastBomImportFormat != "" || p.Metrics != nil && p.Metrics.Components > 0
+
+	return p.Metrics != nil && p.Metrics.Components > 0
 }
 
 func (c *dependencyTrackClient) retrieveFindings(ctx context.Context, uuid string, suppressed bool) ([]*dependencytrack.Finding, error) {
