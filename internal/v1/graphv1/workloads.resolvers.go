@@ -30,10 +30,10 @@ func (r *teamResolver) Workloads(ctx context.Context, obj *team.Team, first *int
 	}
 
 	filtered := workload.SortFilter.Filter(ctx, workloads, filter)
-	workload.SortFilter.Sort(ctx, filtered, workload.WorkloadOrderFieldName, modelv1.OrderDirectionAsc)
-	if orderBy != nil {
-		workload.SortFilter.Sort(ctx, filtered, orderBy.Field, orderBy.Direction)
+	if orderBy == nil {
+		orderBy = &workload.WorkloadOrder{Field: workload.WorkloadOrderFieldName, Direction: modelv1.OrderDirectionAsc}
 	}
+	workload.SortFilter.Sort(ctx, filtered, orderBy.Field, orderBy.Direction)
 
 	ret := pagination.Slice(filtered, page)
 	return pagination.NewConnection(ret, page, int32(len(filtered))), nil

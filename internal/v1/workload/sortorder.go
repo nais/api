@@ -8,7 +8,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/sortfilter"
 )
 
-var SortFilter = sortfilter.New[Workload, WorkloadOrderField, *TeamWorkloadsFilter]()
+var SortFilter = sortfilter.New[Workload, WorkloadOrderField, *TeamWorkloadsFilter](WorkloadOrderFieldName)
 
 func init() {
 	SortFilter.RegisterOrderBy(WorkloadOrderFieldName, func(ctx context.Context, a, b Workload) int {
