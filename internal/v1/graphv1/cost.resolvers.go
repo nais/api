@@ -2,12 +2,14 @@ package graphv1
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/v1/cost"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/graphv1/scalar"
+	"github.com/nais/api/internal/v1/kubernetes/watcher"
 	"github.com/nais/api/internal/v1/persistence/bigquery"
 	"github.com/nais/api/internal/v1/persistence/opensearch"
 	"github.com/nais/api/internal/v1/persistence/redis"
@@ -147,7 +149,12 @@ func (r *workloadCostResolver) Monthly(ctx context.Context, obj *cost.WorkloadCo
 }
 
 func (r *workloadCostPointResolver) Workload(ctx context.Context, obj *cost.WorkloadCostPoint) (workload.Workload, error) {
-	w, _ := tryWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadName)
+	w, err := tryWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadName)
+	if errors.Is(err, &watcher.ErrorNotFound{}) {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
 	return w, nil
 }
 

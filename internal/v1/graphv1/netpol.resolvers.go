@@ -2,8 +2,10 @@ package graphv1
 
 import (
 	"context"
+	"errors"
 
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
+	"github.com/nais/api/internal/v1/kubernetes/watcher"
 	"github.com/nais/api/internal/v1/team"
 	"github.com/nais/api/internal/v1/workload"
 	"github.com/nais/api/internal/v1/workload/application"
@@ -20,7 +22,13 @@ func (r *jobResolver) NetworkPolicy(ctx context.Context, obj *job.Job) (*netpol.
 }
 
 func (r *networkPolicyRuleResolver) TargetWorkload(ctx context.Context, obj *netpol.NetworkPolicyRule) (workload.Workload, error) {
-	return tryWorkload(ctx, obj.TargetTeamSlug, obj.EnvironmentName, obj.TargetWorkloadName)
+	w, err := tryWorkload(ctx, obj.TargetTeamSlug, obj.EnvironmentName, obj.TargetWorkloadName)
+	if errors.Is(err, &watcher.ErrorNotFound{}) {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+	return w, nil
 }
 
 func (r *networkPolicyRuleResolver) TargetTeam(ctx context.Context, obj *netpol.NetworkPolicyRule) (*team.Team, error) {
