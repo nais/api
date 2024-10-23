@@ -1825,7 +1825,7 @@ type TeamUtilizationEnvironmentDataPointResolver interface {
 }
 type TeamVulnerabilitySummaryResolver interface {
 	Ranking(ctx context.Context, obj *vulnerability.TeamVulnerabilitySummary) (vulnerability.TeamVulnerabilityRanking, error)
-	RiskScoreTrend(ctx context.Context, obj *vulnerability.TeamVulnerabilitySummary) (*vulnerability.TeamVulnerabilityRiskScoreTrend, error)
+	RiskScoreTrend(ctx context.Context, obj *vulnerability.TeamVulnerabilitySummary) (vulnerability.TeamVulnerabilityRiskScoreTrend, error)
 }
 type TriggerJobPayloadResolver interface {
 	Job(ctx context.Context, obj *job.TriggerJobPayload) (*job.Job, error)
@@ -11910,7 +11910,7 @@ type TeamVulnerabilitySummary {
 	"Ranking of the team based on vulnerability severity."
 	ranking: TeamVulnerabilityRanking!
 	"Trend of vulnerability status for the team."
-	riskScoreTrend: TeamVulnerabilityRiskScoreTrend
+	riskScoreTrend: TeamVulnerabilityRiskScoreTrend!
 }
 
 enum TeamVulnerabilityRanking {
@@ -56432,11 +56432,14 @@ func (ec *executionContext) _TeamVulnerabilitySummary_riskScoreTrend(ctx context
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*vulnerability.TeamVulnerabilityRiskScoreTrend)
+	res := resTmp.(vulnerability.TeamVulnerabilityRiskScoreTrend)
 	fc.Result = res
-	return ec.marshalOTeamVulnerabilityRiskScoreTrend2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐTeamVulnerabilityRiskScoreTrend(ctx, field.Selections, res)
+	return ec.marshalNTeamVulnerabilityRiskScoreTrend2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐTeamVulnerabilityRiskScoreTrend(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamVulnerabilitySummary_riskScoreTrend(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -78476,13 +78479,16 @@ func (ec *executionContext) _TeamVulnerabilitySummary(ctx context.Context, sel a
 		case "riskScoreTrend":
 			field := field
 
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._TeamVulnerabilitySummary_riskScoreTrend(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
@@ -85746,6 +85752,16 @@ func (ec *executionContext) marshalNTeamVulnerabilityRanking2githubᚗcomᚋnais
 	return v
 }
 
+func (ec *executionContext) unmarshalNTeamVulnerabilityRiskScoreTrend2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐTeamVulnerabilityRiskScoreTrend(ctx context.Context, v interface{}) (vulnerability.TeamVulnerabilityRiskScoreTrend, error) {
+	var res vulnerability.TeamVulnerabilityRiskScoreTrend
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTeamVulnerabilityRiskScoreTrend2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐTeamVulnerabilityRiskScoreTrend(ctx context.Context, sel ast.SelectionSet, v vulnerability.TeamVulnerabilityRiskScoreTrend) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNTeamVulnerabilitySummary2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐTeamVulnerabilitySummary(ctx context.Context, sel ast.SelectionSet, v vulnerability.TeamVulnerabilitySummary) graphql.Marshaler {
 	return ec._TeamVulnerabilitySummary(ctx, sel, &v)
 }
@@ -87200,22 +87216,6 @@ func (ec *executionContext) marshalOTeamUpdatedAuditEntryData2ᚖgithubᚗcomᚋ
 		return graphql.Null
 	}
 	return ec._TeamUpdatedAuditEntryData(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOTeamVulnerabilityRiskScoreTrend2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐTeamVulnerabilityRiskScoreTrend(ctx context.Context, v interface{}) (*vulnerability.TeamVulnerabilityRiskScoreTrend, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(vulnerability.TeamVulnerabilityRiskScoreTrend)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOTeamVulnerabilityRiskScoreTrend2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐTeamVulnerabilityRiskScoreTrend(ctx context.Context, sel ast.SelectionSet, v *vulnerability.TeamVulnerabilityRiskScoreTrend) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
 }
 
 func (ec *executionContext) unmarshalOTeamWorkloadsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚐTeamWorkloadsFilter(ctx context.Context, v interface{}) (*workload.TeamWorkloadsFilter, error) {
