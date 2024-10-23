@@ -938,7 +938,7 @@ type ComplexityRoot struct {
 		ValueName func(childComplexity int) int
 	}
 
-	ServiceCost struct {
+	ServiceCostPoint struct {
 		Cost    func(childComplexity int) int
 		Service func(childComplexity int) int
 	}
@@ -5239,19 +5239,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SecretValueUpdatedAuditEntryData.ValueName(childComplexity), true
 
-	case "ServiceCost.cost":
-		if e.complexity.ServiceCost.Cost == nil {
+	case "ServiceCostPoint.cost":
+		if e.complexity.ServiceCostPoint.Cost == nil {
 			break
 		}
 
-		return e.complexity.ServiceCost.Cost(childComplexity), true
+		return e.complexity.ServiceCostPoint.Cost(childComplexity), true
 
-	case "ServiceCost.service":
-		if e.complexity.ServiceCost.Service == nil {
+	case "ServiceCostPoint.service":
+		if e.complexity.ServiceCostPoint.Service == nil {
 			break
 		}
 
-		return e.complexity.ServiceCost.Service(childComplexity), true
+		return e.complexity.ServiceCostPoint.Service(childComplexity), true
 
 	case "ServiceCostSeries.date":
 		if e.complexity.ServiceCostSeries.Date == nil {
@@ -8521,10 +8521,10 @@ type ServiceCostSeries {
 	sum: Float!
 
 	"The cost for the services used by the workload."
-	services: [ServiceCost!]!
+	services: [ServiceCostPoint!]!
 }
 
-type ServiceCost {
+type ServiceCostPoint {
 	"The name of the service."
 	service: String!
 
@@ -42341,8 +42341,8 @@ func (ec *executionContext) fieldContext_SecretValueUpdatedAuditEntryData_valueN
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceCost_service(ctx context.Context, field graphql.CollectedField, obj *cost.ServiceCost) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ServiceCost_service(ctx, field)
+func (ec *executionContext) _ServiceCostPoint_service(ctx context.Context, field graphql.CollectedField, obj *cost.ServiceCostPoint) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceCostPoint_service(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -42372,9 +42372,9 @@ func (ec *executionContext) _ServiceCost_service(ctx context.Context, field grap
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ServiceCost_service(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ServiceCostPoint_service(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ServiceCost",
+		Object:     "ServiceCostPoint",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -42385,8 +42385,8 @@ func (ec *executionContext) fieldContext_ServiceCost_service(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceCost_cost(ctx context.Context, field graphql.CollectedField, obj *cost.ServiceCost) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ServiceCost_cost(ctx, field)
+func (ec *executionContext) _ServiceCostPoint_cost(ctx context.Context, field graphql.CollectedField, obj *cost.ServiceCostPoint) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceCostPoint_cost(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -42416,9 +42416,9 @@ func (ec *executionContext) _ServiceCost_cost(ctx context.Context, field graphql
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ServiceCost_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ServiceCostPoint_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ServiceCost",
+		Object:     "ServiceCostPoint",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -42543,9 +42543,9 @@ func (ec *executionContext) _ServiceCostSeries_services(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*cost.ServiceCost)
+	res := resTmp.([]*cost.ServiceCostPoint)
 	fc.Result = res
-	return ec.marshalNServiceCost2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐServiceCostᚄ(ctx, field.Selections, res)
+	return ec.marshalNServiceCostPoint2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐServiceCostPointᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ServiceCostSeries_services(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -42557,11 +42557,11 @@ func (ec *executionContext) fieldContext_ServiceCostSeries_services(_ context.Co
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "service":
-				return ec.fieldContext_ServiceCost_service(ctx, field)
+				return ec.fieldContext_ServiceCostPoint_service(ctx, field)
 			case "cost":
-				return ec.fieldContext_ServiceCost_cost(ctx, field)
+				return ec.fieldContext_ServiceCostPoint_cost(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ServiceCost", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ServiceCostPoint", field.Name)
 		},
 	}
 	return fc, nil
@@ -72413,24 +72413,24 @@ func (ec *executionContext) _SecretValueUpdatedAuditEntryData(ctx context.Contex
 	return out
 }
 
-var serviceCostImplementors = []string{"ServiceCost"}
+var serviceCostPointImplementors = []string{"ServiceCostPoint"}
 
-func (ec *executionContext) _ServiceCost(ctx context.Context, sel ast.SelectionSet, obj *cost.ServiceCost) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, serviceCostImplementors)
+func (ec *executionContext) _ServiceCostPoint(ctx context.Context, sel ast.SelectionSet, obj *cost.ServiceCostPoint) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, serviceCostPointImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ServiceCost")
+			out.Values[i] = graphql.MarshalString("ServiceCostPoint")
 		case "service":
-			out.Values[i] = ec._ServiceCost_service(ctx, field, obj)
+			out.Values[i] = ec._ServiceCostPoint_service(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "cost":
-			out.Values[i] = ec._ServiceCost_cost(ctx, field, obj)
+			out.Values[i] = ec._ServiceCostPoint_cost(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -83146,7 +83146,7 @@ func (ec *executionContext) unmarshalNSecretValueInput2ᚖgithubᚗcomᚋnaisᚋ
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNServiceCost2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐServiceCostᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.ServiceCost) graphql.Marshaler {
+func (ec *executionContext) marshalNServiceCostPoint2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐServiceCostPointᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.ServiceCostPoint) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -83170,7 +83170,7 @@ func (ec *executionContext) marshalNServiceCost2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNServiceCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐServiceCost(ctx, sel, v[i])
+			ret[i] = ec.marshalNServiceCostPoint2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐServiceCostPoint(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -83190,14 +83190,14 @@ func (ec *executionContext) marshalNServiceCost2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) marshalNServiceCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐServiceCost(ctx context.Context, sel ast.SelectionSet, v *cost.ServiceCost) graphql.Marshaler {
+func (ec *executionContext) marshalNServiceCostPoint2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐServiceCostPoint(ctx context.Context, sel ast.SelectionSet, v *cost.ServiceCostPoint) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ServiceCost(ctx, sel, v)
+	return ec._ServiceCostPoint(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNServiceCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐServiceCostSeriesᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.ServiceCostSeries) graphql.Marshaler {

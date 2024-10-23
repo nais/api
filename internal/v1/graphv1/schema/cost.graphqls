@@ -84,10 +84,10 @@ type ServiceCostSeries {
 	sum: Float!
 
 	"The cost for the services used by the workload."
-	services: [ServiceCost!]!
+	services: [ServiceCostPoint!]!
 }
 
-type ServiceCost {
+type ServiceCostPoint {
 	"The name of the service."
 	service: String!
 

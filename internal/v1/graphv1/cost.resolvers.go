@@ -17,7 +17,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (r *applicationResolver) Cost(_ context.Context, obj *application.Application) (*cost.WorkloadCost, error) {
+func (r *applicationResolver) Cost(ctx context.Context, obj *application.Application) (*cost.WorkloadCost, error) {
 	return &cost.WorkloadCost{
 		EnvironmentName: obj.EnvironmentName,
 		WorkloadName:    obj.Name,

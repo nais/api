@@ -163,13 +163,13 @@ func serviceCostSeries(d time.Time) *ServiceCostSeries {
 	if d.Before(startOfCost) {
 		return &ServiceCostSeries{
 			Date:     scalar.Date(d),
-			Services: []*ServiceCost{},
+			Services: []*ServiceCostPoint{},
 		}
 	}
-	services := make([]*ServiceCost, 0)
+	services := make([]*ServiceCostPoint, 0)
 	serviceNames := randomServices()
 	for _, service := range serviceNames {
-		services = append(services, &ServiceCost{
+		services = append(services, &ServiceCostPoint{
 			Service: service,
 			Cost:    rand.Float64(),
 		})

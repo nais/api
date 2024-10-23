@@ -44,7 +44,7 @@ func (client) DailyForWorkload(ctx context.Context, teamSlug slug.Slug, environm
 		}
 
 		if row.Service != nil {
-			daily[row.Date].Services = append(daily[row.Date].Services, &ServiceCost{
+			daily[row.Date].Services = append(daily[row.Date].Services, &ServiceCostPoint{
 				Service: *row.Service,
 				Cost:    float64(ptr.Deref(row.DailyCost, 0)),
 			})
@@ -79,7 +79,7 @@ func (client) MonthlyForWorkload(ctx context.Context, teamSlug slug.Slug, enviro
 			}
 		}
 
-		daily[row.Month].Services = append(daily[row.Month].Services, &ServiceCost{
+		daily[row.Month].Services = append(daily[row.Month].Services, &ServiceCostPoint{
 			Service: row.Service,
 			Cost:    float64(row.DailyCost),
 		})
@@ -114,7 +114,7 @@ func (client) DailyForTeam(ctx context.Context, teamSlug slug.Slug, fromDate, to
 		}
 
 		if row.Service != nil {
-			daily[row.Date].Services = append(daily[row.Date].Services, &ServiceCost{
+			daily[row.Date].Services = append(daily[row.Date].Services, &ServiceCostPoint{
 				Service: *row.Service,
 				Cost:    float64(row.Cost),
 			})
