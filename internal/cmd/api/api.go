@@ -282,10 +282,13 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return err
 	}
 
-	vulnClient := vulnerability.New(cfg.DependencyTrack.Endpoint,
-		cfg.DependencyTrack.Username,
-		cfg.DependencyTrack.Password,
-		cfg.DependencyTrack.Frontend,
+	vulnClient := vulnerability.NewDependencyTrackClient(vulnerability.DependencyTrackConfig{
+		Endpoint:    cfg.DependencyTrack.Endpoint,
+		Username:    cfg.DependencyTrack.Username,
+		Password:    cfg.DependencyTrack.Password,
+		FrontendURL: cfg.DependencyTrack.Frontend,
+		EnableFakes: cfg.WithFakeClients,
+	},
 		log.WithField("client", "dependencytrack"),
 	)
 

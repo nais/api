@@ -55,7 +55,24 @@ import (
 )
 
 // runHttpServer will start the HTTP server
-func runHttpServer(ctx context.Context, listenAddress string, insecureAuthAndFakes bool, tenantName string, clusters []string, db database.Database, k8sClientSets map[string]kubernetes.Interface, watcherMgr *watcher.Manager, sqlAdminService *legacysqlinstance.SqlAdminService, authHandler authn.Handler, graphHandler *handler.Server, graphv1Handler *handler.Server, reg prometheus.Gatherer, vClient *vulnerability.Client, hookdClient hookd.Client, log logrus.FieldLogger) error {
+func runHttpServer(
+	ctx context.Context,
+	listenAddress string,
+	insecureAuthAndFakes bool,
+	tenantName string,
+	clusters []string,
+	db database.Database,
+	k8sClientSets map[string]kubernetes.Interface,
+	watcherMgr *watcher.Manager,
+	sqlAdminService *legacysqlinstance.SqlAdminService,
+	authHandler authn.Handler,
+	graphHandler *handler.Server,
+	graphv1Handler *handler.Server,
+	reg prometheus.Gatherer,
+	vClient vulnerability.Client,
+	hookdClient hookd.Client,
+	log logrus.FieldLogger,
+) error {
 	router := chi.NewRouter()
 	router.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
 	router.Get("/healthz", func(_ http.ResponseWriter, _ *http.Request) {})
@@ -148,7 +165,19 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuthAndFak
 	return wg.Wait()
 }
 
-func ConfigureV1Graph(ctx context.Context, fakeClients bool, watcherMgr *watcher.Manager, db database.Database, k8sClientSets map[string]kubernetes.Interface, sqlAdminService *legacysqlinstance.SqlAdminService, vClient *vulnerability.Client, tenantName string, clusters []string, hookdClient hookd.Client, log logrus.FieldLogger) (func(http.Handler) http.Handler, error) {
+func ConfigureV1Graph(
+	ctx context.Context,
+	fakeClients bool,
+	watcherMgr *watcher.Manager,
+	db database.Database,
+	k8sClientSets map[string]kubernetes.Interface,
+	sqlAdminService *legacysqlinstance.SqlAdminService,
+	vClient vulnerability.Client,
+	tenantName string,
+	clusters []string,
+	hookdClient hookd.Client,
+	log logrus.FieldLogger,
+) (func(http.Handler) http.Handler, error) {
 	appWatcher := application.NewWatcher(ctx, watcherMgr)
 	jobWatcher := job.NewWatcher(ctx, watcherMgr)
 	runWatcher := job.NewRunWatcher(ctx, watcherMgr)
