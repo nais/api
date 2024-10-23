@@ -4,6 +4,7 @@ import (
 	"context"
 	"math/rand/v2"
 	"sort"
+	"sync"
 	"time"
 
 	"github.com/nais/api/internal/slug"
@@ -16,6 +17,7 @@ type FakeClient struct {
 	monthlyForServiceCache  map[string]float32
 	monthlyForWorkloadCache map[string]*WorkloadCostPeriod
 	monthlySummaryCache     map[slug.Slug]*TeamCostMonthlySummary
+	lock                    sync.Mutex
 }
 
 func NewFakeClient() *FakeClient {
@@ -28,7 +30,12 @@ func NewFakeClient() *FakeClient {
 	}
 }
 
+var startOfCost = time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+
 func (c *FakeClient) DailyForWorkload(_ context.Context, teamSlug slug.Slug, environmentName, workloadName string, fromDate, toDate time.Time) (*WorkloadCostPeriod, error) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
 	cc := teamSlug.String() + environmentName + workloadName + fromDate.String() + toDate.String()
 	if cached, exists := c.dailyForWorkloadCache[cc]; exists {
 		return cached, nil
@@ -37,18 +44,7 @@ func (c *FakeClient) DailyForWorkload(_ context.Context, teamSlug slug.Slug, env
 	numDays := int(toDate.Sub(fromDate).Hours()/24) + 1 // inclusive
 	series := make([]*ServiceCostSeries, numDays)
 	for i := range numDays {
-		serviceNames := randomServices()
-		services := make([]*ServiceCost, len(serviceNames))
-		for j := range len(serviceNames) {
-			services[j] = &ServiceCost{
-				Service: serviceNames[j],
-				Cost:    rand.Float64(),
-			}
-		}
-		series[i] = &ServiceCostSeries{
-			Date:     scalar.Date(fromDate.AddDate(0, 0, i)),
-			Services: services,
-		}
+		series[i] = serviceCostSeries(fromDate.AddDate(0, 0, i))
 	}
 	c.dailyForWorkloadCache[cc] = &WorkloadCostPeriod{
 		Series: series,
@@ -57,6 +53,9 @@ func (c *FakeClient) DailyForWorkload(_ context.Context, teamSlug slug.Slug, env
 }
 
 func (c *FakeClient) MonthlyForWorkload(_ context.Context, teamSlug slug.Slug, environmentName, workloadName string) (*WorkloadCostPeriod, error) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
 	cc := teamSlug.String() + environmentName + workloadName
 	if cached, exists := c.monthlyForWorkloadCache[cc]; exists {
 		return cached, nil
@@ -67,18 +66,7 @@ func (c *FakeClient) MonthlyForWorkload(_ context.Context, teamSlug slug.Slug, e
 	currentMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
 
 	for i := range 12 {
-		serviceNames := randomServices()
-		services := make([]*ServiceCost, len(serviceNames))
-		for j := range len(serviceNames) {
-			services[j] = &ServiceCost{
-				Service: serviceNames[j],
-				Cost:    rand.Float64(),
-			}
-		}
-		series[i] = &ServiceCostSeries{
-			Date:     scalar.Date(currentMonth.AddDate(0, -i, 0)),
-			Services: services,
-		}
+		series[i] = serviceCostSeries(currentMonth.AddDate(0, -i, 0))
 	}
 	c.monthlyForWorkloadCache[cc] = &WorkloadCostPeriod{
 		Series: series,
@@ -87,6 +75,9 @@ func (c *FakeClient) MonthlyForWorkload(_ context.Context, teamSlug slug.Slug, e
 }
 
 func (c *FakeClient) DailyForTeam(_ context.Context, teamSlug slug.Slug, fromDate, toDate time.Time) (*TeamCostPeriod, error) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
 	cc := teamSlug.String() + fromDate.String() + toDate.String()
 	if cached, exists := c.dailyForTeamCache[cc]; exists {
 		return cached, nil
@@ -95,18 +86,7 @@ func (c *FakeClient) DailyForTeam(_ context.Context, teamSlug slug.Slug, fromDat
 	numDays := int(toDate.Sub(fromDate).Hours()/24) + 1 // inclusive
 	series := make([]*ServiceCostSeries, numDays)
 	for i := range numDays {
-		serviceNames := randomServices()
-		services := make([]*ServiceCost, len(serviceNames))
-		for j := range len(serviceNames) {
-			services[j] = &ServiceCost{
-				Service: serviceNames[j],
-				Cost:    rand.Float64(),
-			}
-		}
-		series[i] = &ServiceCostSeries{
-			Date:     scalar.Date(fromDate.AddDate(0, 0, i)),
-			Services: services,
-		}
+		series[i] = serviceCostSeries(fromDate.AddDate(0, 0, i))
 	}
 	c.dailyForTeamCache[cc] = &TeamCostPeriod{
 		Series: series,
@@ -115,6 +95,9 @@ func (c *FakeClient) DailyForTeam(_ context.Context, teamSlug slug.Slug, fromDat
 }
 
 func (c *FakeClient) MonthlySummaryForTeam(_ context.Context, teamSlug slug.Slug) (*TeamCostMonthlySummary, error) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
 	if cached, exists := c.monthlySummaryCache[teamSlug]; exists {
 		return cached, nil
 	}
@@ -145,6 +128,9 @@ func (c *FakeClient) MonthlySummaryForTeam(_ context.Context, teamSlug slug.Slug
 }
 
 func (c *FakeClient) MonthlyForService(_ context.Context, teamSlug slug.Slug, environmentName, workloadName, costType string) (float32, error) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
 	cc := teamSlug.String() + environmentName + workloadName + costType
 	if cached, exists := c.monthlyForServiceCache[cc]; exists {
 		return cached, nil
@@ -171,4 +157,25 @@ func randomServices() []string {
 	ret := all[:rand.IntN(num+1)]
 	sort.Strings(ret)
 	return ret
+}
+
+func serviceCostSeries(d time.Time) *ServiceCostSeries {
+	if d.Before(startOfCost) {
+		return &ServiceCostSeries{
+			Date:     scalar.Date(d),
+			Services: []*ServiceCost{},
+		}
+	}
+	services := make([]*ServiceCost, 0)
+	serviceNames := randomServices()
+	for _, service := range serviceNames {
+		services = append(services, &ServiceCost{
+			Service: service,
+			Cost:    rand.Float64(),
+		})
+	}
+	return &ServiceCostSeries{
+		Date:     scalar.Date(d),
+		Services: services,
+	}
 }

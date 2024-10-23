@@ -26,12 +26,16 @@ func (r *applicationResolver) Cost(_ context.Context, obj *application.Applicati
 }
 
 func (r *bigQueryDatasetResolver) Cost(ctx context.Context, obj *bigquery.BigQueryDataset) (*cost.BigQueryDatasetCost, error) {
+	if obj.WorkloadReference == nil {
+		return &cost.BigQueryDatasetCost{}, nil
+	}
+
 	sum, err := cost.MonthlyForService(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name, "BigQuery")
 	if err != nil {
 		r.log.WithError(err).WithFields(logrus.Fields{
 			"EnvironmentName": obj.EnvironmentName,
-			"WorkloadName":    obj.Name,
 			"TeamSlug":        obj.TeamSlug,
+			"BigQueryDataset": obj.Name,
 		}).Warn("failed to get monthly cost for BigQuery dataset")
 		return &cost.BigQueryDatasetCost{
 			Sum: 0,
@@ -52,12 +56,16 @@ func (r *jobResolver) Cost(ctx context.Context, obj *job.Job) (*cost.WorkloadCos
 }
 
 func (r *openSearchResolver) Cost(ctx context.Context, obj *opensearch.OpenSearch) (*cost.OpenSearchCost, error) {
+	if obj.WorkloadReference == nil {
+		return &cost.OpenSearchCost{}, nil
+	}
+
 	sum, err := cost.MonthlyForService(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name, "Redis")
 	if err != nil {
 		r.log.WithError(err).WithFields(logrus.Fields{
 			"EnvironmentName": obj.EnvironmentName,
-			"WorkloadName":    obj.Name,
 			"TeamSlug":        obj.TeamSlug,
+			"OpenSearch":      obj.Name,
 		}).Warn("failed to get monthly cost for OpenSearch")
 		return &cost.OpenSearchCost{
 			Sum: 0,
@@ -70,12 +78,16 @@ func (r *openSearchResolver) Cost(ctx context.Context, obj *opensearch.OpenSearc
 }
 
 func (r *redisInstanceResolver) Cost(ctx context.Context, obj *redis.RedisInstance) (*cost.RedisInstanceCost, error) {
+	if obj.WorkloadReference == nil {
+		return &cost.RedisInstanceCost{}, nil
+	}
+
 	sum, err := cost.MonthlyForService(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name, "Redis")
 	if err != nil {
 		r.log.WithError(err).WithFields(logrus.Fields{
 			"EnvironmentName": obj.EnvironmentName,
-			"WorkloadName":    obj.Name,
 			"TeamSlug":        obj.TeamSlug,
+			"Redis":           obj.Name,
 		}).Warn("failed to get monthly cost for Redis instance")
 		return &cost.RedisInstanceCost{
 			Sum: 0,
