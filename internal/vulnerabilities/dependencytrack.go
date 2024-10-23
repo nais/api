@@ -507,7 +507,7 @@ func containsAllTags(tags []dependencytrack.Tag, s ...string) bool {
 
 func excludeProject(p *dependencytrack.Project) bool {
 	for _, i := range imagesToExclude {
-		if strings.HasPrefix(p.Name, i) {
+		if strings.EqualFold(p.Name, i) {
 			return true
 		}
 	}

@@ -49,6 +49,45 @@ func TestClient_GetFindingsForImage(t *testing.T) {
 	}
 }
 
+func Test_ProjectsToExclude(t *testing.T) {
+	tt := []struct {
+		name       string
+		project    *dependencytrack.Project
+		assertions func(project *dependencytrack.Project)
+	}{
+		{
+			name: "should exclude projects with matching name",
+			project: &dependencytrack.Project{
+				Name: "europe-north1-docker.pkg.dev/nais-io/nais/images/wonderwall",
+			},
+			assertions: func(project *dependencytrack.Project) {
+				assert.True(t, excludeProject(project))
+			},
+		},
+		{
+			name: "should exclude projects with matching name",
+			project: &dependencytrack.Project{
+				Name: "europe-north1-docker.pkg.dev/nais-io/nais/images/elector",
+			},
+			assertions: func(project *dependencytrack.Project) {
+				assert.True(t, excludeProject(project))
+			},
+		},
+		{
+			name: "should not exclude projects with matching name",
+			project: &dependencytrack.Project{
+				Name: "europe-north1-docker.pkg.dev/nais-io/nais/images/wonderwalled-idporten",
+			},
+			assertions: func(project *dependencytrack.Project) {
+				assert.False(t, excludeProject(project))
+			},
+		},
+	}
+	for _, tc := range tt {
+		tc.assertions(tc.project)
+	}
+}
+
 func workloadInstance(env, team, app, image string) *WorkloadInstance {
 	return &WorkloadInstance{
 		Env:   env,
