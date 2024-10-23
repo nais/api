@@ -21,6 +21,11 @@ extend type Team {
 	): WorkloadConnection!
 }
 
+extend type TeamEnvironment {
+	"Workload in the team environment."
+	workload(name: String!): Workload!
+}
+
 interface Workload implements Node {
 	"The globally unique ID of the workload."
 	id: ID!

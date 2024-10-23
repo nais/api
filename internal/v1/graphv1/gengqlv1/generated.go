@@ -1187,6 +1187,7 @@ type ComplexityRoot struct {
 		Secret             func(childComplexity int, name string) int
 		SlackAlertsChannel func(childComplexity int) int
 		Team               func(childComplexity int) int
+		Workload           func(childComplexity int, name string) int
 	}
 
 	TeamEnvironmentCost struct {
@@ -1788,6 +1789,7 @@ type TeamEnvironmentResolver interface {
 	RedisInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*redis.RedisInstance, error)
 	Secret(ctx context.Context, obj *team.TeamEnvironment, name string) (*secret.Secret, error)
 	SQLInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*sqlinstance.SQLInstance, error)
+	Workload(ctx context.Context, obj *team.TeamEnvironment, name string) (workload.Workload, error)
 }
 type TeamEnvironmentCostResolver interface {
 	Daily(ctx context.Context, obj *cost.TeamEnvironmentCost, from scalar.Date, to scalar.Date) (*cost.TeamEnvironmentCostPeriod, error)
@@ -6537,6 +6539,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamEnvironment.Team(childComplexity), true
+
+	case "TeamEnvironment.workload":
+		if e.complexity.TeamEnvironment.Workload == nil {
+			break
+		}
+
+		args, err := ec.field_TeamEnvironment_workload_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.TeamEnvironment.Workload(childComplexity, args["name"].(string)), true
 
 	case "TeamEnvironmentCost.daily":
 		if e.complexity.TeamEnvironmentCost.Daily == nil {
@@ -11971,6 +11985,11 @@ extend enum WorkloadOrderField {
 	): WorkloadConnection!
 }
 
+extend type TeamEnvironment {
+	"Workload in the team environment."
+	workload(name: String!): Workload!
+}
+
 interface Workload implements Node {
 	"The globally unique ID of the workload."
 	id: ID!
@@ -16348,6 +16367,38 @@ func (ec *executionContext) field_TeamEnvironment_sqlInstance_argsName(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_TeamEnvironment_workload_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_TeamEnvironment_workload_argsName(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["name"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_TeamEnvironment_workload_argsName(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (string, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["name"]
+	if !ok {
+		var zeroVal string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+	if tmp, ok := rawArgs["name"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Team_applications_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -19185,6 +19236,8 @@ func (ec *executionContext) fieldContext_Application_environment(_ context.Conte
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -22027,6 +22080,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_environment(_ context.C
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -23353,6 +23408,8 @@ func (ec *executionContext) fieldContext_Bucket_environment(_ context.Context, f
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -25432,6 +25489,8 @@ func (ec *executionContext) fieldContext_Deployment_environment(_ context.Contex
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -28178,6 +28237,8 @@ func (ec *executionContext) fieldContext_Job_environment(_ context.Context, fiel
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -30795,6 +30856,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_environment(_ context.Contex
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -34441,6 +34504,8 @@ func (ec *executionContext) fieldContext_OpenSearch_environment(_ context.Contex
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -37580,6 +37645,8 @@ func (ec *executionContext) fieldContext_RedisInstance_environment(_ context.Con
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -39770,6 +39837,8 @@ func (ec *executionContext) fieldContext_Secret_environment(_ context.Context, f
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -43164,6 +43233,8 @@ func (ec *executionContext) fieldContext_SqlDatabase_environment(_ context.Conte
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -43613,6 +43684,8 @@ func (ec *executionContext) fieldContext_SqlInstance_environment(_ context.Conte
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -46751,6 +46824,8 @@ func (ec *executionContext) fieldContext_Team_environments(_ context.Context, fi
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -46827,6 +46902,8 @@ func (ec *executionContext) fieldContext_Team_environment(ctx context.Context, f
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -51235,6 +51312,61 @@ func (ec *executionContext) fieldContext_TeamEnvironment_sqlInstance(ctx context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_TeamEnvironment_sqlInstance_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironment_workload(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironment_workload(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamEnvironment().Workload(rctx, obj, fc.Args["name"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(workload.Workload)
+	fc.Result = res
+	return ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚐWorkload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironment_workload(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironment",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_TeamEnvironment_workload_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -55888,6 +56020,8 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_environment(_ conte
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -56008,6 +56142,8 @@ func (ec *executionContext) fieldContext_TeamUtilizationEnvironmentDataPoint_env
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -56770,6 +56906,8 @@ func (ec *executionContext) fieldContext_UpdateTeamEnvironmentPayload_environmen
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -76400,6 +76538,42 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 					}
 				}()
 				res = ec._TeamEnvironment_sqlInstance(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "workload":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamEnvironment_workload(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

@@ -39,6 +39,10 @@ func (r *teamResolver) Workloads(ctx context.Context, obj *team.Team, first *int
 	return pagination.NewConnection(ret, page, int32(len(filtered))), nil
 }
 
+func (r *teamEnvironmentResolver) Workload(ctx context.Context, obj *team.TeamEnvironment, name string) (workload.Workload, error) {
+	return tryWorkload(ctx, obj.TeamSlug, obj.Name, name)
+}
+
 func (r *Resolver) ContainerImage() gengqlv1.ContainerImageResolver {
 	return &containerImageResolver{r}
 }
