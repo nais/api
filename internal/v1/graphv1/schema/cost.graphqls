@@ -3,6 +3,11 @@ extend type Team {
 	cost: TeamCost!
 }
 
+extend type TeamEnvironment {
+	"The cost for the team environment."
+	cost: TeamEnvironmentCost!
+}
+
 type TeamCost {
 	daily(
 		"Start date of the period, inclusive."
@@ -13,6 +18,16 @@ type TeamCost {
 	): TeamCostPeriod!
 
 	monthlySummary: TeamCostMonthlySummary!
+}
+
+type TeamEnvironmentCost {
+	daily(
+		"Start date of the period, inclusive."
+		from: Date!
+
+		"End date of the period, inclusive."
+		to: Date!
+	): TeamEnvironmentCostPeriod!
 }
 
 type TeamCostMonthlySummary {
@@ -37,6 +52,14 @@ type TeamCostPeriod {
 
 	"The cost series."
 	series: [ServiceCostSeries!]!
+}
+
+type TeamEnvironmentCostPeriod {
+	"The total cost for the period."
+	sum: Float!
+
+	"The cost series."
+	series: [WorkloadCostSeries!]!
 }
 
 extend interface Workload {
@@ -87,9 +110,31 @@ type ServiceCostSeries {
 	services: [ServiceCostPoint!]!
 }
 
+type WorkloadCostSeries {
+	"The date for the cost. When calculating the cost for a monthly period, the date will be the last day of the month that has cost data."
+	date: Date!
+
+	"The sum of the cost across all workloads."
+	sum: Float!
+
+	"The cost for the workloads in the environment."
+	workloads: [WorkloadCostPoint!]!
+}
+
 type ServiceCostPoint {
 	"The name of the service."
 	service: String!
+
+	"The cost in euros."
+	cost: Float!
+}
+
+type WorkloadCostPoint {
+	"The workload."
+	workload: Workload
+
+	"The name of the workload."
+	workloadName: String!
 
 	"The cost in euros."
 	cost: Float!

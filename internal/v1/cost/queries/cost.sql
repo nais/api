@@ -206,3 +206,35 @@ WHERE
 -- name: RefreshCostMonthlyTeam :exec
 REFRESH MATERIALIZED VIEW CONCURRENTLY cost_monthly_team
 ;
+
+-- name: DailyCostForTeamEnvironment :many
+WITH
+	date_range AS (
+		SELECT
+			*
+		FROM
+			GENERATE_SERIES(
+				@from_date::date,
+				@to_date::date,
+				'1 day'::INTERVAL
+			) AS date
+	)
+SELECT
+	date_range.date::date AS date,
+	cost.environment,
+	cost.team_slug,
+	cost.app AS workload,
+	cost.daily_cost
+FROM
+	date_range
+	LEFT OUTER JOIN cost ON cost.date = date_range.date
+WHERE
+	environment IS NULL
+	OR (
+		environment = @environment::TEXT
+		AND team_slug = @team_slug::slug
+	)
+ORDER BY
+	date_range.date,
+	workload ASC
+;

@@ -17,6 +17,7 @@ type Querier interface {
 	CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostUpsertBatchResults
 	// DailyCostForTeam will fetch the daily cost for a specific team across all apps and envs in a date range.
 	DailyCostForTeam(ctx context.Context, arg DailyCostForTeamParams) ([]*DailyCostForTeamRow, error)
+	DailyCostForTeamEnvironment(ctx context.Context, arg DailyCostForTeamEnvironmentParams) ([]*DailyCostForTeamEnvironmentRow, error)
 	// DailyCostForWorkload will fetch the daily cost for a specific workload in an environment, across all cost types in a
 	// date range.
 	DailyCostForWorkload(ctx context.Context, arg DailyCostForWorkloadParams) ([]*DailyCostForWorkloadRow, error)

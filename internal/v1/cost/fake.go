@@ -9,24 +9,28 @@ import (
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/scalar"
+	"github.com/nais/api/internal/v1/workload/application"
+	"github.com/nais/api/internal/v1/workload/job"
 )
 
 type FakeClient struct {
-	dailyForTeamCache       map[string]*TeamCostPeriod
-	dailyForWorkloadCache   map[string]*WorkloadCostPeriod
-	monthlyForServiceCache  map[string]float32
-	monthlyForWorkloadCache map[string]*WorkloadCostPeriod
-	monthlySummaryCache     map[slug.Slug]*TeamCostMonthlySummary
-	lock                    sync.Mutex
+	dailyForTeamCache            map[string]*TeamCostPeriod
+	dailyForWorkloadCache        map[string]*WorkloadCostPeriod
+	dailyForTeamEnvironmentCache map[string]*TeamEnvironmentCostPeriod
+	monthlyForServiceCache       map[string]float32
+	monthlyForWorkloadCache      map[string]*WorkloadCostPeriod
+	monthlySummaryCache          map[slug.Slug]*TeamCostMonthlySummary
+	lock                         sync.Mutex
 }
 
 func NewFakeClient() *FakeClient {
 	return &FakeClient{
-		dailyForTeamCache:       make(map[string]*TeamCostPeriod),
-		dailyForWorkloadCache:   make(map[string]*WorkloadCostPeriod),
-		monthlyForServiceCache:  make(map[string]float32),
-		monthlyForWorkloadCache: make(map[string]*WorkloadCostPeriod),
-		monthlySummaryCache:     make(map[slug.Slug]*TeamCostMonthlySummary),
+		dailyForTeamCache:            make(map[string]*TeamCostPeriod),
+		dailyForWorkloadCache:        make(map[string]*WorkloadCostPeriod),
+		dailyForTeamEnvironmentCache: make(map[string]*TeamEnvironmentCostPeriod),
+		monthlyForServiceCache:       make(map[string]float32),
+		monthlyForWorkloadCache:      make(map[string]*WorkloadCostPeriod),
+		monthlySummaryCache:          make(map[slug.Slug]*TeamCostMonthlySummary),
 	}
 }
 
@@ -72,6 +76,26 @@ func (c *FakeClient) MonthlyForWorkload(_ context.Context, teamSlug slug.Slug, e
 		Series: series,
 	}
 	return c.monthlyForWorkloadCache[cc], nil
+}
+
+func (c *FakeClient) DailyForTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environmentName string, fromDate, toDate time.Time) (*TeamEnvironmentCostPeriod, error) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
+	cc := teamSlug.String() + environmentName + fromDate.String() + toDate.String()
+	if cached, exists := c.dailyForTeamEnvironmentCache[cc]; exists {
+		return cached, nil
+	}
+
+	numDays := int(toDate.Sub(fromDate).Hours()/24) + 1 // inclusive
+	series := make([]*WorkloadCostSeries, numDays)
+	for i := range numDays {
+		series[i] = workloadCostSeries(ctx, fromDate.AddDate(0, 0, i), teamSlug, environmentName)
+	}
+	c.dailyForTeamEnvironmentCache[cc] = &TeamEnvironmentCostPeriod{
+		Series: series,
+	}
+	return c.dailyForTeamEnvironmentCache[cc], nil
 }
 
 func (c *FakeClient) DailyForTeam(_ context.Context, teamSlug slug.Slug, fromDate, toDate time.Time) (*TeamCostPeriod, error) {
@@ -162,8 +186,7 @@ func randomServices() []string {
 func serviceCostSeries(d time.Time) *ServiceCostSeries {
 	if d.Before(startOfCost) {
 		return &ServiceCostSeries{
-			Date:     scalar.Date(d),
-			Services: []*ServiceCostPoint{},
+			Date: scalar.Date(d),
 		}
 	}
 	services := make([]*ServiceCostPoint, 0)
@@ -177,5 +200,34 @@ func serviceCostSeries(d time.Time) *ServiceCostSeries {
 	return &ServiceCostSeries{
 		Date:     scalar.Date(d),
 		Services: services,
+	}
+}
+
+func workloadCostSeries(ctx context.Context, d time.Time, teamSlug slug.Slug, environmentName string) *WorkloadCostSeries {
+	if d.Before(startOfCost) {
+		return &WorkloadCostSeries{
+			Date: scalar.Date(d),
+		}
+	}
+
+	workloadNames := make([]string, 0)
+	for _, a := range application.ListAllForTeam(ctx, teamSlug) {
+		workloadNames = append(workloadNames, a.Name)
+	}
+	for _, j := range job.ListAllForTeam(ctx, teamSlug) {
+		workloadNames = append(workloadNames, j.Name)
+	}
+	workloads := make([]*WorkloadCostPoint, len(workloadNames))
+	for i, name := range workloadNames {
+		workloads[i] = &WorkloadCostPoint{
+			TeamSlug:        teamSlug,
+			EnvironmentName: environmentName,
+			WorkloadName:    name,
+			Cost:            rand.Float64(),
+		}
+	}
+	return &WorkloadCostSeries{
+		Date:      scalar.Date(d),
+		Workloads: workloads,
 	}
 }

@@ -85,3 +85,40 @@ type OpenSearchCost struct {
 type RedisInstanceCost struct {
 	Sum float64 `json:"sum"`
 }
+
+type TeamEnvironmentCost struct {
+	TeamSlug        slug.Slug `json:"-"`
+	EnvironmentName string    `json:"-"`
+}
+
+type WorkloadCostPoint struct {
+	Cost            float64   `json:"cost"`
+	WorkloadName    string    `json:"workloadName"`
+	TeamSlug        slug.Slug `json:"-"`
+	EnvironmentName string    `json:"-"`
+}
+
+type TeamEnvironmentCostPeriod struct {
+	Series []*WorkloadCostSeries `json:"series"`
+}
+
+type WorkloadCostSeries struct {
+	Date      scalar.Date          `json:"date"`
+	Workloads []*WorkloadCostPoint `json:"workloads"`
+}
+
+func (w *WorkloadCostSeries) Sum() float64 {
+	sum := 0.0
+	for _, workload := range w.Workloads {
+		sum += workload.Cost
+	}
+	return sum
+}
+
+func (w *TeamEnvironmentCostPeriod) Sum() float64 {
+	sum := 0.0
+	for _, period := range w.Series {
+		sum += period.Sum()
+	}
+	return sum
+}

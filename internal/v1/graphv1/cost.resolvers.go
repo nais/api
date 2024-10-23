@@ -12,6 +12,7 @@ import (
 	"github.com/nais/api/internal/v1/persistence/opensearch"
 	"github.com/nais/api/internal/v1/persistence/redis"
 	"github.com/nais/api/internal/v1/team"
+	"github.com/nais/api/internal/v1/workload"
 	"github.com/nais/api/internal/v1/workload/application"
 	"github.com/nais/api/internal/v1/workload/job"
 	"github.com/sirupsen/logrus"
@@ -117,6 +118,20 @@ func (r *teamCostResolver) MonthlySummary(ctx context.Context, obj *cost.TeamCos
 	return cost.MonthlySummaryForTeam(ctx, obj.TeamSlug)
 }
 
+func (r *teamEnvironmentResolver) Cost(ctx context.Context, obj *team.TeamEnvironment) (*cost.TeamEnvironmentCost, error) {
+	return &cost.TeamEnvironmentCost{TeamSlug: obj.TeamSlug, EnvironmentName: obj.Name}, nil
+}
+
+func (r *teamEnvironmentCostResolver) Daily(ctx context.Context, obj *cost.TeamEnvironmentCost, from scalar.Date, to scalar.Date) (*cost.TeamEnvironmentCostPeriod, error) {
+	if !to.Time().After(from.Time()) {
+		return nil, apierror.Errorf("`to` must be after `from`.")
+	} else if to.Time().After(time.Now()) {
+		return nil, apierror.Errorf("`to` cannot be in the future.")
+	}
+
+	return cost.DailyForTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName, from.Time(), to.Time())
+}
+
 func (r *workloadCostResolver) Daily(ctx context.Context, obj *cost.WorkloadCost, from scalar.Date, to scalar.Date) (*cost.WorkloadCostPeriod, error) {
 	if !to.Time().After(from.Time()) {
 		return nil, apierror.Errorf("`to` must be after `from`.")
@@ -131,11 +146,26 @@ func (r *workloadCostResolver) Monthly(ctx context.Context, obj *cost.WorkloadCo
 	return cost.MonthlyForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadName)
 }
 
+func (r *workloadCostPointResolver) Workload(ctx context.Context, obj *cost.WorkloadCostPoint) (workload.Workload, error) {
+	w, _ := tryWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadName)
+	return w, nil
+}
+
 func (r *Resolver) TeamCost() gengqlv1.TeamCostResolver { return &teamCostResolver{r} }
+
+func (r *Resolver) TeamEnvironmentCost() gengqlv1.TeamEnvironmentCostResolver {
+	return &teamEnvironmentCostResolver{r}
+}
 
 func (r *Resolver) WorkloadCost() gengqlv1.WorkloadCostResolver { return &workloadCostResolver{r} }
 
+func (r *Resolver) WorkloadCostPoint() gengqlv1.WorkloadCostPointResolver {
+	return &workloadCostPointResolver{r}
+}
+
 type (
-	teamCostResolver     struct{ *Resolver }
-	workloadCostResolver struct{ *Resolver }
+	teamCostResolver            struct{ *Resolver }
+	teamEnvironmentCostResolver struct{ *Resolver }
+	workloadCostResolver        struct{ *Resolver }
+	workloadCostPointResolver   struct{ *Resolver }
 )

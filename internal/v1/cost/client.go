@@ -16,6 +16,7 @@ import (
 type Client interface {
 	DailyForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string, fromDate, toDate time.Time) (*WorkloadCostPeriod, error)
 	MonthlyForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string) (*WorkloadCostPeriod, error)
+	DailyForTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environmentName string, fromDate, toDate time.Time) (*TeamEnvironmentCostPeriod, error)
 	DailyForTeam(ctx context.Context, teamSlug slug.Slug, fromDate, toDate time.Time) (*TeamCostPeriod, error)
 	MonthlySummaryForTeam(ctx context.Context, teamSlug slug.Slug) (*TeamCostMonthlySummary, error)
 	MonthlyForService(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName, costType string) (float32, error)
@@ -91,6 +92,45 @@ func (client) MonthlyForWorkload(ctx context.Context, teamSlug slug.Slug, enviro
 	})
 
 	return &WorkloadCostPeriod{
+		Series: ret,
+	}, nil
+}
+
+func (client) DailyForTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environmentName string, fromDate, toDate time.Time) (*TeamEnvironmentCostPeriod, error) {
+	rows, err := db(ctx).DailyCostForTeamEnvironment(ctx, costsql.DailyCostForTeamEnvironmentParams{
+		FromDate:    pgtype.Date{Time: fromDate, Valid: true},
+		ToDate:      pgtype.Date{Time: toDate, Valid: true},
+		TeamSlug:    teamSlug,
+		Environment: environmentName,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	daily := make(map[pgtype.Date]*WorkloadCostSeries)
+	for _, row := range rows {
+		if _, exists := daily[row.Date]; !exists {
+			daily[row.Date] = &WorkloadCostSeries{
+				Date: scalar.NewDate(row.Date.Time),
+			}
+		}
+
+		if row.Workload != nil {
+			daily[row.Date].Workloads = append(daily[row.Date].Workloads, &WorkloadCostPoint{
+				Cost:            float64(ptr.Deref(row.DailyCost, 0)),
+				TeamSlug:        teamSlug,
+				EnvironmentName: environmentName,
+				WorkloadName:    *row.Workload,
+			})
+		}
+	}
+
+	ret := maps.Values(daily)
+	slices.SortFunc(ret, func(a, b *WorkloadCostSeries) int {
+		return a.Date.Time().Compare(b.Date.Time())
+	})
+
+	return &TeamEnvironmentCostPeriod{
 		Series: ret,
 	}, nil
 }

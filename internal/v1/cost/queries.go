@@ -15,6 +15,10 @@ func MonthlyForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName
 	return fromContext(ctx).client.MonthlyForWorkload(ctx, teamSlug, environmentName, workloadName)
 }
 
+func DailyForTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environmentName string, fromDate, toDate time.Time) (*TeamEnvironmentCostPeriod, error) {
+	return fromContext(ctx).client.DailyForTeamEnvironment(ctx, teamSlug, environmentName, fromDate, toDate)
+}
+
 func DailyForTeam(ctx context.Context, teamSlug slug.Slug, fromDate, toDate time.Time) (*TeamCostPeriod, error) {
 	return fromContext(ctx).client.DailyForTeam(ctx, teamSlug, fromDate, toDate)
 }

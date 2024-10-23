@@ -101,6 +101,7 @@ type ResolverRoot interface {
 	TeamCost() TeamCostResolver
 	TeamDeleteKey() TeamDeleteKeyResolver
 	TeamEnvironment() TeamEnvironmentResolver
+	TeamEnvironmentCost() TeamEnvironmentCostResolver
 	TeamInventoryCounts() TeamInventoryCountsResolver
 	TeamMember() TeamMemberResolver
 	TeamMemberAddedAuditEntryData() TeamMemberAddedAuditEntryDataResolver
@@ -111,6 +112,7 @@ type ResolverRoot interface {
 	TriggerJobPayload() TriggerJobPayloadResolver
 	User() UserResolver
 	WorkloadCost() WorkloadCostResolver
+	WorkloadCostPoint() WorkloadCostPointResolver
 	WorkloadUtilization() WorkloadUtilizationResolver
 	WorkloadUtilizationData() WorkloadUtilizationDataResolver
 }
@@ -1172,6 +1174,7 @@ type ComplexityRoot struct {
 		Application        func(childComplexity int, name string) int
 		BigQueryDataset    func(childComplexity int, name string) int
 		Bucket             func(childComplexity int, name string) int
+		Cost               func(childComplexity int) int
 		GCPProjectID       func(childComplexity int) int
 		ID                 func(childComplexity int) int
 		Job                func(childComplexity int, name string) int
@@ -1183,6 +1186,15 @@ type ComplexityRoot struct {
 		Secret             func(childComplexity int, name string) int
 		SlackAlertsChannel func(childComplexity int) int
 		Team               func(childComplexity int) int
+	}
+
+	TeamEnvironmentCost struct {
+		Daily func(childComplexity int, from scalar.Date, to scalar.Date) int
+	}
+
+	TeamEnvironmentCostPeriod struct {
+		Series func(childComplexity int) int
+		Sum    func(childComplexity int) int
 	}
 
 	TeamEnvironmentUpdatedAuditEntry struct {
@@ -1430,6 +1442,18 @@ type ComplexityRoot struct {
 	WorkloadCostPeriod struct {
 		Series func(childComplexity int) int
 		Sum    func(childComplexity int) int
+	}
+
+	WorkloadCostPoint struct {
+		Cost         func(childComplexity int) int
+		Workload     func(childComplexity int) int
+		WorkloadName func(childComplexity int) int
+	}
+
+	WorkloadCostSeries struct {
+		Date      func(childComplexity int) int
+		Sum       func(childComplexity int) int
+		Workloads func(childComplexity int) int
 	}
 
 	WorkloadEdge struct {
@@ -1754,12 +1778,16 @@ type TeamEnvironmentResolver interface {
 	Application(ctx context.Context, obj *team.TeamEnvironment, name string) (*application.Application, error)
 	BigQueryDataset(ctx context.Context, obj *team.TeamEnvironment, name string) (*bigquery.BigQueryDataset, error)
 	Bucket(ctx context.Context, obj *team.TeamEnvironment, name string) (*bucket.Bucket, error)
+	Cost(ctx context.Context, obj *team.TeamEnvironment) (*cost.TeamEnvironmentCost, error)
 	Job(ctx context.Context, obj *team.TeamEnvironment, name string) (*job.Job, error)
 	KafkaTopic(ctx context.Context, obj *team.TeamEnvironment, name string) (*kafkatopic.KafkaTopic, error)
 	OpenSearchInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*opensearch.OpenSearch, error)
 	RedisInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*redis.RedisInstance, error)
 	Secret(ctx context.Context, obj *team.TeamEnvironment, name string) (*secret.Secret, error)
 	SQLInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*sqlinstance.SQLInstance, error)
+}
+type TeamEnvironmentCostResolver interface {
+	Daily(ctx context.Context, obj *cost.TeamEnvironmentCost, from scalar.Date, to scalar.Date) (*cost.TeamEnvironmentCostPeriod, error)
 }
 type TeamInventoryCountsResolver interface {
 	Applications(ctx context.Context, obj *team.TeamInventoryCounts) (*application.TeamInventoryCountApplications, error)
@@ -1801,6 +1829,9 @@ type UserResolver interface {
 type WorkloadCostResolver interface {
 	Daily(ctx context.Context, obj *cost.WorkloadCost, from scalar.Date, to scalar.Date) (*cost.WorkloadCostPeriod, error)
 	Monthly(ctx context.Context, obj *cost.WorkloadCost) (*cost.WorkloadCostPeriod, error)
+}
+type WorkloadCostPointResolver interface {
+	Workload(ctx context.Context, obj *cost.WorkloadCostPoint) (workload.Workload, error)
 }
 type WorkloadUtilizationResolver interface {
 	Current(ctx context.Context, obj *utilization.WorkloadUtilization, resourceType utilization.UtilizationResourceType) (float64, error)
@@ -6386,6 +6417,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamEnvironment.Bucket(childComplexity, args["name"].(string)), true
 
+	case "TeamEnvironment.cost":
+		if e.complexity.TeamEnvironment.Cost == nil {
+			break
+		}
+
+		return e.complexity.TeamEnvironment.Cost(childComplexity), true
+
 	case "TeamEnvironment.gcpProjectID":
 		if e.complexity.TeamEnvironment.GCPProjectID == nil {
 			break
@@ -6492,6 +6530,32 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamEnvironment.Team(childComplexity), true
+
+	case "TeamEnvironmentCost.daily":
+		if e.complexity.TeamEnvironmentCost.Daily == nil {
+			break
+		}
+
+		args, err := ec.field_TeamEnvironmentCost_daily_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.TeamEnvironmentCost.Daily(childComplexity, args["from"].(scalar.Date), args["to"].(scalar.Date)), true
+
+	case "TeamEnvironmentCostPeriod.series":
+		if e.complexity.TeamEnvironmentCostPeriod.Series == nil {
+			break
+		}
+
+		return e.complexity.TeamEnvironmentCostPeriod.Series(childComplexity), true
+
+	case "TeamEnvironmentCostPeriod.sum":
+		if e.complexity.TeamEnvironmentCostPeriod.Sum == nil {
+			break
+		}
+
+		return e.complexity.TeamEnvironmentCostPeriod.Sum(childComplexity), true
 
 	case "TeamEnvironmentUpdatedAuditEntry.actor":
 		if e.complexity.TeamEnvironmentUpdatedAuditEntry.Actor == nil {
@@ -7412,6 +7476,48 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.WorkloadCostPeriod.Sum(childComplexity), true
+
+	case "WorkloadCostPoint.cost":
+		if e.complexity.WorkloadCostPoint.Cost == nil {
+			break
+		}
+
+		return e.complexity.WorkloadCostPoint.Cost(childComplexity), true
+
+	case "WorkloadCostPoint.workload":
+		if e.complexity.WorkloadCostPoint.Workload == nil {
+			break
+		}
+
+		return e.complexity.WorkloadCostPoint.Workload(childComplexity), true
+
+	case "WorkloadCostPoint.workloadName":
+		if e.complexity.WorkloadCostPoint.WorkloadName == nil {
+			break
+		}
+
+		return e.complexity.WorkloadCostPoint.WorkloadName(childComplexity), true
+
+	case "WorkloadCostSeries.date":
+		if e.complexity.WorkloadCostSeries.Date == nil {
+			break
+		}
+
+		return e.complexity.WorkloadCostSeries.Date(childComplexity), true
+
+	case "WorkloadCostSeries.sum":
+		if e.complexity.WorkloadCostSeries.Sum == nil {
+			break
+		}
+
+		return e.complexity.WorkloadCostSeries.Sum(childComplexity), true
+
+	case "WorkloadCostSeries.workloads":
+		if e.complexity.WorkloadCostSeries.Workloads == nil {
+			break
+		}
+
+		return e.complexity.WorkloadCostSeries.Workloads(childComplexity), true
 
 	case "WorkloadEdge.cursor":
 		if e.complexity.WorkloadEdge.Cursor == nil {
@@ -8440,6 +8546,11 @@ extend enum SearchType {
 	cost: TeamCost!
 }
 
+extend type TeamEnvironment {
+	"The cost for the team environment."
+	cost: TeamEnvironmentCost!
+}
+
 type TeamCost {
 	daily(
 		"Start date of the period, inclusive."
@@ -8450,6 +8561,16 @@ type TeamCost {
 	): TeamCostPeriod!
 
 	monthlySummary: TeamCostMonthlySummary!
+}
+
+type TeamEnvironmentCost {
+	daily(
+		"Start date of the period, inclusive."
+		from: Date!
+
+		"End date of the period, inclusive."
+		to: Date!
+	): TeamEnvironmentCostPeriod!
 }
 
 type TeamCostMonthlySummary {
@@ -8474,6 +8595,14 @@ type TeamCostPeriod {
 
 	"The cost series."
 	series: [ServiceCostSeries!]!
+}
+
+type TeamEnvironmentCostPeriod {
+	"The total cost for the period."
+	sum: Float!
+
+	"The cost series."
+	series: [WorkloadCostSeries!]!
 }
 
 extend interface Workload {
@@ -8524,9 +8653,31 @@ type ServiceCostSeries {
 	services: [ServiceCostPoint!]!
 }
 
+type WorkloadCostSeries {
+	"The date for the cost. When calculating the cost for a monthly period, the date will be the last day of the month that has cost data."
+	date: Date!
+
+	"The sum of the cost across all workloads."
+	sum: Float!
+
+	"The cost for the workloads in the environment."
+	workloads: [WorkloadCostPoint!]!
+}
+
 type ServiceCostPoint {
 	"The name of the service."
 	service: String!
+
+	"The cost in euros."
+	cost: Float!
+}
+
+type WorkloadCostPoint {
+	"The workload."
+	workload: Workload
+
+	"The name of the workload."
+	workloadName: String!
 
 	"The cost in euros."
 	cost: Float!
@@ -15805,6 +15956,65 @@ func (ec *executionContext) field_TeamCost_daily_argsTo(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_TeamEnvironmentCost_daily_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_TeamEnvironmentCost_daily_argsFrom(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["from"] = arg0
+	arg1, err := ec.field_TeamEnvironmentCost_daily_argsTo(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["to"] = arg1
+	return args, nil
+}
+func (ec *executionContext) field_TeamEnvironmentCost_daily_argsFrom(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (scalar.Date, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["from"]
+	if !ok {
+		var zeroVal scalar.Date
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("from"))
+	if tmp, ok := rawArgs["from"]; ok {
+		return ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋscalarᚐDate(ctx, tmp)
+	}
+
+	var zeroVal scalar.Date
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_TeamEnvironmentCost_daily_argsTo(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (scalar.Date, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["to"]
+	if !ok {
+		var zeroVal scalar.Date
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("to"))
+	if tmp, ok := rawArgs["to"]; ok {
+		return ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋscalarᚐDate(ctx, tmp)
+	}
+
+	var zeroVal scalar.Date
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_TeamEnvironment_application_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -18916,6 +19126,8 @@ func (ec *executionContext) fieldContext_Application_environment(_ context.Conte
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
 			case "kafkaTopic":
@@ -21756,6 +21968,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_environment(_ context.C
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
 			case "kafkaTopic":
@@ -23080,6 +23294,8 @@ func (ec *executionContext) fieldContext_Bucket_environment(_ context.Context, f
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
 			case "kafkaTopic":
@@ -25157,6 +25373,8 @@ func (ec *executionContext) fieldContext_Deployment_environment(_ context.Contex
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
 			case "kafkaTopic":
@@ -27901,6 +28119,8 @@ func (ec *executionContext) fieldContext_Job_environment(_ context.Context, fiel
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
 			case "kafkaTopic":
@@ -30516,6 +30736,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_environment(_ context.Contex
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
 			case "kafkaTopic":
@@ -34160,6 +34382,8 @@ func (ec *executionContext) fieldContext_OpenSearch_environment(_ context.Contex
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
 			case "kafkaTopic":
@@ -37297,6 +37521,8 @@ func (ec *executionContext) fieldContext_RedisInstance_environment(_ context.Con
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
 			case "kafkaTopic":
@@ -39485,6 +39711,8 @@ func (ec *executionContext) fieldContext_Secret_environment(_ context.Context, f
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
 			case "kafkaTopic":
@@ -42877,6 +43105,8 @@ func (ec *executionContext) fieldContext_SqlDatabase_environment(_ context.Conte
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
 			case "kafkaTopic":
@@ -43324,6 +43554,8 @@ func (ec *executionContext) fieldContext_SqlInstance_environment(_ context.Conte
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
 			case "kafkaTopic":
@@ -46460,6 +46692,8 @@ func (ec *executionContext) fieldContext_Team_environments(_ context.Context, fi
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
 			case "kafkaTopic":
@@ -46534,6 +46768,8 @@ func (ec *executionContext) fieldContext_Team_environment(ctx context.Context, f
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
 			case "kafkaTopic":
@@ -50414,6 +50650,54 @@ func (ec *executionContext) fieldContext_TeamEnvironment_bucket(ctx context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _TeamEnvironment_cost(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironment_cost(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamEnvironment().Cost(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*cost.TeamEnvironmentCost)
+	fc.Result = res
+	return ec.marshalNTeamEnvironmentCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐTeamEnvironmentCost(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironment_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironment",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "daily":
+				return ec.fieldContext_TeamEnvironmentCost_daily(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironmentCost", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TeamEnvironment_job(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamEnvironment_job(ctx, field)
 	if err != nil {
@@ -50904,6 +51188,163 @@ func (ec *executionContext) fieldContext_TeamEnvironment_sqlInstance(ctx context
 	if fc.Args, err = ec.field_TeamEnvironment_sqlInstance_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironmentCost_daily(ctx context.Context, field graphql.CollectedField, obj *cost.TeamEnvironmentCost) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentCost_daily(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamEnvironmentCost().Daily(rctx, obj, fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*cost.TeamEnvironmentCostPeriod)
+	fc.Result = res
+	return ec.marshalNTeamEnvironmentCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐTeamEnvironmentCostPeriod(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironmentCost_daily(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironmentCost",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "sum":
+				return ec.fieldContext_TeamEnvironmentCostPeriod_sum(ctx, field)
+			case "series":
+				return ec.fieldContext_TeamEnvironmentCostPeriod_series(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironmentCostPeriod", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_TeamEnvironmentCost_daily_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironmentCostPeriod_sum(ctx context.Context, field graphql.CollectedField, obj *cost.TeamEnvironmentCostPeriod) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentCostPeriod_sum(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Sum(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironmentCostPeriod_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironmentCostPeriod",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironmentCostPeriod_series(ctx context.Context, field graphql.CollectedField, obj *cost.TeamEnvironmentCostPeriod) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentCostPeriod_series(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Series, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*cost.WorkloadCostSeries)
+	fc.Result = res
+	return ec.marshalNWorkloadCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐWorkloadCostSeriesᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironmentCostPeriod_series(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironmentCostPeriod",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "date":
+				return ec.fieldContext_WorkloadCostSeries_date(ctx, field)
+			case "sum":
+				return ec.fieldContext_WorkloadCostSeries_sum(ctx, field)
+			case "workloads":
+				return ec.fieldContext_WorkloadCostSeries_workloads(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WorkloadCostSeries", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -55384,6 +55825,8 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_environment(_ conte
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
 			case "kafkaTopic":
@@ -55502,6 +55945,8 @@ func (ec *executionContext) fieldContext_TeamUtilizationEnvironmentDataPoint_env
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
 			case "kafkaTopic":
@@ -56174,6 +56619,8 @@ func (ec *executionContext) fieldContext_UpdateTeamEnvironmentPayload_environmen
 				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
 			case "kafkaTopic":
@@ -57257,6 +57704,275 @@ func (ec *executionContext) fieldContext_WorkloadCostPeriod_series(_ context.Con
 				return ec.fieldContext_ServiceCostSeries_services(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ServiceCostSeries", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadCostPoint_workload(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostPoint) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadCostPoint_workload(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.WorkloadCostPoint().Workload(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(workload.Workload)
+	fc.Result = res
+	return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚐWorkload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadCostPoint_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadCostPoint",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadCostPoint_workloadName(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostPoint) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadCostPoint_workloadName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.WorkloadName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadCostPoint_workloadName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadCostPoint",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadCostPoint_cost(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostPoint) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadCostPoint_cost(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cost, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadCostPoint_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadCostPoint",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadCostSeries_date(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostSeries) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadCostSeries_date(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Date, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Date)
+	fc.Result = res
+	return ec.marshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋscalarᚐDate(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadCostSeries_date(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadCostSeries",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Date does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadCostSeries_sum(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostSeries) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadCostSeries_sum(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Sum(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadCostSeries_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadCostSeries",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadCostSeries_workloads(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostSeries) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadCostSeries_workloads(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Workloads, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*cost.WorkloadCostPoint)
+	fc.Result = res
+	return ec.marshalNWorkloadCostPoint2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐWorkloadCostPointᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadCostSeries_workloads(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadCostSeries",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "workload":
+				return ec.fieldContext_WorkloadCostPoint_workload(ctx, field)
+			case "workloadName":
+				return ec.fieldContext_WorkloadCostPoint_workloadName(ctx, field)
+			case "cost":
+				return ec.fieldContext_WorkloadCostPoint_cost(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WorkloadCostPoint", field.Name)
 		},
 	}
 	return fc, nil
@@ -75321,6 +76037,42 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "cost":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamEnvironment_cost(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "job":
 			field := field
 
@@ -75537,6 +76289,120 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamEnvironmentCostImplementors = []string{"TeamEnvironmentCost"}
+
+func (ec *executionContext) _TeamEnvironmentCost(ctx context.Context, sel ast.SelectionSet, obj *cost.TeamEnvironmentCost) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentCostImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamEnvironmentCost")
+		case "daily":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamEnvironmentCost_daily(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamEnvironmentCostPeriodImplementors = []string{"TeamEnvironmentCostPeriod"}
+
+func (ec *executionContext) _TeamEnvironmentCostPeriod(ctx context.Context, sel ast.SelectionSet, obj *cost.TeamEnvironmentCostPeriod) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentCostPeriodImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamEnvironmentCostPeriod")
+		case "sum":
+			out.Values[i] = ec._TeamEnvironmentCostPeriod_sum(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "series":
+			out.Values[i] = ec._TeamEnvironmentCostPeriod_series(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -78076,6 +78942,132 @@ func (ec *executionContext) _WorkloadCostPeriod(ctx context.Context, sel ast.Sel
 			}
 		case "series":
 			out.Values[i] = ec._WorkloadCostPeriod_series(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var workloadCostPointImplementors = []string{"WorkloadCostPoint"}
+
+func (ec *executionContext) _WorkloadCostPoint(ctx context.Context, sel ast.SelectionSet, obj *cost.WorkloadCostPoint) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadCostPointImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkloadCostPoint")
+		case "workload":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._WorkloadCostPoint_workload(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "workloadName":
+			out.Values[i] = ec._WorkloadCostPoint_workloadName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "cost":
+			out.Values[i] = ec._WorkloadCostPoint_cost(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var workloadCostSeriesImplementors = []string{"WorkloadCostSeries"}
+
+func (ec *executionContext) _WorkloadCostSeries(ctx context.Context, sel ast.SelectionSet, obj *cost.WorkloadCostSeries) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadCostSeriesImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkloadCostSeries")
+		case "date":
+			out.Values[i] = ec._WorkloadCostSeries_date(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "sum":
+			out.Values[i] = ec._WorkloadCostSeries_sum(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "workloads":
+			out.Values[i] = ec._WorkloadCostSeries_workloads(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -84035,6 +85027,34 @@ func (ec *executionContext) marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapi
 	return ec._TeamEnvironment(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNTeamEnvironmentCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐTeamEnvironmentCost(ctx context.Context, sel ast.SelectionSet, v cost.TeamEnvironmentCost) graphql.Marshaler {
+	return ec._TeamEnvironmentCost(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamEnvironmentCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐTeamEnvironmentCost(ctx context.Context, sel ast.SelectionSet, v *cost.TeamEnvironmentCost) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamEnvironmentCost(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamEnvironmentCostPeriod2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐTeamEnvironmentCostPeriod(ctx context.Context, sel ast.SelectionSet, v cost.TeamEnvironmentCostPeriod) graphql.Marshaler {
+	return ec._TeamEnvironmentCostPeriod(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamEnvironmentCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐTeamEnvironmentCostPeriod(ctx context.Context, sel ast.SelectionSet, v *cost.TeamEnvironmentCostPeriod) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamEnvironmentCostPeriod(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNTeamEnvironmentUpdatedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamEnvironmentUpdatedAuditEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamEnvironmentUpdatedAuditEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -84916,6 +85936,114 @@ func (ec *executionContext) marshalNWorkloadCostPeriod2ᚖgithubᚗcomᚋnaisᚋ
 		return graphql.Null
 	}
 	return ec._WorkloadCostPeriod(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNWorkloadCostPoint2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐWorkloadCostPointᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.WorkloadCostPoint) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNWorkloadCostPoint2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐWorkloadCostPoint(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNWorkloadCostPoint2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐWorkloadCostPoint(ctx context.Context, sel ast.SelectionSet, v *cost.WorkloadCostPoint) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._WorkloadCostPoint(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNWorkloadCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐWorkloadCostSeriesᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.WorkloadCostSeries) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNWorkloadCostSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐWorkloadCostSeries(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNWorkloadCostSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐWorkloadCostSeries(ctx context.Context, sel ast.SelectionSet, v *cost.WorkloadCostSeries) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._WorkloadCostSeries(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNWorkloadEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[workload.Workload]) graphql.Marshaler {

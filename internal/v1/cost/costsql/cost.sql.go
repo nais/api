@@ -141,6 +141,84 @@ func (q *Queries) DailyCostForTeam(ctx context.Context, arg DailyCostForTeamPara
 	return items, nil
 }
 
+const dailyCostForTeamEnvironment = `-- name: DailyCostForTeamEnvironment :many
+WITH
+	date_range AS (
+		SELECT
+			date
+		FROM
+			GENERATE_SERIES(
+				$3::date,
+				$4::date,
+				'1 day'::INTERVAL
+			) AS date
+	)
+SELECT
+	date_range.date::date AS date,
+	cost.environment,
+	cost.team_slug,
+	cost.app AS workload,
+	cost.daily_cost
+FROM
+	date_range
+	LEFT OUTER JOIN cost ON cost.date = date_range.date
+WHERE
+	environment IS NULL
+	OR (
+		environment = $1::TEXT
+		AND team_slug = $2::slug
+	)
+ORDER BY
+	date_range.date,
+	workload ASC
+`
+
+type DailyCostForTeamEnvironmentParams struct {
+	Environment string
+	TeamSlug    slug.Slug
+	FromDate    pgtype.Date
+	ToDate      pgtype.Date
+}
+
+type DailyCostForTeamEnvironmentRow struct {
+	Date        pgtype.Date
+	Environment *string
+	TeamSlug    *slug.Slug
+	Workload    *string
+	DailyCost   *float32
+}
+
+func (q *Queries) DailyCostForTeamEnvironment(ctx context.Context, arg DailyCostForTeamEnvironmentParams) ([]*DailyCostForTeamEnvironmentRow, error) {
+	rows, err := q.db.Query(ctx, dailyCostForTeamEnvironment,
+		arg.Environment,
+		arg.TeamSlug,
+		arg.FromDate,
+		arg.ToDate,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*DailyCostForTeamEnvironmentRow{}
+	for rows.Next() {
+		var i DailyCostForTeamEnvironmentRow
+		if err := rows.Scan(
+			&i.Date,
+			&i.Environment,
+			&i.TeamSlug,
+			&i.Workload,
+			&i.DailyCost,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const dailyCostForWorkload = `-- name: DailyCostForWorkload :many
 WITH
 	date_range AS (
