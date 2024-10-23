@@ -539,3 +539,7 @@ func UpdateEnvironment(ctx context.Context, input *UpdateTeamEnvironmentInput, a
 
 	return toGraphTeamEnvironment(te), nil
 }
+
+func Count(ctx context.Context) (int64, error) {
+	return db(ctx).Count(ctx)
+}

@@ -17,6 +17,10 @@ packages:
     interfaces:
       InternalClient:
       Prometheus:
+  github.com/nais/api/internal/v1/vulnerability:
+    interfaces:
+      InternalClient:
+      Prometheus:
   github.com/nais/api/internal/database:
     interfaces:
       Database:

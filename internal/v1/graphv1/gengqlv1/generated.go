@@ -109,6 +109,7 @@ type ResolverRoot interface {
 	TeamMemberSetRoleAuditEntryData() TeamMemberSetRoleAuditEntryDataResolver
 	TeamUtilizationData() TeamUtilizationDataResolver
 	TeamUtilizationEnvironmentDataPoint() TeamUtilizationEnvironmentDataPointResolver
+	TeamVulnerabilitySummary() TeamVulnerabilitySummaryResolver
 	TriggerJobPayload() TriggerJobPayloadResolver
 	User() UserResolver
 	WorkloadCost() WorkloadCostResolver
@@ -1373,14 +1374,16 @@ type ComplexityRoot struct {
 	}
 
 	TeamVulnerabilitySummary struct {
-		BomCount   func(childComplexity int) int
-		Coverage   func(childComplexity int) int
-		Critical   func(childComplexity int) int
-		High       func(childComplexity int) int
-		Low        func(childComplexity int) int
-		Medium     func(childComplexity int) int
-		RiskScore  func(childComplexity int) int
-		Unassigned func(childComplexity int) int
+		BomCount       func(childComplexity int) int
+		Coverage       func(childComplexity int) int
+		Critical       func(childComplexity int) int
+		High           func(childComplexity int) int
+		Low            func(childComplexity int) int
+		Medium         func(childComplexity int) int
+		Ranking        func(childComplexity int) int
+		RiskScore      func(childComplexity int) int
+		RiskScoreTrend func(childComplexity int) int
+		Unassigned     func(childComplexity int) int
 	}
 
 	TokenXAuthIntegration struct {
@@ -1819,6 +1822,10 @@ type TeamUtilizationDataResolver interface {
 }
 type TeamUtilizationEnvironmentDataPointResolver interface {
 	Environment(ctx context.Context, obj *utilization.TeamUtilizationEnvironmentDataPoint) (*team.TeamEnvironment, error)
+}
+type TeamVulnerabilitySummaryResolver interface {
+	Ranking(ctx context.Context, obj *vulnerability.TeamVulnerabilitySummary) (vulnerability.TeamVulnerabilityRanking, error)
+	RiskScoreTrend(ctx context.Context, obj *vulnerability.TeamVulnerabilitySummary) (*vulnerability.TeamVulnerabilityRiskScoreTrend, error)
 }
 type TriggerJobPayloadResolver interface {
 	Job(ctx context.Context, obj *job.TriggerJobPayload) (*job.Job, error)
@@ -7278,12 +7285,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamVulnerabilitySummary.Medium(childComplexity), true
 
+	case "TeamVulnerabilitySummary.ranking":
+		if e.complexity.TeamVulnerabilitySummary.Ranking == nil {
+			break
+		}
+
+		return e.complexity.TeamVulnerabilitySummary.Ranking(childComplexity), true
+
 	case "TeamVulnerabilitySummary.riskScore":
 		if e.complexity.TeamVulnerabilitySummary.RiskScore == nil {
 			break
 		}
 
 		return e.complexity.TeamVulnerabilitySummary.RiskScore(childComplexity), true
+
+	case "TeamVulnerabilitySummary.riskScoreTrend":
+		if e.complexity.TeamVulnerabilitySummary.RiskScoreTrend == nil {
+			break
+		}
+
+		return e.complexity.TeamVulnerabilitySummary.RiskScoreTrend(childComplexity), true
 
 	case "TeamVulnerabilitySummary.unassigned":
 		if e.complexity.TeamVulnerabilitySummary.Unassigned == nil {
@@ -11886,6 +11907,30 @@ type TeamVulnerabilitySummary {
 	bomCount: Int!
 	"Coverage of the team."
 	coverage: Float!
+	"Ranking of the team based on vulnerability severity."
+	ranking: TeamVulnerabilityRanking!
+	"Trend of vulnerability status for the team."
+	riskScoreTrend: TeamVulnerabilityRiskScoreTrend
+}
+
+enum TeamVulnerabilityRanking {
+	"Top third most vulnerable teams."
+	MOST_VULNERABLE
+	"Middle third most vulnerable teams."
+	MIDDLE
+	"Bottom third most vulnerable teams."
+	LEAST_VULNERABLE
+	"Unknown ranking."
+	UNKNOWN
+}
+
+enum TeamVulnerabilityRiskScoreTrend {
+	"Risk score is increasing."
+	UP
+	"Risk score is decreasing."
+	DOWN
+	"Risk score is not changing."
+	FLAT
 }
 
 extend enum WorkloadOrderField {
@@ -47904,6 +47949,10 @@ func (ec *executionContext) fieldContext_Team_vulnerabilitySummary(_ context.Con
 				return ec.fieldContext_TeamVulnerabilitySummary_bomCount(ctx, field)
 			case "coverage":
 				return ec.fieldContext_TeamVulnerabilitySummary_coverage(ctx, field)
+			case "ranking":
+				return ec.fieldContext_TeamVulnerabilitySummary_ranking(ctx, field)
+			case "riskScoreTrend":
+				return ec.fieldContext_TeamVulnerabilitySummary_riskScoreTrend(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamVulnerabilitySummary", field.Name)
 		},
@@ -56313,6 +56362,91 @@ func (ec *executionContext) fieldContext_TeamVulnerabilitySummary_coverage(_ con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamVulnerabilitySummary_ranking(ctx context.Context, field graphql.CollectedField, obj *vulnerability.TeamVulnerabilitySummary) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamVulnerabilitySummary_ranking(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamVulnerabilitySummary().Ranking(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(vulnerability.TeamVulnerabilityRanking)
+	fc.Result = res
+	return ec.marshalNTeamVulnerabilityRanking2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐTeamVulnerabilityRanking(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamVulnerabilitySummary_ranking(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamVulnerabilitySummary",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TeamVulnerabilityRanking does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamVulnerabilitySummary_riskScoreTrend(ctx context.Context, field graphql.CollectedField, obj *vulnerability.TeamVulnerabilitySummary) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamVulnerabilitySummary_riskScoreTrend(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamVulnerabilitySummary().RiskScoreTrend(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*vulnerability.TeamVulnerabilityRiskScoreTrend)
+	fc.Result = res
+	return ec.marshalOTeamVulnerabilityRiskScoreTrend2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐTeamVulnerabilityRiskScoreTrend(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamVulnerabilitySummary_riskScoreTrend(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamVulnerabilitySummary",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TeamVulnerabilityRiskScoreTrend does not have child fields")
 		},
 	}
 	return fc, nil
@@ -78266,43 +78400,112 @@ func (ec *executionContext) _TeamVulnerabilitySummary(ctx context.Context, sel a
 		case "riskScore":
 			out.Values[i] = ec._TeamVulnerabilitySummary_riskScore(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "critical":
 			out.Values[i] = ec._TeamVulnerabilitySummary_critical(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "high":
 			out.Values[i] = ec._TeamVulnerabilitySummary_high(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "medium":
 			out.Values[i] = ec._TeamVulnerabilitySummary_medium(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "low":
 			out.Values[i] = ec._TeamVulnerabilitySummary_low(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "unassigned":
 			out.Values[i] = ec._TeamVulnerabilitySummary_unassigned(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "bomCount":
 			out.Values[i] = ec._TeamVulnerabilitySummary_bomCount(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "coverage":
 			out.Values[i] = ec._TeamVulnerabilitySummary_coverage(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "ranking":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamVulnerabilitySummary_ranking(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "riskScoreTrend":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamVulnerabilitySummary_riskScoreTrend(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -85533,6 +85736,16 @@ func (ec *executionContext) marshalNTeamUtilizationData2ᚖgithubᚗcomᚋnais�
 	return ec._TeamUtilizationData(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNTeamVulnerabilityRanking2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐTeamVulnerabilityRanking(ctx context.Context, v interface{}) (vulnerability.TeamVulnerabilityRanking, error) {
+	var res vulnerability.TeamVulnerabilityRanking
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTeamVulnerabilityRanking2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐTeamVulnerabilityRanking(ctx context.Context, sel ast.SelectionSet, v vulnerability.TeamVulnerabilityRanking) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNTeamVulnerabilitySummary2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐTeamVulnerabilitySummary(ctx context.Context, sel ast.SelectionSet, v vulnerability.TeamVulnerabilitySummary) graphql.Marshaler {
 	return ec._TeamVulnerabilitySummary(ctx, sel, &v)
 }
@@ -86987,6 +87200,22 @@ func (ec *executionContext) marshalOTeamUpdatedAuditEntryData2ᚖgithubᚗcomᚋ
 		return graphql.Null
 	}
 	return ec._TeamUpdatedAuditEntryData(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOTeamVulnerabilityRiskScoreTrend2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐTeamVulnerabilityRiskScoreTrend(ctx context.Context, v interface{}) (*vulnerability.TeamVulnerabilityRiskScoreTrend, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(vulnerability.TeamVulnerabilityRiskScoreTrend)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTeamVulnerabilityRiskScoreTrend2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐTeamVulnerabilityRiskScoreTrend(ctx context.Context, sel ast.SelectionSet, v *vulnerability.TeamVulnerabilityRiskScoreTrend) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOTeamWorkloadsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚐTeamWorkloadsFilter(ctx context.Context, v interface{}) (*workload.TeamWorkloadsFilter, error) {
