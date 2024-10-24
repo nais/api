@@ -94,21 +94,6 @@ func WithDefaultQuery(metricType MetricType) Option {
 	}
 }
 
-func WithAggregation(aggregation *monitoringpb.Aggregation) Option {
-	return func(o *MetricsOptions) {
-		o.aggregation = aggregation
-	}
-}
-
-func WithInterval(start, end time.Time) Option {
-	return func(o *MetricsOptions) {
-		o.interval = &monitoringpb.TimeInterval{
-			StartTime: timestamppb.New(start),
-			EndTime:   timestamppb.New(end),
-		}
-	}
-}
-
 func (m *Metrics) Close() error {
 	return m.monitoring.Close()
 }

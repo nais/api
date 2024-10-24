@@ -4,8 +4,8 @@ metadata:
   annotations:
     cnrm.cloud.google.com/deletion-policy: abandon
     cnrm.cloud.google.com/management-conflict-prevention-policy: none
-    cnrm.cloud.google.com/mutable-but-unreadable-fields: '{}'
-    cnrm.cloud.google.com/observed-secret-versions: '{}'
+    cnrm.cloud.google.com/mutable-but-unreadable-fields: "{}"
+    cnrm.cloud.google.com/observed-secret-versions: "{}"
     cnrm.cloud.google.com/project-id: nais-dev-2e7b
     cnrm.cloud.google.com/state-into-spec: merge
     nais.io/deploymentCorrelationID: c53778c4-f03f-41a5-ae2f-0ca6a833019e
@@ -37,10 +37,10 @@ spec:
       transactionLogRetentionDays: 7
     connectorEnforcement: NOT_REQUIRED
     databaseFlags:
-    - name: cloudsql.iam_authentication
-      value: "on"
-    - name: max_connections
-      value: "50"
+      - name: cloudsql.iam_authentication
+        value: "on"
+      - name: max_connections
+        value: "50"
     diskAutoresize: false
     diskAutoresizeLimit: 0
     diskSize: 10
@@ -63,10 +63,10 @@ spec:
 status:
   conditions:
     - lastTransitionTime: "2024-04-03T10:49:48Z"
-      message: 'Update call failed: error applying desired state: summary: Error, failed
-      to update instance settings for : googleapi: Error 400: Invalid request: Incorrect
-      Service Networking config for instance: superprod-test:contests-failing:SERVICE_NETWORKING_NOT_ENABLED.,
-      invalid'
+      message: "Update call failed: error applying desired state: summary: Error, failed
+        to update instance settings for : googleapi: Error 400: Invalid request: Incorrect
+        Service Networking config for instance: superprod-test:contests-failing:SERVICE_NETWORKING_NOT_ENABLED.,
+        invalid"
       reason: UpdateFailed
       status: "False"
       type: Initialized
@@ -74,10 +74,10 @@ status:
   firstIpAddress: 1.2.3.4
   instanceType: CLOUD_SQL_INSTANCE
   ipAddress:
-  - ipAddress: 1.2.3.4
-    type: PRIMARY
-  - ipAddress: 1.2.3.4
-    type: OUTGOING
+    - ipAddress: 1.2.3.4
+      type: PRIMARY
+    - ipAddress: 1.2.3.4
+      type: OUTGOING
   observedGeneration: 104
   publicIpAddress: 1.2.3.4
   selfLink: https://sqladmin.googleapis.com/sql/v1beta4/projects/nais-dev-123/instances/contests-failing

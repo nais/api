@@ -28,7 +28,6 @@ import (
 	"github.com/nais/api/internal/redis"
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/search"
-	"github.com/nais/api/internal/slack"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/hookd"
@@ -36,6 +35,7 @@ import (
 	"github.com/nais/api/internal/vulnerabilities"
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
+	"github.com/vektah/gqlparser/v2/ast"
 	"go.opentelemetry.io/otel"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -138,7 +138,6 @@ type Resolver struct {
 	kafkaClient           *kafka.Client
 	unleashMgr            *unleash.Manager
 	auditor               *audit.Auditor
-	slackClient           slack.SlackClient
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
@@ -162,7 +161,6 @@ func NewResolver(hookdClient HookdClient,
 	kafkaClient *kafka.Client,
 	unleashMgr *unleash.Manager,
 	auditer *audit.Auditor,
-	slack slack.SlackClient,
 ) *Resolver {
 	return &Resolver{
 		hookdClient:           hookdClient,
@@ -186,7 +184,6 @@ func NewResolver(hookdClient HookdClient,
 		kafkaClient:           kafkaClient,
 		unleashMgr:            unleashMgr,
 		auditor:               auditer,
-		slackClient:           slack,
 	}
 }
 
@@ -204,10 +201,10 @@ func NewHandler(config gengql.Config, log logrus.FieldLogger) (*handler.Server, 
 	graphHandler.AddTransport(SSE{}) // Support subscriptions
 	graphHandler.AddTransport(transport.Options{})
 	graphHandler.AddTransport(transport.POST{})
-	graphHandler.SetQueryCache(lru.New(1000))
+	graphHandler.SetQueryCache(lru.New[*ast.QueryDocument](1000))
 	graphHandler.Use(extension.Introspection{})
 	graphHandler.Use(extension.AutomaticPersistedQuery{
-		Cache: lru.New(100),
+		Cache: lru.New[string](100),
 	})
 	graphHandler.SetErrorPresenter(apierror.GetErrorPresenter(log))
 	graphHandler.Use(otelgqlgen.Middleware(

@@ -1,0 +1,130 @@
+extend type Mutation {
+	"""
+	Enable a reconciler
+
+	A reconciler must be fully configured before it can be enabled.
+	"""
+	enableReconciler("The name of the reconciler to enable." name: String!): Reconciler!
+
+	"""
+	Disable a reconciler
+
+	The reconciler configuration will be left intact.
+	"""
+	disableReconciler("The name of the reconciler to disable." name: String!): Reconciler!
+
+	"Configure a reconciler."
+	configureReconciler(
+		"The name of the reconciler to configure."
+		name: String!
+
+		"List of reconciler config inputs."
+		config: [ReconcilerConfigInput!]!
+	): Reconciler!
+}
+
+extend type Query {
+	"Get a collection of reconcilers."
+	reconcilers(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): ReconcilerConnection!
+}
+
+type ReconcilerConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+
+	"List of nodes."
+	nodes: [Reconciler!]!
+
+	"List of edges."
+	edges: [ReconcilerEdge!]!
+}
+
+type ReconcilerEdge {
+	"Cursor for this edge that can be used for pagination."
+	cursor: Cursor!
+
+	"The reconciler."
+	node: Reconciler!
+}
+
+"Reconciler type."
+type Reconciler {
+	"The name of the reconciler."
+	name: String!
+
+	"The human-friendly name of the reconciler."
+	displayName: String!
+
+	"Description of what the reconciler is responsible for."
+	description: String!
+
+	"Whether or not the reconciler is enabled."
+	enabled: Boolean!
+
+	"Reconciler configuration keys and descriptions."
+	config: [ReconcilerConfig!]!
+
+	"Whether or not the reconciler is fully configured and ready to be enabled."
+	configured: Boolean!
+
+	# "Audit logs for this reconciler."
+	# auditLogs(offset: Int, limit: Int): AuditLogList!
+
+	# "Potential errors that have occurred during the reconciler's operation."
+	# errors(offset: Int, limit: Int): ReconcilerErrorList!
+}
+
+# type ReconcilerErrorList {
+#   nodes: [ReconcilerError!]!
+#   pageInfo: PageInfo!
+# }
+
+# type ReconcilerError {
+#   id: ID!
+#   correlationId: ID!
+#   createdAt: Time!
+#   message: String!
+#   team: Team!
+# }
+
+"Reconciler configuration type."
+type ReconcilerConfig {
+	"Configuration key."
+	key: String!
+
+	"The human-friendly name of the configuration key."
+	displayName: String!
+
+	"Configuration description."
+	description: String!
+
+	"Whether or not the configuration key has a value."
+	configured: Boolean!
+
+	"Whether or not the configuration value is considered a secret. Secret values will not be exposed through the API."
+	secret: Boolean!
+
+	"Configuration value. This will be set to null if the value is considered a secret."
+	value: String
+}
+
+"Reconciler configuration input."
+input ReconcilerConfigInput {
+	"Configuration key."
+	key: String!
+
+	"Configuration value."
+	value: String!
+}

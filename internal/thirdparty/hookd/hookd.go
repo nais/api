@@ -212,8 +212,7 @@ func (c *client) DeployKey(ctx context.Context, team string) (*DeployKey, error)
 	return ret, nil
 }
 
-// error increments the error counter, logs an error, and returns an error instance
-func (c *client) error(ctx context.Context, err error, msg string) error {
+func (c *client) error(_ context.Context, err error, msg string) error {
 	c.log.WithError(err).Error(msg)
 	return fmt.Errorf("%s: %w", msg, err)
 }

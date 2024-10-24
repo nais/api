@@ -9,7 +9,7 @@ An audit event is a record of an event:
 An audit event consists of the following fields in the database:
 
 | Field         | Type      | Description                                                                  |
-|---------------|-----------|------------------------------------------------------------------------------|
+| ------------- | --------- | ---------------------------------------------------------------------------- |
 | id            | uuid      | A unique identifier.                                                         |
 | actor         | text      | The user or service account that performed the event.                        |
 | action        | text      | The action performed.                                                        |
@@ -32,8 +32,8 @@ A resource type is a logical grouping of a resource that we expose via the Graph
 
 ```graphql
 enum AuditEventResourceType {
-    TEAM
-    TEAM_MEMBER
+	TEAM
+	TEAM_MEMBER
 }
 ```
 
@@ -43,12 +43,12 @@ An action is a specific operation that can be performed on a resource, e.g:
 
 ```graphql
 enum AuditEventAction {
-    ADDED
-    CREATED
-    DELETED
-    REMOVED
-    RESTARTED
-    UPDATED
+	ADDED
+	CREATED
+	DELETED
+	REMOVED
+	RESTARTED
+	UPDATED
 }
 ```
 
@@ -62,14 +62,14 @@ For example:
 
 ```graphql
 enum AuditEventAction {
-  TEAM_DELETION_CONFIRMED
-  TEAM_DELETION_REQUESTED
-  TEAM_DEPLOY_KEY_ROTATED
-  TEAM_SET_PURPOSE
-  TEAM_SET_DEFAULT_SLACK_CHANNEL
-  TEAM_SET_ALERTS_SLACK_CHANNEL
-    
-  TEAM_MEMBER_SET_ROLE
+	TEAM_DELETION_CONFIRMED
+	TEAM_DELETION_REQUESTED
+	TEAM_DEPLOY_KEY_ROTATED
+	TEAM_SET_PURPOSE
+	TEAM_SET_DEFAULT_SLACK_CHANNEL
+	TEAM_SET_ALERTS_SLACK_CHANNEL
+
+	TEAM_MEMBER_SET_ROLE
 }
 ```
 
@@ -87,21 +87,21 @@ It must contain the `data` field with a concrete type that describes the additio
 
 ```graphql
 type AuditEventMemberAdded implements AuditEvent {
-  id: ID!
-  action: AuditEventAction!
-  actor: String!
-  createdAt: Time!
-  message: String!
-  resourceType: AuditEventResourceType!
-  resourceName: String!
-  team: Slug!
+	id: ID!
+	action: AuditEventAction!
+	actor: String!
+	createdAt: Time!
+	message: String!
+	resourceType: AuditEventResourceType!
+	resourceName: String!
+	team: Slug!
 
-  data: AuditEventMemberAddedData!
+	data: AuditEventMemberAddedData!
 }
 
 type AuditEventMemberAddedData {
-  memberEmail: String!
-  role: TeamRole!
+	memberEmail: String!
+	role: TeamRole!
 }
 ```
 

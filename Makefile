@@ -1,5 +1,8 @@
 TEST_POSTGRES_CONTAINER_NAME = nais-api-postgres-integration-test
 TEST_POSTGRES_CONTAINER_PORT = 5666
+LUA_FORMATTER_VERSION = 1.5.6
+BIN_DIR := $(shell pwd)/bin
+LUAFMT=$(BIN_DIR)/luafmt-$(LUA_FORMATTER_VERSION)
 
 .PHONY: all
 
@@ -12,9 +15,18 @@ generate-sql:
 	go run github.com/sqlc-dev/sqlc/cmd/sqlc vet -f .configs/sqlc.yaml
 	go run mvdan.cc/gofumpt@latest -w ./internal/database/gensql
 
+generate-sql-v1:
+	go run github.com/sqlc-dev/sqlc/cmd/sqlc generate -f .configs/sqlc-v1.yaml
+	go run github.com/sqlc-dev/sqlc/cmd/sqlc vet -f .configs/sqlc-v1.yaml
+	go run mvdan.cc/gofumpt@latest -w ./
+
 generate-graphql:
 	go run github.com/99designs/gqlgen generate --config .configs/gqlgen.yaml
 	go run mvdan.cc/gofumpt@latest -w ./internal/graph
+
+generate-graphql-v1:
+	go run github.com/99designs/gqlgen generate --config .configs/gqlgen-v1.yaml
+	go run mvdan.cc/gofumpt@latest -w ./internal/v1/graphv1
 
 generate-mocks:
 	find internal pkg -type f -name "mock_*.go" -delete
@@ -23,8 +35,8 @@ generate-mocks:
 
 generate-proto:
 	protoc \
-		-I pkg/protoapi/schema/ \
-		./pkg/protoapi/schema/*.proto \
+		-I pkg/apiclient/protoapi/schema/ \
+		./pkg/apiclient/protoapi/schema/*.proto \
 		--go_out=. \
 		--go-grpc_out=.
 
@@ -39,10 +51,10 @@ debug:
 	env bash -c 'source local.env; dlv debug --headless --listen=:2345 --api-version=2 ./cmd/api'
 
 test:
-	go test ./...
+	go test ./... github.com/nais/api/pkg/apiclient/...
 
 test-with-cc:
-	go test -cover --race ./...
+	go test -cover --race ./... github.com/nais/api/pkg/apiclient/...
 
 check: staticcheck vulncheck deadcode
 
@@ -55,8 +67,13 @@ vulncheck:
 deadcode:
 	go run golang.org/x/tools/cmd/deadcode@latest -test ./...
 
-fmt:
+fmt: prettier install-lua-formatter
 	go run mvdan.cc/gofumpt@latest -w ./
+	$(LUAFMT)/bin/CodeFormat format -w . --ignores-file ".gitignore" -c ./integration_tests/.editorconfig
+
+prettier:
+	npm install
+	npx prettier --write .
 
 helm-lint:
 	helm lint --strict ./charts
@@ -70,5 +87,46 @@ stop-integration-test-db:
 start-integration-test-db: stop-integration-test-db
 	docker run -d -e POSTGRES_PASSWORD=postgres --name $(TEST_POSTGRES_CONTAINER_NAME) -p $(TEST_POSTGRES_CONTAINER_PORT):5432 postgres:14-alpine
 
-integration-test: start-integration-test-db
-	go test ./... -tags=db_integration_test
+integration_test:
+	rm -f hack/coverprofile.txt
+	go test -coverprofile=hack/coverprofile.txt -coverpkg github.com/nais/api/... -v -tags integration_test --race ./integration_tests
+
+tester_spec:
+	go run ./cmd/tester_spec
+
+LUA_FORMATTER_URL := https://github.com/CppCXY/EmmyLuaCodeStyle/releases/download/$(LUA_FORMATTER_VERSION)
+OS := $(shell uname -s)
+ARCH := $(shell uname -m)
+
+ifeq ($(OS), Darwin)
+  ifeq ($(ARCH), x86_64)
+    LUA_FORMATTER_FILE := darwin-x64
+  else
+    ifeq ($(ARCH), arm64)
+      LUA_FORMATTER_FILE := darwin-arm64
+    else
+      $(error Unsupported architecture: $(ARCH) on macOS)
+    endif
+  endif
+else ifeq ($(OS), Linux)
+  ifeq ($(ARCH), x86_64)
+    LUA_FORMATTER_FILE := linux-x64
+  else
+    ifeq ($(ARCH), aarch64)
+      LUA_FORMATTER_FILE := linux-aarch64
+    else
+      $(error Unsupported architecture: $(ARCH) on Linux)
+    endif
+  endif
+else
+  $(error Unsupported OS: $(OS))
+endif
+
+install-lua-formatter: $(LUAFMT)
+$(LUAFMT):
+	@mkdir -p $(LUAFMT)
+	@curl -L $(LUA_FORMATTER_URL)/$(LUA_FORMATTER_FILE).tar.gz -o /tmp/luafmt.tar.gz
+	@tar -xzf /tmp/luafmt.tar.gz -C $(LUAFMT)
+	@rm /tmp/luafmt.tar.gz
+	@mv $(LUAFMT)/$(LUA_FORMATTER_FILE)/* $(LUAFMT)/
+	@rmdir $(LUAFMT)/$(LUA_FORMATTER_FILE)

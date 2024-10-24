@@ -17,7 +17,7 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/pkg/protoapi"
+	"github.com/nais/api/pkg/apiclient/protoapi"
 )
 
 func (r *mutationResolver) EnableReconciler(ctx context.Context, name string) (*model.Reconciler, error) {

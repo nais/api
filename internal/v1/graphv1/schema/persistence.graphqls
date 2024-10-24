@@ -1,0 +1,6 @@
+interface Persistence implements Node {
+	id: ID!
+	name: String!
+	team: Team!
+	environment: TeamEnvironment!
+}

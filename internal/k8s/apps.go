@@ -466,17 +466,6 @@ func (c *Client) Manifest(ctx context.Context, name, team, env string) (string, 
 
 type EnvFilter = func(string) bool
 
-func WithEnvs(envs ...string) EnvFilter {
-	return func(env string) bool {
-		for _, e := range envs {
-			if e == env {
-				return true
-			}
-		}
-		return false
-	}
-}
-
 func filterEnvs(env string, filters ...EnvFilter) bool {
 	found := 0
 	for _, f := range filters {
