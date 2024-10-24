@@ -2,9 +2,6 @@ package podlog
 
 import (
 	"context"
-
-	"github.com/sirupsen/logrus"
-	"k8s.io/client-go/kubernetes"
 )
 
 type ctxKey int
@@ -12,14 +9,12 @@ type ctxKey int
 const loadersKey ctxKey = iota
 
 type loaders struct {
-	clients map[string]kubernetes.Interface
-	log     logrus.FieldLogger
+	streamer Streamer
 }
 
-func NewLoaderContext(ctx context.Context, clients map[string]kubernetes.Interface, log logrus.FieldLogger) context.Context {
+func NewLoaderContext(ctx context.Context, streamer Streamer) context.Context {
 	return context.WithValue(ctx, loadersKey, &loaders{
-		clients: clients,
-		log:     log,
+		streamer: streamer,
 	})
 }
 

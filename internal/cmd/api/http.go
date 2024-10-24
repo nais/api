@@ -40,6 +40,7 @@ import (
 	"github.com/nais/api/internal/v1/workload/application"
 	"github.com/nais/api/internal/v1/workload/job"
 	"github.com/nais/api/internal/v1/workload/podlog"
+	fakepodlog "github.com/nais/api/internal/v1/workload/podlog/fake"
 	"github.com/nais/api/internal/v1/workload/secret"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -194,15 +195,18 @@ func ConfigureV1Graph(
 
 	var utilizationClient utilization.ResourceUsageClient
 	var costOpts []cost.Option
+	var podLogStreamer podlog.Streamer
 	if fakeClients {
 		utilizationClient = utilization.NewFakeClient(clusters, nil, nil)
 		costOpts = append(costOpts, cost.WithClient(cost.NewFakeClient()))
+		podLogStreamer = fakepodlog.NewLogStreamer()
 	} else {
 		var err error
 		utilizationClient, err = utilization.NewClient(clusters, tenantName, log)
 		if err != nil {
 			return nil, fmt.Errorf("create utilization client: %w", err)
 		}
+		podLogStreamer = podlog.NewLogStreamer(k8sClientSets, log)
 	}
 
 	syncCtx, cancelSync := context.WithTimeout(ctx, 20*time.Second)
@@ -217,7 +221,7 @@ func ConfigureV1Graph(
 		dataloadgen.WithTracer(otel.Tracer("dataloader")),
 	}
 	return loaderv1.Middleware(func(ctx context.Context) context.Context {
-		ctx = podlog.NewLoaderContext(ctx, k8sClientSets, log)
+		ctx = podlog.NewLoaderContext(ctx, podLogStreamer)
 		ctx = application.NewLoaderContext(ctx, appWatcher, ingressWatcher)
 		ctx = bigquery.NewLoaderContext(ctx, bqWatcher, dataloaderOpts)
 		ctx = bucket.NewLoaderContext(ctx, bucketWatcher)
