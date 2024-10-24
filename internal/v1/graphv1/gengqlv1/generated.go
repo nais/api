@@ -77,6 +77,8 @@ type ResolverRoot interface {
 	DeleteJobPayload() DeleteJobPayloadResolver
 	Deployment() DeploymentResolver
 	DeploymentInfo() DeploymentInfoResolver
+	ImageVulnerability() ImageVulnerabilityResolver
+	ImageVulnerabilityAnalysisTrail() ImageVulnerabilityAnalysisTrailResolver
 	Ingress() IngressResolver
 	Job() JobResolver
 	JobRun() JobRunResolver
@@ -425,12 +427,38 @@ type ComplexityRoot struct {
 	}
 
 	ImageVulnerability struct {
-		Description func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Identifier  func(childComplexity int) int
-		Package     func(childComplexity int) int
-		Severity    func(childComplexity int) int
-		State       func(childComplexity int) int
+		AnalysisTrail func(childComplexity int) int
+		Description   func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Identifier    func(childComplexity int) int
+		Package       func(childComplexity int) int
+		Severity      func(childComplexity int) int
+		State         func(childComplexity int) int
+	}
+
+	ImageVulnerabilityAnalysisComment struct {
+		Comment    func(childComplexity int) int
+		OnBehalfOf func(childComplexity int) int
+		State      func(childComplexity int) int
+		Suppressed func(childComplexity int) int
+		Timestamp  func(childComplexity int) int
+	}
+
+	ImageVulnerabilityAnalysisCommentConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	ImageVulnerabilityAnalysisCommentEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	ImageVulnerabilityAnalysisTrail struct {
+		Comments   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		State      func(childComplexity int) int
+		Suppressed func(childComplexity int) int
 	}
 
 	ImageVulnerabilityConnection struct {
@@ -627,6 +655,7 @@ type ComplexityRoot struct {
 		SetTeamMemberRole        func(childComplexity int, input team.SetTeamMemberRoleInput) int
 		SynchronizeTeam          func(childComplexity int, input team.SynchronizeTeamInput) int
 		TriggerJob               func(childComplexity int, input job.TriggerJobInput) int
+		UpdateImageVulnerability func(childComplexity int, input vulnerability.UpdateImageVulnerabilityInput) int
 		UpdateSecretValue        func(childComplexity int, input secret.UpdateSecretValueInput) int
 		UpdateTeam               func(childComplexity int, input team.UpdateTeamInput) int
 		UpdateTeamEnvironment    func(childComplexity int, input team.UpdateTeamEnvironmentInput) int
@@ -1396,6 +1425,10 @@ type ComplexityRoot struct {
 		JobRun func(childComplexity int) int
 	}
 
+	UpdateImageVulnerabilityPayload struct {
+		AnalysisTrail func(childComplexity int) int
+	}
+
 	UpdateSecretValuePayload struct {
 		Secret func(childComplexity int) int
 	}
@@ -1600,6 +1633,12 @@ type DeploymentResolver interface {
 type DeploymentInfoResolver interface {
 	History(ctx context.Context, obj *deployment.DeploymentInfo, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error)
 }
+type ImageVulnerabilityResolver interface {
+	AnalysisTrail(ctx context.Context, obj *vulnerability.ImageVulnerability) (*vulnerability.ImageVulnerabilityAnalysisTrail, error)
+}
+type ImageVulnerabilityAnalysisTrailResolver interface {
+	Comments(ctx context.Context, obj *vulnerability.ImageVulnerabilityAnalysisTrail, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*vulnerability.ImageVulnerabilityAnalysisComment], error)
+}
 type IngressResolver interface {
 	Type(ctx context.Context, obj *application.Ingress) (application.IngressType, error)
 }
@@ -1661,6 +1700,7 @@ type MutationResolver interface {
 	AddTeamMember(ctx context.Context, input team.AddTeamMemberInput) (*team.AddTeamMemberPayload, error)
 	RemoveTeamMember(ctx context.Context, input team.RemoveTeamMemberInput) (*team.RemoveTeamMemberPayload, error)
 	SetTeamMemberRole(ctx context.Context, input team.SetTeamMemberRoleInput) (*team.SetTeamMemberRolePayload, error)
+	UpdateImageVulnerability(ctx context.Context, input vulnerability.UpdateImageVulnerabilityInput) (*vulnerability.UpdateImageVulnerabilityPayload, error)
 }
 type NetworkPolicyRuleResolver interface {
 	TargetWorkload(ctx context.Context, obj *netpol.NetworkPolicyRule) (workload.Workload, error)
@@ -2989,6 +3029,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.IDPortenAuthIntegration.Name(childComplexity), true
 
+	case "ImageVulnerability.analysisTrail":
+		if e.complexity.ImageVulnerability.AnalysisTrail == nil {
+			break
+		}
+
+		return e.complexity.ImageVulnerability.AnalysisTrail(childComplexity), true
+
 	case "ImageVulnerability.description":
 		if e.complexity.ImageVulnerability.Description == nil {
 			break
@@ -3030,6 +3077,102 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ImageVulnerability.State(childComplexity), true
+
+	case "ImageVulnerabilityAnalysisComment.comment":
+		if e.complexity.ImageVulnerabilityAnalysisComment.Comment == nil {
+			break
+		}
+
+		return e.complexity.ImageVulnerabilityAnalysisComment.Comment(childComplexity), true
+
+	case "ImageVulnerabilityAnalysisComment.onBehalfOf":
+		if e.complexity.ImageVulnerabilityAnalysisComment.OnBehalfOf == nil {
+			break
+		}
+
+		return e.complexity.ImageVulnerabilityAnalysisComment.OnBehalfOf(childComplexity), true
+
+	case "ImageVulnerabilityAnalysisComment.state":
+		if e.complexity.ImageVulnerabilityAnalysisComment.State == nil {
+			break
+		}
+
+		return e.complexity.ImageVulnerabilityAnalysisComment.State(childComplexity), true
+
+	case "ImageVulnerabilityAnalysisComment.suppressed":
+		if e.complexity.ImageVulnerabilityAnalysisComment.Suppressed == nil {
+			break
+		}
+
+		return e.complexity.ImageVulnerabilityAnalysisComment.Suppressed(childComplexity), true
+
+	case "ImageVulnerabilityAnalysisComment.timestamp":
+		if e.complexity.ImageVulnerabilityAnalysisComment.Timestamp == nil {
+			break
+		}
+
+		return e.complexity.ImageVulnerabilityAnalysisComment.Timestamp(childComplexity), true
+
+	case "ImageVulnerabilityAnalysisCommentConnection.edges":
+		if e.complexity.ImageVulnerabilityAnalysisCommentConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.ImageVulnerabilityAnalysisCommentConnection.Edges(childComplexity), true
+
+	case "ImageVulnerabilityAnalysisCommentConnection.nodes":
+		if e.complexity.ImageVulnerabilityAnalysisCommentConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.ImageVulnerabilityAnalysisCommentConnection.Nodes(childComplexity), true
+
+	case "ImageVulnerabilityAnalysisCommentConnection.pageInfo":
+		if e.complexity.ImageVulnerabilityAnalysisCommentConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.ImageVulnerabilityAnalysisCommentConnection.PageInfo(childComplexity), true
+
+	case "ImageVulnerabilityAnalysisCommentEdge.cursor":
+		if e.complexity.ImageVulnerabilityAnalysisCommentEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.ImageVulnerabilityAnalysisCommentEdge.Cursor(childComplexity), true
+
+	case "ImageVulnerabilityAnalysisCommentEdge.node":
+		if e.complexity.ImageVulnerabilityAnalysisCommentEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.ImageVulnerabilityAnalysisCommentEdge.Node(childComplexity), true
+
+	case "ImageVulnerabilityAnalysisTrail.comments":
+		if e.complexity.ImageVulnerabilityAnalysisTrail.Comments == nil {
+			break
+		}
+
+		args, err := ec.field_ImageVulnerabilityAnalysisTrail_comments_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.ImageVulnerabilityAnalysisTrail.Comments(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
+	case "ImageVulnerabilityAnalysisTrail.state":
+		if e.complexity.ImageVulnerabilityAnalysisTrail.State == nil {
+			break
+		}
+
+		return e.complexity.ImageVulnerabilityAnalysisTrail.State(childComplexity), true
+
+	case "ImageVulnerabilityAnalysisTrail.suppressed":
+		if e.complexity.ImageVulnerabilityAnalysisTrail.Suppressed == nil {
+			break
+		}
+
+		return e.complexity.ImageVulnerabilityAnalysisTrail.Suppressed(childComplexity), true
 
 	case "ImageVulnerabilityConnection.edges":
 		if e.complexity.ImageVulnerabilityConnection.Edges == nil {
@@ -4001,6 +4144,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.TriggerJob(childComplexity, args["input"].(job.TriggerJobInput)), true
+
+	case "Mutation.updateImageVulnerability":
+		if e.complexity.Mutation.UpdateImageVulnerability == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateImageVulnerability_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateImageVulnerability(childComplexity, args["input"].(vulnerability.UpdateImageVulnerabilityInput)), true
 
 	case "Mutation.updateSecretValue":
 		if e.complexity.Mutation.UpdateSecretValue == nil {
@@ -7348,6 +7503,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TriggerJobPayload.JobRun(childComplexity), true
 
+	case "UpdateImageVulnerabilityPayload.analysisTrail":
+		if e.complexity.UpdateImageVulnerabilityPayload.AnalysisTrail == nil {
+			break
+		}
+
+		return e.complexity.UpdateImageVulnerabilityPayload.AnalysisTrail(childComplexity), true
+
 	case "UpdateSecretValuePayload.secret":
 		if e.complexity.UpdateSecretValuePayload.Secret == nil {
 			break
@@ -7869,6 +8031,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTeamRepositoryFilter,
 		ec.unmarshalInputTeamWorkloadsFilter,
 		ec.unmarshalInputTriggerJobInput,
+		ec.unmarshalInputUpdateImageVulnerabilityInput,
 		ec.unmarshalInputUpdateSecretValueInput,
 		ec.unmarshalInputUpdateTeamEnvironmentInput,
 		ec.unmarshalInputUpdateTeamInput,
@@ -11744,7 +11907,15 @@ type TeamUtilizationData {
 	environment: TeamEnvironment!
 }
 `, BuiltIn: false},
-	{Name: "../schema/vulnerability.graphqls", Input: `extend type ContainerImage {
+	{Name: "../schema/vulnerability.graphqls", Input: `extend type Mutation {
+	"""
+	Updates a vulnerability
+	This mutation is currently unstable and may change in the future.
+	"""
+	updateImageVulnerability(input: UpdateImageVulnerabilityInput!): UpdateImageVulnerabilityPayload!
+}
+
+extend type ContainerImage {
 	"Whether the image has a software bill of materials (SBOM) attached to it."
 	hasSBOM: Boolean!
 
@@ -11873,6 +12044,9 @@ type ImageVulnerability implements Node {
 
 	"State of the vulnerability."
 	state: ImageVulnerabilityState!
+
+	"Analysis trail of the vulnerability."
+	analysisTrail: ImageVulnerabilityAnalysisTrail!
 }
 
 enum ImageVulnerabilitySeverity {
@@ -11962,6 +12136,75 @@ extend enum WorkloadOrderField {
 	VULNERABILITY_SEVERITY_LOW
 	"Order apps by vulnerability severity unassigned"
 	VULNERABILITY_SEVERITY_UNASSIGNED
+}
+
+input UpdateImageVulnerabilityInput {
+	"The id of the vulnerability to suppress."
+	vulnerabilityID: ID!
+	"The analysis state of the vulnerability."
+	analysisState: ImageVulnerabilityAnalysisState!
+	"The a comment for suppressing the vulnerability."
+	comment: String!
+	"Should the vulnerability be suppressed."
+	suppress: Boolean!
+}
+
+type UpdateImageVulnerabilityPayload {
+	"Analysis trail of the suppressed vulnerability."
+	analysisTrail: ImageVulnerabilityAnalysisTrail!
+}
+
+enum ImageVulnerabilityAnalysisState {
+	"Vulnerability is triaged."
+	IN_TRIAGE
+	"Vulnerability is resolved."
+	RESOLVED
+	"Vulnerability is marked as false positive."
+	FALSE_POSITIVE
+	"Vulnerability is marked as not affected."
+	NOT_AFFECTED
+}
+
+type ImageVulnerabilityAnalysisTrail {
+	state: ImageVulnerabilityAnalysisState!
+	comments(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): ImageVulnerabilityAnalysisCommentConnection!
+	suppressed: Boolean!
+}
+
+type ImageVulnerabilityAnalysisComment {
+	"The comment provided."
+	comment: String!
+	"Was the vulnerability suppressed."
+	suppressed: Boolean!
+	"State of the vulnerability."
+	state: ImageVulnerabilityAnalysisState!
+	"Timestamp of the comment."
+	timestamp: Time!
+	"User who commented."
+	onBehalfOf: String!
+}
+
+type ImageVulnerabilityAnalysisCommentConnection {
+	pageInfo: PageInfo!
+	edges: [ImageVulnerabilityAnalysisCommentEdge!]!
+	nodes: [ImageVulnerabilityAnalysisComment!]!
+}
+
+type ImageVulnerabilityAnalysisCommentEdge {
+	cursor: Cursor!
+	node: ImageVulnerabilityAnalysisComment!
 }
 `, BuiltIn: false},
 	{Name: "../schema/workloads.graphqls", Input: `extend type Team {
@@ -12997,6 +13240,119 @@ func (ec *executionContext) field_DeploymentInfo_history_argsLast(
 }
 
 func (ec *executionContext) field_DeploymentInfo_history_argsBefore(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*pagination.Cursor, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["before"]
+	if !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+	if tmp, ok := rawArgs["before"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_ImageVulnerabilityAnalysisTrail_comments_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_ImageVulnerabilityAnalysisTrail_comments_argsFirst(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := ec.field_ImageVulnerabilityAnalysisTrail_comments_argsAfter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := ec.field_ImageVulnerabilityAnalysisTrail_comments_argsLast(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := ec.field_ImageVulnerabilityAnalysisTrail_comments_argsBefore(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	return args, nil
+}
+func (ec *executionContext) field_ImageVulnerabilityAnalysisTrail_comments_argsFirst(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*int, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["first"]
+	if !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+	if tmp, ok := rawArgs["first"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_ImageVulnerabilityAnalysisTrail_comments_argsAfter(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*pagination.Cursor, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["after"]
+	if !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+	if tmp, ok := rawArgs["after"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_ImageVulnerabilityAnalysisTrail_comments_argsLast(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*int, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["last"]
+	if !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+	if tmp, ok := rawArgs["last"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_ImageVulnerabilityAnalysisTrail_comments_argsBefore(
 	ctx context.Context,
 	rawArgs map[string]interface{},
 ) (*pagination.Cursor, error) {
@@ -14267,6 +14623,38 @@ func (ec *executionContext) field_Mutation_triggerJob_argsInput(
 	}
 
 	var zeroVal job.TriggerJobInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateImageVulnerability_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_updateImageVulnerability_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_updateImageVulnerability_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (vulnerability.UpdateImageVulnerabilityInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal vulnerability.UpdateImageVulnerabilityInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateImageVulnerabilityInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐUpdateImageVulnerabilityInput(ctx, tmp)
+	}
+
+	var zeroVal vulnerability.UpdateImageVulnerabilityInput
 	return zeroVal, nil
 }
 
@@ -27235,6 +27623,695 @@ func (ec *executionContext) fieldContext_ImageVulnerability_state(_ context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _ImageVulnerability_analysisTrail(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ImageVulnerability) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageVulnerability_analysisTrail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ImageVulnerability().AnalysisTrail(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*vulnerability.ImageVulnerabilityAnalysisTrail)
+	fc.Result = res
+	return ec.marshalNImageVulnerabilityAnalysisTrail2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerabilityAnalysisTrail(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImageVulnerability_analysisTrail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImageVulnerability",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "state":
+				return ec.fieldContext_ImageVulnerabilityAnalysisTrail_state(ctx, field)
+			case "comments":
+				return ec.fieldContext_ImageVulnerabilityAnalysisTrail_comments(ctx, field)
+			case "suppressed":
+				return ec.fieldContext_ImageVulnerabilityAnalysisTrail_suppressed(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityAnalysisTrail", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImageVulnerabilityAnalysisComment_comment(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ImageVulnerabilityAnalysisComment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageVulnerabilityAnalysisComment_comment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Comment, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImageVulnerabilityAnalysisComment_comment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImageVulnerabilityAnalysisComment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImageVulnerabilityAnalysisComment_suppressed(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ImageVulnerabilityAnalysisComment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageVulnerabilityAnalysisComment_suppressed(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Suppressed, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImageVulnerabilityAnalysisComment_suppressed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImageVulnerabilityAnalysisComment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImageVulnerabilityAnalysisComment_state(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ImageVulnerabilityAnalysisComment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageVulnerabilityAnalysisComment_state(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.State, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(vulnerability.ImageVulnerabilityAnalysisState)
+	fc.Result = res
+	return ec.marshalNImageVulnerabilityAnalysisState2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerabilityAnalysisState(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImageVulnerabilityAnalysisComment_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImageVulnerabilityAnalysisComment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ImageVulnerabilityAnalysisState does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImageVulnerabilityAnalysisComment_timestamp(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ImageVulnerabilityAnalysisComment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageVulnerabilityAnalysisComment_timestamp(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Timestamp, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImageVulnerabilityAnalysisComment_timestamp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImageVulnerabilityAnalysisComment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImageVulnerabilityAnalysisComment_onBehalfOf(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ImageVulnerabilityAnalysisComment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageVulnerabilityAnalysisComment_onBehalfOf(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OnBehalfOf, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImageVulnerabilityAnalysisComment_onBehalfOf(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImageVulnerabilityAnalysisComment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImageVulnerabilityAnalysisCommentConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*vulnerability.ImageVulnerabilityAnalysisComment]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageVulnerabilityAnalysisCommentConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImageVulnerabilityAnalysisCommentConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImageVulnerabilityAnalysisCommentConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "endCursor":
+				return ec.fieldContext_PageInfo_endCursor(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			case "startCursor":
+				return ec.fieldContext_PageInfo_startCursor(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImageVulnerabilityAnalysisCommentConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*vulnerability.ImageVulnerabilityAnalysisComment]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageVulnerabilityAnalysisCommentConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]pagination.Edge[*vulnerability.ImageVulnerabilityAnalysisComment])
+	fc.Result = res
+	return ec.marshalNImageVulnerabilityAnalysisCommentEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImageVulnerabilityAnalysisCommentConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImageVulnerabilityAnalysisCommentConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cursor":
+				return ec.fieldContext_ImageVulnerabilityAnalysisCommentEdge_cursor(ctx, field)
+			case "node":
+				return ec.fieldContext_ImageVulnerabilityAnalysisCommentEdge_node(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityAnalysisCommentEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImageVulnerabilityAnalysisCommentConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*vulnerability.ImageVulnerabilityAnalysisComment]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageVulnerabilityAnalysisCommentConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*vulnerability.ImageVulnerabilityAnalysisComment)
+	fc.Result = res
+	return ec.marshalNImageVulnerabilityAnalysisComment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerabilityAnalysisCommentᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImageVulnerabilityAnalysisCommentConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImageVulnerabilityAnalysisCommentConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "comment":
+				return ec.fieldContext_ImageVulnerabilityAnalysisComment_comment(ctx, field)
+			case "suppressed":
+				return ec.fieldContext_ImageVulnerabilityAnalysisComment_suppressed(ctx, field)
+			case "state":
+				return ec.fieldContext_ImageVulnerabilityAnalysisComment_state(ctx, field)
+			case "timestamp":
+				return ec.fieldContext_ImageVulnerabilityAnalysisComment_timestamp(ctx, field)
+			case "onBehalfOf":
+				return ec.fieldContext_ImageVulnerabilityAnalysisComment_onBehalfOf(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityAnalysisComment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImageVulnerabilityAnalysisCommentEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*vulnerability.ImageVulnerabilityAnalysisComment]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageVulnerabilityAnalysisCommentEdge_cursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.Cursor)
+	fc.Result = res
+	return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐCursor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImageVulnerabilityAnalysisCommentEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImageVulnerabilityAnalysisCommentEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Cursor does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImageVulnerabilityAnalysisCommentEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*vulnerability.ImageVulnerabilityAnalysisComment]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageVulnerabilityAnalysisCommentEdge_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*vulnerability.ImageVulnerabilityAnalysisComment)
+	fc.Result = res
+	return ec.marshalNImageVulnerabilityAnalysisComment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerabilityAnalysisComment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImageVulnerabilityAnalysisCommentEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImageVulnerabilityAnalysisCommentEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "comment":
+				return ec.fieldContext_ImageVulnerabilityAnalysisComment_comment(ctx, field)
+			case "suppressed":
+				return ec.fieldContext_ImageVulnerabilityAnalysisComment_suppressed(ctx, field)
+			case "state":
+				return ec.fieldContext_ImageVulnerabilityAnalysisComment_state(ctx, field)
+			case "timestamp":
+				return ec.fieldContext_ImageVulnerabilityAnalysisComment_timestamp(ctx, field)
+			case "onBehalfOf":
+				return ec.fieldContext_ImageVulnerabilityAnalysisComment_onBehalfOf(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityAnalysisComment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImageVulnerabilityAnalysisTrail_state(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ImageVulnerabilityAnalysisTrail) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageVulnerabilityAnalysisTrail_state(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.State, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(vulnerability.ImageVulnerabilityAnalysisState)
+	fc.Result = res
+	return ec.marshalNImageVulnerabilityAnalysisState2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerabilityAnalysisState(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImageVulnerabilityAnalysisTrail_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImageVulnerabilityAnalysisTrail",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ImageVulnerabilityAnalysisState does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImageVulnerabilityAnalysisTrail_comments(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ImageVulnerabilityAnalysisTrail) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageVulnerabilityAnalysisTrail_comments(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ImageVulnerabilityAnalysisTrail().Comments(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*pagination.Connection[*vulnerability.ImageVulnerabilityAnalysisComment])
+	fc.Result = res
+	return ec.marshalNImageVulnerabilityAnalysisCommentConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImageVulnerabilityAnalysisTrail_comments(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImageVulnerabilityAnalysisTrail",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pageInfo":
+				return ec.fieldContext_ImageVulnerabilityAnalysisCommentConnection_pageInfo(ctx, field)
+			case "edges":
+				return ec.fieldContext_ImageVulnerabilityAnalysisCommentConnection_edges(ctx, field)
+			case "nodes":
+				return ec.fieldContext_ImageVulnerabilityAnalysisCommentConnection_nodes(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityAnalysisCommentConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_ImageVulnerabilityAnalysisTrail_comments_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImageVulnerabilityAnalysisTrail_suppressed(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ImageVulnerabilityAnalysisTrail) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageVulnerabilityAnalysisTrail_suppressed(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Suppressed, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImageVulnerabilityAnalysisTrail_suppressed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImageVulnerabilityAnalysisTrail",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ImageVulnerabilityConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*vulnerability.ImageVulnerability]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ImageVulnerabilityConnection_pageInfo(ctx, field)
 	if err != nil {
@@ -27396,6 +28473,8 @@ func (ec *executionContext) fieldContext_ImageVulnerabilityConnection_nodes(_ co
 				return ec.fieldContext_ImageVulnerability_package(ctx, field)
 			case "state":
 				return ec.fieldContext_ImageVulnerability_state(ctx, field)
+			case "analysisTrail":
+				return ec.fieldContext_ImageVulnerability_analysisTrail(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerability", field.Name)
 		},
@@ -27498,6 +28577,8 @@ func (ec *executionContext) fieldContext_ImageVulnerabilityEdge_node(_ context.C
 				return ec.fieldContext_ImageVulnerability_package(ctx, field)
 			case "state":
 				return ec.fieldContext_ImageVulnerability_state(ctx, field)
+			case "analysisTrail":
+				return ec.fieldContext_ImageVulnerability_analysisTrail(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerability", field.Name)
 		},
@@ -33834,6 +34915,65 @@ func (ec *executionContext) fieldContext_Mutation_setTeamMemberRole(ctx context.
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_setTeamMemberRole_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateImageVulnerability(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateImageVulnerability(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateImageVulnerability(rctx, fc.Args["input"].(vulnerability.UpdateImageVulnerabilityInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*vulnerability.UpdateImageVulnerabilityPayload)
+	fc.Result = res
+	return ec.marshalNUpdateImageVulnerabilityPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐUpdateImageVulnerabilityPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateImageVulnerability(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "analysisTrail":
+				return ec.fieldContext_UpdateImageVulnerabilityPayload_analysisTrail(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UpdateImageVulnerabilityPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateImageVulnerability_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -56774,6 +57914,58 @@ func (ec *executionContext) fieldContext_TriggerJobPayload_jobRun(_ context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _UpdateImageVulnerabilityPayload_analysisTrail(ctx context.Context, field graphql.CollectedField, obj *vulnerability.UpdateImageVulnerabilityPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateImageVulnerabilityPayload_analysisTrail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AnalysisTrail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*vulnerability.ImageVulnerabilityAnalysisTrail)
+	fc.Result = res
+	return ec.marshalNImageVulnerabilityAnalysisTrail2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerabilityAnalysisTrail(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateImageVulnerabilityPayload_analysisTrail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateImageVulnerabilityPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "state":
+				return ec.fieldContext_ImageVulnerabilityAnalysisTrail_state(ctx, field)
+			case "comments":
+				return ec.fieldContext_ImageVulnerabilityAnalysisTrail_comments(ctx, field)
+			case "suppressed":
+				return ec.fieldContext_ImageVulnerabilityAnalysisTrail_suppressed(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityAnalysisTrail", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _UpdateSecretValuePayload_secret(ctx context.Context, field graphql.CollectedField, obj *secret.UpdateSecretValuePayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UpdateSecretValuePayload_secret(ctx, field)
 	if err != nil {
@@ -63093,6 +64285,54 @@ func (ec *executionContext) unmarshalInputTriggerJobInput(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUpdateImageVulnerabilityInput(ctx context.Context, obj interface{}) (vulnerability.UpdateImageVulnerabilityInput, error) {
+	var it vulnerability.UpdateImageVulnerabilityInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"vulnerabilityID", "analysisState", "comment", "suppress"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "vulnerabilityID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vulnerabilityID"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋidentᚐIdent(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VulnerabilityID = data
+		case "analysisState":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("analysisState"))
+			data, err := ec.unmarshalNImageVulnerabilityAnalysisState2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerabilityAnalysisState(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AnalysisState = data
+		case "comment":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("comment"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Comment = data
+		case "suppress":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("suppress"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Suppress = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateSecretValueInput(ctx context.Context, obj interface{}) (secret.UpdateSecretValueInput, error) {
 	var it secret.UpdateSecretValueInput
 	asMap := map[string]interface{}{}
@@ -67701,32 +68941,300 @@ func (ec *executionContext) _ImageVulnerability(ctx context.Context, sel ast.Sel
 		case "id":
 			out.Values[i] = ec._ImageVulnerability_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "identifier":
 			out.Values[i] = ec._ImageVulnerability_identifier(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "severity":
 			out.Values[i] = ec._ImageVulnerability_severity(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "description":
 			out.Values[i] = ec._ImageVulnerability_description(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "package":
 			out.Values[i] = ec._ImageVulnerability_package(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "state":
 			out.Values[i] = ec._ImageVulnerability_state(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "analysisTrail":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ImageVulnerability_analysisTrail(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var imageVulnerabilityAnalysisCommentImplementors = []string{"ImageVulnerabilityAnalysisComment"}
+
+func (ec *executionContext) _ImageVulnerabilityAnalysisComment(ctx context.Context, sel ast.SelectionSet, obj *vulnerability.ImageVulnerabilityAnalysisComment) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, imageVulnerabilityAnalysisCommentImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ImageVulnerabilityAnalysisComment")
+		case "comment":
+			out.Values[i] = ec._ImageVulnerabilityAnalysisComment_comment(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
 				out.Invalids++
+			}
+		case "suppressed":
+			out.Values[i] = ec._ImageVulnerabilityAnalysisComment_suppressed(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "state":
+			out.Values[i] = ec._ImageVulnerabilityAnalysisComment_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "timestamp":
+			out.Values[i] = ec._ImageVulnerabilityAnalysisComment_timestamp(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "onBehalfOf":
+			out.Values[i] = ec._ImageVulnerabilityAnalysisComment_onBehalfOf(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var imageVulnerabilityAnalysisCommentConnectionImplementors = []string{"ImageVulnerabilityAnalysisCommentConnection"}
+
+func (ec *executionContext) _ImageVulnerabilityAnalysisCommentConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*vulnerability.ImageVulnerabilityAnalysisComment]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, imageVulnerabilityAnalysisCommentConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ImageVulnerabilityAnalysisCommentConnection")
+		case "pageInfo":
+			out.Values[i] = ec._ImageVulnerabilityAnalysisCommentConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._ImageVulnerabilityAnalysisCommentConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._ImageVulnerabilityAnalysisCommentConnection_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var imageVulnerabilityAnalysisCommentEdgeImplementors = []string{"ImageVulnerabilityAnalysisCommentEdge"}
+
+func (ec *executionContext) _ImageVulnerabilityAnalysisCommentEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*vulnerability.ImageVulnerabilityAnalysisComment]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, imageVulnerabilityAnalysisCommentEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ImageVulnerabilityAnalysisCommentEdge")
+		case "cursor":
+			out.Values[i] = ec._ImageVulnerabilityAnalysisCommentEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "node":
+			out.Values[i] = ec._ImageVulnerabilityAnalysisCommentEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var imageVulnerabilityAnalysisTrailImplementors = []string{"ImageVulnerabilityAnalysisTrail"}
+
+func (ec *executionContext) _ImageVulnerabilityAnalysisTrail(ctx context.Context, sel ast.SelectionSet, obj *vulnerability.ImageVulnerabilityAnalysisTrail) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, imageVulnerabilityAnalysisTrailImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ImageVulnerabilityAnalysisTrail")
+		case "state":
+			out.Values[i] = ec._ImageVulnerabilityAnalysisTrail_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "comments":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ImageVulnerabilityAnalysisTrail_comments(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "suppressed":
+			out.Values[i] = ec._ImageVulnerabilityAnalysisTrail_suppressed(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -69968,6 +71476,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "setTeamMemberRole":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_setTeamMemberRole(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateImageVulnerability":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateImageVulnerability(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -78811,6 +80326,45 @@ func (ec *executionContext) _TriggerJobPayload(ctx context.Context, sel ast.Sele
 	return out
 }
 
+var updateImageVulnerabilityPayloadImplementors = []string{"UpdateImageVulnerabilityPayload"}
+
+func (ec *executionContext) _UpdateImageVulnerabilityPayload(ctx context.Context, sel ast.SelectionSet, obj *vulnerability.UpdateImageVulnerabilityPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, updateImageVulnerabilityPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UpdateImageVulnerabilityPayload")
+		case "analysisTrail":
+			out.Values[i] = ec._UpdateImageVulnerabilityPayload_analysisTrail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var updateSecretValuePayloadImplementors = []string{"UpdateSecretValuePayload"}
 
 func (ec *executionContext) _UpdateSecretValuePayload(ctx context.Context, sel ast.SelectionSet, obj *secret.UpdateSecretValuePayload) graphql.Marshaler {
@@ -82247,6 +83801,146 @@ func (ec *executionContext) marshalNImageVulnerability2ᚖgithubᚗcomᚋnaisᚋ
 		return graphql.Null
 	}
 	return ec._ImageVulnerability(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNImageVulnerabilityAnalysisComment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerabilityAnalysisCommentᚄ(ctx context.Context, sel ast.SelectionSet, v []*vulnerability.ImageVulnerabilityAnalysisComment) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNImageVulnerabilityAnalysisComment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerabilityAnalysisComment(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNImageVulnerabilityAnalysisComment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerabilityAnalysisComment(ctx context.Context, sel ast.SelectionSet, v *vulnerability.ImageVulnerabilityAnalysisComment) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ImageVulnerabilityAnalysisComment(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNImageVulnerabilityAnalysisCommentConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*vulnerability.ImageVulnerabilityAnalysisComment]) graphql.Marshaler {
+	return ec._ImageVulnerabilityAnalysisCommentConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNImageVulnerabilityAnalysisCommentConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*vulnerability.ImageVulnerabilityAnalysisComment]) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ImageVulnerabilityAnalysisCommentConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNImageVulnerabilityAnalysisCommentEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*vulnerability.ImageVulnerabilityAnalysisComment]) graphql.Marshaler {
+	return ec._ImageVulnerabilityAnalysisCommentEdge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNImageVulnerabilityAnalysisCommentEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*vulnerability.ImageVulnerabilityAnalysisComment]) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNImageVulnerabilityAnalysisCommentEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNImageVulnerabilityAnalysisState2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerabilityAnalysisState(ctx context.Context, v interface{}) (vulnerability.ImageVulnerabilityAnalysisState, error) {
+	var res vulnerability.ImageVulnerabilityAnalysisState
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNImageVulnerabilityAnalysisState2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerabilityAnalysisState(ctx context.Context, sel ast.SelectionSet, v vulnerability.ImageVulnerabilityAnalysisState) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNImageVulnerabilityAnalysisTrail2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerabilityAnalysisTrail(ctx context.Context, sel ast.SelectionSet, v vulnerability.ImageVulnerabilityAnalysisTrail) graphql.Marshaler {
+	return ec._ImageVulnerabilityAnalysisTrail(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNImageVulnerabilityAnalysisTrail2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerabilityAnalysisTrail(ctx context.Context, sel ast.SelectionSet, v *vulnerability.ImageVulnerabilityAnalysisTrail) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ImageVulnerabilityAnalysisTrail(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNImageVulnerabilityConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*vulnerability.ImageVulnerability]) graphql.Marshaler {
@@ -85976,6 +87670,25 @@ func (ec *executionContext) marshalNTriggerJobPayload2ᚖgithubᚗcomᚋnaisᚋa
 		return graphql.Null
 	}
 	return ec._TriggerJobPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUpdateImageVulnerabilityInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐUpdateImageVulnerabilityInput(ctx context.Context, v interface{}) (vulnerability.UpdateImageVulnerabilityInput, error) {
+	res, err := ec.unmarshalInputUpdateImageVulnerabilityInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateImageVulnerabilityPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐUpdateImageVulnerabilityPayload(ctx context.Context, sel ast.SelectionSet, v vulnerability.UpdateImageVulnerabilityPayload) graphql.Marshaler {
+	return ec._UpdateImageVulnerabilityPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUpdateImageVulnerabilityPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐUpdateImageVulnerabilityPayload(ctx context.Context, sel ast.SelectionSet, v *vulnerability.UpdateImageVulnerabilityPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UpdateImageVulnerabilityPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNUpdateSecretValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐUpdateSecretValueInput(ctx context.Context, v interface{}) (secret.UpdateSecretValueInput, error) {
