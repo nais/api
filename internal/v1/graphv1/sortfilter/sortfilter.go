@@ -113,6 +113,10 @@ func (s *SortFilter[T, OrderKey, FilterObj]) Sort(ctx context.Context, items []T
 		panic(fmt.Sprintf("OrderBy not registered for key: %v", key))
 	}
 
+	if len(items) == 0 {
+		return
+	}
+
 	if orderBy.concurrentOrderBy != nil {
 		s.sortConcurrent(ctx, items, orderBy.concurrentOrderBy, direction)
 		return

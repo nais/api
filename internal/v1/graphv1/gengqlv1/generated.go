@@ -11911,8 +11911,10 @@ input ImageVulnerabilityOrder {
 }
 
 enum ImageVulnerabilityOrderField {
+	IDENTIFIER
 	SEVERITY
-	RISK_SCORE
+	PACKAGE_URL
+	STATE
 }
 
 type TeamVulnerabilitySummary {
