@@ -23,4 +23,5 @@ var checksToRun = []Check{
 	checkNaiserator{},
 	checkNetpol{},
 	checkAppNoRunningInstances{},
+	checkVulnerabilities{},
 }

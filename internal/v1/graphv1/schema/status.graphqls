@@ -98,6 +98,20 @@ type WorkloadStatusFailedRun implements WorkloadStatusError {
 	name: String!
 }
 
+"Error describing that the workload is missing SBOM"
+type WorkloadStatusMissingSBOM implements WorkloadStatusError {
+	"Error level"
+	level: WorkloadStatusErrorLevel!
+}
+
+"Error describing that the workload is missing SBOM"
+type WorkloadStatusVulnerable implements WorkloadStatusError {
+	"Error level"
+	level: WorkloadStatusErrorLevel!
+	"Vulnerabilities"
+	summary: ImageVulnerabilitySummary!
+}
+
 "An error for a workload"
 interface WorkloadStatusError {
 	"Error level"

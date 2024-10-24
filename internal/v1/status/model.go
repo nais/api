@@ -5,6 +5,7 @@ import (
 	"io"
 	"strconv"
 
+	"github.com/nais/api/internal/v1/vulnerability"
 	"github.com/nais/api/internal/v1/workload/netpol"
 )
 
@@ -13,15 +14,13 @@ type WorkloadStatusError interface {
 }
 
 type WorkloadStatusDeprecatedIngress struct {
-	Revision string                   `json:"revision"`
-	Level    WorkloadStatusErrorLevel `json:"level"`
-	Ingress  string                   `json:"ingress"`
+	Level   WorkloadStatusErrorLevel `json:"level"`
+	Ingress string                   `json:"ingress"`
 }
 
 func (w WorkloadStatusDeprecatedIngress) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
 type WorkloadStatusDeprecatedRegistry struct {
-	Revision   string                   `json:"revision"`
 	Level      WorkloadStatusErrorLevel `json:"level"`
 	Registry   string                   `json:"registry"`
 	Repository string                   `json:"repository"`
@@ -32,23 +31,20 @@ type WorkloadStatusDeprecatedRegistry struct {
 func (w WorkloadStatusDeprecatedRegistry) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
 type WorkloadStatusInboundNetwork struct {
-	Revision string                    `json:"revision"`
-	Level    WorkloadStatusErrorLevel  `json:"level"`
-	Policy   *netpol.NetworkPolicyRule `json:"policy"`
+	Level  WorkloadStatusErrorLevel  `json:"level"`
+	Policy *netpol.NetworkPolicyRule `json:"policy"`
 }
 
 func (w WorkloadStatusInboundNetwork) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
 type WorkloadStatusInvalidNaisYaml struct {
-	Revision string                   `json:"revision"`
-	Level    WorkloadStatusErrorLevel `json:"level"`
-	Detail   string                   `json:"detail"`
+	Level  WorkloadStatusErrorLevel `json:"level"`
+	Detail string                   `json:"detail"`
 }
 
 func (w WorkloadStatusInvalidNaisYaml) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
 type WorkloadStatusNewInstancesFailing struct {
-	Revision         string                   `json:"revision"`
 	Level            WorkloadStatusErrorLevel `json:"level"`
 	FailingInstances []string                 `json:"failingInstances"`
 }
@@ -56,36 +52,45 @@ type WorkloadStatusNewInstancesFailing struct {
 func (w WorkloadStatusNewInstancesFailing) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
 type WorkloadStatusNoRunningInstances struct {
-	Revision string                   `json:"revision"`
-	Level    WorkloadStatusErrorLevel `json:"level"`
+	Level WorkloadStatusErrorLevel `json:"level"`
 }
 
 func (w WorkloadStatusNoRunningInstances) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
 type WorkloadStatusOutboundNetwork struct {
-	Revision string                    `json:"revision"`
-	Level    WorkloadStatusErrorLevel  `json:"level"`
-	Policy   *netpol.NetworkPolicyRule `json:"policy"`
+	Level  WorkloadStatusErrorLevel  `json:"level"`
+	Policy *netpol.NetworkPolicyRule `json:"policy"`
 }
 
 func (w WorkloadStatusOutboundNetwork) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
 type WorkloadStatusSynchronizationFailing struct {
-	Revision string                   `json:"revision"`
-	Level    WorkloadStatusErrorLevel `json:"level"`
-	Detail   string                   `json:"detail"`
+	Level  WorkloadStatusErrorLevel `json:"level"`
+	Detail string                   `json:"detail"`
 }
 
 func (w WorkloadStatusSynchronizationFailing) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
 type WorkloadStatusFailedRun struct {
-	Revision string                   `json:"revision"`
-	Level    WorkloadStatusErrorLevel `json:"level"`
-	Detail   string                   `json:"message"`
-	Name     string                   `json:"name"`
+	Level  WorkloadStatusErrorLevel `json:"level"`
+	Detail string                   `json:"message"`
+	Name   string                   `json:"name"`
 }
 
 func (w WorkloadStatusFailedRun) GetLevel() WorkloadStatusErrorLevel { return w.Level }
+
+type WorkloadStatusMissingSBOM struct {
+	Level WorkloadStatusErrorLevel `json:"level"`
+}
+
+func (w WorkloadStatusMissingSBOM) GetLevel() WorkloadStatusErrorLevel { return w.Level }
+
+type WorkloadStatusVulnerable struct {
+	Level   WorkloadStatusErrorLevel                 `json:"level"`
+	Summary *vulnerability.ImageVulnerabilitySummary `json:"summary"`
+}
+
+func (w WorkloadStatusVulnerable) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
 type WorkloadStatus struct {
 	State  WorkloadState         `json:"state"`

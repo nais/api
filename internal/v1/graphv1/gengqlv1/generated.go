@@ -1543,6 +1543,10 @@ type ComplexityRoot struct {
 		Level  func(childComplexity int) int
 	}
 
+	WorkloadStatusMissingSBOM struct {
+		Level func(childComplexity int) int
+	}
+
 	WorkloadStatusNewInstancesFailing struct {
 		FailingInstances func(childComplexity int) int
 		Level            func(childComplexity int) int
@@ -1560,6 +1564,11 @@ type ComplexityRoot struct {
 	WorkloadStatusSynchronizationFailing struct {
 		Detail func(childComplexity int) int
 		Level  func(childComplexity int) int
+	}
+
+	WorkloadStatusVulnerable struct {
+		Level   func(childComplexity int) int
+		Summary func(childComplexity int) int
 	}
 
 	WorkloadUtilization struct {
@@ -7877,6 +7886,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.WorkloadStatusInvalidNaisYaml.Level(childComplexity), true
 
+	case "WorkloadStatusMissingSBOM.level":
+		if e.complexity.WorkloadStatusMissingSBOM.Level == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusMissingSBOM.Level(childComplexity), true
+
 	case "WorkloadStatusNewInstancesFailing.failingInstances":
 		if e.complexity.WorkloadStatusNewInstancesFailing.FailingInstances == nil {
 			break
@@ -7925,6 +7941,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.WorkloadStatusSynchronizationFailing.Level(childComplexity), true
+
+	case "WorkloadStatusVulnerable.level":
+		if e.complexity.WorkloadStatusVulnerable.Level == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusVulnerable.Level(childComplexity), true
+
+	case "WorkloadStatusVulnerable.summary":
+		if e.complexity.WorkloadStatusVulnerable.Summary == nil {
+			break
+		}
+
+		return e.complexity.WorkloadStatusVulnerable.Summary(childComplexity), true
 
 	case "WorkloadUtilization.current":
 		if e.complexity.WorkloadUtilization.Current == nil {
@@ -10910,6 +10940,20 @@ type WorkloadStatusFailedRun implements WorkloadStatusError {
 	detail: String!
 	"Name of the run"
 	name: String!
+}
+
+"Error describing that the workload is missing SBOM"
+type WorkloadStatusMissingSBOM implements WorkloadStatusError {
+	"Error level"
+	level: WorkloadStatusErrorLevel!
+}
+
+"Error describing that the workload is missing SBOM"
+type WorkloadStatusVulnerable implements WorkloadStatusError {
+	"Error level"
+	level: WorkloadStatusErrorLevel!
+	"Vulnerabilities"
+	summary: ImageVulnerabilitySummary!
 }
 
 "An error for a workload"
@@ -60466,6 +60510,50 @@ func (ec *executionContext) fieldContext_WorkloadStatusInvalidNaisYaml_detail(_ 
 	return fc, nil
 }
 
+func (ec *executionContext) _WorkloadStatusMissingSBOM_level(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusMissingSBOM) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusMissingSBOM_level(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Level, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(status.WorkloadStatusErrorLevel)
+	fc.Result = res
+	return ec.marshalNWorkloadStatusErrorLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatusErrorLevel(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusMissingSBOM_level(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusMissingSBOM",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type WorkloadStatusErrorLevel does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _WorkloadStatusNewInstancesFailing_level(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusNewInstancesFailing) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_WorkloadStatusNewInstancesFailing_level(ctx, field)
 	if err != nil {
@@ -60781,6 +60869,110 @@ func (ec *executionContext) fieldContext_WorkloadStatusSynchronizationFailing_de
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusVulnerable_level(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusVulnerable) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusVulnerable_level(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Level, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(status.WorkloadStatusErrorLevel)
+	fc.Result = res
+	return ec.marshalNWorkloadStatusErrorLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋstatusᚐWorkloadStatusErrorLevel(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusVulnerable_level(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusVulnerable",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type WorkloadStatusErrorLevel does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadStatusVulnerable_summary(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusVulnerable) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadStatusVulnerable_summary(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Summary, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*vulnerability.ImageVulnerabilitySummary)
+	fc.Result = res
+	return ec.marshalNImageVulnerabilitySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerabilitySummary(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadStatusVulnerable_summary(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadStatusVulnerable",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_ImageVulnerabilitySummary_total(ctx, field)
+			case "riskScore":
+				return ec.fieldContext_ImageVulnerabilitySummary_riskScore(ctx, field)
+			case "low":
+				return ec.fieldContext_ImageVulnerabilitySummary_low(ctx, field)
+			case "medium":
+				return ec.fieldContext_ImageVulnerabilitySummary_medium(ctx, field)
+			case "high":
+				return ec.fieldContext_ImageVulnerabilitySummary_high(ctx, field)
+			case "critical":
+				return ec.fieldContext_ImageVulnerabilitySummary_critical(ctx, field)
+			case "unassigned":
+				return ec.fieldContext_ImageVulnerabilitySummary_unassigned(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilitySummary", field.Name)
 		},
 	}
 	return fc, nil
@@ -65439,6 +65631,20 @@ func (ec *executionContext) _WorkloadStatusError(ctx context.Context, sel ast.Se
 			return graphql.Null
 		}
 		return ec._WorkloadStatusFailedRun(ctx, sel, obj)
+	case status.WorkloadStatusMissingSBOM:
+		return ec._WorkloadStatusMissingSBOM(ctx, sel, &obj)
+	case *status.WorkloadStatusMissingSBOM:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadStatusMissingSBOM(ctx, sel, obj)
+	case status.WorkloadStatusVulnerable:
+		return ec._WorkloadStatusVulnerable(ctx, sel, &obj)
+	case *status.WorkloadStatusVulnerable:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadStatusVulnerable(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -81446,6 +81652,45 @@ func (ec *executionContext) _WorkloadStatusInvalidNaisYaml(ctx context.Context, 
 	return out
 }
 
+var workloadStatusMissingSBOMImplementors = []string{"WorkloadStatusMissingSBOM", "WorkloadStatusError"}
+
+func (ec *executionContext) _WorkloadStatusMissingSBOM(ctx context.Context, sel ast.SelectionSet, obj *status.WorkloadStatusMissingSBOM) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadStatusMissingSBOMImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkloadStatusMissingSBOM")
+		case "level":
+			out.Values[i] = ec._WorkloadStatusMissingSBOM_level(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var workloadStatusNewInstancesFailingImplementors = []string{"WorkloadStatusNewInstancesFailing", "WorkloadStatusError"}
 
 func (ec *executionContext) _WorkloadStatusNewInstancesFailing(ctx context.Context, sel ast.SelectionSet, obj *status.WorkloadStatusNewInstancesFailing) graphql.Marshaler {
@@ -81591,6 +81836,50 @@ func (ec *executionContext) _WorkloadStatusSynchronizationFailing(ctx context.Co
 			}
 		case "detail":
 			out.Values[i] = ec._WorkloadStatusSynchronizationFailing_detail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var workloadStatusVulnerableImplementors = []string{"WorkloadStatusVulnerable", "WorkloadStatusError"}
+
+func (ec *executionContext) _WorkloadStatusVulnerable(ctx context.Context, sel ast.SelectionSet, obj *status.WorkloadStatusVulnerable) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadStatusVulnerableImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkloadStatusVulnerable")
+		case "level":
+			out.Values[i] = ec._WorkloadStatusVulnerable_level(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "summary":
+			out.Values[i] = ec._WorkloadStatusVulnerable_summary(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -84033,6 +84322,16 @@ func (ec *executionContext) unmarshalNImageVulnerabilityState2githubᚗcomᚋnai
 
 func (ec *executionContext) marshalNImageVulnerabilityState2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerabilityState(ctx context.Context, sel ast.SelectionSet, v vulnerability.ImageVulnerabilityState) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) marshalNImageVulnerabilitySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerabilitySummary(ctx context.Context, sel ast.SelectionSet, v *vulnerability.ImageVulnerabilitySummary) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ImageVulnerabilitySummary(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNInboundNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋnetpolᚐInboundNetworkPolicy(ctx context.Context, sel ast.SelectionSet, v *netpol.InboundNetworkPolicy) graphql.Marshaler {
