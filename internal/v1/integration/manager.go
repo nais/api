@@ -24,6 +24,7 @@ import (
 	apiRunner "github.com/nais/api/internal/v1/integration/runner"
 	"github.com/nais/api/internal/v1/kubernetes"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
+	"github.com/nais/api/internal/v1/vulnerability"
 	testmanager "github.com/nais/tester/lua"
 	"github.com/nais/tester/lua/runner"
 	"github.com/nais/tester/lua/spec"
@@ -133,7 +134,9 @@ func newGQLRunner(ctx context.Context, config *Config, db database.Database, top
 		return nil, fmt.Errorf("failed to create k8s client sets: %w", err)
 	}
 
-	graphMiddleware, err := api.ConfigureV1Graph(ctx, true, watcherMgr, db, k8sClientSets, nil, nil, config.TenantName, clusters(), fakeHookd.New(), log)
+	vulnerabilityClient := vulnerability.NewDependencyTrackClient(vulnerability.DependencyTrackConfig{EnableFakes: true}, log)
+
+	graphMiddleware, err := api.ConfigureV1Graph(ctx, true, watcherMgr, db, k8sClientSets, nil, vulnerabilityClient, config.TenantName, clusters(), fakeHookd.New(), log)
 	if err != nil {
 		return nil, fmt.Errorf("failed to configure v1 graph: %w", err)
 	}

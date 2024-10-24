@@ -1,3 +1,7 @@
+-- Currently, there's no way to provide dependencytrack data, so we consider missing sbom
+-- as valid empty condition
+local expectedMissingSBOM = { __typename = "WorkloadStatusMissingSBOM", level = "TODO" }
+
 Helper.readK8sResources("k8s_resources/status")
 
 local function statusQuery(slug, env, appName, errorDetails)
@@ -31,7 +35,7 @@ Test.gql("job with no errors", function(t)
 					job = {
 						status = {
 							state = "NAIS",
-							errors = {},
+							errors = { expectedMissingSBOM },
 						},
 					},
 				},
@@ -66,6 +70,7 @@ Test.gql("job with deprecated registry", function(t)
 									repository = "navikt",
 									tag = "latest",
 								},
+								expectedMissingSBOM,
 							},
 						},
 					},
@@ -91,6 +96,7 @@ Test.gql("job with naiserator invalid yaml", function(t)
 						status = {
 							state = "NOT_NAIS",
 							errors = {
+								expectedMissingSBOM,
 								{
 									__typename = "WorkloadStatusInvalidNaisYaml",
 									level = "ERROR",
@@ -121,6 +127,7 @@ Test.gql("job with naiserator failed synchronization", function(t)
 						status = {
 							state = "NOT_NAIS",
 							errors = {
+								expectedMissingSBOM,
 								{
 									__typename = "WorkloadStatusSynchronizationFailing",
 									level = "ERROR",
@@ -162,6 +169,7 @@ Test.gql("job with failing netpols", function(t)
 						status = {
 							state = "NOT_NAIS",
 							errors = {
+								expectedMissingSBOM,
 								{
 									__typename = "WorkloadStatusInboundNetwork",
 									level = "WARNING",
