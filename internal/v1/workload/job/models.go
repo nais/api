@@ -367,6 +367,7 @@ type DeleteJobInput struct {
 
 type DeleteJobPayload struct {
 	TeamSlug *slug.Slug `json:"-"`
+	Success  bool       `json:"success"`
 }
 
 type TriggerJobInput struct {

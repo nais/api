@@ -236,6 +236,9 @@ input DeleteJobInput {
 type DeleteJobPayload {
 	"The team that owned the deleted job."
 	team: Team
+
+	"Whether or not the application was deleted."
+	success: Boolean
 }
 
 input TriggerJobInput {

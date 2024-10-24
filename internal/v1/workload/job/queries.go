@@ -135,6 +135,7 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environmentName, name strin
 	}
 	return &DeleteJobPayload{
 		TeamSlug: &teamSlug,
+		Success:  true,
 	}, nil
 }
 
