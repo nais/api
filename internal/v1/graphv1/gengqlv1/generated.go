@@ -344,7 +344,8 @@ type ComplexityRoot struct {
 	}
 
 	DeleteApplicationPayload struct {
-		Team func(childComplexity int) int
+		Success func(childComplexity int) int
+		Team    func(childComplexity int) int
 	}
 
 	DeleteJobPayload struct {
@@ -2710,6 +2711,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CreateTeamPayload.Team(childComplexity), true
+
+	case "DeleteApplicationPayload.success":
+		if e.complexity.DeleteApplicationPayload.Success == nil {
+			break
+		}
+
+		return e.complexity.DeleteApplicationPayload.Success(childComplexity), true
 
 	case "DeleteApplicationPayload.team":
 		if e.complexity.DeleteApplicationPayload.Team == nil {
@@ -8202,6 +8210,9 @@ input DeleteApplicationInput {
 type DeleteApplicationPayload {
 	"The team that owned the deleted application."
 	team: Team
+
+	"Whether or not the application was deleted."
+	success: Boolean
 }
 
 input RestartApplicationInput {
@@ -25046,6 +25057,47 @@ func (ec *executionContext) fieldContext_DeleteApplicationPayload_team(_ context
 	return fc, nil
 }
 
+func (ec *executionContext) _DeleteApplicationPayload_success(ctx context.Context, field graphql.CollectedField, obj *application.DeleteApplicationPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteApplicationPayload_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalOBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeleteApplicationPayload_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteApplicationPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _DeleteJobPayload_team(ctx context.Context, field graphql.CollectedField, obj *job.DeleteJobPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_DeleteJobPayload_team(ctx, field)
 	if err != nil {
@@ -32434,6 +32486,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteApplication(ctx context.
 			switch field.Name {
 			case "team":
 				return ec.fieldContext_DeleteApplicationPayload_team(ctx, field)
+			case "success":
+				return ec.fieldContext_DeleteApplicationPayload_success(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type DeleteApplicationPayload", field.Name)
 		},
@@ -66935,6 +66989,8 @@ func (ec *executionContext) _DeleteApplicationPayload(ctx context.Context, sel a
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "success":
+			out.Values[i] = ec._DeleteApplicationPayload_success(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

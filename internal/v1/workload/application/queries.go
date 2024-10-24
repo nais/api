@@ -99,6 +99,7 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environmentName, name strin
 	}
 	return &DeleteApplicationPayload{
 		TeamSlug: &teamSlug,
+		Success:  true,
 	}, nil
 }
 

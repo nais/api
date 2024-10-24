@@ -324,6 +324,7 @@ type DeleteApplicationInput struct {
 
 type DeleteApplicationPayload struct {
 	TeamSlug *slug.Slug `json:"-"`
+	Success  bool       `json:"-"`
 }
 
 type RestartApplicationInput struct {
