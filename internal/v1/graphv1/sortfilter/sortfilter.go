@@ -1,9 +1,5 @@
 package sortfilter
 
-// TODO(thokra): Some filters and orderbys is probably slow to run for each item,
-// consider doing a call for each element first, especially in Sort, and then return
-// the result.
-
 import (
 	"context"
 	"fmt"
