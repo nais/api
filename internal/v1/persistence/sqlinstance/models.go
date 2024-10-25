@@ -302,8 +302,8 @@ func toSQLInstance(u *unstructured.Unstructured, environmentName string) (*SQLIn
 		return nil, fmt.Errorf("converting to SQL instance: %w", err)
 	}
 
-	projectId := obj.GetAnnotations()["cnrm.cloud.google.com/project-id"]
-	if projectId == "" {
+	projectID := obj.GetAnnotations()["cnrm.cloud.google.com/project-id"]
+	if projectID == "" {
 		return nil, fmt.Errorf("missing project ID annotation")
 	}
 
@@ -318,7 +318,7 @@ func toSQLInstance(u *unstructured.Unstructured, environmentName string) (*SQLIn
 		MaintenanceVersion:  obj.Spec.MaintenanceVersion,
 		MaintenanceWindow:   toSQLInstanceMaintenanceWindow(obj.Spec.Settings.MaintenanceWindow),
 		BackupConfiguration: toSQLInstanceBackupConfiguration(obj.Spec.Settings.BackupConfiguration),
-		ProjectID:           projectId,
+		ProjectID:           projectID,
 		Tier:                obj.Spec.Settings.Tier,
 		Version:             obj.Spec.DatabaseVersion,
 		Status:              toSQLInstanceStatus(obj.Status),

@@ -135,8 +135,8 @@ func toBucket(u *unstructured.Unstructured, env string) (*Bucket, error) {
 		return nil, fmt.Errorf("converting to Bucket: %w", err)
 	}
 
-	projectId := obj.GetAnnotations()["cnrm.cloud.google.com/project-id"]
-	if projectId == "" {
+	projectID := obj.GetAnnotations()["cnrm.cloud.google.com/project-id"]
+	if projectID == "" {
 		return nil, fmt.Errorf("missing project ID annotation")
 	}
 
@@ -147,7 +147,7 @@ func toBucket(u *unstructured.Unstructured, env string) (*Bucket, error) {
 		WorkloadReference:        workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
 		TeamSlug:                 slug.Slug(obj.GetNamespace()),
 		EnvironmentName:          env,
-		ProjectID:                projectId,
+		ProjectID:                projectID,
 		UniformBucketLevelAccess: ptr.Deref(obj.Spec.UniformBucketLevelAccess, false),
 		Cors:                     toBucketCors(obj.Spec.Cors),
 		Status:                   toBucketStatus(obj.Status),

@@ -2,7 +2,6 @@ package graphv1
 
 import (
 	"context"
-	"slices"
 
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
@@ -36,19 +35,14 @@ func (r *bigQueryDatasetResolver) Access(ctx context.Context, obj *bigquery.BigQ
 		return nil, err
 	}
 
-	if orderBy != nil {
-		switch orderBy.Field {
-		case bigquery.BigQueryDatasetAccessOrderFieldRole:
-			slices.SortStableFunc(obj.Access, func(a, b *bigquery.BigQueryDatasetAccess) int {
-				return modelv1.Compare(a.Role, b.Role, orderBy.Direction)
-			})
-		case bigquery.BigQueryDatasetAccessOrderFieldEmail:
-			slices.SortStableFunc(obj.Access, func(a, b *bigquery.BigQueryDatasetAccess) int {
-				return modelv1.Compare(a.Email, b.Email, orderBy.Direction)
-			})
-
+	if orderBy == nil {
+		orderBy = &bigquery.BigQueryDatasetAccessOrder{
+			Field:     bigquery.BigQueryDatasetAccessOrderFieldEmail,
+			Direction: modelv1.OrderDirectionAsc,
 		}
 	}
+
+	bigquery.SortFilterAccess.Sort(ctx, obj.Access, orderBy.Field, orderBy.Direction)
 
 	ret := pagination.Slice(obj.Access, page)
 	return pagination.NewConnection(ret, page, int32(len(obj.Access))), nil

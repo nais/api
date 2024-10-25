@@ -2,7 +2,6 @@ package opensearch
 
 import (
 	"context"
-	"slices"
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
@@ -28,7 +27,7 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Op
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *OpenSearchOrder) (*OpenSearchConnection, error) {
 	all := ListAllForTeam(ctx, teamSlug)
-	orderOpenSearch(all, orderBy)
+	orderOpenSearch(ctx, all, orderBy)
 
 	instances := pagination.Slice(all, page)
 	return pagination.NewConnection(instances, page, int32(len(all))), nil
@@ -56,18 +55,10 @@ func ListAccess(ctx context.Context, openSearch *OpenSearch, page *pagination.Pa
 	all = append(all, applicationAccess...)
 	all = append(all, jobAccess...)
 
-	if orderBy != nil {
-		switch orderBy.Field {
-		case OpenSearchAccessOrderFieldAccess:
-			slices.SortStableFunc(all, func(a, b *OpenSearchAccess) int {
-				return modelv1.Compare(a.Access, b.Access, orderBy.Direction)
-			})
-		case OpenSearchAccessOrderFieldWorkload:
-			slices.SortStableFunc(all, func(a, b *OpenSearchAccess) int {
-				return modelv1.Compare(a.WorkloadReference.Name, b.WorkloadReference.Name, orderBy.Direction)
-			})
-		}
+	if orderBy == nil {
+		orderBy = &OpenSearchAccessOrder{Field: OpenSearchAccessOrderFieldAccess, Direction: modelv1.OrderDirectionAsc}
 	}
+	SortFilterOpenSearchAccess.Sort(ctx, all, orderBy.Field, orderBy.Direction)
 
 	ret := pagination.Slice(all, page)
 	return pagination.NewConnection(ret, page, int32(len(all))), nil
@@ -98,17 +89,10 @@ func Search(ctx context.Context, q string) ([]*searchv1.Result, error) {
 	return ret, nil
 }
 
-func orderOpenSearch(ret []*OpenSearch, orderBy *OpenSearchOrder) {
-	if orderBy != nil {
-		switch orderBy.Field {
-		case OpenSearchOrderFieldName:
-			slices.SortStableFunc(ret, func(a, b *OpenSearch) int {
-				return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
-			})
-		case OpenSearchOrderFieldEnvironment:
-			slices.SortStableFunc(ret, func(a, b *OpenSearch) int {
-				return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
-			})
-		}
+func orderOpenSearch(ctx context.Context, ret []*OpenSearch, orderBy *OpenSearchOrder) {
+	if orderBy == nil {
+		orderBy = &OpenSearchOrder{Field: OpenSearchOrderFieldName, Direction: modelv1.OrderDirectionAsc}
 	}
+
+	SortFilterOpenSearch.Sort(ctx, ret, orderBy.Field, orderBy.Direction)
 }

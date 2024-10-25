@@ -2,7 +2,6 @@ package redis
 
 import (
 	"context"
-	"slices"
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
@@ -28,7 +27,7 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Re
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *RedisInstanceOrder) (*RedisInstanceConnection, error) {
 	all := ListAllForTeam(ctx, teamSlug)
-	orderRedisInstance(all, orderBy)
+	orderRedisInstance(ctx, all, orderBy)
 
 	instances := pagination.Slice(all, page)
 	return pagination.NewConnection(instances, page, int32(len(all))), nil
@@ -56,18 +55,10 @@ func ListAccess(ctx context.Context, redis *RedisInstance, page *pagination.Pagi
 	all = append(all, applicationAccess...)
 	all = append(all, jobAccess...)
 
-	if orderBy != nil {
-		switch orderBy.Field {
-		case RedisInstanceAccessOrderFieldAccess:
-			slices.SortStableFunc(all, func(a, b *RedisInstanceAccess) int {
-				return modelv1.Compare(a.Access, b.Access, orderBy.Direction)
-			})
-		case RedisInstanceAccessOrderFieldWorkload:
-			slices.SortStableFunc(all, func(a, b *RedisInstanceAccess) int {
-				return modelv1.Compare(a.WorkloadReference.Name, b.WorkloadReference.Name, orderBy.Direction)
-			})
-		}
+	if orderBy == nil {
+		orderBy = &RedisInstanceAccessOrder{Field: RedisInstanceAccessOrderFieldAccess, Direction: modelv1.OrderDirectionAsc}
 	}
+	SortFilterRedisInstanceAccess.Sort(ctx, all, orderBy.Field, orderBy.Direction)
 
 	ret := pagination.Slice(all, page)
 	return pagination.NewConnection(ret, page, int32(len(all))), nil
@@ -85,7 +76,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, references []nais_
 		}
 	}
 
-	orderRedisInstance(ret, orderBy)
+	orderRedisInstance(ctx, ret, orderBy)
 	return pagination.NewConnectionWithoutPagination(ret), nil
 }
 
@@ -106,21 +97,13 @@ func Search(ctx context.Context, q string) ([]*searchv1.Result, error) {
 	return ret, nil
 }
 
-func orderRedisInstance(datasets []*RedisInstance, orderBy *RedisInstanceOrder) {
+func orderRedisInstance(ctx context.Context, instances []*RedisInstance, orderBy *RedisInstanceOrder) {
 	if orderBy == nil {
 		orderBy = &RedisInstanceOrder{
 			Field:     RedisInstanceOrderFieldName,
 			Direction: modelv1.OrderDirectionAsc,
 		}
 	}
-	switch orderBy.Field {
-	case RedisInstanceOrderFieldName:
-		slices.SortStableFunc(datasets, func(a, b *RedisInstance) int {
-			return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
-		})
-	case RedisInstanceOrderFieldEnvironment:
-		slices.SortStableFunc(datasets, func(a, b *RedisInstance) int {
-			return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
-		})
-	}
+
+	SortFilterRedisInstance.Sort(ctx, instances, orderBy.Field, orderBy.Direction)
 }

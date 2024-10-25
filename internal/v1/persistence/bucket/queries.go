@@ -2,7 +2,6 @@ package bucket
 
 import (
 	"context"
-	"slices"
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
@@ -28,7 +27,7 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Bu
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *BucketOrder) (*BucketConnection, error) {
 	all := ListAllForTeam(ctx, teamSlug)
-	orderBuckets(all, orderBy)
+	orderBuckets(ctx, all, orderBy)
 
 	slice := pagination.Slice(all, page)
 	return pagination.NewConnection(slice, page, int32(len(all))), nil
@@ -51,7 +50,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, references []nais_
 		}
 	}
 
-	orderBuckets(ret, orderBy)
+	orderBuckets(ctx, ret, orderBy)
 	return pagination.NewConnectionWithoutPagination(ret), nil
 }
 
@@ -72,17 +71,13 @@ func Search(ctx context.Context, q string) ([]*searchv1.Result, error) {
 	return ret, nil
 }
 
-func orderBuckets(buckets []*Bucket, orderBy *BucketOrder) {
+func orderBuckets(ctx context.Context, buckets []*Bucket, orderBy *BucketOrder) {
 	if orderBy == nil {
 		orderBy = &BucketOrder{
 			Field:     BucketOrderFieldName,
 			Direction: modelv1.OrderDirectionAsc,
 		}
 	}
-	switch orderBy.Field {
-	case BucketOrderFieldName:
-		slices.SortStableFunc(buckets, func(a, b *Bucket) int {
-			return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
-		})
-	}
+
+	SortFilter.Sort(ctx, buckets, orderBy.Field, orderBy.Direction)
 }

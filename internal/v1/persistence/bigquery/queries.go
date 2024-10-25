@@ -2,7 +2,6 @@ package bigquery
 
 import (
 	"context"
-	"slices"
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
@@ -32,7 +31,7 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Bi
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *BigQueryDatasetOrder) (*BigQueryDatasetConnection, error) {
 	all := ListAllForTeam(ctx, teamSlug)
-	orderDatasets(all, orderBy)
+	orderDatasets(ctx, all, orderBy)
 
 	datasets := pagination.Slice(all, page)
 	return pagination.NewConnection(datasets, page, int32(len(all))), nil
@@ -55,7 +54,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, datasets []nais_io
 		}
 	}
 
-	orderDatasets(ret, orderBy)
+	orderDatasets(ctx, ret, orderBy)
 	return pagination.NewConnectionWithoutPagination(ret), nil
 }
 
@@ -76,21 +75,12 @@ func Search(ctx context.Context, q string) ([]*searchv1.Result, error) {
 	return ret, nil
 }
 
-func orderDatasets(datasets []*BigQueryDataset, orderBy *BigQueryDatasetOrder) {
+func orderDatasets(ctx context.Context, datasets []*BigQueryDataset, orderBy *BigQueryDatasetOrder) {
 	if orderBy == nil {
 		orderBy = &BigQueryDatasetOrder{
 			Field:     BigQueryDatasetOrderFieldName,
 			Direction: modelv1.OrderDirectionAsc,
 		}
 	}
-	switch orderBy.Field {
-	case BigQueryDatasetOrderFieldName:
-		slices.SortStableFunc(datasets, func(a, b *BigQueryDataset) int {
-			return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
-		})
-	case BigQueryDatasetOrderFieldEnvironment:
-		slices.SortStableFunc(datasets, func(a, b *BigQueryDataset) int {
-			return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
-		})
-	}
+	SortFilter.Sort(ctx, datasets, orderBy.Field, orderBy.Direction)
 }

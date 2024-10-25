@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"slices"
 
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
 	"github.com/nais/api/internal/v1/searchv1"
@@ -56,7 +55,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 		}
 	}
 
-	orderSqlInstances(ret, orderBy)
+	orderSQLInstances(ctx, ret, orderBy)
 
 	return pagination.NewConnectionWithoutPagination(ret), nil
 }
@@ -78,7 +77,7 @@ func Search(ctx context.Context, q string) ([]*searchv1.Result, error) {
 	return ret, nil
 }
 
-func orderSqlInstances(instances []*SQLInstance, orderBy *SQLInstanceOrder) {
+func orderSQLInstances(ctx context.Context, instances []*SQLInstance, orderBy *SQLInstanceOrder) {
 	if orderBy == nil {
 		orderBy = &SQLInstanceOrder{
 			Field:     SQLInstanceOrderFieldName,
@@ -86,32 +85,12 @@ func orderSqlInstances(instances []*SQLInstance, orderBy *SQLInstanceOrder) {
 		}
 	}
 
-	switch orderBy.Field {
-	case SQLInstanceOrderFieldName:
-		slices.SortStableFunc(instances, func(a, b *SQLInstance) int {
-			return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
-		})
-	case SQLInstanceOrderFieldVersion:
-		slices.SortStableFunc(instances, func(a, b *SQLInstance) int {
-			if a.Version == nil && b.Version == nil {
-				return 0
-			} else if a.Version == nil {
-				return 1
-			} else if b.Version == nil {
-				return -1
-			}
-			return modelv1.Compare(*a.Version, *b.Version, orderBy.Direction)
-		})
-	case SQLInstanceOrderFieldEnvironment:
-		slices.SortStableFunc(instances, func(a, b *SQLInstance) int {
-			return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
-		})
-	}
+	SortFilterSQLInstance.Sort(ctx, instances, orderBy.Field, orderBy.Direction)
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *SQLInstanceOrder) (*SQLInstanceConnection, error) {
 	all := ListAllForTeam(ctx, teamSlug)
-	orderSqlInstances(all, orderBy)
+	orderSQLInstances(ctx, all, orderBy)
 
 	instances := pagination.Slice(all, page)
 	return pagination.NewConnection(instances, page, int32(len(all))), nil
@@ -145,16 +124,7 @@ func ListSQLInstanceUsers(ctx context.Context, sqlInstance *SQLInstance, page *p
 		}
 	}
 
-	switch orderBy.Field {
-	case SQLInstanceUserOrderFieldName:
-		slices.SortStableFunc(all, func(a, b *SQLInstanceUser) int {
-			return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
-		})
-	case SQLInstanceUserOrderFieldAuthentication:
-		slices.SortStableFunc(all, func(a, b *SQLInstanceUser) int {
-			return modelv1.Compare(a.Authentication, b.Authentication, orderBy.Direction)
-		})
-	}
+	SortFilterSQLInstanceUser.Sort(ctx, all, orderBy.Field, orderBy.Direction)
 
 	users := pagination.Slice(all, page)
 	return pagination.NewConnection(users, page, int32(len(all))), nil

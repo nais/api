@@ -10,21 +10,21 @@ import (
 type identType int
 
 const (
-	identSqlInstance identType = iota
-	identSqlDatabase
+	identSQLInstance identType = iota
+	identSQLDatabase
 )
 
 func init() {
-	ident.RegisterIdentType(identSqlInstance, "PSI", GetByIdent)
-	ident.RegisterIdentType(identSqlDatabase, "PSD", GetDatabaseByIdent)
+	ident.RegisterIdentType(identSQLInstance, "PSI", GetByIdent)
+	ident.RegisterIdentType(identSQLDatabase, "PSD", GetDatabaseByIdent)
 }
 
 func newIdent(teamSlug slug.Slug, environmentName, sqlInstanceName string) ident.Ident {
-	return ident.NewIdent(identSqlInstance, teamSlug.String(), environmentName, sqlInstanceName)
+	return ident.NewIdent(identSQLInstance, teamSlug.String(), environmentName, sqlInstanceName)
 }
 
 func newDatabaseIdent(teamSlug slug.Slug, environmentName, sqlInstanceName string) ident.Ident {
-	return ident.NewIdent(identSqlDatabase, teamSlug.String(), environmentName, sqlInstanceName)
+	return ident.NewIdent(identSQLDatabase, teamSlug.String(), environmentName, sqlInstanceName)
 }
 
 func parseIdent(id ident.Ident) (teamSlug slug.Slug, environmentName, sqlInstanceName string, err error) {

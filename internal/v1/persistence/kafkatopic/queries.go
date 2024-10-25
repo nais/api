@@ -2,16 +2,14 @@ package kafkatopic
 
 import (
 	"context"
-	"slices"
 	"strings"
-
-	"github.com/nais/api/internal/v1/kubernetes/watcher"
-	"github.com/nais/api/internal/v1/searchv1"
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	"github.com/nais/api/internal/v1/kubernetes/watcher"
+	"github.com/nais/api/internal/v1/searchv1"
 )
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*KafkaTopic, error) {
@@ -29,7 +27,7 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Ka
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *KafkaTopicOrder) (*KafkaTopicConnection, error) {
 	all := ListAllForTeam(ctx, teamSlug)
-	orderTopics(all, orderBy)
+	orderTopics(ctx, all, orderBy)
 
 	slice := pagination.Slice(all, page)
 	return pagination.NewConnection(slice, page, int32(len(all))), nil
@@ -54,7 +52,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, workloadName, pool
 			}
 		}
 	}
-	orderTopicACLs(ret, orderBy)
+	orderTopicACLs(ctx, ret, orderBy)
 	return pagination.NewConnectionWithoutPagination(ret), nil
 }
 
@@ -88,48 +86,22 @@ func stringMatch(s, pattern string) bool {
 	return strings.HasPrefix(s, pattern)
 }
 
-func orderTopics(topics []*KafkaTopic, orderBy *KafkaTopicOrder) {
+func orderTopics(ctx context.Context, topics []*KafkaTopic, orderBy *KafkaTopicOrder) {
 	if orderBy == nil {
 		orderBy = &KafkaTopicOrder{
 			Field:     KafkaTopicOrderFieldName,
 			Direction: modelv1.OrderDirectionAsc,
 		}
 	}
-	switch orderBy.Field {
-	case KafkaTopicOrderFieldName:
-		slices.SortStableFunc(topics, func(a, b *KafkaTopic) int {
-			return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
-		})
-	case KafkaTopicOrderFieldEnvironment:
-		slices.SortStableFunc(topics, func(a, b *KafkaTopic) int {
-			return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
-		})
-	}
+	SortFilterTopic.Sort(ctx, topics, orderBy.Field, orderBy.Direction)
 }
 
-func orderTopicACLs(topics []*KafkaTopicACL, orderBy *KafkaTopicACLOrder) {
+func orderTopicACLs(ctx context.Context, acls []*KafkaTopicACL, orderBy *KafkaTopicACLOrder) {
 	if orderBy == nil {
 		orderBy = &KafkaTopicACLOrder{
 			Field:     KafkaTopicACLOrderFieldTopicName,
 			Direction: modelv1.OrderDirectionAsc,
 		}
 	}
-	switch orderBy.Field {
-	case KafkaTopicACLOrderFieldTopicName:
-		slices.SortStableFunc(topics, func(a, b *KafkaTopicACL) int {
-			return modelv1.Compare(a.TopicName, b.TopicName, orderBy.Direction)
-		})
-	case KafkaTopicACLOrderFieldAccess:
-		slices.SortStableFunc(topics, func(a, b *KafkaTopicACL) int {
-			return modelv1.Compare(a.Access, b.Access, orderBy.Direction)
-		})
-	case KafkaTopicACLOrderFieldConsumer:
-		slices.SortStableFunc(topics, func(a, b *KafkaTopicACL) int {
-			return modelv1.Compare(a.WorkloadName, b.WorkloadName, orderBy.Direction)
-		})
-	case KafkaTopicACLOrderFieldTeamSlug:
-		slices.SortStableFunc(topics, func(a, b *KafkaTopicACL) int {
-			return modelv1.Compare(a.TeamName, b.TeamName, orderBy.Direction)
-		})
-	}
+	SortFilterTopicACL.Sort(ctx, acls, orderBy.Field, orderBy.Direction)
 }

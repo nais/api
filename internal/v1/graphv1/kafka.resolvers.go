@@ -3,7 +3,6 @@ package graphv1
 import (
 	"context"
 	"errors"
-	"slices"
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
@@ -47,38 +46,15 @@ func (r *kafkaTopicResolver) ACL(ctx context.Context, obj *kafkatopic.KafkaTopic
 		return nil, err
 	}
 
-	filteredACLs := make([]*kafkatopic.KafkaTopicACL, 0)
-	if filter != nil {
-		for _, acl := range obj.ACLs {
-			if filter.Team != nil && string(*filter.Team) != acl.TeamName && acl.TeamName != "*" {
-				continue
-			}
-			if filter.Workload != nil && *filter.Workload != acl.WorkloadName && acl.WorkloadName != "*" {
-				continue
-			}
+	filteredACLs := kafkatopic.SortFilterTopicACL.Filter(ctx, obj.ACLs, filter)
 
-			filteredACLs = append(filteredACLs, acl)
-		}
-	} else {
-		filteredACLs = obj.ACLs
-	}
-
-	if orderBy != nil {
-		switch orderBy.Field {
-		case kafkatopic.KafkaTopicACLOrderFieldTeamSlug:
-			slices.SortStableFunc(filteredACLs, func(a, b *kafkatopic.KafkaTopicACL) int {
-				return modelv1.Compare(a.TeamName, b.TeamName, orderBy.Direction)
-			})
-		case kafkatopic.KafkaTopicACLOrderFieldAccess:
-			slices.SortStableFunc(filteredACLs, func(a, b *kafkatopic.KafkaTopicACL) int {
-				return modelv1.Compare(a.Access, b.Access, orderBy.Direction)
-			})
-		case kafkatopic.KafkaTopicACLOrderFieldConsumer:
-			slices.SortStableFunc(filteredACLs, func(a, b *kafkatopic.KafkaTopicACL) int {
-				return modelv1.Compare(a.WorkloadName, b.WorkloadName, orderBy.Direction)
-			})
+	if orderBy == nil {
+		orderBy = &kafkatopic.KafkaTopicACLOrder{
+			Field:     kafkatopic.KafkaTopicACLOrderFieldTopicName,
+			Direction: modelv1.OrderDirectionAsc,
 		}
 	}
+	kafkatopic.SortFilterTopicACL.Sort(ctx, filteredACLs, orderBy.Field, orderBy.Direction)
 
 	ret := pagination.Slice(filteredACLs, page)
 	return pagination.NewConnection(ret, page, int32(len(filteredACLs))), nil
