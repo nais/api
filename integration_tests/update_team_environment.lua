@@ -107,9 +107,8 @@ Test.gql("Invalid channel name", function(t)
 			{
 				extensions = {
 					field = "slackAlertsChannel",
-					rule = "optionalslackchannel",
 				},
-				message = "\"dev\" is not a valid Slack channel name. A valid channel name starts with a '#' and is between 3 and 80 characters long.",
+				message = "This is not a valid Slack channel name. A valid channel name starts with a '#' and is between 3 and 80 characters long.",
 				path = {
 					"updateTeamEnvironment",
 				},
@@ -135,12 +134,10 @@ Test.gql("Nothing to update", function(t)
 	]], TeamSlug))
 
 	t.check {
-		data = Null,
-		errors = {
-			{
-				message = "Nothing to update.",
-				path = {
-					"updateTeamEnvironment",
+		data = {
+			updateTeamEnvironment = {
+				environment = {
+					name = "dev",
 				},
 			},
 		},

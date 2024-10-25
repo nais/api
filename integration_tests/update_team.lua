@@ -96,14 +96,14 @@ Test.gql("Nothing to update", function(t)
 	]], TeamSlug))
 
 	t.check {
-		data = Null,
-		errors = {
-			{
-				message = "Nothing to update.",
-				path = {
-					"updateTeam",
+		data = {
+			updateTeam = {
+				team = {
+					purpose = "new-purpose",
 				},
 			},
 		},
 	}
 end)
+
+-- TODO(chredvar): Add tests for invalid input for create and update team

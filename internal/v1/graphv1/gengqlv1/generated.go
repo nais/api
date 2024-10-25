@@ -86693,17 +86693,17 @@ func (ec *executionContext) marshalNSetTeamMemberRolePayload2ᚖgithubᚗcomᚋn
 
 func (ec *executionContext) unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, v interface{}) (slug.Slug, error) {
 	var res slug.Slug
-	err := res.UnmarshalGQL(v)
+	err := res.UnmarshalGQLContext(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, sel ast.SelectionSet, v slug.Slug) graphql.Marshaler {
-	return v
+	return graphql.WrapContextMarshaler(ctx, v)
 }
 
 func (ec *executionContext) unmarshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, v interface{}) (*slug.Slug, error) {
 	var res = new(slug.Slug)
-	err := res.UnmarshalGQL(v)
+	err := res.UnmarshalGQLContext(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -86714,7 +86714,7 @@ func (ec *executionContext) marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 		}
 		return graphql.Null
 	}
-	return v
+	return graphql.WrapContextMarshaler(ctx, v)
 }
 
 func (ec *executionContext) marshalNSqlInstance2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLInstance(ctx context.Context, sel ast.SelectionSet, v sqlinstance.SQLInstance) graphql.Marshaler {
@@ -89293,7 +89293,7 @@ func (ec *executionContext) unmarshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 		return nil, nil
 	}
 	var res = new(slug.Slug)
-	err := res.UnmarshalGQL(v)
+	err := res.UnmarshalGQLContext(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -89301,7 +89301,7 @@ func (ec *executionContext) marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 	if v == nil {
 		return graphql.Null
 	}
-	return v
+	return graphql.WrapContextMarshaler(ctx, v)
 }
 
 func (ec *executionContext) marshalOSqlDatabase2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLDatabase(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.SQLDatabase) graphql.Marshaler {

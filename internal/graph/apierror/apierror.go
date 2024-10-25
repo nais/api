@@ -7,11 +7,11 @@ import (
 	"fmt"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/v1/graphv1/loaderv1"
+	"github.com/nais/api/internal/v1/validate"
 	"github.com/sirupsen/logrus"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
@@ -83,41 +83,23 @@ func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
 			err.Message = ErrDatabase.Error()
 			log.WithError(originalError).Errorf("database error %s: %s (%s)", originalError.Code, originalError.Message, originalError.Detail)
 			return err
-		case validator.ValidationErrors:
-			for i, verr := range originalError {
+		case *validate.ValidationErrors:
+			var verr *gqlerror.Error
+			// Add errors in the correct order. The returned error will be the last one.
+			for i, err := range originalError.Errors {
 				if i > 0 {
-					graphql.AddError(ctx, err)
+					graphql.AddError(ctx, verr)
 				}
-
-				msg := "Invalid input."
-				switch verr.Tag() {
-				case "required":
-					msg = "The field is required."
-				case "alphanum":
-					msg = "The field must contain only alphanumeric characters."
-				case "min":
-					msg = "The field must be at least " + verr.Param() + " characters long."
-				case "max":
-					msg = "The field must be at most " + verr.Param() + " characters long."
-				case "startswith":
-					msg = fmt.Sprintf("The field must start with %q.", verr.Param())
-				case "slackchannel", "optionalslackchannel":
-					msg = fmt.Sprintf("%q is not a valid Slack channel name. A valid channel name starts with a '#' and is between 3 and 80 characters long.", verr.Value())
-				}
-				err = &gqlerror.Error{
-					Message: msg,
+				verr = &gqlerror.Error{
+					Message: err.Message,
 					Path:    graphql.GetPath(ctx),
 					Extensions: map[string]any{
-						"field": verr.Field(),
-						"rule":  verr.Tag(),
+						"field": err.GraphQLField,
 					},
 				}
-				if verr.Param() != "" {
-					err.Extensions["param"] = verr.Param()
-				}
 			}
+			return verr
 
-			return err
 		default:
 			break
 		}

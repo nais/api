@@ -2,6 +2,7 @@ package slug_test
 
 import (
 	"bytes"
+	"context"
 	"testing"
 
 	"github.com/nais/api/internal/slug"
@@ -10,7 +11,7 @@ import (
 func TestMarshalSlug(t *testing.T) {
 	buf := new(bytes.Buffer)
 	s := slug.Slug("some-slug")
-	s.MarshalGQL(buf)
+	_ = s.MarshalGQLContext(context.Background(), buf)
 
 	if expected := `"some-slug"`; buf.String() != expected {
 		t.Errorf("expected %q, got %q", expected, buf.String())
@@ -18,9 +19,10 @@ func TestMarshalSlug(t *testing.T) {
 }
 
 func TestUnmarshalSlug(t *testing.T) {
+	ctx := context.Background()
 	t.Run("invalid case", func(t *testing.T) {
 		s := slug.Slug("")
-		err := s.UnmarshalGQL(123)
+		err := s.UnmarshalGQLContext(ctx, 123)
 		if expected := "slug must be a string"; err.Error() != expected {
 			t.Errorf("expected error message %q, got %q", expected, err.Error())
 		}
@@ -28,7 +30,7 @@ func TestUnmarshalSlug(t *testing.T) {
 
 	t.Run("valid case", func(t *testing.T) {
 		s := slug.Slug("")
-		if err := s.UnmarshalGQL("slug"); err != nil {
+		if err := s.UnmarshalGQLContext(ctx, "slug"); err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
 

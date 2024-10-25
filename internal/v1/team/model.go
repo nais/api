@@ -1,6 +1,7 @@
 package team
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/team/teamsql"
+	"github.com/nais/api/internal/v1/validate"
 	"k8s.io/utils/ptr"
 )
 
@@ -330,40 +332,61 @@ func (e UserTeamOrderField) MarshalGQL(w io.Writer) {
 }
 
 type CreateTeamInput struct {
-	Slug         slug.Slug `json:"slug" validate:"required,alphanum,min=3,max=30"`
-	Purpose      string    `json:"purpose" validate:"required"`
-	SlackChannel string    `json:"slackChannel" validate:"required,slackchannel"`
+	Slug         slug.Slug `json:"slug"`
+	Purpose      string    `json:"purpose"`
+	SlackChannel string    `json:"slackChannel"`
 }
 
-func (input *CreateTeamInput) Sanitized() *CreateTeamInput {
-	return &CreateTeamInput{
-		Slug:         slug.Slug(strings.TrimSpace(string(input.Slug))),
-		Purpose:      strings.TrimSpace(input.Purpose),
-		SlackChannel: strings.TrimSpace(input.SlackChannel),
+func (i *CreateTeamInput) Validate(ctx context.Context) error {
+	verr := validate.New()
+	i.Purpose = strings.TrimSpace(i.Purpose)
+	i.SlackChannel = strings.TrimSpace(i.SlackChannel)
+
+	if exists, err := db(ctx).SlugAvailable(ctx, i.Slug); err != nil {
+		return err
+	} else if exists {
+		verr.Add("slug", "Team slug is not available.")
 	}
+
+	if i.Purpose == "" {
+		verr.Add("purpose", "This is not a valid purpose.")
+	}
+
+	if s := i.SlackChannel; !strings.HasPrefix(s, "#") || len(s) < 3 || len(s) > 80 {
+		verr.Add("slackChannel", "This is not a valid Slack channel name. A valid channel name starts with a '#' and is between 3 and 80 characters long.")
+	}
+
+	return verr.NilIfEmpty()
 }
 
 type UpdateTeamInput struct {
 	Slug         slug.Slug `json:"slug"`
-	Purpose      *string   `json:"purpose" validate:"omitnil,min=1"`
-	SlackChannel *string   `json:"slackChannel" validate:"omitnil,optionalslackchannel"`
+	Purpose      *string   `json:"purpose" `
+	SlackChannel *string   `json:"slackChannel"`
 }
 
-func (input *UpdateTeamInput) Sanitized() *UpdateTeamInput {
-	var purpose, slackChannel *string
-	if input.Purpose != nil {
-		purpose = ptr.To(strings.TrimSpace(*input.Purpose))
+func (i *UpdateTeamInput) Validate() error {
+	verr := validate.New()
+
+	if i.Purpose != nil {
+		i.Purpose = ptr.To(strings.TrimSpace(*i.Purpose))
 	}
 
-	if input.SlackChannel != nil {
-		slackChannel = ptr.To(strings.TrimSpace(*input.SlackChannel))
+	if i.SlackChannel != nil {
+		i.SlackChannel = ptr.To(strings.TrimSpace(*i.SlackChannel))
 	}
 
-	return &UpdateTeamInput{
-		Slug:         input.Slug,
-		Purpose:      purpose,
-		SlackChannel: slackChannel,
+	if i.Purpose != nil && *i.Purpose == "" {
+		verr.Add("purpose", "This is not a valid purpose.")
 	}
+
+	if i.SlackChannel != nil {
+		if s := *i.SlackChannel; !strings.HasPrefix(s, "#") || len(s) < 3 || len(s) > 80 {
+			verr.Add("slackChannel", "This is not a valid Slack channel name. A valid channel name starts with a '#' and is between 3 and 80 characters long.")
+		}
+	}
+
+	return verr.NilIfEmpty()
 }
 
 type SynchronizeTeamInput struct {
@@ -455,20 +478,21 @@ type SetTeamMemberRolePayload struct {
 type UpdateTeamEnvironmentInput struct {
 	Slug               slug.Slug `json:"slug"`
 	EnvironmentName    string    `json:"environmentName"`
-	SlackAlertsChannel *string   `json:"slackAlertsChannel" validate:"omitnil,optionalslackchannel"`
+	SlackAlertsChannel *string   `json:"slackAlertsChannel"`
 }
 
-func (input *UpdateTeamEnvironmentInput) Sanitized() *UpdateTeamEnvironmentInput {
-	var slackChannel *string
-	if input.SlackAlertsChannel != nil {
-		slackChannel = ptr.To(strings.TrimSpace(*input.SlackAlertsChannel))
+func (i *UpdateTeamEnvironmentInput) Validate() error {
+	verr := validate.New()
+
+	if i.SlackAlertsChannel != nil {
+		s := strings.TrimSpace(*i.SlackAlertsChannel)
+		i.SlackAlertsChannel = ptr.To(s)
+		if s != "" && (!strings.HasPrefix(s, "#") || len(s) < 3 || len(s) > 80) {
+			verr.Add("slackAlertsChannel", "This is not a valid Slack channel name. A valid channel name starts with a '#' and is between 3 and 80 characters long.")
+		}
 	}
 
-	return &UpdateTeamEnvironmentInput{
-		Slug:               input.Slug,
-		EnvironmentName:    input.EnvironmentName,
-		SlackAlertsChannel: slackChannel,
-	}
+	return verr.NilIfEmpty()
 }
 
 type UpdateTeamEnvironmentPayload struct {

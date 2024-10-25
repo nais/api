@@ -17,29 +17,17 @@ import (
 	"github.com/nais/api/internal/v1/role/rolesql"
 	"github.com/nais/api/internal/v1/searchv1"
 	"github.com/nais/api/internal/v1/team/teamsql"
-	"github.com/nais/api/internal/v1/validate"
 	"k8s.io/utils/ptr"
 )
 
 func Create(ctx context.Context, input *CreateTeamInput, actor *authz.Actor) (*Team, error) {
-	input = input.Sanitized()
-
-	err := validate.Validate(input)
-	if err != nil {
+	if err := input.Validate(ctx); err != nil {
 		return nil, err
-	}
-
-	exists, err := db(ctx).SlugAvailable(ctx, input.Slug)
-	if err != nil {
-		return nil, err
-	}
-
-	if exists {
-		return nil, apierror.Errorf("Team slug %q is not available.", input.Slug)
 	}
 
 	var team *teamsql.Team
-	err = databasev1.Transaction(ctx, func(ctx context.Context) error {
+	err := databasev1.Transaction(ctx, func(ctx context.Context) error {
+		var err error
 		team, err = db(ctx).Create(ctx, teamsql.CreateParams{
 			Slug:         input.Slug,
 			Purpose:      input.Purpose,
@@ -53,7 +41,7 @@ func Create(ctx context.Context, input *CreateTeamInput, actor *authz.Actor) (*T
 			return role.AssignTeamRoleToServiceAccount(ctx, actor.User.GetID(), input.Slug, rolesql.RoleNameTeamowner)
 		}
 
-		err := role.AssignTeamRoleToUser(ctx, actor.User.GetID(), input.Slug, rolesql.RoleNameTeamowner)
+		err = role.AssignTeamRoleToUser(ctx, actor.User.GetID(), input.Slug, rolesql.RoleNameTeamowner)
 		if err != nil {
 			return err
 		}
@@ -74,18 +62,17 @@ func Create(ctx context.Context, input *CreateTeamInput, actor *authz.Actor) (*T
 }
 
 func Update(ctx context.Context, input *UpdateTeamInput, actor *authz.Actor) (*Team, error) {
+	if err := input.Validate(); err != nil {
+		return nil, err
+	}
+
 	existingTeam, err := Get(ctx, input.Slug)
 	if err != nil {
 		return nil, err
 	}
 
-	input = input.Sanitized()
-	if err := validate.Validate(input); err != nil {
-		return nil, err
-	}
-
 	if input.Purpose == nil && input.SlackChannel == nil {
-		return nil, apierror.Errorf("Nothing to update.")
+		return existingTeam, nil
 	}
 
 	var team *teamsql.Team
@@ -481,13 +468,12 @@ func UpdateEnvironment(ctx context.Context, input *UpdateTeamEnvironmentInput, a
 		return nil, err
 	}
 
-	input = input.Sanitized()
-	if err := validate.Validate(input); err != nil {
+	if err := input.Validate(); err != nil {
 		return nil, err
 	}
 
 	if input.SlackAlertsChannel == nil {
-		return nil, apierror.Errorf("Nothing to update.")
+		return toGraphTeamEnvironment(existingTeamEnvironment), nil
 	}
 
 	err = databasev1.Transaction(ctx, func(ctx context.Context) error {
