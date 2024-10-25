@@ -47102,9 +47102,9 @@ func (ec *executionContext) _SqlDatabase_charset(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SqlDatabase_charset(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -47146,9 +47146,9 @@ func (ec *executionContext) _SqlDatabase_collation(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SqlDatabase_collation(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
