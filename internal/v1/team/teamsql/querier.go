@@ -17,6 +17,7 @@ type Querier interface {
 	CountMembers(ctx context.Context, teamSlug *slug.Slug) (int64, error)
 	Create(ctx context.Context, arg CreateParams) (*Team, error)
 	CreateDeleteKey(ctx context.Context, arg CreateDeleteKeyParams) (*TeamDeleteKey, error)
+	Exists(ctx context.Context, argSlug slug.Slug) (bool, error)
 	Get(ctx context.Context, argSlug slug.Slug) (*Team, error)
 	GetDeleteKey(ctx context.Context, arg GetDeleteKeyParams) (*TeamDeleteKey, error)
 	GetEnvironment(ctx context.Context, arg GetEnvironmentParams) (*TeamAllEnvironment, error)

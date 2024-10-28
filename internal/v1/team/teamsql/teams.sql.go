@@ -97,6 +97,25 @@ func (q *Queries) CreateDeleteKey(ctx context.Context, arg CreateDeleteKeyParams
 	return &i, err
 }
 
+const exists = `-- name: Exists :one
+SELECT
+	EXISTS (
+		SELECT
+			slug
+		FROM
+			teams
+		WHERE
+			slug = $1
+	)
+`
+
+func (q *Queries) Exists(ctx context.Context, argSlug slug.Slug) (bool, error) {
+	row := q.db.QueryRow(ctx, exists, argSlug)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const get = `-- name: Get :one
 SELECT
 	slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at

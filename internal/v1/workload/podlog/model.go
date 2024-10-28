@@ -1,11 +1,13 @@
 package podlog
 
 import (
+	"context"
 	"strings"
 	"time"
 
-	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/v1/team"
+	"github.com/nais/api/internal/v1/validate"
 	"k8s.io/utils/ptr"
 )
 
@@ -23,44 +25,44 @@ type WorkloadLogSubscriptionFilter struct {
 	Instances   []string  `json:"instances"`
 }
 
-func (filter *WorkloadLogSubscriptionFilter) Sanitized() *WorkloadLogSubscriptionFilter {
-	sanitized := &WorkloadLogSubscriptionFilter{
-		Team:        filter.Team,
-		Environment: strings.TrimSpace(filter.Environment),
-		Instances: func(instances []string) []string {
-			var sanitized []string
-			for _, instance := range instances {
-				if instance = strings.TrimSpace(instance); instance != "" {
-					sanitized = append(sanitized, instance)
-				}
-			}
-			return sanitized
-		}(filter.Instances),
+func (f *WorkloadLogSubscriptionFilter) Validate(ctx context.Context) error {
+	f.sanitize()
+	verr := validate.New()
+
+	if exists, err := team.Exists(ctx, f.Team); err != nil {
+		return err
+	} else if !exists {
+		verr.Add("team", "Team does not exist.")
 	}
 
-	if filter.Application != nil {
-		sanitized.Application = ptr.To(strings.TrimSpace(*filter.Application))
+	if (f.Application == nil && f.Job == nil) || (f.Application != nil && f.Job != nil) {
+		verr.AddMessage("You must filter on either application or a job.")
+	} else if ptr.Deref(f.Application, "") == "" {
+		verr.AddMessage("Application cannot be empty.")
+	} else if ptr.Deref(f.Job, "") == "" {
+		verr.AddMessage("Job cannot be empty.")
 	}
 
-	if filter.Job != nil {
-		sanitized.Job = ptr.To(strings.TrimSpace(*filter.Job))
-	}
-
-	return sanitized
+	return verr.NilIfEmpty()
 }
 
-func (filter *WorkloadLogSubscriptionFilter) Validate() error {
-	if (filter.Application == nil && filter.Job == nil) || (filter.Application != nil && filter.Job != nil) {
-		return apierror.Errorf("You must filter on either application or a job.")
+func (f *WorkloadLogSubscriptionFilter) sanitize() {
+	f.Environment = strings.TrimSpace(f.Environment)
+	f.Instances = func(instances []string) []string {
+		var sanitized []string
+		for _, instance := range instances {
+			if instance = strings.TrimSpace(instance); instance != "" {
+				sanitized = append(sanitized, instance)
+			}
+		}
+		return sanitized
+	}(f.Instances)
+
+	if f.Application != nil {
+		f.Application = ptr.To(strings.TrimSpace(*f.Application))
 	}
 
-	if filter.Application != nil && *filter.Application == "" {
-		return apierror.Errorf("Application cannot be empty.")
+	if f.Job != nil {
+		f.Job = ptr.To(strings.TrimSpace(*f.Job))
 	}
-
-	if filter.Job != nil && *filter.Job == "" {
-		return apierror.Errorf("Job cannot be empty.")
-	}
-
-	return nil
 }

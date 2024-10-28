@@ -25,8 +25,14 @@ func (e *ValidationErrors) Error() string {
 
 func (e *ValidationErrors) Add(field, message string, args ...any) {
 	e.Errors = append(e.Errors, &ValidationError{
-		GraphQLField: field,
+		GraphQLField: &field,
 		Message:      fmt.Sprintf(message, args...),
+	})
+}
+
+func (e *ValidationErrors) AddMessage(message string, args ...any) {
+	e.Errors = append(e.Errors, &ValidationError{
+		Message: fmt.Sprintf(message, args...),
 	})
 }
 
@@ -38,10 +44,13 @@ func (e *ValidationErrors) NilIfEmpty() error {
 }
 
 type ValidationError struct {
-	GraphQLField string `json:"field"`
-	Message      string `json:"message"`
+	GraphQLField *string `json:"field"`
+	Message      string  `json:"message"`
 }
 
 func (e ValidationError) String() string {
-	return e.GraphQLField + ": " + e.Message
+	if e.GraphQLField == nil {
+		return e.Message
+	}
+	return *e.GraphQLField + ": " + e.Message
 }

@@ -93,9 +93,11 @@ func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
 				verr = &gqlerror.Error{
 					Message: err.Message,
 					Path:    graphql.GetPath(ctx),
-					Extensions: map[string]any{
+				}
+				if err.GraphQLField != nil {
+					verr.Extensions = map[string]any{
 						"field": err.GraphQLField,
-					},
+					}
 				}
 			}
 			return verr

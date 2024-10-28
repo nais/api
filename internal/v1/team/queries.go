@@ -529,3 +529,8 @@ func UpdateEnvironment(ctx context.Context, input *UpdateTeamEnvironmentInput, a
 func Count(ctx context.Context) (int64, error) {
 	return db(ctx).Count(ctx)
 }
+
+// Exists checks if an active team with the given slug exists.
+func Exists(ctx context.Context, slug slug.Slug) (bool, error) {
+	return db(ctx).Exists(ctx, slug)
+}

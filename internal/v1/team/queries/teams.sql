@@ -18,6 +18,18 @@ RETURNING
 	*
 ;
 
+-- name: Exists :one
+SELECT
+	EXISTS (
+		SELECT
+			slug
+		FROM
+			teams
+		WHERE
+			slug = @slug
+	)
+;
+
 -- name: SlugAvailable :one
 SELECT
 	NOT EXISTS (
