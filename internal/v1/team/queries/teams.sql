@@ -20,7 +20,7 @@ RETURNING
 
 -- name: SlugAvailable :one
 SELECT
-	EXISTS (
+	NOT EXISTS (
 		SELECT
 			slug
 		FROM

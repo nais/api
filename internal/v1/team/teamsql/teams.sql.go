@@ -465,7 +465,7 @@ func (q *Queries) SetDeleteKeyConfirmedAt(ctx context.Context, argSlug slug.Slug
 
 const slugAvailable = `-- name: SlugAvailable :one
 SELECT
-	EXISTS (
+	NOT EXISTS (
 		SELECT
 			slug
 		FROM
@@ -477,9 +477,9 @@ SELECT
 
 func (q *Queries) SlugAvailable(ctx context.Context, argSlug slug.Slug) (bool, error) {
 	row := q.db.QueryRow(ctx, slugAvailable, argSlug)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
+	var not_exists bool
+	err := row.Scan(&not_exists)
+	return not_exists, err
 }
 
 const update = `-- name: Update :one

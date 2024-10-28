@@ -342,9 +342,9 @@ func (i *CreateTeamInput) Validate(ctx context.Context) error {
 	i.Purpose = strings.TrimSpace(i.Purpose)
 	i.SlackChannel = strings.TrimSpace(i.SlackChannel)
 
-	if exists, err := db(ctx).SlugAvailable(ctx, i.Slug); err != nil {
+	if available, err := db(ctx).SlugAvailable(ctx, i.Slug); err != nil {
 		return err
-	} else if exists {
+	} else if !available {
 		verr.Add("slug", "Team slug is not available.")
 	}
 

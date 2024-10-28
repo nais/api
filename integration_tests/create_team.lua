@@ -77,3 +77,37 @@ Test.gql("Team node query", function(t)
 		},
 	}
 end)
+
+Test.gql("Create team with unavailable slug", function(t)
+	t.query [[
+		mutation {
+			createTeam(
+				input: {
+					slug: "newteam"
+					purpose: "some purpose"
+					slackChannel: "#channel"
+				}
+			) {
+				team {
+					id
+					slug
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = Null,
+		errors = {
+			{
+				extensions = {
+					field = "slug",
+				},
+				message = "Team slug is not available.",
+				path = {
+					"createTeam",
+				},
+			},
+		},
+	}
+end)
