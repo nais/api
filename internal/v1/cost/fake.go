@@ -211,10 +211,10 @@ func workloadCostSeries(ctx context.Context, d time.Time, teamSlug slug.Slug, en
 	}
 
 	workloadNames := make([]string, 0)
-	for _, a := range application.ListAllForTeam(ctx, teamSlug) {
+	for _, a := range application.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName) {
 		workloadNames = append(workloadNames, a.Name)
 	}
-	for _, j := range job.ListAllForTeam(ctx, teamSlug) {
+	for _, j := range job.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName) {
 		workloadNames = append(workloadNames, j.Name)
 	}
 	workloads := make([]*WorkloadCostPoint, len(workloadNames))

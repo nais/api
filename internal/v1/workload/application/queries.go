@@ -32,6 +32,17 @@ func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*Application {
 	return ret
 }
 
+func ListAllForTeamInEnvironment(ctx context.Context, teamSlug slug.Slug, environmentName string) []*Application {
+	k8s := fromContext(ctx).appWatcher
+	allApplications := k8s.GetByNamespace(teamSlug.String(), watcher.InCluster(environmentName))
+
+	ret := make([]*Application, len(allApplications))
+	for i, obj := range allApplications {
+		ret[i] = toGraphApplication(obj.Obj, obj.Cluster)
+	}
+	return ret
+}
+
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Application, error) {
 	a, err := fromContext(ctx).appWatcher.Get(environment, teamSlug.String(), name)
 	if err != nil {
