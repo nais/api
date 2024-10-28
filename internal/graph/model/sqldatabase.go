@@ -15,8 +15,8 @@ import (
 )
 
 type SQLDatabase struct {
-	Charset        *string      `json:"charset"`
-	Collation      *string      `json:"collation"`
+	Charset        string       `json:"charset"`
+	Collation      string       `json:"collation"`
 	DeletionPolicy *string      `json:"deletionPolicy"`
 	InstanceRef    string       `json:"instanceRef"`
 	Healthy        bool         `json:"healthy"`
@@ -42,8 +42,8 @@ func ToSqlDatabase(u *unstructured.Unstructured, sqlInstanceName, env string) (*
 	return &SQLDatabase{
 		ID:             scalar.SqlDatabaseIdent(env, slug.Slug(teamSlug), sqlDatabase.GetName()),
 		Name:           ptr.Deref(sqlDatabase.Spec.ResourceID, "UNKNOWN"), // actual postgresql database name
-		Charset:        sqlDatabase.Spec.Charset,
-		Collation:      sqlDatabase.Spec.Collation,
+		Charset:        ptr.Deref(sqlDatabase.Spec.Charset, "UNKNOWN"),
+		Collation:      ptr.Deref(sqlDatabase.Spec.Collation, "UNKNOWN"),
 		DeletionPolicy: sqlDatabase.Spec.DeletionPolicy,
 		InstanceRef:    sqlDatabase.Spec.InstanceRef.Name,
 		Healthy:        IsHealthy(sqlDatabase.Status.Conditions),
