@@ -3,6 +3,7 @@ package application
 import (
 	"fmt"
 	"io"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -153,18 +154,17 @@ type ApplicationOrder struct {
 type ApplicationOrderField string
 
 const (
-	ApplicationOrderFieldName           ApplicationOrderField = "NAME"
-	ApplicationOrderFieldStatus         ApplicationOrderField = "STATUS"
-	ApplicationOrderFieldEnvironment    ApplicationOrderField = "ENVIRONMENT"
-	ApplicationOrderFieldDeploymentTime ApplicationOrderField = "DEPLOYMENT_TIME"
+	ApplicationOrderFieldName        ApplicationOrderField = "NAME"
+	ApplicationOrderFieldEnvironment ApplicationOrderField = "ENVIRONMENT"
 )
 
+var AllApplicationOrderField = []ApplicationOrderField{
+	ApplicationOrderFieldName,
+	ApplicationOrderFieldEnvironment,
+}
+
 func (e ApplicationOrderField) IsValid() bool {
-	switch e {
-	case ApplicationOrderFieldStatus, ApplicationOrderFieldName, ApplicationOrderFieldEnvironment, ApplicationOrderFieldDeploymentTime:
-		return true
-	}
-	return false
+	return slices.Contains(AllApplicationOrderField, e)
 }
 
 func (e ApplicationOrderField) String() string {

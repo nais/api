@@ -180,14 +180,8 @@ enum ApplicationOrderField {
 	"Order applications by name."
 	NAME
 
-	"Order applications by status."
-	STATUS
-
 	"Order applications by the name of the environment."
 	ENVIRONMENT
-
-	"Order applications by the deployment time."
-	DEPLOYMENT_TIME
 }
 
 extend union SearchNode = Application

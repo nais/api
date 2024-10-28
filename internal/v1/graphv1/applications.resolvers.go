@@ -2,7 +2,6 @@ package graphv1
 
 import (
 	"context"
-	"slices"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
@@ -109,27 +108,7 @@ func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *
 	}
 
 	ret := application.ListAllForTeam(ctx, obj.Slug)
-	switch orderBy.Field {
-	case application.ApplicationOrderFieldName:
-		slices.SortStableFunc(ret, func(a, b *application.Application) int {
-			return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
-		})
-	case application.ApplicationOrderFieldEnvironment:
-		slices.SortStableFunc(ret, func(a, b *application.Application) int {
-			return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
-		})
-	case application.ApplicationOrderFieldDeploymentTime:
-		panic("not implemented yet")
-	case application.ApplicationOrderFieldStatus:
-		slices.SortStableFunc(ret, func(a, b *application.Application) int {
-			return modelv1.Compare(
-				status.ForWorkload(ctx, a).State,
-				status.ForWorkload(ctx, b).State,
-				orderBy.Direction,
-			)
-		})
-	}
-
+	application.SortFilter.Sort(ctx, ret, orderBy.Field, orderBy.Direction)
 	apps := pagination.Slice(ret, page)
 	return pagination.NewConnection(apps, page, int32(len(ret))), nil
 }

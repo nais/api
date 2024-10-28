@@ -12,7 +12,6 @@ func ForWorkload(ctx context.Context, w workload.Workload) *WorkloadStatus {
 	state := WorkloadStateNais
 	for _, check := range checksToRun {
 		if check.Supports(w) {
-
 			v, s := check.Run(ctx, w)
 			if len(v) == 0 {
 				continue

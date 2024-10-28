@@ -159,3 +159,8 @@ type DeploymentInfo {
 		before: Cursor
 	): DeploymentConnection!
 }
+
+extend enum ApplicationOrderField {
+	"Order applications by the deployment time."
+	DEPLOYMENT_TIME
+}

@@ -8374,14 +8374,8 @@ enum ApplicationOrderField {
 	"Order applications by name."
 	NAME
 
-	"Order applications by status."
-	STATUS
-
 	"Order applications by the name of the environment."
 	ENVIRONMENT
-
-	"Order applications by the deployment time."
-	DEPLOYMENT_TIME
 }
 
 extend union SearchNode = Application
@@ -9106,6 +9100,11 @@ type DeploymentInfo {
 		"Get items before this cursor."
 		before: Cursor
 	): DeploymentConnection!
+}
+
+extend enum ApplicationOrderField {
+	"Order applications by the deployment time."
+	DEPLOYMENT_TIME
 }
 `, BuiltIn: false},
 	{Name: "../schema/jobs.graphqls", Input: `extend type Team {
@@ -10993,6 +10992,11 @@ enum WorkloadState {
 	FAILING
 	"Unknown state"
 	UNKNOWN
+}
+
+extend enum ApplicationOrderField {
+	"Order applications by status."
+	STATUS
 }
 `, BuiltIn: false},
 	{Name: "../schema/teams.graphqls", Input: `extend type Query {
