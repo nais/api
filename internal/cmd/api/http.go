@@ -110,7 +110,7 @@ func runHttpServer(
 		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphHandler))
 	})
 
-	graphMiddleware, err := ConfigureV1Graph(ctx, insecureAuthAndFakes, watcherMgr, db, k8sClientSets, sqlAdminService, vClient, tenantName, clusters, hookdClient, log)
+	graphMiddleware, err := ConfigureV1Graph(ctx, insecureAuthAndFakes, watcherMgr, db, k8sClientSets, vClient, tenantName, clusters, hookdClient, log)
 	if err != nil {
 		return err
 	}
@@ -172,7 +172,6 @@ func ConfigureV1Graph(
 	watcherMgr *watcher.Manager,
 	db database.Database,
 	k8sClientSets map[string]kubernetes.Interface,
-	sqlAdminService *legacysqlinstance.SqlAdminService,
 	vClient vulnerability.Client,
 	tenantName string,
 	clusters []string,
@@ -192,6 +191,11 @@ func ConfigureV1Graph(
 	secretWatcher := secret.NewWatcher(ctx, watcherMgr)
 	podWatcher := workload.NewWatcher(ctx, watcherMgr)
 	ingressWatcher := application.NewIngressWatcher(ctx, watcherMgr)
+
+	sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(fakeClients), sqlinstance.WithInstanceWatcher(sqlInstanceWatcher))
+	if err != nil {
+		return nil, fmt.Errorf("create SQL Admin service: %w", err)
+	}
 
 	var utilizationClient utilization.ResourceUsageClient
 	var costOpts []cost.Option
@@ -232,7 +236,7 @@ func ConfigureV1Graph(
 		ctx = opensearch.NewLoaderContext(ctx, openSearchWatcher)
 		ctx = redis.NewLoaderContext(ctx, redisWatcher)
 		ctx = utilization.NewLoaderContext(ctx, utilizationClient)
-		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, sqlDatabaseWatcher, sqlInstanceWatcher)
+		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, sqlDatabaseWatcher, sqlInstanceWatcher, dataloaderOpts)
 		pool := db.GetPool()
 		ctx = databasev1.NewLoaderContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, dataloaderOpts)

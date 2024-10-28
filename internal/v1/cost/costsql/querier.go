@@ -10,7 +10,7 @@ import (
 )
 
 type Querier interface {
-	CostForInstance(ctx context.Context, arg CostForInstanceParams) (float32, error)
+	CostForService(ctx context.Context, arg CostForServiceParams) (float32, error)
 	CostForTeam(ctx context.Context, arg CostForTeamParams) (float32, error)
 	// CostUpsert will insert or update a cost record. If there is a conflict on the daily_cost_key constrant, the
 	// daily_cost column will be updated.

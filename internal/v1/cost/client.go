@@ -195,7 +195,7 @@ func (client) MonthlyForService(ctx context.Context, teamSlug slug.Slug, environ
 	to := pgtype.Date{Time: now, Valid: true}
 	from := pgtype.Date{Time: now.AddDate(0, 0, -32), Valid: true}
 
-	return db(ctx).CostForInstance(ctx, costsql.CostForInstanceParams{
+	return db(ctx).CostForService(ctx, costsql.CostForServiceParams{
 		FromDate:    from,
 		ToDate:      to,
 		TeamSlug:    teamSlug,

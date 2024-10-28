@@ -13,6 +13,7 @@ import (
 	"github.com/nais/api/internal/v1/persistence/bigquery"
 	"github.com/nais/api/internal/v1/persistence/opensearch"
 	"github.com/nais/api/internal/v1/persistence/redis"
+	"github.com/nais/api/internal/v1/persistence/sqlinstance"
 	"github.com/nais/api/internal/v1/team"
 	"github.com/nais/api/internal/v1/workload"
 	"github.com/nais/api/internal/v1/workload/application"
@@ -98,6 +99,21 @@ func (r *redisInstanceResolver) Cost(ctx context.Context, obj *redis.RedisInstan
 	}
 
 	return &cost.RedisInstanceCost{
+		Sum: float64(sum),
+	}, nil
+}
+
+func (r *sqlInstanceResolver) Cost(ctx context.Context, obj *sqlinstance.SQLInstance) (*cost.SQLInstanceCost, error) {
+	if obj.WorkloadReference == nil {
+		return &cost.SQLInstanceCost{}, nil
+	}
+
+	sum, err := cost.MonthlyForService(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name, "Cloud SQL")
+	if err != nil {
+		return nil, nil
+	}
+
+	return &cost.SQLInstanceCost{
 		Sum: float64(sum),
 	}, nil
 }

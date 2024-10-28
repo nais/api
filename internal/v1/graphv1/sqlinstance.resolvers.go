@@ -83,6 +83,26 @@ func (r *sqlInstanceResolver) Users(ctx context.Context, obj *sqlinstance.SQLIns
 	return sqlinstance.ListSQLInstanceUsers(ctx, obj, page, orderBy)
 }
 
+func (r *sqlInstanceResolver) Metrics(ctx context.Context, obj *sqlinstance.SQLInstance) (*sqlinstance.SQLInstanceMetrics, error) {
+	return sqlinstance.MetricsFor(ctx, obj.ProjectID, obj.Name)
+}
+
+func (r *sqlInstanceResolver) State(ctx context.Context, obj *sqlinstance.SQLInstance) (sqlinstance.SQLInstanceState, error) {
+	return sqlinstance.GetState(ctx, obj.ProjectID, obj.Name)
+}
+
+func (r *sqlInstanceMetricsResolver) CPU(ctx context.Context, obj *sqlinstance.SQLInstanceMetrics) (*sqlinstance.SQLInstanceCPU, error) {
+	return sqlinstance.CPUForInstance(ctx, obj.ProjectID, obj.InstanceName)
+}
+
+func (r *sqlInstanceMetricsResolver) Memory(ctx context.Context, obj *sqlinstance.SQLInstanceMetrics) (*sqlinstance.SQLInstanceMemory, error) {
+	return sqlinstance.MemoryForInstance(ctx, obj.ProjectID, obj.InstanceName)
+}
+
+func (r *sqlInstanceMetricsResolver) Disk(ctx context.Context, obj *sqlinstance.SQLInstanceMetrics) (*sqlinstance.SQLInstanceDisk, error) {
+	return sqlinstance.DiskForInstance(ctx, obj.ProjectID, obj.InstanceName)
+}
+
 func (r *teamResolver) SQLInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -106,7 +126,12 @@ func (r *Resolver) SqlDatabase() gengqlv1.SqlDatabaseResolver { return &sqlDatab
 
 func (r *Resolver) SqlInstance() gengqlv1.SqlInstanceResolver { return &sqlInstanceResolver{r} }
 
+func (r *Resolver) SqlInstanceMetrics() gengqlv1.SqlInstanceMetricsResolver {
+	return &sqlInstanceMetricsResolver{r}
+}
+
 type (
-	sqlDatabaseResolver struct{ *Resolver }
-	sqlInstanceResolver struct{ *Resolver }
+	sqlDatabaseResolver        struct{ *Resolver }
+	sqlInstanceResolver        struct{ *Resolver }
+	sqlInstanceMetricsResolver struct{ *Resolver }
 )

@@ -163,3 +163,11 @@ extend type BigQueryDataset {
 type BigQueryDatasetCost {
 	sum: Float!
 }
+
+extend type SqlInstance {
+	cost: SqlInstanceCost!
+}
+
+type SqlInstanceCost {
+	sum: Float!
+}

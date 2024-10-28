@@ -122,3 +122,7 @@ func (w *TeamEnvironmentCostPeriod) Sum() float64 {
 	}
 	return sum
 }
+
+type SQLInstanceCost struct {
+	Sum float64 `json:"sum"`
+}

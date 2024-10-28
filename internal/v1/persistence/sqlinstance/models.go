@@ -346,3 +346,49 @@ func toSQLInstanceUser(user *sqladmin.User) *SQLInstanceUser {
 type TeamInventoryCountSQLInstances struct {
 	Total int
 }
+
+type SQLInstanceMetrics struct {
+	InstanceName string `json:"-"`
+	ProjectID    string `json:"-"`
+}
+
+type SQLInstanceCPU struct {
+	Cores       float64 `json:"cores"`
+	Utilization float64 `json:"utilization"`
+}
+
+type SQLInstanceDisk struct {
+	QuotaBytes  int     `json:"quotaBytes"`
+	Utilization float64 `json:"utilization"`
+}
+
+type SQLInstanceMemory struct {
+	QuotaBytes  int     `json:"quotaBytes"`
+	Utilization float64 `json:"utilization"`
+}
+
+type SQLInstanceState string
+
+const (
+	SQLInstanceStateUnspecified   SQLInstanceState = "UNSPECIFIED"
+	SQLInstanceStateRunnable      SQLInstanceState = "RUNNABLE"
+	SQLInstanceStateSuspended     SQLInstanceState = "SUSPENDED"
+	SQLInstanceStatePendingDelete SQLInstanceState = "PENDING_DELETE"
+	SQLInstanceStatePendingCreate SQLInstanceState = "PENDING_CREATE"
+	SQLInstanceStateMaintenance   SQLInstanceState = "MAINTENANCE"
+	SQLInstanceStateFailed        SQLInstanceState = "FAILED"
+)
+
+var AllSQLInstanceState = []SQLInstanceState{
+	SQLInstanceStateUnspecified,
+	SQLInstanceStateRunnable,
+	SQLInstanceStateSuspended,
+	SQLInstanceStatePendingDelete,
+	SQLInstanceStatePendingCreate,
+	SQLInstanceStateMaintenance,
+	SQLInstanceStateFailed,
+}
+
+func (e SQLInstanceState) String() string {
+	return string(e)
+}

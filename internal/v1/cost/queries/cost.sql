@@ -177,7 +177,7 @@ ORDER BY
 	app ASC
 ;
 
--- name: CostForInstance :one
+-- name: CostForService :one
 SELECT
 	COALESCE(SUM(daily_cost), 0)::REAL
 FROM

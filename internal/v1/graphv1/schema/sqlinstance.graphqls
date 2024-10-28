@@ -95,6 +95,8 @@ type SqlInstance implements Persistence & Node {
 		before: Cursor
 		orderBy: SqlInstanceUserOrder
 	): SqlInstanceUserConnection!
+	metrics: SqlInstanceMetrics!
+	state: SqlInstanceState!
 }
 
 type SqlInstanceBackupConfiguration {
@@ -183,4 +185,35 @@ extend union SearchNode = SqlInstance
 
 extend enum SearchType {
 	SQL_INSTANCE
+}
+
+type SqlInstanceMetrics {
+	cpu: SqlInstanceCpu!
+	memory: SqlInstanceMemory!
+	disk: SqlInstanceDisk!
+}
+
+type SqlInstanceCpu {
+	cores: Float!
+	utilization: Float!
+}
+
+type SqlInstanceMemory {
+	quotaBytes: Int!
+	utilization: Float!
+}
+
+type SqlInstanceDisk {
+	quotaBytes: Int!
+	utilization: Float!
+}
+
+enum SqlInstanceState {
+	UNSPECIFIED
+	RUNNABLE
+	SUSPENDED
+	PENDING_DELETE
+	PENDING_CREATE
+	MAINTENANCE
+	FAILED
 }

@@ -5,14 +5,13 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/nais/api/internal/v1/kubernetes/watcher"
-	"github.com/nais/api/internal/v1/searchv1"
-	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
-
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	"github.com/nais/api/internal/v1/kubernetes/watcher"
+	"github.com/nais/api/internal/v1/searchv1"
+	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	"google.golang.org/api/googleapi"
 )
 
@@ -128,4 +127,35 @@ func ListSQLInstanceUsers(ctx context.Context, sqlInstance *SQLInstance, page *p
 
 	users := pagination.Slice(all, page)
 	return pagination.NewConnection(users, page, int32(len(all))), nil
+}
+
+func GetState(ctx context.Context, project, instance string) (SQLInstanceState, error) {
+	i, err := fromContext(ctx).remoteSQLInstance.Load(ctx, instanceKey{projectID: project, name: instance})
+	if err != nil {
+		var googleErr *googleapi.Error
+		if errors.As(err, &googleErr) && googleErr.Code == 404 {
+			return SQLInstanceStateUnspecified, nil
+		}
+		return "", err
+	}
+	return SQLInstanceState(i.State), nil
+}
+
+func MetricsFor(ctx context.Context, projectID, name string) (*SQLInstanceMetrics, error) {
+	return &SQLInstanceMetrics{
+		InstanceName: name,
+		ProjectID:    projectID,
+	}, nil
+}
+
+func CPUForInstance(ctx context.Context, projectID, instance string) (*SQLInstanceCPU, error) {
+	return fromContext(ctx).sqlMetricsService.cpuForSQLInstance(ctx, projectID, instance)
+}
+
+func MemoryForInstance(ctx context.Context, projectID, instance string) (*SQLInstanceMemory, error) {
+	return fromContext(ctx).sqlMetricsService.memoryForSQLInstance(ctx, projectID, instance)
+}
+
+func DiskForInstance(ctx context.Context, projectID, instance string) (*SQLInstanceDisk, error) {
+	return fromContext(ctx).sqlMetricsService.diskForSQLInstance(ctx, projectID, instance)
 }
