@@ -144,3 +144,8 @@ extend enum ApplicationOrderField {
 	"Order applications by status."
 	STATUS
 }
+
+extend enum JobOrderField {
+	"Order jobs by status."
+	STATUS
+}

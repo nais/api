@@ -207,14 +207,8 @@ enum JobOrderField {
 	"Order jobs by name."
 	NAME
 
-	"Order jobs by status."
-	STATUS
-
 	"Order jobs by the name of the environment."
 	ENVIRONMENT
-
-	"Order Jobs by the deployment time."
-	DEPLOYMENT_TIME
 }
 
 extend union SearchNode = Job

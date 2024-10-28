@@ -3,7 +3,6 @@ package graphv1
 import (
 	"context"
 	"math"
-	"slices"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
@@ -96,29 +95,7 @@ func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, aft
 	}
 
 	ret := job.ListAllForTeam(ctx, obj.Slug)
-	if orderBy != nil {
-		switch orderBy.Field {
-		case job.JobOrderFieldName:
-			slices.SortStableFunc(ret, func(a, b *job.Job) int {
-				return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
-			})
-		case job.JobOrderFieldEnvironment:
-			slices.SortStableFunc(ret, func(a, b *job.Job) int {
-				return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
-			})
-		case job.JobOrderFieldDeploymentTime:
-			panic("not implemented yet")
-		case job.JobOrderFieldStatus:
-			slices.SortStableFunc(ret, func(a, b *job.Job) int {
-				return modelv1.Compare(
-					status.ForWorkload(ctx, a).State,
-					status.ForWorkload(ctx, b).State,
-					orderBy.Direction,
-				)
-			})
-		}
-	}
-
+	job.SortFilter.Sort(ctx, ret, orderBy.Field, orderBy.Direction)
 	jobs := pagination.Slice(ret, page)
 	return pagination.NewConnection(jobs, page, int32(len(ret))), nil
 }

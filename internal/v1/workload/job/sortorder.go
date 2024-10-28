@@ -1,0 +1,19 @@
+package job
+
+import (
+	"context"
+	"strings"
+
+	"github.com/nais/api/internal/v1/graphv1/sortfilter"
+)
+
+var SortFilter = sortfilter.New[*Job, JobOrderField, struct{}](JobOrderFieldName)
+
+func init() {
+	SortFilter.RegisterOrderBy(JobOrderFieldName, func(ctx context.Context, a, b *Job) int {
+		return strings.Compare(a.GetName(), b.GetName())
+	})
+	SortFilter.RegisterOrderBy(JobOrderFieldEnvironment, func(ctx context.Context, a, b *Job) int {
+		return strings.Compare(a.GetEnvironmentName(), b.GetEnvironmentName())
+	})
+}
