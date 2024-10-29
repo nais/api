@@ -35,12 +35,10 @@ func (f *WorkloadLogSubscriptionFilter) Validate(ctx context.Context) error {
 		verr.Add("team", "Team does not exist.")
 	}
 
-	if (f.Application == nil && f.Job == nil) || (f.Application != nil && f.Job != nil) {
-		verr.AddMessage("You must filter on either application or a job.")
-	} else if ptr.Deref(f.Application, "") == "" {
-		verr.AddMessage("Application cannot be empty.")
-	} else if ptr.Deref(f.Job, "") == "" {
-		verr.AddMessage("Job cannot be empty.")
+	a := ptr.Deref(f.Application, "")
+	j := ptr.Deref(f.Job, "")
+	if (a == "" && j == "") || (a != "" && j != "") {
+		verr.AddMessage("You must filter on either an application or a job.")
 	}
 
 	return verr.NilIfEmpty()
