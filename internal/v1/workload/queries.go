@@ -73,14 +73,34 @@ func ListAllPods(ctx context.Context, environmentName string, teamSlug slug.Slug
 	}
 	selector := labels.NewSelector().Add(*nameReq)
 
-	pods := fromContext(ctx).podWatcher.GetByNamespace(teamSlug.String(), watcher.WithLabels(selector))
-	ret := []*v1.Pod{}
-	for _, pod := range pods {
-		if pod.Cluster != environmentName {
-			continue
-		}
+	pods := fromContext(ctx).podWatcher.GetByNamespace(
+		teamSlug.String(),
+		watcher.WithLabels(selector),
+		watcher.InCluster(environmentName),
+	)
+	ret := make([]*v1.Pod, len(pods))
+	for i, pod := range pods {
+		ret[i] = pod.Obj
+	}
 
-		ret = append(ret, pod.Obj)
+	return ret, nil
+}
+
+func ListAllPodsForJob(ctx context.Context, environmentName string, teamSlug slug.Slug, jobName string) ([]*v1.Pod, error) {
+	nameReq, err := labels.NewRequirement("job-name", selection.Equals, []string{jobName})
+	if err != nil {
+		return nil, err
+	}
+	selector := labels.NewSelector().Add(*nameReq)
+
+	pods := fromContext(ctx).podWatcher.GetByNamespace(
+		teamSlug.String(),
+		watcher.WithLabels(selector),
+		watcher.InCluster(environmentName),
+	)
+	ret := make([]*v1.Pod, len(pods))
+	for i, pod := range pods {
+		ret[i] = pod.Obj
 	}
 
 	return ret, nil

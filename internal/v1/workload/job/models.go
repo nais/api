@@ -22,11 +22,21 @@ import (
 )
 
 type (
-	JobConnection    = pagination.Connection[*Job]
-	JobEdge          = pagination.Edge[*Job]
-	JobRunConnection = pagination.Connection[*JobRun]
-	JobRunEdge       = pagination.Edge[*JobRun]
+	JobConnection            = pagination.Connection[*Job]
+	JobEdge                  = pagination.Edge[*Job]
+	JobRunConnection         = pagination.Connection[*JobRun]
+	JobRunEdge               = pagination.Edge[*JobRun]
+	JobRunInstanceConnection = pagination.Connection[*JobRunInstance]
+	JobRunInstanceEdge       = pagination.Edge[*JobRunInstance]
 )
+
+type JobRunInstance struct {
+	Name            string    `json:"name"`
+	EnvironmentName string    `json:"-"`
+	TeamSlug        slug.Slug `json:"-"`
+}
+
+func (JobRunInstance) IsNode() {}
 
 type Job struct {
 	workload.Base
@@ -76,6 +86,10 @@ func (JobRun) IsNode() {}
 
 func (j JobRun) ID() ident.Ident {
 	return newJobRunIdent(j.TeamSlug, j.EnvironmentName, j.Name)
+}
+
+func (j JobRunInstance) ID() ident.Ident {
+	return newJobRunInstanceIdent(j.TeamSlug, j.EnvironmentName, j.Name)
 }
 
 func (j *JobRun) Status() *JobRunStatus {
@@ -330,23 +344,6 @@ func toGraphJobRun(run *batchv1.Job, environmentName string) *JobRun {
 		startTime = &run.Status.StartTime.Time
 	}
 
-	/*
-		podReq, err := labels.NewRequirement("job-name", selection.Equals, []string{job.Name})
-		if err != nil {
-			return nil, c.error(ctx, err, "creating label selector")
-		}
-		podSelector := labels.NewSelector().Add(*podReq)
-		pods, err := c.informers[env].Pod.Lister().Pods(team).List(podSelector)
-		if err != nil {
-			return nil, c.error(ctx, err, "listing job instance pods")
-		}
-
-		var podNames []string
-		for _, pod := range pods {
-			podNames = append(podNames, pod.Name)
-		}
-	*/
-
 	return &JobRun{
 		Name:            run.Name,
 		EnvironmentName: environmentName,
@@ -355,9 +352,15 @@ func toGraphJobRun(run *batchv1.Job, environmentName string) *JobRun {
 		CreationTime:    run.CreationTimestamp.Time,
 		Failed:          run.Status.Failed > 0,
 		Message:         statusMessage(run),
-		// PodNames:       podNames,
+		spec:            run,
+	}
+}
 
-		spec: run,
+func toGraphJobRunInstance(run *corev1.Pod, environmentName string) *JobRunInstance {
+	return &JobRunInstance{
+		Name:            run.Name,
+		EnvironmentName: environmentName,
+		TeamSlug:        slug.Slug(run.Namespace),
 	}
 }
 

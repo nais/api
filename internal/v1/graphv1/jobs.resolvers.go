@@ -60,6 +60,15 @@ func (r *jobRunResolver) Duration(ctx context.Context, obj *job.JobRun) (int, er
 	return int(math.Round(obj.Duration().Seconds())), nil
 }
 
+func (r *jobRunResolver) Instances(ctx context.Context, obj *job.JobRun, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*job.JobRunInstance], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return job.ListJobRunInstances(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, page)
+}
+
 func (r *mutationResolver) DeleteJob(ctx context.Context, input job.DeleteJobInput) (*job.DeleteJobPayload, error) {
 	if err := authz.RequireTeamMembershipCtx(ctx, input.TeamSlug); err != nil {
 		return nil, err

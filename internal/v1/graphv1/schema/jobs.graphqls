@@ -121,7 +121,28 @@ type JobRun implements Node {
 	"Duration of the job in seconds."
 	duration: Int!
 
-	# podNames: [String!]!
+	"Job run instances."
+	instances(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): JobRunInstanceConnection!
+}
+
+type JobRunInstance implements Node {
+	"The globally unique ID of the job run instance."
+	id: ID!
+
+	"The name of the job run instance."
+	name: String!
 }
 
 type JobRunStatus {
@@ -160,6 +181,17 @@ type JobConnection {
 	edges: [JobEdge!]!
 }
 
+type JobRunInstanceConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+
+	"List of nodes."
+	nodes: [JobRunInstance!]!
+
+	"List of edges."
+	edges: [JobRunInstanceEdge!]!
+}
+
 type JobRunConnection {
 	"Pagination information."
 	pageInfo: PageInfo!
@@ -185,6 +217,14 @@ type JobRunEdge {
 
 	"The job run."
 	node: JobRun!
+}
+
+type JobRunInstanceEdge {
+	"Cursor for this edge that can be used for pagination."
+	cursor: Cursor!
+
+	"The instance."
+	node: JobRunInstance!
 }
 
 type TeamInventoryCountJobs {

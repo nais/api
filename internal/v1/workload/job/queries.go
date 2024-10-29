@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/nais/api/internal/v1/workload"
+
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
@@ -40,6 +42,20 @@ func ListAllForTeamInEnvironment(ctx context.Context, teamSlug slug.Slug, enviro
 	return ret
 }
 
+func ListJobRunInstances(ctx context.Context, teamSlug slug.Slug, environmentName, jobRunName string, page *pagination.Pagination) (*JobRunInstanceConnection, error) {
+	pods, err := workload.ListAllPodsForJob(ctx, environmentName, teamSlug, jobRunName)
+	if err != nil {
+		return nil, err
+	}
+
+	converted := make([]*JobRunInstance, len(pods))
+	for i, pod := range pods {
+		converted[i] = toGraphJobRunInstance(pod, environmentName)
+	}
+	paginated := pagination.Slice(converted, page)
+	return pagination.NewConnection(paginated, page, int32(len(converted))), nil
+}
+
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Job, error) {
 	job, err := fromContext(ctx).jobWatcher.Get(environment, teamSlug.String(), name)
 	if err != nil {
@@ -70,6 +86,20 @@ func GetByJobRunIdent(ctx context.Context, id ident.Ident) (*JobRun, error) {
 		return nil, err
 	}
 	return GetJobRun(ctx, teamSlug, env, name)
+}
+
+func getJobRunInstanceByIdent(ctx context.Context, id ident.Ident) (*JobRunInstance, error) {
+	teamSlug, env, name, err := parseIdent(id)
+	if err != nil {
+		return nil, err
+	}
+
+	pod, err := workload.GetPod(ctx, env, teamSlug, name)
+	if err != nil {
+		return nil, err
+	}
+
+	return toGraphJobRunInstance(pod, env), nil
 }
 
 func Runs(ctx context.Context, teamSlug slug.Slug, jobName string, page *pagination.Pagination) (*JobRunConnection, error) {
