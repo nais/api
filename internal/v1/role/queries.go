@@ -23,3 +23,11 @@ func AssignTeamRoleToUser(ctx context.Context, userID uuid.UUID, teamSlug slug.S
 		TargetTeamSlug: teamSlug,
 	})
 }
+
+func ForUser(ctx context.Context, userID uuid.UUID) ([]*Role, error) {
+	ur, err := fromContext(ctx).userRoles.Load(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return ur.Roles, nil
+}

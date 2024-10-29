@@ -4,11 +4,14 @@ package rolesql
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type Querier interface {
 	AssignTeamRoleToServiceAccount(ctx context.Context, arg AssignTeamRoleToServiceAccountParams) error
 	AssignTeamRoleToUser(ctx context.Context, arg AssignTeamRoleToUserParams) error
+	GetUserRolesForUsers(ctx context.Context, userIds []uuid.UUID) ([]*GetUserRolesForUsersRow, error)
 }
 
 var _ Querier = (*Queries)(nil)

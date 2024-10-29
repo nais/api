@@ -7,6 +7,8 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	"github.com/nais/api/internal/v1/role"
+	"github.com/nais/api/internal/v1/role/rolesql"
 	"github.com/nais/api/internal/v1/team"
 	"github.com/nais/api/internal/v1/user"
 )
@@ -35,6 +37,21 @@ func (r *userResolver) Teams(ctx context.Context, obj *user.User, first *int, af
 	}
 
 	return team.ListForUser(ctx, obj.UUID, page, orderBy)
+}
+
+func (r *userResolver) IsAdmin(ctx context.Context, obj *user.User) (bool, error) {
+	roles, err := role.ForUser(ctx, obj.UUID)
+	if err != nil {
+		return false, err
+	}
+
+	for _, ur := range roles {
+		if ur.Name == rolesql.RoleNameAdmin {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
 
 func (r *Resolver) User() gengqlv1.UserResolver { return &userResolver{r} }

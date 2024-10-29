@@ -243,7 +243,7 @@ func ConfigureV1Graph(
 		ctx = user.NewLoaderContext(ctx, pool, dataloaderOpts)
 		ctx = cost.NewLoaderContext(ctx, pool, costOpts...)
 		ctx = repository.NewLoaderContext(ctx, pool)
-		ctx = role.NewLoaderContext(ctx, pool)
+		ctx = role.NewLoaderContext(ctx, pool, dataloaderOpts)
 		ctx = auditv1.NewLoaderContext(ctx, pool, dataloaderOpts)
 		ctx = vulnerability.NewLoaderContext(ctx, vClient, tenantName, clusters, fakeClients, log, dataloaderOpts)
 		ctx = reconciler.NewLoaderContext(ctx, pool, dataloaderOpts)

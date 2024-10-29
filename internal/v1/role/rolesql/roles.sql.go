@@ -51,3 +51,49 @@ func (q *Queries) AssignTeamRoleToUser(ctx context.Context, arg AssignTeamRoleTo
 	_, err := q.db.Exec(ctx, assignTeamRoleToUser, arg.UserID, arg.RoleName, arg.TargetTeamSlug)
 	return err
 }
+
+const getUserRolesForUsers = `-- name: GetUserRolesForUsers :many
+SELECT
+	user_id,
+	JSON_AGG(
+		JSON_BUILD_OBJECT(
+			'role_name',
+			role_name,
+			'target_team_slug',
+			target_team_slug
+		)
+	) AS roles
+FROM
+	user_roles
+WHERE
+	user_id = ANY ($1::UUID [])
+GROUP BY
+	user_id
+ORDER BY
+	user_id
+`
+
+type GetUserRolesForUsersRow struct {
+	UserID uuid.UUID
+	Roles  []byte
+}
+
+func (q *Queries) GetUserRolesForUsers(ctx context.Context, userIds []uuid.UUID) ([]*GetUserRolesForUsersRow, error) {
+	rows, err := q.db.Query(ctx, getUserRolesForUsers, userIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*GetUserRolesForUsersRow{}
+	for rows.Next() {
+		var i GetUserRolesForUsersRow
+		if err := rows.Scan(&i.UserID, &i.Roles); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

@@ -57,6 +57,9 @@ type User implements Node {
 		"Ordering options for items returned from the connection."
 		orderBy: UserTeamOrder
 	): TeamMemberConnection!
+
+	"True of the user is global admin."
+	isAdmin: Boolean!
 }
 
 type UserConnection {

@@ -3,17 +3,20 @@ package role
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/v1/databasev1"
+	"github.com/nais/api/internal/v1/graphv1/loaderv1"
 	"github.com/nais/api/internal/v1/role/rolesql"
+	"github.com/vikstrous/dataloadgen"
 )
 
 type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, dbConn *pgxpool.Pool) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(dbConn))
+func NewLoaderContext(ctx context.Context, dbConn *pgxpool.Pool, defaultOpts []dataloadgen.Option) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(dbConn, defaultOpts))
 }
 
 func fromContext(ctx context.Context) *loaders {
@@ -22,11 +25,16 @@ func fromContext(ctx context.Context) *loaders {
 
 type loaders struct {
 	internalQuerier *rolesql.Queries
+	userRoles       *dataloadgen.Loader[uuid.UUID, *UserRoles]
 }
 
-func newLoaders(dbConn *pgxpool.Pool) *loaders {
+func newLoaders(dbConn *pgxpool.Pool, opts []dataloadgen.Option) *loaders {
+	db := rolesql.New(dbConn)
+	dataloader := &dataloader{db: db}
+
 	return &loaders{
-		internalQuerier: rolesql.New(dbConn),
+		internalQuerier: db,
+		userRoles:       dataloadgen.NewLoader(dataloader.list, opts...),
 	}
 }
 
@@ -38,4 +46,13 @@ func db(ctx context.Context) *rolesql.Queries {
 	}
 
 	return l.internalQuerier
+}
+
+type dataloader struct {
+	db *rolesql.Queries
+}
+
+func (l dataloader) list(ctx context.Context, userIDs []uuid.UUID) ([]*UserRoles, []error) {
+	makeKey := func(obj *UserRoles) uuid.UUID { return obj.UserID }
+	return loaderv1.LoadModelsWithError(ctx, userIDs, l.db.GetUserRolesForUsers, toUserRoles, makeKey)
 }
