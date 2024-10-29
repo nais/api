@@ -100,3 +100,31 @@ WHERE
 	reconciler = @reconciler_name
 	AND key = @key
 ;
+
+-- name: GetErrors :many
+SELECT
+	reconciler_errors.*
+FROM
+	reconciler_errors
+	JOIN reconcilers ON reconcilers.name = reconciler_errors.reconciler
+WHERE
+	reconcilers.enabled = TRUE
+	AND reconciler_errors.reconciler = @reconciler
+ORDER BY
+	reconciler_errors.created_at DESC
+LIMIT
+	sqlc.arg('limit')
+OFFSET
+	sqlc.arg('offset')
+;
+
+-- name: GetErrorsCount :one
+SELECT
+	COUNT(*)
+FROM
+	reconciler_errors
+	JOIN reconcilers ON reconcilers.name = reconciler_errors.reconciler
+WHERE
+	reconcilers.enabled = TRUE
+	AND reconciler_errors.reconciler = @reconciler
+;

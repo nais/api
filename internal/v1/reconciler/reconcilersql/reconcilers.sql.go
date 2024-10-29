@@ -175,6 +175,74 @@ func (q *Queries) GetConfig(ctx context.Context, arg GetConfigParams) ([]*GetCon
 	return items, nil
 }
 
+const getErrors = `-- name: GetErrors :many
+SELECT
+	reconciler_errors.id, reconciler_errors.correlation_id, reconciler_errors.reconciler, reconciler_errors.created_at, reconciler_errors.error_message, reconciler_errors.team_slug
+FROM
+	reconciler_errors
+	JOIN reconcilers ON reconcilers.name = reconciler_errors.reconciler
+WHERE
+	reconcilers.enabled = TRUE
+	AND reconciler_errors.reconciler = $1
+ORDER BY
+	reconciler_errors.created_at DESC
+LIMIT
+	$3
+OFFSET
+	$2
+`
+
+type GetErrorsParams struct {
+	Reconciler string
+	Offset     int32
+	Limit      int32
+}
+
+func (q *Queries) GetErrors(ctx context.Context, arg GetErrorsParams) ([]*ReconcilerError, error) {
+	rows, err := q.db.Query(ctx, getErrors, arg.Reconciler, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ReconcilerError{}
+	for rows.Next() {
+		var i ReconcilerError
+		if err := rows.Scan(
+			&i.ID,
+			&i.CorrelationID,
+			&i.Reconciler,
+			&i.CreatedAt,
+			&i.ErrorMessage,
+			&i.TeamSlug,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getErrorsCount = `-- name: GetErrorsCount :one
+SELECT
+	COUNT(*)
+FROM
+	reconciler_errors
+	JOIN reconcilers ON reconcilers.name = reconciler_errors.reconciler
+WHERE
+	reconcilers.enabled = TRUE
+	AND reconciler_errors.reconciler = $1
+`
+
+func (q *Queries) GetErrorsCount(ctx context.Context, reconciler string) (int64, error) {
+	row := q.db.QueryRow(ctx, getErrorsCount, reconciler)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const list = `-- name: List :many
 SELECT
 	name, display_name, description, enabled, member_aware

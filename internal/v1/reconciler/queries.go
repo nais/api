@@ -190,3 +190,23 @@ func Configure(ctx context.Context, name string, config []*ReconcilerConfigInput
 
 	return reconciler, nil
 }
+
+func GetErrors(ctx context.Context, reconcilerName string, page *pagination.Pagination) (*ReconcilerErrorConnection, error) {
+	q := db(ctx)
+
+	ret, err := q.GetErrors(ctx, reconcilersql.GetErrorsParams{
+		Reconciler: reconcilerName,
+		Offset:     page.Offset(),
+		Limit:      page.Limit(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	total, err := q.GetErrorsCount(ctx, reconcilerName)
+	if err != nil {
+		return nil, err
+	}
+
+	return pagination.NewConvertConnection(ret, page, int32(total), toGraphReconcilerError), nil
+}

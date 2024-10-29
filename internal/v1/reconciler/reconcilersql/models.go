@@ -2,10 +2,25 @@
 
 package reconcilersql
 
+import (
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/nais/api/internal/slug"
+)
+
 type Reconciler struct {
 	Name        string
 	DisplayName string
 	Description string
 	Enabled     bool
 	MemberAware bool
+}
+
+type ReconcilerError struct {
+	ID            int64
+	CorrelationID uuid.UUID
+	Reconciler    string
+	CreatedAt     pgtype.Timestamptz
+	ErrorMessage  string
+	TeamSlug      slug.Slug
 }

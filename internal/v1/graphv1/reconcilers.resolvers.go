@@ -7,6 +7,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/reconciler"
+	"github.com/nais/api/internal/v1/team"
 )
 
 func (r *mutationResolver) EnableReconciler(ctx context.Context, name string) (*reconciler.Reconciler, error) {
@@ -67,6 +68,26 @@ func (r *reconcilerResolver) Configured(ctx context.Context, obj *reconciler.Rec
 	return true, nil
 }
 
+func (r *reconcilerResolver) Errors(ctx context.Context, obj *reconciler.Reconciler, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*reconciler.ReconcilerError], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return reconciler.GetErrors(ctx, obj.Name, page)
+}
+
+func (r *reconcilerErrorResolver) Team(ctx context.Context, obj *reconciler.ReconcilerError) (*team.Team, error) {
+	return team.Get(ctx, obj.TeamSlug)
+}
+
 func (r *Resolver) Reconciler() gengqlv1.ReconcilerResolver { return &reconcilerResolver{r} }
 
-type reconcilerResolver struct{ *Resolver }
+func (r *Resolver) ReconcilerError() gengqlv1.ReconcilerErrorResolver {
+	return &reconcilerErrorResolver{r}
+}
+
+type (
+	reconcilerResolver      struct{ *Resolver }
+	reconcilerErrorResolver struct{ *Resolver }
+)

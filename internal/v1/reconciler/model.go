@@ -1,14 +1,19 @@
 package reconciler
 
 import (
+	"time"
+
+	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/reconciler/reconcilersql"
 )
 
 type (
-	ReconcilerConnection = pagination.Connection[*Reconciler]
-	ReconcilerEdge       = pagination.Edge[*Reconciler]
+	ReconcilerConnection      = pagination.Connection[*Reconciler]
+	ReconcilerEdge            = pagination.Edge[*Reconciler]
+	ReconcilerErrorConnection = pagination.Connection[*ReconcilerError]
+	ReconcilerErrorEdge       = pagination.Edge[*ReconcilerError]
 )
 
 type Reconciler struct {
@@ -70,4 +75,20 @@ type ReconcilerConfigInput struct {
 	Key string `json:"key"`
 	// Configuration value.
 	Value string `json:"value"`
+}
+
+type ReconcilerError struct {
+	CorrelationID string    `json:"correlationID"`
+	CreatedAt     time.Time `json:"createdAt"`
+	Message       string    `json:"message"`
+	TeamSlug      slug.Slug `json:"-"`
+}
+
+func toGraphReconcilerError(row *reconcilersql.ReconcilerError) *ReconcilerError {
+	return &ReconcilerError{
+		CorrelationID: row.CorrelationID.String(),
+		CreatedAt:     row.CreatedAt.Time,
+		Message:       row.ErrorMessage,
+		TeamSlug:      row.TeamSlug,
+	}
 }
