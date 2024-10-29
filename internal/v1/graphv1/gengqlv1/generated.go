@@ -1456,7 +1456,7 @@ type ComplexityRoot struct {
 	}
 
 	UpdateImageVulnerabilityPayload struct {
-		AnalysisTrail func(childComplexity int) int
+		Vulnerability func(childComplexity int) int
 	}
 
 	UpdateSecretValuePayload struct {
@@ -7648,12 +7648,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TriggerJobPayload.JobRun(childComplexity), true
 
-	case "UpdateImageVulnerabilityPayload.analysisTrail":
-		if e.complexity.UpdateImageVulnerabilityPayload.AnalysisTrail == nil {
+	case "UpdateImageVulnerabilityPayload.vulnerability":
+		if e.complexity.UpdateImageVulnerabilityPayload.Vulnerability == nil {
 			break
 		}
 
-		return e.complexity.UpdateImageVulnerabilityPayload.AnalysisTrail(childComplexity), true
+		return e.complexity.UpdateImageVulnerabilityPayload.Vulnerability(childComplexity), true
 
 	case "UpdateSecretValuePayload.secret":
 		if e.complexity.UpdateSecretValuePayload.Secret == nil {
@@ -12382,8 +12382,8 @@ input UpdateImageVulnerabilityInput {
 }
 
 type UpdateImageVulnerabilityPayload {
-	"Analysis trail of the suppressed vulnerability."
-	analysisTrail: ImageVulnerabilityAnalysisTrail!
+	"The vulnerability updated."
+	vulnerability: ImageVulnerability
 }
 
 enum ImageVulnerabilityAnalysisState {
@@ -35235,8 +35235,8 @@ func (ec *executionContext) fieldContext_Mutation_updateImageVulnerability(ctx c
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "analysisTrail":
-				return ec.fieldContext_UpdateImageVulnerabilityPayload_analysisTrail(ctx, field)
+			case "vulnerability":
+				return ec.fieldContext_UpdateImageVulnerabilityPayload_vulnerability(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UpdateImageVulnerabilityPayload", field.Name)
 		},
@@ -58809,8 +58809,8 @@ func (ec *executionContext) fieldContext_TriggerJobPayload_jobRun(_ context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _UpdateImageVulnerabilityPayload_analysisTrail(ctx context.Context, field graphql.CollectedField, obj *vulnerability.UpdateImageVulnerabilityPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UpdateImageVulnerabilityPayload_analysisTrail(ctx, field)
+func (ec *executionContext) _UpdateImageVulnerabilityPayload_vulnerability(ctx context.Context, field graphql.CollectedField, obj *vulnerability.UpdateImageVulnerabilityPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateImageVulnerabilityPayload_vulnerability(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -58823,24 +58823,21 @@ func (ec *executionContext) _UpdateImageVulnerabilityPayload_analysisTrail(ctx c
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.AnalysisTrail, nil
+		return obj.Vulnerability, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(*vulnerability.ImageVulnerabilityAnalysisTrail)
+	res := resTmp.(*vulnerability.ImageVulnerability)
 	fc.Result = res
-	return ec.marshalNImageVulnerabilityAnalysisTrail2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerabilityAnalysisTrail(ctx, field.Selections, res)
+	return ec.marshalOImageVulnerability2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerability(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UpdateImageVulnerabilityPayload_analysisTrail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UpdateImageVulnerabilityPayload_vulnerability(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UpdateImageVulnerabilityPayload",
 		Field:      field,
@@ -58848,14 +58845,22 @@ func (ec *executionContext) fieldContext_UpdateImageVulnerabilityPayload_analysi
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_ImageVulnerability_id(ctx, field)
+			case "identifier":
+				return ec.fieldContext_ImageVulnerability_identifier(ctx, field)
+			case "severity":
+				return ec.fieldContext_ImageVulnerability_severity(ctx, field)
+			case "description":
+				return ec.fieldContext_ImageVulnerability_description(ctx, field)
+			case "package":
+				return ec.fieldContext_ImageVulnerability_package(ctx, field)
 			case "state":
-				return ec.fieldContext_ImageVulnerabilityAnalysisTrail_state(ctx, field)
-			case "comments":
-				return ec.fieldContext_ImageVulnerabilityAnalysisTrail_comments(ctx, field)
-			case "suppressed":
-				return ec.fieldContext_ImageVulnerabilityAnalysisTrail_suppressed(ctx, field)
+				return ec.fieldContext_ImageVulnerability_state(ctx, field)
+			case "analysisTrail":
+				return ec.fieldContext_ImageVulnerability_analysisTrail(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityAnalysisTrail", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerability", field.Name)
 		},
 	}
 	return fc, nil
@@ -81817,11 +81822,8 @@ func (ec *executionContext) _UpdateImageVulnerabilityPayload(ctx context.Context
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("UpdateImageVulnerabilityPayload")
-		case "analysisTrail":
-			out.Values[i] = ec._UpdateImageVulnerabilityPayload_analysisTrail(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
+		case "vulnerability":
+			out.Values[i] = ec._UpdateImageVulnerabilityPayload_vulnerability(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -90386,6 +90388,13 @@ func (ec *executionContext) marshalODeploymentKey2ᚖgithubᚗcomᚋnaisᚋapi�
 		return graphql.Null
 	}
 	return ec._DeploymentKey(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOImageVulnerability2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerability(ctx context.Context, sel ast.SelectionSet, v *vulnerability.ImageVulnerability) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ImageVulnerability(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOImageVulnerabilityOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐImageVulnerabilityOrder(ctx context.Context, v interface{}) (*vulnerability.ImageVulnerabilityOrder, error) {
