@@ -51,3 +51,15 @@ func GetByEmail(ctx context.Context, email string) (*User, error) {
 	}
 	return toGraphUser(u), nil
 }
+
+func Create(ctx context.Context, name, email, externalID string) (*User, error) {
+	u, err := db(ctx).Create(ctx, usersql.CreateParams{
+		Name:       name,
+		Email:      email,
+		ExternalID: externalID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return toGraphUser(u), nil
+}
