@@ -14,9 +14,6 @@ extend type Query {
   "Get a specific team."
   team("Slug of the team." slug: Slug!): Team! @auth
 
-  "Get a team delete key."
-  teamDeleteKey("The key to get." key: String!): TeamDeleteKey! @auth
-
   "Get the resource utilization of all teams"
   teamsUtilization(resourceType: UsageResourceType!): [TeamUtilizationData!]! @auth
 }
@@ -117,34 +114,6 @@ extend type Mutation {
     role: TeamRole!
   ): Team! @auth
 
-  """
-  Request a key that can be used to trigger a team deletion process
-
-  Deleting a team is a two step process. First an owner of the team (or an admin) must request a team deletion key, and
-  then a second owner of the team (or an admin) must confirm the deletion using the confirmTeamDeletion mutation.
-
-  Note: Service accounts are not allowed to request team delete keys.
-  """
-  requestTeamDeletion(
-    "The slug of the team that the deletion key will be assigned to."
-    slug: Slug!
-  ): TeamDeleteKey! @auth
-
-  """
-  Confirm a team deletion
-
-  This will start the actual team deletion process, which will be done in an asynchronous manner. All external
-  entities controlled by NAIS will also be deleted.
-
-  WARNING: There is no going back after starting this process.
-
-  Note: Service accounts are not allowed to confirm a team deletion.
-  """
-  confirmTeamDeletion(
-    "Deletion key, acquired using the requestTeamDeletion mutation."
-    key: String!
-  ): Boolean! @auth
-
   "Update the deploy key of a team. Returns the updated deploy key."
   changeDeployKey(
     "The name of the team to update the deploy key for."
@@ -168,24 +137,6 @@ extend type Mutation {
     "Name of the repository, with the org prefix, for instance 'org/repo'."
     repoName: String!
   ): String! @auth
-}
-
-"Team deletion key type."
-type TeamDeleteKey {
-  "The unique key used to confirm the deletion of a team."
-  key: String!
-
-  "The creation timestamp of the key."
-  createdAt: Time!
-
-  "Expiration timestamp of the key."
-  expires: Time!
-
-  "The user who created the key."
-  createdBy: User!
-
-  "The team the delete key is for."
-  team: Team!
 }
 
 "Team sync type."

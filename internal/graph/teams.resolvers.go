@@ -15,7 +15,6 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
@@ -367,77 +366,6 @@ func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, slug slug.Slug
 	return team, nil
 }
 
-func (r *mutationResolver) RequestTeamDeletion(ctx context.Context, slug slug.Slug) (*model.TeamDeleteKey, error) {
-	actor := authz.ActorFromContext(ctx)
-
-	err := authz.RequireTeamRole(actor, slug, gensql.RoleNameTeamowner)
-	if err != nil {
-		return nil, err
-	}
-
-	team, err := loader.GetTeam(ctx, slug)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, apierror.ErrTeamNotExist
-		}
-		return nil, err
-	}
-
-	deleteKey, err := r.database.CreateTeamDeleteKey(ctx, slug, actor.User.GetID())
-	if err != nil {
-		return nil, fmt.Errorf("create team delete key: %w", err)
-	}
-
-	err = r.auditor.TeamDeletionRequested(ctx, actor.User, team.Slug)
-	if err != nil {
-		return nil, err
-	}
-
-	return toGraphTeamDeleteKey(deleteKey), nil
-}
-
-func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, key string) (bool, error) {
-	uid, err := uuid.Parse(key)
-	if err != nil {
-		return false, apierror.Errorf("Invalid deletion key: %q", key)
-	}
-
-	deleteKey, err := r.database.GetTeamDeleteKey(ctx, uid)
-	if err != nil {
-		return false, apierror.Errorf("Unknown deletion key: %q", key)
-	}
-
-	actor := authz.ActorFromContext(ctx)
-	err = authz.RequireTeamRole(actor, deleteKey.TeamSlug, gensql.RoleNameTeamowner)
-	if err != nil {
-		return false, err
-	}
-
-	if actor.User.GetID() == deleteKey.CreatedBy {
-		return false, apierror.Errorf("You cannot confirm your own delete key.")
-	}
-
-	if deleteKey.ConfirmedAt.Valid {
-		return false, apierror.Errorf("Key has already been confirmed, team is currently being deleted.")
-	}
-
-	if deleteKey.HasExpired() {
-		return false, apierror.Errorf("Team delete key has expired, you need to request a new key.")
-	}
-
-	if err := r.database.ConfirmTeamDeleteKey(ctx, deleteKey.TeamSlug, uid); err != nil {
-		return false, fmt.Errorf("confirm team delete key: %w", err)
-	}
-
-	if err := r.auditor.TeamDeletionConfirmed(ctx, actor.User, deleteKey.TeamSlug); err != nil {
-		return false, err
-	}
-
-	r.triggerTeamDeletedEvent(ctx, deleteKey.TeamSlug, uuid.New())
-
-	return true, nil
-}
-
 func (r *mutationResolver) ChangeDeployKey(ctx context.Context, team slug.Slug) (*model.DeploymentKey, error) {
 	actor := authz.ActorFromContext(ctx)
 	if _, err := r.database.GetTeamMember(ctx, team, actor.User.GetID()); errors.Is(err, pgx.ErrNoRows) {
@@ -552,26 +480,6 @@ func (r *queryResolver) Team(ctx context.Context, slug slug.Slug) (*model.Team, 
 	}
 
 	return loader.GetTeam(ctx, slug)
-}
-
-func (r *queryResolver) TeamDeleteKey(ctx context.Context, key string) (*model.TeamDeleteKey, error) {
-	kid, err := uuid.Parse(key)
-	if err != nil {
-		return nil, apierror.Errorf("Invalid deletion key: %q", key)
-	}
-
-	deleteKey, err := r.database.GetTeamDeleteKey(ctx, kid)
-	if err != nil {
-		return nil, apierror.Errorf("Unknown deletion key: %q", key)
-	}
-
-	actor := authz.ActorFromContext(ctx)
-	err = authz.RequireTeamRole(actor, deleteKey.TeamSlug, gensql.RoleNameTeamowner)
-	if err != nil {
-		return nil, err
-	}
-
-	return toGraphTeamDeleteKey(deleteKey), nil
 }
 
 func (r *queryResolver) TeamsUtilization(ctx context.Context, resourceType model.UsageResourceType) ([]*model.TeamUtilizationData, error) {
@@ -1628,14 +1536,6 @@ func (r *teamResolver) AppsUtilization(ctx context.Context, obj *model.Team, res
 	return r.resourceUsageClient.TeamUtilization(ctx, obj.Slug, resourceType)
 }
 
-func (r *teamDeleteKeyResolver) CreatedBy(ctx context.Context, obj *model.TeamDeleteKey) (*model.User, error) {
-	return loader.GetUser(ctx, obj.GQLVars.UserID)
-}
-
-func (r *teamDeleteKeyResolver) Team(ctx context.Context, obj *model.TeamDeleteKey) (*model.Team, error) {
-	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
-}
-
 func (r *teamMemberResolver) Team(ctx context.Context, obj *model.TeamMember) (*model.Team, error) {
 	return loader.GetTeam(ctx, obj.TeamSlug)
 }
@@ -1719,8 +1619,6 @@ func (r *Resolver) AppUtilizationData() gengql.AppUtilizationDataResolver {
 
 func (r *Resolver) Team() gengql.TeamResolver { return &teamResolver{r} }
 
-func (r *Resolver) TeamDeleteKey() gengql.TeamDeleteKeyResolver { return &teamDeleteKeyResolver{r} }
-
 func (r *Resolver) TeamMember() gengql.TeamMemberResolver { return &teamMemberResolver{r} }
 
 func (r *Resolver) TeamMemberReconciler() gengql.TeamMemberReconcilerResolver {
@@ -1734,7 +1632,6 @@ func (r *Resolver) TeamUtilizationData() gengql.TeamUtilizationDataResolver {
 type (
 	appUtilizationDataResolver   struct{ *Resolver }
 	teamResolver                 struct{ *Resolver }
-	teamDeleteKeyResolver        struct{ *Resolver }
 	teamMemberResolver           struct{ *Resolver }
 	teamMemberReconcilerResolver struct{ *Resolver }
 	teamUtilizationDataResolver  struct{ *Resolver }

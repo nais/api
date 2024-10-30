@@ -19,8 +19,6 @@ type Querier interface {
 	AssignTeamRoleToUser(ctx context.Context, arg AssignTeamRoleToUserParams) error
 	ClearReconcilerErrorsForTeam(ctx context.Context, arg ClearReconcilerErrorsForTeamParams) error
 	ConfigureReconciler(ctx context.Context, arg ConfigureReconcilerParams) error
-	// ConfirmTeamDeleteKey confirms a delete key for a team.
-	ConfirmTeamDeleteKey(ctx context.Context, key uuid.UUID) error
 	CostForInstance(ctx context.Context, arg CostForInstanceParams) (float32, error)
 	CostForTeam(ctx context.Context, arg CostForTeamParams) (float32, error)
 	// CostUpsert will insert or update a cost record. If there is a conflict on the daily_cost_key constrant, the
@@ -31,8 +29,6 @@ type Querier interface {
 	CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) error
 	CreateServiceAccount(ctx context.Context, name string) (*ServiceAccount, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (*Session, error)
-	// CreateTeamDeleteKey creates a new delete key for a team.
-	CreateTeamDeleteKey(ctx context.Context, arg CreateTeamDeleteKeyParams) (*TeamDeleteKey, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (*User, error)
 	CreateUsersyncRun(ctx context.Context, arg CreateUsersyncRunParams) error
 	CurrentSqlInstancesCostForTeam(ctx context.Context, arg CurrentSqlInstancesCostForTeamParams) (float32, error)
@@ -85,8 +81,6 @@ type Querier interface {
 	GetSessionByID(ctx context.Context, id uuid.UUID) (*Session, error)
 	// GetTeamBySlug returns a team by its slug, excluding deleted teams.
 	GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error)
-	// GetTeamDeleteKey returns a delete key for a team.
-	GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
 	// GetTeamEnvironments returns a slice of team environments, excluding deleted teams.
 	GetTeamEnvironments(ctx context.Context, arg GetTeamEnvironmentsParams) ([]*TeamAllEnvironment, error)
 	// GetTeamEnvironmentsBySlugsAndEnvNames returns a slice of team environments for a list of teams/envs, excluding

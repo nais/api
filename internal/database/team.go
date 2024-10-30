@@ -3,16 +3,11 @@ package database
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"sort"
-	"time"
-
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
+	"sort"
 )
-
-const teamDeleteKeyLifetime = time.Hour * 1
 
 type gitHubState struct {
 	Repositories []*GitHubRepository `json:"repositories"`
@@ -31,13 +26,10 @@ type GitHubRepositoryPermission struct {
 }
 
 type TeamRepo interface {
-	ConfirmTeamDeleteKey(ctx context.Context, teamSlug slug.Slug, key uuid.UUID) error
-	CreateTeamDeleteKey(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*TeamDeleteKey, error)
 	DeleteTeam(ctx context.Context, teamSlug slug.Slug) error
 	GetAllTeamMembers(ctx context.Context, teamSlug slug.Slug) ([]*User, error)
 	GetAllTeamSlugs(ctx context.Context) ([]slug.Slug, error)
 	GetTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error)
-	GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
 	GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, p Page) ([]*TeamEnvironment, int, error)
 	GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, keys []EnvSlugName) ([]*TeamEnvironment, error)
 	GetTeamMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*User, error)
@@ -66,18 +58,6 @@ type EnvSlugName struct {
 
 type TeamEnvironment struct {
 	*gensql.TeamAllEnvironment
-}
-
-type TeamDeleteKey struct {
-	*gensql.TeamDeleteKey
-}
-
-func (k TeamDeleteKey) Expires() time.Time {
-	return k.CreatedAt.Time.Add(teamDeleteKeyLifetime)
-}
-
-func (k TeamDeleteKey) HasExpired() bool {
-	return time.Now().After(k.Expires())
 }
 
 type Team struct {
@@ -278,39 +258,6 @@ func (d *database) GetTeamMember(ctx context.Context, teamSlug slug.Slug, userID
 
 func (d *database) SetLastSuccessfulSyncForTeam(ctx context.Context, teamSlug slug.Slug) error {
 	return d.querier.SetLastSuccessfulSyncForTeam(ctx, teamSlug)
-}
-
-func (d *database) CreateTeamDeleteKey(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*TeamDeleteKey, error) {
-	deleteKey, err := d.querier.CreateTeamDeleteKey(ctx, gensql.CreateTeamDeleteKeyParams{
-		TeamSlug:  teamSlug,
-		CreatedBy: userID,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &TeamDeleteKey{TeamDeleteKey: deleteKey}, nil
-}
-
-func (d *database) GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error) {
-	deleteKey, err := d.querier.GetTeamDeleteKey(ctx, key)
-	if err != nil {
-		return nil, err
-	}
-	return &TeamDeleteKey{TeamDeleteKey: deleteKey}, nil
-}
-
-func (d *database) ConfirmTeamDeleteKey(ctx context.Context, teamSlug slug.Slug, key uuid.UUID) error {
-	return d.querier.Transaction(ctx, func(ctx context.Context, querier Querier) error {
-		if err := querier.ConfirmTeamDeleteKey(ctx, key); err != nil {
-			return fmt.Errorf("confirm team delete key: %w", err)
-		}
-
-		if err := querier.SetTeamDeleteKeyConfirmedAt(ctx, teamSlug); err != nil {
-			return fmt.Errorf("update team delete key confirmed at timestamp: %w", err)
-		}
-
-		return nil
-	})
 }
 
 func (d *database) DeleteTeam(ctx context.Context, teamSlug slug.Slug) error {

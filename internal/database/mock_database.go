@@ -377,54 +377,6 @@ func (_c *MockDatabase_ConfigureReconciler_Call) RunAndReturn(run func(context.C
 	return _c
 }
 
-// ConfirmTeamDeleteKey provides a mock function with given fields: ctx, teamSlug, key
-func (_m *MockDatabase) ConfirmTeamDeleteKey(ctx context.Context, teamSlug slug.Slug, key uuid.UUID) error {
-	ret := _m.Called(ctx, teamSlug, key)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ConfirmTeamDeleteKey")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, uuid.UUID) error); ok {
-		r0 = rf(ctx, teamSlug, key)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockDatabase_ConfirmTeamDeleteKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ConfirmTeamDeleteKey'
-type MockDatabase_ConfirmTeamDeleteKey_Call struct {
-	*mock.Call
-}
-
-// ConfirmTeamDeleteKey is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - key uuid.UUID
-func (_e *MockDatabase_Expecter) ConfirmTeamDeleteKey(ctx interface{}, teamSlug interface{}, key interface{}) *MockDatabase_ConfirmTeamDeleteKey_Call {
-	return &MockDatabase_ConfirmTeamDeleteKey_Call{Call: _e.mock.On("ConfirmTeamDeleteKey", ctx, teamSlug, key)}
-}
-
-func (_c *MockDatabase_ConfirmTeamDeleteKey_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, key uuid.UUID)) *MockDatabase_ConfirmTeamDeleteKey_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(uuid.UUID))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_ConfirmTeamDeleteKey_Call) Return(_a0 error) *MockDatabase_ConfirmTeamDeleteKey_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockDatabase_ConfirmTeamDeleteKey_Call) RunAndReturn(run func(context.Context, slug.Slug, uuid.UUID) error) *MockDatabase_ConfirmTeamDeleteKey_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // CostForInstance provides a mock function with given fields: ctx, costType, fromDate, toDate, teamSlug, appName, environment
 func (_m *MockDatabase) CostForInstance(ctx context.Context, costType string, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug, appName string, environment string) (float32, error) {
 	ret := _m.Called(ctx, costType, fromDate, toDate, teamSlug, appName, environment)
@@ -903,66 +855,6 @@ func (_c *MockDatabase_CreateSession_Call) Return(_a0 *Session, _a1 error) *Mock
 }
 
 func (_c *MockDatabase_CreateSession_Call) RunAndReturn(run func(context.Context, uuid.UUID) (*Session, error)) *MockDatabase_CreateSession_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// CreateTeamDeleteKey provides a mock function with given fields: ctx, teamSlug, userID
-func (_m *MockDatabase) CreateTeamDeleteKey(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*TeamDeleteKey, error) {
-	ret := _m.Called(ctx, teamSlug, userID)
-
-	if len(ret) == 0 {
-		panic("no return value specified for CreateTeamDeleteKey")
-	}
-
-	var r0 *TeamDeleteKey
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, uuid.UUID) (*TeamDeleteKey, error)); ok {
-		return rf(ctx, teamSlug, userID)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, uuid.UUID) *TeamDeleteKey); ok {
-		r0 = rf(ctx, teamSlug, userID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*TeamDeleteKey)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, uuid.UUID) error); ok {
-		r1 = rf(ctx, teamSlug, userID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockDatabase_CreateTeamDeleteKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateTeamDeleteKey'
-type MockDatabase_CreateTeamDeleteKey_Call struct {
-	*mock.Call
-}
-
-// CreateTeamDeleteKey is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - userID uuid.UUID
-func (_e *MockDatabase_Expecter) CreateTeamDeleteKey(ctx interface{}, teamSlug interface{}, userID interface{}) *MockDatabase_CreateTeamDeleteKey_Call {
-	return &MockDatabase_CreateTeamDeleteKey_Call{Call: _e.mock.On("CreateTeamDeleteKey", ctx, teamSlug, userID)}
-}
-
-func (_c *MockDatabase_CreateTeamDeleteKey_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID)) *MockDatabase_CreateTeamDeleteKey_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(uuid.UUID))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_CreateTeamDeleteKey_Call) Return(_a0 *TeamDeleteKey, _a1 error) *MockDatabase_CreateTeamDeleteKey_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockDatabase_CreateTeamDeleteKey_Call) RunAndReturn(run func(context.Context, slug.Slug, uuid.UUID) (*TeamDeleteKey, error)) *MockDatabase_CreateTeamDeleteKey_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3283,65 +3175,6 @@ func (_c *MockDatabase_GetTeamBySlug_Call) Return(_a0 *Team, _a1 error) *MockDat
 }
 
 func (_c *MockDatabase_GetTeamBySlug_Call) RunAndReturn(run func(context.Context, slug.Slug) (*Team, error)) *MockDatabase_GetTeamBySlug_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetTeamDeleteKey provides a mock function with given fields: ctx, key
-func (_m *MockDatabase) GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error) {
-	ret := _m.Called(ctx, key)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetTeamDeleteKey")
-	}
-
-	var r0 *TeamDeleteKey
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*TeamDeleteKey, error)); ok {
-		return rf(ctx, key)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *TeamDeleteKey); ok {
-		r0 = rf(ctx, key)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*TeamDeleteKey)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = rf(ctx, key)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockDatabase_GetTeamDeleteKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamDeleteKey'
-type MockDatabase_GetTeamDeleteKey_Call struct {
-	*mock.Call
-}
-
-// GetTeamDeleteKey is a helper method to define mock.On call
-//   - ctx context.Context
-//   - key uuid.UUID
-func (_e *MockDatabase_Expecter) GetTeamDeleteKey(ctx interface{}, key interface{}) *MockDatabase_GetTeamDeleteKey_Call {
-	return &MockDatabase_GetTeamDeleteKey_Call{Call: _e.mock.On("GetTeamDeleteKey", ctx, key)}
-}
-
-func (_c *MockDatabase_GetTeamDeleteKey_Call) Run(run func(ctx context.Context, key uuid.UUID)) *MockDatabase_GetTeamDeleteKey_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_GetTeamDeleteKey_Call) Return(_a0 *TeamDeleteKey, _a1 error) *MockDatabase_GetTeamDeleteKey_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockDatabase_GetTeamDeleteKey_Call) RunAndReturn(run func(context.Context, uuid.UUID) (*TeamDeleteKey, error)) *MockDatabase_GetTeamDeleteKey_Call {
 	_c.Call.Return(run)
 	return _c
 }

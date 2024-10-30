@@ -80,7 +80,6 @@ type ResolverRoot interface {
 	SqlInstance() SqlInstanceResolver
 	Subscription() SubscriptionResolver
 	Team() TeamResolver
-	TeamDeleteKey() TeamDeleteKeyResolver
 	TeamMember() TeamMemberResolver
 	TeamMemberReconciler() TeamMemberReconcilerResolver
 	TeamUtilizationData() TeamUtilizationDataResolver
@@ -821,7 +820,6 @@ type ComplexityRoot struct {
 		AddTeamMember                func(childComplexity int, slug slug.Slug, member model.TeamMemberInput) int
 		ChangeDeployKey              func(childComplexity int, team slug.Slug) int
 		ConfigureReconciler          func(childComplexity int, name string, config []*model.ReconcilerConfigInput) int
-		ConfirmTeamDeletion          func(childComplexity int, key string) int
 		CreateSecret                 func(childComplexity int, name string, team slug.Slug, env string, data []*model.VariableInput) int
 		CreateUnleashForTeam         func(childComplexity int, team slug.Slug) int
 		DeleteApp                    func(childComplexity int, name string, team slug.Slug, env string) int
@@ -832,7 +830,6 @@ type ComplexityRoot struct {
 		RemoveReconcilerOptOut       func(childComplexity int, teamSlug slug.Slug, userID scalar.Ident, reconciler string) int
 		RemoveRepository             func(childComplexity int, teamSlug slug.Slug, repoName string) int
 		RemoveUserFromTeam           func(childComplexity int, slug slug.Slug, userID scalar.Ident) int
-		RequestTeamDeletion          func(childComplexity int, slug slug.Slug) int
 		ResetReconciler              func(childComplexity int, name string) int
 		RestartApp                   func(childComplexity int, name string, team slug.Slug, env string) int
 		SetTeamMemberRole            func(childComplexity int, slug slug.Slug, userID scalar.Ident, role model.TeamRole) int
@@ -955,7 +952,6 @@ type ComplexityRoot struct {
 		Reconcilers      func(childComplexity int, offset *int, limit *int) int
 		Search           func(childComplexity int, query string, filter *model.SearchFilter, offset *int, limit *int) int
 		Team             func(childComplexity int, slug slug.Slug) int
-		TeamDeleteKey    func(childComplexity int, key string) int
 		Teams            func(childComplexity int, offset *int, limit *int, filter *model.TeamsFilter) int
 		TeamsUtilization func(childComplexity int, resourceType model.UsageResourceType) int
 		User             func(childComplexity int, id *scalar.Ident, email *string) int
@@ -1301,14 +1297,6 @@ type ComplexityRoot struct {
 		VulnerabilitiesSummary func(childComplexity int, filter *model.VulnerabilityFilter) int
 	}
 
-	TeamDeleteKey struct {
-		CreatedAt func(childComplexity int) int
-		CreatedBy func(childComplexity int) int
-		Expires   func(childComplexity int) int
-		Key       func(childComplexity int) int
-		Team      func(childComplexity int) int
-	}
-
 	TeamList struct {
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
@@ -1583,8 +1571,6 @@ type MutationResolver interface {
 	SynchronizeAllTeams(ctx context.Context) (*model.TeamSync, error)
 	AddTeamMember(ctx context.Context, slug slug.Slug, member model.TeamMemberInput) (*model.Team, error)
 	SetTeamMemberRole(ctx context.Context, slug slug.Slug, userID scalar.Ident, role model.TeamRole) (*model.Team, error)
-	RequestTeamDeletion(ctx context.Context, slug slug.Slug) (*model.TeamDeleteKey, error)
-	ConfirmTeamDeletion(ctx context.Context, key string) (bool, error)
 	ChangeDeployKey(ctx context.Context, team slug.Slug) (*model.DeploymentKey, error)
 	AddRepository(ctx context.Context, teamSlug slug.Slug, repoName string) (string, error)
 	RemoveRepository(ctx context.Context, teamSlug slug.Slug, repoName string) (string, error)
@@ -1627,7 +1613,6 @@ type QueryResolver interface {
 	Search(ctx context.Context, query string, filter *model.SearchFilter, offset *int, limit *int) (*model.SearchList, error)
 	Teams(ctx context.Context, offset *int, limit *int, filter *model.TeamsFilter) (*model.TeamList, error)
 	Team(ctx context.Context, slug slug.Slug) (*model.Team, error)
-	TeamDeleteKey(ctx context.Context, key string) (*model.TeamDeleteKey, error)
 	TeamsUtilization(ctx context.Context, resourceType model.UsageResourceType) ([]*model.TeamUtilizationData, error)
 	Users(ctx context.Context, offset *int, limit *int) (*model.UserList, error)
 	User(ctx context.Context, id *scalar.Ident, email *string) (*model.User, error)
@@ -1719,10 +1704,6 @@ type TeamResolver interface {
 	Unleash(ctx context.Context, obj *model.Team) (*model.Unleash, error)
 	Repositories(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.RepositoryList, error)
 	AppsUtilization(ctx context.Context, obj *model.Team, resourceType model.UsageResourceType) ([]*model.AppUtilizationData, error)
-}
-type TeamDeleteKeyResolver interface {
-	CreatedBy(ctx context.Context, obj *model.TeamDeleteKey) (*model.User, error)
-	Team(ctx context.Context, obj *model.TeamDeleteKey) (*model.Team, error)
 }
 type TeamMemberResolver interface {
 	Team(ctx context.Context, obj *model.TeamMember) (*model.Team, error)
@@ -4829,18 +4810,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.ConfigureReconciler(childComplexity, args["name"].(string), args["config"].([]*model.ReconcilerConfigInput)), true
 
-	case "Mutation.confirmTeamDeletion":
-		if e.complexity.Mutation.ConfirmTeamDeletion == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_confirmTeamDeletion_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.ConfirmTeamDeletion(childComplexity, args["key"].(string)), true
-
 	case "Mutation.createSecret":
 		if e.complexity.Mutation.CreateSecret == nil {
 			break
@@ -4960,18 +4929,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.RemoveUserFromTeam(childComplexity, args["slug"].(slug.Slug), args["userId"].(scalar.Ident)), true
-
-	case "Mutation.requestTeamDeletion":
-		if e.complexity.Mutation.RequestTeamDeletion == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_requestTeamDeletion_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.RequestTeamDeletion(childComplexity, args["slug"].(slug.Slug)), true
 
 	case "Mutation.resetReconciler":
 		if e.complexity.Mutation.ResetReconciler == nil {
@@ -5606,18 +5563,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Team(childComplexity, args["slug"].(slug.Slug)), true
-
-	case "Query.teamDeleteKey":
-		if e.complexity.Query.TeamDeleteKey == nil {
-			break
-		}
-
-		args, err := ec.field_Query_teamDeleteKey_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.TeamDeleteKey(childComplexity, args["key"].(string)), true
 
 	case "Query.teams":
 		if e.complexity.Query.Teams == nil {
@@ -7344,41 +7289,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Team.VulnerabilitiesSummary(childComplexity, args["filter"].(*model.VulnerabilityFilter)), true
-
-	case "TeamDeleteKey.createdAt":
-		if e.complexity.TeamDeleteKey.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.TeamDeleteKey.CreatedAt(childComplexity), true
-
-	case "TeamDeleteKey.createdBy":
-		if e.complexity.TeamDeleteKey.CreatedBy == nil {
-			break
-		}
-
-		return e.complexity.TeamDeleteKey.CreatedBy(childComplexity), true
-
-	case "TeamDeleteKey.expires":
-		if e.complexity.TeamDeleteKey.Expires == nil {
-			break
-		}
-
-		return e.complexity.TeamDeleteKey.Expires(childComplexity), true
-
-	case "TeamDeleteKey.key":
-		if e.complexity.TeamDeleteKey.Key == nil {
-			break
-		}
-
-		return e.complexity.TeamDeleteKey.Key(childComplexity), true
-
-	case "TeamDeleteKey.team":
-		if e.complexity.TeamDeleteKey.Team == nil {
-			break
-		}
-
-		return e.complexity.TeamDeleteKey.Team(childComplexity), true
 
 	case "TeamList.nodes":
 		if e.complexity.TeamList.Nodes == nil {
@@ -9957,9 +9867,6 @@ type Role {
   "Get a specific team."
   team("Slug of the team." slug: Slug!): Team! @auth
 
-  "Get a team delete key."
-  teamDeleteKey("The key to get." key: String!): TeamDeleteKey! @auth
-
   "Get the resource utilization of all teams"
   teamsUtilization(resourceType: UsageResourceType!): [TeamUtilizationData!]! @auth
 }
@@ -10060,34 +9967,6 @@ extend type Mutation {
     role: TeamRole!
   ): Team! @auth
 
-  """
-  Request a key that can be used to trigger a team deletion process
-
-  Deleting a team is a two step process. First an owner of the team (or an admin) must request a team deletion key, and
-  then a second owner of the team (or an admin) must confirm the deletion using the confirmTeamDeletion mutation.
-
-  Note: Service accounts are not allowed to request team delete keys.
-  """
-  requestTeamDeletion(
-    "The slug of the team that the deletion key will be assigned to."
-    slug: Slug!
-  ): TeamDeleteKey! @auth
-
-  """
-  Confirm a team deletion
-
-  This will start the actual team deletion process, which will be done in an asynchronous manner. All external
-  entities controlled by NAIS will also be deleted.
-
-  WARNING: There is no going back after starting this process.
-
-  Note: Service accounts are not allowed to confirm a team deletion.
-  """
-  confirmTeamDeletion(
-    "Deletion key, acquired using the requestTeamDeletion mutation."
-    key: String!
-  ): Boolean! @auth
-
   "Update the deploy key of a team. Returns the updated deploy key."
   changeDeployKey(
     "The name of the team to update the deploy key for."
@@ -10111,24 +9990,6 @@ extend type Mutation {
     "Name of the repository, with the org prefix, for instance 'org/repo'."
     repoName: String!
   ): String! @auth
-}
-
-"Team deletion key type."
-type TeamDeleteKey {
-  "The unique key used to confirm the deletion of a team."
-  key: String!
-
-  "The creation timestamp of the key."
-  createdAt: Time!
-
-  "Expiration timestamp of the key."
-  expires: Time!
-
-  "The user who created the key."
-  createdBy: User!
-
-  "The team the delete key is for."
-  team: Team!
 }
 
 "Team sync type."
@@ -11704,38 +11565,6 @@ func (ec *executionContext) field_Mutation_configureReconciler_argsConfig(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_confirmTeamDeletion_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_confirmTeamDeletion_argsKey(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["key"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_confirmTeamDeletion_argsKey(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["key"]
-	if !ok {
-		var zeroVal string
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-	if tmp, ok := rawArgs["key"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Mutation_createSecret_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -12404,38 +12233,6 @@ func (ec *executionContext) field_Mutation_removeUserFromTeam_argsUserID(
 	}
 
 	var zeroVal scalar.Ident
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_requestTeamDeletion_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_requestTeamDeletion_argsSlug(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["slug"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_requestTeamDeletion_argsSlug(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (slug.Slug, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["slug"]
-	if !ok {
-		var zeroVal slug.Slug
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
-	if tmp, ok := rawArgs["slug"]; ok {
-		return ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
-	}
-
-	var zeroVal slug.Slug
 	return zeroVal, nil
 }
 
@@ -13935,38 +13732,6 @@ func (ec *executionContext) field_Query_search_argsLimit(
 	}
 
 	var zeroVal *int
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Query_teamDeleteKey_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Query_teamDeleteKey_argsKey(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["key"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Query_teamDeleteKey_argsKey(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["key"]
-	if !ok {
-		var zeroVal string
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-	if tmp, ok := rawArgs["key"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
-	}
-
-	var zeroVal string
 	return zeroVal, nil
 }
 
@@ -39255,172 +39020,6 @@ func (ec *executionContext) fieldContext_Mutation_setTeamMemberRole(ctx context.
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_requestTeamDeletion(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_requestTeamDeletion(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().RequestTeamDeletion(rctx, fc.Args["slug"].(slug.Slug))
-		}
-
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				var zeroVal *model.TeamDeleteKey
-				return zeroVal, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.TeamDeleteKey); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.TeamDeleteKey`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.TeamDeleteKey)
-	fc.Result = res
-	return ec.marshalNTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamDeleteKey(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_requestTeamDeletion(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "key":
-				return ec.fieldContext_TeamDeleteKey_key(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_TeamDeleteKey_createdAt(ctx, field)
-			case "expires":
-				return ec.fieldContext_TeamDeleteKey_expires(ctx, field)
-			case "createdBy":
-				return ec.fieldContext_TeamDeleteKey_createdBy(ctx, field)
-			case "team":
-				return ec.fieldContext_TeamDeleteKey_team(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamDeleteKey", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_requestTeamDeletion_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_confirmTeamDeletion(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_confirmTeamDeletion(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().ConfirmTeamDeletion(rctx, fc.Args["key"].(string))
-		}
-
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				var zeroVal bool
-				return zeroVal, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(bool); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_confirmTeamDeletion(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_confirmTeamDeletion_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Mutation_changeDeployKey(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_changeDeployKey(ctx, field)
 	if err != nil {
@@ -43696,95 +43295,6 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_team_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_teamDeleteKey(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_teamDeleteKey(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().TeamDeleteKey(rctx, fc.Args["key"].(string))
-		}
-
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				var zeroVal *model.TeamDeleteKey
-				return zeroVal, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.TeamDeleteKey); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.TeamDeleteKey`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.TeamDeleteKey)
-	fc.Result = res
-	return ec.marshalNTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamDeleteKey(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_teamDeleteKey(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "key":
-				return ec.fieldContext_TeamDeleteKey_key(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_TeamDeleteKey_createdAt(ctx, field)
-			case "expires":
-				return ec.fieldContext_TeamDeleteKey_expires(ctx, field)
-			case "createdBy":
-				return ec.fieldContext_TeamDeleteKey_createdBy(ctx, field)
-			case "team":
-				return ec.fieldContext_TeamDeleteKey_team(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamDeleteKey", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_teamDeleteKey_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -55657,334 +55167,6 @@ func (ec *executionContext) fieldContext_Team_appsUtilization(ctx context.Contex
 	if fc.Args, err = ec.field_Team_appsUtilization_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamDeleteKey_key(ctx context.Context, field graphql.CollectedField, obj *model.TeamDeleteKey) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeleteKey_key(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Key, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamDeleteKey_key(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamDeleteKey",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamDeleteKey_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.TeamDeleteKey) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeleteKey_createdAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamDeleteKey_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamDeleteKey",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamDeleteKey_expires(ctx context.Context, field graphql.CollectedField, obj *model.TeamDeleteKey) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeleteKey_expires(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Expires, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamDeleteKey_expires(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamDeleteKey",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamDeleteKey_createdBy(ctx context.Context, field graphql.CollectedField, obj *model.TeamDeleteKey) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeleteKey_createdBy(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TeamDeleteKey().CreatedBy(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.User)
-	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamDeleteKey_createdBy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamDeleteKey",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			case "name":
-				return ec.fieldContext_User_name(ctx, field)
-			case "teams":
-				return ec.fieldContext_User_teams(ctx, field)
-			case "roles":
-				return ec.fieldContext_User_roles(ctx, field)
-			case "externalId":
-				return ec.fieldContext_User_externalId(ctx, field)
-			case "isAdmin":
-				return ec.fieldContext_User_isAdmin(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamDeleteKey_team(ctx context.Context, field graphql.CollectedField, obj *model.TeamDeleteKey) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeleteKey_team(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TeamDeleteKey().Team(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Team)
-	fc.Result = res
-	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamDeleteKey_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamDeleteKey",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Team_slug(ctx, field)
-			case "purpose":
-				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
-			case "auditLogs":
-				return ec.fieldContext_Team_auditLogs(ctx, field)
-			case "auditEvents":
-				return ec.fieldContext_Team_auditEvents(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
-			case "syncErrors":
-				return ec.fieldContext_Team_syncErrors(ctx, field)
-			case "lastSuccessfulSync":
-				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
-			case "githubRepositories":
-				return ec.fieldContext_Team_githubRepositories(ctx, field)
-			case "slackChannel":
-				return ec.fieldContext_Team_slackChannel(ctx, field)
-			case "deletionInProgress":
-				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			case "status":
-				return ec.fieldContext_Team_status(ctx, field)
-			case "resourceInventory":
-				return ec.fieldContext_Team_resourceInventory(ctx, field)
-			case "sqlInstance":
-				return ec.fieldContext_Team_sqlInstance(ctx, field)
-			case "sqlInstances":
-				return ec.fieldContext_Team_sqlInstances(ctx, field)
-			case "bucket":
-				return ec.fieldContext_Team_bucket(ctx, field)
-			case "buckets":
-				return ec.fieldContext_Team_buckets(ctx, field)
-			case "redisInstance":
-				return ec.fieldContext_Team_redisInstance(ctx, field)
-			case "redis":
-				return ec.fieldContext_Team_redis(ctx, field)
-			case "openSearchInstance":
-				return ec.fieldContext_Team_openSearchInstance(ctx, field)
-			case "openSearch":
-				return ec.fieldContext_Team_openSearch(ctx, field)
-			case "kafkaTopic":
-				return ec.fieldContext_Team_kafkaTopic(ctx, field)
-			case "kafkaTopics":
-				return ec.fieldContext_Team_kafkaTopics(ctx, field)
-			case "bigQuery":
-				return ec.fieldContext_Team_bigQuery(ctx, field)
-			case "bigQueryDataset":
-				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
-			case "apps":
-				return ec.fieldContext_Team_apps(ctx, field)
-			case "deployKey":
-				return ec.fieldContext_Team_deployKey(ctx, field)
-			case "naisjobs":
-				return ec.fieldContext_Team_naisjobs(ctx, field)
-			case "deployments":
-				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
-			case "vulnerabilitiesSummary":
-				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "secrets":
-				return ec.fieldContext_Team_secrets(ctx, field)
-			case "secret":
-				return ec.fieldContext_Team_secret(ctx, field)
-			case "environments":
-				return ec.fieldContext_Team_environments(ctx, field)
-			case "unleash":
-				return ec.fieldContext_Team_unleash(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
-			case "appsUtilization":
-				return ec.fieldContext_Team_appsUtilization(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
-		},
 	}
 	return fc, nil
 }
@@ -70066,20 +69248,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "requestTeamDeletion":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_requestTeamDeletion(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "confirmTeamDeletion":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_confirmTeamDeletion(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "changeDeployKey":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_changeDeployKey(ctx, field)
@@ -71505,28 +70673,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_team(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "teamDeleteKey":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_teamDeleteKey(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -75806,127 +74952,6 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._Team_appsUtilization(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var teamDeleteKeyImplementors = []string{"TeamDeleteKey"}
-
-func (ec *executionContext) _TeamDeleteKey(ctx context.Context, sel ast.SelectionSet, obj *model.TeamDeleteKey) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamDeleteKeyImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamDeleteKey")
-		case "key":
-			out.Values[i] = ec._TeamDeleteKey_key(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "createdAt":
-			out.Values[i] = ec._TeamDeleteKey_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "expires":
-			out.Values[i] = ec._TeamDeleteKey_expires(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "createdBy":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._TeamDeleteKey_createdBy(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "team":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._TeamDeleteKey_team(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -81760,20 +80785,6 @@ func (ec *executionContext) marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 		return graphql.Null
 	}
 	return ec._Team(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNTeamDeleteKey2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamDeleteKey(ctx context.Context, sel ast.SelectionSet, v model.TeamDeleteKey) graphql.Marshaler {
-	return ec._TeamDeleteKey(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamDeleteKey(ctx context.Context, sel ast.SelectionSet, v *model.TeamDeleteKey) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._TeamDeleteKey(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNTeamList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamList(ctx context.Context, sel ast.SelectionSet, v model.TeamList) graphql.Marshaler {

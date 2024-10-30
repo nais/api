@@ -10,43 +10,6 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-const confirmTeamDeleteKey = `-- name: ConfirmTeamDeleteKey :exec
-UPDATE team_delete_keys
-SET confirmed_at = NOW()
-WHERE key = $1
-`
-
-// ConfirmTeamDeleteKey confirms a delete key for a team.
-func (q *Queries) ConfirmTeamDeleteKey(ctx context.Context, key uuid.UUID) error {
-	_, err := q.db.Exec(ctx, confirmTeamDeleteKey, key)
-	return err
-}
-
-const createTeamDeleteKey = `-- name: CreateTeamDeleteKey :one
-INSERT INTO team_delete_keys (team_slug, created_by)
-VALUES ($1, $2)
-RETURNING key, team_slug, created_at, created_by, confirmed_at
-`
-
-type CreateTeamDeleteKeyParams struct {
-	TeamSlug  slug.Slug
-	CreatedBy uuid.UUID
-}
-
-// CreateTeamDeleteKey creates a new delete key for a team.
-func (q *Queries) CreateTeamDeleteKey(ctx context.Context, arg CreateTeamDeleteKeyParams) (*TeamDeleteKey, error) {
-	row := q.db.QueryRow(ctx, createTeamDeleteKey, arg.TeamSlug, arg.CreatedBy)
-	var i TeamDeleteKey
-	err := row.Scan(
-		&i.Key,
-		&i.TeamSlug,
-		&i.CreatedAt,
-		&i.CreatedBy,
-		&i.ConfirmedAt,
-	)
-	return &i, err
-}
-
 const deleteTeam = `-- name: DeleteTeam :exec
 DELETE FROM teams
 WHERE
@@ -143,26 +106,6 @@ func (q *Queries) GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, 
 		&i.GarRepository,
 		&i.CdnBucket,
 		&i.DeleteKeyConfirmedAt,
-	)
-	return &i, err
-}
-
-const getTeamDeleteKey = `-- name: GetTeamDeleteKey :one
-SELECT key, team_slug, created_at, created_by, confirmed_at
-FROM team_delete_keys
-WHERE key = $1
-`
-
-// GetTeamDeleteKey returns a delete key for a team.
-func (q *Queries) GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error) {
-	row := q.db.QueryRow(ctx, getTeamDeleteKey, key)
-	var i TeamDeleteKey
-	err := row.Scan(
-		&i.Key,
-		&i.TeamSlug,
-		&i.CreatedAt,
-		&i.CreatedBy,
-		&i.ConfirmedAt,
 	)
 	return &i, err
 }

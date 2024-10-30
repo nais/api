@@ -152,24 +152,6 @@ UPDATE teams
 SET last_successful_sync = NOW()
 WHERE teams.slug = @slug;
 
--- CreateTeamDeleteKey creates a new delete key for a team.
--- name: CreateTeamDeleteKey :one
-INSERT INTO team_delete_keys (team_slug, created_by)
-VALUES (@team_slug, @created_by)
-RETURNING *;
-
--- GetTeamDeleteKey returns a delete key for a team.
--- name: GetTeamDeleteKey :one
-SELECT *
-FROM team_delete_keys
-WHERE key = @key;
-
--- ConfirmTeamDeleteKey confirms a delete key for a team.
--- name: ConfirmTeamDeleteKey :exec
-UPDATE team_delete_keys
-SET confirmed_at = NOW()
-WHERE key = @key;
-
 -- DeleteTeam deletes a team from the main team table. The team must have an already confirmed delete key for this to succeed.
 -- name: DeleteTeam :exec
 DELETE FROM teams

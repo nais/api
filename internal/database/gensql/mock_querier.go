@@ -402,53 +402,6 @@ func (_c *MockQuerier_ConfigureReconciler_Call) RunAndReturn(run func(context.Co
 	return _c
 }
 
-// ConfirmTeamDeleteKey provides a mock function with given fields: ctx, key
-func (_m *MockQuerier) ConfirmTeamDeleteKey(ctx context.Context, key uuid.UUID) error {
-	ret := _m.Called(ctx, key)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ConfirmTeamDeleteKey")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
-		r0 = rf(ctx, key)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockQuerier_ConfirmTeamDeleteKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ConfirmTeamDeleteKey'
-type MockQuerier_ConfirmTeamDeleteKey_Call struct {
-	*mock.Call
-}
-
-// ConfirmTeamDeleteKey is a helper method to define mock.On call
-//   - ctx context.Context
-//   - key uuid.UUID
-func (_e *MockQuerier_Expecter) ConfirmTeamDeleteKey(ctx interface{}, key interface{}) *MockQuerier_ConfirmTeamDeleteKey_Call {
-	return &MockQuerier_ConfirmTeamDeleteKey_Call{Call: _e.mock.On("ConfirmTeamDeleteKey", ctx, key)}
-}
-
-func (_c *MockQuerier_ConfirmTeamDeleteKey_Call) Run(run func(ctx context.Context, key uuid.UUID)) *MockQuerier_ConfirmTeamDeleteKey_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_ConfirmTeamDeleteKey_Call) Return(_a0 error) *MockQuerier_ConfirmTeamDeleteKey_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockQuerier_ConfirmTeamDeleteKey_Call) RunAndReturn(run func(context.Context, uuid.UUID) error) *MockQuerier_ConfirmTeamDeleteKey_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // CostForInstance provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) CostForInstance(ctx context.Context, arg CostForInstanceParams) (float32, error) {
 	ret := _m.Called(ctx, arg)
@@ -867,65 +820,6 @@ func (_c *MockQuerier_CreateSession_Call) Return(_a0 *Session, _a1 error) *MockQ
 }
 
 func (_c *MockQuerier_CreateSession_Call) RunAndReturn(run func(context.Context, CreateSessionParams) (*Session, error)) *MockQuerier_CreateSession_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// CreateTeamDeleteKey provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) CreateTeamDeleteKey(ctx context.Context, arg CreateTeamDeleteKeyParams) (*TeamDeleteKey, error) {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for CreateTeamDeleteKey")
-	}
-
-	var r0 *TeamDeleteKey
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, CreateTeamDeleteKeyParams) (*TeamDeleteKey, error)); ok {
-		return rf(ctx, arg)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, CreateTeamDeleteKeyParams) *TeamDeleteKey); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*TeamDeleteKey)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, CreateTeamDeleteKeyParams) error); ok {
-		r1 = rf(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_CreateTeamDeleteKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateTeamDeleteKey'
-type MockQuerier_CreateTeamDeleteKey_Call struct {
-	*mock.Call
-}
-
-// CreateTeamDeleteKey is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg CreateTeamDeleteKeyParams
-func (_e *MockQuerier_Expecter) CreateTeamDeleteKey(ctx interface{}, arg interface{}) *MockQuerier_CreateTeamDeleteKey_Call {
-	return &MockQuerier_CreateTeamDeleteKey_Call{Call: _e.mock.On("CreateTeamDeleteKey", ctx, arg)}
-}
-
-func (_c *MockQuerier_CreateTeamDeleteKey_Call) Run(run func(ctx context.Context, arg CreateTeamDeleteKeyParams)) *MockQuerier_CreateTeamDeleteKey_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(CreateTeamDeleteKeyParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_CreateTeamDeleteKey_Call) Return(_a0 *TeamDeleteKey, _a1 error) *MockQuerier_CreateTeamDeleteKey_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_CreateTeamDeleteKey_Call) RunAndReturn(run func(context.Context, CreateTeamDeleteKeyParams) (*TeamDeleteKey, error)) *MockQuerier_CreateTeamDeleteKey_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3403,65 +3297,6 @@ func (_c *MockQuerier_GetTeamBySlug_Call) Return(_a0 *Team, _a1 error) *MockQuer
 }
 
 func (_c *MockQuerier_GetTeamBySlug_Call) RunAndReturn(run func(context.Context, slug.Slug) (*Team, error)) *MockQuerier_GetTeamBySlug_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetTeamDeleteKey provides a mock function with given fields: ctx, key
-func (_m *MockQuerier) GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error) {
-	ret := _m.Called(ctx, key)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetTeamDeleteKey")
-	}
-
-	var r0 *TeamDeleteKey
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*TeamDeleteKey, error)); ok {
-		return rf(ctx, key)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *TeamDeleteKey); ok {
-		r0 = rf(ctx, key)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*TeamDeleteKey)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = rf(ctx, key)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_GetTeamDeleteKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamDeleteKey'
-type MockQuerier_GetTeamDeleteKey_Call struct {
-	*mock.Call
-}
-
-// GetTeamDeleteKey is a helper method to define mock.On call
-//   - ctx context.Context
-//   - key uuid.UUID
-func (_e *MockQuerier_Expecter) GetTeamDeleteKey(ctx interface{}, key interface{}) *MockQuerier_GetTeamDeleteKey_Call {
-	return &MockQuerier_GetTeamDeleteKey_Call{Call: _e.mock.On("GetTeamDeleteKey", ctx, key)}
-}
-
-func (_c *MockQuerier_GetTeamDeleteKey_Call) Run(run func(ctx context.Context, key uuid.UUID)) *MockQuerier_GetTeamDeleteKey_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_GetTeamDeleteKey_Call) Return(_a0 *TeamDeleteKey, _a1 error) *MockQuerier_GetTeamDeleteKey_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_GetTeamDeleteKey_Call) RunAndReturn(run func(context.Context, uuid.UUID) (*TeamDeleteKey, error)) *MockQuerier_GetTeamDeleteKey_Call {
 	_c.Call.Return(run)
 	return _c
 }
