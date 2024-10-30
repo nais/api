@@ -29,7 +29,9 @@ type K8s struct {
 }
 
 func NewK8sRunner(scheme *runtime.Scheme, rootDir string, clusters []string) *K8s {
-	clients := make(map[string]*dynfake.FakeDynamicClient, len(clusters))
+	clients := map[string]*dynfake.FakeDynamicClient{
+		"management": fake.NewDynamicClient(scheme),
+	}
 	for _, cluster := range clusters {
 		clients[cluster] = fake.NewDynamicClient(scheme)
 	}

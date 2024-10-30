@@ -26,6 +26,13 @@ type clusterManager struct {
 
 func newClusterManager(client dynamic.Interface, scheme *runtime.Scheme, config *rest.Config, log logrus.FieldLogger) (*clusterManager, error) {
 	if client == nil {
+		if config == nil {
+			var err error
+			config, err = rest.InClusterConfig()
+			if err != nil {
+				return nil, fmt.Errorf("creating in-cluster config: %w", err)
+			}
+		}
 		var err error
 		client, err = dynamic.NewForConfig(config)
 		if err != nil {

@@ -244,6 +244,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("create k8s watcher manager: %w", err)
 	}
 
+	mgmtWatcher, err := watcher.NewManager(scheme, kubernetes.ClusterConfigMap{"management": nil}, log.WithField("subsystem", "k8s_watcher"), watcherOpts...)
+	if err != nil {
+		return fmt.Errorf("create k8s watcher manager for management: %w", err)
+	}
+
 	k8sClientSets, err := kubernetes.NewClientSets(clusterConfig)
 	if err != nil {
 		return fmt.Errorf("create k8s client sets: %w", err)
@@ -300,6 +305,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			db,
 			k8sClientSets,
 			watcherMgr,
+			mgmtWatcher,
 			sqlInstanceClient.Admin,
 			authHandler,
 			graphHandler,

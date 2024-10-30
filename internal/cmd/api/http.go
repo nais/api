@@ -33,6 +33,7 @@ import (
 	"github.com/nais/api/internal/v1/reconciler"
 	"github.com/nais/api/internal/v1/role"
 	"github.com/nais/api/internal/v1/team"
+	"github.com/nais/api/internal/v1/unleash"
 	"github.com/nais/api/internal/v1/user"
 	"github.com/nais/api/internal/v1/utilization"
 	"github.com/nais/api/internal/v1/vulnerability"
@@ -65,6 +66,7 @@ func runHttpServer(
 	db database.Database,
 	k8sClientSets map[string]kubernetes.Interface,
 	watcherMgr *watcher.Manager,
+	mgmtWatcherMgr *watcher.Manager,
 	sqlAdminService *legacysqlinstance.SqlAdminService,
 	authHandler authn.Handler,
 	graphHandler *handler.Server,
@@ -110,7 +112,7 @@ func runHttpServer(
 		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphHandler))
 	})
 
-	graphMiddleware, err := ConfigureV1Graph(ctx, insecureAuthAndFakes, watcherMgr, db, k8sClientSets, vClient, tenantName, clusters, hookdClient, log)
+	graphMiddleware, err := ConfigureV1Graph(ctx, insecureAuthAndFakes, watcherMgr, mgmtWatcherMgr, db, k8sClientSets, vClient, tenantName, clusters, hookdClient, log)
 	if err != nil {
 		return err
 	}
@@ -170,6 +172,7 @@ func ConfigureV1Graph(
 	ctx context.Context,
 	fakeClients bool,
 	watcherMgr *watcher.Manager,
+	mgmtWatcherMgr *watcher.Manager,
 	db database.Database,
 	k8sClientSets map[string]kubernetes.Interface,
 	vClient vulnerability.Client,
@@ -191,6 +194,7 @@ func ConfigureV1Graph(
 	secretWatcher := secret.NewWatcher(ctx, watcherMgr)
 	podWatcher := workload.NewWatcher(ctx, watcherMgr)
 	ingressWatcher := application.NewIngressWatcher(ctx, watcherMgr)
+	unleashWatcher := unleash.NewWatcher(ctx, mgmtWatcherMgr)
 
 	sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(fakeClients), sqlinstance.WithInstanceWatcher(sqlInstanceWatcher))
 	if err != nil {
@@ -248,6 +252,7 @@ func ConfigureV1Graph(
 		ctx = vulnerability.NewLoaderContext(ctx, vClient, tenantName, clusters, fakeClients, log, dataloaderOpts)
 		ctx = reconciler.NewLoaderContext(ctx, pool, dataloaderOpts)
 		ctx = deployment.NewLoaderContext(ctx, hookdClient)
+		ctx = unleash.NewLoaderContext(ctx, tenantName, unleashWatcher, "*fake*", log)
 		return ctx
 	}), nil
 }

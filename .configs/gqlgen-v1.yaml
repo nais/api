@@ -42,6 +42,7 @@ autobind:
   - "github.com/nais/api/internal/v1/searchv1"
   - "github.com/nais/api/internal/v1/status"
   - "github.com/nais/api/internal/v1/team"
+  - "github.com/nais/api/internal/v1/unleash"
   - "github.com/nais/api/internal/v1/user"
   - "github.com/nais/api/internal/v1/utilization"
   - "github.com/nais/api/internal/v1/vulnerability"

@@ -1,0 +1,83 @@
+extend type Mutation {
+	"""
+	Create a new Unleash instance.
+
+	This mutation will create a new Unleash instance for the given team. The team
+	will be set as owner of the Unleash instance and will be able to manage it.
+	"""
+	createUnleashForTeam(input: CreateUnleashInstanceInput!): CreateUnleashInstancePayload!
+
+	"""
+	Add team to the list of teams that can access the Unleash instance.
+	"""
+	allowTeamAccessToUnleash(input: AllowTeamAccessToUnleashInput!): AllowTeamAccessToUnleashPayload!
+
+	"""
+	Remove team from the list of teams that can access the Unleash instance.
+	"""
+	revokeTeamAccessToUnleash(
+		input: RevokeTeamAccessToUnleashInput!
+	): RevokeTeamAccessToUnleashPayload!
+}
+
+input CreateUnleashInstanceInput {
+	teamSlug: Slug!
+}
+
+type CreateUnleashInstancePayload {
+	unleash: UnleashInstance
+}
+
+input AllowTeamAccessToUnleashInput {
+	teamSlug: Slug!
+	allowedTeamSlug: Slug!
+}
+
+type AllowTeamAccessToUnleashPayload {
+	unleash: UnleashInstance
+}
+
+input RevokeTeamAccessToUnleashInput {
+	teamSlug: Slug!
+	revokedTeamSlug: Slug!
+}
+
+type RevokeTeamAccessToUnleashPayload {
+	unleash: UnleashInstance
+}
+
+extend type Team {
+	unleash: UnleashInstance
+}
+
+type UnleashInstance implements Node {
+	id: ID!
+	name: String!
+	version: String!
+	allowedTeams(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): TeamConnection!
+	webIngress: String!
+	apiIngress: String!
+	metrics: UnleashInstanceMetrics!
+	ready: Boolean!
+}
+
+type UnleashInstanceMetrics {
+	toggles: Int!
+	apiTokens: Int!
+	cpuUtilization: Float!
+	cpuRequests: Float!
+	memoryUtilization: Float!
+	memoryRequests: Float!
+}

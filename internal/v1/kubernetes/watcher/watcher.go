@@ -128,6 +128,16 @@ func (w *Watcher[T]) ImpersonatedClient(ctx context.Context, cluster string, opt
 	return nil, fmt.Errorf("no watcher for cluster %s", cluster)
 }
 
+func (w *Watcher[T]) SystemAuthenticatedClient(ctx context.Context, cluster string) (dynamic.NamespaceableResourceInterface, error) {
+	for _, watcher := range w.watchers {
+		if watcher.cluster == cluster {
+			return watcher.SystemAuthenticatedClient(ctx)
+		}
+	}
+
+	return nil, fmt.Errorf("no watcher for cluster %s", cluster)
+}
+
 func Objects[T Object](list []*EnvironmentWrapper[T]) []T {
 	ret := make([]T, len(list))
 	for i, obj := range list {

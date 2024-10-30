@@ -546,3 +546,13 @@ func UpdateExternalReferences(ctx context.Context, teamSlug slug.Slug, reference
 		CdnBucket:        references.CdnBucket,
 	})
 }
+
+func ListBySlugs(ctx context.Context, slugs []slug.Slug, page *pagination.Pagination) (*TeamConnection, error) {
+	ret, err := db(ctx).ListBySlugs(ctx, slugs)
+	if err != nil {
+		return nil, err
+	}
+
+	p := pagination.Slice(ret, page)
+	return pagination.NewConvertConnection(p, page, int32(len(ret)), toGraphTeam), nil
+}

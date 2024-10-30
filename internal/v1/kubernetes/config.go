@@ -15,13 +15,13 @@ type StaticCluster struct {
 	Token string
 }
 
-type ClusterConfigMap map[string]rest.Config
+type ClusterConfigMap map[string]*rest.Config
 
 func CreateClusterConfigMap(tenant string, clusters []string) (ClusterConfigMap, error) {
 	configs := ClusterConfigMap{}
 
 	for _, cluster := range clusters {
-		configs[cluster] = rest.Config{
+		configs[cluster] = &rest.Config{
 			Host: fmt.Sprintf("https://apiserver.%s.%s.cloud.nais.io", cluster, tenant),
 			AuthProvider: &api.AuthProviderConfig{
 				Name: GoogleAuthPlugin,
@@ -50,7 +50,7 @@ func CreateClusterConfigMap(tenant string, clusters []string) (ClusterConfigMap,
 func getStaticClusterConfigs(clusters []StaticCluster) ClusterConfigMap {
 	configs := ClusterConfigMap{}
 	for _, cluster := range clusters {
-		configs[cluster.Name] = rest.Config{
+		configs[cluster.Name] = &rest.Config{
 			Host:        cluster.Host,
 			BearerToken: cluster.Token,
 			TLSClientConfig: rest.TLSClientConfig{

@@ -187,3 +187,17 @@ func (w *clusterWatcher[T]) ImpersonatedClient(ctx context.Context, opts ...Impe
 
 	return client.Resource(gvr), nil
 }
+
+func (w *clusterWatcher[T]) SystemAuthenticatedClient(ctx context.Context, opts ...ImpersonatedClientOption) (dynamic.NamespaceableResourceInterface, error) {
+	settings := &impersonatedSettings{}
+	for _, opt := range opts {
+		opt(settings)
+	}
+
+	gvr := w.gvr
+	if settings.gvr != nil {
+		gvr = *settings.gvr
+	}
+
+	return w.manager.client.Resource(gvr), nil
+}

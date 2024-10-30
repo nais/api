@@ -14,12 +14,12 @@ import (
 
 type settings struct {
 	clientCreator func(cluster string) (dynamic.Interface, error)
-	configCreator func(cluster string) rest.Config
+	configCreator func(cluster string) *rest.Config
 }
 
 type Option func(*settings)
 
-func WithConfigCreator(fn func(cluster string) rest.Config) Option {
+func WithConfigCreator(fn func(cluster string) *rest.Config) Option {
 	return func(m *settings) {
 		m.configCreator = fn
 	}
@@ -41,7 +41,7 @@ type Manager struct {
 
 func NewManager(scheme *runtime.Scheme, clusterConfig kubernetes.ClusterConfigMap, log logrus.FieldLogger, opts ...Option) (*Manager, error) {
 	s := &settings{
-		configCreator: func(cluster string) rest.Config {
+		configCreator: func(cluster string) *rest.Config {
 			return clusterConfig[cluster]
 		},
 	}
@@ -61,7 +61,7 @@ func NewManager(scheme *runtime.Scheme, clusterConfig kubernetes.ClusterConfigMa
 				return nil, fmt.Errorf("creating dynamic client: %w", err)
 			}
 		}
-		mgr, err := newClusterManager(client, scheme, &cfg, log.WithField("cluster", cluster))
+		mgr, err := newClusterManager(client, scheme, cfg, log.WithField("cluster", cluster))
 		if err != nil {
 			return nil, fmt.Errorf("creating cluster manager: %w", err)
 		}
