@@ -133,7 +133,7 @@ Test.gql("Create team with invalid Slack channel name", function(t)
 			data = Null,
 			errors = {
 				{
-					message = Contains("A Slack channel name must match the following pattern"),
+					message = Contains("The Slack channel does not fit the requirements."),
 					extensions = {
 						field = "slackChannel",
 					},

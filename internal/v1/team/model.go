@@ -365,7 +365,7 @@ func (i *CreateTeamInput) Validate(ctx context.Context) error {
 	}
 
 	if !slackChannelNamePattern.MatchString(i.SlackChannel) {
-		verr.Add("slackChannel", "A Slack channel name must match the following pattern: %q.", slackChannelNamePattern.String())
+		verr.Add("slackChannel", "The Slack channel does not fit the requirements. The name must contain at least 2 characters and at most 80 characters. The name must consist of lowercase letters, numbers, hyphens and underscores, and it must be prefixed with a hash symbol.")
 	}
 
 	return verr.NilIfEmpty()
@@ -394,7 +394,7 @@ func (i *UpdateTeamInput) Validate() error {
 
 	if i.SlackChannel != nil {
 		if !slackChannelNamePattern.MatchString(*i.SlackChannel) {
-			verr.Add("slackChannel", "A Slack channel name must match the following pattern: %q.", slackChannelNamePattern.String())
+			verr.Add("slackChannel", "The Slack channel does not fit the requirements. The name must contain at least 2 characters and at most 80 characters. The name must consist of lowercase letters, numbers, hyphens and underscores, and it must be prefixed with a hash symbol.")
 		}
 	}
 
