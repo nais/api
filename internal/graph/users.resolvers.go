@@ -3,9 +3,6 @@ package graph
 import (
 	"context"
 
-	"github.com/google/uuid"
-	"github.com/nais/api/internal/auditlogger"
-	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
 	"github.com/nais/api/internal/database"
@@ -17,29 +14,6 @@ import (
 	"github.com/nais/api/internal/graph/scalar"
 	"k8s.io/utils/ptr"
 )
-
-func (r *mutationResolver) SynchronizeUsers(ctx context.Context) (string, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationUsersyncSynchronize)
-	if err != nil {
-		return "", err
-	}
-
-	correlationID := uuid.New()
-
-	targets := []auditlogger.Target{
-		auditlogger.SystemTarget("usersync"),
-	}
-	fields := auditlogger.Fields{
-		Action:        audittype.AuditActionGraphqlApiUsersSync,
-		Actor:         actor,
-		CorrelationID: correlationID,
-	}
-	r.auditLogger.Logf(ctx, targets, fields, "Trigger user sync")
-	r.usersyncTrigger <- correlationID
-
-	return correlationID.String(), nil
-}
 
 func (r *queryResolver) Users(ctx context.Context, offset *int, limit *int) (*model.UserList, error) {
 	actor := authz.ActorFromContext(ctx)

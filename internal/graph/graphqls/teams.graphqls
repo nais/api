@@ -33,19 +33,6 @@ extend type Mutation {
   ): Team! @auth
 
   """
-  Remove a user from a team
-
-  The updated team will be returned on success.
-  """
-  removeUserFromTeam(
-    "Team slug that the user should be removed from."
-    slug: Slug!
-
-    "ID of the user that will be removed from the team."
-    userId: ID!
-  ): Team! @auth
-
-  """
   Manually synchronize a team
 
   This action will trigger a full synchronization of the team against the configured third party systems. The action
@@ -65,39 +52,6 @@ extend type Mutation {
   is asynchronous. The operation can take a while, depending on the amount of teams currently managed.
   """
   synchronizeAllTeams: TeamSync! @auth
-
-  """
-  Add a user to a team
-
-  If the user is already a member or an owner of the team, the mutation will fail.
-
-  The updated team will be returned on success.
-  """
-  addTeamMember(
-    "Slug of the team that should receive a new member."
-    slug: Slug!
-
-    "The new team member."
-    member: TeamMemberInput!
-  ): Team! @auth
-
-  """
-  Set the member role of a user in a team
-
-  The user must already exist in the team for this mutation to succeed.
-
-  The team will be returned on success.
-  """
-  setTeamMemberRole(
-    "The slug of the team."
-    slug: Slug!
-
-    "The ID of the user."
-    userId: ID!
-
-    "The team role to set."
-    role: TeamRole!
-  ): Team! @auth
 
   "Update the deploy key of a team. Returns the updated deploy key."
   changeDeployKey(
@@ -602,15 +556,6 @@ input UpdateTeamSlackAlertsChannelInput {
 
   "The name of the Slack channel."
   channelName: String
-}
-
-"Team member input."
-input TeamMemberInput {
-  "The ID of user."
-  userId: ID!
-
-  "The role that the user will receive."
-  role: TeamRole!
 }
 
 "Available team roles."

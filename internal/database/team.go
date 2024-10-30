@@ -41,7 +41,6 @@ type TeamRepo interface {
 	GetAllTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string) ([]*Team, error)
 	GetUserTeams(ctx context.Context, userID uuid.UUID) ([]*UserTeam, error)
 	GetUserTeamsPaginated(ctx context.Context, userID uuid.UUID, p Page) ([]*UserTeam, int, error)
-	RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error
 	SetLastSuccessfulSyncForTeam(ctx context.Context, teamSlug slug.Slug) error
 	TeamExists(ctx context.Context, team slug.Slug) (bool, error)
 	UpdateTeamExternalReferences(ctx context.Context, params gensql.UpdateTeamExternalReferencesParams) (*Team, error)
@@ -67,13 +66,6 @@ type ActiveOrDeletedTeam struct {
 	*gensql.Team
 	CanBeDeleted bool
 	IsDeleted    bool
-}
-
-func (d *database) RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error {
-	return d.querier.RemoveUserFromTeam(ctx, gensql.RemoveUserFromTeamParams{
-		UserID:   userID,
-		TeamSlug: teamSlug,
-	})
 }
 
 func (d *database) UpdateTeamExternalReferences(ctx context.Context, params gensql.UpdateTeamExternalReferencesParams) (*Team, error) {

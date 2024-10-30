@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"cloud.google.com/go/pubsub"
-	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/audit"
 	"github.com/nais/api/internal/auditlogger"
@@ -166,7 +165,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 
 	auditLogger := auditlogger.New(db, log)
-	usersyncTrigger := make(chan uuid.UUID, 1)
 
 	pubsubClient, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
 	if err != nil {
@@ -201,7 +199,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		db,
 		cfg.Tenant,
 		cfg.TenantDomain,
-		usersyncTrigger,
 		auditLogger,
 		cfg.K8s.GraphClusterList(),
 		pubsubTopic,
@@ -265,7 +262,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	wg, ctx := errgroup.WithContext(ctx)
 
 	wg.Go(func() error {
-		return runUsersync(ctx, cfg, db, log, usersyncTrigger)
+		return runUsersync(ctx, cfg, db, log)
 	})
 
 	// k8s informers

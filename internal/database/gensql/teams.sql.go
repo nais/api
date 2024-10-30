@@ -402,24 +402,6 @@ func (q *Queries) GetTeamsCount(ctx context.Context) (int64, error) {
 	return total, err
 }
 
-const removeUserFromTeam = `-- name: RemoveUserFromTeam :exec
-DELETE FROM user_roles
-WHERE
-    user_roles.user_id = $1
-    AND user_roles.target_team_slug = $2::slug
-`
-
-type RemoveUserFromTeamParams struct {
-	UserID   uuid.UUID
-	TeamSlug slug.Slug
-}
-
-// RemoveUserFromTeam removes a user from a team.
-func (q *Queries) RemoveUserFromTeam(ctx context.Context, arg RemoveUserFromTeamParams) error {
-	_, err := q.db.Exec(ctx, removeUserFromTeam, arg.UserID, arg.TeamSlug)
-	return err
-}
-
 const setLastSuccessfulSyncForTeam = `-- name: SetLastSuccessfulSyncForTeam :exec
 UPDATE teams
 SET last_successful_sync = NOW()

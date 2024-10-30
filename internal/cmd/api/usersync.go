@@ -15,17 +15,10 @@ const (
 	usersyncTimeout  = time.Minute
 )
 
-func runUsersync(ctx context.Context, cfg *Config, db database.Database, log logrus.FieldLogger, usersyncTrigger chan uuid.UUID) error {
+func runUsersync(ctx context.Context, cfg *Config, db database.Database, log logrus.FieldLogger) error {
 	if !cfg.Usersync.Enabled {
 		log.Infof("usersync is not enabled")
-		for {
-			select {
-			case <-ctx.Done():
-				return nil
-			case correlationID := <-usersyncTrigger:
-				log.WithField("correlation_id", correlationID).Infof("usersync is not enabled, draining request")
-			}
-		}
+		return nil
 	}
 
 	usersyncer, err := usersync.NewFromConfig(ctx, cfg.Usersync.ServiceAccount, cfg.Usersync.SubjectEmail, cfg.TenantDomain, cfg.Usersync.AdminGroupPrefix, db, log)
@@ -34,36 +27,31 @@ func runUsersync(ctx context.Context, cfg *Config, db database.Database, log log
 		return err
 	}
 
-	usersyncTrigger <- uuid.New()
-
 	for {
+		func() {
+			correlationID := uuid.New()
+			log := log.WithField("correlation_id", correlationID)
+			log.Debugf("starting usersync...")
+
+			ctx, cancel := context.WithTimeout(ctx, usersyncTimeout)
+			defer cancel()
+
+			start := time.Now()
+			err := usersyncer.Sync(ctx, correlationID)
+			if err != nil {
+				log.WithError(err).Errorf("sync users")
+			}
+
+			if err := db.CreateUsersyncRun(ctx, correlationID, start, time.Now(), err); err != nil {
+				log.WithError(err).Errorf("create usersync run")
+			}
+
+			log.WithField("duration", time.Since(start)).Infof("usersync complete")
+		}()
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-
-		case correlationID := <-usersyncTrigger:
-			func() {
-				log := log.WithField("correlation_id", correlationID)
-				log.Debugf("starting usersync...")
-
-				ctx, cancel := context.WithTimeout(ctx, usersyncTimeout)
-				defer cancel()
-
-				start := time.Now()
-				err := usersyncer.Sync(ctx, correlationID)
-				if err != nil {
-					log.WithError(err).Errorf("sync users")
-				}
-
-				if err := db.CreateUsersyncRun(ctx, correlationID, start, time.Now(), err); err != nil {
-					log.WithError(err).Errorf("create usersync run")
-				}
-
-				log.WithField("duration", time.Since(start)).Infof("usersync complete")
-			}()
-
 		case <-time.After(usersyncInterval):
-			usersyncTrigger <- uuid.New()
 		}
 	}
 }

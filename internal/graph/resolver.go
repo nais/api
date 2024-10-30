@@ -11,13 +11,11 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
-	"github.com/google/uuid"
 	"github.com/nais/api/internal/audit"
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/bigquery"
 	"github.com/nais/api/internal/bucket"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/database/teamsearch"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
@@ -127,7 +125,6 @@ type Resolver struct {
 	database              database.Database
 	tenant                string
 	tenantDomain          string
-	usersyncTrigger       chan<- uuid.UUID
 	auditLogger           auditlogger.AuditLogger
 	pubsubTopic           *pubsub.Topic
 	sqlInstanceClient     *sqlinstance.Client
@@ -148,7 +145,6 @@ func NewResolver(hookdClient HookdClient,
 	db database.Database,
 	tenant string,
 	tenantDomain string,
-	usersyncTrigger chan<- uuid.UUID,
 	auditLogger auditlogger.AuditLogger,
 	clusters ClusterList,
 	pubsubTopic *pubsub.Topic,
@@ -169,7 +165,6 @@ func NewResolver(hookdClient HookdClient,
 		resourceUsageClient:   resourceUsageClient,
 		tenant:                tenant,
 		tenantDomain:          tenantDomain,
-		usersyncTrigger:       usersyncTrigger,
 		auditLogger:           auditLogger,
 		searcher:              search.New(teamsearch.New(db), k8sClient, redisClient, openSearchClient, kafkaClient, bigQueryDatasetClient, bucketClient),
 		log:                   log,
@@ -214,15 +209,4 @@ func NewHandler(config gengql.Config, log logrus.FieldLogger) (*handler.Server, 
 		}),
 	))
 	return graphHandler, nil
-}
-
-func gensqlRoleFromTeamRole(teamRole model.TeamRole) (gensql.RoleName, error) {
-	switch teamRole {
-	case model.TeamRoleMember:
-		return gensql.RoleNameTeammember, nil
-	case model.TeamRoleOwner:
-		return gensql.RoleNameTeamowner, nil
-	}
-
-	return "", fmt.Errorf("invalid team role: %v", teamRole)
 }

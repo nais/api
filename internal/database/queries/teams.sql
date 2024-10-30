@@ -129,13 +129,6 @@ WHERE
     teams.slug = @slug
 RETURNING *;
 
--- RemoveUserFromTeam removes a user from a team.
--- name: RemoveUserFromTeam :exec
-DELETE FROM user_roles
-WHERE
-    user_roles.user_id = @user_id
-    AND user_roles.target_team_slug = @team_slug::slug;
-
 -- SetLastSuccessfulSyncForTeam sets the last successful sync time for a non-deleted team.
 -- name: SetLastSuccessfulSyncForTeam :exec
 UPDATE teams

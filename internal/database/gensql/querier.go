@@ -126,8 +126,6 @@ type Querier interface {
 	RemoveAllServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveTeamRepository(ctx context.Context, arg RemoveTeamRepositoryParams) error
-	// RemoveUserFromTeam removes a user from a team.
-	RemoveUserFromTeam(ctx context.Context, arg RemoveUserFromTeamParams) error
 	ResetReconcilerConfig(ctx context.Context, reconcilerName string) error
 	RevokeGlobalUserRole(ctx context.Context, arg RevokeGlobalUserRoleParams) error
 	// SetLastSuccessfulSyncForTeam sets the last successful sync time for a non-deleted team.

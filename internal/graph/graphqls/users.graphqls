@@ -21,16 +21,6 @@ extend type Query {
   ): UsersyncRunList! @auth
 }
 
-extend type Mutation {
-  """
-  Trigger a user synchronization
-
-  This mutation will trigger a full user synchronization with the connected Google Workspace, and return a correlation
-  ID that can later be matched to the log entries. The user synchronization itself is asynchronous.
-  """
-  synchronizeUsers: String! @auth
-}
-
 "User sync run type."
 type UsersyncRun {
   "The ID of the sync run."
