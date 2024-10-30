@@ -13,13 +13,22 @@ import (
 
 	"cloud.google.com/go/pubsub"
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/usersync"
+	"github.com/nais/api/internal/v1/auditv1"
+	"github.com/nais/api/internal/v1/databasev1"
+	"github.com/nais/api/internal/v1/environment"
+	"github.com/nais/api/internal/v1/graphv1/modelv1"
+	"github.com/nais/api/internal/v1/graphv1/pagination"
+	"github.com/nais/api/internal/v1/role"
+	"github.com/nais/api/internal/v1/role/rolesql"
+	"github.com/nais/api/internal/v1/team"
+	"github.com/nais/api/internal/v1/user"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
+	"github.com/vikstrous/dataloadgen"
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
@@ -28,10 +37,17 @@ import (
 	"k8s.io/utils/ptr"
 )
 
+const (
+	exitCodeSuccess = iota
+	exitCodeConfigError
+	exitCodeLoggerError
+	exitCodeRunError
+)
+
 type seedConfig struct {
 	DatabaseURL               string `env:"DATABASE_URL,default=postgres://api:api@localhost:3002/api?sslmode=disable"`
 	Domain                    string `env:"TENANT_DOMAIN,default=example.com"`
-	GoogleManagementProjectID string `env:"GOOGLE_MANAGEMENT_PROJECT_ID"`
+	GoogleManagementProjectID string `env:"GOOGLE_MANAGEMENT_PROJECT_ID,default=nais-local-dev"`
 
 	NumUsers          *int
 	NumTeams          *int
@@ -43,8 +59,7 @@ type seedConfig struct {
 
 func newSeedConfig(ctx context.Context) (*seedConfig, error) {
 	cfg := &seedConfig{}
-	err := envconfig.Process(ctx, cfg)
-	if err != nil {
+	if err := envconfig.Process(ctx, cfg); err != nil {
 		return nil, err
 	}
 
@@ -61,23 +76,24 @@ func newSeedConfig(ctx context.Context) (*seedConfig, error) {
 
 func main() {
 	ctx := context.Background()
-	cfg, err := newSeedConfig(ctx)
-	if err != nil {
-		fmt.Printf("fatal: %s", err)
-		os.Exit(1)
-	}
-
 	log, err := logger.New("text", "INFO")
 	if err != nil {
-		fmt.Printf("fatal: %s", err)
-		os.Exit(2)
+		fmt.Printf("log error: %s", err)
+		os.Exit(exitCodeLoggerError)
 	}
 
-	err = run(ctx, cfg, log)
+	cfg, err := newSeedConfig(ctx)
 	if err != nil {
-		log.WithError(err).Error("fatal error in run()")
-		os.Exit(3)
+		log.WithError(err).Errorf("configuration error")
+		os.Exit(exitCodeConfigError)
 	}
+
+	if err := run(ctx, cfg, log); err != nil {
+		log.WithError(err).Errorf("fatal error in run()")
+		os.Exit(exitCodeRunError)
+	}
+
+	os.Exit(exitCodeSuccess)
 }
 
 func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
@@ -130,74 +146,113 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 
 	log.Infof("initializing database")
 
-	db, close, err := database.New(ctx, cfg.DatabaseURL, log)
+	db, closer, err := database.New(ctx, cfg.DatabaseURL, log)
 	if err != nil {
 		return err
 	}
-	defer close()
+	defer closer()
+
+	pool := db.GetPool()
+	dataloaderOpts := make([]dataloadgen.Option, 0)
+	ctx = databasev1.NewLoaderContext(ctx, pool)
+	ctx = auditv1.NewLoaderContext(ctx, pool, dataloaderOpts)
+	ctx = user.NewLoaderContext(ctx, pool, dataloaderOpts)
+	ctx = team.NewLoaderContext(ctx, pool, dataloaderOpts)
+	ctx = role.NewLoaderContext(ctx, pool, dataloaderOpts)
+	ctx = environment.NewLoaderContext(ctx, pool)
 
 	emails := map[string]struct{}{}
-	slugs := map[string]struct{}{}
+	slugs := map[slug.Slug]struct{}{}
 
 	if !*cfg.ForceSeed {
-		if existingUsers, err := getAllUsers(ctx, db); len(existingUsers) != 0 || err != nil {
-			return fmt.Errorf("database already has users, abort: %w", err)
+		if existingUsers, err := getAllUsers(ctx); err != nil {
+			return fmt.Errorf("fetch existing users: %w", err)
+		} else if len(existingUsers) != 0 {
+			return fmt.Errorf("database already has users, abort")
 		}
 
-		if existingTeams, err := getAllTeams(ctx, db); len(existingTeams) != 0 || err != nil {
-			return fmt.Errorf("database already has teams, abort: %w", err)
+		if existingTeams, err := getAllTeams(ctx); err != nil {
+			return fmt.Errorf("fetch existing teams: %w", err)
+		} else if len(existingTeams) != 0 {
+			return fmt.Errorf("database already has teams, abort")
 		}
 	} else {
-		users, err := getAllUsers(ctx, db)
+		users, err := getAllUsers(ctx)
 		if err != nil {
-			return err
+			return fmt.Errorf("fetch existing users: %w", err)
 		}
-		for _, user := range users {
-			emails[user.Email] = struct{}{}
+		for _, u := range users {
+			emails[u.Email] = struct{}{}
 		}
 
-		teams, err := getAllTeams(ctx, db)
+		teams, err := getAllTeams(ctx)
 		if err != nil {
-			return err
+			return fmt.Errorf("fetch existing teams: %w", err)
 		}
-		for _, team := range teams {
-			slugs[string(team.Slug)] = struct{}{}
+		for _, t := range teams {
+			slugs[t.Slug] = struct{}{}
 		}
 	}
 
-	err = db.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
+	err = databasev1.Transaction(ctx, func(ctx context.Context) error {
+		const (
+			adminName = "admin usersen"
+			devName   = "dev usersen"
+
+			devEnvironment  = "dev"
+			prodEnvironment = "superprod"
+		)
+
+		envs := []*environment.Environment{
+			{
+				Name: devEnvironment,
+				GCP:  true,
+			},
+			{
+				Name: prodEnvironment,
+				GCP:  true,
+			},
+		}
+		if err := environment.SyncEnvironments(ctx, envs); err != nil {
+			return fmt.Errorf("sync environments: %w", err)
+		}
+
+		defaultUserRoles := []rolesql.RoleName{
+			rolesql.RoleNameTeamcreator,
+			rolesql.RoleNameTeamviewer,
+			rolesql.RoleNameUserviewer,
+			rolesql.RoleNameServiceaccountcreator,
+		}
+
 		var err error
-		var devUser, adminUser *database.User
+		var adminUser, devUser *user.User
 
-		devUser, err = dbtx.GetUserByEmail(ctx, nameToEmail("dev usersen", cfg.Domain))
+		adminUser, err = user.GetByEmail(ctx, nameToEmail(adminName, cfg.Domain))
 		if err != nil {
-			devUser, err = dbtx.CreateUser(ctx, "dev usersen", nameToEmail("dev usersen", cfg.Domain), uuid.New().String())
+			adminUser, err = user.Create(ctx, adminName, nameToEmail(adminName, cfg.Domain), uuid.New().String())
 			if err != nil {
-				return err
+				return fmt.Errorf("create admin user: %w", err)
+			}
+		}
+		if err := role.AssignGlobalRoleToUser(ctx, adminUser.UUID, rolesql.RoleNameAdmin); err != nil {
+			return fmt.Errorf("assign global admin role to admin user: %w", err)
+		}
+		actor := &authz.Actor{User: adminUser}
+
+		devUser, err = user.GetByEmail(ctx, nameToEmail(devName, cfg.Domain))
+		if err != nil {
+			devUser, err = user.Create(ctx, devName, nameToEmail(devName, cfg.Domain), uuid.New().String())
+			if err != nil {
+				return fmt.Errorf("create dev user: %w", err)
+			}
+		}
+		for _, roleName := range defaultUserRoles {
+			if err := role.AssignGlobalRoleToUser(ctx, devUser.UUID, roleName); err != nil {
+				return fmt.Errorf("assign globla role %q to dev user: %w", roleName, err)
 			}
 		}
 
-		adminUser, err = dbtx.GetUserByEmail(ctx, nameToEmail("admin usersen", cfg.Domain))
-		if err != nil {
-			adminUser, err = dbtx.CreateUser(ctx, "admin usersen", nameToEmail("admin usersen", cfg.Domain), uuid.New().String())
-			if err != nil {
-				return err
-			}
-		}
-
-		if err != nil {
-			return err
-		}
-		if err = dbtx.AssignGlobalRoleToUser(ctx, adminUser.ID, gensql.RoleNameAdmin); err != nil {
-			return err
-		}
-		for _, roleName := range usersync.DefaultRoleNames {
-			err = dbtx.AssignGlobalRoleToUser(ctx, devUser.ID, roleName)
-			if err != nil {
-				return fmt.Errorf("attach default role %q to user %q: %w", roleName, devUser.Email, err)
-			}
-		}
-		users := []*database.User{devUser}
+		users := []*user.User{devUser}
 		for i := 1; i <= *cfg.NumUsers; i++ {
 			firstName := firstNames[rand.Intn(numFirstNames)]
 			lastName := lastNames[rand.Intn(numLastNames)]
@@ -207,53 +262,69 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 				continue
 			}
 
-			user, err := dbtx.CreateUser(ctx, name, email, uuid.New().String())
+			u, err := user.Create(ctx, name, email, uuid.New().String())
 			if err != nil {
-				return err
+				return fmt.Errorf("create user %q: %w", email, err)
 			}
 
-			for _, roleName := range usersync.DefaultRoleNames {
-				err = dbtx.AssignGlobalRoleToUser(ctx, user.ID, roleName)
-				if err != nil {
-					return fmt.Errorf("attach default role %q to user %q: %w", roleName, user.Email, err)
+			for _, roleName := range defaultUserRoles {
+				if err = role.AssignGlobalRoleToUser(ctx, u.UUID, roleName); err != nil {
+					return fmt.Errorf("assign global role %q to user %q: %w", roleName, u.Email, err)
 				}
 			}
 
 			log.Infof("%d/%d users created", i, *cfg.NumUsers)
-			users = append(users, user)
+			users = append(users, u)
 			emails[email] = struct{}{}
 		}
 		usersCreated := len(users)
 
-		var devteam *database.Team
-		devteam, err = dbtx.GetTeamBySlug(ctx, "devteam")
+		var devteam *team.Team
+		devteam, err = team.Get(ctx, "devteam")
 		if err != nil {
-			devteam, err = dbtx.CreateTeam(ctx, "devteam", "dev-purpose", "#devteam")
+			input := &team.CreateTeamInput{
+				Slug:         "devteam",
+				Purpose:      "dev-purpose",
+				SlackChannel: "#devteam",
+			}
+			devteam, err = team.Create(ctx, input, actor)
 			if err != nil {
-				return err
+				return fmt.Errorf("create devteam: %w", err)
 			}
 		}
-		if _, err := dbtx.UpdateTeamExternalReferences(ctx, gensql.UpdateTeamExternalReferencesParams{
+
+		references := &team.ExternalReferences{
 			GoogleGroupEmail: ptr.To("nais-team-devteam@" + cfg.Domain),
 			AzureGroupID:     ptr.To(uuid.MustParse("70c0541d-c079-4d10-9c50-164681e0b900")),
 			GithubTeamSlug:   ptr.To("devteam"),
 			GarRepository:    ptr.To("projects/some-project-123/locations/europe-north1/repositories/devteam"),
-			Slug:             devteam.Slug,
-		}); err != nil {
-			return err
+		}
+		if err := team.UpdateExternalReferences(ctx, devteam.Slug, references); err != nil {
+			return fmt.Errorf("update external references for devteam: %w", err)
 		}
 
-		err = dbtx.SetTeamMemberRole(ctx, devUser.ID, devteam.Slug, gensql.RoleNameTeamowner)
-		if err != nil {
-			return err
+		if err := role.AssignTeamRoleToUser(ctx, devUser.UUID, devteam.Slug, rolesql.RoleNameTeamowner); err != nil {
+			return fmt.Errorf("assign team owner role to dev user: %w", err)
 		}
 
-		if err = dbtx.UpsertTeamEnvironment(ctx, devteam.Slug, "dev", ptr.To("#yolo"), ptr.To("nais-dev-2e7b")); err != nil {
-			return err
+		input := &team.UpdateTeamEnvironmentInput{
+			Slug:               devteam.Slug,
+			EnvironmentName:    devEnvironment,
+			SlackAlertsChannel: ptr.To("#yolo"),
+			GCPProjectID:       ptr.To("nais-dev-2e7b"),
+		}
+		if _, err := team.UpdateEnvironment(ctx, input, actor); err != nil {
+			return fmt.Errorf("update environment %q for devteam: %w", devEnvironment, err)
 		}
 
-		if err = dbtx.UpsertTeamEnvironment(ctx, devteam.Slug, "superprod", ptr.To("#yolo"), ptr.To("nais-dev-cdea")); err != nil {
-			return err
+		input = &team.UpdateTeamEnvironmentInput{
+			Slug:               devteam.Slug,
+			EnvironmentName:    prodEnvironment,
+			SlackAlertsChannel: ptr.To("#yolo"),
+			GCPProjectID:       ptr.To("nais-dev-cdea"),
+		}
+		if _, err := team.UpdateEnvironment(ctx, input, actor); err != nil {
+			return fmt.Errorf("update environment %q for devteam: %w", prodEnvironment, err)
 		}
 
 		for i := 1; i <= *cfg.NumTeams; i++ {
@@ -262,22 +333,27 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 				continue
 			}
 
-			team, err := dbtx.CreateTeam(ctx, slug.Slug(name), "some purpose", "#"+name)
+			input := &team.CreateTeamInput{
+				Slug:         name,
+				Purpose:      "some purpose",
+				SlackChannel: "#" + name.String(),
+			}
+			t, err := team.Create(ctx, input, actor)
 			if err != nil {
-				return err
+				return fmt.Errorf("create team %q: %w", name, err)
 			}
 
 			for o := 0; o < *cfg.NumOwnersPerTeam; o++ {
-				err = dbtx.SetTeamMemberRole(ctx, users[rand.Intn(usersCreated)].ID, team.Slug, gensql.RoleNameTeamowner)
-				if err != nil {
-					return err
+				u := users[rand.Intn(usersCreated)]
+				if err = role.AssignTeamRoleToUser(ctx, u.UUID, t.Slug, rolesql.RoleNameTeamowner); err != nil {
+					return fmt.Errorf("assign team owner role to user %q in team %q: %w", u.Email, t.Slug, err)
 				}
 			}
 
 			for o := 0; o < *cfg.NumMembersPerTeam; o++ {
-				err = dbtx.SetTeamMemberRole(ctx, users[rand.Intn(usersCreated)].ID, team.Slug, gensql.RoleNameTeammember)
-				if err != nil {
-					return err
+				u := users[rand.Intn(usersCreated)]
+				if err = role.AssignTeamRoleToUser(ctx, u.UUID, t.Slug, rolesql.RoleNameTeammember); err != nil {
+					return fmt.Errorf("assign team member role to user %q in team %q: %w", u.Email, t.Slug, err)
 				}
 			}
 
@@ -288,20 +364,20 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 		return nil
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("error during transaction: %w", err)
 	}
 
 	log.Infof("done")
 	return nil
 }
 
-func teamName() string {
+func teamName() slug.Slug {
 	letters := []byte("abcdefghijklmnopqrstuvwxyz")
 	b := make([]byte, 10)
 	for i := range b {
 		b[i] = letters[rand.Intn(len(letters))]
 	}
-	return string(b)
+	return slug.Slug(b)
 }
 
 func nameToEmail(name, domain string) string {
@@ -316,7 +392,7 @@ func fileToSlice(path string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	var lines []string
 	scanner := bufio.NewScanner(file)
@@ -327,50 +403,56 @@ func fileToSlice(path string) ([]string, error) {
 	return lines, nil
 }
 
-func getAllUsers(ctx context.Context, db database.UserRepo) ([]*database.User, error) {
-	limit, offset := 100, 0
-	users := make([]*database.User, 0)
+func getAllUsers(ctx context.Context) ([]*user.User, error) {
+	first := 100
+	allUsers := make([]*user.User, 0)
+	orderBy := &user.UserOrder{
+		Field:     user.UserOrderFieldName,
+		Direction: modelv1.OrderDirectionAsc,
+	}
+	var after *pagination.Cursor
 	for {
-		page, _, err := db.GetUsers(ctx, database.Page{
-			Limit:  limit,
-			Offset: offset,
-		})
+		p, err := pagination.ParsePage(&first, after, nil, nil)
 		if err != nil {
 			return nil, err
 		}
-
-		users = append(users, page...)
-
-		if len(page) < limit {
+		conn, err := user.List(ctx, p, orderBy)
+		if err != nil {
+			return nil, err
+		}
+		allUsers = append(allUsers, conn.Nodes()...)
+		if !conn.PageInfo.HasNextPage {
 			break
 		}
-
-		offset += limit
+		after = conn.PageInfo.EndCursor
 	}
 
-	return users, nil
+	return allUsers, nil
 }
 
-func getAllTeams(ctx context.Context, db database.TeamRepo) ([]*database.Team, error) {
-	limit, offset := 100, 0
-	teams := make([]*database.Team, 0)
+func getAllTeams(ctx context.Context) ([]*team.Team, error) {
+	first := 100
+	allTeams := make([]*team.Team, 0)
+	orderBy := &team.TeamOrder{
+		Field:     team.TeamOrderFieldSlug,
+		Direction: modelv1.OrderDirectionAsc,
+	}
+	var after *pagination.Cursor
 	for {
-		page, _, err := db.GetTeams(ctx, database.Page{
-			Limit:  limit,
-			Offset: offset,
-		})
+		p, err := pagination.ParsePage(&first, after, nil, nil)
 		if err != nil {
 			return nil, err
 		}
-
-		teams = append(teams, page...)
-
-		if len(page) < limit {
+		conn, err := team.List(ctx, p, orderBy)
+		if err != nil {
+			return nil, err
+		}
+		allTeams = append(allTeams, conn.Nodes()...)
+		if !conn.PageInfo.HasNextPage {
 			break
 		}
-
-		offset += limit
+		after = conn.PageInfo.EndCursor
 	}
 
-	return teams, nil
+	return allTeams, nil
 }
