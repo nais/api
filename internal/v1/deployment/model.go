@@ -91,6 +91,8 @@ func toGraphDeployment(d hookd.Deploy) *Deployment {
 		Repository:      d.DeploymentInfo.GithubRepository,
 		TeamSlug:        d.DeploymentInfo.Team,
 		EnvironmentName: d.DeploymentInfo.Cluster,
+		Statuses:        statuses,
+		Resources:       resources,
 	}
 }
 
