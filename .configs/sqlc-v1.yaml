@@ -93,3 +93,12 @@ sql:
         <<: *default_go
         package: "reconcilersql"
         out: "../internal/v1/reconciler/reconcilersql"
+
+  - <<: *default_domain
+    name: "Environment SQL"
+    queries: "../internal/v1/environment/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "environmentsql"
+        out: "../internal/v1/environment/environmentsql"
