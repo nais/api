@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -345,6 +346,9 @@ type CreateTeamInput struct {
 	SlackChannel string    `json:"slackChannel"`
 }
 
+// Rules can be found here: https://api.slack.com/methods/conversations.create#naming
+var slackChannelNamePattern = regexp.MustCompile("^#[a-z0-9æøå_-]{2,80}$")
+
 func (i *CreateTeamInput) Validate(ctx context.Context) error {
 	verr := validate.New()
 	i.Purpose = strings.TrimSpace(i.Purpose)
@@ -360,8 +364,8 @@ func (i *CreateTeamInput) Validate(ctx context.Context) error {
 		verr.Add("purpose", "This is not a valid purpose.")
 	}
 
-	if s := i.SlackChannel; !strings.HasPrefix(s, "#") || len(s) < 3 || len(s) > 80 {
-		verr.Add("slackChannel", "This is not a valid Slack channel name. A valid channel name starts with a '#' and is between 3 and 80 characters long.")
+	if !slackChannelNamePattern.MatchString(i.SlackChannel) {
+		verr.Add("slackChannel", "A Slack channel name must match the following pattern: %q.", slackChannelNamePattern.String())
 	}
 
 	return verr.NilIfEmpty()
@@ -389,8 +393,8 @@ func (i *UpdateTeamInput) Validate() error {
 	}
 
 	if i.SlackChannel != nil {
-		if s := *i.SlackChannel; !strings.HasPrefix(s, "#") || len(s) < 3 || len(s) > 80 {
-			verr.Add("slackChannel", "This is not a valid Slack channel name. A valid channel name starts with a '#' and is between 3 and 80 characters long.")
+		if !slackChannelNamePattern.MatchString(*i.SlackChannel) {
+			verr.Add("slackChannel", "A Slack channel name must match the following pattern: %q.", slackChannelNamePattern.String())
 		}
 	}
 

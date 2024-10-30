@@ -34,7 +34,7 @@ Test.gql("Create secret for team that does not exist", function(t)
 			createSecret(input: {
 				name: "secret-name"
 				environment: "dev"
-				team: "team-that-does-not-exist"
+				team: "does-not-exist"
 			}) {
 				secret {
 					id

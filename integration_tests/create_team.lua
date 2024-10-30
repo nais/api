@@ -28,6 +28,123 @@ Test.gql("Create team", function(t)
 	}
 end)
 
+Test.gql("Create team with invalid slug", function(t)
+	local testSlug = function(slugs, errorMessageMatch)
+		for _, s in ipairs(slugs) do
+			t.query(string.format([[
+				mutation {
+					createTeam(
+						input: {
+							slug: "%s"
+							purpose: "some purpose"
+							slackChannel: "#channel"
+						}
+					) {
+						team {
+							id
+							slug
+						}
+					}
+				}
+			]], s))
+			t.check {
+				data = Null,
+				errors = {
+					{
+						message = errorMessageMatch,
+						path = {
+							"createTeam",
+							"input",
+							"slug",
+						},
+					},
+				},
+			}
+		end
+	end
+
+	local invalidPrefix = {
+		"team",
+		"teamfoo",
+		"team-foo",
+	}
+	testSlug(invalidPrefix, Contains("The name prefix 'team' is redundant."))
+
+	local shortSlugs = {
+		"a",
+		"ab",
+	}
+	testSlug(shortSlugs, "A team slug must be at least 3 characters long.")
+
+	local longSlugs = {
+		"some-long-string-more-than-30-chars",
+	}
+	testSlug(longSlugs, "A team slug must be at most 30 characters long.")
+
+	local reservedSlugs = {
+		"nais-system",
+		"kube-system",
+		"kube-node-lease",
+		"kube-public",
+		"kyverno",
+		"cnrm-system",
+		"configconnector-operator-system",
+	}
+	testSlug(reservedSlugs, "This slug is reserved by NAIS.")
+
+	local invalidSlugs = {
+		"-foo",
+		"foo-",
+		"foo--bar",
+		"4chan",
+		"you-aint-got-the-æøå",
+		"Uppercase",
+		"rollback()",
+	}
+	testSlug(invalidSlugs, Contains("A team slug must match the following pattern:"))
+end)
+
+Test.gql("Create team with invalid Slack channel name", function(t)
+	local invalidSlackChannelNames = {
+		"foo",                                                                          -- missing hash
+		"#a",                                                                           -- too short
+		"#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", -- too long
+		"#foo bar",                                                                     -- space not allowed
+		"#Foobar",                                                                      -- upper case not allowed
+	}
+	for _, s in ipairs(invalidSlackChannelNames) do
+		t.query(string.format([[
+			mutation {
+				createTeam(
+					input: {
+						slug: "myteam"
+						purpose: "some purpose"
+						slackChannel: "%s"
+					}
+				) {
+					team {
+						id
+						slug
+					}
+				}
+			}
+		]], s))
+		t.check {
+			data = Null,
+			errors = {
+				{
+					message = Contains("A Slack channel name must match the following pattern"),
+					extensions = {
+						field = "slackChannel",
+					},
+					path = {
+						"createTeam",
+					},
+				},
+			},
+		}
+	end
+end)
 
 Test.pubsub("Check if pubsub message was sent", function(t)
 	t.check("topic", {
