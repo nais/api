@@ -225,3 +225,15 @@ WHERE
 	team_slug = @team_slug
 	AND environment = @environment
 ;
+
+-- name: UpdateExternalReferences :exec
+UPDATE teams
+SET
+	google_group_email = COALESCE(@google_group_email, google_group_email),
+	azure_group_id = COALESCE(@azure_group_id, azure_group_id),
+	github_team_slug = COALESCE(@github_team_slug, github_team_slug),
+	gar_repository = COALESCE(@gar_repository, gar_repository),
+	cdn_bucket = COALESCE(@cdn_bucket, cdn_bucket)
+WHERE
+	teams.slug = @slug
+;

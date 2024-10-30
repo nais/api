@@ -536,6 +536,39 @@ func (q *Queries) Update(ctx context.Context, arg UpdateParams) (*Team, error) {
 	return &i, err
 }
 
+const updateExternalReferences = `-- name: UpdateExternalReferences :exec
+UPDATE teams
+SET
+	google_group_email = COALESCE($1, google_group_email),
+	azure_group_id = COALESCE($2, azure_group_id),
+	github_team_slug = COALESCE($3, github_team_slug),
+	gar_repository = COALESCE($4, gar_repository),
+	cdn_bucket = COALESCE($5, cdn_bucket)
+WHERE
+	teams.slug = $6
+`
+
+type UpdateExternalReferencesParams struct {
+	GoogleGroupEmail *string
+	AzureGroupID     *uuid.UUID
+	GithubTeamSlug   *string
+	GarRepository    *string
+	CdnBucket        *string
+	Slug             slug.Slug
+}
+
+func (q *Queries) UpdateExternalReferences(ctx context.Context, arg UpdateExternalReferencesParams) error {
+	_, err := q.db.Exec(ctx, updateExternalReferences,
+		arg.GoogleGroupEmail,
+		arg.AzureGroupID,
+		arg.GithubTeamSlug,
+		arg.GarRepository,
+		arg.CdnBucket,
+		arg.Slug,
+	)
+	return err
+}
+
 const upsertEnvironment = `-- name: UpsertEnvironment :exec
 INSERT INTO
 	team_environments (

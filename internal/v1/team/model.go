@@ -38,6 +38,14 @@ type Team struct {
 	DeleteKeyConfirmedAt   *time.Time `json:"-"`
 }
 
+type ExternalReferences struct {
+	GoogleGroupEmail *string
+	AzureGroupID     *uuid.UUID
+	GithubTeamSlug   *string
+	GarRepository    *string
+	CdnBucket        *string
+}
+
 func (Team) IsNode()       {}
 func (Team) IsSearchNode() {}
 
@@ -479,6 +487,7 @@ type UpdateTeamEnvironmentInput struct {
 	Slug               slug.Slug `json:"slug"`
 	EnvironmentName    string    `json:"environmentName"`
 	SlackAlertsChannel *string   `json:"slackAlertsChannel"`
+	GCPProjectID       *string   `json:"-"` // TODO(chredvar): Only used from GRPC, move to separate input / package?
 }
 
 func (i *UpdateTeamEnvironmentInput) Validate() error {

@@ -38,10 +38,10 @@ func Create(ctx context.Context, input *CreateTeamInput, actor *authz.Actor) (*T
 		}
 
 		if actor.User.IsServiceAccount() {
-			return role.AssignTeamRoleToServiceAccount(ctx, actor.User.GetID(), input.Slug, rolesql.RoleNameTeamowner)
+			err = role.AssignTeamRoleToServiceAccount(ctx, actor.User.GetID(), input.Slug, rolesql.RoleNameTeamowner)
+		} else {
+			err = role.AssignTeamRoleToUser(ctx, actor.User.GetID(), input.Slug, rolesql.RoleNameTeamowner)
 		}
-
-		err = role.AssignTeamRoleToUser(ctx, actor.User.GetID(), input.Slug, rolesql.RoleNameTeamowner)
 		if err != nil {
 			return err
 		}
@@ -128,7 +128,11 @@ func Update(ctx context.Context, input *UpdateTeamInput, actor *authz.Actor) (*T
 }
 
 func Get(ctx context.Context, slug slug.Slug) (*Team, error) {
-	return fromContext(ctx).teamLoader.Load(ctx, slug)
+	t, err := fromContext(ctx).teamLoader.Load(ctx, slug)
+	if err != nil {
+		return nil, handleError(err)
+	}
+	return t, nil
 }
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*Team, error) {
@@ -455,11 +459,6 @@ func UserIsMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (bo
 }
 
 func UpdateEnvironment(ctx context.Context, input *UpdateTeamEnvironmentInput, actor *authz.Actor) (*TeamEnvironment, error) {
-	_, err := Get(ctx, input.Slug)
-	if err != nil {
-		return nil, err
-	}
-
 	existingTeamEnvironment, err := db(ctx).GetEnvironment(ctx, teamsql.GetEnvironmentParams{
 		Slug:        input.Slug,
 		Environment: input.EnvironmentName,
@@ -487,6 +486,7 @@ func UpdateEnvironment(ctx context.Context, input *UpdateTeamEnvironmentInput, a
 				TeamSlug:           input.Slug,
 				Environment:        input.EnvironmentName,
 				SlackAlertsChannel: input.SlackAlertsChannel,
+				GcpProjectID:       input.GCPProjectID, // TODO(chredvar): Only used from GRPC, move to separate function / package?
 			})
 		}
 		if err != nil {
@@ -533,4 +533,16 @@ func Count(ctx context.Context) (int64, error) {
 // Exists checks if an active team with the given slug exists.
 func Exists(ctx context.Context, slug slug.Slug) (bool, error) {
 	return db(ctx).Exists(ctx, slug)
+}
+
+// TODO(chredvar): move to grpc package?
+func UpdateExternalReferences(ctx context.Context, teamSlug slug.Slug, references *ExternalReferences) error {
+	return db(ctx).UpdateExternalReferences(ctx, teamsql.UpdateExternalReferencesParams{
+		Slug:             teamSlug,
+		GoogleGroupEmail: references.GoogleGroupEmail,
+		AzureGroupID:     references.AzureGroupID,
+		GithubTeamSlug:   references.GithubTeamSlug,
+		GarRepository:    references.GarRepository,
+		CdnBucket:        references.CdnBucket,
+	})
 }
