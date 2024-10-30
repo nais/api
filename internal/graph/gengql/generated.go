@@ -81,7 +81,6 @@ type ResolverRoot interface {
 	Subscription() SubscriptionResolver
 	Team() TeamResolver
 	TeamMember() TeamMemberResolver
-	TeamMemberReconciler() TeamMemberReconcilerResolver
 	TeamUtilizationData() TeamUtilizationDataResolver
 	UnleashMetrics() UnleashMetricsResolver
 	User() UserResolver
@@ -815,7 +814,6 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AddReconcilerOptOut          func(childComplexity int, teamSlug slug.Slug, userID scalar.Ident, reconciler string) int
 		AddRepository                func(childComplexity int, teamSlug slug.Slug, repoName string) int
 		AddTeamMember                func(childComplexity int, slug slug.Slug, member model.TeamMemberInput) int
 		ChangeDeployKey              func(childComplexity int, team slug.Slug) int
@@ -827,7 +825,6 @@ type ComplexityRoot struct {
 		DeleteSecret                 func(childComplexity int, name string, team slug.Slug, env string) int
 		DisableReconciler            func(childComplexity int, name string) int
 		EnableReconciler             func(childComplexity int, name string) int
-		RemoveReconcilerOptOut       func(childComplexity int, teamSlug slug.Slug, userID scalar.Ident, reconciler string) int
 		RemoveRepository             func(childComplexity int, teamSlug slug.Slug, repoName string) int
 		RemoveUserFromTeam           func(childComplexity int, slug slug.Slug, userID scalar.Ident) int
 		ResetReconciler              func(childComplexity int, name string) int
@@ -838,7 +835,6 @@ type ComplexityRoot struct {
 		SynchronizeTeam              func(childComplexity int, slug slug.Slug) int
 		SynchronizeUsers             func(childComplexity int) int
 		UpdateSecret                 func(childComplexity int, name string, team slug.Slug, env string, data []*model.VariableInput) int
-		UpdateTeam                   func(childComplexity int, slug slug.Slug, input model.UpdateTeamInput) int
 		UpdateTeamSlackAlertsChannel func(childComplexity int, slug slug.Slug, input model.UpdateTeamSlackAlertsChannelInput) int
 		UpdateUnleashForTeam         func(childComplexity int, team slug.Slug, name string, allowedTeams []string) int
 	}
@@ -1303,20 +1299,14 @@ type ComplexityRoot struct {
 	}
 
 	TeamMember struct {
-		Reconcilers func(childComplexity int) int
-		Role        func(childComplexity int) int
-		Team        func(childComplexity int) int
-		User        func(childComplexity int) int
+		Role func(childComplexity int) int
+		Team func(childComplexity int) int
+		User func(childComplexity int) int
 	}
 
 	TeamMemberList struct {
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
-	}
-
-	TeamMemberReconciler struct {
-		Enabled    func(childComplexity int) int
-		Reconciler func(childComplexity int) int
 	}
 
 	TeamStatus struct {
@@ -1559,12 +1549,9 @@ type MutationResolver interface {
 	DisableReconciler(ctx context.Context, name string) (*model.Reconciler, error)
 	ConfigureReconciler(ctx context.Context, name string, config []*model.ReconcilerConfigInput) (*model.Reconciler, error)
 	ResetReconciler(ctx context.Context, name string) (*model.Reconciler, error)
-	AddReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler string) (*model.TeamMember, error)
-	RemoveReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler string) (*model.TeamMember, error)
 	CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.VariableInput) (*model.Secret, error)
 	UpdateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.VariableInput) (*model.Secret, error)
 	DeleteSecret(ctx context.Context, name string, team slug.Slug, env string) (bool, error)
-	UpdateTeam(ctx context.Context, slug slug.Slug, input model.UpdateTeamInput) (*model.Team, error)
 	UpdateTeamSlackAlertsChannel(ctx context.Context, slug slug.Slug, input model.UpdateTeamSlackAlertsChannelInput) (*model.Team, error)
 	RemoveUserFromTeam(ctx context.Context, slug slug.Slug, userID scalar.Ident) (*model.Team, error)
 	SynchronizeTeam(ctx context.Context, slug slug.Slug) (*model.TeamSync, error)
@@ -1709,10 +1696,6 @@ type TeamMemberResolver interface {
 	Team(ctx context.Context, obj *model.TeamMember) (*model.Team, error)
 	User(ctx context.Context, obj *model.TeamMember) (*model.User, error)
 	Role(ctx context.Context, obj *model.TeamMember) (model.TeamRole, error)
-	Reconcilers(ctx context.Context, obj *model.TeamMember) ([]*model.TeamMemberReconciler, error)
-}
-type TeamMemberReconcilerResolver interface {
-	Reconciler(ctx context.Context, obj *model.TeamMemberReconciler) (*model.Reconciler, error)
 }
 type TeamUtilizationDataResolver interface {
 	Team(ctx context.Context, obj *model.TeamUtilizationData) (*model.Team, error)
@@ -4750,18 +4733,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MonthlyCost.Sum(childComplexity), true
 
-	case "Mutation.addReconcilerOptOut":
-		if e.complexity.Mutation.AddReconcilerOptOut == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_addReconcilerOptOut_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.AddReconcilerOptOut(childComplexity, args["teamSlug"].(slug.Slug), args["userId"].(scalar.Ident), args["reconciler"].(string)), true
-
 	case "Mutation.addRepository":
 		if e.complexity.Mutation.AddRepository == nil {
 			break
@@ -4894,18 +4865,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.EnableReconciler(childComplexity, args["name"].(string)), true
 
-	case "Mutation.removeReconcilerOptOut":
-		if e.complexity.Mutation.RemoveReconcilerOptOut == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_removeReconcilerOptOut_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.RemoveReconcilerOptOut(childComplexity, args["teamSlug"].(slug.Slug), args["userId"].(scalar.Ident), args["reconciler"].(string)), true
-
 	case "Mutation.removeRepository":
 		if e.complexity.Mutation.RemoveRepository == nil {
 			break
@@ -5015,18 +4974,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateSecret(childComplexity, args["name"].(string), args["team"].(slug.Slug), args["env"].(string), args["data"].([]*model.VariableInput)), true
-
-	case "Mutation.updateTeam":
-		if e.complexity.Mutation.UpdateTeam == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_updateTeam_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.UpdateTeam(childComplexity, args["slug"].(slug.Slug), args["input"].(model.UpdateTeamInput)), true
 
 	case "Mutation.updateTeamSlackAlertsChannel":
 		if e.complexity.Mutation.UpdateTeamSlackAlertsChannel == nil {
@@ -7304,13 +7251,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamList.PageInfo(childComplexity), true
 
-	case "TeamMember.reconcilers":
-		if e.complexity.TeamMember.Reconcilers == nil {
-			break
-		}
-
-		return e.complexity.TeamMember.Reconcilers(childComplexity), true
-
 	case "TeamMember.role":
 		if e.complexity.TeamMember.Role == nil {
 			break
@@ -7345,20 +7285,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamMemberList.PageInfo(childComplexity), true
-
-	case "TeamMemberReconciler.enabled":
-		if e.complexity.TeamMemberReconciler.Enabled == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberReconciler.Enabled(childComplexity), true
-
-	case "TeamMemberReconciler.reconciler":
-		if e.complexity.TeamMemberReconciler.Reconciler == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberReconciler.Reconciler(childComplexity), true
 
 	case "TeamStatus.apps":
 		if e.complexity.TeamStatus.Apps == nil {
@@ -7929,7 +7855,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTeamMemberInput,
 		ec.unmarshalInputTeamsFilter,
 		ec.unmarshalInputTeamsFilterGitHub,
-		ec.unmarshalInputUpdateTeamInput,
 		ec.unmarshalInputUpdateTeamSlackAlertsChannelInput,
 		ec.unmarshalInputVariableInput,
 		ec.unmarshalInputVulnerabilityFilter,
@@ -9503,30 +9428,6 @@ extend enum OrderByField {
     "The name of the reconciler to reset."
     name: String!
   ): Reconciler! @admin
-
-  "Add opt-out of a reconciler for a team member. Only reconcilers that are member aware can be opted out from."
-  addReconcilerOptOut(
-    "The team slug."
-    teamSlug: Slug!
-
-    "The user ID of the team member."
-    userId: ID!
-
-    "The name of the reconciler to opt the team member out of."
-    reconciler: String!
-  ): TeamMember!
-
-  "Remove opt-out of a reconciler for a team member."
-  removeReconcilerOptOut(
-    "The team slug."
-    teamSlug: Slug!
-
-    "The user ID of the team member."
-    userId: ID!
-
-    "The name of the reconciler to clear the opt-out from."
-    reconciler: String!
-  ): TeamMember!
 }
 
 extend type Query {
@@ -9872,21 +9773,6 @@ type Role {
 }
 
 extend type Mutation {
-  """
-  Update an existing team
-
-  This mutation can be used to update the team purpose. It is not possible to update the team slug.
-
-  The updated team will be returned on success.
-  """
-  updateTeam(
-    "Slug of the team to update."
-    slug: Slug!
-
-    "Input for updating the team."
-    input: UpdateTeamInput!
-  ): Team! @auth
-
   """
   Update an existing team's Slack alerts channel
 
@@ -10397,18 +10283,6 @@ type TeamMember {
 
   "The role that the user has in the team."
   role: TeamRole!
-
-  "Reconcilers for this member in this team."
-  reconcilers: [TeamMemberReconciler!]!
-}
-
-"Team member reconcilers."
-type TeamMemberReconciler {
-  "The reconciler."
-  reconciler: Reconciler!
-
-  "Whether or not the reconciler is enabled for the team member."
-  enabled: Boolean!
 }
 
 "Team status."
@@ -10475,15 +10349,6 @@ input TeamsFilterGitHub {
   permissionName: String!
 }
 
-"Input for updating an existing team."
-input UpdateTeamInput {
-  "Specify team purpose to update the existing value."
-  purpose: String
-
-  "Specify the Slack channel to update the existing value."
-  slackChannel: String
-}
-
 "Slack alerts channel input."
 input UpdateTeamSlackAlertsChannelInput {
   "The environment for the alerts sent to the channel."
@@ -10500,9 +10365,6 @@ input TeamMemberInput {
 
   "The role that the user will receive."
   role: TeamRole!
-
-  "Reconcilers to opt the team member out of."
-  reconcilerOptOuts: [String!]
 }
 
 "Available team roles."
@@ -11270,92 +11132,6 @@ func (ec *executionContext) field_KafkaTopic_acl_argsOrderBy(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_addReconcilerOptOut_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_addReconcilerOptOut_argsTeamSlug(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["teamSlug"] = arg0
-	arg1, err := ec.field_Mutation_addReconcilerOptOut_argsUserID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["userId"] = arg1
-	arg2, err := ec.field_Mutation_addReconcilerOptOut_argsReconciler(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["reconciler"] = arg2
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_addReconcilerOptOut_argsTeamSlug(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (slug.Slug, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["teamSlug"]
-	if !ok {
-		var zeroVal slug.Slug
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-	if tmp, ok := rawArgs["teamSlug"]; ok {
-		return ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
-	}
-
-	var zeroVal slug.Slug
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_addReconcilerOptOut_argsUserID(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (scalar.Ident, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["userId"]
-	if !ok {
-		var zeroVal scalar.Ident
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-	if tmp, ok := rawArgs["userId"]; ok {
-		return ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, tmp)
-	}
-
-	var zeroVal scalar.Ident
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_addReconcilerOptOut_argsReconciler(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["reconciler"]
-	if !ok {
-		var zeroVal string
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("reconciler"))
-	if tmp, ok := rawArgs["reconciler"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Mutation_addRepository_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -12025,92 +11801,6 @@ func (ec *executionContext) field_Mutation_enableReconciler_argsName(
 
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 	if tmp, ok := rawArgs["name"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_removeReconcilerOptOut_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_removeReconcilerOptOut_argsTeamSlug(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["teamSlug"] = arg0
-	arg1, err := ec.field_Mutation_removeReconcilerOptOut_argsUserID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["userId"] = arg1
-	arg2, err := ec.field_Mutation_removeReconcilerOptOut_argsReconciler(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["reconciler"] = arg2
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_removeReconcilerOptOut_argsTeamSlug(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (slug.Slug, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["teamSlug"]
-	if !ok {
-		var zeroVal slug.Slug
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-	if tmp, ok := rawArgs["teamSlug"]; ok {
-		return ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
-	}
-
-	var zeroVal slug.Slug
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_removeReconcilerOptOut_argsUserID(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (scalar.Ident, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["userId"]
-	if !ok {
-		var zeroVal scalar.Ident
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-	if tmp, ok := rawArgs["userId"]; ok {
-		return ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, tmp)
-	}
-
-	var zeroVal scalar.Ident
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_removeReconcilerOptOut_argsReconciler(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["reconciler"]
-	if !ok {
-		var zeroVal string
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("reconciler"))
-	if tmp, ok := rawArgs["reconciler"]; ok {
 		return ec.unmarshalNString2string(ctx, tmp)
 	}
 
@@ -12862,65 +12552,6 @@ func (ec *executionContext) field_Mutation_updateTeamSlackAlertsChannel_argsInpu
 	}
 
 	var zeroVal model.UpdateTeamSlackAlertsChannelInput
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_updateTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_updateTeam_argsSlug(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["slug"] = arg0
-	arg1, err := ec.field_Mutation_updateTeam_argsInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg1
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_updateTeam_argsSlug(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (slug.Slug, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["slug"]
-	if !ok {
-		var zeroVal slug.Slug
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
-	if tmp, ok := rawArgs["slug"]; ok {
-		return ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
-	}
-
-	var zeroVal slug.Slug
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_updateTeam_argsInput(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (model.UpdateTeamInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
-		var zeroVal model.UpdateTeamInput
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNUpdateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUpdateTeamInput(ctx, tmp)
-	}
-
-	var zeroVal model.UpdateTeamInput
 	return zeroVal, nil
 }
 
@@ -37623,136 +37254,6 @@ func (ec *executionContext) fieldContext_Mutation_resetReconciler(ctx context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_addReconcilerOptOut(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_addReconcilerOptOut(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AddReconcilerOptOut(rctx, fc.Args["teamSlug"].(slug.Slug), fc.Args["userId"].(scalar.Ident), fc.Args["reconciler"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.TeamMember)
-	fc.Result = res
-	return ec.marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMember(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_addReconcilerOptOut(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "team":
-				return ec.fieldContext_TeamMember_team(ctx, field)
-			case "user":
-				return ec.fieldContext_TeamMember_user(ctx, field)
-			case "role":
-				return ec.fieldContext_TeamMember_role(ctx, field)
-			case "reconcilers":
-				return ec.fieldContext_TeamMember_reconcilers(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamMember", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_addReconcilerOptOut_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_removeReconcilerOptOut(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_removeReconcilerOptOut(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().RemoveReconcilerOptOut(rctx, fc.Args["teamSlug"].(slug.Slug), fc.Args["userId"].(scalar.Ident), fc.Args["reconciler"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.TeamMember)
-	fc.Result = res
-	return ec.marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMember(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_removeReconcilerOptOut(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "team":
-				return ec.fieldContext_TeamMember_team(ctx, field)
-			case "user":
-				return ec.fieldContext_TeamMember_user(ctx, field)
-			case "role":
-				return ec.fieldContext_TeamMember_role(ctx, field)
-			case "reconcilers":
-				return ec.fieldContext_TeamMember_reconcilers(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamMember", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_removeReconcilerOptOut_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Mutation_createSecret(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createSecret(ctx, field)
 	if err != nil {
@@ -38018,175 +37519,6 @@ func (ec *executionContext) fieldContext_Mutation_deleteSecret(ctx context.Conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteSecret_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_updateTeam(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateTeam(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().UpdateTeam(rctx, fc.Args["slug"].(slug.Slug), fc.Args["input"].(model.UpdateTeamInput))
-		}
-
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				var zeroVal *model.Team
-				return zeroVal, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.Team); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.Team`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Team)
-	fc.Result = res
-	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Team_slug(ctx, field)
-			case "purpose":
-				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
-			case "auditLogs":
-				return ec.fieldContext_Team_auditLogs(ctx, field)
-			case "auditEvents":
-				return ec.fieldContext_Team_auditEvents(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
-			case "syncErrors":
-				return ec.fieldContext_Team_syncErrors(ctx, field)
-			case "lastSuccessfulSync":
-				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
-			case "githubRepositories":
-				return ec.fieldContext_Team_githubRepositories(ctx, field)
-			case "slackChannel":
-				return ec.fieldContext_Team_slackChannel(ctx, field)
-			case "deletionInProgress":
-				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			case "status":
-				return ec.fieldContext_Team_status(ctx, field)
-			case "resourceInventory":
-				return ec.fieldContext_Team_resourceInventory(ctx, field)
-			case "sqlInstance":
-				return ec.fieldContext_Team_sqlInstance(ctx, field)
-			case "sqlInstances":
-				return ec.fieldContext_Team_sqlInstances(ctx, field)
-			case "bucket":
-				return ec.fieldContext_Team_bucket(ctx, field)
-			case "buckets":
-				return ec.fieldContext_Team_buckets(ctx, field)
-			case "redisInstance":
-				return ec.fieldContext_Team_redisInstance(ctx, field)
-			case "redis":
-				return ec.fieldContext_Team_redis(ctx, field)
-			case "openSearchInstance":
-				return ec.fieldContext_Team_openSearchInstance(ctx, field)
-			case "openSearch":
-				return ec.fieldContext_Team_openSearch(ctx, field)
-			case "kafkaTopic":
-				return ec.fieldContext_Team_kafkaTopic(ctx, field)
-			case "kafkaTopics":
-				return ec.fieldContext_Team_kafkaTopics(ctx, field)
-			case "bigQuery":
-				return ec.fieldContext_Team_bigQuery(ctx, field)
-			case "bigQueryDataset":
-				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
-			case "apps":
-				return ec.fieldContext_Team_apps(ctx, field)
-			case "deployKey":
-				return ec.fieldContext_Team_deployKey(ctx, field)
-			case "naisjobs":
-				return ec.fieldContext_Team_naisjobs(ctx, field)
-			case "deployments":
-				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
-			case "vulnerabilitiesSummary":
-				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "secrets":
-				return ec.fieldContext_Team_secrets(ctx, field)
-			case "secret":
-				return ec.fieldContext_Team_secret(ctx, field)
-			case "environments":
-				return ec.fieldContext_Team_environments(ctx, field)
-			case "unleash":
-				return ec.fieldContext_Team_unleash(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
-			case "appsUtilization":
-				return ec.fieldContext_Team_appsUtilization(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateTeam_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -53033,8 +52365,6 @@ func (ec *executionContext) fieldContext_Team_member(ctx context.Context, field 
 				return ec.fieldContext_TeamMember_user(ctx, field)
 			case "role":
 				return ec.fieldContext_TeamMember_role(ctx, field)
-			case "reconcilers":
-				return ec.fieldContext_TeamMember_reconcilers(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamMember", field.Name)
 		},
@@ -55599,56 +54929,6 @@ func (ec *executionContext) fieldContext_TeamMember_role(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMember_reconcilers(ctx context.Context, field graphql.CollectedField, obj *model.TeamMember) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMember_reconcilers(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TeamMember().Reconcilers(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.TeamMemberReconciler)
-	fc.Result = res
-	return ec.marshalNTeamMemberReconciler2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMemberReconcilerᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMember_reconcilers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMember",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "reconciler":
-				return ec.fieldContext_TeamMemberReconciler_reconciler(ctx, field)
-			case "enabled":
-				return ec.fieldContext_TeamMemberReconciler_enabled(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamMemberReconciler", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _TeamMemberList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.TeamMemberList) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamMemberList_nodes(ctx, field)
 	if err != nil {
@@ -55694,8 +54974,6 @@ func (ec *executionContext) fieldContext_TeamMemberList_nodes(_ context.Context,
 				return ec.fieldContext_TeamMember_user(ctx, field)
 			case "role":
 				return ec.fieldContext_TeamMember_role(ctx, field)
-			case "reconcilers":
-				return ec.fieldContext_TeamMember_reconcilers(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamMember", field.Name)
 		},
@@ -55750,114 +55028,6 @@ func (ec *executionContext) fieldContext_TeamMemberList_pageInfo(_ context.Conte
 				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberReconciler_reconciler(ctx context.Context, field graphql.CollectedField, obj *model.TeamMemberReconciler) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberReconciler_reconciler(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TeamMemberReconciler().Reconciler(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Reconciler)
-	fc.Result = res
-	return ec.marshalNReconciler2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconciler(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberReconciler_reconciler(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberReconciler",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "name":
-				return ec.fieldContext_Reconciler_name(ctx, field)
-			case "displayName":
-				return ec.fieldContext_Reconciler_displayName(ctx, field)
-			case "description":
-				return ec.fieldContext_Reconciler_description(ctx, field)
-			case "enabled":
-				return ec.fieldContext_Reconciler_enabled(ctx, field)
-			case "memberAware":
-				return ec.fieldContext_Reconciler_memberAware(ctx, field)
-			case "config":
-				return ec.fieldContext_Reconciler_config(ctx, field)
-			case "configured":
-				return ec.fieldContext_Reconciler_configured(ctx, field)
-			case "auditLogs":
-				return ec.fieldContext_Reconciler_auditLogs(ctx, field)
-			case "errors":
-				return ec.fieldContext_Reconciler_errors(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Reconciler", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberReconciler_enabled(ctx context.Context, field graphql.CollectedField, obj *model.TeamMemberReconciler) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberReconciler_enabled(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Enabled, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberReconciler_enabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberReconciler",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -61646,7 +60816,7 @@ func (ec *executionContext) unmarshalInputTeamMemberInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"userId", "role", "reconcilerOptOuts"}
+	fieldsInOrder := [...]string{"userId", "role"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -61667,13 +60837,6 @@ func (ec *executionContext) unmarshalInputTeamMemberInput(ctx context.Context, o
 				return it, err
 			}
 			it.Role = data
-		case "reconcilerOptOuts":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reconcilerOptOuts"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ReconcilerOptOuts = data
 		}
 	}
 
@@ -61735,40 +60898,6 @@ func (ec *executionContext) unmarshalInputTeamsFilterGitHub(ctx context.Context,
 				return it, err
 			}
 			it.PermissionName = data
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputUpdateTeamInput(ctx context.Context, obj interface{}) (model.UpdateTeamInput, error) {
-	var it model.UpdateTeamInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"purpose", "slackChannel"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "purpose":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("purpose"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Purpose = data
-		case "slackChannel":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slackChannel"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.SlackChannel = data
 		}
 	}
 
@@ -69164,20 +68293,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "addReconcilerOptOut":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_addReconcilerOptOut(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "removeReconcilerOptOut":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_removeReconcilerOptOut(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "createSecret":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createSecret(ctx, field)
@@ -69195,13 +68310,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "deleteSecret":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteSecret(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "updateTeam":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateTeam(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -75164,42 +74272,6 @@ func (ec *executionContext) _TeamMember(ctx context.Context, sel ast.SelectionSe
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "reconcilers":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._TeamMember_reconcilers(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -75243,81 +74315,6 @@ func (ec *executionContext) _TeamMemberList(ctx context.Context, sel ast.Selecti
 			out.Values[i] = ec._TeamMemberList_pageInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var teamMemberReconcilerImplementors = []string{"TeamMemberReconciler"}
-
-func (ec *executionContext) _TeamMemberReconciler(ctx context.Context, sel ast.SelectionSet, obj *model.TeamMemberReconciler) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberReconcilerImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamMemberReconciler")
-		case "reconciler":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._TeamMemberReconciler_reconciler(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "enabled":
-			out.Values[i] = ec._TeamMemberReconciler_enabled(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -80878,60 +79875,6 @@ func (ec *executionContext) marshalNTeamMemberList2ᚖgithubᚗcomᚋnaisᚋapi�
 	return ec._TeamMemberList(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamMemberReconciler2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMemberReconcilerᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.TeamMemberReconciler) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNTeamMemberReconciler2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMemberReconciler(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNTeamMemberReconciler2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMemberReconciler(ctx context.Context, sel ast.SelectionSet, v *model.TeamMemberReconciler) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._TeamMemberReconciler(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalNTeamRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamRole(ctx context.Context, v interface{}) (model.TeamRole, error) {
 	var res model.TeamRole
 	err := res.UnmarshalGQL(v)
@@ -81055,11 +79998,6 @@ func (ec *executionContext) marshalNUnleash2ᚖgithubᚗcomᚋnaisᚋapiᚋinter
 
 func (ec *executionContext) marshalNUnleashMetrics2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleashMetrics(ctx context.Context, sel ast.SelectionSet, v model.UnleashMetrics) graphql.Marshaler {
 	return ec._UnleashMetrics(ctx, sel, &v)
-}
-
-func (ec *executionContext) unmarshalNUpdateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUpdateTeamInput(ctx context.Context, v interface{}) (model.UpdateTeamInput, error) {
-	res, err := ec.unmarshalInputUpdateTeamInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNUpdateTeamSlackAlertsChannelInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUpdateTeamSlackAlertsChannelInput(ctx context.Context, v interface{}) (model.UpdateTeamSlackAlertsChannelInput, error) {

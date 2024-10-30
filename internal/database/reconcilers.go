@@ -3,14 +3,11 @@ package database
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/nais/api/internal/database/gensql"
-	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/pkg/apiclient/protoapi"
 )
 
 type ReconcilerRepo interface {
-	AddReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName string) error
 	ConfigureReconciler(ctx context.Context, reconcilerName string, key string, value string) error
 	DeleteReconcilerConfig(ctx context.Context, reconcilerName string, keysToDelete []string) error
 	DisableReconciler(ctx context.Context, reconcilerName string) (*Reconciler, error)
@@ -19,7 +16,6 @@ type ReconcilerRepo interface {
 	GetReconciler(ctx context.Context, reconcilerName string) (*Reconciler, error)
 	GetReconcilerConfig(ctx context.Context, reconcilerName string, includeSecrets bool) ([]*ReconcilerConfig, error)
 	GetReconcilers(ctx context.Context, p Page) ([]*Reconciler, int, error)
-	RemoveReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName string) error
 	ResetReconcilerConfig(ctx context.Context, reconcilerName string) (*Reconciler, error)
 	SyncReconcilerConfig(ctx context.Context, reconcilerName string, configs []*protoapi.ReconcilerConfigSpec) error
 	UpsertReconciler(ctx context.Context, name, displayName, description string, memberAware, enableIfNew bool) (*Reconciler, error)
@@ -130,22 +126,6 @@ func (d *database) DisableReconciler(ctx context.Context, reconcilerName string)
 	}
 
 	return &Reconciler{Reconciler: reconciler}, nil
-}
-
-func (d *database) AddReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName string) error {
-	return d.querier.AddReconcilerOptOut(ctx, gensql.AddReconcilerOptOutParams{
-		TeamSlug:       teamSlug,
-		UserID:         userID,
-		ReconcilerName: reconcilerName,
-	})
-}
-
-func (d *database) RemoveReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName string) error {
-	return d.querier.RemoveReconcilerOptOut(ctx, gensql.RemoveReconcilerOptOutParams{
-		TeamSlug:       teamSlug,
-		UserID:         userID,
-		ReconcilerName: reconcilerName,
-	})
 }
 
 func (d *database) UpsertReconciler(ctx context.Context, name, displayName, description string, memberAware, enableIfNew bool) (*Reconciler, error) {

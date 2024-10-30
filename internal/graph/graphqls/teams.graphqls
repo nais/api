@@ -20,21 +20,6 @@ extend type Query {
 
 extend type Mutation {
   """
-  Update an existing team
-
-  This mutation can be used to update the team purpose. It is not possible to update the team slug.
-
-  The updated team will be returned on success.
-  """
-  updateTeam(
-    "Slug of the team to update."
-    slug: Slug!
-
-    "Input for updating the team."
-    input: UpdateTeamInput!
-  ): Team! @auth
-
-  """
   Update an existing team's Slack alerts channel
 
   The updated team will be returned on success.
@@ -544,18 +529,6 @@ type TeamMember {
 
   "The role that the user has in the team."
   role: TeamRole!
-
-  "Reconcilers for this member in this team."
-  reconcilers: [TeamMemberReconciler!]!
-}
-
-"Team member reconcilers."
-type TeamMemberReconciler {
-  "The reconciler."
-  reconciler: Reconciler!
-
-  "Whether or not the reconciler is enabled for the team member."
-  enabled: Boolean!
 }
 
 "Team status."
@@ -622,15 +595,6 @@ input TeamsFilterGitHub {
   permissionName: String!
 }
 
-"Input for updating an existing team."
-input UpdateTeamInput {
-  "Specify team purpose to update the existing value."
-  purpose: String
-
-  "Specify the Slack channel to update the existing value."
-  slackChannel: String
-}
-
 "Slack alerts channel input."
 input UpdateTeamSlackAlertsChannelInput {
   "The environment for the alerts sent to the channel."
@@ -647,9 +611,6 @@ input TeamMemberInput {
 
   "The role that the user will receive."
   role: TeamRole!
-
-  "Reconcilers to opt the team member out of."
-  reconcilerOptOuts: [String!]
 }
 
 "Available team roles."

@@ -11,7 +11,6 @@ import (
 )
 
 type Querier interface {
-	AddReconcilerOptOut(ctx context.Context, arg AddReconcilerOptOutParams) error
 	AddTeamRepository(ctx context.Context, arg AddTeamRepositoryParams) error
 	AssignGlobalRoleToServiceAccount(ctx context.Context, arg AssignGlobalRoleToServiceAccountParams) error
 	AssignGlobalRoleToUser(ctx context.Context, arg AssignGlobalRoleToUserParams) error
@@ -91,8 +90,6 @@ type Querier interface {
 	GetTeamEnvironmentsCount(ctx context.Context, teamSlug slug.Slug) (int64, error)
 	// GetTeamMember returns a specific team member of a non-deleted team.
 	GetTeamMember(ctx context.Context, arg GetTeamMemberParams) (*User, error)
-	// GetTeamMemberOptOuts returns a slice of team member opt-outs.
-	GetTeamMemberOptOuts(ctx context.Context, arg GetTeamMemberOptOutsParams) ([]*GetTeamMemberOptOutsRow, error)
 	// GetTeamMembers returns a slice of team members of a non-deleted team.
 	GetTeamMembers(ctx context.Context, arg GetTeamMembersParams) ([]*User, error)
 	// GetTeamMembersCount returns the total number of team members of a non-deleted team.
@@ -128,7 +125,6 @@ type Querier interface {
 	RefreshCostMonthlyTeam(ctx context.Context) error
 	RemoveAllServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
-	RemoveReconcilerOptOut(ctx context.Context, arg RemoveReconcilerOptOutParams) error
 	RemoveTeamRepository(ctx context.Context, arg RemoveTeamRepositoryParams) error
 	// RemoveUserFromTeam removes a user from a team.
 	RemoveUserFromTeam(ctx context.Context, arg RemoveUserFromTeamParams) error
@@ -141,8 +137,6 @@ type Querier interface {
 	SetTeamDeleteKeyConfirmedAt(ctx context.Context, argSlug slug.Slug) error
 	// TeamExists checks if a team exists. Deleted teams are not considered.
 	TeamExists(ctx context.Context, argSlug slug.Slug) (bool, error)
-	// UpdateTeam updates the purpose and slack channel of a non-deleted team.
-	UpdateTeam(ctx context.Context, arg UpdateTeamParams) (*Team, error)
 	// UpdateTeamExternalReferences updates the external references of a non-deleted team.
 	UpdateTeamExternalReferences(ctx context.Context, arg UpdateTeamExternalReferencesParams) (*Team, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (*User, error)

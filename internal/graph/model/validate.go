@@ -10,18 +10,6 @@ import (
 // Rules can be found here: https://api.slack.com/methods/conversations.create#naming
 var slackChannelNameRegex = regexp.MustCompile("^#[a-z0-9æøå_-]{2,80}$")
 
-func (input UpdateTeamInput) Validate() error {
-	if input.Purpose != nil && *input.Purpose == "" {
-		return apierror.ErrTeamPurpose
-	}
-
-	if input.SlackChannel != nil && !slackChannelNameRegex.MatchString(*input.SlackChannel) {
-		return slackChannelError(*input.SlackChannel)
-	}
-
-	return nil
-}
-
 func (input UpdateTeamSlackAlertsChannelInput) Validate(validEnvironments []string) error {
 	validEnvironment := func(env string) bool {
 		for _, environment := range validEnvironments {

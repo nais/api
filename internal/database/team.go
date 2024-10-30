@@ -3,10 +3,11 @@ package database
 import (
 	"context"
 	"encoding/json"
+	"sort"
+
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
-	"sort"
 )
 
 type gitHubState struct {
@@ -33,7 +34,6 @@ type TeamRepo interface {
 	GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, p Page) ([]*TeamEnvironment, int, error)
 	GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, keys []EnvSlugName) ([]*TeamEnvironment, error)
 	GetTeamMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*User, error)
-	GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*gensql.GetTeamMemberOptOutsRow, error)
 	GetTeamMembers(ctx context.Context, teamSlug slug.Slug, p Page) ([]*User, int, error)
 	// GetTeams returns active teams, as well as teams that have been marked for deletion.
 	GetTeams(ctx context.Context, p Page) ([]*Team, int, error)
@@ -44,7 +44,6 @@ type TeamRepo interface {
 	RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error
 	SetLastSuccessfulSyncForTeam(ctx context.Context, teamSlug slug.Slug) error
 	TeamExists(ctx context.Context, team slug.Slug) (bool, error)
-	UpdateTeam(ctx context.Context, teamSlug slug.Slug, purpose, slackChannel *string) (*Team, error)
 	UpdateTeamExternalReferences(ctx context.Context, params gensql.UpdateTeamExternalReferencesParams) (*Team, error)
 	UpsertTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel, gcpProjectID *string) error
 }
@@ -75,19 +74,6 @@ func (d *database) RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, tea
 		UserID:   userID,
 		TeamSlug: teamSlug,
 	})
-}
-
-func (d *database) UpdateTeam(ctx context.Context, teamSlug slug.Slug, purpose, slackChannel *string) (*Team, error) {
-	team, err := d.querier.UpdateTeam(ctx, gensql.UpdateTeamParams{
-		Purpose:      purpose,
-		SlackChannel: slackChannel,
-		Slug:         teamSlug,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return &Team{Team: team}, nil
 }
 
 func (d *database) UpdateTeamExternalReferences(ctx context.Context, params gensql.UpdateTeamExternalReferencesParams) (*Team, error) {
@@ -262,13 +248,6 @@ func (d *database) SetLastSuccessfulSyncForTeam(ctx context.Context, teamSlug sl
 
 func (d *database) DeleteTeam(ctx context.Context, teamSlug slug.Slug) error {
 	return d.querier.DeleteTeam(ctx, teamSlug)
-}
-
-func (d *database) GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*gensql.GetTeamMemberOptOutsRow, error) {
-	return d.querier.GetTeamMemberOptOuts(ctx, gensql.GetTeamMemberOptOutsParams{
-		UserID:   userID,
-		TeamSlug: teamSlug,
-	})
 }
 
 func (d *database) GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, keys []EnvSlugName) ([]*TeamEnvironment, error) {

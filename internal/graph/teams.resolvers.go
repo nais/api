@@ -38,49 +38,6 @@ func (r *appUtilizationDataResolver) App(ctx context.Context, obj *model.AppUtil
 	return app, nil
 }
 
-func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input model.UpdateTeamInput) (*model.Team, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMetadataUpdate, slug)
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err := loader.GetTeam(ctx, slug); err != nil {
-		return nil, err
-	}
-
-	input = input.Sanitize()
-	err = input.Validate()
-	if err != nil {
-		return nil, err
-	}
-
-	correlationID := uuid.New()
-	var team *database.Team
-	team, err = r.database.UpdateTeam(ctx, slug, input.Purpose, input.SlackChannel)
-	if err != nil {
-		return nil, err
-	}
-
-	if input.Purpose != nil {
-		err = r.auditor.TeamSetPurpose(ctx, actor.User, slug, *input.Purpose)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if input.SlackChannel != nil {
-		err = r.auditor.TeamSetDefaultSlackChannel(ctx, actor.User, slug, *input.SlackChannel)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
-
-	return loader.ToGraphTeam(team), nil
-}
-
 func (r *mutationResolver) UpdateTeamSlackAlertsChannel(ctx context.Context, slug slug.Slug, input model.UpdateTeamSlackAlertsChannelInput) (*model.Team, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMetadataUpdate, slug)
@@ -275,13 +232,6 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 		err = dbtx.SetTeamMemberRole(ctx, user.ID, team.Slug, role)
 		if err != nil {
 			return err
-		}
-
-		for _, reconcilerName := range member.ReconcilerOptOuts {
-			err = dbtx.AddReconcilerOptOut(ctx, user.ID, team.Slug, reconcilerName)
-			if err != nil {
-				return err
-			}
 		}
 
 		return nil
@@ -1570,28 +1520,6 @@ func (r *teamMemberResolver) Role(ctx context.Context, obj *model.TeamMember) (m
 	return role, nil
 }
 
-func (r *teamMemberResolver) Reconcilers(ctx context.Context, obj *model.TeamMember) ([]*model.TeamMemberReconciler, error) {
-	uid, err := obj.UserID.AsUUID()
-	if err != nil {
-		return nil, err
-	}
-
-	rows, err := r.database.GetTeamMemberOptOuts(ctx, uid, obj.TeamSlug)
-	if err != nil {
-		return nil, err
-	}
-	return toGraphTeamMemberReconcilers(rows), nil
-}
-
-func (r *teamMemberReconcilerResolver) Reconciler(ctx context.Context, obj *model.TeamMemberReconciler) (*model.Reconciler, error) {
-	reconciler, err := r.database.GetReconciler(ctx, obj.GQLVars.Name)
-	if err != nil {
-		return nil, err
-	}
-
-	return toGraphReconciler(reconciler), nil
-}
-
 func (r *teamUtilizationDataResolver) Team(ctx context.Context, obj *model.TeamUtilizationData) (*model.Team, error) {
 	r.log.Infof("first teamUtilizationDataResolver.Team: %v", obj.TeamSlug)
 
@@ -1621,18 +1549,13 @@ func (r *Resolver) Team() gengql.TeamResolver { return &teamResolver{r} }
 
 func (r *Resolver) TeamMember() gengql.TeamMemberResolver { return &teamMemberResolver{r} }
 
-func (r *Resolver) TeamMemberReconciler() gengql.TeamMemberReconcilerResolver {
-	return &teamMemberReconcilerResolver{r}
-}
-
 func (r *Resolver) TeamUtilizationData() gengql.TeamUtilizationDataResolver {
 	return &teamUtilizationDataResolver{r}
 }
 
 type (
-	appUtilizationDataResolver   struct{ *Resolver }
-	teamResolver                 struct{ *Resolver }
-	teamMemberResolver           struct{ *Resolver }
-	teamMemberReconcilerResolver struct{ *Resolver }
-	teamUtilizationDataResolver  struct{ *Resolver }
+	appUtilizationDataResolver  struct{ *Resolver }
+	teamResolver                struct{ *Resolver }
+	teamMemberResolver          struct{ *Resolver }
+	teamUtilizationDataResolver struct{ *Resolver }
 )

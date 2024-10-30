@@ -886,8 +886,6 @@ type TeamMemberInput struct {
 	UserID scalar.Ident `json:"userId"`
 	// The role that the user will receive.
 	Role TeamRole `json:"role"`
-	// Reconcilers to opt the team member out of.
-	ReconcilerOptOuts []string `json:"reconcilerOptOuts,omitempty"`
 }
 
 type TeamMemberList struct {
@@ -920,14 +918,6 @@ type TokenX struct {
 }
 
 func (TokenX) IsAuthz() {}
-
-// Input for updating an existing team.
-type UpdateTeamInput struct {
-	// Specify team purpose to update the existing value.
-	Purpose *string `json:"purpose,omitempty"`
-	// Specify the Slack channel to update the existing value.
-	SlackChannel *string `json:"slackChannel,omitempty"`
-}
 
 // Slack alerts channel input.
 type UpdateTeamSlackAlertsChannelInput struct {

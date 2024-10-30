@@ -38,55 +38,6 @@ func (_m *MockDatabase) EXPECT() *MockDatabase_Expecter {
 	return &MockDatabase_Expecter{mock: &_m.Mock}
 }
 
-// AddReconcilerOptOut provides a mock function with given fields: ctx, userID, teamSlug, reconcilerName
-func (_m *MockDatabase) AddReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName string) error {
-	ret := _m.Called(ctx, userID, teamSlug, reconcilerName)
-
-	if len(ret) == 0 {
-		panic("no return value specified for AddReconcilerOptOut")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, slug.Slug, string) error); ok {
-		r0 = rf(ctx, userID, teamSlug, reconcilerName)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockDatabase_AddReconcilerOptOut_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddReconcilerOptOut'
-type MockDatabase_AddReconcilerOptOut_Call struct {
-	*mock.Call
-}
-
-// AddReconcilerOptOut is a helper method to define mock.On call
-//   - ctx context.Context
-//   - userID uuid.UUID
-//   - teamSlug slug.Slug
-//   - reconcilerName string
-func (_e *MockDatabase_Expecter) AddReconcilerOptOut(ctx interface{}, userID interface{}, teamSlug interface{}, reconcilerName interface{}) *MockDatabase_AddReconcilerOptOut_Call {
-	return &MockDatabase_AddReconcilerOptOut_Call{Call: _e.mock.On("AddReconcilerOptOut", ctx, userID, teamSlug, reconcilerName)}
-}
-
-func (_c *MockDatabase_AddReconcilerOptOut_Call) Run(run func(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName string)) *MockDatabase_AddReconcilerOptOut_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(slug.Slug), args[3].(string))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_AddReconcilerOptOut_Call) Return(_a0 error) *MockDatabase_AddReconcilerOptOut_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockDatabase_AddReconcilerOptOut_Call) RunAndReturn(run func(context.Context, uuid.UUID, slug.Slug, string) error) *MockDatabase_AddReconcilerOptOut_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // AddTeamRepository provides a mock function with given fields: ctx, teamSlug, repoName
 func (_m *MockDatabase) AddTeamRepository(ctx context.Context, teamSlug slug.Slug, repoName string) error {
 	ret := _m.Called(ctx, teamSlug, repoName)
@@ -3365,66 +3316,6 @@ func (_c *MockDatabase_GetTeamMember_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
-// GetTeamMemberOptOuts provides a mock function with given fields: ctx, userID, teamSlug
-func (_m *MockDatabase) GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*gensql.GetTeamMemberOptOutsRow, error) {
-	ret := _m.Called(ctx, userID, teamSlug)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetTeamMemberOptOuts")
-	}
-
-	var r0 []*gensql.GetTeamMemberOptOutsRow
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, slug.Slug) ([]*gensql.GetTeamMemberOptOutsRow, error)); ok {
-		return rf(ctx, userID, teamSlug)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, slug.Slug) []*gensql.GetTeamMemberOptOutsRow); ok {
-		r0 = rf(ctx, userID, teamSlug)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*gensql.GetTeamMemberOptOutsRow)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, slug.Slug) error); ok {
-		r1 = rf(ctx, userID, teamSlug)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockDatabase_GetTeamMemberOptOuts_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamMemberOptOuts'
-type MockDatabase_GetTeamMemberOptOuts_Call struct {
-	*mock.Call
-}
-
-// GetTeamMemberOptOuts is a helper method to define mock.On call
-//   - ctx context.Context
-//   - userID uuid.UUID
-//   - teamSlug slug.Slug
-func (_e *MockDatabase_Expecter) GetTeamMemberOptOuts(ctx interface{}, userID interface{}, teamSlug interface{}) *MockDatabase_GetTeamMemberOptOuts_Call {
-	return &MockDatabase_GetTeamMemberOptOuts_Call{Call: _e.mock.On("GetTeamMemberOptOuts", ctx, userID, teamSlug)}
-}
-
-func (_c *MockDatabase_GetTeamMemberOptOuts_Call) Run(run func(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug)) *MockDatabase_GetTeamMemberOptOuts_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(slug.Slug))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_GetTeamMemberOptOuts_Call) Return(_a0 []*gensql.GetTeamMemberOptOutsRow, _a1 error) *MockDatabase_GetTeamMemberOptOuts_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockDatabase_GetTeamMemberOptOuts_Call) RunAndReturn(run func(context.Context, uuid.UUID, slug.Slug) ([]*gensql.GetTeamMemberOptOutsRow, error)) *MockDatabase_GetTeamMemberOptOuts_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetTeamMembers provides a mock function with given fields: ctx, teamSlug, p
 func (_m *MockDatabase) GetTeamMembers(ctx context.Context, teamSlug slug.Slug, p Page) ([]*User, int, error) {
 	ret := _m.Called(ctx, teamSlug, p)
@@ -4782,55 +4673,6 @@ func (_c *MockDatabase_RemoveApiKeysFromServiceAccount_Call) RunAndReturn(run fu
 	return _c
 }
 
-// RemoveReconcilerOptOut provides a mock function with given fields: ctx, userID, teamSlug, reconcilerName
-func (_m *MockDatabase) RemoveReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName string) error {
-	ret := _m.Called(ctx, userID, teamSlug, reconcilerName)
-
-	if len(ret) == 0 {
-		panic("no return value specified for RemoveReconcilerOptOut")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, slug.Slug, string) error); ok {
-		r0 = rf(ctx, userID, teamSlug, reconcilerName)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockDatabase_RemoveReconcilerOptOut_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveReconcilerOptOut'
-type MockDatabase_RemoveReconcilerOptOut_Call struct {
-	*mock.Call
-}
-
-// RemoveReconcilerOptOut is a helper method to define mock.On call
-//   - ctx context.Context
-//   - userID uuid.UUID
-//   - teamSlug slug.Slug
-//   - reconcilerName string
-func (_e *MockDatabase_Expecter) RemoveReconcilerOptOut(ctx interface{}, userID interface{}, teamSlug interface{}, reconcilerName interface{}) *MockDatabase_RemoveReconcilerOptOut_Call {
-	return &MockDatabase_RemoveReconcilerOptOut_Call{Call: _e.mock.On("RemoveReconcilerOptOut", ctx, userID, teamSlug, reconcilerName)}
-}
-
-func (_c *MockDatabase_RemoveReconcilerOptOut_Call) Run(run func(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName string)) *MockDatabase_RemoveReconcilerOptOut_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(slug.Slug), args[3].(string))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_RemoveReconcilerOptOut_Call) Return(_a0 error) *MockDatabase_RemoveReconcilerOptOut_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockDatabase_RemoveReconcilerOptOut_Call) RunAndReturn(run func(context.Context, uuid.UUID, slug.Slug, string) error) *MockDatabase_RemoveReconcilerOptOut_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // RemoveTeamRepository provides a mock function with given fields: ctx, teamSlug, repoName
 func (_m *MockDatabase) RemoveTeamRepository(ctx context.Context, teamSlug slug.Slug, repoName string) error {
 	ret := _m.Called(ctx, teamSlug, repoName)
@@ -5375,67 +5217,6 @@ func (_c *MockDatabase_Transaction_Call) Return(_a0 error) *MockDatabase_Transac
 }
 
 func (_c *MockDatabase_Transaction_Call) RunAndReturn(run func(context.Context, DatabaseTransactionFunc) error) *MockDatabase_Transaction_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UpdateTeam provides a mock function with given fields: ctx, teamSlug, purpose, slackChannel
-func (_m *MockDatabase) UpdateTeam(ctx context.Context, teamSlug slug.Slug, purpose *string, slackChannel *string) (*Team, error) {
-	ret := _m.Called(ctx, teamSlug, purpose, slackChannel)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateTeam")
-	}
-
-	var r0 *Team
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, *string, *string) (*Team, error)); ok {
-		return rf(ctx, teamSlug, purpose, slackChannel)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, *string, *string) *Team); ok {
-		r0 = rf(ctx, teamSlug, purpose, slackChannel)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*Team)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, *string, *string) error); ok {
-		r1 = rf(ctx, teamSlug, purpose, slackChannel)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockDatabase_UpdateTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateTeam'
-type MockDatabase_UpdateTeam_Call struct {
-	*mock.Call
-}
-
-// UpdateTeam is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - purpose *string
-//   - slackChannel *string
-func (_e *MockDatabase_Expecter) UpdateTeam(ctx interface{}, teamSlug interface{}, purpose interface{}, slackChannel interface{}) *MockDatabase_UpdateTeam_Call {
-	return &MockDatabase_UpdateTeam_Call{Call: _e.mock.On("UpdateTeam", ctx, teamSlug, purpose, slackChannel)}
-}
-
-func (_c *MockDatabase_UpdateTeam_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, purpose *string, slackChannel *string)) *MockDatabase_UpdateTeam_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(*string), args[3].(*string))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_UpdateTeam_Call) Return(_a0 *Team, _a1 error) *MockDatabase_UpdateTeam_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockDatabase_UpdateTeam_Call) RunAndReturn(run func(context.Context, slug.Slug, *string, *string) (*Team, error)) *MockDatabase_UpdateTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }

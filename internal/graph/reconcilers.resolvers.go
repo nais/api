@@ -16,7 +16,6 @@ import (
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
-	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/pkg/apiclient/protoapi"
 )
 
@@ -199,71 +198,6 @@ func (r *mutationResolver) ResetReconciler(ctx context.Context, name string) (*m
 	r.auditLogger.Logf(ctx, targets, fields, "Reset reconciler: %q", name)
 
 	return toGraphReconciler(reconciler), nil
-}
-
-func (r *mutationResolver) AddReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler string) (*model.TeamMember, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMembersAdmin, teamSlug)
-	if err != nil {
-		return nil, err
-	}
-
-	team, err := r.database.GetTeamBySlug(ctx, teamSlug)
-	if err != nil {
-		return nil, apierror.ErrTeamNotExist
-	}
-
-	uuid, err := userID.AsUUID()
-	if err != nil {
-		return nil, err
-	}
-
-	user, err := r.database.GetTeamMember(ctx, teamSlug, uuid)
-	if err != nil {
-		return nil, apierror.ErrUserIsNotTeamMember
-	}
-
-	err = r.database.AddReconcilerOptOut(ctx, uuid, teamSlug, reconciler)
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.TeamMember{
-		TeamSlug: team.Slug,
-		UserID:   scalar.UserIdent(user.ID),
-	}, nil
-}
-
-func (r *mutationResolver) RemoveReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler string) (*model.TeamMember, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMembersAdmin, teamSlug)
-	if err != nil {
-		return nil, err
-	}
-
-	team, err := r.database.GetTeamBySlug(ctx, teamSlug)
-	if err != nil {
-		return nil, apierror.ErrTeamNotExist
-	}
-
-	uuid, err := userID.AsUUID()
-	if err != nil {
-		return nil, err
-	}
-	user, err := r.database.GetTeamMember(ctx, teamSlug, uuid)
-	if err != nil {
-		return nil, apierror.ErrUserIsNotTeamMember
-	}
-
-	err = r.database.RemoveReconcilerOptOut(ctx, uuid, teamSlug, reconciler)
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.TeamMember{
-		TeamSlug: team.Slug,
-		UserID:   scalar.UserIdent(user.ID),
-	}, nil
 }
 
 func (r *queryResolver) Reconcilers(ctx context.Context, offset *int, limit *int) (*model.ReconcilerList, error) {

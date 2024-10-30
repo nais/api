@@ -116,16 +116,6 @@ WHERE
     AND users.id = @user_id
 ORDER BY users.name ASC;
 
--- UpdateTeam updates the purpose and slack channel of a non-deleted team.
--- name: UpdateTeam :one
-UPDATE teams
-SET
-    purpose = COALESCE(sqlc.narg(purpose), purpose),
-    slack_channel = COALESCE(sqlc.narg(slack_channel), slack_channel)
-WHERE
-    teams.slug = @slug
-RETURNING *;
-
 -- UpdateTeamExternalReferences updates the external references of a non-deleted team.
 -- name: UpdateTeamExternalReferences :one
 UPDATE teams
@@ -158,22 +148,6 @@ DELETE FROM teams
 WHERE
     slug = @slug
     AND delete_key_confirmed_at IS NOT NULL;
-
--- GetTeamMemberOptOuts returns a slice of team member opt-outs.
--- name: GetTeamMemberOptOuts :many
-SELECT
-    name,
-    NOT EXISTS(
-        SELECT reconciler_name
-        FROM reconciler_opt_outs
-        WHERE
-            reconciler_opt_outs.user_id = @user_id
-            AND reconciler_opt_outs.team_slug = @team_slug
-            AND reconciler_opt_outs.reconciler_name = reconcilers.name
-    ) AS enabled
-FROM reconcilers
-WHERE enabled = true
-ORDER BY name ASC;
 
 -- TeamExists checks if a team exists. Deleted teams are not considered.
 -- name: TeamExists :one

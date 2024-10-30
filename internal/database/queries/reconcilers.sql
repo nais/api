@@ -50,14 +50,6 @@ LEFT JOIN reconciler_config rc2 ON rc2.reconciler = rc.reconciler AND rc2.key = 
 WHERE rc.reconciler = @reconciler_name
 ORDER BY rc.display_name ASC;
 
--- name: AddReconcilerOptOut :exec
-INSERT INTO reconciler_opt_outs (team_slug, user_id, reconciler_name)
-VALUES (@team_slug, @user_id, @reconciler_name) ON CONFLICT DO NOTHING;
-
--- name: RemoveReconcilerOptOut :exec
-DELETE FROM reconciler_opt_outs
-WHERE team_slug = @team_slug AND user_id = @user_id AND reconciler_name = @reconciler_name;
-
 -- name: UpsertReconciler :one
 INSERT INTO reconcilers (name, display_name, description, member_aware, enabled)
 VALUES (@name, @display_name, @description, @member_aware, @enabled_if_new)

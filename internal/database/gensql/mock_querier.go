@@ -26,53 +26,6 @@ func (_m *MockQuerier) EXPECT() *MockQuerier_Expecter {
 	return &MockQuerier_Expecter{mock: &_m.Mock}
 }
 
-// AddReconcilerOptOut provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) AddReconcilerOptOut(ctx context.Context, arg AddReconcilerOptOutParams) error {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for AddReconcilerOptOut")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, AddReconcilerOptOutParams) error); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockQuerier_AddReconcilerOptOut_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddReconcilerOptOut'
-type MockQuerier_AddReconcilerOptOut_Call struct {
-	*mock.Call
-}
-
-// AddReconcilerOptOut is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg AddReconcilerOptOutParams
-func (_e *MockQuerier_Expecter) AddReconcilerOptOut(ctx interface{}, arg interface{}) *MockQuerier_AddReconcilerOptOut_Call {
-	return &MockQuerier_AddReconcilerOptOut_Call{Call: _e.mock.On("AddReconcilerOptOut", ctx, arg)}
-}
-
-func (_c *MockQuerier_AddReconcilerOptOut_Call) Run(run func(ctx context.Context, arg AddReconcilerOptOutParams)) *MockQuerier_AddReconcilerOptOut_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(AddReconcilerOptOutParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_AddReconcilerOptOut_Call) Return(_a0 error) *MockQuerier_AddReconcilerOptOut_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockQuerier_AddReconcilerOptOut_Call) RunAndReturn(run func(context.Context, AddReconcilerOptOutParams) error) *MockQuerier_AddReconcilerOptOut_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // AddTeamRepository provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) AddTeamRepository(ctx context.Context, arg AddTeamRepositoryParams) error {
 	ret := _m.Called(ctx, arg)
@@ -3535,65 +3488,6 @@ func (_c *MockQuerier_GetTeamMember_Call) RunAndReturn(run func(context.Context,
 	return _c
 }
 
-// GetTeamMemberOptOuts provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) GetTeamMemberOptOuts(ctx context.Context, arg GetTeamMemberOptOutsParams) ([]*GetTeamMemberOptOutsRow, error) {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetTeamMemberOptOuts")
-	}
-
-	var r0 []*GetTeamMemberOptOutsRow
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, GetTeamMemberOptOutsParams) ([]*GetTeamMemberOptOutsRow, error)); ok {
-		return rf(ctx, arg)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, GetTeamMemberOptOutsParams) []*GetTeamMemberOptOutsRow); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*GetTeamMemberOptOutsRow)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, GetTeamMemberOptOutsParams) error); ok {
-		r1 = rf(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_GetTeamMemberOptOuts_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamMemberOptOuts'
-type MockQuerier_GetTeamMemberOptOuts_Call struct {
-	*mock.Call
-}
-
-// GetTeamMemberOptOuts is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg GetTeamMemberOptOutsParams
-func (_e *MockQuerier_Expecter) GetTeamMemberOptOuts(ctx interface{}, arg interface{}) *MockQuerier_GetTeamMemberOptOuts_Call {
-	return &MockQuerier_GetTeamMemberOptOuts_Call{Call: _e.mock.On("GetTeamMemberOptOuts", ctx, arg)}
-}
-
-func (_c *MockQuerier_GetTeamMemberOptOuts_Call) Run(run func(ctx context.Context, arg GetTeamMemberOptOutsParams)) *MockQuerier_GetTeamMemberOptOuts_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(GetTeamMemberOptOutsParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_GetTeamMemberOptOuts_Call) Return(_a0 []*GetTeamMemberOptOutsRow, _a1 error) *MockQuerier_GetTeamMemberOptOuts_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_GetTeamMemberOptOuts_Call) RunAndReturn(run func(context.Context, GetTeamMemberOptOutsParams) ([]*GetTeamMemberOptOutsRow, error)) *MockQuerier_GetTeamMemberOptOuts_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetTeamMembers provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) GetTeamMembers(ctx context.Context, arg GetTeamMembersParams) ([]*User, error) {
 	ret := _m.Called(ctx, arg)
@@ -5238,53 +5132,6 @@ func (_c *MockQuerier_RemoveApiKeysFromServiceAccount_Call) RunAndReturn(run fun
 	return _c
 }
 
-// RemoveReconcilerOptOut provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) RemoveReconcilerOptOut(ctx context.Context, arg RemoveReconcilerOptOutParams) error {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for RemoveReconcilerOptOut")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, RemoveReconcilerOptOutParams) error); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockQuerier_RemoveReconcilerOptOut_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveReconcilerOptOut'
-type MockQuerier_RemoveReconcilerOptOut_Call struct {
-	*mock.Call
-}
-
-// RemoveReconcilerOptOut is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg RemoveReconcilerOptOutParams
-func (_e *MockQuerier_Expecter) RemoveReconcilerOptOut(ctx interface{}, arg interface{}) *MockQuerier_RemoveReconcilerOptOut_Call {
-	return &MockQuerier_RemoveReconcilerOptOut_Call{Call: _e.mock.On("RemoveReconcilerOptOut", ctx, arg)}
-}
-
-func (_c *MockQuerier_RemoveReconcilerOptOut_Call) Run(run func(ctx context.Context, arg RemoveReconcilerOptOutParams)) *MockQuerier_RemoveReconcilerOptOut_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(RemoveReconcilerOptOutParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_RemoveReconcilerOptOut_Call) Return(_a0 error) *MockQuerier_RemoveReconcilerOptOut_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockQuerier_RemoveReconcilerOptOut_Call) RunAndReturn(run func(context.Context, RemoveReconcilerOptOutParams) error) *MockQuerier_RemoveReconcilerOptOut_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // RemoveTeamRepository provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) RemoveTeamRepository(ctx context.Context, arg RemoveTeamRepositoryParams) error {
 	ret := _m.Called(ctx, arg)
@@ -5726,65 +5573,6 @@ func (_c *MockQuerier_TeamExists_Call) Return(_a0 bool, _a1 error) *MockQuerier_
 }
 
 func (_c *MockQuerier_TeamExists_Call) RunAndReturn(run func(context.Context, slug.Slug) (bool, error)) *MockQuerier_TeamExists_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UpdateTeam provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) UpdateTeam(ctx context.Context, arg UpdateTeamParams) (*Team, error) {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateTeam")
-	}
-
-	var r0 *Team
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, UpdateTeamParams) (*Team, error)); ok {
-		return rf(ctx, arg)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, UpdateTeamParams) *Team); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*Team)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, UpdateTeamParams) error); ok {
-		r1 = rf(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_UpdateTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateTeam'
-type MockQuerier_UpdateTeam_Call struct {
-	*mock.Call
-}
-
-// UpdateTeam is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg UpdateTeamParams
-func (_e *MockQuerier_Expecter) UpdateTeam(ctx interface{}, arg interface{}) *MockQuerier_UpdateTeam_Call {
-	return &MockQuerier_UpdateTeam_Call{Call: _e.mock.On("UpdateTeam", ctx, arg)}
-}
-
-func (_c *MockQuerier_UpdateTeam_Call) Run(run func(ctx context.Context, arg UpdateTeamParams)) *MockQuerier_UpdateTeam_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(UpdateTeamParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_UpdateTeam_Call) Return(_a0 *Team, _a1 error) *MockQuerier_UpdateTeam_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_UpdateTeam_Call) RunAndReturn(run func(context.Context, UpdateTeamParams) (*Team, error)) *MockQuerier_UpdateTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }

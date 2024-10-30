@@ -247,53 +247,6 @@ func (q *Queries) GetTeamMember(ctx context.Context, arg GetTeamMemberParams) (*
 	return &i, err
 }
 
-const getTeamMemberOptOuts = `-- name: GetTeamMemberOptOuts :many
-SELECT
-    name,
-    NOT EXISTS(
-        SELECT reconciler_name
-        FROM reconciler_opt_outs
-        WHERE
-            reconciler_opt_outs.user_id = $1
-            AND reconciler_opt_outs.team_slug = $2
-            AND reconciler_opt_outs.reconciler_name = reconcilers.name
-    ) AS enabled
-FROM reconcilers
-WHERE enabled = true
-ORDER BY name ASC
-`
-
-type GetTeamMemberOptOutsParams struct {
-	UserID   uuid.UUID
-	TeamSlug slug.Slug
-}
-
-type GetTeamMemberOptOutsRow struct {
-	Name    string
-	Enabled bool
-}
-
-// GetTeamMemberOptOuts returns a slice of team member opt-outs.
-func (q *Queries) GetTeamMemberOptOuts(ctx context.Context, arg GetTeamMemberOptOutsParams) ([]*GetTeamMemberOptOutsRow, error) {
-	rows, err := q.db.Query(ctx, getTeamMemberOptOuts, arg.UserID, arg.TeamSlug)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []*GetTeamMemberOptOutsRow{}
-	for rows.Next() {
-		var i GetTeamMemberOptOutsRow
-		if err := rows.Scan(&i.Name, &i.Enabled); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getTeamMembers = `-- name: GetTeamMembers :many
 SELECT users.id, users.email, users.name, users.external_id
 FROM user_roles
@@ -503,41 +456,6 @@ func (q *Queries) TeamExists(ctx context.Context, argSlug slug.Slug) (bool, erro
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
-}
-
-const updateTeam = `-- name: UpdateTeam :one
-UPDATE teams
-SET
-    purpose = COALESCE($1, purpose),
-    slack_channel = COALESCE($2, slack_channel)
-WHERE
-    teams.slug = $3
-RETURNING slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
-`
-
-type UpdateTeamParams struct {
-	Purpose      *string
-	SlackChannel *string
-	Slug         slug.Slug
-}
-
-// UpdateTeam updates the purpose and slack channel of a non-deleted team.
-func (q *Queries) UpdateTeam(ctx context.Context, arg UpdateTeamParams) (*Team, error) {
-	row := q.db.QueryRow(ctx, updateTeam, arg.Purpose, arg.SlackChannel, arg.Slug)
-	var i Team
-	err := row.Scan(
-		&i.Slug,
-		&i.Purpose,
-		&i.LastSuccessfulSync,
-		&i.SlackChannel,
-		&i.GoogleGroupEmail,
-		&i.AzureGroupID,
-		&i.GithubTeamSlug,
-		&i.GarRepository,
-		&i.CdnBucket,
-		&i.DeleteKeyConfirmedAt,
-	)
-	return &i, err
 }
 
 const updateTeamExternalReferences = `-- name: UpdateTeamExternalReferences :one
