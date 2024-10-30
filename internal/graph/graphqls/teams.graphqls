@@ -23,19 +23,6 @@ extend type Query {
 
 extend type Mutation {
   """
-  Create a new team
-
-  The user creating the team will be granted team ownership, unless the user is a service account, in which case the
-  team will not get an initial owner. To add one or more owners to the team, refer to the `addTeamOwners` mutation.
-
-  The new team will be returned on success.
-  """
-  createTeam(
-    "Input for creation of the new team."
-    input: CreateTeamInput!
-  ): Team! @auth
-
-  """
   Update an existing team
 
   This mutation can be used to update the team purpose. It is not possible to update the team slug.
@@ -682,18 +669,6 @@ input TeamsFilterGitHub {
 
   "Filter repositories by permission name"
   permissionName: String!
-}
-
-"Input for creating a new team."
-input CreateTeamInput {
-  "Team slug. After creation, this value can not be changed."
-  slug: Slug!
-
-  "Team purpose."
-  purpose: String!
-
-  "Specify the Slack channel for the team."
-  slackChannel: String!
 }
 
 "Input for updating an existing team."

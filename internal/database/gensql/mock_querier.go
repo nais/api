@@ -871,65 +871,6 @@ func (_c *MockQuerier_CreateSession_Call) RunAndReturn(run func(context.Context,
 	return _c
 }
 
-// CreateTeam provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) CreateTeam(ctx context.Context, arg CreateTeamParams) (*Team, error) {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for CreateTeam")
-	}
-
-	var r0 *Team
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, CreateTeamParams) (*Team, error)); ok {
-		return rf(ctx, arg)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, CreateTeamParams) *Team); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*Team)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, CreateTeamParams) error); ok {
-		r1 = rf(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_CreateTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateTeam'
-type MockQuerier_CreateTeam_Call struct {
-	*mock.Call
-}
-
-// CreateTeam is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg CreateTeamParams
-func (_e *MockQuerier_Expecter) CreateTeam(ctx interface{}, arg interface{}) *MockQuerier_CreateTeam_Call {
-	return &MockQuerier_CreateTeam_Call{Call: _e.mock.On("CreateTeam", ctx, arg)}
-}
-
-func (_c *MockQuerier_CreateTeam_Call) Run(run func(ctx context.Context, arg CreateTeamParams)) *MockQuerier_CreateTeam_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(CreateTeamParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_CreateTeam_Call) Return(_a0 *Team, _a1 error) *MockQuerier_CreateTeam_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_CreateTeam_Call) RunAndReturn(run func(context.Context, CreateTeamParams) (*Team, error)) *MockQuerier_CreateTeam_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // CreateTeamDeleteKey provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) CreateTeamDeleteKey(ctx context.Context, arg CreateTeamDeleteKeyParams) (*TeamDeleteKey, error) {
 	ret := _m.Called(ctx, arg)

@@ -9,7 +9,6 @@ import (
 
 	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/nais/api/internal/audit"
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auditlogger/audittype"
@@ -38,53 +37,6 @@ func (r *appUtilizationDataResolver) App(ctx context.Context, obj *model.AppUtil
 	}
 
 	return app, nil
-}
-
-func (r *mutationResolver) CreateTeam(ctx context.Context, input model.CreateTeamInput) (*model.Team, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationTeamsCreate)
-	if err != nil {
-		return nil, err
-	}
-
-	input = input.Sanitize()
-
-	err = input.Validate()
-	if err != nil {
-		return nil, err
-	}
-
-	correlationID := uuid.New()
-
-	var team *database.Team
-	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
-		team, err = dbtx.CreateTeam(ctx, input.Slug, input.Purpose, input.SlackChannel)
-		if err != nil {
-			var pgErr *pgconn.PgError
-			if errors.As(err, &pgErr) && pgErr.Code == "23505" {
-				return apierror.Errorf("Team slug %q is not available.", input.Slug)
-			}
-			return err
-		}
-
-		if actor.User.IsServiceAccount() {
-			return dbtx.AssignTeamRoleToServiceAccount(ctx, actor.User.GetID(), gensql.RoleNameTeamowner, input.Slug)
-		}
-
-		return dbtx.SetTeamMemberRole(ctx, actor.User.GetID(), team.Slug, gensql.RoleNameTeamowner)
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	err = r.auditor.TeamCreated(ctx, actor.User, team.Slug)
-	if err != nil {
-		return nil, err
-	}
-
-	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
-
-	return loader.ToGraphTeam(team), nil
 }
 
 func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input model.UpdateTeamInput) (*model.Team, error) {

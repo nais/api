@@ -823,7 +823,6 @@ type ComplexityRoot struct {
 		ConfigureReconciler          func(childComplexity int, name string, config []*model.ReconcilerConfigInput) int
 		ConfirmTeamDeletion          func(childComplexity int, key string) int
 		CreateSecret                 func(childComplexity int, name string, team slug.Slug, env string, data []*model.VariableInput) int
-		CreateTeam                   func(childComplexity int, input model.CreateTeamInput) int
 		CreateUnleashForTeam         func(childComplexity int, team slug.Slug) int
 		DeleteApp                    func(childComplexity int, name string, team slug.Slug, env string) int
 		DeleteJob                    func(childComplexity int, name string, team slug.Slug, env string) int
@@ -1577,7 +1576,6 @@ type MutationResolver interface {
 	CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.VariableInput) (*model.Secret, error)
 	UpdateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.VariableInput) (*model.Secret, error)
 	DeleteSecret(ctx context.Context, name string, team slug.Slug, env string) (bool, error)
-	CreateTeam(ctx context.Context, input model.CreateTeamInput) (*model.Team, error)
 	UpdateTeam(ctx context.Context, slug slug.Slug, input model.UpdateTeamInput) (*model.Team, error)
 	UpdateTeamSlackAlertsChannel(ctx context.Context, slug slug.Slug, input model.UpdateTeamSlackAlertsChannelInput) (*model.Team, error)
 	RemoveUserFromTeam(ctx context.Context, slug slug.Slug, userID scalar.Ident) (*model.Team, error)
@@ -4855,18 +4853,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateSecret(childComplexity, args["name"].(string), args["team"].(slug.Slug), args["env"].(string), args["data"].([]*model.VariableInput)), true
 
-	case "Mutation.createTeam":
-		if e.complexity.Mutation.CreateTeam == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_createTeam_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.CreateTeam(childComplexity, args["input"].(model.CreateTeamInput)), true
-
 	case "Mutation.createUnleashForTeam":
 		if e.complexity.Mutation.CreateUnleashForTeam == nil {
 			break
@@ -8022,7 +8008,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputAuditEventsFilter,
-		ec.unmarshalInputCreateTeamInput,
 		ec.unmarshalInputEnvCostFilter,
 		ec.unmarshalInputGitHubRepositoriesFilter,
 		ec.unmarshalInputKafkaTopicACLFilter,
@@ -9981,19 +9966,6 @@ type Role {
 
 extend type Mutation {
   """
-  Create a new team
-
-  The user creating the team will be granted team ownership, unless the user is a service account, in which case the
-  team will not get an initial owner. To add one or more owners to the team, refer to the ` + "`" + `addTeamOwners` + "`" + ` mutation.
-
-  The new team will be returned on success.
-  """
-  createTeam(
-    "Input for creation of the new team."
-    input: CreateTeamInput!
-  ): Team! @auth
-
-  """
   Update an existing team
 
   This mutation can be used to update the team purpose. It is not possible to update the team slug.
@@ -10640,18 +10612,6 @@ input TeamsFilterGitHub {
 
   "Filter repositories by permission name"
   permissionName: String!
-}
-
-"Input for creating a new team."
-input CreateTeamInput {
-  "Team slug. After creation, this value can not be changed."
-  slug: Slug!
-
-  "Team purpose."
-  purpose: String!
-
-  "Specify the Slack channel for the team."
-  slackChannel: String!
 }
 
 "Input for updating an existing team."
@@ -11886,38 +11846,6 @@ func (ec *executionContext) field_Mutation_createSecret_argsData(
 	}
 
 	var zeroVal []*model.VariableInput
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_createTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_createTeam_argsInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_createTeam_argsInput(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (model.CreateTeamInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
-		var zeroVal model.CreateTeamInput
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNCreateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐCreateTeamInput(ctx, tmp)
-	}
-
-	var zeroVal model.CreateTeamInput
 	return zeroVal, nil
 }
 
@@ -38331,175 +38259,6 @@ func (ec *executionContext) fieldContext_Mutation_deleteSecret(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createTeam(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createTeam(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().CreateTeam(rctx, fc.Args["input"].(model.CreateTeamInput))
-		}
-
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				var zeroVal *model.Team
-				return zeroVal, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.Team); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.Team`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Team)
-	fc.Result = res
-	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_createTeam(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Team_slug(ctx, field)
-			case "purpose":
-				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
-			case "auditLogs":
-				return ec.fieldContext_Team_auditLogs(ctx, field)
-			case "auditEvents":
-				return ec.fieldContext_Team_auditEvents(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
-			case "syncErrors":
-				return ec.fieldContext_Team_syncErrors(ctx, field)
-			case "lastSuccessfulSync":
-				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
-			case "githubRepositories":
-				return ec.fieldContext_Team_githubRepositories(ctx, field)
-			case "slackChannel":
-				return ec.fieldContext_Team_slackChannel(ctx, field)
-			case "deletionInProgress":
-				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			case "status":
-				return ec.fieldContext_Team_status(ctx, field)
-			case "resourceInventory":
-				return ec.fieldContext_Team_resourceInventory(ctx, field)
-			case "sqlInstance":
-				return ec.fieldContext_Team_sqlInstance(ctx, field)
-			case "sqlInstances":
-				return ec.fieldContext_Team_sqlInstances(ctx, field)
-			case "bucket":
-				return ec.fieldContext_Team_bucket(ctx, field)
-			case "buckets":
-				return ec.fieldContext_Team_buckets(ctx, field)
-			case "redisInstance":
-				return ec.fieldContext_Team_redisInstance(ctx, field)
-			case "redis":
-				return ec.fieldContext_Team_redis(ctx, field)
-			case "openSearchInstance":
-				return ec.fieldContext_Team_openSearchInstance(ctx, field)
-			case "openSearch":
-				return ec.fieldContext_Team_openSearch(ctx, field)
-			case "kafkaTopic":
-				return ec.fieldContext_Team_kafkaTopic(ctx, field)
-			case "kafkaTopics":
-				return ec.fieldContext_Team_kafkaTopics(ctx, field)
-			case "bigQuery":
-				return ec.fieldContext_Team_bigQuery(ctx, field)
-			case "bigQueryDataset":
-				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
-			case "apps":
-				return ec.fieldContext_Team_apps(ctx, field)
-			case "deployKey":
-				return ec.fieldContext_Team_deployKey(ctx, field)
-			case "naisjobs":
-				return ec.fieldContext_Team_naisjobs(ctx, field)
-			case "deployments":
-				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
-			case "vulnerabilitiesSummary":
-				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "secrets":
-				return ec.fieldContext_Team_secrets(ctx, field)
-			case "secret":
-				return ec.fieldContext_Team_secret(ctx, field)
-			case "environments":
-				return ec.fieldContext_Team_environments(ctx, field)
-			case "unleash":
-				return ec.fieldContext_Team_unleash(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
-			case "appsUtilization":
-				return ec.fieldContext_Team_appsUtilization(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createTeam_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Mutation_updateTeam(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_updateTeam(ctx, field)
 	if err != nil {
@@ -62405,47 +62164,6 @@ func (ec *executionContext) unmarshalInputAuditEventsFilter(ctx context.Context,
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateTeamInput(ctx context.Context, obj interface{}) (model.CreateTeamInput, error) {
-	var it model.CreateTeamInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"slug", "purpose", "slackChannel"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "slug":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Slug = data
-		case "purpose":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("purpose"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Purpose = data
-		case "slackChannel":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slackChannel"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.SlackChannel = data
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputEnvCostFilter(ctx context.Context, obj interface{}) (model.EnvCostFilter, error) {
 	var it model.EnvCostFilter
 	asMap := map[string]interface{}{}
@@ -70295,13 +70013,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "deleteSecret":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteSecret(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "createTeam":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createTeam(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -79307,11 +79018,6 @@ func (ec *executionContext) marshalNCostSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋin
 		return graphql.Null
 	}
 	return ec._CostSeries(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNCreateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐCreateTeamInput(ctx context.Context, v interface{}) (model.CreateTeamInput, error) {
-	res, err := ec.unmarshalInputCreateTeamInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNDailyCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐDailyCost(ctx context.Context, sel ast.SelectionSet, v model.DailyCost) graphql.Marshaler {

@@ -22,37 +22,6 @@ func (q *Queries) ConfirmTeamDeleteKey(ctx context.Context, key uuid.UUID) error
 	return err
 }
 
-const createTeam = `-- name: CreateTeam :one
-INSERT INTO teams (slug, purpose, slack_channel)
-VALUES ($1, $2, $3)
-RETURNING slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
-`
-
-type CreateTeamParams struct {
-	Slug         slug.Slug
-	Purpose      string
-	SlackChannel string
-}
-
-// CreateTeam creates a new team.
-func (q *Queries) CreateTeam(ctx context.Context, arg CreateTeamParams) (*Team, error) {
-	row := q.db.QueryRow(ctx, createTeam, arg.Slug, arg.Purpose, arg.SlackChannel)
-	var i Team
-	err := row.Scan(
-		&i.Slug,
-		&i.Purpose,
-		&i.LastSuccessfulSync,
-		&i.SlackChannel,
-		&i.GoogleGroupEmail,
-		&i.AzureGroupID,
-		&i.GithubTeamSlug,
-		&i.GarRepository,
-		&i.CdnBucket,
-		&i.DeleteKeyConfirmedAt,
-	)
-	return &i, err
-}
-
 const createTeamDeleteKey = `-- name: CreateTeamDeleteKey :one
 INSERT INTO team_delete_keys (team_slug, created_by)
 VALUES ($1, $2)

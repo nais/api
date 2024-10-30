@@ -249,16 +249,6 @@ type CostSeries struct {
 	Data []*CostEntry `json:"data"`
 }
 
-// Input for creating a new team.
-type CreateTeamInput struct {
-	// Team slug. After creation, this value can not be changed.
-	Slug slug.Slug `json:"slug"`
-	// Team purpose.
-	Purpose string `json:"purpose"`
-	// Specify the Slack channel for the team.
-	SlackChannel string `json:"slackChannel"`
-}
-
 // Daily cost type.
 type DailyCost struct {
 	// The sum of all costs in the cost series in euros.

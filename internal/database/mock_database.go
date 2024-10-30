@@ -907,67 +907,6 @@ func (_c *MockDatabase_CreateSession_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
-// CreateTeam provides a mock function with given fields: ctx, teamSlug, purpose, slackChannel
-func (_m *MockDatabase) CreateTeam(ctx context.Context, teamSlug slug.Slug, purpose string, slackChannel string) (*Team, error) {
-	ret := _m.Called(ctx, teamSlug, purpose, slackChannel)
-
-	if len(ret) == 0 {
-		panic("no return value specified for CreateTeam")
-	}
-
-	var r0 *Team
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, string) (*Team, error)); ok {
-		return rf(ctx, teamSlug, purpose, slackChannel)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, string) *Team); ok {
-		r0 = rf(ctx, teamSlug, purpose, slackChannel)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*Team)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, string, string) error); ok {
-		r1 = rf(ctx, teamSlug, purpose, slackChannel)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockDatabase_CreateTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateTeam'
-type MockDatabase_CreateTeam_Call struct {
-	*mock.Call
-}
-
-// CreateTeam is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - purpose string
-//   - slackChannel string
-func (_e *MockDatabase_Expecter) CreateTeam(ctx interface{}, teamSlug interface{}, purpose interface{}, slackChannel interface{}) *MockDatabase_CreateTeam_Call {
-	return &MockDatabase_CreateTeam_Call{Call: _e.mock.On("CreateTeam", ctx, teamSlug, purpose, slackChannel)}
-}
-
-func (_c *MockDatabase_CreateTeam_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, purpose string, slackChannel string)) *MockDatabase_CreateTeam_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string), args[3].(string))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_CreateTeam_Call) Return(_a0 *Team, _a1 error) *MockDatabase_CreateTeam_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockDatabase_CreateTeam_Call) RunAndReturn(run func(context.Context, slug.Slug, string, string) (*Team, error)) *MockDatabase_CreateTeam_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // CreateTeamDeleteKey provides a mock function with given fields: ctx, teamSlug, userID
 func (_m *MockDatabase) CreateTeamDeleteKey(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*TeamDeleteKey, error) {
 	ret := _m.Called(ctx, teamSlug, userID)

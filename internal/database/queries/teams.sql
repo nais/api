@@ -1,9 +1,3 @@
--- CreateTeam creates a new team.
--- name: CreateTeam :one
-INSERT INTO teams (slug, purpose, slack_channel)
-VALUES (@slug, @purpose, @slack_channel)
-RETURNING *;
-
 -- GetTeamEnvironments returns a slice of team environments, excluding deleted teams.
 -- name: GetTeamEnvironments :many
 SELECT team_all_environments.*

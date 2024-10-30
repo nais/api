@@ -7,52 +7,8 @@ import (
 	"github.com/nais/api/internal/graph/apierror"
 )
 
-var (
-	// Slightly modified from database schema because Golang doesn't like Perl-flavored regexes.
-	teamSlugRegex = regexp.MustCompile("^[a-z](-?[a-z0-9]+)+$")
-
-	// Rules can be found here: https://api.slack.com/methods/conversations.create#naming
-	slackChannelNameRegex = regexp.MustCompile("^#[a-z0-9æøå_-]{2,80}$")
-
-	// Slugs that are reserved
-	reservedSlugs = []string{
-		"nais-system",
-		"kube-system",
-		"kube-node-lease",
-		"kube-public",
-		"kyverno",
-		"cnrm-system",
-		"configconnector-operator-system",
-	}
-)
-
-func (input CreateTeamInput) Validate() error {
-	if !teamSlugRegex.MatchString(string(input.Slug)) || len(input.Slug) < 3 || len(input.Slug) > 30 {
-		return apierror.ErrTeamSlug
-	}
-
-	if input.Purpose == "" {
-		return apierror.ErrTeamPurpose
-	}
-
-	slug := input.Slug.String()
-
-	if strings.HasPrefix(slug, "team") {
-		return apierror.ErrTeamPrefixRedundant
-	}
-
-	for _, reserved := range reservedSlugs {
-		if slug == reserved {
-			return apierror.ErrTeamSlugReserved
-		}
-	}
-
-	if !slackChannelNameRegex.MatchString(input.SlackChannel) {
-		return slackChannelError(input.SlackChannel)
-	}
-
-	return nil
-}
+// Rules can be found here: https://api.slack.com/methods/conversations.create#naming
+var slackChannelNameRegex = regexp.MustCompile("^#[a-z0-9æøå_-]{2,80}$")
 
 func (input UpdateTeamInput) Validate() error {
 	if input.Purpose != nil && *input.Purpose == "" {

@@ -32,7 +32,6 @@ type GitHubRepositoryPermission struct {
 
 type TeamRepo interface {
 	ConfirmTeamDeleteKey(ctx context.Context, teamSlug slug.Slug, key uuid.UUID) error
-	CreateTeam(ctx context.Context, teamSlug slug.Slug, purpose, slackChannel string) (*Team, error)
 	CreateTeamDeleteKey(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*TeamDeleteKey, error)
 	DeleteTeam(ctx context.Context, teamSlug slug.Slug) error
 	GetAllTeamMembers(ctx context.Context, teamSlug slug.Slug) ([]*User, error)
@@ -113,19 +112,6 @@ func (d *database) UpdateTeam(ctx context.Context, teamSlug slug.Slug, purpose, 
 
 func (d *database) UpdateTeamExternalReferences(ctx context.Context, params gensql.UpdateTeamExternalReferencesParams) (*Team, error) {
 	team, err := d.querier.UpdateTeamExternalReferences(ctx, params)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Team{Team: team}, nil
-}
-
-func (d *database) CreateTeam(ctx context.Context, teamSlug slug.Slug, purpose, slackChannel string) (*Team, error) {
-	team, err := d.querier.CreateTeam(ctx, gensql.CreateTeamParams{
-		Slug:         teamSlug,
-		Purpose:      purpose,
-		SlackChannel: slackChannel,
-	})
 	if err != nil {
 		return nil, err
 	}

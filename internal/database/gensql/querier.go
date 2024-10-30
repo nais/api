@@ -31,8 +31,6 @@ type Querier interface {
 	CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) error
 	CreateServiceAccount(ctx context.Context, name string) (*ServiceAccount, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (*Session, error)
-	// CreateTeam creates a new team.
-	CreateTeam(ctx context.Context, arg CreateTeamParams) (*Team, error)
 	// CreateTeamDeleteKey creates a new delete key for a team.
 	CreateTeamDeleteKey(ctx context.Context, arg CreateTeamDeleteKeyParams) (*TeamDeleteKey, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (*User, error)

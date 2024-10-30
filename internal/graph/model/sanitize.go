@@ -6,12 +6,6 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-func (input CreateTeamInput) Sanitize() CreateTeamInput {
-	input.Purpose = strings.TrimSpace(input.Purpose)
-	input.SlackChannel = strings.TrimSpace(input.SlackChannel)
-	return input
-}
-
 func (input UpdateTeamInput) Sanitize() UpdateTeamInput {
 	if input.Purpose != nil {
 		input.Purpose = ptr.To(strings.TrimSpace(*input.Purpose))
