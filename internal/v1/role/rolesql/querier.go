@@ -12,7 +12,7 @@ type Querier interface {
 	AssignGlobalRoleToUser(ctx context.Context, arg AssignGlobalRoleToUserParams) error
 	AssignTeamRoleToServiceAccount(ctx context.Context, arg AssignTeamRoleToServiceAccountParams) error
 	AssignTeamRoleToUser(ctx context.Context, arg AssignTeamRoleToUserParams) error
-	GetUserRolesForUsers(ctx context.Context, userIds []uuid.UUID) ([]*GetUserRolesForUsersRow, error)
+	GetRolesForUsers(ctx context.Context, userIds []uuid.UUID) ([]*GetRolesForUsersRow, error)
 }
 
 var _ Querier = (*Queries)(nil)

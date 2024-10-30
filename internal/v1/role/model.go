@@ -13,7 +13,7 @@ type UserRoles struct {
 	Roles  []*Role
 }
 
-func toUserRoles(row *rolesql.GetUserRolesForUsersRow) (*UserRoles, error) {
+func toUserRoles(row *rolesql.GetRolesForUsersRow) (*UserRoles, error) {
 	var roles []*Role
 	if err := json.Unmarshal(row.Roles, &roles); err != nil {
 		return nil, err

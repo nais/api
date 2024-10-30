@@ -70,7 +70,7 @@ func (q *Queries) AssignTeamRoleToUser(ctx context.Context, arg AssignTeamRoleTo
 	return err
 }
 
-const getUserRolesForUsers = `-- name: GetUserRolesForUsers :many
+const getRolesForUsers = `-- name: GetRolesForUsers :many
 SELECT
 	user_id,
 	JSON_AGG(
@@ -91,20 +91,20 @@ ORDER BY
 	user_id
 `
 
-type GetUserRolesForUsersRow struct {
+type GetRolesForUsersRow struct {
 	UserID uuid.UUID
 	Roles  []byte
 }
 
-func (q *Queries) GetUserRolesForUsers(ctx context.Context, userIds []uuid.UUID) ([]*GetUserRolesForUsersRow, error) {
-	rows, err := q.db.Query(ctx, getUserRolesForUsers, userIds)
+func (q *Queries) GetRolesForUsers(ctx context.Context, userIds []uuid.UUID) ([]*GetRolesForUsersRow, error) {
+	rows, err := q.db.Query(ctx, getRolesForUsers, userIds)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*GetUserRolesForUsersRow{}
+	items := []*GetRolesForUsersRow{}
 	for rows.Next() {
-		var i GetUserRolesForUsersRow
+		var i GetRolesForUsersRow
 		if err := rows.Scan(&i.UserID, &i.Roles); err != nil {
 			return nil, err
 		}

@@ -18,7 +18,7 @@ VALUES
 ON CONFLICT DO NOTHING
 ;
 
--- name: GetUserRolesForUsers :many
+-- name: GetRolesForUsers :many
 SELECT
 	user_id,
 	JSON_AGG(

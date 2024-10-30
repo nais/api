@@ -54,5 +54,5 @@ type dataloader struct {
 
 func (l dataloader) list(ctx context.Context, userIDs []uuid.UUID) ([]*UserRoles, []error) {
 	makeKey := func(obj *UserRoles) uuid.UUID { return obj.UserID }
-	return loaderv1.LoadModelsWithError(ctx, userIDs, l.db.GetUserRolesForUsers, toUserRoles, makeKey)
+	return loaderv1.LoadModelsWithError(ctx, userIDs, l.db.GetRolesForUsers, toUserRoles, makeKey)
 }
