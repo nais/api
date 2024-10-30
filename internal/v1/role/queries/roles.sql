@@ -38,3 +38,11 @@ GROUP BY
 ORDER BY
 	user_id
 ;
+
+-- name: AssignGlobalRoleToUser :exec
+INSERT INTO
+	user_roles (user_id, role_name)
+VALUES
+	(@user_id, @role_name)
+ON CONFLICT DO NOTHING
+;

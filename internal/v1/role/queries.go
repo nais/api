@@ -31,3 +31,10 @@ func ForUser(ctx context.Context, userID uuid.UUID) ([]*Role, error) {
 	}
 	return ur.Roles, nil
 }
+
+func AssignGlobalRoleToUser(ctx context.Context, userID uuid.UUID, roleName rolesql.RoleName) error {
+	return db(ctx).AssignGlobalRoleToUser(ctx, rolesql.AssignGlobalRoleToUserParams{
+		UserID:   userID,
+		RoleName: roleName,
+	})
+}

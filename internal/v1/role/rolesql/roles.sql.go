@@ -10,6 +10,24 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
+const assignGlobalRoleToUser = `-- name: AssignGlobalRoleToUser :exec
+INSERT INTO
+	user_roles (user_id, role_name)
+VALUES
+	($1, $2)
+ON CONFLICT DO NOTHING
+`
+
+type AssignGlobalRoleToUserParams struct {
+	UserID   uuid.UUID
+	RoleName RoleName
+}
+
+func (q *Queries) AssignGlobalRoleToUser(ctx context.Context, arg AssignGlobalRoleToUserParams) error {
+	_, err := q.db.Exec(ctx, assignGlobalRoleToUser, arg.UserID, arg.RoleName)
+	return err
+}
+
 const assignTeamRoleToServiceAccount = `-- name: AssignTeamRoleToServiceAccount :exec
 INSERT INTO
 	service_account_roles (service_account_id, role_name, target_team_slug)
