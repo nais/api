@@ -9,21 +9,6 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-const addTeamRepository = `-- name: AddTeamRepository :exec
-INSERT INTO team_repositories (team_slug, github_repository)
-VALUES ($1, $2)
-`
-
-type AddTeamRepositoryParams struct {
-	TeamSlug         slug.Slug
-	GithubRepository string
-}
-
-func (q *Queries) AddTeamRepository(ctx context.Context, arg AddTeamRepositoryParams) error {
-	_, err := q.db.Exec(ctx, addTeamRepository, arg.TeamSlug, arg.GithubRepository)
-	return err
-}
-
 const getTeamRepositories = `-- name: GetTeamRepositories :many
 SELECT
     github_repository
@@ -75,21 +60,4 @@ func (q *Queries) IsTeamRepository(ctx context.Context, arg IsTeamRepositoryPara
 	var column_1 bool
 	err := row.Scan(&column_1)
 	return column_1, err
-}
-
-const removeTeamRepository = `-- name: RemoveTeamRepository :exec
-DELETE FROM team_repositories
-WHERE
-    team_slug = $1
-    AND github_repository = $2
-`
-
-type RemoveTeamRepositoryParams struct {
-	TeamSlug         slug.Slug
-	GithubRepository string
-}
-
-func (q *Queries) RemoveTeamRepository(ctx context.Context, arg RemoveTeamRepositoryParams) error {
-	_, err := q.db.Exec(ctx, removeTeamRepository, arg.TeamSlug, arg.GithubRepository)
-	return err
 }

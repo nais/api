@@ -38,54 +38,6 @@ func (_m *MockDatabase) EXPECT() *MockDatabase_Expecter {
 	return &MockDatabase_Expecter{mock: &_m.Mock}
 }
 
-// AddTeamRepository provides a mock function with given fields: ctx, teamSlug, repoName
-func (_m *MockDatabase) AddTeamRepository(ctx context.Context, teamSlug slug.Slug, repoName string) error {
-	ret := _m.Called(ctx, teamSlug, repoName)
-
-	if len(ret) == 0 {
-		panic("no return value specified for AddTeamRepository")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string) error); ok {
-		r0 = rf(ctx, teamSlug, repoName)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockDatabase_AddTeamRepository_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddTeamRepository'
-type MockDatabase_AddTeamRepository_Call struct {
-	*mock.Call
-}
-
-// AddTeamRepository is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - repoName string
-func (_e *MockDatabase_Expecter) AddTeamRepository(ctx interface{}, teamSlug interface{}, repoName interface{}) *MockDatabase_AddTeamRepository_Call {
-	return &MockDatabase_AddTeamRepository_Call{Call: _e.mock.On("AddTeamRepository", ctx, teamSlug, repoName)}
-}
-
-func (_c *MockDatabase_AddTeamRepository_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, repoName string)) *MockDatabase_AddTeamRepository_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_AddTeamRepository_Call) Return(_a0 error) *MockDatabase_AddTeamRepository_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockDatabase_AddTeamRepository_Call) RunAndReturn(run func(context.Context, slug.Slug, string) error) *MockDatabase_AddTeamRepository_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // AssignGlobalRoleToServiceAccount provides a mock function with given fields: ctx, serviceAccountID, roleName
 func (_m *MockDatabase) AssignGlobalRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, roleName gensql.RoleName) error {
 	ret := _m.Called(ctx, serviceAccountID, roleName)
@@ -4669,54 +4621,6 @@ func (_c *MockDatabase_RemoveApiKeysFromServiceAccount_Call) Return(_a0 error) *
 }
 
 func (_c *MockDatabase_RemoveApiKeysFromServiceAccount_Call) RunAndReturn(run func(context.Context, uuid.UUID) error) *MockDatabase_RemoveApiKeysFromServiceAccount_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// RemoveTeamRepository provides a mock function with given fields: ctx, teamSlug, repoName
-func (_m *MockDatabase) RemoveTeamRepository(ctx context.Context, teamSlug slug.Slug, repoName string) error {
-	ret := _m.Called(ctx, teamSlug, repoName)
-
-	if len(ret) == 0 {
-		panic("no return value specified for RemoveTeamRepository")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string) error); ok {
-		r0 = rf(ctx, teamSlug, repoName)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockDatabase_RemoveTeamRepository_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveTeamRepository'
-type MockDatabase_RemoveTeamRepository_Call struct {
-	*mock.Call
-}
-
-// RemoveTeamRepository is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - repoName string
-func (_e *MockDatabase_Expecter) RemoveTeamRepository(ctx interface{}, teamSlug interface{}, repoName interface{}) *MockDatabase_RemoveTeamRepository_Call {
-	return &MockDatabase_RemoveTeamRepository_Call{Call: _e.mock.On("RemoveTeamRepository", ctx, teamSlug, repoName)}
-}
-
-func (_c *MockDatabase_RemoveTeamRepository_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, repoName string)) *MockDatabase_RemoveTeamRepository_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_RemoveTeamRepository_Call) Return(_a0 error) *MockDatabase_RemoveTeamRepository_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockDatabase_RemoveTeamRepository_Call) RunAndReturn(run func(context.Context, slug.Slug, string) error) *MockDatabase_RemoveTeamRepository_Call {
 	_c.Call.Return(run)
 	return _c
 }

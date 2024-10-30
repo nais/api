@@ -814,7 +814,6 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AddRepository                func(childComplexity int, teamSlug slug.Slug, repoName string) int
 		ChangeDeployKey              func(childComplexity int, team slug.Slug) int
 		ConfigureReconciler          func(childComplexity int, name string, config []*model.ReconcilerConfigInput) int
 		CreateSecret                 func(childComplexity int, name string, team slug.Slug, env string, data []*model.VariableInput) int
@@ -824,7 +823,6 @@ type ComplexityRoot struct {
 		DeleteSecret                 func(childComplexity int, name string, team slug.Slug, env string) int
 		DisableReconciler            func(childComplexity int, name string) int
 		EnableReconciler             func(childComplexity int, name string) int
-		RemoveRepository             func(childComplexity int, teamSlug slug.Slug, repoName string) int
 		ResetReconciler              func(childComplexity int, name string) int
 		RestartApp                   func(childComplexity int, name string, team slug.Slug, env string) int
 		SuppressFinding              func(childComplexity int, analysisState string, comment string, componentID string, projectID string, vulnerabilityID string, suppressedBy string, suppress bool, team slug.Slug) int
@@ -1552,8 +1550,6 @@ type MutationResolver interface {
 	SynchronizeTeam(ctx context.Context, slug slug.Slug) (*model.TeamSync, error)
 	SynchronizeAllTeams(ctx context.Context) (*model.TeamSync, error)
 	ChangeDeployKey(ctx context.Context, team slug.Slug) (*model.DeploymentKey, error)
-	AddRepository(ctx context.Context, teamSlug slug.Slug, repoName string) (string, error)
-	RemoveRepository(ctx context.Context, teamSlug slug.Slug, repoName string) (string, error)
 	CreateUnleashForTeam(ctx context.Context, team slug.Slug) (*model.Unleash, error)
 	UpdateUnleashForTeam(ctx context.Context, team slug.Slug, name string, allowedTeams []string) (*model.Unleash, error)
 }
@@ -4725,18 +4721,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MonthlyCost.Sum(childComplexity), true
 
-	case "Mutation.addRepository":
-		if e.complexity.Mutation.AddRepository == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_addRepository_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.AddRepository(childComplexity, args["teamSlug"].(slug.Slug), args["repoName"].(string)), true
-
 	case "Mutation.changeDeployKey":
 		if e.complexity.Mutation.ChangeDeployKey == nil {
 			break
@@ -4844,18 +4828,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.EnableReconciler(childComplexity, args["name"].(string)), true
-
-	case "Mutation.removeRepository":
-		if e.complexity.Mutation.RemoveRepository == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_removeRepository_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.RemoveRepository(childComplexity, args["teamSlug"].(slug.Slug), args["repoName"].(string)), true
 
 	case "Mutation.resetReconciler":
 		if e.complexity.Mutation.ResetReconciler == nil {
@@ -9760,24 +9732,6 @@ extend type Mutation {
     "The name of the team to update the deploy key for."
     team: Slug!
   ): DeploymentKey!
-
-  "Add a team repository."
-  addRepository(
-    "The slug of the team that adds the repository."
-    teamSlug: Slug!
-
-    "Name of the repository, with the org prefix, for instance 'org/repo'."
-    repoName: String!
-  ): String! @auth
-
-  "Remove a team repository."
-  removeRepository(
-    "The slug of the team that removes the repository."
-    teamSlug: Slug!
-
-    "Name of the repository, with the org prefix, for instance 'org/repo'."
-    repoName: String!
-  ): String! @auth
 }
 
 "Team sync type."
@@ -11015,65 +10969,6 @@ func (ec *executionContext) field_KafkaTopic_acl_argsOrderBy(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_addRepository_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_addRepository_argsTeamSlug(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["teamSlug"] = arg0
-	arg1, err := ec.field_Mutation_addRepository_argsRepoName(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["repoName"] = arg1
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_addRepository_argsTeamSlug(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (slug.Slug, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["teamSlug"]
-	if !ok {
-		var zeroVal slug.Slug
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-	if tmp, ok := rawArgs["teamSlug"]; ok {
-		return ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
-	}
-
-	var zeroVal slug.Slug
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_addRepository_argsRepoName(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["repoName"]
-	if !ok {
-		var zeroVal string
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("repoName"))
-	if tmp, ok := rawArgs["repoName"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Mutation_changeDeployKey_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -11625,65 +11520,6 @@ func (ec *executionContext) field_Mutation_enableReconciler_argsName(
 
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 	if tmp, ok := rawArgs["name"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_removeRepository_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_removeRepository_argsTeamSlug(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["teamSlug"] = arg0
-	arg1, err := ec.field_Mutation_removeRepository_argsRepoName(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["repoName"] = arg1
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_removeRepository_argsTeamSlug(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (slug.Slug, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["teamSlug"]
-	if !ok {
-		var zeroVal slug.Slug
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-	if tmp, ok := rawArgs["teamSlug"]; ok {
-		return ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
-	}
-
-	var zeroVal slug.Slug
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_removeRepository_argsRepoName(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["repoName"]
-	if !ok {
-		var zeroVal string
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("repoName"))
-	if tmp, ok := rawArgs["repoName"]; ok {
 		return ec.unmarshalNString2string(ctx, tmp)
 	}
 
@@ -37583,160 +37419,6 @@ func (ec *executionContext) fieldContext_Mutation_changeDeployKey(ctx context.Co
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_changeDeployKey_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_addRepository(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_addRepository(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().AddRepository(rctx, fc.Args["teamSlug"].(slug.Slug), fc.Args["repoName"].(string))
-		}
-
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				var zeroVal string
-				return zeroVal, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(string); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_addRepository(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_addRepository_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_removeRepository(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_removeRepository(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().RemoveRepository(rctx, fc.Args["teamSlug"].(slug.Slug), fc.Args["repoName"].(string))
-		}
-
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				var zeroVal string
-				return zeroVal, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(string); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_removeRepository(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_removeRepository_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -67410,20 +67092,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "changeDeployKey":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_changeDeployKey(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "addRepository":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_addRepository(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "removeRepository":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_removeRepository(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

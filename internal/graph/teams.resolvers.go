@@ -160,48 +160,6 @@ func (r *mutationResolver) ChangeDeployKey(ctx context.Context, team slug.Slug) 
 	}, nil
 }
 
-func (r *mutationResolver) AddRepository(ctx context.Context, teamSlug slug.Slug, repoName string) (string, error) {
-	actor := authz.ActorFromContext(ctx)
-	if _, err := r.database.GetTeamMember(ctx, teamSlug, actor.User.GetID()); errors.Is(err, pgx.ErrNoRows) {
-		return "", apierror.ErrUserIsNotTeamMember
-	} else if err != nil {
-		return "", err
-	}
-
-	if err := r.database.AddTeamRepository(ctx, teamSlug, repoName); err != nil {
-		return "", err
-	}
-
-	if err := r.auditor.TeamAddRepository(ctx, actor.User, teamSlug, repoName); err != nil {
-		return "", err
-	}
-
-	r.triggerTeamUpdatedEvent(ctx, teamSlug, uuid.New())
-
-	return repoName, nil
-}
-
-func (r *mutationResolver) RemoveRepository(ctx context.Context, teamSlug slug.Slug, repoName string) (string, error) {
-	actor := authz.ActorFromContext(ctx)
-	if _, err := r.database.GetTeamMember(ctx, teamSlug, actor.User.GetID()); errors.Is(err, pgx.ErrNoRows) {
-		return "", apierror.ErrUserIsNotTeamMember
-	} else if err != nil {
-		return "", err
-	}
-
-	if err := r.database.RemoveTeamRepository(ctx, teamSlug, repoName); err != nil {
-		return "", err
-	}
-
-	if err := r.auditor.TeamRemoveRepository(ctx, actor.User, teamSlug, repoName); err != nil {
-		return "", err
-	}
-
-	r.triggerTeamUpdatedEvent(ctx, teamSlug, uuid.New())
-
-	return repoName, nil
-}
-
 func (r *queryResolver) Teams(ctx context.Context, offset *int, limit *int, filter *model.TeamsFilter) (*model.TeamList, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationTeamsList)

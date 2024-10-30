@@ -58,24 +58,6 @@ extend type Mutation {
     "The name of the team to update the deploy key for."
     team: Slug!
   ): DeploymentKey!
-
-  "Add a team repository."
-  addRepository(
-    "The slug of the team that adds the repository."
-    teamSlug: Slug!
-
-    "Name of the repository, with the org prefix, for instance 'org/repo'."
-    repoName: String!
-  ): String! @auth
-
-  "Remove a team repository."
-  removeRepository(
-    "The slug of the team that removes the repository."
-    teamSlug: Slug!
-
-    "Name of the repository, with the org prefix, for instance 'org/repo'."
-    repoName: String!
-  ): String! @auth
 }
 
 "Team sync type."

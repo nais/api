@@ -8,24 +8,8 @@ import (
 )
 
 type TeamRepositoryRepo interface {
-	AddTeamRepository(ctx context.Context, teamSlug slug.Slug, repoName string) error
-	RemoveTeamRepository(ctx context.Context, teamSlug slug.Slug, repoName string) error
 	ListTeamRepositories(ctx context.Context, teamSlug slug.Slug) ([]string, error)
 	IsTeamRepository(ctx context.Context, teamSlug slug.Slug, repoName string) (bool, error)
-}
-
-func (d *database) AddTeamRepository(ctx context.Context, teamSlug slug.Slug, repoName string) error {
-	return d.querier.AddTeamRepository(ctx, gensql.AddTeamRepositoryParams{
-		TeamSlug:         teamSlug,
-		GithubRepository: repoName,
-	})
-}
-
-func (d *database) RemoveTeamRepository(ctx context.Context, teamSlug slug.Slug, repoName string) error {
-	return d.querier.RemoveTeamRepository(ctx, gensql.RemoveTeamRepositoryParams{
-		TeamSlug:         teamSlug,
-		GithubRepository: repoName,
-	})
 }
 
 func (d *database) ListTeamRepositories(ctx context.Context, teamSlug slug.Slug) ([]string, error) {

@@ -11,7 +11,6 @@ import (
 )
 
 type Querier interface {
-	AddTeamRepository(ctx context.Context, arg AddTeamRepositoryParams) error
 	AssignGlobalRoleToServiceAccount(ctx context.Context, arg AssignGlobalRoleToServiceAccountParams) error
 	AssignGlobalRoleToUser(ctx context.Context, arg AssignGlobalRoleToUserParams) error
 	AssignTeamRoleToServiceAccount(ctx context.Context, arg AssignTeamRoleToServiceAccountParams) error
@@ -125,7 +124,6 @@ type Querier interface {
 	RefreshCostMonthlyTeam(ctx context.Context) error
 	RemoveAllServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
-	RemoveTeamRepository(ctx context.Context, arg RemoveTeamRepositoryParams) error
 	ResetReconcilerConfig(ctx context.Context, reconcilerName string) error
 	RevokeGlobalUserRole(ctx context.Context, arg RevokeGlobalUserRoleParams) error
 	// SetLastSuccessfulSyncForTeam sets the last successful sync time for a non-deleted team.

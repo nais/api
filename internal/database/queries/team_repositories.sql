@@ -1,13 +1,3 @@
--- name: AddTeamRepository :exec
-INSERT INTO team_repositories (team_slug, github_repository)
-VALUES (@team_slug, @github_repository);
-
--- name: RemoveTeamRepository :exec
-DELETE FROM team_repositories
-WHERE
-    team_slug = @team_slug
-    AND github_repository = @github_repository;
-
 -- name: GetTeamRepositories :many
 SELECT
     github_repository
