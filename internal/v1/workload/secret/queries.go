@@ -125,11 +125,12 @@ func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (
 	}
 
 	err = auditv1.Create(ctx, auditv1.CreateInput{
-		Action:       auditActionCreateSecret,
-		Actor:        actor.User,
-		ResourceType: auditResourceTypeSecret,
-		ResourceName: name,
-		TeamSlug:     ptr.To(teamSlug),
+		Action:          auditActionCreateSecret,
+		Actor:           actor.User,
+		EnvironmentName: ptr.To(environment),
+		ResourceType:    auditResourceTypeSecret,
+		ResourceName:    name,
+		TeamSlug:        ptr.To(teamSlug),
 	})
 	if err != nil {
 		fromContext(ctx).log.WithError(err).Errorf("unable to create audit log entry")
@@ -198,11 +199,12 @@ func AddSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secret
 	}
 
 	err = auditv1.Create(ctx, auditv1.CreateInput{
-		Action:       auditActionAddSecretValue,
-		Actor:        actor.User,
-		ResourceType: auditResourceTypeSecret,
-		ResourceName: secretName,
-		TeamSlug:     ptr.To(teamSlug),
+		Action:          auditActionAddSecretValue,
+		Actor:           actor.User,
+		EnvironmentName: ptr.To(environment),
+		ResourceType:    auditResourceTypeSecret,
+		ResourceName:    secretName,
+		TeamSlug:        ptr.To(teamSlug),
 		Data: &SecretValueAddedAuditEntryData{
 			ValueName: valueToAdd.Name,
 		},
@@ -271,11 +273,12 @@ func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 	}
 
 	err = auditv1.Create(ctx, auditv1.CreateInput{
-		Action:       auditActionUpdateSecretValue,
-		Actor:        actor.User,
-		ResourceType: auditResourceTypeSecret,
-		ResourceName: secretName,
-		TeamSlug:     ptr.To(teamSlug),
+		Action:          auditActionUpdateSecretValue,
+		Actor:           actor.User,
+		EnvironmentName: ptr.To(environment),
+		ResourceType:    auditResourceTypeSecret,
+		ResourceName:    secretName,
+		TeamSlug:        ptr.To(teamSlug),
 		Data: &SecretValueUpdatedAuditEntryData{
 			ValueName: valueToUpdate.Name,
 		},
@@ -335,11 +338,12 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 	}
 
 	err = auditv1.Create(ctx, auditv1.CreateInput{
-		Action:       auditActionRemoveSecretValue,
-		Actor:        actor.User,
-		ResourceType: auditResourceTypeSecret,
-		ResourceName: secretName,
-		TeamSlug:     ptr.To(teamSlug),
+		Action:          auditActionRemoveSecretValue,
+		Actor:           actor.User,
+		EnvironmentName: ptr.To(environment),
+		ResourceType:    auditResourceTypeSecret,
+		ResourceName:    secretName,
+		TeamSlug:        ptr.To(teamSlug),
 		Data: &SecretValueRemovedAuditEntryData{
 			ValueName: valueName,
 		},
@@ -362,11 +366,12 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) e
 	}
 
 	err := auditv1.Create(ctx, auditv1.CreateInput{
-		Action:       auditActionDeleteSecret,
-		Actor:        authz.ActorFromContext(ctx).User,
-		ResourceType: auditResourceTypeSecret,
-		ResourceName: name,
-		TeamSlug:     ptr.To(teamSlug),
+		Action:          auditActionDeleteSecret,
+		Actor:           authz.ActorFromContext(ctx).User,
+		EnvironmentName: ptr.To(environment),
+		ResourceType:    auditResourceTypeSecret,
+		ResourceName:    name,
+		TeamSlug:        ptr.To(teamSlug),
 	})
 	if err != nil {
 		fromContext(ctx).log.WithError(err).Errorf("unable to create audit log entry")
