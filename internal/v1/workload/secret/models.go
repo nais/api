@@ -1,10 +1,14 @@
 package secret
 
 import (
+	"fmt"
+	"io"
+	"strconv"
 	"time"
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
+	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -162,4 +166,57 @@ type UpdateSecretValuePayload struct {
 
 type RemoveSecretValuePayload struct {
 	Secret *Secret `json:"secret"`
+}
+
+type SecretOrder struct {
+	// The field to order items by.
+	Field SecretOrderField `json:"field"`
+	// The direction to order items by.
+	Direction modelv1.OrderDirection `json:"direction"`
+}
+
+type SecretOrderField string
+
+const (
+	// Order secrets by name.
+	SecretOrderFieldName SecretOrderField = "NAME"
+	// Order secrets by the name of the environment.
+	SecretOrderFieldEnvironment SecretOrderField = "ENVIRONMENT"
+	// Order secrets by the last time it was modified.
+	SecretOrderFieldLastModifiedAt SecretOrderField = "LAST_MODIFIED_AT"
+)
+
+var AllSecretOrderField = []SecretOrderField{
+	SecretOrderFieldName,
+	SecretOrderFieldEnvironment,
+	SecretOrderFieldLastModifiedAt,
+}
+
+func (e SecretOrderField) IsValid() bool {
+	switch e {
+	case SecretOrderFieldName, SecretOrderFieldEnvironment, SecretOrderFieldLastModifiedAt:
+		return true
+	}
+	return false
+}
+
+func (e SecretOrderField) String() string {
+	return string(e)
+}
+
+func (e *SecretOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SecretOrderField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SecretOrderField", str)
+	}
+	return nil
+}
+
+func (e SecretOrderField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/auditv1"
 	"github.com/nais/api/internal/v1/graphv1/ident"
+	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
 	"github.com/nais/api/internal/v1/workload"
@@ -35,10 +36,22 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 	return pagination.NewConnection(paginated, page, int32(len(all))), nil
 }
 
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*SecretConnection, error) {
+func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *SecretOrder) (*SecretConnection, error) {
 	all := fromContext(ctx).secretWatcher.GetByNamespace(teamSlug.String())
-	secrets := pagination.Slice(watcher.Objects(all), page)
-	return pagination.NewConnection(secrets, page, int32(len(all))), nil
+
+	retVal := watcher.Objects(all)
+
+	if orderBy == nil {
+		orderBy = &SecretOrder{
+			Field:     SecretOrderFieldName,
+			Direction: modelv1.OrderDirectionAsc,
+		}
+	}
+
+	SortFilter.Sort(ctx, retVal, orderBy.Field, orderBy.Direction)
+
+	secrets := pagination.Slice(retVal, page)
+	return pagination.NewConnection(secrets, page, int32(len(secrets))), nil
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Secret, error) {

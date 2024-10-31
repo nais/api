@@ -1204,7 +1204,7 @@ type ComplexityRoot struct {
 		RedisInstances         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceOrder) int
 		Repositories           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *repository.TeamRepositoryFilter) int
 		SQLInstances           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) int
-		Secrets                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Secrets                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder) int
 		SlackChannel           func(childComplexity int) int
 		Slug                   func(childComplexity int) int
 		Unleash                func(childComplexity int) int
@@ -1969,7 +1969,7 @@ type TeamResolver interface {
 	OpenSearchInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) (*pagination.Connection[*opensearch.OpenSearch], error)
 	RedisInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceOrder) (*pagination.Connection[*redis.RedisInstance], error)
 	Repositories(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *repository.TeamRepositoryFilter) (*pagination.Connection[*repository.Repository], error)
-	Secrets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*secret.Secret], error)
+	Secrets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder) (*pagination.Connection[*secret.Secret], error)
 	SQLInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
 	Unleash(ctx context.Context, obj *team.Team) (*unleash.UnleashInstance, error)
 	WorkloadUtilization(ctx context.Context, obj *team.Team, resourceType utilization.UtilizationResourceType) ([]*utilization.WorkloadUtilizationData, error)
@@ -6661,7 +6661,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Team.Secrets(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+		return e.complexity.Team.Secrets(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*secret.SecretOrder)), true
 
 	case "Team.slackChannel":
 		if e.complexity.Team.SlackChannel == nil {
@@ -8785,6 +8785,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRestartApplicationInput,
 		ec.unmarshalInputRevokeTeamAccessToUnleashInput,
 		ec.unmarshalInputSearchFilter,
+		ec.unmarshalInputSecretOrder,
 		ec.unmarshalInputSecretValueInput,
 		ec.unmarshalInputSetTeamMemberRoleInput,
 		ec.unmarshalInputSqlInstanceOrder,
@@ -11065,6 +11066,9 @@ extend type Team {
 
 		"Get items before this cursor."
 		before: Cursor
+
+		"Ordering options for items returned from the connection."
+		orderBy: SecretOrder
 	): SecretConnection!
 }
 
@@ -11268,6 +11272,25 @@ input DeleteSecretInput {
 type CreateSecretPayload {
 	"The created secret."
 	secret: Secret
+}
+
+input SecretOrder {
+	"The field to order items by."
+	field: SecretOrderField!
+
+	"The direction to order items by."
+	direction: OrderDirection!
+}
+
+enum SecretOrderField {
+	"Order secrets by name."
+	NAME
+
+	"Order secrets by the name of the environment."
+	ENVIRONMENT
+
+	"Order secrets by the last time it was modified."
+	LAST_MODIFIED_AT
 }
 
 type AddSecretValuePayload {
@@ -19787,6 +19810,11 @@ func (ec *executionContext) field_Team_secrets_args(ctx context.Context, rawArgs
 		return nil, err
 	}
 	args["before"] = arg3
+	arg4, err := ec.field_Team_secrets_argsOrderBy(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["orderBy"] = arg4
 	return args, nil
 }
 func (ec *executionContext) field_Team_secrets_argsFirst(
@@ -19874,6 +19902,28 @@ func (ec *executionContext) field_Team_secrets_argsBefore(
 	}
 
 	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Team_secrets_argsOrderBy(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*secret.SecretOrder, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["orderBy"]
+	if !ok {
+		var zeroVal *secret.SecretOrder
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		return ec.unmarshalOSecretOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSecretOrder(ctx, tmp)
+	}
+
+	var zeroVal *secret.SecretOrder
 	return zeroVal, nil
 }
 
@@ -52546,7 +52596,7 @@ func (ec *executionContext) _Team_secrets(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().Secrets(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+		return ec.resolvers.Team().Secrets(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*secret.SecretOrder))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -69504,6 +69554,40 @@ func (ec *executionContext) unmarshalInputSearchFilter(ctx context.Context, obj 
 				return it, err
 			}
 			it.Type = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputSecretOrder(ctx context.Context, obj interface{}) (secret.SecretOrder, error) {
+	var it secret.SecretOrder
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNSecretOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSecretOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋmodelv1ᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
 		}
 	}
 
@@ -93686,6 +93770,16 @@ func (ec *executionContext) marshalNSecretEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 	return ret
 }
 
+func (ec *executionContext) unmarshalNSecretOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSecretOrderField(ctx context.Context, v interface{}) (secret.SecretOrderField, error) {
+	var res secret.SecretOrderField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNSecretOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSecretOrderField(ctx context.Context, sel ast.SelectionSet, v secret.SecretOrderField) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNSecretValue2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSecretValueᚄ(ctx context.Context, sel ast.SelectionSet, v []*secret.SecretValue) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -96549,6 +96643,14 @@ func (ec *executionContext) marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 		return graphql.Null
 	}
 	return ec._Secret(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOSecretOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSecretOrder(ctx context.Context, v interface{}) (*secret.SecretOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputSecretOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOSecretValueAddedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSecretValueAddedAuditEntryData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValueAddedAuditEntryData) graphql.Marshaler {
