@@ -299,20 +299,6 @@ type Limits struct {
 	Memory string `json:"memory"`
 }
 
-type LogLine struct {
-	Time     time.Time `json:"time"`
-	Message  string    `json:"message"`
-	Instance string    `json:"instance"`
-}
-
-type LogSubscriptionInput struct {
-	App       *string   `json:"app,omitempty"`
-	Job       *string   `json:"job,omitempty"`
-	Env       string    `json:"env"`
-	Team      slug.Slug `json:"team"`
-	Instances []string  `json:"instances,omitempty"`
-}
-
 type Maskinporten struct {
 	Scopes  MaskinportenScope `json:"scopes"`
 	Enabled bool              `json:"enabled"`
@@ -467,9 +453,6 @@ type SlackAlertsChannel struct {
 	Environment string `json:"environment"`
 	// The name of the Slack channel.
 	ChannelName string `json:"channelName"`
-}
-
-type Subscription struct {
 }
 
 // Sync error type.
