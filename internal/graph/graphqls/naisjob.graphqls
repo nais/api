@@ -66,7 +66,6 @@ type NaisJob implements Workload {
   completions: Int!
   parallelism: Int!
   retries: Int!
-  secrets: [Secret!]!
 }
 
 type NaisJobList {

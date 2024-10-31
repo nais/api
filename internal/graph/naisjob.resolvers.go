@@ -46,16 +46,6 @@ func (r *naisJobResolver) Team(ctx context.Context, obj *model.NaisJob) (*model.
 	return loader.GetTeam(ctx, obj.GQLVars.Team)
 }
 
-func (r *naisJobResolver) Secrets(ctx context.Context, obj *model.NaisJob) ([]*model.Secret, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamMembership(actor, obj.GQLVars.Team)
-	if err != nil {
-		return nil, err
-	}
-
-	return r.k8sClient.SecretsForNaisJob(ctx, obj)
-}
-
 func (r *queryResolver) Naisjob(ctx context.Context, name string, team slug.Slug, env string) (*model.NaisJob, error) {
 	job, err := r.k8sClient.NaisJob(ctx, name, team.String(), env)
 	if err != nil {

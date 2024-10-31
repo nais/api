@@ -35,16 +35,6 @@ func (r *appResolver) Team(ctx context.Context, obj *model.App) (*model.Team, er
 	return loader.GetTeam(ctx, obj.GQLVars.Team)
 }
 
-func (r *appResolver) Secrets(ctx context.Context, obj *model.App) ([]*model.Secret, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamMembership(actor, obj.GQLVars.Team)
-	if err != nil {
-		return nil, err
-	}
-
-	return r.k8sClient.SecretsForApp(ctx, obj)
-}
-
 func (r *appUtilizationResolver) Used(ctx context.Context, obj *model.AppUtilization, resourceType model.UsageResourceType) (float64, error) {
 	return r.resourceUsageClient.AppResourceUsage(ctx, obj.GQLVars.Env, obj.GQLVars.TeamSlug, obj.GQLVars.AppName, resourceType)
 }

@@ -19,11 +19,9 @@ type IdentType string
 const (
 	IdentTypeApp           IdentType = "app"
 	IdentTypeCorrelationID IdentType = "correlationID"
-	IdentTypeDeployKey     IdentType = "deployKey"
 	IdentTypeEnv           IdentType = "env"
 	IdentTypeJob           IdentType = "job"
 	IdentTypePod           IdentType = "pod"
-	IdentTypeSecret        IdentType = "secret"
 	IdentTypeTeam          IdentType = "team"
 	IdentTypeUser          IdentType = "user"
 	IdentTypeUsersyncRun   IdentType = "usersyncRun"
@@ -77,10 +75,6 @@ func AppIdent(envName string, teamSlug slug.Slug, appName string) Ident {
 	return newIdent(IdentTypeApp, envName, string(teamSlug), appName)
 }
 
-func DeployKeyIdent(teamSlug slug.Slug) Ident {
-	return newIdent(IdentTypeDeployKey, string(teamSlug))
-}
-
 func EnvIdent(envName string) Ident {
 	return newIdent(IdentTypeEnv, envName)
 }
@@ -95,10 +89,6 @@ func PodIdent(id types.UID) Ident {
 
 func TeamIdent(teamSlug slug.Slug) Ident {
 	return newIdent(IdentTypeTeam, string(teamSlug))
-}
-
-func SecretIdent(envName string, teamSlug slug.Slug, secretName string) Ident {
-	return newIdent(IdentTypeSecret, envName, string(teamSlug), secretName)
 }
 
 func CorrelationID(id uuid.UUID) Ident {

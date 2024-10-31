@@ -387,24 +387,6 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 	}, nil
 }
 
-func (r *teamResolver) Secrets(ctx context.Context, obj *model.Team) ([]*model.Secret, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamMembership(actor, obj.Slug)
-	if err != nil {
-		return nil, err
-	}
-	return r.k8sClient.Secrets(ctx, obj.Slug)
-}
-
-func (r *teamResolver) Secret(ctx context.Context, obj *model.Team, name string, env string) (*model.Secret, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamMembership(actor, obj.Slug)
-	if err != nil {
-		return nil, err
-	}
-	return r.k8sClient.Secret(ctx, name, obj.Slug, env)
-}
-
 func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error) {
 	// Env is a bit special, given that it will be created from k8s etc.
 	// All fields, except name and team, are resolved.

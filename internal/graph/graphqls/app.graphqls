@@ -59,7 +59,6 @@ type App implements Workload {
   instances: [Instance!]!
   manifest: String!
   team: Team!
-  secrets: [Secret!]!
 }
 
 type AppUtilization {
