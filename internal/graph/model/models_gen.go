@@ -79,12 +79,6 @@ type Consumer struct {
 	Orgno string `json:"orgno"`
 }
 
-type DeleteAppResult struct {
-	// Whether the app was deleted or not.
-	Deleted bool    `json:"deleted"`
-	Error   *string `json:"error,omitempty"`
-}
-
 type DeleteJobResult struct {
 	// Whether the job was deleted or not.
 	Deleted bool    `json:"deleted"`
@@ -289,10 +283,6 @@ type ResourceInventory struct {
 	TotalJobs int  `json:"totalJobs"`
 	TotalApps int  `json:"totalApps"`
 	IsEmpty   bool `json:"isEmpty"`
-}
-
-type RestartAppResult struct {
-	Error *string `json:"error,omitempty"`
 }
 
 type Scaling struct {

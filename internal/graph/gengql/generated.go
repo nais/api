@@ -119,11 +119,6 @@ type ComplexityRoot struct {
 		Orgno func(childComplexity int) int
 	}
 
-	DeleteAppResult struct {
-		Deleted func(childComplexity int) int
-		Error   func(childComplexity int) int
-	}
-
 	DeleteJobResult struct {
 		Deleted func(childComplexity int) int
 		Error   func(childComplexity int) int
@@ -252,9 +247,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		DeleteApp                    func(childComplexity int, name string, team slug.Slug, env string) int
 		DeleteJob                    func(childComplexity int, name string, team slug.Slug, env string) int
-		RestartApp                   func(childComplexity int, name string, team slug.Slug, env string) int
 		SynchronizeAllTeams          func(childComplexity int) int
 		SynchronizeTeam              func(childComplexity int, slug slug.Slug) int
 		UpdateTeamSlackAlertsChannel func(childComplexity int, slug slug.Slug, input model.UpdateTeamSlackAlertsChannelInput) int
@@ -337,10 +330,6 @@ type ComplexityRoot struct {
 		Limits   func(childComplexity int) int
 		Requests func(childComplexity int) int
 		Scaling  func(childComplexity int) int
-	}
-
-	RestartAppResult struct {
-		Error func(childComplexity int) int
 	}
 
 	Role struct {
@@ -494,8 +483,6 @@ type EnvResolver interface {
 	SlackAlertsChannel(ctx context.Context, obj *model.Env) (string, error)
 }
 type MutationResolver interface {
-	DeleteApp(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteAppResult, error)
-	RestartApp(ctx context.Context, name string, team slug.Slug, env string) (*model.RestartAppResult, error)
 	DeleteJob(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteJobResult, error)
 	UpdateTeamSlackAlertsChannel(ctx context.Context, slug slug.Slug, input model.UpdateTeamSlackAlertsChannelInput) (*model.Team, error)
 	SynchronizeTeam(ctx context.Context, slug slug.Slug) (*model.TeamSync, error)
@@ -788,20 +775,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Consumer.Orgno(childComplexity), true
-
-	case "DeleteAppResult.deleted":
-		if e.complexity.DeleteAppResult.Deleted == nil {
-			break
-		}
-
-		return e.complexity.DeleteAppResult.Deleted(childComplexity), true
-
-	case "DeleteAppResult.error":
-		if e.complexity.DeleteAppResult.Error == nil {
-			break
-		}
-
-		return e.complexity.DeleteAppResult.Error(childComplexity), true
 
 	case "DeleteJobResult.deleted":
 		if e.complexity.DeleteJobResult.Deleted == nil {
@@ -1293,18 +1266,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MissingSbomError.Revision(childComplexity), true
 
-	case "Mutation.deleteApp":
-		if e.complexity.Mutation.DeleteApp == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_deleteApp_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.DeleteApp(childComplexity, args["name"].(string), args["team"].(slug.Slug), args["env"].(string)), true
-
 	case "Mutation.deleteJob":
 		if e.complexity.Mutation.DeleteJob == nil {
 			break
@@ -1316,18 +1277,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteJob(childComplexity, args["name"].(string), args["team"].(slug.Slug), args["env"].(string)), true
-
-	case "Mutation.restartApp":
-		if e.complexity.Mutation.RestartApp == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_restartApp_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.RestartApp(childComplexity, args["name"].(string), args["team"].(slug.Slug), args["env"].(string)), true
 
 	case "Mutation.synchronizeAllTeams":
 		if e.complexity.Mutation.SynchronizeAllTeams == nil {
@@ -1716,13 +1665,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Resources.Scaling(childComplexity), true
-
-	case "RestartAppResult.error":
-		if e.complexity.RestartAppResult.Error == nil {
-			break
-		}
-
-		return e.complexity.RestartAppResult.Error(childComplexity), true
 
 	case "Role.isGlobal":
 		if e.complexity.Role.IsGlobal == nil {
@@ -2403,39 +2345,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../graphqls/app.graphqls", Input: `extend type Mutation {
-	deleteApp(
-		"The name of the application."
-		name: String!
-
-		"The name of the team who owns the application."
-		team: Slug!
-
-		"The environment the application is deployed to."
-		env: String!
-	): DeleteAppResult!
-	restartApp(
-		"The name of the application."
-		name: String!
-
-		"The name of the team who owns the application."
-		team: Slug!
-
-		"The environment the application is deployed to."
-		env: String!
-	): RestartAppResult!
-}
-
-type DeleteAppResult {
-	"Whether the app was deleted or not."
-	deleted: Boolean!
-	error: String
-}
-type RestartAppResult {
-	error: String
-}
-
-extend type Query {
+	{Name: "../graphqls/app.graphqls", Input: `extend type Query {
 	"Get an app by name, team and env."
 	app(
 		"The name of the application."
@@ -3238,92 +3148,6 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_deleteApp_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_deleteApp_argsName(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["name"] = arg0
-	arg1, err := ec.field_Mutation_deleteApp_argsTeam(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["team"] = arg1
-	arg2, err := ec.field_Mutation_deleteApp_argsEnv(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["env"] = arg2
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_deleteApp_argsName(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["name"]
-	if !ok {
-		var zeroVal string
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-	if tmp, ok := rawArgs["name"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_deleteApp_argsTeam(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (slug.Slug, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["team"]
-	if !ok {
-		var zeroVal slug.Slug
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-	if tmp, ok := rawArgs["team"]; ok {
-		return ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
-	}
-
-	var zeroVal slug.Slug
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_deleteApp_argsEnv(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["env"]
-	if !ok {
-		var zeroVal string
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("env"))
-	if tmp, ok := rawArgs["env"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Mutation_deleteJob_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3389,92 +3213,6 @@ func (ec *executionContext) field_Mutation_deleteJob_argsTeam(
 }
 
 func (ec *executionContext) field_Mutation_deleteJob_argsEnv(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["env"]
-	if !ok {
-		var zeroVal string
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("env"))
-	if tmp, ok := rawArgs["env"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_restartApp_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_restartApp_argsName(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["name"] = arg0
-	arg1, err := ec.field_Mutation_restartApp_argsTeam(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["team"] = arg1
-	arg2, err := ec.field_Mutation_restartApp_argsEnv(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["env"] = arg2
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_restartApp_argsName(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["name"]
-	if !ok {
-		var zeroVal string
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-	if tmp, ok := rawArgs["name"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_restartApp_argsTeam(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (slug.Slug, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["team"]
-	if !ok {
-		var zeroVal slug.Slug
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-	if tmp, ok := rawArgs["team"]; ok {
-		return ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
-	}
-
-	var zeroVal slug.Slug
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_restartApp_argsEnv(
 	ctx context.Context,
 	rawArgs map[string]interface{},
 ) (string, error) {
@@ -5953,91 +5691,6 @@ func (ec *executionContext) _Consumer_orgno(ctx context.Context, field graphql.C
 func (ec *executionContext) fieldContext_Consumer_orgno(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Consumer",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _DeleteAppResult_deleted(ctx context.Context, field graphql.CollectedField, obj *model.DeleteAppResult) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_DeleteAppResult_deleted(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Deleted, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_DeleteAppResult_deleted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "DeleteAppResult",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _DeleteAppResult_error(ctx context.Context, field graphql.CollectedField, obj *model.DeleteAppResult) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_DeleteAppResult_error(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Error, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_DeleteAppResult_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "DeleteAppResult",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -9129,126 +8782,6 @@ func (ec *executionContext) fieldContext_MissingSbomError_level(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_deleteApp(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_deleteApp(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteApp(rctx, fc.Args["name"].(string), fc.Args["team"].(slug.Slug), fc.Args["env"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.DeleteAppResult)
-	fc.Result = res
-	return ec.marshalNDeleteAppResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐDeleteAppResult(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_deleteApp(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "deleted":
-				return ec.fieldContext_DeleteAppResult_deleted(ctx, field)
-			case "error":
-				return ec.fieldContext_DeleteAppResult_error(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type DeleteAppResult", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_deleteApp_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_restartApp(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_restartApp(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().RestartApp(rctx, fc.Args["name"].(string), fc.Args["team"].(slug.Slug), fc.Args["env"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.RestartAppResult)
-	fc.Result = res
-	return ec.marshalNRestartAppResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRestartAppResult(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_restartApp(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "error":
-				return ec.fieldContext_RestartAppResult_error(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type RestartAppResult", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_restartApp_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Mutation_deleteJob(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_deleteJob(ctx, field)
 	if err != nil {
@@ -12223,47 +11756,6 @@ func (ec *executionContext) fieldContext_Resources_scaling(_ context.Context, fi
 				return ec.fieldContext_Scaling_strategies(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Scaling", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _RestartAppResult_error(ctx context.Context, field graphql.CollectedField, obj *model.RestartAppResult) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RestartAppResult_error(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Error, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_RestartAppResult_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RestartAppResult",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -18626,47 +18118,6 @@ func (ec *executionContext) _Consumer(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var deleteAppResultImplementors = []string{"DeleteAppResult"}
-
-func (ec *executionContext) _DeleteAppResult(ctx context.Context, sel ast.SelectionSet, obj *model.DeleteAppResult) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, deleteAppResultImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("DeleteAppResult")
-		case "deleted":
-			out.Values[i] = ec._DeleteAppResult_deleted(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "error":
-			out.Values[i] = ec._DeleteAppResult_error(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var deleteJobResultImplementors = []string{"DeleteJobResult"}
 
 func (ec *executionContext) _DeleteJobResult(ctx context.Context, sel ast.SelectionSet, obj *model.DeleteJobResult) graphql.Marshaler {
@@ -19724,20 +19175,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "deleteApp":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_deleteApp(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "restartApp":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_restartApp(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "deleteJob":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteJob(ctx, field)
@@ -20615,42 +20052,6 @@ func (ec *executionContext) _Resources(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var restartAppResultImplementors = []string{"RestartAppResult"}
-
-func (ec *executionContext) _RestartAppResult(ctx context.Context, sel ast.SelectionSet, obj *model.RestartAppResult) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, restartAppResultImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("RestartAppResult")
-		case "error":
-			out.Values[i] = ec._RestartAppResult_error(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -22917,20 +22318,6 @@ func (ec *executionContext) marshalNConsumer2ᚖgithubᚗcomᚋnaisᚋapiᚋinte
 	return ec._Consumer(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNDeleteAppResult2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐDeleteAppResult(ctx context.Context, sel ast.SelectionSet, v model.DeleteAppResult) graphql.Marshaler {
-	return ec._DeleteAppResult(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNDeleteAppResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐDeleteAppResult(ctx context.Context, sel ast.SelectionSet, v *model.DeleteAppResult) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._DeleteAppResult(ctx, sel, v)
-}
-
 func (ec *executionContext) marshalNDeleteJobResult2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐDeleteJobResult(ctx context.Context, sel ast.SelectionSet, v model.DeleteJobResult) graphql.Marshaler {
 	return ec._DeleteJobResult(ctx, sel, &v)
 }
@@ -23355,20 +22742,6 @@ func (ec *executionContext) marshalNResourceInventory2ᚖgithubᚗcomᚋnaisᚋa
 
 func (ec *executionContext) marshalNResources2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResources(ctx context.Context, sel ast.SelectionSet, v model.Resources) graphql.Marshaler {
 	return ec._Resources(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNRestartAppResult2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRestartAppResult(ctx context.Context, sel ast.SelectionSet, v model.RestartAppResult) graphql.Marshaler {
-	return ec._RestartAppResult(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNRestartAppResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRestartAppResult(ctx context.Context, sel ast.SelectionSet, v *model.RestartAppResult) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._RestartAppResult(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNRole2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRoleᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Role) graphql.Marshaler {

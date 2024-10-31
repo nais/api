@@ -4,13 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
-	"k8s.io/utils/ptr"
 )
 
 func (r *appResolver) Instances(ctx context.Context, obj *model.App) ([]*model.Instance, error) {
@@ -32,41 +30,6 @@ func (r *appResolver) Manifest(ctx context.Context, obj *model.App) (string, err
 
 func (r *appResolver) Team(ctx context.Context, obj *model.App) (*model.Team, error) {
 	return loader.GetTeam(ctx, obj.GQLVars.Team)
-}
-
-func (r *mutationResolver) DeleteApp(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteAppResult, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamMembership(actor, team)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := r.k8sClient.DeleteApp(ctx, name, team.String(), env); err != nil {
-		return &model.DeleteAppResult{
-			Deleted: false,
-			Error:   ptr.To(err.Error()),
-		}, nil
-	}
-
-	return &model.DeleteAppResult{
-		Deleted: true,
-	}, nil
-}
-
-func (r *mutationResolver) RestartApp(ctx context.Context, name string, team slug.Slug, env string) (*model.RestartAppResult, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamMembership(actor, team)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := r.k8sClient.RestartApp(ctx, name, team.String(), env); err != nil {
-		return &model.RestartAppResult{
-			Error: ptr.To(err.Error()),
-		}, nil
-	}
-
-	return &model.RestartAppResult{}, nil
 }
 
 func (r *queryResolver) App(ctx context.Context, name string, team slug.Slug, env string) (*model.App, error) {
