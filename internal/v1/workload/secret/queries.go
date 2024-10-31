@@ -51,7 +51,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	SortFilter.Sort(ctx, retVal, orderBy.Field, orderBy.Direction)
 
 	secrets := pagination.Slice(retVal, page)
-	return pagination.NewConnection(secrets, page, int32(len(secrets))), nil
+	return pagination.NewConnection(secrets, page, int32(len(retVal))), nil
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Secret, error) {
