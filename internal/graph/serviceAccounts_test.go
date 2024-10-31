@@ -33,7 +33,7 @@ func TestMutationResolver_Roles(t *testing.T) {
 	db := database.NewMockDatabase(t)
 	log, _ := test.NewNullLogger()
 	resolver := graph.
-		NewResolver(nil, nil, nil, nil, db, "example", "example.com", nil, nil, log, nil).
+		NewResolver(nil, nil, nil, db, "example", "example.com", nil, nil, log, nil).
 		ServiceAccount()
 
 	t.Run("get roles for serviceAccount", func(t *testing.T) {

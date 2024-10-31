@@ -56,7 +56,6 @@ type App implements Workload {
   resources: Resources!
   type: WorkloadType!
   utilization: AppUtilization!
-  imageDetails: ImageDetails!
   ingresses: [String!]!
   instances: [Instance!]!
   manifest: String!
@@ -153,12 +152,6 @@ type InboundAccessError implements StateError {
 type OutboundAccessError implements StateError {
 	revision: String!
 	level: ErrorLevel!
-}
-
-type VulnerableError implements StateError {
-  revision: String!
-  level: ErrorLevel!
-  summary: ImageVulnerabilitySummary
 }
 
 type MissingSbomError implements StateError {

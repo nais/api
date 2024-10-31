@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"slices"
 
 	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v5"
@@ -18,7 +17,6 @@ import (
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/hookd"
-	"github.com/nais/api/internal/vulnerabilities"
 	"github.com/nais/api/pkg/apiclient/protoapi"
 	"github.com/sourcegraph/conc/pool"
 	"k8s.io/utils/ptr"
@@ -236,100 +234,6 @@ func (r *teamResolver) ViewerIsMember(ctx context.Context, obj *model.Team) (boo
 	return u != nil, nil
 }
 
-func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.TeamStatus, error) {
-	wg := pool.NewWithResults[any]().WithErrors().WithFirstError()
-
-	wg.Go(func() (any, error) {
-		apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
-		if err != nil {
-			return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
-		}
-		failingApps := 0
-		notNais := 0
-		workloads := make([]model.Workload, 0)
-		for _, app := range apps {
-			if app.Status.State == model.StateFailing {
-				failingApps++
-			}
-			if app.Status.State == model.StateNotnais {
-				notNais++
-			}
-			workloads = append(workloads, app)
-		}
-
-		vulnErrs, err := r.vulnerabilities.GetVulnerabilityErrors(ctx, workloads, obj.Slug.String())
-		if err != nil {
-			return nil, fmt.Errorf("getting vulnerability status for all images: %w", err)
-		}
-		notNais += len(vulnErrs)
-
-		return model.AppsStatus{
-			Failing:         failingApps,
-			NotNais:         notNais,
-			Vulnerabilities: len(vulnErrs),
-		}, nil
-	})
-
-	wg.Go(func() (any, error) {
-		jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
-		if err != nil {
-			return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
-		}
-		failingJobs := 0
-		notNais := 0
-		workloads := make([]model.Workload, 0)
-		for _, job := range jobs {
-			if job.Status.State == model.StateFailing {
-				failingJobs++
-			}
-			if job.Status.State == model.StateNotnais {
-				notNais++
-			}
-			workloads = append(workloads, job)
-		}
-
-		vulnErrs, err := r.vulnerabilities.GetVulnerabilityErrors(ctx, workloads, obj.Slug.String())
-		if err != nil {
-			return nil, fmt.Errorf("getting vulnerability status for all images: %w", err)
-		}
-		notNais += len(vulnErrs)
-
-		return model.JobsStatus{
-			Failing:         failingJobs,
-			NotNais:         notNais,
-			Vulnerabilities: len(vulnErrs),
-		}, nil
-	})
-
-	res, err := wg.Wait()
-	if err != nil {
-		return nil, err
-	}
-
-	ret := &model.TeamStatus{}
-	ret.State = model.StateNais
-	for _, r := range res {
-		switch v := r.(type) {
-		case model.AppsStatus:
-			ret.Apps = v
-			if v.Failing > 0 {
-				ret.State = model.StateFailing
-			} else if v.Failing == 0 && v.NotNais > 0 {
-				ret.State = model.StateNotnais
-			}
-		case model.JobsStatus:
-			ret.Jobs = v
-			if v.Failing > 0 {
-				ret.State = model.StateFailing
-			} else if v.Failing == 0 && v.NotNais > 0 {
-				ret.State = model.StateNotnais
-			}
-		}
-	}
-
-	return ret, nil
-}
-
 func (r *teamResolver) ResourceInventory(ctx context.Context, obj *model.Team) (*model.ResourceInventory, error) {
 	wg := pool.NewWithResults[any]().WithErrors().WithFirstError()
 	results := make(map[string]int)
@@ -425,69 +329,6 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 				}
 				return aIndex > bIndex
 			})
-		case model.OrderByFieldSeverityCritical:
-			severities := map[string]int{}
-			images := []*model.ImageDetails{}
-			for _, app := range apps {
-				image, err := r.vulnerabilities.GetMetadataForImage(ctx, app.Image)
-				if err != nil {
-					return nil, fmt.Errorf("getting metadata for image %q: %w", app.Image, err)
-				}
-				images = append(images, image)
-			}
-
-			for _, image := range images {
-				if image == nil || image.Summary == nil {
-					severities[image.Name] = -1
-					continue
-				}
-				severities[image.Name] = image.Summary.Critical
-			}
-
-			model.SortWith(apps, func(a, b *model.App) bool {
-				if orderBy.Direction == model.SortOrderAsc {
-					if severities[a.Image] == severities[b.Image] {
-						return a.Name < b.Name
-					}
-					return severities[a.Image] < severities[b.Image]
-				}
-				if severities[a.Image] == severities[b.Image] {
-					return a.Name > b.Name
-				}
-				return severities[a.Image] > severities[b.Image]
-			})
-
-		case model.OrderByFieldRiskScore:
-			riskScores := map[string]int{}
-			images := []*model.ImageDetails{}
-			for _, app := range apps {
-				image, err := r.vulnerabilities.GetMetadataForImage(ctx, app.Image)
-				if err != nil {
-					return nil, fmt.Errorf("getting metadata for image %q: %w", app.Image, err)
-				}
-				images = append(images, image)
-			}
-
-			for _, image := range images {
-				if image == nil || image.Summary == nil {
-					riskScores[image.Name] = -1
-					continue
-				}
-				riskScores[image.Name] = image.Summary.RiskScore
-			}
-
-			model.SortWith(apps, func(a, b *model.App) bool {
-				if orderBy.Direction == model.SortOrderAsc {
-					if riskScores[a.Image] == riskScores[b.Image] {
-						return a.Name < b.Name
-					}
-					return riskScores[a.Image] < riskScores[b.Image]
-				}
-				if riskScores[a.Image] == riskScores[b.Image] {
-					return a.Name > b.Name
-				}
-				return riskScores[a.Image] > riskScores[b.Image]
-			})
 		}
 	}
 
@@ -576,69 +417,6 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 				}
 				return aIndex > bIndex
 			})
-		case model.OrderByFieldSeverityCritical:
-			severities := map[string]int{}
-			images := []*model.ImageDetails{}
-			for _, job := range naisjobs {
-				image, err := r.vulnerabilities.GetMetadataForImage(ctx, job.Image)
-				if err != nil {
-					return nil, fmt.Errorf("getting metadata for image %q: %w", job.Image, err)
-				}
-				images = append(images, image)
-			}
-
-			for _, image := range images {
-				if image == nil || image.Summary == nil {
-					severities[image.Name] = -1
-					continue
-				}
-				severities[image.Name] = image.Summary.RiskScore
-			}
-
-			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
-				if orderBy.Direction == model.SortOrderAsc {
-					if severities[a.Image] == severities[b.Image] {
-						return a.Name < b.Name
-					}
-					return severities[a.Image] < severities[b.Image]
-				}
-				if severities[a.Image] == severities[b.Image] {
-					return a.Name > b.Name
-				}
-				return severities[a.Image] > severities[b.Image]
-			})
-
-		case model.OrderByFieldRiskScore:
-			riskScores := map[string]int{}
-			images := []*model.ImageDetails{}
-			for _, job := range naisjobs {
-				image, err := r.vulnerabilities.GetMetadataForImage(ctx, job.Image)
-				if err != nil {
-					return nil, fmt.Errorf("getting metadata for image %q: %w", job.Image, err)
-				}
-				images = append(images, image)
-			}
-
-			for _, image := range images {
-				if image == nil || image.Summary == nil {
-					riskScores[image.Name] = -1
-					continue
-				}
-				riskScores[image.Name] = image.Summary.RiskScore
-			}
-
-			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
-				if orderBy.Direction == model.SortOrderAsc {
-					if riskScores[a.Image] == riskScores[b.Image] {
-						return a.Name < b.Name
-					}
-					return riskScores[a.Image] < riskScores[b.Image]
-				}
-				if riskScores[a.Image] == riskScores[b.Image] {
-					return a.Name > b.Name
-				}
-				return riskScores[a.Image] > riskScores[b.Image]
-			})
 		}
 	}
 
@@ -670,89 +448,6 @@ func (r *teamResolver) Deployments(ctx context.Context, obj *model.Team, offset 
 			TotalCount:      0,
 		},
 	}, nil
-}
-
-func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy, filter *model.VulnerabilityFilter) (*model.VulnerabilityList, error) {
-	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
-	if err != nil {
-		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
-	}
-	jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
-	if err != nil {
-		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
-	}
-
-	workloads := make([]model.Workload, 0)
-	for _, app := range apps {
-		if filter != nil && len(filter.Envs) > 0 {
-			if !slices.Contains(filter.Envs, app.Env.Name) {
-				continue
-			}
-		}
-		workloads = append(workloads, app)
-	}
-	for _, job := range jobs {
-		if filter != nil && len(filter.Envs) > 0 {
-			if !slices.Contains(filter.Envs, job.Env.Name) {
-				continue
-			}
-		}
-		workloads = append(workloads, job)
-	}
-
-	nodes, err := r.vulnerabilities.GetVulnerabilitiesForTeam(ctx, workloads, obj.Slug.String())
-	if err != nil {
-		return nil, err
-	}
-
-	if orderBy != nil {
-		vulnerabilities.Sort(nodes, orderBy.Field, orderBy.Direction)
-	}
-
-	pagination := model.NewPagination(offset, limit)
-	nodes, pageInfo := model.PaginatedSlice(nodes, pagination)
-
-	return &model.VulnerabilityList{
-		Nodes:    nodes,
-		PageInfo: pageInfo,
-	}, nil
-}
-
-func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Team, filter *model.VulnerabilityFilter) (*model.VulnerabilitySummaryForTeam, error) {
-	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
-	if err != nil {
-		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
-	}
-	jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
-	if err != nil {
-		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
-	}
-
-	workloads := make([]model.Workload, 0)
-	for _, app := range apps {
-		if filter != nil && len(filter.Envs) > 0 {
-			if !slices.Contains(filter.Envs, app.Env.Name) {
-				continue
-			}
-		}
-		workloads = append(workloads, app)
-	}
-
-	for _, job := range jobs {
-		if filter != nil && len(filter.Envs) > 0 {
-			if !slices.Contains(filter.Envs, job.Env.Name) {
-				continue
-			}
-		}
-		workloads = append(workloads, job)
-	}
-
-	allTeamSlugs, err := r.database.GetAllTeamSlugs(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("getting all team slugs: %w", err)
-	}
-
-	return r.vulnerabilities.GetSummaryForTeam(ctx, workloads, obj.Slug.String(), len(allTeamSlugs))
 }
 
 func (r *teamResolver) Secrets(ctx context.Context, obj *model.Team) ([]*model.Secret, error) {

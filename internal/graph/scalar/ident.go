@@ -17,25 +17,19 @@ import (
 type IdentType string
 
 const (
-	IdentTypeAnalysisTrail        IdentType = "analysisTrail"
-	IdentTypeApp                  IdentType = "app"
-	IdentTypeCorrelationID        IdentType = "correlationID"
-	IdentTypeDeployKey            IdentType = "deployKey"
-	IdentTypeDeployment           IdentType = "deployment"
-	IdentTypeDeploymentResource   IdentType = "deploymentResource"
-	IdentTypeDeploymentStatus     IdentType = "deploymentStatus"
-	IdentTypeEnv                  IdentType = "env"
-	IdentTypeFinding              IdentType = "finding"
-	IdentTypeImage                IdentType = "image"
-	IdentTypeJob                  IdentType = "job"
-	IdentTypePod                  IdentType = "pod"
-	IdentTypeSecret               IdentType = "secret"
-	IdentTypeTeam                 IdentType = "team"
-	IdentTypeUser                 IdentType = "user"
-	IdentTypeUsersyncRun          IdentType = "usersyncRun"
-	IdentTypeVulnerabilities      IdentType = "vulnerabilities"
-	IdentTypeVulnerabilitySummary IdentType = "vulnerabilitySummary"
-	IdentTypeWorkload             IdentType = "workload"
+	IdentTypeApp                IdentType = "app"
+	IdentTypeCorrelationID      IdentType = "correlationID"
+	IdentTypeDeployKey          IdentType = "deployKey"
+	IdentTypeDeployment         IdentType = "deployment"
+	IdentTypeDeploymentResource IdentType = "deploymentResource"
+	IdentTypeDeploymentStatus   IdentType = "deploymentStatus"
+	IdentTypeEnv                IdentType = "env"
+	IdentTypeJob                IdentType = "job"
+	IdentTypePod                IdentType = "pod"
+	IdentTypeSecret             IdentType = "secret"
+	IdentTypeTeam               IdentType = "team"
+	IdentTypeUser               IdentType = "user"
+	IdentTypeUsersyncRun        IdentType = "usersyncRun"
 
 	idSeparator = "-"
 )
@@ -118,10 +112,6 @@ func DeploymentStatusIdent(id string) Ident {
 	return newIdent(IdentTypeDeploymentStatus, id)
 }
 
-func VulnerabilitiesIdent(id string) Ident {
-	return newIdent(IdentTypeVulnerabilities, id)
-}
-
 func SecretIdent(envName string, teamSlug slug.Slug, secretName string) Ident {
 	return newIdent(IdentTypeSecret, envName, string(teamSlug), secretName)
 }
@@ -136,26 +126,6 @@ func UserIdent(userID uuid.UUID) Ident {
 
 func UsersyncRunIdent(id uuid.UUID) Ident {
 	return newIdent(IdentTypeUsersyncRun, id.String())
-}
-
-func FindingIdent(id string) Ident {
-	return newIdent(IdentTypeFinding, id)
-}
-
-func ImageIdent(name, version string) Ident {
-	return newIdent(IdentTypeImage, name, version)
-}
-
-func WorkloadIdent(id string) Ident {
-	return newIdent(IdentTypeWorkload, id)
-}
-
-func AnalysisTrailIdent(projectID, componentID, vulnerabilityID string) Ident {
-	return newIdent(IdentTypeAnalysisTrail, projectID, componentID, vulnerabilityID)
-}
-
-func ImageVulnerabilitySummaryIdent(id string) Ident {
-	return newIdent(IdentTypeVulnerabilitySummary, id)
 }
 
 func newIdent(t IdentType, id ...string) Ident {

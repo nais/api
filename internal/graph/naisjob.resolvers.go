@@ -2,7 +2,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
@@ -29,15 +28,6 @@ func (r *mutationResolver) DeleteJob(ctx context.Context, name string, team slug
 	return &model.DeleteJobResult{
 		Deleted: true,
 	}, nil
-}
-
-func (r *naisJobResolver) ImageDetails(ctx context.Context, obj *model.NaisJob) (*model.ImageDetails, error) {
-	image, err := r.vulnerabilities.GetMetadataForImage(ctx, obj.Image)
-	if err != nil {
-		return nil, fmt.Errorf("getting metadata for image %q: %w", obj.Image, err)
-	}
-
-	return image, nil
 }
 
 func (r *naisJobResolver) Runs(ctx context.Context, obj *model.NaisJob) ([]*model.Run, error) {
@@ -70,18 +60,6 @@ func (r *queryResolver) Naisjob(ctx context.Context, name string, team slug.Slug
 	job, err := r.k8sClient.NaisJob(ctx, name, team.String(), env)
 	if err != nil {
 		return nil, err
-	}
-
-	vuln, err := r.vulnerabilities.GetVulnerabilityError(ctx, job.Image, job.DeployInfo.CommitSha)
-	if err != nil {
-		return nil, fmt.Errorf("getting vulnerability status for image %q: %w", job.Image, err)
-	}
-
-	if vuln != nil {
-		if job.Status.State != model.StateFailing {
-			job.Status.State = model.StateNotnais
-		}
-		job.Status.Errors = append(job.Status.Errors, vuln)
 	}
 
 	return job, nil

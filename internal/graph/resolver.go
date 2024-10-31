@@ -18,7 +18,6 @@ import (
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/unleash"
-	"github.com/nais/api/internal/vulnerabilities"
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -78,7 +77,6 @@ type HookdClient interface {
 type Resolver struct {
 	hookdClient         HookdClient
 	k8sClient           *k8s.Client
-	vulnerabilities     *vulnerabilities.Manager
 	resourceUsageClient resourceusage.ResourceUsageClient
 	log                 logrus.FieldLogger
 	clusters            ClusterList
@@ -93,7 +91,6 @@ type Resolver struct {
 func NewResolver(
 	hookdClient HookdClient,
 	k8sClient *k8s.Client,
-	vulnerabilitiesMgr *vulnerabilities.Manager,
 	resourceUsageClient resourceusage.ResourceUsageClient,
 	db database.Database,
 	tenant string,
@@ -106,7 +103,6 @@ func NewResolver(
 	return &Resolver{
 		hookdClient:         hookdClient,
 		k8sClient:           k8sClient,
-		vulnerabilities:     vulnerabilitiesMgr,
 		resourceUsageClient: resourceUsageClient,
 		tenant:              tenant,
 		tenantDomain:        tenantDomain,

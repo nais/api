@@ -32,7 +32,6 @@ import (
 	fakev1 "github.com/nais/api/internal/v1/kubernetes/fake"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
 	"github.com/nais/api/internal/v1/vulnerability"
-	"github.com/nais/api/internal/vulnerabilities"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2/google"
@@ -179,7 +178,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	resolver := graph.NewResolver(
 		hookdClient,
 		k8sClient,
-		vulnerabilities.NewManager(cfg.ToVulnerabilitiesConfig(cfg.K8s.AllClusterNames())),
 		resourceUsageClient,
 		db,
 		cfg.Tenant,

@@ -37,17 +37,6 @@ type Workload interface {
 	IsWorkload()
 }
 
-type AnalysisComment struct {
-	Comment    string    `json:"comment"`
-	Timestamp  time.Time `json:"timestamp"`
-	OnBehalfOf string    `json:"onBehalfOf"`
-}
-
-type AnalysisCommentList struct {
-	PageInfo PageInfo           `json:"pageInfo"`
-	Nodes    []*AnalysisComment `json:"nodes"`
-}
-
 type AppList struct {
 	Nodes    []*App   `json:"nodes"`
 	PageInfo PageInfo `json:"pageInfo"`
@@ -232,22 +221,6 @@ type IDPortenSidecar struct {
 	Resources            *Resources `json:"resources,omitempty"`
 }
 
-type ImageDetailsList struct {
-	Nodes    []*ImageDetails `json:"nodes"`
-	PageInfo PageInfo        `json:"pageInfo"`
-}
-
-type ImageVulnerabilitySummary struct {
-	ID         scalar.Ident `json:"id"`
-	Total      int          `json:"total"`
-	RiskScore  int          `json:"riskScore"`
-	Critical   int          `json:"critical"`
-	High       int          `json:"high"`
-	Medium     int          `json:"medium"`
-	Low        int          `json:"low"`
-	Unassigned int          `json:"unassigned"`
-}
-
 type InboundAccessError struct {
 	Revision string     `json:"revision"`
 	Level    ErrorLevel `json:"level"`
@@ -362,21 +335,6 @@ type PageInfo struct {
 type Query struct {
 }
 
-type Rekor struct {
-	BuildTrigger             string `json:"buildTrigger"`
-	BuildConfigURI           string `json:"buildConfigURI"`
-	GitHubWorkflowName       string `json:"gitHubWorkflowName"`
-	GitHubWorkflowRef        string `json:"gitHubWorkflowRef"`
-	GitHubWorkflowSha        string `json:"gitHubWorkflowSHA"`
-	LogIndex                 string `json:"logIndex"`
-	OIDCIssuer               string `json:"oIDCIssuer"`
-	RunInvocationURI         string `json:"runInvocationURI"`
-	RunnerEnvironment        string `json:"runnerEnvironment"`
-	SourceRepositoryOwnerURI string `json:"sourceRepositoryOwnerURI"`
-	IntegratedTime           int    `json:"integratedTime"`
-	ImageDigestSha           string `json:"imageDigestSHA"`
-}
-
 type Requests struct {
 	CPU    string `json:"cpu"`
 	Memory string `json:"memory"`
@@ -444,13 +402,6 @@ type TeamMemberList struct {
 	PageInfo PageInfo      `json:"pageInfo"`
 }
 
-// Team status.
-type TeamStatus struct {
-	State State      `json:"state"`
-	Apps  AppsStatus `json:"apps"`
-	Jobs  JobsStatus `json:"jobs"`
-}
-
 type TokenX struct {
 	MountSecretsAsFilesOnly bool `json:"mountSecretsAsFilesOnly"`
 }
@@ -492,62 +443,6 @@ type VariableInput struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
-
-type VulnIDAlias struct {
-	Name   string `json:"name"`
-	Source string `json:"source"`
-}
-
-type VulnerabilityFilter struct {
-	// Filter by environment
-	Envs []string `json:"envs,omitempty"`
-	// Require the presence of a Software Bill of Materials (SBOM) in the vulnerability report.
-	RequireSbom *bool `json:"requireSbom,omitempty"`
-}
-
-type VulnerabilityList struct {
-	Nodes    []*VulnerabilityNode `json:"nodes"`
-	PageInfo PageInfo             `json:"pageInfo"`
-}
-
-type VulnerabilityNode struct {
-	ID           scalar.Ident               `json:"id"`
-	WorkloadName string                     `json:"workloadName"`
-	WorkloadType string                     `json:"workloadType"`
-	Env          string                     `json:"env"`
-	Summary      *ImageVulnerabilitySummary `json:"summary,omitempty"`
-	HasSbom      bool                       `json:"hasSbom"`
-	Status       WorkloadStatus             `json:"status"`
-}
-
-type VulnerabilityStatus struct {
-	State       VulnerabilityState `json:"state"`
-	Title       string             `json:"title"`
-	Description string             `json:"description"`
-}
-
-type VulnerabilitySummaryForTeam struct {
-	RiskScore            int                         `json:"riskScore"`
-	RiskScoreTrend       VulnerabilityRiskScoreTrend `json:"riskScoreTrend"`
-	Critical             int                         `json:"critical"`
-	High                 int                         `json:"high"`
-	Medium               int                         `json:"medium"`
-	Low                  int                         `json:"low"`
-	BomCount             int                         `json:"bomCount"`
-	Unassigned           int                         `json:"unassigned"`
-	Coverage             float64                     `json:"coverage"`
-	TotalWorkloads       int                         `json:"totalWorkloads"`
-	VulnerabilityRanking VulnerabilityRanking        `json:"vulnerabilityRanking"`
-	Status               []*VulnerabilityStatus      `json:"status"`
-}
-
-type VulnerableError struct {
-	Revision string                     `json:"revision"`
-	Level    ErrorLevel                 `json:"level"`
-	Summary  *ImageVulnerabilitySummary `json:"summary,omitempty"`
-}
-
-func (VulnerableError) IsStateError() {}
 
 type ErrorLevel string
 
@@ -646,30 +541,6 @@ const (
 	OrderByFieldDeployed OrderByField = "DEPLOYED"
 	// Order by status
 	OrderByFieldStatus OrderByField = "STATUS"
-	// Order by severity.
-	OrderByFieldSeverity OrderByField = "SEVERITY"
-	// Order by packageUrl
-	OrderByFieldPackageURL OrderByField = "PACKAGE_URL"
-	// Order by state.
-	OrderByFieldState OrderByField = "STATE"
-	// Order by isSuppressed.
-	OrderByFieldIsSuppressed OrderByField = "IS_SUPPRESSED"
-	// Order by appName.
-	OrderByFieldAppName OrderByField = "APP_NAME"
-	// Order by env.
-	OrderByFieldEnvName OrderByField = "ENV_NAME"
-	// Order by risk score
-	OrderByFieldRiskScore OrderByField = "RISK_SCORE"
-	// Order apps by vulnerability severity critical
-	OrderByFieldSeverityCritical OrderByField = "SEVERITY_CRITICAL"
-	// Order apps by vulnerability severity high
-	OrderByFieldSeverityHigh OrderByField = "SEVERITY_HIGH"
-	// Order apps by vulnerability severity medium
-	OrderByFieldSeverityMedium OrderByField = "SEVERITY_MEDIUM"
-	// Order apps by vulnerability severity low
-	OrderByFieldSeverityLow OrderByField = "SEVERITY_LOW"
-	// Order apps by vulnerability severity unassigned
-	OrderByFieldSeverityUnassigned OrderByField = "SEVERITY_UNASSIGNED"
 )
 
 var AllOrderByField = []OrderByField{
@@ -677,23 +548,11 @@ var AllOrderByField = []OrderByField{
 	OrderByFieldEnv,
 	OrderByFieldDeployed,
 	OrderByFieldStatus,
-	OrderByFieldSeverity,
-	OrderByFieldPackageURL,
-	OrderByFieldState,
-	OrderByFieldIsSuppressed,
-	OrderByFieldAppName,
-	OrderByFieldEnvName,
-	OrderByFieldRiskScore,
-	OrderByFieldSeverityCritical,
-	OrderByFieldSeverityHigh,
-	OrderByFieldSeverityMedium,
-	OrderByFieldSeverityLow,
-	OrderByFieldSeverityUnassigned,
 }
 
 func (e OrderByField) IsValid() bool {
 	switch e {
-	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldSeverity, OrderByFieldPackageURL, OrderByFieldState, OrderByFieldIsSuppressed, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned:
+	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus:
 		return true
 	}
 	return false
@@ -935,141 +794,6 @@ func (e *UsersyncRunStatus) UnmarshalGQL(v interface{}) error {
 }
 
 func (e UsersyncRunStatus) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type VulnerabilityRanking string
-
-const (
-	VulnerabilityRankingMostVulnerable  VulnerabilityRanking = "MOST_VULNERABLE"
-	VulnerabilityRankingMiddle          VulnerabilityRanking = "MIDDLE"
-	VulnerabilityRankingLeastVulnerable VulnerabilityRanking = "LEAST_VULNERABLE"
-	VulnerabilityRankingUnknown         VulnerabilityRanking = "UNKNOWN"
-)
-
-var AllVulnerabilityRanking = []VulnerabilityRanking{
-	VulnerabilityRankingMostVulnerable,
-	VulnerabilityRankingMiddle,
-	VulnerabilityRankingLeastVulnerable,
-	VulnerabilityRankingUnknown,
-}
-
-func (e VulnerabilityRanking) IsValid() bool {
-	switch e {
-	case VulnerabilityRankingMostVulnerable, VulnerabilityRankingMiddle, VulnerabilityRankingLeastVulnerable, VulnerabilityRankingUnknown:
-		return true
-	}
-	return false
-}
-
-func (e VulnerabilityRanking) String() string {
-	return string(e)
-}
-
-func (e *VulnerabilityRanking) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = VulnerabilityRanking(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid VulnerabilityRanking", str)
-	}
-	return nil
-}
-
-func (e VulnerabilityRanking) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type VulnerabilityRiskScoreTrend string
-
-const (
-	VulnerabilityRiskScoreTrendUp   VulnerabilityRiskScoreTrend = "UP"
-	VulnerabilityRiskScoreTrendDown VulnerabilityRiskScoreTrend = "DOWN"
-	VulnerabilityRiskScoreTrendFlat VulnerabilityRiskScoreTrend = "FLAT"
-)
-
-var AllVulnerabilityRiskScoreTrend = []VulnerabilityRiskScoreTrend{
-	VulnerabilityRiskScoreTrendUp,
-	VulnerabilityRiskScoreTrendDown,
-	VulnerabilityRiskScoreTrendFlat,
-}
-
-func (e VulnerabilityRiskScoreTrend) IsValid() bool {
-	switch e {
-	case VulnerabilityRiskScoreTrendUp, VulnerabilityRiskScoreTrendDown, VulnerabilityRiskScoreTrendFlat:
-		return true
-	}
-	return false
-}
-
-func (e VulnerabilityRiskScoreTrend) String() string {
-	return string(e)
-}
-
-func (e *VulnerabilityRiskScoreTrend) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = VulnerabilityRiskScoreTrend(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid VulnerabilityRiskScoreTrend", str)
-	}
-	return nil
-}
-
-func (e VulnerabilityRiskScoreTrend) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type VulnerabilityState string
-
-const (
-	VulnerabilityStateOk                         VulnerabilityState = "OK"
-	VulnerabilityStateTooManyVulnerableWorkloads VulnerabilityState = "TOO_MANY_VULNERABLE_WORKLOADS"
-	VulnerabilityStateCoverageTooLow             VulnerabilityState = "COVERAGE_TOO_LOW"
-	VulnerabilityStateVulnerable                 VulnerabilityState = "VULNERABLE"
-	VulnerabilityStateMissingSbom                VulnerabilityState = "MISSING_SBOM"
-)
-
-var AllVulnerabilityState = []VulnerabilityState{
-	VulnerabilityStateOk,
-	VulnerabilityStateTooManyVulnerableWorkloads,
-	VulnerabilityStateCoverageTooLow,
-	VulnerabilityStateVulnerable,
-	VulnerabilityStateMissingSbom,
-}
-
-func (e VulnerabilityState) IsValid() bool {
-	switch e {
-	case VulnerabilityStateOk, VulnerabilityStateTooManyVulnerableWorkloads, VulnerabilityStateCoverageTooLow, VulnerabilityStateVulnerable, VulnerabilityStateMissingSbom:
-		return true
-	}
-	return false
-}
-
-func (e VulnerabilityState) String() string {
-	return string(e)
-}
-
-func (e *VulnerabilityState) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = VulnerabilityState(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid VulnerabilityState", str)
-	}
-	return nil
-}
-
-func (e VulnerabilityState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

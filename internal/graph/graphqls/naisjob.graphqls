@@ -60,7 +60,6 @@ type NaisJob implements Workload {
   resources: Resources!
   type: WorkloadType!
 
-  imageDetails: ImageDetails!
   runs: [Run!]!
   manifest: String!
   schedule: String!

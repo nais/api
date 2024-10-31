@@ -13,10 +13,6 @@ packages:
   github.com/nais/api/internal/resourceusage:
     interfaces:
       Client:
-  github.com/nais/api/internal/vulnerabilities:
-    interfaces:
-      InternalClient:
-      Prometheus:
   github.com/nais/api/internal/v1/vulnerability:
     interfaces:
       InternalClient:

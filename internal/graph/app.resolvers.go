@@ -14,15 +14,6 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-func (r *appResolver) ImageDetails(ctx context.Context, obj *model.App) (*model.ImageDetails, error) {
-	image, err := r.vulnerabilities.GetMetadataForImage(ctx, obj.Image)
-	if err != nil {
-		return nil, fmt.Errorf("getting metadata for image %q: %w", obj.Image, err)
-	}
-
-	return image, nil
-}
-
 func (r *appResolver) Instances(ctx context.Context, obj *model.App) ([]*model.Instance, error) {
 	instances, err := r.k8sClient.Instances(ctx, obj.GQLVars.Team.String(), obj.Env.Name, obj.Name)
 	if err != nil {
@@ -110,18 +101,6 @@ func (r *queryResolver) App(ctx context.Context, name string, team slug.Slug, en
 	app, err := r.k8sClient.App(ctx, name, team.String(), env)
 	if err != nil {
 		return nil, apierror.ErrAppNotFound
-	}
-
-	vuln, err := r.vulnerabilities.GetVulnerabilityError(ctx, app.Image, app.DeployInfo.CommitSha)
-	if err != nil {
-		return nil, fmt.Errorf("getting vulnerability status for image %q: %w", app.Image, err)
-	}
-
-	if vuln != nil {
-		if app.Status.State != model.StateFailing {
-			app.Status.State = model.StateNotnais
-		}
-		app.Status.Errors = append(app.Status.Errors, vuln)
 	}
 
 	return app, nil

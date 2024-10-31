@@ -124,9 +124,6 @@ type Team {
   "Whether or not the viewer is a member of the team."
   viewerIsMember: Boolean!
 
-  "The status of the team."
-  status: TeamStatus!
-
   "The teams resources"
   resourceInventory: ResourceInventory!
 
@@ -165,25 +162,6 @@ type Team {
     "Limit the number of entries returned."
     limit: Int
   ): DeploymentList!
-
-  "The vulnerabilities for the team's applications."
-  vulnerabilities(
-    "Returns the first n entries from the list."
-    offset: Int
-
-    "Returns the last n entries from the list."
-    limit: Int
-
-    "Order entries by"
-    orderBy: OrderBy
-
-    filter: VulnerabilityFilter
-  ): VulnerabilityList!
-
-  "The vulnerabilities summary for the team's applications."
-  vulnerabilitiesSummary(
-    filter: VulnerabilityFilter
-  ): VulnerabilitySummaryForTeam!
 
   "Get all secrets for the team."
   secrets: [Secret!]! @auth
@@ -284,13 +262,6 @@ type TeamMember {
 
   "The role that the user has in the team."
   role: TeamRole!
-}
-
-"Team status."
-type TeamStatus {
-  state: State!
-  apps: AppsStatus!
-  jobs: JobsStatus!
 }
 
 "Team status for apps."
