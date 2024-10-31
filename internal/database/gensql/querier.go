@@ -6,7 +6,6 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -17,11 +16,6 @@ type Querier interface {
 	AssignTeamRoleToUser(ctx context.Context, arg AssignTeamRoleToUserParams) error
 	ClearReconcilerErrorsForTeam(ctx context.Context, arg ClearReconcilerErrorsForTeamParams) error
 	ConfigureReconciler(ctx context.Context, arg ConfigureReconcilerParams) error
-	CostForInstance(ctx context.Context, arg CostForInstanceParams) (float32, error)
-	CostForTeam(ctx context.Context, arg CostForTeamParams) (float32, error)
-	// CostUpsert will insert or update a cost record. If there is a conflict on the daily_cost_key constrant, the
-	// daily_cost column will be updated.
-	CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostUpsertBatchResults
 	CreateAPIKey(ctx context.Context, arg CreateAPIKeyParams) error
 	CreateAuditEvent(ctx context.Context, arg CreateAuditEventParams) error
 	CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) error
@@ -29,14 +23,6 @@ type Querier interface {
 	CreateSession(ctx context.Context, arg CreateSessionParams) (*Session, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (*User, error)
 	CreateUsersyncRun(ctx context.Context, arg CreateUsersyncRunParams) error
-	CurrentSqlInstancesCostForTeam(ctx context.Context, arg CurrentSqlInstancesCostForTeamParams) (float32, error)
-	// DailyCostForApp will fetch the daily cost for a specific team app in a specific environment, across all cost types
-	// in a date range.
-	DailyCostForApp(ctx context.Context, arg DailyCostForAppParams) ([]*Cost, error)
-	// DailyCostForTeam will fetch the daily cost for a specific team across all apps and envs in a date range.
-	DailyCostForTeam(ctx context.Context, arg DailyCostForTeamParams) ([]*Cost, error)
-	// DailyEnvCostForTeam will fetch the daily cost for a specific team and environment across all apps in a date range.
-	DailyEnvCostForTeam(ctx context.Context, arg DailyEnvCostForTeamParams) ([]*DailyEnvCostForTeamRow, error)
 	DeleteAllEnvironments(ctx context.Context) error
 	DeleteReconcilerConfig(ctx context.Context, arg DeleteReconcilerConfigParams) error
 	DeleteReconcilerStateForTeam(ctx context.Context, arg DeleteReconcilerStateForTeamParams) error
@@ -117,11 +103,6 @@ type Querier interface {
 	GetUsersyncRunsCount(ctx context.Context) (int64, error)
 	InsertEnvironment(ctx context.Context, arg InsertEnvironmentParams) error
 	IsTeamRepository(ctx context.Context, arg IsTeamRepositoryParams) (bool, error)
-	// LastCostDate will return the last date that has a cost.
-	LastCostDate(ctx context.Context) (pgtype.Date, error)
-	MonthlyCostForApp(ctx context.Context, arg MonthlyCostForAppParams) ([]*MonthlyCostForAppRow, error)
-	MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*CostMonthlyTeam, error)
-	RefreshCostMonthlyTeam(ctx context.Context) error
 	RemoveAllServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
 	ResetReconcilerConfig(ctx context.Context, reconcilerName string) error

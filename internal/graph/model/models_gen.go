@@ -62,16 +62,6 @@ type AnalysisCommentList struct {
 	Nodes    []*AnalysisComment `json:"nodes"`
 }
 
-// App cost type.
-type AppCost struct {
-	// The name of the application.
-	App string `json:"app"`
-	// The sum of all cost entries for the application in euros.
-	Sum float64 `json:"sum"`
-	// A list of cost entries for the application.
-	Cost []*CostEntry `json:"cost"`
-}
-
 type AppList struct {
 	Nodes    []*App   `json:"nodes"`
 	PageInfo PageInfo `json:"pageInfo"`
@@ -184,32 +174,6 @@ type Consumer struct {
 	Orgno string `json:"orgno"`
 }
 
-// Cost entry type.
-type CostEntry struct {
-	// The date for the entry.
-	Date scalar.Date `json:"date"`
-	// The cost in euros.
-	Cost float64 `json:"cost"`
-}
-
-// Cost series type.
-type CostSeries struct {
-	// The type of cost.
-	CostType string `json:"costType"`
-	// The sum of all daily costs in the series for this cost type in euros.
-	Sum float64 `json:"sum"`
-	// The cost data.
-	Data []*CostEntry `json:"data"`
-}
-
-// Daily cost type.
-type DailyCost struct {
-	// The sum of all costs in the cost series in euros.
-	Sum float64 `json:"sum"`
-	// The cost series.
-	Series []*CostSeries `json:"series"`
-}
-
 type DeleteAppResult struct {
 	// Whether the app was deleted or not.
 	Deleted bool    `json:"deleted"`
@@ -285,26 +249,6 @@ type DeprecatedRegistryError struct {
 }
 
 func (DeprecatedRegistryError) IsStateError() {}
-
-// Env cost type.
-type EnvCost struct {
-	// The name of the environment.
-	Env string `json:"env"`
-	// The sum of all app costs for the environment in euros.
-	Sum float64 `json:"sum"`
-	// A list of app costs in the environment.
-	Apps []*AppCost `json:"apps"`
-}
-
-// Env cost filter input type.
-type EnvCostFilter struct {
-	// Start date for the cost series, inclusive.
-	From scalar.Date `json:"from"`
-	// End date for cost series, inclusive.
-	To scalar.Date `json:"to"`
-	// The name of the team to get costs for.
-	Team slug.Slug `json:"team"`
-}
 
 type Error struct {
 	Message string `json:"message"`
@@ -483,24 +427,6 @@ type MissingSbomError struct {
 }
 
 func (MissingSbomError) IsStateError() {}
-
-// Monthly cost type.
-type MonthlyCost struct {
-	// Sum for all months in the series in euros.
-	Sum float64 `json:"sum"`
-	// A list of monthly cost entries.
-	Cost []*CostEntry `json:"cost"`
-}
-
-// Monthly cost filter input type.
-type MonthlyCostFilter struct {
-	// The name of the team to get costs for.
-	Team slug.Slug `json:"team"`
-	// The name of the application to get costs for.
-	App string `json:"app"`
-	// The name of the environment to get costs for.
-	Env string `json:"env"`
-}
 
 // The root query for implementing GraphQL mutations.
 type Mutation struct {

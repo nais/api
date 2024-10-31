@@ -119,23 +119,6 @@ type AuditLog struct {
 	TargetIdentifier string
 }
 
-type Cost struct {
-	ID          int32
-	Environment *string
-	TeamSlug    slug.Slug
-	App         string
-	CostType    string
-	Date        pgtype.Date
-	DailyCost   float32
-}
-
-type CostMonthlyTeam struct {
-	TeamSlug         slug.Slug
-	Month            pgtype.Date
-	LastRecordedDate pgtype.Date
-	DailyCost        float32
-}
-
 type Reconciler struct {
 	Name        string
 	DisplayName string
