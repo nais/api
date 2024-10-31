@@ -216,28 +216,6 @@ type GCPProject struct {
 	ProjectID string `json:"projectId"`
 }
 
-// Input for filtering GitHub repositories.
-type GitHubRepositoriesFilter struct {
-	// Whether or not to include archived repositories. Defaults to false.
-	IncludeArchivedRepositories *bool `json:"includeArchivedRepositories,omitempty"`
-}
-
-// Paginated GitHub repository type.
-type GitHubRepositoryList struct {
-	// The list of GitHub repositories.
-	Nodes []*GitHubRepository `json:"nodes"`
-	// Pagination information.
-	PageInfo PageInfo `json:"pageInfo"`
-}
-
-// GitHub repository permission type.
-type GitHubRepositoryPermission struct {
-	// Name of the permission.
-	Name string `json:"name"`
-	// Whether or not the permission is granted for the repository.
-	Granted bool `json:"granted"`
-}
-
 type Group struct {
 	ID string `json:"id"`
 }
@@ -422,43 +400,6 @@ type Port struct {
 
 // The query root for the NAIS GraphQL API.
 type Query struct {
-}
-
-// Reconciler configuration type.
-type ReconcilerConfig struct {
-	// Configuration key.
-	Key string `json:"key"`
-	// The human-friendly name of the configuration key.
-	DisplayName string `json:"displayName"`
-	// Configuration description.
-	Description string `json:"description"`
-	// Whether or not the configuration key has a value.
-	Configured bool `json:"configured"`
-	// Whether or not the configuration value is considered a secret. Secret values will not be exposed through the API.
-	Secret bool `json:"secret"`
-	// Configuration value. This will be set to null if the value is considered a secret.
-	Value *string `json:"value,omitempty"`
-}
-
-// Reconciler configuration input.
-type ReconcilerConfigInput struct {
-	// Configuration key.
-	Key string `json:"key"`
-	// Configuration value.
-	Value string `json:"value"`
-}
-
-type ReconcilerErrorList struct {
-	Nodes    []*ReconcilerError `json:"nodes"`
-	PageInfo PageInfo           `json:"pageInfo"`
-}
-
-// Paginated reconcilers type.
-type ReconcilerList struct {
-	// The list of reconcilers.
-	Nodes []*Reconciler `json:"nodes"`
-	// Pagination information.
-	PageInfo PageInfo `json:"pageInfo"`
 }
 
 type Rekor struct {

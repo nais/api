@@ -26,11 +26,9 @@ const (
 	IdentTypeDeploymentStatus     IdentType = "deploymentStatus"
 	IdentTypeEnv                  IdentType = "env"
 	IdentTypeFinding              IdentType = "finding"
-	IdentTypeGitHubRepo           IdentType = "githubRepo"
 	IdentTypeImage                IdentType = "image"
 	IdentTypeJob                  IdentType = "job"
 	IdentTypePod                  IdentType = "pod"
-	IdentTypeReconcilerError      IdentType = "reconcilerError"
 	IdentTypeSecret               IdentType = "secret"
 	IdentTypeTeam                 IdentType = "team"
 	IdentTypeUser                 IdentType = "user"
@@ -140,10 +138,6 @@ func UsersyncRunIdent(id uuid.UUID) Ident {
 	return newIdent(IdentTypeUsersyncRun, id.String())
 }
 
-func GitHubRepository(repoName string) Ident {
-	return newIdent(IdentTypeGitHubRepo, repoName)
-}
-
 func FindingIdent(id string) Ident {
 	return newIdent(IdentTypeFinding, id)
 }
@@ -154,10 +148,6 @@ func ImageIdent(name, version string) Ident {
 
 func WorkloadIdent(id string) Ident {
 	return newIdent(IdentTypeWorkload, id)
-}
-
-func ReconcilerErrorIdent(id int) Ident {
-	return newIdent(IdentTypeReconcilerError, strconv.Itoa(id))
 }
 
 func AnalysisTrailIdent(projectID, componentID, vulnerabilityID string) Ident {

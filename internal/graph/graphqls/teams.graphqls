@@ -112,23 +112,8 @@ type Team {
   "Single team member"
   member("The ID of the user." userId: ID!): TeamMember!
 
-  "Possible issues related to synchronization of the team to configured external systems. If there are no entries the team can be considered fully synchronized."
-  syncErrors: [SyncError!]!
-
   "Timestamp of the last successful synchronization of the team."
   lastSuccessfulSync: Time
-
-  "The GitHub repositories that the team has access to."
-  githubRepositories(
-    "Offset to start listing repositories from. Default is 0."
-    offset: Int
-
-    "Limit the number of repositories to return. Default is 20."
-    limit: Int
-
-    "Filter the repositories."
-    filter: GitHubRepositoriesFilter
-  ): GitHubRepositoryList!
 
   "Slack channel for the team."
   slackChannel: String!

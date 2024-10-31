@@ -96,32 +96,6 @@ func AllRoleNameValues() []RoleName {
 	}
 }
 
-type Reconciler struct {
-	Name        string
-	DisplayName string
-	Description string
-	Enabled     bool
-	MemberAware bool
-}
-
-type ReconcilerError struct {
-	ID            int64
-	CorrelationID uuid.UUID
-	Reconciler    string
-	CreatedAt     pgtype.Timestamptz
-	ErrorMessage  string
-	TeamSlug      slug.Slug
-}
-
-type ReconcilerState struct {
-	ID             uuid.UUID
-	ReconcilerName string
-	TeamSlug       slug.Slug
-	Value          []byte
-	CreatedAt      pgtype.Timestamptz
-	UpdatedAt      pgtype.Timestamptz
-}
-
 type ServiceAccount struct {
 	ID   uuid.UUID
 	Name string

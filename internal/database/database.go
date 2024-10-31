@@ -33,9 +33,6 @@ type Page struct {
 
 type Database interface {
 	EnvironmentRepo
-	ReconcilerErrorRepo
-	ReconcilerRepo
-	ReconcilerStateRepo
 	RoleRepo
 	ServiceAccountRepo
 	SessionRepo

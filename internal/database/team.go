@@ -2,29 +2,11 @@ package database
 
 import (
 	"context"
-	"encoding/json"
-	"sort"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 )
-
-type gitHubState struct {
-	Repositories []*GitHubRepository `json:"repositories"`
-}
-
-type GitHubRepository struct {
-	Name        string                        `json:"name"`
-	Permissions []*GitHubRepositoryPermission `json:"permissions"`
-	Archived    bool                          `json:"archived"`
-	RoleName    string                        `json:"roleName"`
-}
-
-type GitHubRepositoryPermission struct {
-	Name    string `json:"name"`
-	Granted bool   `json:"granted"`
-}
 
 type TeamRepo interface {
 	DeleteTeam(ctx context.Context, teamSlug slug.Slug) error
@@ -38,7 +20,6 @@ type TeamRepo interface {
 	// GetTeams returns active teams, as well as teams that have been marked for deletion.
 	GetTeams(ctx context.Context, p Page) ([]*Team, int, error)
 	GetTeamsBySlugs(ctx context.Context, teamSlugs []slug.Slug) ([]*Team, error)
-	GetAllTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string) ([]*Team, error)
 	GetUserTeams(ctx context.Context, userID uuid.UUID) ([]*UserTeam, error)
 	GetUserTeamsPaginated(ctx context.Context, userID uuid.UUID, p Page) ([]*UserTeam, int, error)
 	SetLastSuccessfulSyncForTeam(ctx context.Context, teamSlug slug.Slug) error
@@ -277,59 +258,10 @@ func (d *database) UpsertTeamEnvironment(ctx context.Context, teamSlug slug.Slug
 	return err
 }
 
-func (d *database) GetAllTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string) ([]*Team, error) {
-	// TODO: this should be refactored once we have a better model for the github reconciler state
-	states, err := d.GetReconcilerState(ctx, "github:team")
-	if err != nil {
-		return nil, err
-	}
-
-	teams := make([]*Team, 0)
-	for _, state := range states {
-		if hasRepoWithPermission(state.Value, repoName, permission) {
-			teams = append(teams, state.Team)
-		}
-	}
-	return teams, nil
-}
-
 func (d *database) TeamExists(ctx context.Context, team slug.Slug) (bool, error) {
 	return d.querier.TeamExists(ctx, team)
 }
 
 func (d *database) GetAllTeamSlugs(ctx context.Context) ([]slug.Slug, error) {
 	return d.querier.GetAllTeamSlugs(ctx)
-}
-
-func GetGitHubRepos(b []byte) ([]*GitHubRepository, error) {
-	var state gitHubState
-	err := json.Unmarshal(b, &state)
-	if err != nil {
-		return nil, err
-	}
-	sort.SliceStable(state.Repositories, func(i, j int) bool {
-		return state.Repositories[i].Name < state.Repositories[j].Name
-	})
-	return state.Repositories, nil
-}
-
-func hasRepoWithPermission(b []byte, repoName, permission string) bool {
-	repos, err := GetGitHubRepos(b)
-	if err != nil {
-		return false
-	}
-
-	for _, repo := range repos {
-		if repo.Name != repoName {
-			continue
-		}
-
-		for _, perm := range repo.Permissions {
-			if perm.Name == permission && perm.Granted {
-				return true
-			}
-		}
-	}
-
-	return false
 }

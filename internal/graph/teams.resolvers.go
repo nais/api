@@ -126,25 +126,16 @@ func (r *queryResolver) Teams(ctx context.Context, offset *int, limit *int, filt
 	p := model.NewPagination(offset, limit)
 	var pageInfo model.PageInfo
 
-	if filter != nil && filter.Github != nil {
-		teams, err = r.database.GetAllTeamsWithPermissionInGitHubRepo(ctx, filter.Github.RepoName, filter.Github.PermissionName)
-		if err != nil {
-			return nil, err
-		}
-
-		teams, pageInfo = model.PaginatedSlice(teams, p)
-	} else {
-		var total int
-		teams, total, err = r.database.GetTeams(ctx, database.Page{
-			Limit:  p.Limit,
-			Offset: p.Offset,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		pageInfo = model.NewPageInfo(p, total)
+	var total int
+	teams, total, err = r.database.GetTeams(ctx, database.Page{
+		Limit:  p.Limit,
+		Offset: p.Offset,
+	})
+	if err != nil {
+		return nil, err
 	}
+
+	pageInfo = model.NewPageInfo(p, total)
 
 	return &model.TeamList{
 		Nodes:    toGraphTeams(teams),
@@ -221,52 +212,6 @@ func (r *teamResolver) Member(ctx context.Context, obj *model.Team, userID scala
 	return &model.TeamMember{
 		UserID:   scalar.UserIdent(user.ID),
 		TeamSlug: obj.Slug,
-	}, nil
-}
-
-func (r *teamResolver) SyncErrors(ctx context.Context, obj *model.Team) ([]*model.SyncError, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsRead, obj.Slug)
-	if err != nil {
-		return nil, err
-	}
-
-	rows, err := r.database.GetTeamReconcilerErrors(ctx, obj.Slug)
-	if err != nil {
-		return nil, err
-	}
-
-	syncErrors := make([]*model.SyncError, 0)
-	for _, row := range rows {
-		syncErrors = append(syncErrors, &model.SyncError{
-			CreatedAt:  row.CreatedAt.Time,
-			Reconciler: row.Reconciler,
-			Error:      row.ErrorMessage,
-		})
-	}
-
-	return syncErrors, nil
-}
-
-func (r *teamResolver) GithubRepositories(ctx context.Context, obj *model.Team, offset *int, limit *int, filter *model.GitHubRepositoriesFilter) (*model.GitHubRepositoryList, error) {
-	page := model.NewPagination(offset, limit)
-
-	state, err := r.database.GetReconcilerStateForTeam(ctx, "github:team", obj.Slug)
-	if err != nil {
-		return &model.GitHubRepositoryList{
-			Nodes: []*model.GitHubRepository{},
-		}, nil
-	}
-
-	repos, err := toGraphGitHubRepositories(obj.Slug, state, filter)
-	if err != nil {
-		return nil, err
-	}
-
-	nodes, pageInfo := model.PaginatedSlice(repos, page)
-	return &model.GitHubRepositoryList{
-		Nodes:    nodes,
-		PageInfo: pageInfo,
 	}, nil
 }
 
