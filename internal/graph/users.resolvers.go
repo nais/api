@@ -183,22 +183,6 @@ func (r *userResolver) IsAdmin(ctx context.Context, obj *model.User) (*bool, err
 	return ptr.To(false), nil
 }
 
-func (r *usersyncRunResolver) AuditLogs(ctx context.Context, obj *model.UsersyncRun, limit *int, offset *int) (*model.AuditLogList, error) {
-	p := model.NewPagination(offset, limit)
-	entries, total, err := r.database.GetAuditLogsForCorrelationID(ctx, obj.GQLVars.CorrelationID, database.Page{
-		Limit:  p.Limit,
-		Offset: p.Offset,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.AuditLogList{
-		Nodes:    toGraphAuditLogs(entries),
-		PageInfo: model.NewPageInfo(p, total),
-	}, nil
-}
-
 func (r *usersyncRunResolver) Status(ctx context.Context, obj *model.UsersyncRun) (model.UsersyncRunStatus, error) {
 	if obj.Error == nil {
 		return model.UsersyncRunStatusSuccess, nil

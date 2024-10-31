@@ -25,11 +25,6 @@ func (r *mutationResolver) CreateUnleashForTeam(ctx context.Context, team slug.S
 		return nil, err
 	}
 
-	err = r.auditor.UnleashCreated(ctx, actor.User, team, unleashName)
-	if err != nil {
-		return nil, err
-	}
-
 	return ret, nil
 }
 
@@ -45,12 +40,6 @@ func (r *mutationResolver) UpdateUnleashForTeam(ctx context.Context, team slug.S
 	}
 
 	ret, err := r.unleashMgr.UpdateUnleash(ctx, name, allowedTeams)
-	if err != nil {
-		return nil, err
-	}
-
-	// TODO: split mutation (e.g. AddAllowedTeam, RemoveAllowedTeam) to allow for more granular auditing?
-	err = r.auditor.UnleashUpdated(ctx, actor.User, team, name)
 	if err != nil {
 		return nil, err
 	}

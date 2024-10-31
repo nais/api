@@ -5,7 +5,6 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
 	"github.com/nais/api/internal/database"
@@ -17,10 +16,9 @@ import (
 func TestQueryResolver_Users(t *testing.T) {
 	ctx := context.Background()
 	db := database.NewMockDatabase(t)
-	auditLogger := auditlogger.NewAuditLoggerForTesting()
 	log, _ := test.NewNullLogger()
 	resolver := graph.
-		NewResolver(nil, nil, nil, nil, db, "example", "example.com", auditLogger, nil, nil, log, nil, nil).
+		NewResolver(nil, nil, nil, nil, db, "example", "example.com", nil, nil, log, nil).
 		Query()
 
 	t.Run("unauthenticated user", func(t *testing.T) {

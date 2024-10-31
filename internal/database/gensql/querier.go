@@ -17,8 +17,6 @@ type Querier interface {
 	ClearReconcilerErrorsForTeam(ctx context.Context, arg ClearReconcilerErrorsForTeamParams) error
 	ConfigureReconciler(ctx context.Context, arg ConfigureReconcilerParams) error
 	CreateAPIKey(ctx context.Context, arg CreateAPIKeyParams) error
-	CreateAuditEvent(ctx context.Context, arg CreateAuditEventParams) error
-	CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) error
 	CreateServiceAccount(ctx context.Context, name string) (*ServiceAccount, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (*Session, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (*User, error)
@@ -38,16 +36,6 @@ type Querier interface {
 	// GetAllTeamSlugs returns all team slugs in ascending order, excluding deleted teams.
 	GetAllTeamSlugs(ctx context.Context) ([]slug.Slug, error)
 	GetAllUserRoles(ctx context.Context) ([]*UserRole, error)
-	GetAuditEventsCountForTeam(ctx context.Context, team *slug.Slug) (int64, error)
-	GetAuditEventsCountForTeamByResource(ctx context.Context, arg GetAuditEventsCountForTeamByResourceParams) (int64, error)
-	GetAuditEventsForTeam(ctx context.Context, arg GetAuditEventsForTeamParams) ([]*AuditEvent, error)
-	GetAuditEventsForTeamByResource(ctx context.Context, arg GetAuditEventsForTeamByResourceParams) ([]*AuditEvent, error)
-	GetAuditLogsForCorrelationID(ctx context.Context, arg GetAuditLogsForCorrelationIDParams) ([]*AuditLog, error)
-	GetAuditLogsForCorrelationIDCount(ctx context.Context, correlationID uuid.UUID) (int64, error)
-	GetAuditLogsForReconciler(ctx context.Context, arg GetAuditLogsForReconcilerParams) ([]*AuditLog, error)
-	GetAuditLogsForReconcilerCount(ctx context.Context, targetIdentifier string) (int64, error)
-	GetAuditLogsForTeam(ctx context.Context, arg GetAuditLogsForTeamParams) ([]*AuditLog, error)
-	GetAuditLogsForTeamCount(ctx context.Context, targetIdentifier string) (int64, error)
 	GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, error)
 	GetReconciler(ctx context.Context, name string) (*Reconciler, error)
 	GetReconcilerConfig(ctx context.Context, arg GetReconcilerConfigParams) ([]*GetReconcilerConfigRow, error)

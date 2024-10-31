@@ -19,8 +19,6 @@ type IdentType string
 const (
 	IdentTypeAnalysisTrail        IdentType = "analysisTrail"
 	IdentTypeApp                  IdentType = "app"
-	IdentTypeAuditEvent           IdentType = "auditEvent"
-	IdentTypeAuditLog             IdentType = "auditLog"
 	IdentTypeCorrelationID        IdentType = "correlationID"
 	IdentTypeDeployKey            IdentType = "deployKey"
 	IdentTypeDeployment           IdentType = "deployment"
@@ -128,14 +126,6 @@ func VulnerabilitiesIdent(id string) Ident {
 
 func SecretIdent(envName string, teamSlug slug.Slug, secretName string) Ident {
 	return newIdent(IdentTypeSecret, envName, string(teamSlug), secretName)
-}
-
-func AuditLogIdent(id uuid.UUID) Ident {
-	return newIdent(IdentTypeAuditLog, id.String())
-}
-
-func AuditEventIdent(id uuid.UUID) Ident {
-	return newIdent(IdentTypeAuditEvent, id.String())
 }
 
 func CorrelationID(id uuid.UUID) Ident {

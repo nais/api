@@ -32,8 +32,6 @@ type Page struct {
 }
 
 type Database interface {
-	AuditEventsRepo
-	AuditLogsRepo
 	EnvironmentRepo
 	ReconcilerErrorRepo
 	ReconcilerRepo

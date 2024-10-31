@@ -100,27 +100,6 @@ type Team {
   "The CDN bucket for the team."
   cdnBucket: String
 
-  "Audit logs for this team."
-  auditLogs(
-    "Offset to start listing audit log entries from. Default is 0."
-    offset: Int
-
-    "Limit the number of audit log entries to return. Default is 20."
-    limit: Int
-  ): AuditLogList!
-
-  "Audit events for this team."
-  auditEvents(
-    "Offset to start listing audit events from. Default is 0."
-    offset: Int
-
-    "Limit the number of audit events to return. Default is 20."
-    limit: Int
-
-    "Filter audit events."
-    filter: AuditEventsFilter
-  ): AuditEventList!
-
   "Team members."
   members(
     "Offset to start listing team members from. Default is 0."

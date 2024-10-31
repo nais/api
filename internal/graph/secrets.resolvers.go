@@ -28,11 +28,6 @@ func (r *mutationResolver) CreateSecret(ctx context.Context, name string, team s
 		return nil, err
 	}
 
-	err = r.auditor.SecretCreated(ctx, actor.User, team, env, name)
-	if err != nil {
-		return nil, err
-	}
-
 	return ret, nil
 }
 
@@ -51,12 +46,6 @@ func (r *mutationResolver) UpdateSecret(ctx context.Context, name string, team s
 		return nil, err
 	}
 
-	// TODO: split mutation (e.g. AddKeyValue, UpdateKeyValue, DeleteKeyValue) to allow more granular auditing?
-	err = r.auditor.SecretUpdated(ctx, actor.User, team, env, name)
-	if err != nil {
-		return nil, err
-	}
-
 	return ret, nil
 }
 
@@ -70,11 +59,6 @@ func (r *mutationResolver) DeleteSecret(ctx context.Context, name string, team s
 	if errors.Is(err, k8s.ErrSecretUnmanaged) {
 		return false, apierror.ErrSecretUnmanaged
 	}
-	if err != nil {
-		return deleted, err
-	}
-
-	err = r.auditor.SecretDeleted(ctx, actor.User, team, env, name)
 	if err != nil {
 		return deleted, err
 	}

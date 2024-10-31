@@ -11,8 +11,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
-	"github.com/nais/api/internal/audit"
-	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
@@ -87,10 +85,8 @@ type Resolver struct {
 	database            database.Database
 	tenant              string
 	tenantDomain        string
-	auditLogger         auditlogger.AuditLogger
 	pubsubTopic         *pubsub.Topic
 	unleashMgr          *unleash.Manager
-	auditor             *audit.Auditor
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
@@ -102,12 +98,10 @@ func NewResolver(
 	db database.Database,
 	tenant string,
 	tenantDomain string,
-	auditLogger auditlogger.AuditLogger,
 	clusters ClusterList,
 	pubsubTopic *pubsub.Topic,
 	log logrus.FieldLogger,
 	unleashMgr *unleash.Manager,
-	auditer *audit.Auditor,
 ) *Resolver {
 	return &Resolver{
 		hookdClient:         hookdClient,
@@ -116,13 +110,11 @@ func NewResolver(
 		resourceUsageClient: resourceUsageClient,
 		tenant:              tenant,
 		tenantDomain:        tenantDomain,
-		auditLogger:         auditLogger,
 		log:                 log,
 		database:            db,
 		clusters:            clusters,
 		pubsubTopic:         pubsubTopic,
 		unleashMgr:          unleashMgr,
-		auditor:             auditer,
 	}
 }
 

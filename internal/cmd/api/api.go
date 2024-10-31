@@ -11,8 +11,6 @@ import (
 
 	"cloud.google.com/go/pubsub"
 	"github.com/joho/godotenv"
-	"github.com/nais/api/internal/audit"
-	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/fixtures"
@@ -158,8 +156,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("unable to start unleash manager: %w", err)
 	}
 
-	auditLogger := auditlogger.New(db, log)
-
 	pubsubClient, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
 	if err != nil {
 		return err
@@ -188,12 +184,10 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		db,
 		cfg.Tenant,
 		cfg.TenantDomain,
-		auditLogger,
 		cfg.K8s.GraphClusterList(),
 		pubsubTopic,
 		log,
 		unleashMgr,
-		audit.NewAuditor(db),
 	)
 
 	graphHandler, err := graph.NewHandler(gengql.Config{

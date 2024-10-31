@@ -72,9 +72,6 @@ type Reconciler {
   "Whether or not the reconciler is fully configured and ready to be enabled."
   configured: Boolean! @admin
 
-  "Audit logs for this reconciler."
-  auditLogs(offset: Int, limit: Int): AuditLogList! @admin
-
   "Potential errors that have occurred during the reconciler's operation."
   errors(offset: Int, limit: Int): ReconcilerErrorList! @admin
 }

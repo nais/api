@@ -2,13 +2,10 @@ package usersync_test
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/auditlogger"
-	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/test"
@@ -38,7 +35,6 @@ func TestSync(t *testing.T) {
 			Return(nil).
 			Once()
 
-		auditLogger := auditlogger.New(db, log)
 		httpClient := test.NewTestHttpClient(func(req *http.Request) *http.Response {
 			return test.Response("200 OK", `{"users":[]}`)
 		})
@@ -48,7 +44,7 @@ func TestSync(t *testing.T) {
 		}
 
 		err = usersync.
-			New(db, auditLogger, adminGroupPrefix, domain, svc, log).
+			New(db, adminGroupPrefix, domain, svc, log).
 			Sync(ctx, correlationID)
 		if err != nil {
 			t.Fatal(err)
@@ -61,7 +57,6 @@ func TestSync(t *testing.T) {
 
 		log, _ := logrustest.NewNullLogger()
 		db := database.NewMockDatabase(t)
-		auditLogger := auditlogger.New(db, log)
 		dbtx := database.NewMockDatabase(t)
 
 		db.EXPECT().
@@ -74,22 +69,6 @@ func TestSync(t *testing.T) {
 
 		user1 := &database.User{User: &gensql.User{ID: uuid.New(), Email: "user1@example.com", ExternalID: "123", Name: "User 1"}}
 		user2 := &database.User{User: &gensql.User{ID: uuid.New(), Email: "user2@example.com", ExternalID: "456", Name: "User 2"}}
-
-		for _, user := range []*database.User{user1, user2} {
-			var actor *string
-			db.EXPECT().
-				CreateAuditLogEntry(
-					ctx,
-					mock.Anything,
-					actor,
-					audittype.AuditLogsTargetTypeUser,
-					user.Email,
-					audittype.AuditActionUsersyncDelete,
-					fmt.Sprintf("Local user deleted: %q, external ID: %q", user.Email, user.ExternalID),
-				).
-				Return(nil).
-				Once()
-		}
 
 		p := database.Page{
 			Limit:  100,
@@ -132,7 +111,7 @@ func TestSync(t *testing.T) {
 		}
 
 		err = usersync.
-			New(db, auditLogger, adminGroupPrefix, domain, svc, log).
+			New(db, adminGroupPrefix, domain, svc, log).
 			Sync(ctx, correlationID)
 		if err != nil {
 			t.Fatal(err)
@@ -145,7 +124,6 @@ func TestSync(t *testing.T) {
 
 		log, _ := logrustest.NewNullLogger()
 		db := database.NewMockDatabase(t)
-		auditLogger := auditlogger.New(db, log)
 		dbtx := database.NewMockDatabase(t)
 
 		numDefaultRoleNames := len(usersync.DefaultRoleNames)
@@ -267,85 +245,8 @@ func TestSync(t *testing.T) {
 			Return(nil).
 			Once()
 
-		var actor *string
-		db.EXPECT().
-			CreateAuditLogEntry(
-				ctx,
-				mock.Anything,
-				actor,
-				audittype.AuditLogsTargetTypeUser,
-				"user1@example.com",
-				audittype.AuditActionUsersyncUpdate,
-				`Local user updated: "user1@example.com", external ID: "123"`,
-			).
-			Return(nil).
-			Once()
-		db.EXPECT().
-			CreateAuditLogEntry(
-				ctx,
-				mock.Anything,
-				actor,
-				audittype.AuditLogsTargetTypeUser,
-				"user2@example.com",
-				audittype.AuditActionUsersyncCreate,
-				`Local user created: "user2@example.com", external ID: "456"`,
-			).
-			Return(nil).
-			Once()
-		db.EXPECT().
-			CreateAuditLogEntry(
-				ctx,
-				mock.Anything,
-				actor,
-				audittype.AuditLogsTargetTypeUser,
-				"user3@example.com",
-				audittype.AuditActionUsersyncUpdate,
-				`Local user updated: "user3@example.com", external ID: "789"`,
-			).
-			Return(nil).
-			Once()
-
-		db.EXPECT().
-			CreateAuditLogEntry(
-				ctx,
-				mock.Anything,
-				actor,
-				audittype.AuditLogsTargetTypeUser,
-				"delete-me@example.com",
-				audittype.AuditActionUsersyncDelete,
-				`Local user deleted: "delete-me@example.com", external ID: "321"`,
-			).
-			Return(nil).
-			Once()
-
-		db.EXPECT().
-			CreateAuditLogEntry(
-				ctx,
-				mock.Anything,
-				actor,
-				audittype.AuditLogsTargetTypeUser,
-				"user2@example.com",
-				audittype.AuditActionUsersyncAssignAdminRole,
-				`Assign global admin role to user: "user2@example.com"`,
-			).
-			Return(nil).
-			Once()
-
-		db.EXPECT().
-			CreateAuditLogEntry(
-				ctx,
-				mock.Anything,
-				actor,
-				audittype.AuditLogsTargetTypeUser,
-				"user1@example.com",
-				audittype.AuditActionUsersyncRevokeAdminRole,
-				`Revoke global admin role from user: "user1@example.com"`,
-			).
-			Return(nil).
-			Once()
-
 		err = usersync.
-			New(db, auditLogger, adminGroupPrefix, domain, svc, log).
+			New(db, adminGroupPrefix, domain, svc, log).
 			Sync(ctx, correlationID)
 		if err != nil {
 			t.Fatal(err)

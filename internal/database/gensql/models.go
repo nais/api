@@ -96,29 +96,6 @@ func AllRoleNameValues() []RoleName {
 	}
 }
 
-type AuditEvent struct {
-	ID           uuid.UUID
-	CreatedAt    pgtype.Timestamptz
-	Actor        string
-	Action       string
-	ResourceType string
-	ResourceName string
-	TeamSlug     *slug.Slug
-	Data         []byte
-	Environment  *string
-}
-
-type AuditLog struct {
-	ID               uuid.UUID
-	CreatedAt        pgtype.Timestamptz
-	CorrelationID    uuid.UUID
-	Actor            *string
-	Action           string
-	Message          string
-	TargetType       string
-	TargetIdentifier string
-}
-
 type Reconciler struct {
 	Name        string
 	DisplayName string

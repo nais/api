@@ -8,9 +8,6 @@ import (
 
 	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v5"
-	"github.com/nais/api/internal/audit"
-	"github.com/nais/api/internal/auditlogger"
-	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
 	"github.com/nais/api/internal/database"
@@ -56,11 +53,6 @@ func (r *mutationResolver) UpdateTeamSlackAlertsChannel(ctx context.Context, slu
 		return nil, err
 	}
 
-	err = r.auditor.TeamSetAlertsSlackChannel(ctx, actor.User, slug, input.Environment, *input.ChannelName)
-	if err != nil {
-		return nil, err
-	}
-
 	r.triggerTeamUpdatedEvent(ctx, slug, correlationID)
 
 	return loader.GetTeam(ctx, slug)
@@ -79,10 +71,6 @@ func (r *mutationResolver) SynchronizeTeam(ctx context.Context, slug slug.Slug) 
 
 	correlationID := uuid.New()
 
-	if err := r.auditor.TeamSynchronized(ctx, actor.User, slug); err != nil {
-		return nil, err
-	}
-
 	r.triggerTeamUpdatedEvent(ctx, slug, correlationID)
 
 	return &model.TeamSync{
@@ -98,34 +86,6 @@ func (r *mutationResolver) SynchronizeAllTeams(ctx context.Context) (*model.Team
 	}
 
 	correlationID := uuid.New()
-
-	limit, offset := 100, 0
-	teams := make([]*database.Team, 0)
-	for {
-		page, _, err := r.database.GetTeams(ctx, database.Page{
-			Limit:  limit,
-			Offset: offset,
-		})
-		if err != nil {
-			return nil, err
-		}
-		teams = append(teams, page...)
-		if len(page) < limit {
-			break
-		}
-		offset += limit
-	}
-
-	targets := make([]auditlogger.Target, 0, len(teams))
-	for _, entry := range teams {
-		targets = append(targets, auditlogger.TeamTarget(entry.Slug))
-	}
-	fields := auditlogger.Fields{
-		Action:        audittype.AuditActionGraphqlApiTeamSync,
-		Actor:         actor,
-		CorrelationID: correlationID,
-	}
-	r.auditLogger.Logf(ctx, targets, fields, "Manually scheduled for synchronization")
 	r.triggerEvent(ctx, protoapi.EventTypes_EVENT_SYNC_ALL_TEAMS, &protoapi.EventSyncAllTeams{}, correlationID)
 
 	return &model.TeamSync{
@@ -144,11 +104,6 @@ func (r *mutationResolver) ChangeDeployKey(ctx context.Context, team slug.Slug) 
 	deployKey, err := r.hookdClient.ChangeDeployKey(ctx, team.String())
 	if err != nil {
 		return nil, fmt.Errorf("changing deploy key in Hookd: %w", err)
-	}
-
-	err = r.auditor.TeamRotatedDeployKey(ctx, actor.User, team)
-	if err != nil {
-		return nil, err
 	}
 
 	return &model.DeploymentKey{
@@ -213,32 +168,6 @@ func (r *queryResolver) TeamsUtilization(ctx context.Context, resourceType model
 
 func (r *teamResolver) ID(ctx context.Context, obj *model.Team) (*scalar.Ident, error) {
 	return ptr.To(scalar.TeamIdent(obj.Slug)), nil
-}
-
-func (r *teamResolver) AuditLogs(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.AuditLogList, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationAuditLogsRead, obj.Slug)
-	if err != nil {
-		return nil, err
-	}
-
-	p := model.NewPagination(offset, limit)
-	entries, total, err := r.database.GetAuditLogsForTeam(ctx, obj.Slug, database.Page{
-		Limit:  p.Limit,
-		Offset: p.Offset,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.AuditLogList{
-		Nodes:    toGraphAuditLogs(entries),
-		PageInfo: model.NewPageInfo(p, total),
-	}, nil
-}
-
-func (r *teamResolver) AuditEvents(ctx context.Context, obj *model.Team, offset *int, limit *int, filter *model.AuditEventsFilter) (*audit.AuditEventList, error) {
-	return r.auditor.GetEventsForTeam(ctx, obj, offset, limit, filter)
 }
 
 func (r *teamResolver) Members(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.TeamMemberList, error) {

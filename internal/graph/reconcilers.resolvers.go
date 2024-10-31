@@ -6,8 +6,6 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/auditlogger"
-	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
 	"github.com/nais/api/internal/database"
@@ -51,16 +49,6 @@ func (r *mutationResolver) EnableReconciler(ctx context.Context, name string) (*
 		return nil, apierror.Errorf("Unable to enable reconciler")
 	}
 
-	actor := authz.ActorFromContext(ctx)
-	targets := []auditlogger.Target{
-		auditlogger.ReconcilerTarget(name),
-	}
-	fields := auditlogger.Fields{
-		Action:        audittype.AuditActionGraphqlApiReconcilersEnable,
-		Actor:         actor,
-		CorrelationID: correlationID,
-	}
-	r.auditLogger.Logf(ctx, targets, fields, "Enable reconciler: %q", name)
 	r.triggerEvent(ctx, protoapi.EventTypes_EVENT_RECONCILER_ENABLED, &protoapi.EventReconcilerEnabled{Reconciler: name}, correlationID)
 
 	return toGraphReconciler(reconciler), nil
@@ -88,16 +76,6 @@ func (r *mutationResolver) DisableReconciler(ctx context.Context, name string) (
 
 	correlationID := uuid.New()
 
-	actor := authz.ActorFromContext(ctx)
-	targets := []auditlogger.Target{
-		auditlogger.ReconcilerTarget(name),
-	}
-	fields := auditlogger.Fields{
-		Action:        audittype.AuditActionGraphqlApiReconcilersDisable,
-		Actor:         actor,
-		CorrelationID: correlationID,
-	}
-	r.auditLogger.Logf(ctx, targets, fields, "Disable reconciler: %q", name)
 	r.triggerEvent(ctx, protoapi.EventTypes_EVENT_RECONCILER_DISABLED, &protoapi.EventReconcilerDisabled{Reconciler: name}, correlationID)
 
 	return toGraphReconciler(reconciler), nil
@@ -148,16 +126,6 @@ func (r *mutationResolver) ConfigureReconciler(ctx context.Context, name string,
 
 	correlationID := uuid.New()
 
-	actor := authz.ActorFromContext(ctx)
-	targets := []auditlogger.Target{
-		auditlogger.ReconcilerTarget(name),
-	}
-	fields := auditlogger.Fields{
-		Action:        audittype.AuditActionGraphqlApiReconcilersConfigure,
-		Actor:         actor,
-		CorrelationID: correlationID,
-	}
-	r.auditLogger.Logf(ctx, targets, fields, "Configure reconciler: %q", name)
 	r.triggerEvent(ctx, protoapi.EventTypes_EVENT_RECONCILER_CONFIGURED, &protoapi.EventReconcilerConfigured{Reconciler: name}, correlationID)
 
 	return toGraphReconciler(reconciler), nil
@@ -186,16 +154,6 @@ func (r *mutationResolver) ResetReconciler(ctx context.Context, name string) (*m
 	if err != nil {
 		return nil, err
 	}
-
-	actor := authz.ActorFromContext(ctx)
-	targets := []auditlogger.Target{
-		auditlogger.ReconcilerTarget(name),
-	}
-	fields := auditlogger.Fields{
-		Action: audittype.AuditActionGraphqlApiReconcilersReset,
-		Actor:  actor,
-	}
-	r.auditLogger.Logf(ctx, targets, fields, "Reset reconciler: %q", name)
 
 	return toGraphReconciler(reconciler), nil
 }
@@ -262,22 +220,6 @@ func (r *reconcilerResolver) Configured(ctx context.Context, obj *model.Reconcil
 	}
 
 	return true, nil
-}
-
-func (r *reconcilerResolver) AuditLogs(ctx context.Context, obj *model.Reconciler, offset *int, limit *int) (*model.AuditLogList, error) {
-	p := model.NewPagination(offset, limit)
-	dbe, total, err := r.database.GetAuditLogsForReconciler(ctx, obj.Name, database.Page{
-		Limit:  p.Limit,
-		Offset: p.Offset,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.AuditLogList{
-		Nodes:    toGraphAuditLogs(dbe),
-		PageInfo: model.NewPageInfo(p, total),
-	}, nil
 }
 
 func (r *reconcilerResolver) Errors(ctx context.Context, obj *model.Reconciler, offset *int, limit *int) (*model.ReconcilerErrorList, error) {

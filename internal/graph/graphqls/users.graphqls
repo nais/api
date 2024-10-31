@@ -32,12 +32,6 @@ type UsersyncRun {
   "Timestamp of when the run finished."
   finishedAt: Time!
 
-  "Log entries for the sync run."
-  auditLogs(
-    limit: Int,
-    offset: Int
-  ): AuditLogList!
-
   "The status of the sync run."
   status: UsersyncRunStatus!
 
