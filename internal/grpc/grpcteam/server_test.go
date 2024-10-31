@@ -1,4 +1,4 @@
-package grpc_test
+package grpcteam_test
 
 import (
 	"context"
@@ -7,9 +7,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/gensql"
-	"github.com/nais/api/internal/grpc"
+	"github.com/nais/api/internal/grpc/grpcteam"
+	"github.com/nais/api/internal/grpc/grpcteam/grpcteamsql"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/pkg/apiclient/protoapi"
 	"google.golang.org/grpc/codes"
@@ -20,13 +19,13 @@ import (
 func TestTeamsServer_Get(t *testing.T) {
 	ctx := context.Background()
 	t.Run("team not found", func(t *testing.T) {
-		db := database.NewMockDatabase(t)
-		db.EXPECT().
+		querier := grpcteamsql.NewMockQuerier(t)
+		querier.EXPECT().
 			GetTeamBySlug(ctx, slug.Slug("team-not-found")).
 			Return(nil, pgx.ErrNoRows).
 			Once()
 
-		resp, err := grpc.NewTeamsServer(db).Get(ctx, &protoapi.GetTeamRequest{Slug: "team-not-found"})
+		resp, err := grpcteam.NewServer(querier).Get(ctx, &protoapi.GetTeamRequest{Slug: "team-not-found"})
 		if resp != nil {
 			t.Error("expected response to be nil")
 		}
@@ -37,13 +36,13 @@ func TestTeamsServer_Get(t *testing.T) {
 	})
 
 	t.Run("database error", func(t *testing.T) {
-		db := database.NewMockDatabase(t)
-		db.EXPECT().
+		querier := grpcteamsql.NewMockQuerier(t)
+		querier.EXPECT().
 			GetTeamBySlug(ctx, slug.Slug("team-not-found")).
 			Return(nil, fmt.Errorf("some database error")).
 			Once()
 
-		resp, err := grpc.NewTeamsServer(db).Get(ctx, &protoapi.GetTeamRequest{Slug: "team-not-found"})
+		resp, err := grpcteam.NewServer(querier).Get(ctx, &protoapi.GetTeamRequest{Slug: "team-not-found"})
 		if resp != nil {
 			t.Error("expected response to be nil")
 		}
@@ -65,10 +64,10 @@ func TestTeamsServer_Get(t *testing.T) {
 
 		aid := uuid.New()
 
-		db := database.NewMockDatabase(t)
-		db.EXPECT().
+		querier := grpcteamsql.NewMockQuerier(t)
+		querier.EXPECT().
 			GetTeamBySlug(ctx, slug.Slug(teamSlug)).
-			Return(&database.Team{Team: &gensql.Team{
+			Return(&grpcteamsql.Team{
 				Slug:             teamSlug,
 				Purpose:          purpose,
 				SlackChannel:     slackChannel,
@@ -76,10 +75,10 @@ func TestTeamsServer_Get(t *testing.T) {
 				GithubTeamSlug:   ptr.To(gitHubTeamSlug),
 				GoogleGroupEmail: ptr.To(googleGroupEmail),
 				GarRepository:    ptr.To(garRepository),
-			}}, nil).
+			}, nil).
 			Once()
 
-		resp, err := grpc.NewTeamsServer(db).Get(ctx, &protoapi.GetTeamRequest{Slug: teamSlug})
+		resp, err := grpcteam.NewServer(querier).Get(ctx, &protoapi.GetTeamRequest{Slug: teamSlug})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -121,8 +120,8 @@ func TestTeamsServer_Get(t *testing.T) {
 func TestTeamsServer_Delete(t *testing.T) {
 	ctx := context.Background()
 	t.Run("missing slug", func(t *testing.T) {
-		db := database.NewMockDatabase(t)
-		resp, err := grpc.NewTeamsServer(db).Delete(ctx, &protoapi.DeleteTeamRequest{})
+		querier := grpcteamsql.NewMockQuerier(t)
+		resp, err := grpcteam.NewServer(querier).Delete(ctx, &protoapi.DeleteTeamRequest{})
 		if resp != nil {
 			t.Error("expected response to be nil")
 		}
@@ -134,12 +133,12 @@ func TestTeamsServer_Delete(t *testing.T) {
 
 	t.Run("delete team", func(t *testing.T) {
 		const teamSlug = "team-slug"
-		db := database.NewMockDatabase(t)
-		db.EXPECT().
+		querier := grpcteamsql.NewMockQuerier(t)
+		querier.EXPECT().
 			DeleteTeam(ctx, slug.Slug(teamSlug)).
 			Return(nil).
 			Once()
-		resp, err := grpc.NewTeamsServer(db).Delete(ctx, &protoapi.DeleteTeamRequest{Slug: teamSlug})
+		resp, err := grpcteam.NewServer(querier).Delete(ctx, &protoapi.DeleteTeamRequest{Slug: teamSlug})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -153,12 +152,12 @@ func TestTeamsServer_Delete(t *testing.T) {
 func TestTeamsServer_ToBeReconciled(t *testing.T) {
 	ctx := context.Background()
 	t.Run("error when fetching teams from database", func(t *testing.T) {
-		db := database.NewMockDatabase(t)
-		db.EXPECT().
-			GetTeams(ctx, database.Page{Limit: 123, Offset: 2}).
-			Return(nil, 0, fmt.Errorf("some error")).
+		querier := grpcteamsql.NewMockQuerier(t)
+		querier.EXPECT().
+			GetTeams(ctx, grpcteamsql.GetTeamsParams{Limit: 123, Offset: 2}).
+			Return(nil, fmt.Errorf("some error")).
 			Once()
-		resp, err := grpc.NewTeamsServer(db).List(ctx, &protoapi.ListTeamsRequest{
+		resp, err := grpcteam.NewServer(querier).List(ctx, &protoapi.ListTeamsRequest{
 			Limit:  123,
 			Offset: 2,
 		})
@@ -172,16 +171,20 @@ func TestTeamsServer_ToBeReconciled(t *testing.T) {
 	})
 
 	t.Run("fetch teams", func(t *testing.T) {
-		teamsFromDatabase := []*database.Team{
-			{Team: &gensql.Team{Slug: "team1"}},
-			{Team: &gensql.Team{Slug: "team2"}},
+		teamsFromDatabase := []*grpcteamsql.Team{
+			{Slug: "team1"},
+			{Slug: "team2"},
 		}
-		db := database.NewMockDatabase(t)
-		db.EXPECT().
-			GetTeams(ctx, database.Page{Limit: 2, Offset: 0}).
-			Return(teamsFromDatabase, 2, nil).
+		querier := grpcteamsql.NewMockQuerier(t)
+		querier.EXPECT().
+			GetTeams(ctx, grpcteamsql.GetTeamsParams{Limit: 2, Offset: 0}).
+			Return(teamsFromDatabase, nil).
 			Once()
-		resp, err := grpc.NewTeamsServer(db).List(ctx, &protoapi.ListTeamsRequest{
+		querier.EXPECT().
+			GetTeamsCount(ctx).
+			Return(2, nil).
+			Once()
+		resp, err := grpcteam.NewServer(querier).List(ctx, &protoapi.ListTeamsRequest{
 			Limit:  2,
 			Offset: 0,
 		})
@@ -210,12 +213,15 @@ func TestTeamsServer_IsRepositoryAuthorized(t *testing.T) {
 			teamSlug = "team-slug"
 			repoName = "repo-name"
 		)
-		db := database.NewMockDatabase(t)
-		db.EXPECT().
-			IsTeamRepository(ctx, slug.Slug(teamSlug), repoName).
+		querier := grpcteamsql.NewMockQuerier(t)
+		querier.EXPECT().
+			IsTeamRepository(ctx, grpcteamsql.IsTeamRepositoryParams{
+				TeamSlug:         teamSlug,
+				GithubRepository: repoName,
+			}).
 			Return(false, fmt.Errorf("some error")).
 			Once()
-		resp, err := grpc.NewTeamsServer(db).IsRepositoryAuthorized(ctx, &protoapi.IsRepositoryAuthorizedRequest{
+		resp, err := grpcteam.NewServer(querier).IsRepositoryAuthorized(ctx, &protoapi.IsRepositoryAuthorizedRequest{
 			TeamSlug:   teamSlug,
 			Repository: repoName,
 		})
@@ -233,12 +239,15 @@ func TestTeamsServer_IsRepositoryAuthorized(t *testing.T) {
 			teamSlug = "team-slug"
 			repoName = "repo-name"
 		)
-		db := database.NewMockDatabase(t)
-		db.EXPECT().
-			IsTeamRepository(ctx, slug.Slug(teamSlug), repoName).
+		querier := grpcteamsql.NewMockQuerier(t)
+		querier.EXPECT().
+			IsTeamRepository(ctx, grpcteamsql.IsTeamRepositoryParams{
+				TeamSlug:         teamSlug,
+				GithubRepository: repoName,
+			}).
 			Return(true, nil).
 			Once()
-		resp, err := grpc.NewTeamsServer(db).IsRepositoryAuthorized(ctx, &protoapi.IsRepositoryAuthorizedRequest{
+		resp, err := grpcteam.NewServer(querier).IsRepositoryAuthorized(ctx, &protoapi.IsRepositoryAuthorizedRequest{
 			TeamSlug:   teamSlug,
 			Repository: repoName,
 		})
@@ -260,12 +269,15 @@ func TestTeamsServer_IsRepositoryAuthorized(t *testing.T) {
 			teamSlug = "team-slug"
 			repoName = "repo-name"
 		)
-		db := database.NewMockDatabase(t)
-		db.EXPECT().
-			IsTeamRepository(ctx, slug.Slug(teamSlug), repoName).
+		querier := grpcteamsql.NewMockQuerier(t)
+		querier.EXPECT().
+			IsTeamRepository(ctx, grpcteamsql.IsTeamRepositoryParams{
+				TeamSlug:         teamSlug,
+				GithubRepository: repoName,
+			}).
 			Return(false, nil).
 			Once()
-		resp, err := grpc.NewTeamsServer(db).IsRepositoryAuthorized(ctx, &protoapi.IsRepositoryAuthorizedRequest{
+		resp, err := grpcteam.NewServer(querier).IsRepositoryAuthorized(ctx, &protoapi.IsRepositoryAuthorizedRequest{
 			TeamSlug:   teamSlug,
 			Repository: repoName,
 		})

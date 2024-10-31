@@ -39,7 +39,7 @@ func (u *UsersServer) Get(ctx context.Context, r *protoapi.GetUserRequest) (*pro
 	}
 
 	return &protoapi.GetUserResponse{
-		User: toProtoUser(user),
+		User: ToProtoUser(user),
 	}, nil
 }
 
@@ -57,13 +57,13 @@ func (u *UsersServer) List(ctx context.Context, r *protoapi.ListUsersRequest) (*
 		PageInfo: pageInfo(r, total),
 	}
 	for _, user := range users {
-		resp.Nodes = append(resp.Nodes, toProtoUser(user))
+		resp.Nodes = append(resp.Nodes, ToProtoUser(user))
 	}
 
 	return resp, nil
 }
 
-func toProtoUser(user *database.User) *protoapi.User {
+func ToProtoUser(user *database.User) *protoapi.User {
 	return &protoapi.User{
 		Id:         user.ID.String(),
 		Name:       user.Name,

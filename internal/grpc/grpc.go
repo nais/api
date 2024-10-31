@@ -8,6 +8,8 @@ import (
 
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/grpc/grpcteam"
+	"github.com/nais/api/internal/grpc/grpcteam/grpcteamsql"
 	"github.com/nais/api/pkg/apiclient/protoapi"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -27,7 +29,8 @@ func Run(ctx context.Context, listenAddress string, repo database.Database, audi
 	}
 	s := grpc.NewServer(opts...)
 
-	protoapi.RegisterTeamsServer(s, NewTeamsServer(repo))
+	connectionPool := repo.GetPool()
+	protoapi.RegisterTeamsServer(s, grpcteam.NewServer(grpcteamsql.New(connectionPool)))
 	protoapi.RegisterUsersServer(s, &UsersServer{db: repo})
 	protoapi.RegisterReconcilersServer(s, &ReconcilersServer{db: repo})
 	protoapi.RegisterAuditLogsServer(s, &AuditLogsServer{db: repo, auditlog: auditlog})

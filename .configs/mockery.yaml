@@ -37,3 +37,6 @@ packages:
   github.com/nais/api/internal/search:
     interfaces:
       Searchable:
+  github.com/nais/api/internal/grpc/grpcteam/grpcteamsql:
+    interfaces:
+      Querier:
