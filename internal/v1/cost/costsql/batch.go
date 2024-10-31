@@ -56,8 +56,6 @@ type CostUpsertParams struct {
 	DailyCost   float32
 }
 
-// CostUpsert will insert or update a cost record. If there is a conflict on the daily_cost_key constrant, the
-// daily_cost column will be updated.
 func (q *Queries) CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostUpsertBatchResults {
 	batch := &pgx.Batch{}
 	for _, a := range arg {

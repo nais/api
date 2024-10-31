@@ -12,19 +12,13 @@ import (
 type Querier interface {
 	CostForService(ctx context.Context, arg CostForServiceParams) (float32, error)
 	CostForTeam(ctx context.Context, arg CostForTeamParams) (float32, error)
-	// CostUpsert will insert or update a cost record. If there is a conflict on the daily_cost_key constrant, the
-	// daily_cost column will be updated.
 	CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostUpsertBatchResults
-	// DailyCostForTeam will fetch the daily cost for a specific team across all apps and envs in a date range.
 	DailyCostForTeam(ctx context.Context, arg DailyCostForTeamParams) ([]*DailyCostForTeamRow, error)
 	DailyCostForTeamEnvironment(ctx context.Context, arg DailyCostForTeamEnvironmentParams) ([]*DailyCostForTeamEnvironmentRow, error)
-	// DailyCostForWorkload will fetch the daily cost for a specific workload in an environment, across all cost types in a
-	// date range.
 	DailyCostForWorkload(ctx context.Context, arg DailyCostForWorkloadParams) ([]*DailyCostForWorkloadRow, error)
-	// DailyEnvCostForTeam will fetch the daily cost for a specific team and environment across all apps in a date range.
 	DailyEnvCostForTeam(ctx context.Context, arg DailyEnvCostForTeamParams) ([]*DailyEnvCostForTeamRow, error)
-	// LastCostDate will return the last date that has a cost.
 	LastCostDate(ctx context.Context) (pgtype.Date, error)
+	ListTeamSlugsForCostUpdater(ctx context.Context) ([]slug.Slug, error)
 	MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*CostMonthlyTeam, error)
 	MonthlyCostForWorkload(ctx context.Context, arg MonthlyCostForWorkloadParams) ([]*MonthlyCostForWorkloadRow, error)
 	RefreshCostMonthlyTeam(ctx context.Context) error

@@ -120,7 +120,6 @@ type DailyCostForTeamRow struct {
 	Cost    float32
 }
 
-// DailyCostForTeam will fetch the daily cost for a specific team across all apps and envs in a date range.
 func (q *Queries) DailyCostForTeam(ctx context.Context, arg DailyCostForTeamParams) ([]*DailyCostForTeamRow, error) {
 	rows, err := q.db.Query(ctx, dailyCostForTeam, arg.TeamSlug, arg.FromDate, arg.ToDate)
 	if err != nil {
@@ -268,8 +267,6 @@ type DailyCostForWorkloadRow struct {
 	DailyCost   *float32
 }
 
-// DailyCostForWorkload will fetch the daily cost for a specific workload in an environment, across all cost types in a
-// date range.
 func (q *Queries) DailyCostForWorkload(ctx context.Context, arg DailyCostForWorkloadParams) ([]*DailyCostForWorkloadRow, error) {
 	rows, err := q.db.Query(ctx, dailyCostForWorkload,
 		arg.Environment,
@@ -338,7 +335,6 @@ type DailyEnvCostForTeamRow struct {
 	DailyCost float32
 }
 
-// DailyEnvCostForTeam will fetch the daily cost for a specific team and environment across all apps in a date range.
 func (q *Queries) DailyEnvCostForTeam(ctx context.Context, arg DailyEnvCostForTeamParams) ([]*DailyEnvCostForTeamRow, error) {
 	rows, err := q.db.Query(ctx, dailyEnvCostForTeam,
 		arg.FromDate,
@@ -376,12 +372,40 @@ FROM
 	cost
 `
 
-// LastCostDate will return the last date that has a cost.
 func (q *Queries) LastCostDate(ctx context.Context) (pgtype.Date, error) {
 	row := q.db.QueryRow(ctx, lastCostDate)
 	var date pgtype.Date
 	err := row.Scan(&date)
 	return date, err
+}
+
+const listTeamSlugsForCostUpdater = `-- name: ListTeamSlugsForCostUpdater :many
+SELECT
+	slug
+FROM
+	teams
+ORDER BY
+	teams.slug ASC
+`
+
+func (q *Queries) ListTeamSlugsForCostUpdater(ctx context.Context) ([]slug.Slug, error) {
+	rows, err := q.db.Query(ctx, listTeamSlugsForCostUpdater)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []slug.Slug{}
+	for rows.Next() {
+		var slug slug.Slug
+		if err := rows.Scan(&slug); err != nil {
+			return nil, err
+		}
+		items = append(items, slug)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const monthlyCostForTeam = `-- name: MonthlyCostForTeam :many

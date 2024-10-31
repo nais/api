@@ -1,4 +1,3 @@
--- LastCostDate will return the last date that has a cost.
 -- name: LastCostDate :one
 SELECT
 	MAX(date)::date AS date
@@ -61,8 +60,6 @@ LIMIT
 	12
 ;
 
--- CostUpsert will insert or update a cost record. If there is a conflict on the daily_cost_key constrant, the
--- daily_cost column will be updated.
 -- name: CostUpsert :batchexec
 INSERT INTO
 	cost (
@@ -88,8 +85,6 @@ SET
 	daily_cost = EXCLUDED.daily_cost
 ;
 
--- DailyCostForWorkload will fetch the daily cost for a specific workload in an environment, across all cost types in a
--- date range.
 -- name: DailyCostForWorkload :many
 WITH
 	date_range AS (
@@ -123,7 +118,6 @@ ORDER BY
 	service ASC
 ;
 
--- DailyCostForTeam will fetch the daily cost for a specific team across all apps and envs in a date range.
 -- name: DailyCostForTeam :many
 WITH
 	date_range AS (
@@ -154,7 +148,6 @@ ORDER BY
 	service ASC
 ;
 
--- DailyEnvCostForTeam will fetch the daily cost for a specific team and environment across all apps in a date range.
 -- name: DailyEnvCostForTeam :many
 SELECT
 	team_slug,
@@ -237,4 +230,13 @@ WHERE
 ORDER BY
 	date_range.date,
 	workload ASC
+;
+
+-- name: ListTeamSlugsForCostUpdater :many
+SELECT
+	slug
+FROM
+	teams
+ORDER BY
+	teams.slug ASC
 ;

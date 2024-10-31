@@ -259,7 +259,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 
 	wg.Go(func() error {
-		return costUpdater(ctx, cfg, db, log)
+		return costUpdater(ctx, cfg, db.GetPool(), log)
 	})
 
 	authHandler, err := setupAuthHandler(cfg.OAuth, db, log)

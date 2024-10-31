@@ -1,4 +1,4 @@
-package cost_test
+package costupdater_test
 
 import (
 	"context"
@@ -8,13 +8,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/nais/api/internal/v1/cost/costsql"
+
 	"cloud.google.com/go/bigquery"
 	"github.com/google/go-cmp/cmp"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/nais/api/internal/cost"
-	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/v1/cost/costupdater"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"google.golang.org/api/option"
 	"k8s.io/utils/ptr"
@@ -29,8 +29,8 @@ const (
 	chanSize     = 1000
 )
 
-var costUpdaterOpts = []cost.Option{
-	cost.WithDaysToFetch(daysToFetch),
+var costUpdaterOpts = []costupdater.Option{
+	costupdater.WithDaysToFetch(daysToFetch),
 }
 
 func TestUpdater_FetchBigQueryData(t *testing.T) {
@@ -53,19 +53,19 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 	bigQueryClient.Location = "EU"
 
 	t.Run("no teams in database", func(t *testing.T) {
-		querier := database.NewMockDatabase(t)
+		querier := costsql.NewMockQuerier(t)
 		querier.EXPECT().
-			GetAllTeamSlugs(ctx).
+			ListTeamSlugsForCostUpdater(ctx).
 			Return([]slug.Slug{}, nil).
 			Once()
-		ch := make(chan gensql.CostUpsertParams, chanSize)
+		ch := make(chan costsql.CostUpsertParams, chanSize)
 		defer close(ch)
-		err := cost.NewCostUpdater(
+		err := costupdater.NewCostUpdater(
 			bigQueryClient,
 			querier,
 			tenant,
 			logger,
-			append(costUpdaterOpts, cost.WithBigQueryTable("invalid-table"))...,
+			append(costUpdaterOpts, costupdater.WithBigQueryTable("invalid-table"))...,
 		).FetchBigQueryData(ctx, ch)
 		if contains := "no team slugs"; !strings.Contains(err.Error(), contains) {
 			t.Errorf("expected error to contain %q", contains)
@@ -73,19 +73,19 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 	})
 
 	t.Run("unable to get iterator", func(t *testing.T) {
-		querier := database.NewMockDatabase(t)
+		querier := costsql.NewMockQuerier(t)
 		querier.EXPECT().
-			GetAllTeamSlugs(ctx).
+			ListTeamSlugsForCostUpdater(ctx).
 			Return([]slug.Slug{"team"}, nil).
 			Once()
-		ch := make(chan gensql.CostUpsertParams, chanSize)
+		ch := make(chan costsql.CostUpsertParams, chanSize)
 		defer close(ch)
-		err := cost.NewCostUpdater(
+		err := costupdater.NewCostUpdater(
 			bigQueryClient,
 			querier,
 			tenant,
 			logger,
-			append(costUpdaterOpts, cost.WithBigQueryTable("invalid-table"))...,
+			append(costUpdaterOpts, costupdater.WithBigQueryTable("invalid-table"))...,
 		).FetchBigQueryData(ctx, ch)
 		if !strings.Contains(err.Error(), "Table not found") {
 			t.Error("expected error to contain 'Table not found'")
@@ -97,16 +97,16 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 		for i := range 14 {
 			slugs = append(slugs, slug.Slug(fmt.Sprintf("team-%d", i+1)))
 		}
-		querier := database.NewMockDatabase(t)
+		querier := costsql.NewMockQuerier(t)
 		querier.EXPECT().
-			GetAllTeamSlugs(ctx).
+			ListTeamSlugsForCostUpdater(ctx).
 			Return(slugs, nil).
 			Once()
 
-		ch := make(chan gensql.CostUpsertParams, chanSize)
+		ch := make(chan costsql.CostUpsertParams, chanSize)
 		defer close(ch)
 
-		err := cost.NewCostUpdater(
+		err := costupdater.NewCostUpdater(
 			bigQueryClient,
 			querier,
 			tenant,
@@ -121,7 +121,7 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 			t.Errorf("expected channel to contain 97 items, got %d", len(ch))
 		}
 
-		var row gensql.CostUpsertParams
+		var row costsql.CostUpsertParams
 		var ok bool
 
 		row, ok = <-ch
@@ -129,7 +129,7 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 			t.Fatal("expected channel to contain 100 items")
 		}
 
-		want1 := gensql.CostUpsertParams{
+		want1 := costsql.CostUpsertParams{
 			Environment: ptr.To("dev"),
 			App:         "team-1-app-1",
 			TeamSlug:    slug.Slug("team-1"),
@@ -153,7 +153,7 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 		if !ok {
 			t.Fatal("expected channel to contain 43 items")
 		}
-		want2 := gensql.CostUpsertParams{
+		want2 := costsql.CostUpsertParams{
 			Environment: ptr.To("dev"),
 			App:         "team-2-app-1",
 			TeamSlug:    slug.Slug("team-2"),
@@ -177,10 +177,12 @@ func TestUpdater_ShouldUpdateCosts(t *testing.T) {
 	}
 
 	t.Run("error when fetching last date", func(t *testing.T) {
-		querier := database.NewMockDatabase(t)
-		querier.EXPECT().LastCostDate(ctx).Return(date(time.Now()), fmt.Errorf("some error from the database"))
+		querier := costsql.NewMockQuerier(t)
+		querier.EXPECT().
+			LastCostDate(ctx).
+			Return(date(time.Now()), fmt.Errorf("some error from the database"))
 
-		shouldUpdate, err := cost.NewCostUpdater(
+		shouldUpdate, err := costupdater.NewCostUpdater(
 			bigQueryClient,
 			querier,
 			tenant,
@@ -196,10 +198,12 @@ func TestUpdater_ShouldUpdateCosts(t *testing.T) {
 	})
 
 	t.Run("last date is current day", func(t *testing.T) {
-		querier := database.NewMockDatabase(t)
-		querier.EXPECT().LastCostDate(ctx).Return(date(time.Now()), nil)
+		querier := costsql.NewMockQuerier(t)
+		querier.EXPECT().
+			LastCostDate(ctx).
+			Return(date(time.Now()), nil)
 
-		shouldUpdate, err := cost.NewCostUpdater(
+		shouldUpdate, err := costupdater.NewCostUpdater(
 			bigQueryClient,
 			querier,
 			tenant,

@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"cloud.google.com/go/bigquery"
-	"github.com/nais/api/internal/cost"
-	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/gensql"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/v1/cost/costsql"
+	"github.com/nais/api/internal/v1/cost/costupdater"
 	"github.com/sirupsen/logrus"
 )
 
@@ -16,13 +16,13 @@ const (
 	costUpdateSchedule = time.Hour
 )
 
-func costUpdater(ctx context.Context, cfg *Config, db database.Database, log logrus.FieldLogger) error {
+func costUpdater(ctx context.Context, cfg *Config, pool *pgxpool.Pool, log logrus.FieldLogger) error {
 	if !cfg.Cost.ImportEnabled {
 		log.Warningf(`cost import is not enabled. Enable by setting the "COST_DATA_IMPORT_ENABLED" environment variable to "true".`)
 		return nil
 	}
 
-	err := runCostUpdater(ctx, db, cfg.Tenant, cfg.Cost.BigQueryProjectID, log.WithField("task", "cost_updater"))
+	err := runCostUpdater(ctx, pool, cfg.Tenant, cfg.Cost.BigQueryProjectID, log.WithField("task", "cost_updater"))
 	if err != nil {
 		log.WithError(err).Errorf("error in cost updater")
 		return err
@@ -32,8 +32,8 @@ func costUpdater(ctx context.Context, cfg *Config, db database.Database, log log
 
 // runCostUpdater will create an instance of the cost updater, and update the costs on a schedule. This function will
 // block until the context is cancelled, so it should be run in a goroutine.
-func runCostUpdater(ctx context.Context, db database.Database, tenant, bigQueryProjectID string, log logrus.FieldLogger) error {
-	updater, err := getUpdater(ctx, db, tenant, bigQueryProjectID, log)
+func runCostUpdater(ctx context.Context, pool *pgxpool.Pool, tenant, bigQueryProjectID string, log logrus.FieldLogger) error {
+	updater, err := getUpdater(ctx, pool, tenant, bigQueryProjectID, log)
 	if err != nil {
 		return fmt.Errorf("unable to set up and run cost updater: %w", err)
 	}
@@ -65,7 +65,7 @@ func runCostUpdater(ctx context.Context, db database.Database, tenant, bigQueryP
 				done := make(chan struct{})
 				defer close(done)
 
-				ch := make(chan gensql.CostUpsertParams, cost.UpsertBatchSize*2)
+				ch := make(chan costsql.CostUpsertParams, costupdater.UpsertBatchSize*2)
 
 				go func() {
 					err := updater.UpdateCosts(ctx, ch)
@@ -82,7 +82,7 @@ func runCostUpdater(ctx context.Context, db database.Database, tenant, bigQueryP
 				close(ch)
 				<-done
 
-				if err := db.CostRefresh(ctx); err != nil {
+				if err := updater.RefreshView(ctx); err != nil {
 					log.WithError(err).Errorf("unable to refresh cost team monthly")
 				}
 
@@ -105,15 +105,15 @@ func getBigQueryClient(ctx context.Context, projectID string) (*bigquery.Client,
 }
 
 // getBigQueryClient will return a new cost updater instance
-func getUpdater(ctx context.Context, db database.Database, tenant, bigQueryProjectID string, log logrus.FieldLogger) (*cost.Updater, error) {
+func getUpdater(ctx context.Context, pool *pgxpool.Pool, tenant, bigQueryProjectID string, log logrus.FieldLogger) (*costupdater.Updater, error) {
 	bigQueryClient, err := getBigQueryClient(ctx, bigQueryProjectID)
 	if err != nil {
 		return nil, err
 	}
 
-	return cost.NewCostUpdater(
+	return costupdater.NewCostUpdater(
 		bigQueryClient,
-		db,
+		costsql.New(pool),
 		tenant,
 		log.WithField("subsystem", "cost_updater"),
 	), nil

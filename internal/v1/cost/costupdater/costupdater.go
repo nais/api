@@ -1,4 +1,4 @@
-package cost
+package costupdater
 
 import (
 	"context"
@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/nais/api/internal/v1/cost/costsql"
+
 	"cloud.google.com/go/bigquery"
 	"cloud.google.com/go/civil"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/iterator"
@@ -34,7 +34,7 @@ type bigQueryCostTableRow struct {
 // Updater is the cost updater struct
 type Updater struct {
 	log             logrus.FieldLogger
-	db              database.Database
+	querier         costsql.Querier
 	bigQueryClient  *bigquery.Client
 	bigQueryTable   string
 	daysToFetch     int
@@ -59,9 +59,9 @@ func WithDaysToFetch(daysToFetch int) Option {
 }
 
 // NewCostUpdater creates a new cost updater
-func NewCostUpdater(bigQueryClient *bigquery.Client, db database.Database, tenantName string, log logrus.FieldLogger, opts ...Option) *Updater {
+func NewCostUpdater(bigQueryClient *bigquery.Client, querier costsql.Querier, tenantName string, log logrus.FieldLogger, opts ...Option) *Updater {
 	updater := &Updater{
-		db:              db,
+		querier:         querier,
 		bigQueryClient:  bigQueryClient,
 		log:             log,
 		bigQueryTable:   "nais-io.console.cost_" + tenantName,
@@ -77,8 +77,8 @@ func NewCostUpdater(bigQueryClient *bigquery.Client, db database.Database, tenan
 }
 
 // ShouldUpdateCosts returns true if costs should be updated, false otherwise
-func (c *Updater) ShouldUpdateCosts(ctx context.Context) (bool, error) {
-	lastDate, err := c.db.LastCostDate(ctx)
+func (u *Updater) ShouldUpdateCosts(ctx context.Context) (bool, error) {
+	lastDate, err := u.querier.LastCostDate(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -97,8 +97,8 @@ func (c *Updater) ShouldUpdateCosts(ctx context.Context) (bool, error) {
 }
 
 // FetchBigQueryData fetches cost data from BigQuery and sends it to the provided channel
-func (c *Updater) FetchBigQueryData(ctx context.Context, ch chan<- gensql.CostUpsertParams) error {
-	teamSlugs, err := c.db.GetAllTeamSlugs(ctx)
+func (u *Updater) FetchBigQueryData(ctx context.Context, ch chan<- costsql.CostUpsertParams) error {
+	teamSlugs, err := u.querier.ListTeamSlugsForCostUpdater(ctx)
 	if err != nil {
 		return err
 	}
@@ -109,7 +109,7 @@ func (c *Updater) FetchBigQueryData(ctx context.Context, ch chan<- gensql.CostUp
 
 	start := time.Now()
 	numRows := 0
-	it, err := c.getBigQueryIterator(ctx, teamSlugs)
+	it, err := u.getBigQueryIterator(ctx, teamSlugs)
 	if err != nil {
 		return err
 	}
@@ -133,7 +133,7 @@ func (c *Updater) FetchBigQueryData(ctx context.Context, ch chan<- gensql.CostUp
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case ch <- gensql.CostUpsertParams{
+		case ch <- costsql.CostUpsertParams{
 			Environment: nullToStringPointer(row.Env),
 			TeamSlug:    slug.Slug(row.Team.StringVal),
 			App:         row.App.StringVal,
@@ -145,7 +145,7 @@ func (c *Updater) FetchBigQueryData(ctx context.Context, ch chan<- gensql.CostUp
 		}
 	}
 
-	c.log.WithFields(logrus.Fields{
+	u.log.WithFields(logrus.Fields{
 		"duration": time.Since(start),
 		"num_rows": numRows,
 	}).Infof("done fetching data from BigQuery")
@@ -153,12 +153,12 @@ func (c *Updater) FetchBigQueryData(ctx context.Context, ch chan<- gensql.CostUp
 }
 
 // UpdateCosts will update the cost data in the database based on data from the provided channel
-func (c *Updater) UpdateCosts(ctx context.Context, ch <-chan gensql.CostUpsertParams) error {
+func (u *Updater) UpdateCosts(ctx context.Context, ch <-chan costsql.CostUpsertParams) error {
 	var numUpserted, numErrors int
 	start := time.Now()
 
 	for {
-		batch, err := c.getBatch(ctx, ch)
+		batch, err := u.getBatch(ctx, ch)
 		if err != nil {
 			return err
 		}
@@ -167,12 +167,12 @@ func (c *Updater) UpdateCosts(ctx context.Context, ch <-chan gensql.CostUpsertPa
 			break
 		}
 
-		batchUpserts, batchErrors := c.upsertBatch(ctx, batch)
+		batchUpserts, batchErrors := u.upsertBatch(ctx, batch)
 		numUpserted += batchUpserts
 		numErrors += batchErrors
 	}
 
-	c.log.WithFields(logrus.Fields{
+	u.log.WithFields(logrus.Fields{
 		"duration":   time.Since(start),
 		"num_rows":   numUpserted,
 		"num_errors": numErrors,
@@ -180,15 +180,19 @@ func (c *Updater) UpdateCosts(ctx context.Context, ch <-chan gensql.CostUpsertPa
 	return nil
 }
 
+func (u *Updater) RefreshView(ctx context.Context) error {
+	return u.querier.RefreshCostMonthlyTeam(ctx)
+}
+
 // upsertBatch will upsert a batch of cost data
-func (c *Updater) upsertBatch(ctx context.Context, batch []gensql.CostUpsertParams) (upserted, errors int) {
+func (u *Updater) upsertBatch(ctx context.Context, batch []costsql.CostUpsertParams) (upserted, errors int) {
 	if len(batch) == 0 {
 		return
 	}
 
 	start := time.Now()
 	var batchErr error
-	c.db.CostUpsert(ctx, batch).Exec(func(i int, err error) {
+	u.querier.CostUpsert(ctx, batch).Exec(func(i int, err error) {
 		if err != nil {
 			batchErr = err
 			errors++
@@ -196,7 +200,7 @@ func (c *Updater) upsertBatch(ctx context.Context, batch []gensql.CostUpsertPara
 	})
 
 	upserted += len(batch) - errors
-	c.log.WithError(batchErr).WithFields(logrus.Fields{
+	u.log.WithError(batchErr).WithFields(logrus.Fields{
 		"duration":   time.Since(start),
 		"num_rows":   upserted,
 		"num_errors": errors,
@@ -205,15 +209,15 @@ func (c *Updater) upsertBatch(ctx context.Context, batch []gensql.CostUpsertPara
 }
 
 // getBigQueryIterator will return an iterator for the resultset of the cost query
-func (c *Updater) getBigQueryIterator(ctx context.Context, teamSlugs []slug.Slug) (*bigquery.RowIterator, error) {
+func (u *Updater) getBigQueryIterator(ctx context.Context, teamSlugs []slug.Slug) (*bigquery.RowIterator, error) {
 	sql := fmt.Sprintf(
 		"SELECT * FROM `%s` WHERE `team` IN UNNEST (@team_slugs) AND `date` >= TIMESTAMP_SUB(CURRENT_DATE(), INTERVAL %d DAY)",
-		c.bigQueryTable,
-		c.daysToFetch,
+		u.bigQueryTable,
+		u.daysToFetch,
 	)
 
-	c.log.WithField("query", sql).Infof("fetch data from bigquery")
-	query := c.bigQueryClient.Query(sql)
+	u.log.WithField("query", sql).Infof("fetch data from bigquery")
+	query := u.bigQueryClient.Query(sql)
 	query.Parameters = []bigquery.QueryParameter{
 		{
 			Name:  "team_slugs",
@@ -224,8 +228,8 @@ func (c *Updater) getBigQueryIterator(ctx context.Context, teamSlugs []slug.Slug
 }
 
 // getBatch will return a batch of rows from the provided channel
-func (c *Updater) getBatch(ctx context.Context, ch <-chan gensql.CostUpsertParams) ([]gensql.CostUpsertParams, error) {
-	batch := make([]gensql.CostUpsertParams, 0)
+func (u *Updater) getBatch(ctx context.Context, ch <-chan costsql.CostUpsertParams) ([]costsql.CostUpsertParams, error) {
+	batch := make([]costsql.CostUpsertParams, 0)
 	for {
 		select {
 		case <-ctx.Done():
@@ -236,7 +240,7 @@ func (c *Updater) getBatch(ctx context.Context, ch <-chan gensql.CostUpsertParam
 			}
 
 			batch = append(batch, row)
-			if len(batch) == c.upsertBatchSize {
+			if len(batch) == u.upsertBatchSize {
 				return batch, nil
 			}
 		}
