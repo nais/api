@@ -31,7 +31,7 @@ func init() {
 		}
 		return strings.Compare(*a.Version, *b.Version)
 	})
-	SortFilterSQLInstance.RegisterOrderBy(SQLInstanceOrderFieldStatus, func(ctx context.Context, a, b *SQLInstance) int {
+	SortFilterSQLInstance.RegisterConcurrentOrderBy(SQLInstanceOrderFieldStatus, func(ctx context.Context, a *SQLInstance) int {
 		stateOrder := map[string]int{
 			"UNSPECIFIED":    0,
 			"RUNNABLE":       1,
@@ -46,20 +46,8 @@ func init() {
 		if err != nil {
 			return 0
 		}
-		bState, err := GetState(ctx, b.ProjectID, b.Name)
-		if err != nil {
-			return 0
-		}
 
-		aOrder := stateOrder[aState.String()]
-		bOrder := stateOrder[bState.String()]
-
-		if aOrder < bOrder {
-			return -1
-		} else if aOrder > bOrder {
-			return 1
-		}
-		return 0
+		return stateOrder[aState.String()]
 	})
 	SortFilterSQLInstance.RegisterConcurrentOrderBy(SQLInstanceOrderFieldCost, func(ctx context.Context, a *SQLInstance) int {
 		if a.WorkloadReference == nil {
