@@ -161,34 +161,6 @@ func GitHubRepository(repoName string) Ident {
 	return newIdent(IdentTypeGitHubRepo, repoName)
 }
 
-func SqlInstanceIdent(envName string, teamSlug slug.Slug, instanceName string) Ident {
-	return newIdent(IdentTypeSqlInstance, envName, string(teamSlug), instanceName)
-}
-
-func SqlDatabaseIdent(envName string, teamSlug slug.Slug, databaseName string) Ident {
-	return newIdent(IdentTypeSqlDatabase, envName, string(teamSlug), databaseName)
-}
-
-func BucketIdent(envName string, teamSlug slug.Slug, bucketName string) Ident {
-	return newIdent(IdentTypeBucket, envName, string(teamSlug), bucketName)
-}
-
-func BigQueryDatasetIdent(envName string, teamSlug slug.Slug, datasetName string) Ident {
-	return newIdent(IdentTypeBigQueryDataset, envName, string(teamSlug), datasetName)
-}
-
-func RedisIdent(envName string, teamSlug slug.Slug, instanceName string) Ident {
-	return newIdent(IdentTypeRedis, envName, string(teamSlug), instanceName)
-}
-
-func KafkaTopicIdent(envName string, teamSlug slug.Slug, topicName string) Ident {
-	return newIdent(IdentTypeKafkaTopic, envName, string(teamSlug), topicName)
-}
-
-func OpenSearchIdent(envName string, teamSlug slug.Slug, instanceName string) Ident {
-	return newIdent(IdentTypeOpenSearch, envName, string(teamSlug), instanceName)
-}
-
 func FindingIdent(id string) Ident {
 	return newIdent(IdentTypeFinding, id)
 }

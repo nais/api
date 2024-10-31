@@ -15,7 +15,6 @@ import (
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/loader"
-	legacysqlinstance "github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/v1/auditv1"
 	"github.com/nais/api/internal/v1/cost"
@@ -67,7 +66,6 @@ func runHttpServer(
 	k8sClientSets map[string]kubernetes.Interface,
 	watcherMgr *watcher.Manager,
 	mgmtWatcherMgr *watcher.Manager,
-	sqlAdminService *legacysqlinstance.SqlAdminService,
 	authHandler authn.Handler,
 	graphHandler *handler.Server,
 	graphv1Handler *handler.Server,

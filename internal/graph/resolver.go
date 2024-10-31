@@ -13,19 +13,11 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/nais/api/internal/audit"
 	"github.com/nais/api/internal/auditlogger"
-	"github.com/nais/api/internal/bigquery"
-	"github.com/nais/api/internal/bucket"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
-	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/k8s"
-	"github.com/nais/api/internal/kafka"
-	"github.com/nais/api/internal/opensearch"
-	"github.com/nais/api/internal/redis"
 	"github.com/nais/api/internal/resourceusage"
-	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/vulnerabilities"
@@ -33,7 +25,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/vektah/gqlparser/v2/ast"
 	"go.opentelemetry.io/otel"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // This file will not be regenerated automatically.
@@ -80,32 +71,6 @@ func (c ClusterList) Names() []string {
 	return ret
 }
 
-func (r *Resolver) workload(ctx context.Context, ownerReference *v1.OwnerReference, teamSlug slug.Slug, env string) (model.Workload, error) {
-	if ownerReference == nil {
-		return nil, nil
-	}
-
-	switch ownerReference.Kind {
-	case "Naisjob":
-		job, err := r.k8sClient.NaisJob(ctx, ownerReference.Name, string(teamSlug), env)
-		if err != nil {
-			r.log.WithField("jobname", ownerReference.Name).WithField("team", teamSlug).Debug("unable to find job")
-			return nil, nil
-		}
-		return job, nil
-	case "Application":
-		app, err := r.k8sClient.App(ctx, ownerReference.Name, string(teamSlug), env)
-		if err != nil {
-			r.log.WithField("appname", ownerReference.Name).WithField("team", teamSlug).Debug("unable to find app")
-			return nil, nil
-		}
-		return app, nil
-	default:
-		r.log.WithField("kind", ownerReference.Kind).Warnf("Unknown owner reference kind")
-	}
-	return nil, nil
-}
-
 type HookdClient interface {
 	Deployments(ctx context.Context, opts ...hookd.RequestOption) ([]hookd.Deploy, error)
 	ChangeDeployKey(ctx context.Context, team string) (*hookd.DeployKey, error)
@@ -113,29 +78,24 @@ type HookdClient interface {
 }
 
 type Resolver struct {
-	hookdClient           HookdClient
-	k8sClient             *k8s.Client
-	vulnerabilities       *vulnerabilities.Manager
-	resourceUsageClient   resourceusage.ResourceUsageClient
-	log                   logrus.FieldLogger
-	clusters              ClusterList
-	database              database.Database
-	tenant                string
-	tenantDomain          string
-	auditLogger           auditlogger.AuditLogger
-	pubsubTopic           *pubsub.Topic
-	sqlInstanceClient     *sqlinstance.Client
-	bucketClient          *bucket.Client
-	redisClient           *redis.Client
-	bigQueryDatasetClient *bigquery.Client
-	openSearchClient      *opensearch.Client
-	kafkaClient           *kafka.Client
-	unleashMgr            *unleash.Manager
-	auditor               *audit.Auditor
+	hookdClient         HookdClient
+	k8sClient           *k8s.Client
+	vulnerabilities     *vulnerabilities.Manager
+	resourceUsageClient resourceusage.ResourceUsageClient
+	log                 logrus.FieldLogger
+	clusters            ClusterList
+	database            database.Database
+	tenant              string
+	tenantDomain        string
+	auditLogger         auditlogger.AuditLogger
+	pubsubTopic         *pubsub.Topic
+	unleashMgr          *unleash.Manager
+	auditor             *audit.Auditor
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
-func NewResolver(hookdClient HookdClient,
+func NewResolver(
+	hookdClient HookdClient,
 	k8sClient *k8s.Client,
 	vulnerabilitiesMgr *vulnerabilities.Manager,
 	resourceUsageClient resourceusage.ResourceUsageClient,
@@ -146,35 +106,23 @@ func NewResolver(hookdClient HookdClient,
 	clusters ClusterList,
 	pubsubTopic *pubsub.Topic,
 	log logrus.FieldLogger,
-	sqlInstanceClient *sqlinstance.Client,
-	bucketClient *bucket.Client,
-	redisClient *redis.Client,
-	bigQueryDatasetClient *bigquery.Client,
-	openSearchClient *opensearch.Client,
-	kafkaClient *kafka.Client,
 	unleashMgr *unleash.Manager,
 	auditer *audit.Auditor,
 ) *Resolver {
 	return &Resolver{
-		hookdClient:           hookdClient,
-		k8sClient:             k8sClient,
-		vulnerabilities:       vulnerabilitiesMgr,
-		resourceUsageClient:   resourceUsageClient,
-		tenant:                tenant,
-		tenantDomain:          tenantDomain,
-		auditLogger:           auditLogger,
-		log:                   log,
-		database:              db,
-		clusters:              clusters,
-		pubsubTopic:           pubsubTopic,
-		sqlInstanceClient:     sqlInstanceClient,
-		bucketClient:          bucketClient,
-		redisClient:           redisClient,
-		bigQueryDatasetClient: bigQueryDatasetClient,
-		openSearchClient:      openSearchClient,
-		kafkaClient:           kafkaClient,
-		unleashMgr:            unleashMgr,
-		auditor:               auditer,
+		hookdClient:         hookdClient,
+		k8sClient:           k8sClient,
+		vulnerabilities:     vulnerabilitiesMgr,
+		resourceUsageClient: resourceUsageClient,
+		tenant:              tenant,
+		tenantDomain:        tenantDomain,
+		auditLogger:         auditLogger,
+		log:                 log,
+		database:            db,
+		clusters:            clusters,
+		pubsubTopic:         pubsubTopic,
+		unleashMgr:          unleashMgr,
+		auditor:             auditer,
 	}
 }
 

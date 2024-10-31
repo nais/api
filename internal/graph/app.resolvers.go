@@ -14,10 +14,6 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-func (r *appResolver) Persistence(ctx context.Context, obj *model.App) ([]model.Persistence, error) {
-	return r.k8sClient.Persistence(ctx, obj.WorkloadBase)
-}
-
 func (r *appResolver) ImageDetails(ctx context.Context, obj *model.App) (*model.ImageDetails, error) {
 	image, err := r.vulnerabilities.GetMetadataForImage(ctx, obj.Image)
 	if err != nil {

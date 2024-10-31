@@ -35,10 +35,6 @@ func (r *mutationResolver) DeleteJob(ctx context.Context, name string, team slug
 	}, nil
 }
 
-func (r *naisJobResolver) Persistence(ctx context.Context, obj *model.NaisJob) ([]model.Persistence, error) {
-	return r.k8sClient.Persistence(ctx, obj.WorkloadBase)
-}
-
 func (r *naisJobResolver) ImageDetails(ctx context.Context, obj *model.NaisJob) (*model.ImageDetails, error) {
 	image, err := r.vulnerabilities.GetMetadataForImage(ctx, obj.Image)
 	if err != nil {

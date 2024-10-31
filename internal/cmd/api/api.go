@@ -14,8 +14,6 @@ import (
 	"github.com/nais/api/internal/audit"
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auth/authn"
-	"github.com/nais/api/internal/bigquery"
-	"github.com/nais/api/internal/bucket"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/fixtures"
 	"github.com/nais/api/internal/graph"
@@ -24,13 +22,9 @@ import (
 	"github.com/nais/api/internal/grpc"
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/k8s/fake"
-	"github.com/nais/api/internal/kafka"
 	"github.com/nais/api/internal/logger"
-	"github.com/nais/api/internal/opensearch"
-	"github.com/nais/api/internal/redis"
 	"github.com/nais/api/internal/resourceusage"
 	fakeresourceusage "github.com/nais/api/internal/resourceusage/fake"
-	"github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/unleash"
@@ -186,11 +180,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		}
 	}
 
-	sqlInstanceClient, err := sqlinstance.NewClient(ctx, db, k8sClient.Informers(), log, sqlinstance.WithFakeClients(cfg.WithFakeClients))
-	if err != nil {
-		return fmt.Errorf("create sql instance client: %w", err)
-	}
-
 	resolver := graph.NewResolver(
 		hookdClient,
 		k8sClient,
@@ -203,12 +192,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		cfg.K8s.GraphClusterList(),
 		pubsubTopic,
 		log,
-		sqlInstanceClient,
-		bucket.NewClient(k8sClient.Informers(), log, db),
-		redis.NewClient(k8sClient.Informers(), log, db),
-		bigquery.NewClient(k8sClient.Informers(), log, db),
-		opensearch.NewClient(k8sClient.Informers(), log, db),
-		kafka.NewClient(k8sClient.Informers(), log, db),
 		unleashMgr,
 		audit.NewAuditor(db),
 	)
@@ -306,7 +289,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			k8sClientSets,
 			watcherMgr,
 			mgmtWatcher,
-			sqlInstanceClient.Admin,
 			authHandler,
 			graphHandler,
 			graphv1Handler,

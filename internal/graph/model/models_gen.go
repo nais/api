@@ -34,10 +34,6 @@ type DeploymentResponse interface {
 	IsDeploymentResponse()
 }
 
-type Persistence interface {
-	IsPersistence()
-}
-
 type ScalingStrategy interface {
 	IsScalingStrategy()
 }
@@ -168,37 +164,6 @@ type AzureApplication struct {
 	Tenant                string   `json:"tenant"`
 }
 
-type BigQueryDatasetAccess struct {
-	Role  string `json:"role"`
-	Email string `json:"email"`
-}
-
-type BigQueryDatasetList struct {
-	Nodes    []*BigQueryDataset `json:"nodes"`
-	PageInfo PageInfo           `json:"pageInfo"`
-}
-
-type BigQueryDatasetStatus struct {
-	Conditions       []*Condition `json:"conditions"`
-	CreationTime     time.Time    `json:"creationTime"`
-	LastModifiedTime *time.Time   `json:"lastModifiedTime,omitempty"`
-}
-
-type BucketStatus struct {
-	Conditions []*Condition `json:"conditions"`
-	SelfLink   string       `json:"selfLink"`
-}
-
-type BucketsList struct {
-	Nodes    []*Bucket      `json:"nodes"`
-	PageInfo PageInfo       `json:"pageInfo"`
-	Metrics  BucketsMetrics `json:"metrics"`
-}
-
-type BucketsMetrics struct {
-	Cost float64 `json:"cost"`
-}
-
 type CPUScalingStrategy struct {
 	Threshold int `json:"threshold"`
 }
@@ -208,14 +173,6 @@ func (CPUScalingStrategy) IsScalingStrategy() {}
 type Claims struct {
 	Extra  []string `json:"extra"`
 	Groups []*Group `json:"groups"`
-}
-
-type Condition struct {
-	Message            string    `json:"message"`
-	Reason             string    `json:"reason"`
-	Status             string    `json:"status"`
-	Type               string    `json:"type"`
-	LastTransitionTime time.Time `json:"lastTransitionTime"`
 }
 
 type Consume struct {
@@ -379,11 +336,6 @@ type FailedRunError struct {
 
 func (FailedRunError) IsStateError() {}
 
-type Flag struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-
 // GCP project type.
 type GCPProject struct {
 	// The environment for the project.
@@ -471,13 +423,6 @@ type InboundAccessError struct {
 
 func (InboundAccessError) IsStateError() {}
 
-type Insights struct {
-	Enabled               bool `json:"enabled"`
-	QueryStringLength     int  `json:"queryStringLength"`
-	RecordApplicationTags bool `json:"recordApplicationTags"`
-	RecordClientAddress   bool `json:"recordClientAddress"`
-}
-
 type InvalidNaisYamlError struct {
 	Revision string     `json:"revision"`
 	Level    ErrorLevel `json:"level"`
@@ -500,42 +445,6 @@ type KafkaLagScalingStrategy struct {
 }
 
 func (KafkaLagScalingStrategy) IsScalingStrategy() {}
-
-type KafkaTopicACLFilter struct {
-	Team        *slug.Slug `json:"team,omitempty"`
-	Application *string    `json:"application,omitempty"`
-}
-
-type KafkaTopicACLList struct {
-	Nodes    []*KafkaTopicACL `json:"nodes"`
-	PageInfo PageInfo         `json:"pageInfo"`
-}
-
-type KafkaTopicConfig struct {
-	CleanupPolicy         *string `json:"cleanupPolicy,omitempty"`
-	MaxMessageBytes       *int    `json:"maxMessageBytes,omitempty"`
-	MinimumInSyncReplicas *int    `json:"minimumInSyncReplicas,omitempty"`
-	Partitions            *int    `json:"partitions,omitempty"`
-	Replication           *int    `json:"replication,omitempty"`
-	RetentionBytes        *int    `json:"retentionBytes,omitempty"`
-	RetentionHours        *int    `json:"retentionHours,omitempty"`
-	SegmentHours          *int    `json:"segmentHours,omitempty"`
-}
-
-type KafkaTopicList struct {
-	Nodes    []*KafkaTopic `json:"nodes"`
-	PageInfo PageInfo      `json:"pageInfo"`
-}
-
-type KafkaTopicStatus struct {
-	FullyQualifiedName     string     `json:"fullyQualifiedName"`
-	Message                string     `json:"message"`
-	SynchronizationState   State      `json:"synchronizationState"`
-	SynchronizationTime    *time.Time `json:"synchronizationTime,omitempty"`
-	CredentialsExpiryTime  *time.Time `json:"credentialsExpiryTime,omitempty"`
-	Errors                 []string   `json:"errors,omitempty"`
-	LatestAivenSyncFailure *time.Time `json:"latestAivenSyncFailure,omitempty"`
-}
 
 type Limits struct {
 	CPU    string `json:"cpu"`
@@ -625,21 +534,6 @@ type NoRunningInstancesError struct {
 
 func (NoRunningInstancesError) IsStateError() {}
 
-type OpenSearchList struct {
-	Nodes    []*OpenSearch     `json:"nodes"`
-	PageInfo PageInfo          `json:"pageInfo"`
-	Metrics  OpenSearchMetrics `json:"metrics"`
-}
-
-type OpenSearchMetrics struct {
-	Cost float64 `json:"cost"`
-}
-
-type OpenSearchStatus struct {
-	Conditions []*Condition `json:"conditions"`
-	State      string       `json:"state"`
-}
-
 type OrderBy struct {
 	// Order direction.
 	Direction SortOrder `json:"direction"`
@@ -715,21 +609,6 @@ type ReconcilerList struct {
 	PageInfo PageInfo `json:"pageInfo"`
 }
 
-type RedisList struct {
-	Nodes    []*Redis     `json:"nodes"`
-	PageInfo PageInfo     `json:"pageInfo"`
-	Metrics  RedisMetrics `json:"metrics"`
-}
-
-type RedisMetrics struct {
-	Cost float64 `json:"cost"`
-}
-
-type RedisStatus struct {
-	Conditions []*Condition `json:"conditions"`
-	State      string       `json:"state"`
-}
-
 type Rekor struct {
 	BuildTrigger             string `json:"buildTrigger"`
 	BuildConfigURI           string `json:"buildConfigURI"`
@@ -802,34 +681,6 @@ type SlackAlertsChannel struct {
 	Environment string `json:"environment"`
 	// The name of the Slack channel.
 	ChannelName string `json:"channelName"`
-}
-
-type SQLInstanceCPU struct {
-	Cores       float64 `json:"cores"`
-	Utilization float64 `json:"utilization"`
-}
-
-type SQLInstanceDisk struct {
-	QuotaBytes  int     `json:"quotaBytes"`
-	Utilization float64 `json:"utilization"`
-}
-
-type SQLInstanceMemory struct {
-	QuotaBytes  int     `json:"quotaBytes"`
-	Utilization float64 `json:"utilization"`
-}
-
-type SQLInstanceStatus struct {
-	Conditions       []*Condition `json:"conditions"`
-	PublicIPAddress  *string      `json:"publicIpAddress,omitempty"`
-	PrivateIPAddress *string      `json:"privateIpAddress,omitempty"`
-}
-
-type SQLInstancesMetrics struct {
-	Cost   float64           `json:"cost"`
-	CPU    SQLInstanceCPU    `json:"cpu"`
-	Memory SQLInstanceMemory `json:"memory"`
-	Disk   SQLInstanceDisk   `json:"disk"`
 }
 
 type SQLInstancesStatus struct {
@@ -1211,18 +1062,6 @@ const (
 	OrderByFieldState OrderByField = "STATE"
 	// Order by isSuppressed.
 	OrderByFieldIsSuppressed OrderByField = "IS_SUPPRESSED"
-	// Order by PostgreSQL version
-	OrderByFieldVersion OrderByField = "VERSION"
-	// Order by cost
-	OrderByFieldCost OrderByField = "COST"
-	// Order by CPU utilization
-	OrderByFieldCPU OrderByField = "CPU"
-	// Order by memory utilization
-	OrderByFieldMemory OrderByField = "MEMORY"
-	// Order by disk utilization
-	OrderByFieldDisk OrderByField = "DISK"
-	// Order by access
-	OrderByFieldAccess OrderByField = "ACCESS"
 	// Order by appName.
 	OrderByFieldAppName OrderByField = "APP_NAME"
 	// Order by env.
@@ -1250,12 +1089,6 @@ var AllOrderByField = []OrderByField{
 	OrderByFieldPackageURL,
 	OrderByFieldState,
 	OrderByFieldIsSuppressed,
-	OrderByFieldVersion,
-	OrderByFieldCost,
-	OrderByFieldCPU,
-	OrderByFieldMemory,
-	OrderByFieldDisk,
-	OrderByFieldAccess,
 	OrderByFieldAppName,
 	OrderByFieldEnvName,
 	OrderByFieldRiskScore,
@@ -1268,7 +1101,7 @@ var AllOrderByField = []OrderByField{
 
 func (e OrderByField) IsValid() bool {
 	switch e {
-	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldSeverity, OrderByFieldPackageURL, OrderByFieldState, OrderByFieldIsSuppressed, OrderByFieldVersion, OrderByFieldCost, OrderByFieldCPU, OrderByFieldMemory, OrderByFieldDisk, OrderByFieldAccess, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned:
+	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldSeverity, OrderByFieldPackageURL, OrderByFieldState, OrderByFieldIsSuppressed, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned:
 		return true
 	}
 	return false
@@ -1335,57 +1168,6 @@ func (e *SortOrder) UnmarshalGQL(v interface{}) error {
 }
 
 func (e SortOrder) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type SQLInstanceState string
-
-const (
-	SQLInstanceStateSQLInstanceStateUnspecified SQLInstanceState = "SQL_INSTANCE_STATE_UNSPECIFIED"
-	SQLInstanceStateRunnable                    SQLInstanceState = "RUNNABLE"
-	SQLInstanceStateSuspended                   SQLInstanceState = "SUSPENDED"
-	SQLInstanceStatePendingDelete               SQLInstanceState = "PENDING_DELETE"
-	SQLInstanceStatePendingCreate               SQLInstanceState = "PENDING_CREATE"
-	SQLInstanceStateMaintenance                 SQLInstanceState = "MAINTENANCE"
-	SQLInstanceStateFailed                      SQLInstanceState = "FAILED"
-)
-
-var AllSQLInstanceState = []SQLInstanceState{
-	SQLInstanceStateSQLInstanceStateUnspecified,
-	SQLInstanceStateRunnable,
-	SQLInstanceStateSuspended,
-	SQLInstanceStatePendingDelete,
-	SQLInstanceStatePendingCreate,
-	SQLInstanceStateMaintenance,
-	SQLInstanceStateFailed,
-}
-
-func (e SQLInstanceState) IsValid() bool {
-	switch e {
-	case SQLInstanceStateSQLInstanceStateUnspecified, SQLInstanceStateRunnable, SQLInstanceStateSuspended, SQLInstanceStatePendingDelete, SQLInstanceStatePendingCreate, SQLInstanceStateMaintenance, SQLInstanceStateFailed:
-		return true
-	}
-	return false
-}
-
-func (e SQLInstanceState) String() string {
-	return string(e)
-}
-
-func (e *SQLInstanceState) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = SQLInstanceState(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid SqlInstanceState", str)
-	}
-	return nil
-}
-
-func (e SQLInstanceState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

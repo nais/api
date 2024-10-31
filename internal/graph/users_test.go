@@ -20,7 +20,7 @@ func TestQueryResolver_Users(t *testing.T) {
 	auditLogger := auditlogger.NewAuditLoggerForTesting()
 	log, _ := test.NewNullLogger()
 	resolver := graph.
-		NewResolver(nil, nil, nil, nil, db, "example", "example.com", auditLogger, nil, nil, log, nil, nil, nil, nil, nil, nil, nil, nil).
+		NewResolver(nil, nil, nil, nil, db, "example", "example.com", auditLogger, nil, nil, log, nil, nil).
 		Query()
 
 	t.Run("unauthenticated user", func(t *testing.T) {

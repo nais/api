@@ -54,7 +54,6 @@ type App implements Workload {
   status: WorkloadStatus!
   authz: [Authz!]!
   variables: [Variable!]!
-  persistence: [Persistence!]!
   resources: Resources!
   type: WorkloadType!
   utilization: AppUtilization!
