@@ -638,16 +638,9 @@ type Requests struct {
 
 // A teams inventory of resources.
 type ResourceInventory struct {
-	TotalJobs                int  `json:"totalJobs"`
-	TotalApps                int  `json:"totalApps"`
-	TotalSQLInstances        int  `json:"totalSqlInstances"`
-	TotalRedisInstances      int  `json:"totalRedisInstances"`
-	TotalOpenSearchInstances int  `json:"totalOpenSearchInstances"`
-	TotalKafkaTopics         int  `json:"totalKafkaTopics"`
-	TotalBuckets             int  `json:"totalBuckets"`
-	TotalBigQueryDatasets    int  `json:"totalBigQueryDatasets"`
-	TotalBucket              int  `json:"totalBucket"`
-	IsEmpty                  bool `json:"isEmpty"`
+	TotalJobs int  `json:"totalJobs"`
+	TotalApps int  `json:"totalApps"`
+	IsEmpty   bool `json:"isEmpty"`
 }
 
 type RestartAppResult struct {
@@ -681,12 +674,6 @@ type SlackAlertsChannel struct {
 	Environment string `json:"environment"`
 	// The name of the Slack channel.
 	ChannelName string `json:"channelName"`
-}
-
-type SQLInstancesStatus struct {
-	Total           int `json:"total"`
-	Failing         int `json:"failing"`
-	OtherConditions int `json:"otherConditions"`
 }
 
 type Subscription struct {
@@ -725,10 +712,9 @@ type TeamMemberList struct {
 
 // Team status.
 type TeamStatus struct {
-	State        State              `json:"state"`
-	Apps         AppsStatus         `json:"apps"`
-	Jobs         JobsStatus         `json:"jobs"`
-	SQLInstances SQLInstancesStatus `json:"sqlInstances"`
+	State State      `json:"state"`
+	Apps  AppsStatus `json:"apps"`
+	Jobs  JobsStatus `json:"jobs"`
 }
 
 // Input for filtering teams.

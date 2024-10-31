@@ -450,11 +450,6 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 			} else if v.Failing == 0 && v.NotNais > 0 {
 				ret.State = model.StateNotnais
 			}
-		case model.SQLInstancesStatus:
-			ret.SQLInstances = v
-			if v.Failing > 0 {
-				ret.State = model.StateFailing
-			}
 		}
 	}
 
@@ -496,16 +491,6 @@ func (r *teamResolver) ResourceInventory(ctx context.Context, obj *model.Team) (
 				inventory.TotalApps = v
 			case "jobs":
 				inventory.TotalJobs = v
-			case "sqlInstances":
-				inventory.TotalSQLInstances = v
-			case "buckets":
-				inventory.TotalBuckets = v
-			case "redis":
-				inventory.TotalRedisInstances = v
-			case "kafkaTopics":
-				inventory.TotalKafkaTopics = v
-			case "bigQueries":
-				inventory.TotalBigQueryDatasets = v
 			}
 			if v > 0 {
 				inventory.IsEmpty = false

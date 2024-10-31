@@ -287,12 +287,6 @@ type RepositoryList {
   pageInfo: PageInfo!
 }
 
-type SqlInstancesStatus {
-  total: Int!
-  failing: Int!
-  otherConditions: Int!
-}
-
 "Slack alerts channel type."
 type SlackAlertsChannel {
   "The environment for the alerts sent to the channel."
@@ -352,7 +346,6 @@ type TeamStatus {
   state: State!
   apps: AppsStatus!
   jobs: JobsStatus!
-  sqlInstances: SqlInstancesStatus!
 }
 
 "Team status for apps."
@@ -373,13 +366,6 @@ type JobsStatus {
 type ResourceInventory {
   totalJobs: Int!
   totalApps: Int!
-  totalSqlInstances: Int!
-  totalRedisInstances: Int!
-  totalOpenSearchInstances: Int!
-  totalKafkaTopics: Int!
-  totalBuckets: Int!
-  totalBigQueryDatasets: Int!
-  totalBucket: Int!
   isEmpty: Boolean!
 }
 
