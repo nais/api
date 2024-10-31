@@ -120,3 +120,12 @@ sql:
         <<: *default_go
         package: "grpcusersql"
         out: "../internal/grpc/grpcuser/grpcusersql"
+
+  - <<: *default_domain
+    name: "Reconcilers SQL for gRPC"
+    queries: "../internal/grpc/grpcreconciler/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "grpcreconcilersql"
+        out: "../internal/grpc/grpcreconciler/grpcreconcilersql"
