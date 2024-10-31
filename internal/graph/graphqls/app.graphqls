@@ -50,7 +50,6 @@ type App implements Workload {
   image: String!
   deployInfo: DeployInfo!
   env: Env!
-  accessPolicy: AccessPolicy!
   status: WorkloadStatus!
   authz: [Authz!]!
   variables: [Variable!]!
@@ -149,13 +148,11 @@ type SynchronizationFailingError implements StateError {
 type InboundAccessError implements StateError {
 	revision: String!
 	level: ErrorLevel!
-	rule: Rule!
 }
 
 type OutboundAccessError implements StateError {
 	revision: String!
 	level: ErrorLevel!
-	rule: Rule!
 }
 
 type VulnerableError implements StateError {

@@ -8,18 +8,17 @@ import (
 )
 
 type WorkloadBase struct {
-	ID           scalar.Ident        `json:"id"`
-	Name         string              `json:"name"`
-	Image        string              `json:"image"`
-	DeployInfo   DeployInfo          `json:"deployInfo"`
-	Env          Env                 `json:"env"`
-	AccessPolicy AccessPolicy        `json:"accessPolicy"`
-	Status       WorkloadStatus      `json:"status"`
-	Authz        []Authz             `json:"authz"`
-	Variables    []*Variable         `json:"variables"`
-	Resources    Resources           `json:"resources"`
-	Utilization  AppUtilization      `json:"utilization"`
-	GQLVars      WorkloadBaseGQLVars `json:"-"`
+	ID          scalar.Ident        `json:"id"`
+	Name        string              `json:"name"`
+	Image       string              `json:"image"`
+	DeployInfo  DeployInfo          `json:"deployInfo"`
+	Env         Env                 `json:"env"`
+	Status      WorkloadStatus      `json:"status"`
+	Authz       []Authz             `json:"authz"`
+	Variables   []*Variable         `json:"variables"`
+	Resources   Resources           `json:"resources"`
+	Utilization AppUtilization      `json:"utilization"`
+	GQLVars     WorkloadBaseGQLVars `json:"-"`
 }
 
 func (WorkloadBase) IsWorkload() {}

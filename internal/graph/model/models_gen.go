@@ -37,11 +37,6 @@ type Workload interface {
 	IsWorkload()
 }
 
-type AccessPolicy struct {
-	Inbound  Inbound  `json:"inbound"`
-	Outbound Outbound `json:"outbound"`
-}
-
 type AnalysisComment struct {
 	Comment    string    `json:"comment"`
 	Timestamp  time.Time `json:"timestamp"`
@@ -191,12 +186,6 @@ type Expose struct {
 	Product             string      `json:"product"`
 }
 
-type External struct {
-	Host  *string `json:"host,omitempty"`
-	IPv4  *string `json:"IPv4,omitempty"`
-	Ports []*Port `json:"ports"`
-}
-
 type FailedRunError struct {
 	Revision   string     `json:"revision"`
 	Level      ErrorLevel `json:"level"`
@@ -259,14 +248,9 @@ type ImageVulnerabilitySummary struct {
 	Unassigned int          `json:"unassigned"`
 }
 
-type Inbound struct {
-	Rules []*Rule `json:"rules"`
-}
-
 type InboundAccessError struct {
 	Revision string     `json:"revision"`
 	Level    ErrorLevel `json:"level"`
-	Rule     Rule       `json:"rule"`
 }
 
 func (InboundAccessError) IsStateError() {}
@@ -357,15 +341,9 @@ type OrderBy struct {
 	Field OrderByField `json:"field"`
 }
 
-type Outbound struct {
-	Rules    []*Rule     `json:"rules"`
-	External []*External `json:"external"`
-}
-
 type OutboundAccessError struct {
 	Revision string     `json:"revision"`
 	Level    ErrorLevel `json:"level"`
-	Rule     Rule       `json:"rule"`
 }
 
 func (OutboundAccessError) IsStateError() {}
@@ -378,10 +356,6 @@ type PageInfo struct {
 	HasNextPage bool `json:"hasNextPage"`
 	// Whether or not there exists a previous page in the data set.
 	HasPreviousPage bool `json:"hasPreviousPage"`
-}
-
-type Port struct {
-	Port int `json:"port"`
 }
 
 // The query root for the NAIS GraphQL API.
@@ -417,15 +391,6 @@ type ResourceInventory struct {
 
 type RestartAppResult struct {
 	Error *string `json:"error,omitempty"`
-}
-
-type Rule struct {
-	Application       string `json:"application"`
-	Namespace         string `json:"namespace"`
-	Cluster           string `json:"cluster"`
-	Mutual            bool   `json:"mutual"`
-	MutualExplanation string `json:"mutualExplanation"`
-	IsJob             bool   `json:"isJob"`
 }
 
 type Scaling struct {

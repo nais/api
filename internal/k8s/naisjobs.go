@@ -58,22 +58,6 @@ func (c *Client) NaisJob(ctx context.Context, name, team, env string) (*model.Na
 		return nil, c.error(ctx, err, "converting to job")
 	}
 
-	for i, rule := range job.AccessPolicy.Outbound.Rules {
-		err = c.setJobHasMutualOnOutbound(ctx, name, team, env, rule)
-		if err != nil {
-			return nil, c.error(ctx, err, "setting hasMutual on outbound")
-		}
-		job.AccessPolicy.Outbound.Rules[i] = rule
-	}
-
-	for i, rule := range job.AccessPolicy.Inbound.Rules {
-		err = c.setJobHasMutualOnInbound(ctx, name, team, env, rule)
-		if err != nil {
-			return nil, c.error(ctx, err, "setting hasMutual on inbound")
-		}
-		job.AccessPolicy.Inbound.Rules[i] = rule
-	}
-
 	runs, err := c.Runs(ctx, team, env, name)
 	if err != nil {
 		return nil, c.error(ctx, err, "getting runs")
@@ -98,120 +82,6 @@ func (c *Client) NaisJobExists(env, team, job string) bool {
 
 	_, err := c.informers[env].Naisjob.Lister().ByNamespace(team).Get(job)
 	return err == nil
-}
-
-func (c *Client) setJobHasMutualOnOutbound(ctx context.Context, oJob, oTeam, oEnv string, outboundRule *model.Rule) error {
-	outboundEnv := oEnv
-	if outboundRule.Cluster != "" {
-		outboundEnv = outboundRule.Cluster
-	}
-	outboundTeam := oTeam
-	if outboundRule.Namespace != "" {
-		outboundTeam = outboundRule.Namespace
-	}
-
-	if isImplicitMutual(oEnv, outboundRule) {
-		return nil
-	}
-
-	noZeroTrust := checkNoZeroTrust(oEnv, outboundRule)
-	if noZeroTrust {
-		return nil
-	}
-
-	inf := c.getInformers(outboundEnv)
-	if inf == nil {
-		return nil
-	}
-
-	app, err := c.getApp(ctx, inf, outboundEnv, outboundTeam, outboundRule.Application)
-	if app == nil {
-		c.log.Debug("no app found for outbound rule ", outboundRule.Application, " in ", outboundEnv, " for ", outboundTeam, ": ", err)
-		outboundRule.Mutual = false
-		outboundRule.MutualExplanation = "APP_NOT_FOUND"
-		return nil
-	}
-
-	for _, inboundRuleOnOutboundApp := range app.AccessPolicy.Inbound.Rules {
-		if inboundRuleOnOutboundApp.Cluster != "" {
-			if inboundRuleOnOutboundApp.Cluster != "*" && oEnv != inboundRuleOnOutboundApp.Cluster {
-				continue
-			}
-		}
-
-		if inboundRuleOnOutboundApp.Namespace != "" {
-			if inboundRuleOnOutboundApp.Namespace != "*" && oTeam != inboundRuleOnOutboundApp.Namespace {
-				continue
-			}
-		}
-
-		if inboundRuleOnOutboundApp.Application == "*" || inboundRuleOnOutboundApp.Application == oJob {
-			outboundRule.Mutual = true
-			return nil
-		}
-	}
-
-	outboundRule.Mutual = false
-	outboundRule.MutualExplanation = "RULE_NOT_FOUND"
-
-	return nil
-}
-
-func (c *Client) setJobHasMutualOnInbound(ctx context.Context, oApp, oTeam, oEnv string, inboundRule *model.Rule) error {
-	inboundEnv := oEnv
-	if inboundRule.Cluster != "" {
-		inboundEnv = inboundRule.Cluster
-	}
-
-	inboundTeam := oTeam
-	if inboundRule.Namespace != "" {
-		inboundTeam = inboundRule.Namespace
-	}
-
-	if isImplicitMutual(oEnv, inboundRule) {
-		return nil
-	}
-
-	noZeroTrust := checkNoZeroTrust(oEnv, inboundRule)
-	if noZeroTrust {
-		return nil
-	}
-
-	inf := c.getInformers(inboundEnv)
-	if inf == nil {
-		return nil
-	}
-
-	app, err := c.getApp(ctx, inf, inboundEnv, inboundTeam, inboundRule.Application)
-	if app == nil {
-		c.log.Debug("no app found for inbound rule ", inboundRule.Application, " in ", inboundEnv, " for ", inboundTeam, ": ", err)
-		inboundRule.Mutual = false
-		inboundRule.MutualExplanation = "APP_NOT_FOUND"
-		return nil
-	}
-
-	for _, outboundRuleOnInboundApp := range app.AccessPolicy.Outbound.Rules {
-		if outboundRuleOnInboundApp.Cluster != "" {
-			if outboundRuleOnInboundApp.Cluster != "*" && oEnv != outboundRuleOnInboundApp.Cluster {
-				continue
-			}
-		}
-
-		if outboundRuleOnInboundApp.Namespace != "" {
-			if outboundRuleOnInboundApp.Namespace != "*" && oTeam != outboundRuleOnInboundApp.Namespace {
-				continue
-			}
-		}
-
-		if outboundRuleOnInboundApp.Application == "*" || outboundRuleOnInboundApp.Application == oApp {
-			inboundRule.Mutual = true
-			return nil
-		}
-	}
-
-	inboundRule.Mutual = false
-	inboundRule.MutualExplanation = "RULE_NOT_FOUND"
-	return nil
 }
 
 func setJobStatus(job *model.NaisJob, conditions []metav1.Condition, runs []*model.Run) {
@@ -291,32 +161,6 @@ func setJobStatus(job *model.NaisJob, conditions []metav1.Condition, runs []*mod
 		}*/
 	}
 
-	for _, rule := range job.AccessPolicy.Inbound.Rules {
-		if !rule.Mutual {
-			jobState.Errors = append(jobState.Errors, &model.InboundAccessError{
-				Revision: job.DeployInfo.CommitSha,
-				Level:    model.ErrorLevelWarning,
-				Rule:     *rule,
-			})
-			if jobState.State != model.StateFailing {
-				jobState.State = model.StateNotnais
-			}
-		}
-	}
-
-	for _, rule := range job.AccessPolicy.Outbound.Rules {
-		if !rule.Mutual {
-			jobState.Errors = append(jobState.Errors, &model.OutboundAccessError{
-				Revision: job.DeployInfo.CommitSha,
-				Level:    model.ErrorLevelWarning,
-				Rule:     *rule,
-			})
-			if jobState.State != model.StateFailing {
-				jobState.State = model.StateNotnais
-			}
-		}
-	}
-
 	job.Status = jobState
 }
 
@@ -332,22 +176,6 @@ func (c *Client) NaisJobs(ctx context.Context, team string) ([]*model.NaisJob, e
 			job, err := c.ToNaisJob(obj.(*unstructured.Unstructured), env)
 			if err != nil {
 				return nil, c.error(ctx, err, "converting to job")
-			}
-
-			for i, rule := range job.AccessPolicy.Outbound.Rules {
-				err = c.setJobHasMutualOnOutbound(ctx, job.Name, team, env, rule)
-				if err != nil {
-					return nil, c.error(ctx, err, "setting hasMutual on outbound")
-				}
-				job.AccessPolicy.Outbound.Rules[i] = rule
-			}
-
-			for i, rule := range job.AccessPolicy.Inbound.Rules {
-				err = c.setJobHasMutualOnInbound(ctx, job.Name, team, env, rule)
-				if err != nil {
-					return nil, c.error(ctx, err, "setting hasMutual on inbound")
-				}
-				job.AccessPolicy.Inbound.Rules[i] = rule
 			}
 
 			runs, err := c.Runs(ctx, team, env, job.Name)
@@ -566,12 +394,6 @@ func (c *Client) ToNaisJob(u *unstructured.Unstructured, env string) (*model.Nai
 	timestamp := time.Unix(0, naisjob.GetStatus().RolloutCompleteTime)
 	ret.DeployInfo.Timestamp = &timestamp
 	ret.GQLVars.Team = slug.Slug(naisjob.GetNamespace())
-
-	ap := model.AccessPolicy{}
-	if err := convert(naisjob.Spec.AccessPolicy, &ap); err != nil {
-		return nil, fmt.Errorf("converting accessPolicy: %w", err)
-	}
-	ret.AccessPolicy = ap
 
 	r := model.Resources{}
 	if err := convert(naisjob.Spec.Resources, &r); err != nil {
