@@ -174,6 +174,11 @@ enum SqlInstanceOrderField {
 	NAME
 	VERSION
 	ENVIRONMENT
+	STATUS
+	COST
+	CPU_UTILIZATION
+	MEMORY_UTILIZATION
+	DISK_UTILIZATION
 }
 
 enum SqlInstanceUserOrderField {

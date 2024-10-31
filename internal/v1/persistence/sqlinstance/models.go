@@ -184,11 +184,16 @@ const (
 	SQLInstanceOrderFieldName        SQLInstanceOrderField = "NAME"
 	SQLInstanceOrderFieldVersion     SQLInstanceOrderField = "VERSION"
 	SQLInstanceOrderFieldEnvironment SQLInstanceOrderField = "ENVIRONMENT"
+	SQLInstanceOrderFieldStatus      SQLInstanceOrderField = "STATUS"
+	SQLInstanceOrderFieldCost        SQLInstanceOrderField = "COST"
+	SQLInstanceOrderFieldCPU         SQLInstanceOrderField = "CPU_UTILIZATION"
+	SQLInstanceOrderFieldMemory      SQLInstanceOrderField = "MEMORY_UTILIZATION"
+	SQLInstanceOrderFieldDisk        SQLInstanceOrderField = "DISK_UTILIZATION"
 )
 
 func (e SQLInstanceOrderField) IsValid() bool {
 	switch e {
-	case SQLInstanceOrderFieldName, SQLInstanceOrderFieldVersion, SQLInstanceOrderFieldEnvironment:
+	case SQLInstanceOrderFieldName, SQLInstanceOrderFieldVersion, SQLInstanceOrderFieldEnvironment, SQLInstanceOrderFieldStatus, SQLInstanceOrderFieldCost, SQLInstanceOrderFieldCPU, SQLInstanceOrderFieldMemory, SQLInstanceOrderFieldDisk:
 		return true
 	}
 	return false

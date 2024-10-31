@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	"github.com/nais/api/internal/v1/cost"
 	"github.com/nais/api/internal/v1/graphv1/sortfilter"
 )
 
@@ -13,6 +14,7 @@ var (
 )
 
 func init() {
+	//SQLInstance
 	SortFilterSQLInstance.RegisterOrderBy(SQLInstanceOrderFieldName, func(ctx context.Context, a, b *SQLInstance) int {
 		return strings.Compare(a.GetName(), b.GetName())
 	})
@@ -29,7 +31,86 @@ func init() {
 		}
 		return strings.Compare(*a.Version, *b.Version)
 	})
+	SortFilterSQLInstance.RegisterOrderBy(SQLInstanceOrderFieldStatus, func(ctx context.Context, a, b *SQLInstance) int {
+		stateOrder := map[string]int{
+			"UNSPECIFIED":    0,
+			"RUNNABLE":       1,
+			"SUSPENDED":      2,
+			"PENDING_DELETE": 3,
+			"PENDING_CREATE": 4,
+			"MAINTENANCE":    5,
+			"FAILED":         6,
+		}
 
+		aState, err := GetState(ctx, a.ProjectID, a.Name)
+		if err != nil {
+			return 0
+		}
+		bState, err := GetState(ctx, b.ProjectID, b.Name)
+		if err != nil {
+			return 0
+		}
+
+		aOrder := stateOrder[aState.String()]
+		bOrder := stateOrder[bState.String()]
+
+		if aOrder < bOrder {
+			return -1
+		} else if aOrder > bOrder {
+			return 1
+		}
+		return 0
+	})
+	SortFilterSQLInstance.RegisterConcurrentOrderBy(SQLInstanceOrderFieldCost, func(ctx context.Context, a *SQLInstance) int {
+		if a.WorkloadReference == nil {
+			return 0
+		}
+		a_cost, err := cost.MonthlyForService(ctx, a.TeamSlug, a.EnvironmentName, a.WorkloadReference.Name, "Cloud SQL")
+		if err != nil {
+			return 0
+		}
+
+		return int(a_cost * 100)
+
+	})
+	SortFilterSQLInstance.RegisterConcurrentOrderBy(SQLInstanceOrderFieldCPU, func(ctx context.Context, a *SQLInstance) int {
+		aCPU, err := CPUForInstance(ctx, a.ProjectID, a.Name)
+		if err != nil {
+			return 0
+		}
+
+		if aCPU == nil {
+			return 0
+		}
+
+		return int(aCPU.Utilization * 100)
+	})
+	SortFilterSQLInstance.RegisterConcurrentOrderBy(SQLInstanceOrderFieldMemory, func(ctx context.Context, a *SQLInstance) int {
+		aMemory, err := MemoryForInstance(ctx, a.ProjectID, a.Name)
+		if err != nil {
+			return 0
+		}
+
+		if aMemory == nil {
+			return 0
+		}
+
+		return int(aMemory.Utilization * 100)
+	})
+	SortFilterSQLInstance.RegisterConcurrentOrderBy(SQLInstanceOrderFieldDisk, func(ctx context.Context, a *SQLInstance) int {
+		aDisk, err := DiskForInstance(ctx, a.ProjectID, a.Name)
+		if err != nil {
+			return 0
+		}
+
+		if aDisk == nil {
+			return 0
+		}
+
+		return int(aDisk.Utilization * 100)
+	})
+
+	//SQLInstanceUser
 	SortFilterSQLInstanceUser.RegisterOrderBy(SQLInstanceUserOrderFieldName, func(ctx context.Context, a, b *SQLInstanceUser) int {
 		return strings.Compare(a.Name, b.Name)
 	})

@@ -5,8 +5,10 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"math/rand"
 	"net/http"
 	"strings"
+	"time"
 
 	"cloud.google.com/go/monitoring/apiv3/v2/monitoringpb"
 	"github.com/nais/api/internal/test"
@@ -67,19 +69,21 @@ func (f FakeGoogleAPI) ListTimeSeries(_ context.Context, request *monitoringpb.L
 			},
 		}
 
+		r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
 		switch {
 		case strings.Contains(request.Filter, "cpu/utilization"):
 			ts.Metric.Type = "cloudsql.googleapis.com/database/cpu/utilization"
 			ts.ValueType = metric.MetricDescriptor_DOUBLE
-			addDoublePoint(ts, 0.5)
+			addDoublePoint(ts, r.Float64())
 		case strings.Contains(request.Filter, "cpu/reserved_cores"):
 			ts.Metric.Type = "cloudsql.googleapis.com/database/cpu/reserved_cores"
 			ts.ValueType = metric.MetricDescriptor_INT64
-			addInt64Point(ts, 1)
+			addInt64Point(ts, r.Int63())
 		case strings.Contains(request.Filter, "disk/utilization"):
 			ts.Metric.Type = "cloudsql.googleapis.com/database/disk/utilization"
 			ts.ValueType = metric.MetricDescriptor_DOUBLE
-			addDoublePoint(ts, 0.3)
+			addDoublePoint(ts, r.Float64())
 		case strings.Contains(request.Filter, "disk/quota"):
 			ts.Metric.Type = "cloudsql.googleapis.com/database/disk/quota"
 			ts.ValueType = metric.MetricDescriptor_INT64
@@ -87,7 +91,7 @@ func (f FakeGoogleAPI) ListTimeSeries(_ context.Context, request *monitoringpb.L
 		case strings.Contains(request.Filter, "memory/utilization"):
 			ts.Metric.Type = "cloudsql.googleapis.com/database/memory/utilization"
 			ts.ValueType = metric.MetricDescriptor_DOUBLE
-			addDoublePoint(ts, 0.8)
+			addDoublePoint(ts, r.Float64())
 		case strings.Contains(request.Filter, "memory/quota"):
 			ts.Metric.Type = "cloudsql.googleapis.com/database/memory/quota"
 			ts.ValueType = metric.MetricDescriptor_INT64
