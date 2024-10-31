@@ -42,10 +42,6 @@ type ScalingStrategy interface {
 	IsScalingStrategy()
 }
 
-type SearchNode interface {
-	IsSearchNode()
-}
-
 type StateError interface {
 	IsStateError()
 }
@@ -794,15 +790,6 @@ type Scaling struct {
 	Strategies []ScalingStrategy `json:"strategies"`
 }
 
-type SearchFilter struct {
-	Type *SearchType `json:"type,omitempty"`
-}
-
-type SearchList struct {
-	PageInfo PageInfo     `json:"pageInfo"`
-	Nodes    []SearchNode `json:"nodes"`
-}
-
 type Sidecar struct {
 	AutoLogin            bool      `json:"autoLogin"`
 	AutoLoginIgnorePaths []string  `json:"autoLoginIgnorePaths"`
@@ -1305,63 +1292,6 @@ func (e *OrderByField) UnmarshalGQL(v interface{}) error {
 }
 
 func (e OrderByField) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type SearchType string
-
-const (
-	SearchTypeApp         SearchType = "APP"
-	SearchTypeTeam        SearchType = "TEAM"
-	SearchTypeNaisjob     SearchType = "NAISJOB"
-	SearchTypeSQLInstance SearchType = "SQLINSTANCE"
-	SearchTypeRedis       SearchType = "REDIS"
-	SearchTypeOpensearch  SearchType = "OPENSEARCH"
-	SearchTypeKafkatopic  SearchType = "KAFKATOPIC"
-	SearchTypeSecret      SearchType = "SECRET"
-	SearchTypeBucket      SearchType = "BUCKET"
-	SearchTypeBigquery    SearchType = "BIGQUERY"
-)
-
-var AllSearchType = []SearchType{
-	SearchTypeApp,
-	SearchTypeTeam,
-	SearchTypeNaisjob,
-	SearchTypeSQLInstance,
-	SearchTypeRedis,
-	SearchTypeOpensearch,
-	SearchTypeKafkatopic,
-	SearchTypeSecret,
-	SearchTypeBucket,
-	SearchTypeBigquery,
-}
-
-func (e SearchType) IsValid() bool {
-	switch e {
-	case SearchTypeApp, SearchTypeTeam, SearchTypeNaisjob, SearchTypeSQLInstance, SearchTypeRedis, SearchTypeOpensearch, SearchTypeKafkatopic, SearchTypeSecret, SearchTypeBucket, SearchTypeBigquery:
-		return true
-	}
-	return false
-}
-
-func (e SearchType) String() string {
-	return string(e)
-}
-
-func (e *SearchType) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = SearchType(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid SearchType", str)
-	}
-	return nil
-}
-
-func (e SearchType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

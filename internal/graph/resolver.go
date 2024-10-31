@@ -16,7 +16,6 @@ import (
 	"github.com/nais/api/internal/bigquery"
 	"github.com/nais/api/internal/bucket"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/teamsearch"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
@@ -25,7 +24,6 @@ import (
 	"github.com/nais/api/internal/opensearch"
 	"github.com/nais/api/internal/redis"
 	"github.com/nais/api/internal/resourceusage"
-	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/hookd"
@@ -119,7 +117,6 @@ type Resolver struct {
 	k8sClient             *k8s.Client
 	vulnerabilities       *vulnerabilities.Manager
 	resourceUsageClient   resourceusage.ResourceUsageClient
-	searcher              *search.Searcher
 	log                   logrus.FieldLogger
 	clusters              ClusterList
 	database              database.Database
@@ -166,7 +163,6 @@ func NewResolver(hookdClient HookdClient,
 		tenant:                tenant,
 		tenantDomain:          tenantDomain,
 		auditLogger:           auditLogger,
-		searcher:              search.New(teamsearch.New(db), k8sClient, redisClient, openSearchClient, kafkaClient, bigQueryDatasetClient, bucketClient),
 		log:                   log,
 		database:              db,
 		clusters:              clusters,

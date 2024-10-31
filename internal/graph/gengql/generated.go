@@ -940,7 +940,6 @@ type ComplexityRoot struct {
 		MonthlyCost      func(childComplexity int, filter model.MonthlyCostFilter) int
 		Naisjob          func(childComplexity int, name string, team slug.Slug, env string) int
 		Reconcilers      func(childComplexity int, offset *int, limit *int) int
-		Search           func(childComplexity int, query string, filter *model.SearchFilter, offset *int, limit *int) int
 		Team             func(childComplexity int, slug slug.Slug) int
 		Teams            func(childComplexity int, offset *int, limit *int, filter *model.TeamsFilter) int
 		TeamsUtilization func(childComplexity int, resourceType model.UsageResourceType) int
@@ -1099,11 +1098,6 @@ type ComplexityRoot struct {
 		Max        func(childComplexity int) int
 		Min        func(childComplexity int) int
 		Strategies func(childComplexity int) int
-	}
-
-	SearchList struct {
-		Nodes    func(childComplexity int) int
-		PageInfo func(childComplexity int) int
 	}
 
 	Secret struct {
@@ -1585,7 +1579,6 @@ type QueryResolver interface {
 	Deployments(ctx context.Context, offset *int, limit *int) (*model.DeploymentList, error)
 	Naisjob(ctx context.Context, name string, team slug.Slug, env string) (*model.NaisJob, error)
 	Reconcilers(ctx context.Context, offset *int, limit *int) (*model.ReconcilerList, error)
-	Search(ctx context.Context, query string, filter *model.SearchFilter, offset *int, limit *int) (*model.SearchList, error)
 	Teams(ctx context.Context, offset *int, limit *int, filter *model.TeamsFilter) (*model.TeamList, error)
 	Team(ctx context.Context, slug slug.Slug) (*model.Team, error)
 	TeamsUtilization(ctx context.Context, resourceType model.UsageResourceType) ([]*model.TeamUtilizationData, error)
@@ -5408,18 +5401,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Reconcilers(childComplexity, args["offset"].(*int), args["limit"].(*int)), true
 
-	case "Query.search":
-		if e.complexity.Query.Search == nil {
-			break
-		}
-
-		args, err := ec.field_Query_search_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Search(childComplexity, args["query"].(string), args["filter"].(*model.SearchFilter), args["offset"].(*int), args["limit"].(*int)), true
-
 	case "Query.team":
 		if e.complexity.Query.Team == nil {
 			break
@@ -6145,20 +6126,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Scaling.Strategies(childComplexity), true
-
-	case "SearchList.nodes":
-		if e.complexity.SearchList.Nodes == nil {
-			break
-		}
-
-		return e.complexity.SearchList.Nodes(childComplexity), true
-
-	case "SearchList.pageInfo":
-		if e.complexity.SearchList.PageInfo == nil {
-			break
-		}
-
-		return e.complexity.SearchList.PageInfo(childComplexity), true
 
 	case "Secret.apps":
 		if e.complexity.Secret.Apps == nil {
@@ -7772,7 +7739,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputMonthlyCostFilter,
 		ec.unmarshalInputOrderBy,
 		ec.unmarshalInputReconcilerConfigInput,
-		ec.unmarshalInputSearchFilter,
 		ec.unmarshalInputTeamsFilter,
 		ec.unmarshalInputTeamsFilterGitHub,
 		ec.unmarshalInputUpdateTeamSlackAlertsChannelInput,
@@ -9556,39 +9522,6 @@ input VariableInput {
   name: String!
   value: String!
 }`, BuiltIn: false},
-	{Name: "../graphqls/search.graphqls", Input: `extend type Query {
-  search(
-    query: String!
-    filter: SearchFilter
-    offset: Int
-    limit: Int
-  ): SearchList!
-}
-
-union SearchNode = App | Team | NaisJob | SqlInstance | Redis | OpenSearch | KafkaTopic | Secret | Bucket | BigQueryDataset
-
-input SearchFilter {
-  type: SearchType
-}
-
-type SearchList {
-  pageInfo: PageInfo!
-  nodes: [SearchNode!]!
-}
-
-enum SearchType {
-  APP
-  TEAM
-  NAISJOB
-  SQLINSTANCE
-  REDIS
-  OPENSEARCH
-  KAFKATOPIC
-  SECRET
-  BUCKET
-  BIGQUERY
-}
-`, BuiltIn: false},
 	{Name: "../graphqls/secrets.graphqls", Input: `extend type Mutation {
     "Create a new secret for a team and env."
     createSecret(
@@ -12747,119 +12680,6 @@ func (ec *executionContext) field_Query_reconcilers_argsOffset(
 }
 
 func (ec *executionContext) field_Query_reconcilers_argsLimit(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*int, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["limit"]
-	if !ok {
-		var zeroVal *int
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-	if tmp, ok := rawArgs["limit"]; ok {
-		return ec.unmarshalOInt2ᚖint(ctx, tmp)
-	}
-
-	var zeroVal *int
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Query_search_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Query_search_argsQuery(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["query"] = arg0
-	arg1, err := ec.field_Query_search_argsFilter(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["filter"] = arg1
-	arg2, err := ec.field_Query_search_argsOffset(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["offset"] = arg2
-	arg3, err := ec.field_Query_search_argsLimit(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["limit"] = arg3
-	return args, nil
-}
-func (ec *executionContext) field_Query_search_argsQuery(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["query"]
-	if !ok {
-		var zeroVal string
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
-	if tmp, ok := rawArgs["query"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Query_search_argsFilter(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*model.SearchFilter, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["filter"]
-	if !ok {
-		var zeroVal *model.SearchFilter
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-	if tmp, ok := rawArgs["filter"]; ok {
-		return ec.unmarshalOSearchFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSearchFilter(ctx, tmp)
-	}
-
-	var zeroVal *model.SearchFilter
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Query_search_argsOffset(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*int, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["offset"]
-	if !ok {
-		var zeroVal *int
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-	if tmp, ok := rawArgs["offset"]; ok {
-		return ec.unmarshalOInt2ᚖint(ctx, tmp)
-	}
-
-	var zeroVal *int
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Query_search_argsLimit(
 	ctx context.Context,
 	rawArgs map[string]interface{},
 ) (*int, error) {
@@ -41108,67 +40928,6 @@ func (ec *executionContext) fieldContext_Query_reconcilers(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_search(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_search(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Search(rctx, fc.Args["query"].(string), fc.Args["filter"].(*model.SearchFilter), fc.Args["offset"].(*int), fc.Args["limit"].(*int))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.SearchList)
-	fc.Result = res
-	return ec.marshalNSearchList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSearchList(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_search(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "pageInfo":
-				return ec.fieldContext_SearchList_pageInfo(ctx, field)
-			case "nodes":
-				return ec.fieldContext_SearchList_nodes(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type SearchList", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_search_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Query_teams(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_teams(ctx, field)
 	if err != nil {
@@ -46480,102 +46239,6 @@ func (ec *executionContext) fieldContext_Scaling_strategies(_ context.Context, f
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SearchList_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.SearchList) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SearchList_pageInfo(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PageInfo, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.PageInfo)
-	fc.Result = res
-	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SearchList_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SearchList",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "totalCount":
-				return ec.fieldContext_PageInfo_totalCount(ctx, field)
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SearchList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.SearchList) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SearchList_nodes(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Nodes, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]model.SearchNode)
-	fc.Result = res
-	return ec.marshalNSearchNode2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSearchNodeᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SearchList_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SearchList",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type SearchNode does not have child fields")
 		},
 	}
 	return fc, nil
@@ -59570,33 +59233,6 @@ func (ec *executionContext) unmarshalInputReconcilerConfigInput(ctx context.Cont
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSearchFilter(ctx context.Context, obj interface{}) (model.SearchFilter, error) {
-	var it model.SearchFilter
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"type"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "type":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			data, err := ec.unmarshalOSearchType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSearchType(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Type = data
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputTeamsFilter(ctx context.Context, obj interface{}) (model.TeamsFilter, error) {
 	var it model.TeamsFilter
 	asMap := map[string]interface{}{}
@@ -60072,85 +59708,6 @@ func (ec *executionContext) _ScalingStrategy(ctx context.Context, sel ast.Select
 	}
 }
 
-func (ec *executionContext) _SearchNode(ctx context.Context, sel ast.SelectionSet, obj model.SearchNode) graphql.Marshaler {
-	switch obj := (obj).(type) {
-	case nil:
-		return graphql.Null
-	case model.App:
-		return ec._App(ctx, sel, &obj)
-	case *model.App:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._App(ctx, sel, obj)
-	case model.NaisJob:
-		return ec._NaisJob(ctx, sel, &obj)
-	case *model.NaisJob:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._NaisJob(ctx, sel, obj)
-	case model.SQLInstance:
-		return ec._SqlInstance(ctx, sel, &obj)
-	case *model.SQLInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SqlInstance(ctx, sel, obj)
-	case model.Redis:
-		return ec._Redis(ctx, sel, &obj)
-	case *model.Redis:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Redis(ctx, sel, obj)
-	case model.OpenSearch:
-		return ec._OpenSearch(ctx, sel, &obj)
-	case *model.OpenSearch:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._OpenSearch(ctx, sel, obj)
-	case model.KafkaTopic:
-		return ec._KafkaTopic(ctx, sel, &obj)
-	case *model.KafkaTopic:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._KafkaTopic(ctx, sel, obj)
-	case model.Bucket:
-		return ec._Bucket(ctx, sel, &obj)
-	case *model.Bucket:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Bucket(ctx, sel, obj)
-	case model.BigQueryDataset:
-		return ec._BigQueryDataset(ctx, sel, &obj)
-	case *model.BigQueryDataset:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._BigQueryDataset(ctx, sel, obj)
-	case model.Team:
-		return ec._Team(ctx, sel, &obj)
-	case *model.Team:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Team(ctx, sel, obj)
-	case model.Secret:
-		return ec._Secret(ctx, sel, &obj)
-	case *model.Secret:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Secret(ctx, sel, obj)
-	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
-	}
-}
-
 func (ec *executionContext) _StateError(ctx context.Context, sel ast.SelectionSet, obj model.StateError) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -60486,7 +60043,7 @@ func (ec *executionContext) _AnalysisTrail(ctx context.Context, sel ast.Selectio
 	return out
 }
 
-var appImplementors = []string{"App", "Workload", "SearchNode"}
+var appImplementors = []string{"App", "Workload"}
 
 func (ec *executionContext) _App(ctx context.Context, sel ast.SelectionSet, obj *model.App) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, appImplementors)
@@ -63086,7 +62643,7 @@ func (ec *executionContext) _BaseAuditEvent(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var bigQueryDatasetImplementors = []string{"BigQueryDataset", "Persistence", "SearchNode"}
+var bigQueryDatasetImplementors = []string{"BigQueryDataset", "Persistence"}
 
 func (ec *executionContext) _BigQueryDataset(ctx context.Context, sel ast.SelectionSet, obj *model.BigQueryDataset) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, bigQueryDatasetImplementors)
@@ -63394,7 +62951,7 @@ func (ec *executionContext) _BigQueryDatasetStatus(ctx context.Context, sel ast.
 	return out
 }
 
-var bucketImplementors = []string{"Bucket", "Persistence", "SearchNode"}
+var bucketImplementors = []string{"Bucket", "Persistence"}
 
 func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, obj *model.Bucket) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, bucketImplementors)
@@ -66252,7 +65809,7 @@ func (ec *executionContext) _KafkaLagScalingStrategy(ctx context.Context, sel as
 	return out
 }
 
-var kafkaTopicImplementors = []string{"KafkaTopic", "Persistence", "SearchNode"}
+var kafkaTopicImplementors = []string{"KafkaTopic", "Persistence"}
 
 func (ec *executionContext) _KafkaTopic(ctx context.Context, sel ast.SelectionSet, obj *model.KafkaTopic) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaTopicImplementors)
@@ -67133,7 +66690,7 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 	return out
 }
 
-var naisJobImplementors = []string{"NaisJob", "Workload", "SearchNode"}
+var naisJobImplementors = []string{"NaisJob", "Workload"}
 
 func (ec *executionContext) _NaisJob(ctx context.Context, sel ast.SelectionSet, obj *model.NaisJob) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, naisJobImplementors)
@@ -67639,7 +67196,7 @@ func (ec *executionContext) _NoRunningInstancesError(ctx context.Context, sel as
 	return out
 }
 
-var openSearchImplementors = []string{"OpenSearch", "Persistence", "SearchNode"}
+var openSearchImplementors = []string{"OpenSearch", "Persistence"}
 
 func (ec *executionContext) _OpenSearch(ctx context.Context, sel ast.SelectionSet, obj *model.OpenSearch) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, openSearchImplementors)
@@ -68439,28 +67996,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "search":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_search(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "teams":
 			field := field
 
@@ -69066,7 +68601,7 @@ func (ec *executionContext) _ReconcilerList(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var redisImplementors = []string{"Redis", "Persistence", "SearchNode"}
+var redisImplementors = []string{"Redis", "Persistence"}
 
 func (ec *executionContext) _Redis(ctx context.Context, sel ast.SelectionSet, obj *model.Redis) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, redisImplementors)
@@ -70115,51 +69650,7 @@ func (ec *executionContext) _Scaling(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
-var searchListImplementors = []string{"SearchList"}
-
-func (ec *executionContext) _SearchList(ctx context.Context, sel ast.SelectionSet, obj *model.SearchList) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, searchListImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("SearchList")
-		case "pageInfo":
-			out.Values[i] = ec._SearchList_pageInfo(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "nodes":
-			out.Values[i] = ec._SearchList_nodes(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var secretImplementors = []string{"Secret", "SearchNode"}
+var secretImplementors = []string{"Secret"}
 
 func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, obj *model.Secret) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretImplementors)
@@ -70660,7 +70151,7 @@ func (ec *executionContext) _SqlDatabase(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
-var sqlInstanceImplementors = []string{"SqlInstance", "Persistence", "SearchNode"}
+var sqlInstanceImplementors = []string{"SqlInstance", "Persistence"}
 
 func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionSet, obj *model.SQLInstance) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceImplementors)
@@ -71464,7 +70955,7 @@ func (ec *executionContext) _SynchronizationFailingError(ctx context.Context, se
 	return out
 }
 
-var teamImplementors = []string{"Team", "SearchNode"}
+var teamImplementors = []string{"Team"}
 
 func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj *model.Team) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamImplementors)
@@ -77900,74 +77391,6 @@ func (ec *executionContext) marshalNScalingStrategy2ᚕgithubᚗcomᚋnaisᚋapi
 	return ret
 }
 
-func (ec *executionContext) marshalNSearchList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSearchList(ctx context.Context, sel ast.SelectionSet, v model.SearchList) graphql.Marshaler {
-	return ec._SearchList(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNSearchList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSearchList(ctx context.Context, sel ast.SelectionSet, v *model.SearchList) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._SearchList(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNSearchNode2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSearchNode(ctx context.Context, sel ast.SelectionSet, v model.SearchNode) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._SearchNode(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNSearchNode2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSearchNodeᚄ(ctx context.Context, sel ast.SelectionSet, v []model.SearchNode) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNSearchNode2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSearchNode(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
 func (ec *executionContext) marshalNSecret2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecret(ctx context.Context, sel ast.SelectionSet, v model.Secret) graphql.Marshaler {
 	return ec._Secret(ctx, sel, &v)
 }
@@ -79797,30 +79220,6 @@ func (ec *executionContext) marshalOResources2ᚖgithubᚗcomᚋnaisᚋapiᚋint
 		return graphql.Null
 	}
 	return ec._Resources(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOSearchFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSearchFilter(ctx context.Context, v interface{}) (*model.SearchFilter, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputSearchFilter(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOSearchType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSearchType(ctx context.Context, v interface{}) (*model.SearchType, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(model.SearchType)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOSearchType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSearchType(ctx context.Context, sel ast.SelectionSet, v *model.SearchType) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
 }
 
 func (ec *executionContext) marshalOServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐServiceAccount(ctx context.Context, sel ast.SelectionSet, v *model.ServiceAccount) graphql.Marshaler {
