@@ -14,7 +14,7 @@ var (
 )
 
 func init() {
-	//SQLInstance
+	// SQLInstance
 	SortFilterSQLInstance.RegisterOrderBy(SQLInstanceOrderFieldName, func(ctx context.Context, a, b *SQLInstance) int {
 		return strings.Compare(a.GetName(), b.GetName())
 	})
@@ -59,7 +59,6 @@ func init() {
 		}
 
 		return int(a_cost * 100)
-
 	})
 	SortFilterSQLInstance.RegisterConcurrentOrderBy(SQLInstanceOrderFieldCPU, func(ctx context.Context, a *SQLInstance) int {
 		aCPU, err := CPUForInstance(ctx, a.ProjectID, a.Name)
@@ -98,7 +97,7 @@ func init() {
 		return int(aDisk.Utilization * 100)
 	})
 
-	//SQLInstanceUser
+	// SQLInstanceUser
 	SortFilterSQLInstanceUser.RegisterOrderBy(SQLInstanceUserOrderFieldName, func(ctx context.Context, a, b *SQLInstanceUser) int {
 		return strings.Compare(a.Name, b.Name)
 	})

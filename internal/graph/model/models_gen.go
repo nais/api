@@ -360,14 +360,6 @@ type UpdateTeamSlackAlertsChannelInput struct {
 	ChannelName *string `json:"channelName,omitempty"`
 }
 
-// Resource utilization type.
-type UsageDataPoint struct {
-	// Timestamp of the value.
-	Timestamp time.Time `json:"timestamp"`
-	// Value of the used resource at the given timestamp.
-	Value float64 `json:"value"`
-}
-
 type UserList struct {
 	Nodes    []*User  `json:"nodes"`
 	PageInfo PageInfo `json:"pageInfo"`
@@ -649,48 +641,6 @@ func (e *TeamRole) UnmarshalGQL(v interface{}) error {
 }
 
 func (e TeamRole) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-// Resource type.
-type UsageResourceType string
-
-const (
-	UsageResourceTypeCPU    UsageResourceType = "CPU"
-	UsageResourceTypeMemory UsageResourceType = "MEMORY"
-)
-
-var AllUsageResourceType = []UsageResourceType{
-	UsageResourceTypeCPU,
-	UsageResourceTypeMemory,
-}
-
-func (e UsageResourceType) IsValid() bool {
-	switch e {
-	case UsageResourceTypeCPU, UsageResourceTypeMemory:
-		return true
-	}
-	return false
-}
-
-func (e UsageResourceType) String() string {
-	return string(e)
-}
-
-func (e *UsageResourceType) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = UsageResourceType(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid UsageResourceType", str)
-	}
-	return nil
-}
-
-func (e UsageResourceType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

@@ -21,8 +21,6 @@ import (
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/k8s/fake"
 	"github.com/nais/api/internal/logger"
-	"github.com/nais/api/internal/resourceusage"
-	fakeresourceusage "github.com/nais/api/internal/resourceusage/fake"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/v1/graphv1"
@@ -143,21 +141,14 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	pubsubTopic := pubsubClient.Topic("nais-api")
 
 	var hookdClient hookd.Client
-	var resourceUsageClient resourceusage.ResourceUsageClient
 	if cfg.WithFakeClients {
 		hookdClient = fakehookd.New()
-		resourceUsageClient = fakeresourceusage.New(db, k8sClient)
 	} else {
 		hookdClient = hookd.New(cfg.Hookd.Endpoint, cfg.Hookd.PSK, log.WithField("client", "hookd"))
-		resourceUsageClient, err = resourceusage.New(cfg.K8s.AllClusterNames(), cfg.Tenant, log)
-		if err != nil {
-			return fmt.Errorf("create resource usage client: %w", err)
-		}
 	}
 
 	resolver := graph.NewResolver(
 		k8sClient,
-		resourceUsageClient,
 		db,
 		cfg.Tenant,
 		cfg.TenantDomain,

@@ -43,8 +43,6 @@ type Config struct {
 
 type ResolverRoot interface {
 	App() AppResolver
-	AppUtilization() AppUtilizationResolver
-	AppUtilizationData() AppUtilizationDataResolver
 	Env() EnvResolver
 	Mutation() MutationResolver
 	NaisJob() NaisJobResolver
@@ -53,7 +51,6 @@ type ResolverRoot interface {
 	ServiceAccount() ServiceAccountResolver
 	Team() TeamResolver
 	TeamMember() TeamMemberResolver
-	TeamUtilizationData() TeamUtilizationDataResolver
 	User() UserResolver
 	UsersyncRun() UsersyncRunResolver
 }
@@ -65,37 +62,24 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	App struct {
-		Authz       func(childComplexity int) int
-		Env         func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Image       func(childComplexity int) int
-		Ingresses   func(childComplexity int) int
-		Instances   func(childComplexity int) int
-		Manifest    func(childComplexity int) int
-		Name        func(childComplexity int) int
-		Resources   func(childComplexity int) int
-		Status      func(childComplexity int) int
-		Team        func(childComplexity int) int
-		Type        func(childComplexity int) int
-		Utilization func(childComplexity int) int
-		Variables   func(childComplexity int) int
+		Authz     func(childComplexity int) int
+		Env       func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Image     func(childComplexity int) int
+		Ingresses func(childComplexity int) int
+		Instances func(childComplexity int) int
+		Manifest  func(childComplexity int) int
+		Name      func(childComplexity int) int
+		Resources func(childComplexity int) int
+		Status    func(childComplexity int) int
+		Team      func(childComplexity int) int
+		Type      func(childComplexity int) int
+		Variables func(childComplexity int) int
 	}
 
 	AppList struct {
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
-	}
-
-	AppUtilization struct {
-		Requested func(childComplexity int, resourceType model.UsageResourceType) int
-		Used      func(childComplexity int, resourceType model.UsageResourceType) int
-		UsedRange func(childComplexity int, start time.Time, end time.Time, step int, resourceType model.UsageResourceType) int
-	}
-
-	AppUtilizationData struct {
-		App       func(childComplexity int) int
-		Requested func(childComplexity int) int
-		Used      func(childComplexity int) int
 	}
 
 	AppsStatus struct {
@@ -328,15 +312,14 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		App              func(childComplexity int, name string, team slug.Slug, env string) int
-		Me               func(childComplexity int) int
-		Naisjob          func(childComplexity int, name string, team slug.Slug, env string) int
-		Team             func(childComplexity int, slug slug.Slug) int
-		Teams            func(childComplexity int, offset *int, limit *int) int
-		TeamsUtilization func(childComplexity int, resourceType model.UsageResourceType) int
-		User             func(childComplexity int, id *scalar.Ident, email *string) int
-		Users            func(childComplexity int, offset *int, limit *int) int
-		UsersyncRuns     func(childComplexity int, limit *int, offset *int) int
+		App          func(childComplexity int, name string, team slug.Slug, env string) int
+		Me           func(childComplexity int) int
+		Naisjob      func(childComplexity int, name string, team slug.Slug, env string) int
+		Team         func(childComplexity int, slug slug.Slug) int
+		Teams        func(childComplexity int, offset *int, limit *int) int
+		User         func(childComplexity int, id *scalar.Ident, email *string) int
+		Users        func(childComplexity int, offset *int, limit *int) int
+		UsersyncRuns func(childComplexity int, limit *int, offset *int) int
 	}
 
 	Requests struct {
@@ -416,7 +399,6 @@ type ComplexityRoot struct {
 
 	Team struct {
 		Apps                   func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
-		AppsUtilization        func(childComplexity int, resourceType model.UsageResourceType) int
 		AzureGroupID           func(childComplexity int) int
 		CdnBucket              func(childComplexity int) int
 		DeletionInProgress     func(childComplexity int) int
@@ -457,20 +439,8 @@ type ComplexityRoot struct {
 		CorrelationID func(childComplexity int) int
 	}
 
-	TeamUtilizationData struct {
-		Environment func(childComplexity int) int
-		Requested   func(childComplexity int) int
-		Team        func(childComplexity int) int
-		Used        func(childComplexity int) int
-	}
-
 	TokenX struct {
 		MountSecretsAsFilesOnly func(childComplexity int) int
-	}
-
-	UsageDataPoint struct {
-		Timestamp func(childComplexity int) int
-		Value     func(childComplexity int) int
 	}
 
 	User struct {
@@ -517,14 +487,6 @@ type AppResolver interface {
 	Manifest(ctx context.Context, obj *model.App) (string, error)
 	Team(ctx context.Context, obj *model.App) (*model.Team, error)
 }
-type AppUtilizationResolver interface {
-	Used(ctx context.Context, obj *model.AppUtilization, resourceType model.UsageResourceType) (float64, error)
-	Requested(ctx context.Context, obj *model.AppUtilization, resourceType model.UsageResourceType) (float64, error)
-	UsedRange(ctx context.Context, obj *model.AppUtilization, start time.Time, end time.Time, step int, resourceType model.UsageResourceType) ([]*model.UsageDataPoint, error)
-}
-type AppUtilizationDataResolver interface {
-	App(ctx context.Context, obj *model.AppUtilizationData) (*model.App, error)
-}
 type EnvResolver interface {
 	ID(ctx context.Context, obj *model.Env) (*scalar.Ident, error)
 
@@ -551,7 +513,6 @@ type QueryResolver interface {
 	Naisjob(ctx context.Context, name string, team slug.Slug, env string) (*model.NaisJob, error)
 	Teams(ctx context.Context, offset *int, limit *int) (*model.TeamList, error)
 	Team(ctx context.Context, slug slug.Slug) (*model.Team, error)
-	TeamsUtilization(ctx context.Context, resourceType model.UsageResourceType) ([]*model.TeamUtilizationData, error)
 	Users(ctx context.Context, offset *int, limit *int) (*model.UserList, error)
 	User(ctx context.Context, id *scalar.Ident, email *string) (*model.User, error)
 	UsersyncRuns(ctx context.Context, limit *int, offset *int) (*model.UsersyncRunList, error)
@@ -576,15 +537,11 @@ type TeamResolver interface {
 	Apps(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.AppList, error)
 	Naisjobs(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.NaisJobList, error)
 	Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error)
-	AppsUtilization(ctx context.Context, obj *model.Team, resourceType model.UsageResourceType) ([]*model.AppUtilizationData, error)
 }
 type TeamMemberResolver interface {
 	Team(ctx context.Context, obj *model.TeamMember) (*model.Team, error)
 	User(ctx context.Context, obj *model.TeamMember) (*model.User, error)
 	Role(ctx context.Context, obj *model.TeamMember) (model.TeamRole, error)
-}
-type TeamUtilizationDataResolver interface {
-	Team(ctx context.Context, obj *model.TeamUtilizationData) (*model.Team, error)
 }
 type UserResolver interface {
 	Teams(ctx context.Context, obj *model.User, limit *int, offset *int) (*model.TeamMemberList, error)
@@ -699,13 +656,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.App.Type(childComplexity), true
 
-	case "App.utilization":
-		if e.complexity.App.Utilization == nil {
-			break
-		}
-
-		return e.complexity.App.Utilization(childComplexity), true
-
 	case "App.variables":
 		if e.complexity.App.Variables == nil {
 			break
@@ -726,63 +676,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AppList.PageInfo(childComplexity), true
-
-	case "AppUtilization.requested":
-		if e.complexity.AppUtilization.Requested == nil {
-			break
-		}
-
-		args, err := ec.field_AppUtilization_requested_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.AppUtilization.Requested(childComplexity, args["resourceType"].(model.UsageResourceType)), true
-
-	case "AppUtilization.used":
-		if e.complexity.AppUtilization.Used == nil {
-			break
-		}
-
-		args, err := ec.field_AppUtilization_used_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.AppUtilization.Used(childComplexity, args["resourceType"].(model.UsageResourceType)), true
-
-	case "AppUtilization.usedRange":
-		if e.complexity.AppUtilization.UsedRange == nil {
-			break
-		}
-
-		args, err := ec.field_AppUtilization_usedRange_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.AppUtilization.UsedRange(childComplexity, args["start"].(time.Time), args["end"].(time.Time), args["step"].(int), args["resourceType"].(model.UsageResourceType)), true
-
-	case "AppUtilizationData.app":
-		if e.complexity.AppUtilizationData.App == nil {
-			break
-		}
-
-		return e.complexity.AppUtilizationData.App(childComplexity), true
-
-	case "AppUtilizationData.requested":
-		if e.complexity.AppUtilizationData.Requested == nil {
-			break
-		}
-
-		return e.complexity.AppUtilizationData.Requested(childComplexity), true
-
-	case "AppUtilizationData.used":
-		if e.complexity.AppUtilizationData.Used == nil {
-			break
-		}
-
-		return e.complexity.AppUtilizationData.Used(childComplexity), true
 
 	case "AppsStatus.failing":
 		if e.complexity.AppsStatus.Failing == nil {
@@ -1732,18 +1625,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Teams(childComplexity, args["offset"].(*int), args["limit"].(*int)), true
 
-	case "Query.teamsUtilization":
-		if e.complexity.Query.TeamsUtilization == nil {
-			break
-		}
-
-		args, err := ec.field_Query_teamsUtilization_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.TeamsUtilization(childComplexity, args["resourceType"].(model.UsageResourceType)), true
-
 	case "Query.user":
 		if e.complexity.Query.User == nil {
 			break
@@ -2065,18 +1946,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.Apps(childComplexity, args["offset"].(*int), args["limit"].(*int), args["orderBy"].(*model.OrderBy)), true
 
-	case "Team.appsUtilization":
-		if e.complexity.Team.AppsUtilization == nil {
-			break
-		}
-
-		args, err := ec.field_Team_appsUtilization_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Team.AppsUtilization(childComplexity, args["resourceType"].(model.UsageResourceType)), true
-
 	case "Team.azureGroupID":
 		if e.complexity.Team.AzureGroupID == nil {
 			break
@@ -2274,54 +2143,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamSync.CorrelationID(childComplexity), true
 
-	case "TeamUtilizationData.environment":
-		if e.complexity.TeamUtilizationData.Environment == nil {
-			break
-		}
-
-		return e.complexity.TeamUtilizationData.Environment(childComplexity), true
-
-	case "TeamUtilizationData.requested":
-		if e.complexity.TeamUtilizationData.Requested == nil {
-			break
-		}
-
-		return e.complexity.TeamUtilizationData.Requested(childComplexity), true
-
-	case "TeamUtilizationData.team":
-		if e.complexity.TeamUtilizationData.Team == nil {
-			break
-		}
-
-		return e.complexity.TeamUtilizationData.Team(childComplexity), true
-
-	case "TeamUtilizationData.used":
-		if e.complexity.TeamUtilizationData.Used == nil {
-			break
-		}
-
-		return e.complexity.TeamUtilizationData.Used(childComplexity), true
-
 	case "TokenX.mountSecretsAsFilesOnly":
 		if e.complexity.TokenX.MountSecretsAsFilesOnly == nil {
 			break
 		}
 
 		return e.complexity.TokenX.MountSecretsAsFilesOnly(childComplexity), true
-
-	case "UsageDataPoint.timestamp":
-		if e.complexity.UsageDataPoint.Timestamp == nil {
-			break
-		}
-
-		return e.complexity.UsageDataPoint.Timestamp(childComplexity), true
-
-	case "UsageDataPoint.value":
-		if e.complexity.UsageDataPoint.Value == nil {
-			break
-		}
-
-		return e.complexity.UsageDataPoint.Value(childComplexity), true
 
 	case "User.email":
 		if e.complexity.User.Email == nil {
@@ -2632,49 +2459,10 @@ type App implements Workload {
   variables: [Variable!]!
   resources: Resources!
   type: WorkloadType!
-  utilization: AppUtilization!
   ingresses: [String!]!
   instances: [Instance!]!
   manifest: String!
   team: Team!
-}
-
-type AppUtilization {
-  "Get the current usage for the requested resource type."
-  used(resourceType: UsageResourceType!): Float!
-
-  "Gets the requested amount of resources for the requested resource type."
-  requested(resourceType: UsageResourceType!): Float!
-
-  "Usage between start and end with step size for given resource type."
-  usedRange(
-    "Fetch resource usage from this timestamp."
-    start: Time!
-
-    "Fetch resource usage until this timestamp."
-    end: Time!
-
-    "Step size in seconds for the data points."
-    step: Int!
-
-    "Resource type."
-    resourceType: UsageResourceType!
-  ): [UsageDataPoint!]!
-}
-
-"Resource utilization type."
-type UsageDataPoint {
-  "Timestamp of the value."
-  timestamp: Time!
-
-  "Value of the used resource at the given timestamp."
-  value: Float!
-}
-
-"Resource type."
-enum UsageResourceType {
-  CPU
-  MEMORY
 }
 
 type WorkloadStatus {
@@ -3107,9 +2895,6 @@ type Role {
 
   "Get a specific team."
   team("Slug of the team." slug: Slug!): Team! @auth
-
-  "Get the resource utilization of all teams"
-  teamsUtilization(resourceType: UsageResourceType!): [TeamUtilizationData!]! @auth
 }
 
 extend type Mutation {
@@ -3244,35 +3029,6 @@ type Team {
 
   "The environments available for the team."
   environments: [Env!]!
-
-  "Gets the utilization data for all applications"
-  appsUtilization(resourceType: UsageResourceType!): [AppUtilizationData!]!
-}
-
-type TeamUtilizationData {
-  "The team."
-  team: Team!
-
-  "The requested amount of resources"
-  requested: Float!
-
-  "The current resource usage."
-  used: Float!
-
-  "The environment for the utilization data."
-  environment: String!
-}
-
-"Utilization data type."
-type AppUtilizationData {
-  "The app."
-  app: App!
-
-  "The requested amount of resources"
-  requested: Float!
-
-  "The current resource usage."
-  used: Float!
 }
 
 "Slack alerts channel type."
@@ -3481,183 +3237,6 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
-
-func (ec *executionContext) field_AppUtilization_requested_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_AppUtilization_requested_argsResourceType(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["resourceType"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_AppUtilization_requested_argsResourceType(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (model.UsageResourceType, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["resourceType"]
-	if !ok {
-		var zeroVal model.UsageResourceType
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("resourceType"))
-	if tmp, ok := rawArgs["resourceType"]; ok {
-		return ec.unmarshalNUsageResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsageResourceType(ctx, tmp)
-	}
-
-	var zeroVal model.UsageResourceType
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_AppUtilization_usedRange_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_AppUtilization_usedRange_argsStart(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["start"] = arg0
-	arg1, err := ec.field_AppUtilization_usedRange_argsEnd(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["end"] = arg1
-	arg2, err := ec.field_AppUtilization_usedRange_argsStep(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["step"] = arg2
-	arg3, err := ec.field_AppUtilization_usedRange_argsResourceType(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["resourceType"] = arg3
-	return args, nil
-}
-func (ec *executionContext) field_AppUtilization_usedRange_argsStart(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (time.Time, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["start"]
-	if !ok {
-		var zeroVal time.Time
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("start"))
-	if tmp, ok := rawArgs["start"]; ok {
-		return ec.unmarshalNTime2timeᚐTime(ctx, tmp)
-	}
-
-	var zeroVal time.Time
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_AppUtilization_usedRange_argsEnd(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (time.Time, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["end"]
-	if !ok {
-		var zeroVal time.Time
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("end"))
-	if tmp, ok := rawArgs["end"]; ok {
-		return ec.unmarshalNTime2timeᚐTime(ctx, tmp)
-	}
-
-	var zeroVal time.Time
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_AppUtilization_usedRange_argsStep(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (int, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["step"]
-	if !ok {
-		var zeroVal int
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("step"))
-	if tmp, ok := rawArgs["step"]; ok {
-		return ec.unmarshalNInt2int(ctx, tmp)
-	}
-
-	var zeroVal int
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_AppUtilization_usedRange_argsResourceType(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (model.UsageResourceType, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["resourceType"]
-	if !ok {
-		var zeroVal model.UsageResourceType
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("resourceType"))
-	if tmp, ok := rawArgs["resourceType"]; ok {
-		return ec.unmarshalNUsageResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsageResourceType(ctx, tmp)
-	}
-
-	var zeroVal model.UsageResourceType
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_AppUtilization_used_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_AppUtilization_used_argsResourceType(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["resourceType"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_AppUtilization_used_argsResourceType(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (model.UsageResourceType, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["resourceType"]
-	if !ok {
-		var zeroVal model.UsageResourceType
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("resourceType"))
-	if tmp, ok := rawArgs["resourceType"]; ok {
-		return ec.unmarshalNUsageResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsageResourceType(ctx, tmp)
-	}
-
-	var zeroVal model.UsageResourceType
-	return zeroVal, nil
-}
 
 func (ec *executionContext) field_Mutation_deleteApp_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -4244,38 +3823,6 @@ func (ec *executionContext) field_Query_team_argsSlug(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_teamsUtilization_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Query_teamsUtilization_argsResourceType(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["resourceType"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Query_teamsUtilization_argsResourceType(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (model.UsageResourceType, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["resourceType"]
-	if !ok {
-		var zeroVal model.UsageResourceType
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("resourceType"))
-	if tmp, ok := rawArgs["resourceType"]; ok {
-		return ec.unmarshalNUsageResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsageResourceType(ctx, tmp)
-	}
-
-	var zeroVal model.UsageResourceType
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Query_teams_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -4509,38 +4056,6 @@ func (ec *executionContext) field_Query_usersyncRuns_argsOffset(
 	}
 
 	var zeroVal *int
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Team_appsUtilization_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Team_appsUtilization_argsResourceType(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["resourceType"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Team_appsUtilization_argsResourceType(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (model.UsageResourceType, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["resourceType"]
-	if !ok {
-		var zeroVal model.UsageResourceType
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("resourceType"))
-	if tmp, ok := rawArgs["resourceType"]; ok {
-		return ec.unmarshalNUsageResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsageResourceType(ctx, tmp)
-	}
-
-	var zeroVal model.UsageResourceType
 	return zeroVal, nil
 }
 
@@ -5364,58 +4879,6 @@ func (ec *executionContext) fieldContext_App_type(_ context.Context, field graph
 	return fc, nil
 }
 
-func (ec *executionContext) _App_utilization(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_App_utilization(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Utilization, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.AppUtilization)
-	fc.Result = res
-	return ec.marshalNAppUtilization2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAppUtilization(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_App_utilization(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "App",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "used":
-				return ec.fieldContext_AppUtilization_used(ctx, field)
-			case "requested":
-				return ec.fieldContext_AppUtilization_requested(ctx, field)
-			case "usedRange":
-				return ec.fieldContext_AppUtilization_usedRange(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type AppUtilization", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _App_ingresses(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_App_ingresses(ctx, field)
 	if err != nil {
@@ -5641,8 +5104,6 @@ func (ec *executionContext) fieldContext_App_team(_ context.Context, field graph
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
-			case "appsUtilization":
-				return ec.fieldContext_Team_appsUtilization(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -5707,8 +5168,6 @@ func (ec *executionContext) fieldContext_AppList_nodes(_ context.Context, field 
 				return ec.fieldContext_App_resources(ctx, field)
 			case "type":
 				return ec.fieldContext_App_type(ctx, field)
-			case "utilization":
-				return ec.fieldContext_App_utilization(ctx, field)
 			case "ingresses":
 				return ec.fieldContext_App_ingresses(ctx, field)
 			case "instances":
@@ -5771,339 +5230,6 @@ func (ec *executionContext) fieldContext_AppList_pageInfo(_ context.Context, fie
 				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AppUtilization_used(ctx context.Context, field graphql.CollectedField, obj *model.AppUtilization) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AppUtilization_used(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.AppUtilization().Used(rctx, obj, fc.Args["resourceType"].(model.UsageResourceType))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(float64)
-	fc.Result = res
-	return ec.marshalNFloat2float64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AppUtilization_used(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AppUtilization",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_AppUtilization_used_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AppUtilization_requested(ctx context.Context, field graphql.CollectedField, obj *model.AppUtilization) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AppUtilization_requested(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.AppUtilization().Requested(rctx, obj, fc.Args["resourceType"].(model.UsageResourceType))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(float64)
-	fc.Result = res
-	return ec.marshalNFloat2float64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AppUtilization_requested(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AppUtilization",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_AppUtilization_requested_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AppUtilization_usedRange(ctx context.Context, field graphql.CollectedField, obj *model.AppUtilization) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AppUtilization_usedRange(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.AppUtilization().UsedRange(rctx, obj, fc.Args["start"].(time.Time), fc.Args["end"].(time.Time), fc.Args["step"].(int), fc.Args["resourceType"].(model.UsageResourceType))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.UsageDataPoint)
-	fc.Result = res
-	return ec.marshalNUsageDataPoint2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsageDataPointᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AppUtilization_usedRange(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AppUtilization",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "timestamp":
-				return ec.fieldContext_UsageDataPoint_timestamp(ctx, field)
-			case "value":
-				return ec.fieldContext_UsageDataPoint_value(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type UsageDataPoint", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_AppUtilization_usedRange_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AppUtilizationData_app(ctx context.Context, field graphql.CollectedField, obj *model.AppUtilizationData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AppUtilizationData_app(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.AppUtilizationData().App(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.App)
-	fc.Result = res
-	return ec.marshalNApp2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐApp(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AppUtilizationData_app(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AppUtilizationData",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_App_id(ctx, field)
-			case "name":
-				return ec.fieldContext_App_name(ctx, field)
-			case "image":
-				return ec.fieldContext_App_image(ctx, field)
-			case "env":
-				return ec.fieldContext_App_env(ctx, field)
-			case "status":
-				return ec.fieldContext_App_status(ctx, field)
-			case "authz":
-				return ec.fieldContext_App_authz(ctx, field)
-			case "variables":
-				return ec.fieldContext_App_variables(ctx, field)
-			case "resources":
-				return ec.fieldContext_App_resources(ctx, field)
-			case "type":
-				return ec.fieldContext_App_type(ctx, field)
-			case "utilization":
-				return ec.fieldContext_App_utilization(ctx, field)
-			case "ingresses":
-				return ec.fieldContext_App_ingresses(ctx, field)
-			case "instances":
-				return ec.fieldContext_App_instances(ctx, field)
-			case "manifest":
-				return ec.fieldContext_App_manifest(ctx, field)
-			case "team":
-				return ec.fieldContext_App_team(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type App", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AppUtilizationData_requested(ctx context.Context, field graphql.CollectedField, obj *model.AppUtilizationData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AppUtilizationData_requested(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Requested, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(float64)
-	fc.Result = res
-	return ec.marshalNFloat2float64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AppUtilizationData_requested(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AppUtilizationData",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AppUtilizationData_used(ctx context.Context, field graphql.CollectedField, obj *model.AppUtilizationData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AppUtilizationData_used(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Used, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(float64)
-	fc.Result = res
-	return ec.marshalNFloat2float64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AppUtilizationData_used(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AppUtilizationData",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10283,8 +9409,6 @@ func (ec *executionContext) fieldContext_Mutation_updateTeamSlackAlertsChannel(c
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
-			case "appsUtilization":
-				return ec.fieldContext_Team_appsUtilization(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -11109,8 +10233,6 @@ func (ec *executionContext) fieldContext_NaisJob_team(_ context.Context, field g
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
-			case "appsUtilization":
-				return ec.fieldContext_Team_appsUtilization(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -11965,8 +11087,6 @@ func (ec *executionContext) fieldContext_Query_app(ctx context.Context, field gr
 				return ec.fieldContext_App_resources(ctx, field)
 			case "type":
 				return ec.fieldContext_App_type(ctx, field)
-			case "utilization":
-				return ec.fieldContext_App_utilization(ctx, field)
 			case "ingresses":
 				return ec.fieldContext_App_ingresses(ctx, field)
 			case "instances":
@@ -12330,8 +11450,6 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
-			case "appsUtilization":
-				return ec.fieldContext_Team_appsUtilization(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -12344,93 +11462,6 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_team_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_teamsUtilization(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_teamsUtilization(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().TeamsUtilization(rctx, fc.Args["resourceType"].(model.UsageResourceType))
-		}
-
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				var zeroVal []*model.TeamUtilizationData
-				return zeroVal, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.([]*model.TeamUtilizationData); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/nais/api/internal/graph/model.TeamUtilizationData`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.TeamUtilizationData)
-	fc.Result = res
-	return ec.marshalNTeamUtilizationData2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamUtilizationDataᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_teamsUtilization(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "team":
-				return ec.fieldContext_TeamUtilizationData_team(ctx, field)
-			case "requested":
-				return ec.fieldContext_TeamUtilizationData_requested(ctx, field)
-			case "used":
-				return ec.fieldContext_TeamUtilizationData_used(ctx, field)
-			case "environment":
-				return ec.fieldContext_TeamUtilizationData_environment(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamUtilizationData", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_teamsUtilization_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -13449,8 +12480,6 @@ func (ec *executionContext) fieldContext_Role_targetTeam(_ context.Context, fiel
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
-			case "appsUtilization":
-				return ec.fieldContext_Team_appsUtilization(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -15520,69 +14549,6 @@ func (ec *executionContext) fieldContext_Team_environments(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_appsUtilization(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Team_appsUtilization(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().AppsUtilization(rctx, obj, fc.Args["resourceType"].(model.UsageResourceType))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.AppUtilizationData)
-	fc.Result = res
-	return ec.marshalNAppUtilizationData2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAppUtilizationDataᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Team_appsUtilization(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Team",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "app":
-				return ec.fieldContext_AppUtilizationData_app(ctx, field)
-			case "requested":
-				return ec.fieldContext_AppUtilizationData_requested(ctx, field)
-			case "used":
-				return ec.fieldContext_AppUtilizationData_used(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type AppUtilizationData", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_appsUtilization_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _TeamList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.TeamList) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamList_nodes(ctx, field)
 	if err != nil {
@@ -15660,8 +14626,6 @@ func (ec *executionContext) fieldContext_TeamList_nodes(_ context.Context, field
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
-			case "appsUtilization":
-				return ec.fieldContext_Team_appsUtilization(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -15798,8 +14762,6 @@ func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, fiel
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
-			case "appsUtilization":
-				return ec.fieldContext_Team_appsUtilization(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -16059,224 +15021,6 @@ func (ec *executionContext) fieldContext_TeamSync_correlationID(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUtilizationData_team(ctx context.Context, field graphql.CollectedField, obj *model.TeamUtilizationData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUtilizationData_team(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TeamUtilizationData().Team(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Team)
-	fc.Result = res
-	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamUtilizationData_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamUtilizationData",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Team_slug(ctx, field)
-			case "purpose":
-				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
-			case "lastSuccessfulSync":
-				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
-			case "slackChannel":
-				return ec.fieldContext_Team_slackChannel(ctx, field)
-			case "deletionInProgress":
-				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			case "resourceInventory":
-				return ec.fieldContext_Team_resourceInventory(ctx, field)
-			case "apps":
-				return ec.fieldContext_Team_apps(ctx, field)
-			case "naisjobs":
-				return ec.fieldContext_Team_naisjobs(ctx, field)
-			case "environments":
-				return ec.fieldContext_Team_environments(ctx, field)
-			case "appsUtilization":
-				return ec.fieldContext_Team_appsUtilization(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamUtilizationData_requested(ctx context.Context, field graphql.CollectedField, obj *model.TeamUtilizationData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUtilizationData_requested(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Requested, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(float64)
-	fc.Result = res
-	return ec.marshalNFloat2float64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamUtilizationData_requested(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamUtilizationData",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamUtilizationData_used(ctx context.Context, field graphql.CollectedField, obj *model.TeamUtilizationData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUtilizationData_used(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Used, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(float64)
-	fc.Result = res
-	return ec.marshalNFloat2float64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamUtilizationData_used(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamUtilizationData",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamUtilizationData_environment(ctx context.Context, field graphql.CollectedField, obj *model.TeamUtilizationData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUtilizationData_environment(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Environment, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamUtilizationData_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamUtilizationData",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _TokenX_mountSecretsAsFilesOnly(ctx context.Context, field graphql.CollectedField, obj *model.TokenX) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TokenX_mountSecretsAsFilesOnly(ctx, field)
 	if err != nil {
@@ -16316,94 +15060,6 @@ func (ec *executionContext) fieldContext_TokenX_mountSecretsAsFilesOnly(_ contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UsageDataPoint_timestamp(ctx context.Context, field graphql.CollectedField, obj *model.UsageDataPoint) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UsageDataPoint_timestamp(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Timestamp, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UsageDataPoint_timestamp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UsageDataPoint",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UsageDataPoint_value(ctx context.Context, field graphql.CollectedField, obj *model.UsageDataPoint) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UsageDataPoint_value(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Value, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(float64)
-	fc.Result = res
-	return ec.marshalNFloat2float64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UsageDataPoint_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UsageDataPoint",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -19478,11 +18134,6 @@ func (ec *executionContext) _App(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "utilization":
-			out.Values[i] = ec._App_utilization(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "ingresses":
 			out.Values[i] = ec._App_ingresses(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -19639,228 +18290,6 @@ func (ec *executionContext) _AppList(ctx context.Context, sel ast.SelectionSet, 
 			out.Values[i] = ec._AppList_pageInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var appUtilizationImplementors = []string{"AppUtilization"}
-
-func (ec *executionContext) _AppUtilization(ctx context.Context, sel ast.SelectionSet, obj *model.AppUtilization) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, appUtilizationImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("AppUtilization")
-		case "used":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._AppUtilization_used(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "requested":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._AppUtilization_requested(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "usedRange":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._AppUtilization_usedRange(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var appUtilizationDataImplementors = []string{"AppUtilizationData"}
-
-func (ec *executionContext) _AppUtilizationData(ctx context.Context, sel ast.SelectionSet, obj *model.AppUtilizationData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, appUtilizationDataImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("AppUtilizationData")
-		case "app":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._AppUtilizationData_app(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "requested":
-			out.Values[i] = ec._AppUtilizationData_requested(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "used":
-			out.Values[i] = ec._AppUtilizationData_used(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -21970,28 +20399,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "teamsUtilization":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_teamsUtilization(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "users":
 			field := field
 
@@ -23168,42 +21575,6 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "appsUtilization":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Team_appsUtilization(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -23496,91 +21867,6 @@ func (ec *executionContext) _TeamSync(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var teamUtilizationDataImplementors = []string{"TeamUtilizationData"}
-
-func (ec *executionContext) _TeamUtilizationData(ctx context.Context, sel ast.SelectionSet, obj *model.TeamUtilizationData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamUtilizationDataImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamUtilizationData")
-		case "team":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._TeamUtilizationData_team(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "requested":
-			out.Values[i] = ec._TeamUtilizationData_requested(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "used":
-			out.Values[i] = ec._TeamUtilizationData_used(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "environment":
-			out.Values[i] = ec._TeamUtilizationData_environment(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var tokenXImplementors = []string{"TokenX", "Authz"}
 
 func (ec *executionContext) _TokenX(ctx context.Context, sel ast.SelectionSet, obj *model.TokenX) graphql.Marshaler {
@@ -23594,50 +21880,6 @@ func (ec *executionContext) _TokenX(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = graphql.MarshalString("TokenX")
 		case "mountSecretsAsFilesOnly":
 			out.Values[i] = ec._TokenX_mountSecretsAsFilesOnly(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var usageDataPointImplementors = []string{"UsageDataPoint"}
-
-func (ec *executionContext) _UsageDataPoint(ctx context.Context, sel ast.SelectionSet, obj *model.UsageDataPoint) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, usageDataPointImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("UsageDataPoint")
-		case "timestamp":
-			out.Values[i] = ec._UsageDataPoint_timestamp(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "value":
-			out.Values[i] = ec._UsageDataPoint_value(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -24484,64 +22726,6 @@ func (ec *executionContext) marshalNAppList2ᚖgithubᚗcomᚋnaisᚋapiᚋinter
 	return ec._AppList(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAppUtilization2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAppUtilization(ctx context.Context, sel ast.SelectionSet, v model.AppUtilization) graphql.Marshaler {
-	return ec._AppUtilization(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNAppUtilizationData2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAppUtilizationDataᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AppUtilizationData) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNAppUtilizationData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAppUtilizationData(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNAppUtilizationData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAppUtilizationData(ctx context.Context, sel ast.SelectionSet, v *model.AppUtilizationData) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._AppUtilizationData(ctx, sel, v)
-}
-
 func (ec *executionContext) marshalNAuthenticatedUser2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuthenticatedUser(ctx context.Context, sel ast.SelectionSet, v model.AuthenticatedUser) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -24881,21 +23065,6 @@ func (ec *executionContext) marshalNExpose2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 		return graphql.Null
 	}
 	return ec._Expose(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
-	res, err := graphql.UnmarshalFloatContext(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.SelectionSet, v float64) graphql.Marshaler {
-	res := graphql.MarshalFloatContext(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return graphql.WrapContextMarshaler(ctx, res)
 }
 
 func (ec *executionContext) marshalNGroup2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐGroupᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Group) graphql.Marshaler {
@@ -25667,60 +23836,6 @@ func (ec *executionContext) marshalNTeamSync2ᚖgithubᚗcomᚋnaisᚋapiᚋinte
 	return ec._TeamSync(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamUtilizationData2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamUtilizationDataᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.TeamUtilizationData) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNTeamUtilizationData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamUtilizationData(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNTeamUtilizationData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamUtilizationData(ctx context.Context, sel ast.SelectionSet, v *model.TeamUtilizationData) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._TeamUtilizationData(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
 	res, err := graphql.UnmarshalTime(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -25739,70 +23854,6 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 func (ec *executionContext) unmarshalNUpdateTeamSlackAlertsChannelInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUpdateTeamSlackAlertsChannelInput(ctx context.Context, v interface{}) (model.UpdateTeamSlackAlertsChannelInput, error) {
 	res, err := ec.unmarshalInputUpdateTeamSlackAlertsChannelInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNUsageDataPoint2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsageDataPointᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.UsageDataPoint) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNUsageDataPoint2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsageDataPoint(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNUsageDataPoint2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsageDataPoint(ctx context.Context, sel ast.SelectionSet, v *model.UsageDataPoint) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._UsageDataPoint(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNUsageResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsageResourceType(ctx context.Context, v interface{}) (model.UsageResourceType, error) {
-	var res model.UsageResourceType
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNUsageResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsageResourceType(ctx context.Context, sel ast.SelectionSet, v model.UsageResourceType) graphql.Marshaler {
-	return v
 }
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {

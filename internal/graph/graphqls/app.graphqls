@@ -54,49 +54,10 @@ type App implements Workload {
   variables: [Variable!]!
   resources: Resources!
   type: WorkloadType!
-  utilization: AppUtilization!
   ingresses: [String!]!
   instances: [Instance!]!
   manifest: String!
   team: Team!
-}
-
-type AppUtilization {
-  "Get the current usage for the requested resource type."
-  used(resourceType: UsageResourceType!): Float!
-
-  "Gets the requested amount of resources for the requested resource type."
-  requested(resourceType: UsageResourceType!): Float!
-
-  "Usage between start and end with step size for given resource type."
-  usedRange(
-    "Fetch resource usage from this timestamp."
-    start: Time!
-
-    "Fetch resource usage until this timestamp."
-    end: Time!
-
-    "Step size in seconds for the data points."
-    step: Int!
-
-    "Resource type."
-    resourceType: UsageResourceType!
-  ): [UsageDataPoint!]!
-}
-
-"Resource utilization type."
-type UsageDataPoint {
-  "Timestamp of the value."
-  timestamp: Time!
-
-  "Value of the used resource at the given timestamp."
-  value: Float!
-}
-
-"Resource type."
-enum UsageResourceType {
-  CPU
-  MEMORY
 }
 
 type WorkloadStatus {

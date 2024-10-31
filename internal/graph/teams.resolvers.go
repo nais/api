@@ -21,16 +21,6 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-func (r *appUtilizationDataResolver) App(ctx context.Context, obj *model.AppUtilizationData) (*model.App, error) {
-	app, err := r.k8sClient.App(ctx, obj.AppName, obj.TeamSlug.String(), obj.Env)
-	if err != nil {
-		r.log.Errorf("getting app %s in team %s: %v", obj.AppName, obj.TeamSlug, err)
-		return nil, apierror.ErrAppNotFound
-	}
-
-	return app, nil
-}
-
 func (r *mutationResolver) UpdateTeamSlackAlertsChannel(ctx context.Context, slug slug.Slug, input model.UpdateTeamSlackAlertsChannelInput) (*model.Team, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMetadataUpdate, slug)
@@ -127,10 +117,6 @@ func (r *queryResolver) Team(ctx context.Context, slug slug.Slug) (*model.Team, 
 	}
 
 	return loader.GetTeam(ctx, slug)
-}
-
-func (r *queryResolver) TeamsUtilization(ctx context.Context, resourceType model.UsageResourceType) ([]*model.TeamUtilizationData, error) {
-	return r.resourceUsageClient.TeamsUtilization(ctx, resourceType)
 }
 
 func (r *teamResolver) ID(ctx context.Context, obj *model.Team) (*scalar.Ident, error) {
@@ -384,10 +370,6 @@ func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*mo
 	return ret, nil
 }
 
-func (r *teamResolver) AppsUtilization(ctx context.Context, obj *model.Team, resourceType model.UsageResourceType) ([]*model.AppUtilizationData, error) {
-	return r.resourceUsageClient.TeamUtilization(ctx, obj.Slug, resourceType)
-}
-
 func (r *teamMemberResolver) Team(ctx context.Context, obj *model.TeamMember) (*model.Team, error) {
 	return loader.GetTeam(ctx, obj.TeamSlug)
 }
@@ -422,42 +404,11 @@ func (r *teamMemberResolver) Role(ctx context.Context, obj *model.TeamMember) (m
 	return role, nil
 }
 
-func (r *teamUtilizationDataResolver) Team(ctx context.Context, obj *model.TeamUtilizationData) (*model.Team, error) {
-	r.log.Infof("first teamUtilizationDataResolver.Team: %v", obj.TeamSlug)
-
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsRead, obj.TeamSlug)
-	if err != nil {
-		return nil, err
-	}
-
-	team, err := loader.GetTeam(ctx, obj.TeamSlug)
-	if err != nil {
-		r.log.WithError(err).Error("get team error teamUtilizationDataResolver.Team ", "teamSlug", obj.TeamSlug)
-	}
-
-	if team == nil {
-		r.log.Info("team is nil - teamUtilizationDataResolver.Team ", "teamSlug", obj.TeamSlug, "team", team)
-	}
-
-	return team, err
-}
-
-func (r *Resolver) AppUtilizationData() gengql.AppUtilizationDataResolver {
-	return &appUtilizationDataResolver{r}
-}
-
 func (r *Resolver) Team() gengql.TeamResolver { return &teamResolver{r} }
 
 func (r *Resolver) TeamMember() gengql.TeamMemberResolver { return &teamMemberResolver{r} }
 
-func (r *Resolver) TeamUtilizationData() gengql.TeamUtilizationDataResolver {
-	return &teamUtilizationDataResolver{r}
-}
-
 type (
-	appUtilizationDataResolver  struct{ *Resolver }
-	teamResolver                struct{ *Resolver }
-	teamMemberResolver          struct{ *Resolver }
-	teamUtilizationDataResolver struct{ *Resolver }
+	teamResolver       struct{ *Resolver }
+	teamMemberResolver struct{ *Resolver }
 )

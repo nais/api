@@ -10,9 +10,6 @@ extend type Query {
 
   "Get a specific team."
   team("Slug of the team." slug: Slug!): Team! @auth
-
-  "Get the resource utilization of all teams"
-  teamsUtilization(resourceType: UsageResourceType!): [TeamUtilizationData!]! @auth
 }
 
 extend type Mutation {
@@ -147,35 +144,6 @@ type Team {
 
   "The environments available for the team."
   environments: [Env!]!
-
-  "Gets the utilization data for all applications"
-  appsUtilization(resourceType: UsageResourceType!): [AppUtilizationData!]!
-}
-
-type TeamUtilizationData {
-  "The team."
-  team: Team!
-
-  "The requested amount of resources"
-  requested: Float!
-
-  "The current resource usage."
-  used: Float!
-
-  "The environment for the utilization data."
-  environment: String!
-}
-
-"Utilization data type."
-type AppUtilizationData {
-  "The app."
-  app: App!
-
-  "The requested amount of resources"
-  requested: Float!
-
-  "The current resource usage."
-  used: Float!
 }
 
 "Slack alerts channel type."
