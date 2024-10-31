@@ -213,7 +213,6 @@ type MissingSbomError struct {
 
 func (MissingSbomError) IsStateError() {}
 
-// The root query for implementing GraphQL mutations.
 type Mutation struct {
 }
 

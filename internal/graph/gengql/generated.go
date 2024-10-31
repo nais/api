@@ -2715,9 +2715,6 @@ scalar Slug
 	{Name: "../graphqls/schema.graphqls", Input: `"The query root for the NAIS GraphQL API."
 type Query
 
-"The root query for implementing GraphQL mutations."
-type Mutation
-
 "Pagination information."
 type PageInfo {
   "The total amount if items accessible."

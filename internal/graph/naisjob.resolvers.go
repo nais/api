@@ -55,6 +55,11 @@ func (r *queryResolver) Naisjob(ctx context.Context, name string, team slug.Slug
 	return job, nil
 }
 
+func (r *Resolver) Mutation() gengql.MutationResolver { return &mutationResolver{r} }
+
 func (r *Resolver) NaisJob() gengql.NaisJobResolver { return &naisJobResolver{r} }
 
-type naisJobResolver struct{ *Resolver }
+type (
+	mutationResolver struct{ *Resolver }
+	naisJobResolver  struct{ *Resolver }
+)
