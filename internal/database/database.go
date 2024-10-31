@@ -37,7 +37,6 @@ type Database interface {
 	ServiceAccountRepo
 	SessionRepo
 	TeamRepo
-	TeamRepositoryRepo
 	UserRepo
 	UsersyncRepo
 	Transactioner

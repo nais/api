@@ -499,7 +499,7 @@ type ComplexityRoot struct {
 		Me               func(childComplexity int) int
 		Naisjob          func(childComplexity int, name string, team slug.Slug, env string) int
 		Team             func(childComplexity int, slug slug.Slug) int
-		Teams            func(childComplexity int, offset *int, limit *int, filter *model.TeamsFilter) int
+		Teams            func(childComplexity int, offset *int, limit *int) int
 		TeamsUtilization func(childComplexity int, resourceType model.UsageResourceType) int
 		User             func(childComplexity int, id *scalar.Ident, email *string) int
 		Users            func(childComplexity int, offset *int, limit *int) int
@@ -519,11 +519,6 @@ type ComplexityRoot struct {
 		RunInvocationURI         func(childComplexity int) int
 		RunnerEnvironment        func(childComplexity int) int
 		SourceRepositoryOwnerURI func(childComplexity int) int
-	}
-
-	RepositoryList struct {
-		Nodes    func(childComplexity int) int
-		PageInfo func(childComplexity int) int
 	}
 
 	Requests struct {
@@ -640,7 +635,6 @@ type ComplexityRoot struct {
 		Members                func(childComplexity int, offset *int, limit *int) int
 		Naisjobs               func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		Purpose                func(childComplexity int) int
-		Repositories           func(childComplexity int, offset *int, limit *int) int
 		ResourceInventory      func(childComplexity int) int
 		Secret                 func(childComplexity int, name string, env string) int
 		Secrets                func(childComplexity int) int
@@ -871,7 +865,7 @@ type QueryResolver interface {
 	Me(ctx context.Context) (model.AuthenticatedUser, error)
 	Deployments(ctx context.Context, offset *int, limit *int) (*model.DeploymentList, error)
 	Naisjob(ctx context.Context, name string, team slug.Slug, env string) (*model.NaisJob, error)
-	Teams(ctx context.Context, offset *int, limit *int, filter *model.TeamsFilter) (*model.TeamList, error)
+	Teams(ctx context.Context, offset *int, limit *int) (*model.TeamList, error)
 	Team(ctx context.Context, slug slug.Slug) (*model.Team, error)
 	TeamsUtilization(ctx context.Context, resourceType model.UsageResourceType) ([]*model.TeamUtilizationData, error)
 	Users(ctx context.Context, offset *int, limit *int) (*model.UserList, error)
@@ -915,7 +909,6 @@ type TeamResolver interface {
 	Secret(ctx context.Context, obj *model.Team, name string, env string) (*model.Secret, error)
 	Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error)
 	Unleash(ctx context.Context, obj *model.Team) (*model.Unleash, error)
-	Repositories(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.RepositoryList, error)
 	AppsUtilization(ctx context.Context, obj *model.Team, resourceType model.UsageResourceType) ([]*model.AppUtilizationData, error)
 }
 type TeamMemberResolver interface {
@@ -2839,7 +2832,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Teams(childComplexity, args["offset"].(*int), args["limit"].(*int), args["filter"].(*model.TeamsFilter)), true
+		return e.complexity.Query.Teams(childComplexity, args["offset"].(*int), args["limit"].(*int)), true
 
 	case "Query.teamsUtilization":
 		if e.complexity.Query.TeamsUtilization == nil {
@@ -2972,20 +2965,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Rekor.SourceRepositoryOwnerURI(childComplexity), true
-
-	case "RepositoryList.nodes":
-		if e.complexity.RepositoryList.Nodes == nil {
-			break
-		}
-
-		return e.complexity.RepositoryList.Nodes(childComplexity), true
-
-	case "RepositoryList.pageInfo":
-		if e.complexity.RepositoryList.PageInfo == nil {
-			break
-		}
-
-		return e.complexity.RepositoryList.PageInfo(childComplexity), true
 
 	case "Requests.cpu":
 		if e.complexity.Requests.CPU == nil {
@@ -3513,18 +3492,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Team.Purpose(childComplexity), true
-
-	case "Team.repositories":
-		if e.complexity.Team.Repositories == nil {
-			break
-		}
-
-		args, err := ec.field_Team_repositories_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Team.Repositories(childComplexity, args["offset"].(*int), args["limit"].(*int)), true
 
 	case "Team.resourceInventory":
 		if e.complexity.Team.ResourceInventory == nil {
@@ -4206,8 +4173,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputOrderBy,
-		ec.unmarshalInputTeamsFilter,
-		ec.unmarshalInputTeamsFilterGitHub,
 		ec.unmarshalInputUpdateTeamSlackAlertsChannelInput,
 		ec.unmarshalInputVariableInput,
 		ec.unmarshalInputVulnerabilityFilter,
@@ -5129,9 +5094,6 @@ type Role {
 
     "Limit the number of teams to return. Default is 20."
     limit: Int
-
-    "Filter teams."
-    filter: TeamsFilter
   ): TeamList! @auth
 
   "Get a specific team."
@@ -5328,14 +5290,6 @@ type Team {
 
   unleash: Unleash!
 
-  repositories(
-    "Offset to start listing repositories from. Default is 0."
-    offset: Int
-
-    "Limit the number of repositories to return. Default is 20."
-    limit: Int
-  ): RepositoryList!
-
   "Gets the utilization data for all applications"
   appsUtilization(resourceType: UsageResourceType!): [AppUtilizationData!]!
 }
@@ -5364,14 +5318,6 @@ type AppUtilizationData {
 
   "The current resource usage."
   used: Float!
-}
-
-type RepositoryList {
-  "The list of repositories."
-  nodes: [String!]!
-
-  "Pagination information."
-  pageInfo: PageInfo!
 }
 
 "Slack alerts channel type."
@@ -5469,19 +5415,6 @@ type DeploymentKey {
 
   "The date the deployment key expires."
   expires: Time!
-}
-
-"Input for filtering teams."
-input TeamsFilter {
-  github: TeamsFilterGitHub
-}
-
-input TeamsFilterGitHub {
-  "Filter repositories by repo name"
-  repoName: String!
-
-  "Filter repositories by permission name"
-  permissionName: String!
 }
 
 "Slack alerts channel input."
@@ -7500,11 +7433,6 @@ func (ec *executionContext) field_Query_teams_args(ctx context.Context, rawArgs 
 		return nil, err
 	}
 	args["limit"] = arg1
-	arg2, err := ec.field_Query_teams_argsFilter(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["filter"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_Query_teams_argsOffset(
@@ -7548,28 +7476,6 @@ func (ec *executionContext) field_Query_teams_argsLimit(
 	}
 
 	var zeroVal *int
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Query_teams_argsFilter(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*model.TeamsFilter, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["filter"]
-	if !ok {
-		var zeroVal *model.TeamsFilter
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-	if tmp, ok := rawArgs["filter"]; ok {
-		return ec.unmarshalOTeamsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamsFilter(ctx, tmp)
-	}
-
-	var zeroVal *model.TeamsFilter
 	return zeroVal, nil
 }
 
@@ -8101,65 +8007,6 @@ func (ec *executionContext) field_Team_naisjobs_argsOrderBy(
 	}
 
 	var zeroVal *model.OrderBy
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Team_repositories_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Team_repositories_argsOffset(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["offset"] = arg0
-	arg1, err := ec.field_Team_repositories_argsLimit(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["limit"] = arg1
-	return args, nil
-}
-func (ec *executionContext) field_Team_repositories_argsOffset(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*int, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["offset"]
-	if !ok {
-		var zeroVal *int
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-	if tmp, ok := rawArgs["offset"]; ok {
-		return ec.unmarshalOInt2ᚖint(ctx, tmp)
-	}
-
-	var zeroVal *int
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Team_repositories_argsLimit(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*int, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["limit"]
-	if !ok {
-		var zeroVal *int
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-	if tmp, ok := rawArgs["limit"]; ok {
-		return ec.unmarshalOInt2ᚖint(ctx, tmp)
-	}
-
-	var zeroVal *int
 	return zeroVal, nil
 }
 
@@ -9918,8 +9765,6 @@ func (ec *executionContext) fieldContext_App_team(_ context.Context, field graph
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "unleash":
 				return ec.fieldContext_Team_unleash(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
 			case "appsUtilization":
 				return ec.fieldContext_Team_appsUtilization(ctx, field)
 			}
@@ -11731,8 +11576,6 @@ func (ec *executionContext) fieldContext_Deployment_team(_ context.Context, fiel
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "unleash":
 				return ec.fieldContext_Team_unleash(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
 			case "appsUtilization":
 				return ec.fieldContext_Team_appsUtilization(ctx, field)
 			}
@@ -18395,8 +18238,6 @@ func (ec *executionContext) fieldContext_Mutation_updateTeamSlackAlertsChannel(c
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "unleash":
 				return ec.fieldContext_Team_unleash(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
 			case "appsUtilization":
 				return ec.fieldContext_Team_appsUtilization(ctx, field)
 			}
@@ -19644,8 +19485,6 @@ func (ec *executionContext) fieldContext_NaisJob_team(_ context.Context, field g
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "unleash":
 				return ec.fieldContext_Team_unleash(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
 			case "appsUtilization":
 				return ec.fieldContext_Team_appsUtilization(ctx, field)
 			}
@@ -21061,7 +20900,7 @@ func (ec *executionContext) _Query_teams(ctx context.Context, field graphql.Coll
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().Teams(rctx, fc.Args["offset"].(*int), fc.Args["limit"].(*int), fc.Args["filter"].(*model.TeamsFilter))
+			return ec.resolvers.Query().Teams(rctx, fc.Args["offset"].(*int), fc.Args["limit"].(*int))
 		}
 
 		directive1 := func(ctx context.Context) (interface{}, error) {
@@ -21244,8 +21083,6 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "unleash":
 				return ec.fieldContext_Team_unleash(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
 			case "appsUtilization":
 				return ec.fieldContext_Team_appsUtilization(ctx, field)
 			}
@@ -22269,102 +22106,6 @@ func (ec *executionContext) fieldContext_Rekor_imageDigestSHA(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.RepositoryList) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryList_nodes(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Nodes, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]string)
-	fc.Result = res
-	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_RepositoryList_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RepositoryList",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _RepositoryList_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.RepositoryList) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryList_pageInfo(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PageInfo, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.PageInfo)
-	fc.Result = res
-	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_RepositoryList_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RepositoryList",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "totalCount":
-				return ec.fieldContext_PageInfo_totalCount(ctx, field)
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Requests_cpu(ctx context.Context, field graphql.CollectedField, obj *model.Requests) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Requests_cpu(ctx, field)
 	if err != nil {
@@ -23005,8 +22746,6 @@ func (ec *executionContext) fieldContext_Role_targetTeam(_ context.Context, fiel
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "unleash":
 				return ec.fieldContext_Team_unleash(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
 			case "appsUtilization":
 				return ec.fieldContext_Team_appsUtilization(ctx, field)
 			}
@@ -24039,8 +23778,6 @@ func (ec *executionContext) fieldContext_Secret_team(_ context.Context, field gr
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "unleash":
 				return ec.fieldContext_Team_unleash(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
 			case "appsUtilization":
 				return ec.fieldContext_Team_appsUtilization(ctx, field)
 			}
@@ -26472,67 +26209,6 @@ func (ec *executionContext) fieldContext_Team_unleash(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_repositories(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Team_repositories(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().Repositories(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.RepositoryList)
-	fc.Result = res
-	return ec.marshalNRepositoryList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryList(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Team_repositories(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Team",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "nodes":
-				return ec.fieldContext_RepositoryList_nodes(ctx, field)
-			case "pageInfo":
-				return ec.fieldContext_RepositoryList_pageInfo(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type RepositoryList", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_repositories_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Team_appsUtilization(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_appsUtilization(ctx, field)
 	if err != nil {
@@ -26689,8 +26365,6 @@ func (ec *executionContext) fieldContext_TeamList_nodes(_ context.Context, field
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "unleash":
 				return ec.fieldContext_Team_unleash(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
 			case "appsUtilization":
 				return ec.fieldContext_Team_appsUtilization(ctx, field)
 			}
@@ -26845,8 +26519,6 @@ func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, fiel
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "unleash":
 				return ec.fieldContext_Team_unleash(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
 			case "appsUtilization":
 				return ec.fieldContext_Team_appsUtilization(ctx, field)
 			}
@@ -27349,8 +27021,6 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_team(_ context.Cont
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "unleash":
 				return ec.fieldContext_Team_unleash(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
 			case "appsUtilization":
 				return ec.fieldContext_Team_appsUtilization(ctx, field)
 			}
@@ -32407,67 +32077,6 @@ func (ec *executionContext) unmarshalInputOrderBy(ctx context.Context, obj inter
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputTeamsFilter(ctx context.Context, obj interface{}) (model.TeamsFilter, error) {
-	var it model.TeamsFilter
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"github"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "github":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("github"))
-			data, err := ec.unmarshalOTeamsFilterGitHub2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamsFilterGitHub(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Github = data
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputTeamsFilterGitHub(ctx context.Context, obj interface{}) (model.TeamsFilterGitHub, error) {
-	var it model.TeamsFilterGitHub
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"repoName", "permissionName"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "repoName":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("repoName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.RepoName = data
-		case "permissionName":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("permissionName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.PermissionName = data
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputUpdateTeamSlackAlertsChannelInput(ctx context.Context, obj interface{}) (model.UpdateTeamSlackAlertsChannelInput, error) {
 	var it model.UpdateTeamSlackAlertsChannelInput
 	asMap := map[string]interface{}{}
@@ -37065,50 +36674,6 @@ func (ec *executionContext) _Rekor(ctx context.Context, sel ast.SelectionSet, ob
 	return out
 }
 
-var repositoryListImplementors = []string{"RepositoryList"}
-
-func (ec *executionContext) _RepositoryList(ctx context.Context, sel ast.SelectionSet, obj *model.RepositoryList) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, repositoryListImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("RepositoryList")
-		case "nodes":
-			out.Values[i] = ec._RepositoryList_nodes(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "pageInfo":
-			out.Values[i] = ec._RepositoryList_pageInfo(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var requestsImplementors = []string{"Requests"}
 
 func (ec *executionContext) _Requests(ctx context.Context, sel ast.SelectionSet, obj *model.Requests) graphql.Marshaler {
@@ -38773,42 +38338,6 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._Team_unleash(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "repositories":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Team_repositories(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -42051,20 +41580,6 @@ func (ec *executionContext) marshalNRekor2githubᚗcomᚋnaisᚋapiᚋinternal�
 	return ec._Rekor(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNRepositoryList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryList(ctx context.Context, sel ast.SelectionSet, v model.RepositoryList) graphql.Marshaler {
-	return ec._RepositoryList(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNRepositoryList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryList(ctx context.Context, sel ast.SelectionSet, v *model.RepositoryList) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._RepositoryList(ctx, sel, v)
-}
-
 func (ec *executionContext) marshalNRequests2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRequests(ctx context.Context, sel ast.SelectionSet, v model.Requests) graphql.Marshaler {
 	return ec._Requests(ctx, sel, &v)
 }
@@ -43841,22 +43356,6 @@ func (ec *executionContext) marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 		return graphql.Null
 	}
 	return ec._Team(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOTeamsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamsFilter(ctx context.Context, v interface{}) (*model.TeamsFilter, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputTeamsFilter(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOTeamsFilterGitHub2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamsFilterGitHub(ctx context.Context, v interface{}) (*model.TeamsFilterGitHub, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputTeamsFilterGitHub(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {

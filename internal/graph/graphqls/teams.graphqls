@@ -6,9 +6,6 @@ extend type Query {
 
     "Limit the number of teams to return. Default is 20."
     limit: Int
-
-    "Filter teams."
-    filter: TeamsFilter
   ): TeamList! @auth
 
   "Get a specific team."
@@ -205,14 +202,6 @@ type Team {
 
   unleash: Unleash!
 
-  repositories(
-    "Offset to start listing repositories from. Default is 0."
-    offset: Int
-
-    "Limit the number of repositories to return. Default is 20."
-    limit: Int
-  ): RepositoryList!
-
   "Gets the utilization data for all applications"
   appsUtilization(resourceType: UsageResourceType!): [AppUtilizationData!]!
 }
@@ -241,14 +230,6 @@ type AppUtilizationData {
 
   "The current resource usage."
   used: Float!
-}
-
-type RepositoryList {
-  "The list of repositories."
-  nodes: [String!]!
-
-  "Pagination information."
-  pageInfo: PageInfo!
 }
 
 "Slack alerts channel type."
@@ -346,19 +327,6 @@ type DeploymentKey {
 
   "The date the deployment key expires."
   expires: Time!
-}
-
-"Input for filtering teams."
-input TeamsFilter {
-  github: TeamsFilterGitHub
-}
-
-input TeamsFilterGitHub {
-  "Filter repositories by repo name"
-  repoName: String!
-
-  "Filter repositories by permission name"
-  permissionName: String!
 }
 
 "Slack alerts channel input."

@@ -403,13 +403,6 @@ type Rekor struct {
 	ImageDigestSha           string `json:"imageDigestSHA"`
 }
 
-type RepositoryList struct {
-	// The list of repositories.
-	Nodes []string `json:"nodes"`
-	// Pagination information.
-	PageInfo PageInfo `json:"pageInfo"`
-}
-
 type Requests struct {
 	CPU    string `json:"cpu"`
 	Memory string `json:"memory"`
@@ -491,18 +484,6 @@ type TeamStatus struct {
 	State State      `json:"state"`
 	Apps  AppsStatus `json:"apps"`
 	Jobs  JobsStatus `json:"jobs"`
-}
-
-// Input for filtering teams.
-type TeamsFilter struct {
-	Github *TeamsFilterGitHub `json:"github,omitempty"`
-}
-
-type TeamsFilterGitHub struct {
-	// Filter repositories by repo name
-	RepoName string `json:"repoName"`
-	// Filter repositories by permission name
-	PermissionName string `json:"permissionName"`
 }
 
 type TokenX struct {

@@ -114,7 +114,7 @@ func (r *mutationResolver) ChangeDeployKey(ctx context.Context, team slug.Slug) 
 	}, nil
 }
 
-func (r *queryResolver) Teams(ctx context.Context, offset *int, limit *int, filter *model.TeamsFilter) (*model.TeamList, error) {
+func (r *queryResolver) Teams(ctx context.Context, offset *int, limit *int) (*model.TeamList, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationTeamsList)
 	if err != nil {
@@ -792,22 +792,6 @@ func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*mo
 
 func (r *teamResolver) Unleash(ctx context.Context, obj *model.Team) (*model.Unleash, error) {
 	return r.unleashMgr.Unleash(obj.Slug.String())
-}
-
-func (r *teamResolver) Repositories(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.RepositoryList, error) {
-	page := model.NewPagination(offset, limit)
-	auths, err := r.database.ListTeamRepositories(ctx, obj.Slug)
-	if err != nil {
-		return &model.RepositoryList{
-			Nodes: []string{},
-		}, nil
-	}
-
-	nodes, pageInfo := model.PaginatedSlice(auths, page)
-	return &model.RepositoryList{
-		Nodes:    nodes,
-		PageInfo: pageInfo,
-	}, nil
 }
 
 func (r *teamResolver) AppsUtilization(ctx context.Context, obj *model.Team, resourceType model.UsageResourceType) ([]*model.AppUtilizationData, error) {

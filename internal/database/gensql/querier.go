@@ -52,7 +52,6 @@ type Querier interface {
 	GetTeamMembers(ctx context.Context, arg GetTeamMembersParams) ([]*User, error)
 	// GetTeamMembersCount returns the total number of team members of a non-deleted team.
 	GetTeamMembersCount(ctx context.Context, teamSlug *slug.Slug) (int64, error)
-	GetTeamRepositories(ctx context.Context, teamSlug slug.Slug) ([]string, error)
 	// GetTeams returns a slice of teams, excluding deleted teams.
 	GetTeams(ctx context.Context, arg GetTeamsParams) ([]*Team, error)
 	// GetTeamsBySlugs returns a slice of teams by their slugs, excluding deleted teams.
@@ -74,7 +73,6 @@ type Querier interface {
 	GetUsersyncRuns(ctx context.Context, arg GetUsersyncRunsParams) ([]*UsersyncRun, error)
 	GetUsersyncRunsCount(ctx context.Context) (int64, error)
 	InsertEnvironment(ctx context.Context, arg InsertEnvironmentParams) error
-	IsTeamRepository(ctx context.Context, arg IsTeamRepositoryParams) (bool, error)
 	RemoveAllServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
 	RevokeGlobalUserRole(ctx context.Context, arg RevokeGlobalUserRoleParams) error
