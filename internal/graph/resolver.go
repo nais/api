@@ -1,7 +1,6 @@
 package graph
 
 import (
-	"context"
 	"fmt"
 	"slices"
 
@@ -16,7 +15,6 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/resourceusage"
-	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/unleash"
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
@@ -68,14 +66,7 @@ func (c ClusterList) Names() []string {
 	return ret
 }
 
-type HookdClient interface {
-	Deployments(ctx context.Context, opts ...hookd.RequestOption) ([]hookd.Deploy, error)
-	ChangeDeployKey(ctx context.Context, team string) (*hookd.DeployKey, error)
-	DeployKey(ctx context.Context, team string) (*hookd.DeployKey, error)
-}
-
 type Resolver struct {
-	hookdClient         HookdClient
 	k8sClient           *k8s.Client
 	resourceUsageClient resourceusage.ResourceUsageClient
 	log                 logrus.FieldLogger
@@ -89,7 +80,6 @@ type Resolver struct {
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
 func NewResolver(
-	hookdClient HookdClient,
 	k8sClient *k8s.Client,
 	resourceUsageClient resourceusage.ResourceUsageClient,
 	db database.Database,
@@ -101,7 +91,6 @@ func NewResolver(
 	unleashMgr *unleash.Manager,
 ) *Resolver {
 	return &Resolver{
-		hookdClient:         hookdClient,
 		k8sClient:           k8sClient,
 		resourceUsageClient: resourceUsageClient,
 		tenant:              tenant,

@@ -49,12 +49,6 @@ extend type Mutation {
   is asynchronous. The operation can take a while, depending on the amount of teams currently managed.
   """
   synchronizeAllTeams: TeamSync! @auth
-
-  "Update the deploy key of a team. Returns the updated deploy key."
-  changeDeployKey(
-    "The name of the team to update the deploy key for."
-    team: Slug!
-  ): DeploymentKey!
 }
 
 "Team sync type."
@@ -139,9 +133,6 @@ type Team {
     orderBy: OrderBy
   ): AppList!
 
-  "The deploy key of the team."
-  deployKey: DeploymentKey! @auth
-
   "The NAIS jobs owned by the team."
   naisjobs(
     "Returns the first n entries from the list."
@@ -153,15 +144,6 @@ type Team {
     "Order entries by"
     orderBy: OrderBy
   ): NaisJobList!
-
-  "The deployments of the team's applications."
-  deployments(
-    "Returns the first n entries from the list."
-    offset: Int
-
-    "Limit the number of entries returned."
-    limit: Int
-  ): DeploymentList!
 
   "Get all secrets for the team."
   secrets: [Secret!]! @auth
@@ -283,21 +265,6 @@ type ResourceInventory {
   totalJobs: Int!
   totalApps: Int!
   isEmpty: Boolean!
-}
-
-"Deployment key type."
-type DeploymentKey {
-  "The unique identifier of the deployment key."
-  id: ID!
-
-  "The actual key."
-  key: String!
-
-  "The date the deployment key was created."
-  created: Time!
-
-  "The date the deployment key expires."
-  expires: Time!
 }
 
 "Slack alerts channel input."

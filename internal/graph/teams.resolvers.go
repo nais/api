@@ -16,7 +16,6 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/pkg/apiclient/protoapi"
 	"github.com/sourcegraph/conc/pool"
 	"k8s.io/utils/ptr"
@@ -88,27 +87,6 @@ func (r *mutationResolver) SynchronizeAllTeams(ctx context.Context) (*model.Team
 
 	return &model.TeamSync{
 		CorrelationID: correlationID,
-	}, nil
-}
-
-func (r *mutationResolver) ChangeDeployKey(ctx context.Context, team slug.Slug) (*model.DeploymentKey, error) {
-	actor := authz.ActorFromContext(ctx)
-	if _, err := r.database.GetTeamMember(ctx, team, actor.User.GetID()); errors.Is(err, pgx.ErrNoRows) {
-		return nil, apierror.ErrUserIsNotTeamMember
-	} else if err != nil {
-		return nil, err
-	}
-
-	deployKey, err := r.hookdClient.ChangeDeployKey(ctx, team.String())
-	if err != nil {
-		return nil, fmt.Errorf("changing deploy key in Hookd: %w", err)
-	}
-
-	return &model.DeploymentKey{
-		ID:      scalar.DeployKeyIdent(team),
-		Key:     deployKey.Key,
-		Created: deployKey.Created,
-		Expires: deployKey.Expires,
 	}, nil
 }
 
@@ -344,29 +322,6 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 	}, nil
 }
 
-func (r *teamResolver) DeployKey(ctx context.Context, obj *model.Team) (*model.DeploymentKey, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationDeployKeyView, obj.Slug)
-	if err != nil {
-		if actor.User.IsServiceAccount() {
-			return nil, apierror.ErrUserIsNotTeamMember
-		}
-		return nil, err
-	}
-
-	key, err := r.hookdClient.DeployKey(ctx, obj.Slug.String())
-	if err != nil {
-		return nil, fmt.Errorf("getting deploy key from Hookd: %w", err)
-	}
-
-	return &model.DeploymentKey{
-		ID:      scalar.DeployKeyIdent(obj.Slug),
-		Key:     key.Key,
-		Created: key.Created,
-		Expires: key.Expires,
-	}, nil
-}
-
 func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.NaisJobList, error) {
 	naisjobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
 	if err != nil {
@@ -429,24 +384,6 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 	return &model.NaisJobList{
 		Nodes:    jobs,
 		PageInfo: pageInfo,
-	}, nil
-}
-
-func (r *teamResolver) Deployments(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.DeploymentList, error) {
-	pagination := model.NewPagination(offset, limit)
-
-	deploys, err := r.hookdClient.Deployments(ctx, hookd.WithTeam(obj.Slug.String()), hookd.WithLimit(pagination.Limit))
-	if err != nil {
-		return nil, fmt.Errorf("getting deploys from Hookd: %w", err)
-	}
-
-	return &model.DeploymentList{
-		Nodes: deployToModel(deploys),
-		PageInfo: model.PageInfo{
-			HasNextPage:     len(deploys) >= pagination.Limit,
-			HasPreviousPage: pagination.Offset > 0,
-			TotalCount:      0,
-		},
 	}, nil
 }
 

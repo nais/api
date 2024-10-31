@@ -17,19 +17,16 @@ import (
 type IdentType string
 
 const (
-	IdentTypeApp                IdentType = "app"
-	IdentTypeCorrelationID      IdentType = "correlationID"
-	IdentTypeDeployKey          IdentType = "deployKey"
-	IdentTypeDeployment         IdentType = "deployment"
-	IdentTypeDeploymentResource IdentType = "deploymentResource"
-	IdentTypeDeploymentStatus   IdentType = "deploymentStatus"
-	IdentTypeEnv                IdentType = "env"
-	IdentTypeJob                IdentType = "job"
-	IdentTypePod                IdentType = "pod"
-	IdentTypeSecret             IdentType = "secret"
-	IdentTypeTeam               IdentType = "team"
-	IdentTypeUser               IdentType = "user"
-	IdentTypeUsersyncRun        IdentType = "usersyncRun"
+	IdentTypeApp           IdentType = "app"
+	IdentTypeCorrelationID IdentType = "correlationID"
+	IdentTypeDeployKey     IdentType = "deployKey"
+	IdentTypeEnv           IdentType = "env"
+	IdentTypeJob           IdentType = "job"
+	IdentTypePod           IdentType = "pod"
+	IdentTypeSecret        IdentType = "secret"
+	IdentTypeTeam          IdentType = "team"
+	IdentTypeUser          IdentType = "user"
+	IdentTypeUsersyncRun   IdentType = "usersyncRun"
 
 	idSeparator = "-"
 )
@@ -98,18 +95,6 @@ func PodIdent(id types.UID) Ident {
 
 func TeamIdent(teamSlug slug.Slug) Ident {
 	return newIdent(IdentTypeTeam, string(teamSlug))
-}
-
-func DeploymentIdent(id string) Ident {
-	return newIdent(IdentTypeDeployment, id)
-}
-
-func DeploymentResourceIdent(id string) Ident {
-	return newIdent(IdentTypeDeploymentResource, id)
-}
-
-func DeploymentStatusIdent(id string) Ident {
-	return newIdent(IdentTypeDeploymentStatus, id)
 }
 
 func SecretIdent(envName string, teamSlug slug.Slug, secretName string) Ident {

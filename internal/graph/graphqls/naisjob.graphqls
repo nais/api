@@ -52,7 +52,6 @@ type NaisJob implements Workload {
   id: ID!
   name: String!
   image: String!
-  deployInfo: DeployInfo!
   env: Env!
   status: WorkloadStatus!
   authz: [Authz!]!

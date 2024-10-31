@@ -162,7 +162,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	pubsubTopic := pubsubClient.Topic("nais-api")
 
-	var hookdClient graph.HookdClient
+	var hookdClient hookd.Client
 	var resourceUsageClient resourceusage.ResourceUsageClient
 	if cfg.WithFakeClients {
 		hookdClient = fakehookd.New()
@@ -176,7 +176,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 
 	resolver := graph.NewResolver(
-		hookdClient,
 		k8sClient,
 		resourceUsageClient,
 		db,

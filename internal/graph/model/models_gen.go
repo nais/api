@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -19,10 +18,6 @@ type AuthenticatedUser interface {
 
 type Authz interface {
 	IsAuthz()
-}
-
-type DeploymentResponse interface {
-	IsDeploymentResponse()
 }
 
 type ScalingStrategy interface {
@@ -96,51 +91,6 @@ type DeleteJobResult struct {
 	Error   *string `json:"error,omitempty"`
 }
 
-type Deployment struct {
-	ID         scalar.Ident          `json:"id"`
-	Team       Team                  `json:"team"`
-	Resources  []*DeploymentResource `json:"resources"`
-	Env        string                `json:"env"`
-	Statuses   []*DeploymentStatus   `json:"statuses"`
-	Created    time.Time             `json:"created"`
-	Repository string                `json:"repository"`
-}
-
-// Deployment key type.
-type DeploymentKey struct {
-	// The unique identifier of the deployment key.
-	ID scalar.Ident `json:"id"`
-	// The actual key.
-	Key string `json:"key"`
-	// The date the deployment key was created.
-	Created time.Time `json:"created"`
-	// The date the deployment key expires.
-	Expires time.Time `json:"expires"`
-}
-
-type DeploymentList struct {
-	Nodes    []*Deployment `json:"nodes"`
-	PageInfo PageInfo      `json:"pageInfo"`
-}
-
-func (DeploymentList) IsDeploymentResponse() {}
-
-type DeploymentResource struct {
-	ID        scalar.Ident `json:"id"`
-	Group     string       `json:"group"`
-	Kind      string       `json:"kind"`
-	Name      string       `json:"name"`
-	Version   string       `json:"version"`
-	Namespace string       `json:"namespace"`
-}
-
-type DeploymentStatus struct {
-	ID      scalar.Ident `json:"id"`
-	Status  string       `json:"status"`
-	Message *string      `json:"message,omitempty"`
-	Created time.Time    `json:"created"`
-}
-
 type DeprecatedIngressError struct {
 	Revision string     `json:"revision"`
 	Level    ErrorLevel `json:"level"`
@@ -159,12 +109,6 @@ type DeprecatedRegistryError struct {
 }
 
 func (DeprecatedRegistryError) IsStateError() {}
-
-type Error struct {
-	Message string `json:"message"`
-}
-
-func (Error) IsDeploymentResponse() {}
 
 type Expose struct {
 	AllowedIntegrations []string    `json:"allowedIntegrations"`
