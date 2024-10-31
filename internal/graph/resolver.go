@@ -15,7 +15,6 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/resourceusage"
-	"github.com/nais/api/internal/unleash"
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -75,7 +74,6 @@ type Resolver struct {
 	tenant              string
 	tenantDomain        string
 	pubsubTopic         *pubsub.Topic
-	unleashMgr          *unleash.Manager
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
@@ -88,7 +86,6 @@ func NewResolver(
 	clusters ClusterList,
 	pubsubTopic *pubsub.Topic,
 	log logrus.FieldLogger,
-	unleashMgr *unleash.Manager,
 ) *Resolver {
 	return &Resolver{
 		k8sClient:           k8sClient,
@@ -99,7 +96,6 @@ func NewResolver(
 		database:            db,
 		clusters:            clusters,
 		pubsubTopic:         pubsubTopic,
-		unleashMgr:          unleashMgr,
 	}
 }
 

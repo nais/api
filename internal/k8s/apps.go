@@ -302,25 +302,6 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 		Name: env,
 	}
 
-	appSynchState := app.GetStatus().SynchronizationState
-
-	switch appSynchState {
-	case sync_states.RolloutComplete:
-		timestamp := time.Unix(0, app.GetStatus().RolloutCompleteTime)
-		ret.DeployInfo.Timestamp = &timestamp
-	case sync_states.Synchronized:
-		timestamp := time.Unix(0, app.GetStatus().SynchronizationTime)
-		ret.DeployInfo.Timestamp = &timestamp
-	default:
-		ret.DeployInfo.Timestamp = nil
-	}
-
-	ret.DeployInfo.CommitSha = app.GetAnnotations()["deploy.nais.io/github-sha"]
-	ret.DeployInfo.Deployer = app.GetAnnotations()["deploy.nais.io/github-actor"]
-	ret.DeployInfo.URL = app.GetAnnotations()["deploy.nais.io/github-workflow-run-url"]
-	ret.DeployInfo.GQLVars.App = app.GetName()
-	ret.DeployInfo.GQLVars.Env = env
-	ret.DeployInfo.GQLVars.Team = slug.Slug(app.GetNamespace())
 	ret.GQLVars.Team = slug.Slug(app.GetNamespace())
 	ret.GQLVars.Spec = model.WorkloadSpec{
 		GCP:        app.Spec.GCP,
@@ -417,9 +398,8 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 		// A FailedGenerate error is almost always the user's fault.
 		case sync_states.FailedGenerate:
 			appState.Errors = append(appState.Errors, &model.InvalidNaisYamlError{
-				Revision: app.DeployInfo.CommitSha,
-				Level:    model.ErrorLevelError,
-				Detail:   currentCondition.Message,
+				Level:  model.ErrorLevelError,
+				Detail: currentCondition.Message,
 			})
 			appState.State = model.StateNotnais
 
@@ -430,16 +410,14 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 			fallthrough
 		case sync_states.FailedSynchronization:
 			appState.Errors = append(appState.Errors, &model.SynchronizationFailingError{
-				Revision: app.DeployInfo.CommitSha,
-				Level:    model.ErrorLevelError,
-				Detail:   currentCondition.Message,
+				Level:  model.ErrorLevelError,
+				Detail: currentCondition.Message,
 			})
 			appState.State = model.StateNotnais
 
 		case sync_states.Synchronized:
 			appState.Errors = append(appState.Errors, &model.NewInstancesFailingError{
-				Revision: app.DeployInfo.CommitSha,
-				Level:    model.ErrorLevelWarning,
+				Level: model.ErrorLevelWarning,
 				FailingInstances: func() []string {
 					ret := make([]string, 0)
 					for _, instance := range instances {
@@ -456,8 +434,7 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 
 	if (len(instances) == 0 || numFailing == len(instances)) && app.Resources.Scaling.Min > 0 && app.Resources.Scaling.Max > 0 {
 		appState.Errors = append(appState.Errors, &model.NoRunningInstancesError{
-			Revision: app.DeployInfo.CommitSha,
-			Level:    model.ErrorLevelError,
+			Level: model.ErrorLevelError,
 		})
 		appState.State = model.StateFailing
 	}
@@ -476,7 +453,6 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 			repository = strings.Join(parts[1:len(parts)-1], "/")
 		}
 		appState.Errors = append(appState.Errors, &model.DeprecatedRegistryError{
-			Revision:   app.DeployInfo.CommitSha,
 			Level:      model.ErrorLevelTodo,
 			Registry:   registry,
 			Name:       name,
@@ -494,9 +470,8 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 		for _, deprecatedIngress := range deprecatedIngresses {
 			if i == deprecatedIngress {
 				appState.Errors = append(appState.Errors, &model.DeprecatedIngressError{
-					Revision: app.DeployInfo.CommitSha,
-					Level:    model.ErrorLevelTodo,
-					Ingress:  ingress,
+					Level:   model.ErrorLevelTodo,
+					Ingress: ingress,
 				})
 				/*if appState.State != model.StateFailing {
 					appState.State = model.StateNotnais

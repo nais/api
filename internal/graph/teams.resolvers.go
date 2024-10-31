@@ -273,16 +273,6 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 			model.SortWith(apps, func(a, b *model.App) bool {
 				return model.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
 			})
-		case model.OrderByFieldDeployed:
-			model.SortWith(apps, func(a, b *model.App) bool {
-				if a.DeployInfo.Timestamp == nil {
-					return false
-				}
-				if b.DeployInfo.Timestamp == nil {
-					return true
-				}
-				return model.Compare(b.DeployInfo.Timestamp.UnixMilli(), a.DeployInfo.Timestamp.UnixMilli(), orderBy.Direction)
-			})
 		case model.OrderByFieldStatus:
 			model.SortWith(apps, func(a, b *model.App) bool {
 				sortOrder := []model.State{model.StateFailing, model.StateNotnais, model.StateUnknown, model.StateNais}
@@ -338,16 +328,6 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
 				return model.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
 			})
-		case model.OrderByFieldDeployed:
-			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
-				if a.DeployInfo.Timestamp == nil {
-					return false
-				}
-				if b.DeployInfo.Timestamp == nil {
-					return true
-				}
-				return model.Compare(b.DeployInfo.Timestamp.UnixMilli(), a.DeployInfo.Timestamp.UnixMilli(), orderBy.Direction)
-			})
 		case model.OrderByFieldStatus:
 			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
 				sortOrder := []model.State{model.StateFailing, model.StateNotnais, model.StateUnknown, model.StateNais}
@@ -402,10 +382,6 @@ func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*mo
 	}
 
 	return ret, nil
-}
-
-func (r *teamResolver) Unleash(ctx context.Context, obj *model.Team) (*model.Unleash, error) {
-	return r.unleashMgr.Unleash(obj.Slug.String())
 }
 
 func (r *teamResolver) AppsUtilization(ctx context.Context, obj *model.Team, resourceType model.UsageResourceType) ([]*model.AppUtilizationData, error) {

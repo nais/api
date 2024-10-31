@@ -25,7 +25,6 @@ import (
 	fakeresourceusage "github.com/nais/api/internal/resourceusage/fake"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
-	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/v1/graphv1"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/kubernetes"
@@ -136,25 +135,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("unable to create k8s client: %w", err)
 	}
 
-	unleashOpts := []unleash.Opt{}
-	if cfg.WithFakeClients {
-		unleashOpts = append(unleashOpts, unleash.WithClientsCreator(fake.Clients(os.DirFS("./data/k8s"))))
-	}
-
-	unleashMgr, err := unleash.NewManager(
-		cfg.Tenant,
-		cfg.K8s.PkgConfig().Clusters,
-		cfg.Unleash.PkgConfig(),
-		log.WithField("client", "unleash"),
-		unleashOpts...,
-	)
-	if err != nil {
-		return fmt.Errorf("unable to create unleash manager: %w", err)
-	}
-	if err := unleashMgr.Start(ctx, log); err != nil {
-		return fmt.Errorf("unable to start unleash manager: %w", err)
-	}
-
 	pubsubClient, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
 	if err != nil {
 		return err
@@ -184,7 +164,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		cfg.K8s.GraphClusterList(),
 		pubsubTopic,
 		log,
-		unleashMgr,
 	)
 
 	graphHandler, err := graph.NewHandler(gengql.Config{

@@ -148,8 +148,6 @@ type Team {
   "The environments available for the team."
   environments: [Env!]!
 
-  unleash: Unleash!
-
   "Gets the utilization data for all applications"
   appsUtilization(resourceType: UsageResourceType!): [AppUtilizationData!]!
 }

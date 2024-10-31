@@ -8,7 +8,6 @@ import (
 	"github.com/nais/api/internal/fixtures"
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/k8s"
-	"github.com/nais/api/internal/unleash"
 	"github.com/sethvargo/go-envconfig"
 )
 
@@ -59,14 +58,6 @@ func (k *k8sConfig) PkgConfig() k8s.Config {
 			}
 			return clusters
 		}(),
-	}
-}
-
-func (u *unleashConfig) PkgConfig() unleash.Config {
-	return unleash.Config{
-		Enabled:       u.Enabled,
-		Namespace:     u.Namespace,
-		BifrostApiUrl: u.BifrostApiUrl,
 	}
 }
 

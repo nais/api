@@ -11,7 +11,6 @@ type WorkloadBase struct {
 	ID          scalar.Ident        `json:"id"`
 	Name        string              `json:"name"`
 	Image       string              `json:"image"`
-	DeployInfo  DeployInfo          `json:"deployInfo"`
 	Env         Env                 `json:"env"`
 	Status      WorkloadStatus      `json:"status"`
 	Authz       []Authz             `json:"authz"`

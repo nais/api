@@ -95,18 +95,16 @@ func setJobStatus(job *model.NaisJob, conditions []metav1.Condition, runs []*mod
 		switch currentCondition.Reason {
 		case sync_states.FailedPrepare:
 			jobState.Errors = append(jobState.Errors, &model.InvalidNaisYamlError{
-				Revision: job.DeployInfo.CommitSha,
-				Level:    model.ErrorLevelWarning,
-				Detail:   currentCondition.Message,
+				Level:  model.ErrorLevelWarning,
+				Detail: currentCondition.Message,
 			})
 			jobState.State = model.StateNotnais
 		case sync_states.Retrying:
 			fallthrough
 		case sync_states.FailedSynchronization:
 			jobState.Errors = append(jobState.Errors, &model.SynchronizationFailingError{
-				Revision: job.DeployInfo.CommitSha,
-				Level:    model.ErrorLevelError,
-				Detail:   currentCondition.Message,
+				Level:  model.ErrorLevelError,
+				Detail: currentCondition.Message,
 			})
 			jobState.State = model.StateNotnais
 		}
@@ -126,7 +124,6 @@ func setJobStatus(job *model.NaisJob, conditions []metav1.Condition, runs []*mod
 	if tmpRun != nil {
 		if tmpRun.Failed {
 			jobState.Errors = append(jobState.Errors, &model.FailedRunError{
-				Revision:   job.DeployInfo.CommitSha,
 				Level:      model.ErrorLevelWarning,
 				RunMessage: tmpRun.Message,
 				RunName:    tmpRun.Name,
@@ -149,7 +146,6 @@ func setJobStatus(job *model.NaisJob, conditions []metav1.Condition, runs []*mod
 			repository = strings.Join(parts[1:len(parts)-1], "/")
 		}
 		jobState.Errors = append(jobState.Errors, &model.DeprecatedRegistryError{
-			Revision:   job.DeployInfo.CommitSha,
 			Level:      model.ErrorLevelTodo,
 			Registry:   registry,
 			Name:       name,
@@ -380,19 +376,8 @@ func (c *Client) ToNaisJob(u *unstructured.Unstructured, env string) (*model.Nai
 		Name: env,
 	}
 
-	ret.DeployInfo = model.DeployInfo{
-		CommitSha: naisjob.GetAnnotations()["deploy.nais.io/github-sha"],
-		Deployer:  naisjob.GetAnnotations()["deploy.nais.io/github-actor"],
-		URL:       naisjob.GetAnnotations()["deploy.nais.io/github-workflow-run-url"],
-	}
-	ret.DeployInfo.GQLVars.Job = naisjob.GetName()
-	ret.DeployInfo.GQLVars.Env = env
-	ret.DeployInfo.GQLVars.Team = slug.Slug(naisjob.GetNamespace())
-
 	ret.Image = naisjob.Spec.Image
 
-	timestamp := time.Unix(0, naisjob.GetStatus().RolloutCompleteTime)
-	ret.DeployInfo.Timestamp = &timestamp
 	ret.GQLVars.Team = slug.Slug(naisjob.GetNamespace())
 
 	r := model.Resources{}

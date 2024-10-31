@@ -31,9 +31,6 @@ enum OrderByField {
   "Order by env"
   ENV
 
-  "Order by deployed time"
-  DEPLOYED
-
   "Order by status"
   STATUS
 }
