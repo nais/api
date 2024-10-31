@@ -7,7 +7,9 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/v1/auditv1"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
 	bifrost "github.com/nais/bifrost/pkg/unleash"
@@ -65,6 +67,20 @@ func Create(ctx context.Context, input *CreateUnleashInstanceInput) (*UnleashIns
 		return nil, fmt.Errorf("decoding unleash instance: %w", err)
 	}
 
+	err = auditv1.Create(ctx, auditv1.CreateInput{
+		Action:       auditv1.AuditActionCreated,
+		Actor:        authz.ActorFromContext(ctx).User,
+		ResourceType: auditResourceTypeUnleash,
+		ResourceName: input.TeamSlug.String(),
+		Data: &UnleashInstanceCreatedAuditEntryData{
+			Name: input.TeamSlug.String(),
+		},
+		TeamSlug: &input.TeamSlug,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	return toUnleashInstance(&unleashInstance), nil
 }
 
@@ -103,11 +119,31 @@ func AllowTeamAccess(ctx context.Context, input AllowTeamAccessToUnleashInput) (
 		return nil, err
 	}
 
-	if !hasAccessToUnleash(input.AllowedTeamSlug, unleash) {
-		return alterTeamAccess(ctx, input.TeamSlug, append(unleash.AllowedTeamSlugs, input.AllowedTeamSlug))
+	if hasAccessToUnleash(input.AllowedTeamSlug, unleash) {
+		// Early exit, nothing to update
+		return unleash, nil
 	}
 
-	return unleash, nil
+	ins, err := alterTeamAccess(ctx, input.TeamSlug, append(unleash.AllowedTeamSlugs, input.AllowedTeamSlug))
+	if err != nil {
+		return nil, err
+	}
+
+	err = auditv1.Create(ctx, auditv1.CreateInput{
+		Action:       auditv1.AuditActionUpdated,
+		Actor:        authz.ActorFromContext(ctx).User,
+		ResourceType: auditResourceTypeUnleash,
+		ResourceName: input.TeamSlug.String(),
+		Data: &UnleashInstanceUpdatedAuditEntryData{
+			AllowedTeamSlug: &input.AllowedTeamSlug,
+		},
+		TeamSlug: &input.TeamSlug,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return ins, nil
 }
 
 func RevokeTeamAccess(ctx context.Context, input RevokeTeamAccessToUnleashInput) (*UnleashInstance, error) {
@@ -116,13 +152,33 @@ func RevokeTeamAccess(ctx context.Context, input RevokeTeamAccessToUnleashInput)
 		return nil, err
 	}
 
-	if hasAccessToUnleash(input.TeamSlug, unleash) {
-		return alterTeamAccess(ctx, input.TeamSlug, slices.DeleteFunc(unleash.AllowedTeamSlugs, func(e slug.Slug) bool {
-			return e == input.RevokedTeamSlug
-		}))
+	if !hasAccessToUnleash(input.TeamSlug, unleash) {
+		// Early exit, nothing to update
+		return unleash, nil
 	}
 
-	return unleash, nil
+	ins, err := alterTeamAccess(ctx, input.TeamSlug, slices.DeleteFunc(unleash.AllowedTeamSlugs, func(e slug.Slug) bool {
+		return e == input.RevokedTeamSlug
+	}))
+	if err != nil {
+		return nil, err
+	}
+
+	err = auditv1.Create(ctx, auditv1.CreateInput{
+		Action:       auditv1.AuditActionUpdated,
+		Actor:        authz.ActorFromContext(ctx).User,
+		ResourceType: auditResourceTypeUnleash,
+		ResourceName: input.TeamSlug.String(),
+		Data: &UnleashInstanceUpdatedAuditEntryData{
+			RevokedTeamSlug: &input.RevokedTeamSlug,
+		},
+		TeamSlug: &input.TeamSlug,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return ins, nil
 }
 
 func Toggles(ctx context.Context, teamSlug slug.Slug) (int, error) {

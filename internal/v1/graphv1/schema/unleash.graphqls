@@ -81,3 +81,79 @@ type UnleashInstanceMetrics {
 	memoryUtilization: Float!
 	memoryRequests: Float!
 }
+
+extend enum AuditResourceType {
+	"All audit entries related to unleash will use this resource type."
+	UNLEASH
+}
+
+type UnleashInstanceCreatedAuditEntry implements AuditEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: AuditResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the creation."
+	data: UnleashInstanceCreatedAuditEntryData
+}
+
+type UnleashInstanceCreatedAuditEntryData {
+	"Name of the Unleash instance."
+	name: String!
+}
+
+type UnleashInstanceUpdatedAuditEntry implements AuditEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: AuditResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the update."
+	data: UnleashInstanceUpdatedAuditEntryData
+}
+
+type UnleashInstanceUpdatedAuditEntryData {
+	"Revoked team slugs."
+	revokedTeamSlug: Slug
+
+	"Allowed team slugs."
+	allowedTeamSlug: Slug
+}
