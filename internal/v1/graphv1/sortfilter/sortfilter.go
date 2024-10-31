@@ -145,7 +145,7 @@ func (s *SortFilter[T, OrderKey, FilterObj]) sortConcurrent(ctx context.Context,
 
 	slices.SortStableFunc(res, func(i, j sortable) int {
 		if j.key == i.key {
-			return s.defaultSort(ctx, i.item, j.item, direction)
+			return s.defaultSort(ctx, i.item, j.item)
 		}
 
 		if direction == modelv1.OrderDirectionDesc {
@@ -169,15 +169,12 @@ func (s *SortFilter[T, OrderKey, FilterObj]) sort(ctx context.Context, items []T
 		}
 
 		if ret == 0 {
-			return s.defaultSort(ctx, i, j, direction)
+			return s.defaultSort(ctx, i, j)
 		}
 		return ret
 	})
 }
 
-func (s *SortFilter[T, OrderKey, FilterObj]) defaultSort(ctx context.Context, a, b T, direction modelv1.OrderDirection) int {
-	if direction == modelv1.OrderDirectionDesc {
-		return s.orderBys[s.defaultSortKey].orderBy(ctx, b, a)
-	}
+func (s *SortFilter[T, OrderKey, FilterObj]) defaultSort(ctx context.Context, a, b T) int {
 	return s.orderBys[s.defaultSortKey].orderBy(ctx, a, b)
 }
