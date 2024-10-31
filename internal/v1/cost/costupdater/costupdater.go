@@ -6,12 +6,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/nais/api/internal/v1/cost/costsql"
-
 	"cloud.google.com/go/bigquery"
 	"cloud.google.com/go/civil"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/v1/cost/costsql"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/iterator"
 )
