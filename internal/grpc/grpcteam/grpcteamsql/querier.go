@@ -9,19 +9,19 @@ import (
 )
 
 type Querier interface {
-	DeleteTeam(ctx context.Context, argSlug slug.Slug) error
-	GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error)
-	GetTeamEnvironments(ctx context.Context, arg GetTeamEnvironmentsParams) ([]*TeamAllEnvironment, error)
-	GetTeamEnvironmentsCount(ctx context.Context, teamSlug slug.Slug) (int64, error)
-	GetTeamMembers(ctx context.Context, arg GetTeamMembersParams) ([]*User, error)
-	GetTeamMembersCount(ctx context.Context, teamSlug slug.Slug) (int64, error)
+	Count(ctx context.Context) (int64, error)
+	CountEnvironments(ctx context.Context, teamSlug slug.Slug) (int64, error)
+	CountMembers(ctx context.Context, teamSlug slug.Slug) (int64, error)
+	Delete(ctx context.Context, argSlug slug.Slug) error
+	Get(ctx context.Context, argSlug slug.Slug) (*Team, error)
 	GetTeamRepositories(ctx context.Context, teamSlug slug.Slug) ([]string, error)
-	GetTeams(ctx context.Context, arg GetTeamsParams) ([]*Team, error)
-	GetTeamsCount(ctx context.Context) (int64, error)
 	IsTeamRepository(ctx context.Context, arg IsTeamRepositoryParams) (bool, error)
-	SetLastSuccessfulSyncForTeam(ctx context.Context, argSlug slug.Slug) error
-	UpdateTeamExternalReferences(ctx context.Context, arg UpdateTeamExternalReferencesParams) error
-	UpsertTeamEnvironment(ctx context.Context, arg UpsertTeamEnvironmentParams) error
+	List(ctx context.Context, arg ListParams) ([]*Team, error)
+	ListEnvironments(ctx context.Context, arg ListEnvironmentsParams) ([]*TeamAllEnvironment, error)
+	ListMembers(ctx context.Context, arg ListMembersParams) ([]*User, error)
+	SetLastSuccessfulSync(ctx context.Context, argSlug slug.Slug) error
+	UpdateExternalReferences(ctx context.Context, arg UpdateExternalReferencesParams) error
+	UpsertEnvironment(ctx context.Context, arg UpsertEnvironmentParams) error
 }
 
 var _ Querier = (*Queries)(nil)

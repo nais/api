@@ -104,10 +104,19 @@ sql:
         out: "../internal/v1/environment/environmentsql"
 
   - <<: *default_domain
-    name: "Teams SQL for GRPC"
+    name: "Teams SQL for gRPC"
     queries: "../internal/grpc/grpcteam/queries"
     gen:
       go:
         <<: *default_go
         package: "grpcteamsql"
         out: "../internal/grpc/grpcteam/grpcteamsql"
+
+  - <<: *default_domain
+    name: "Users SQL for gRPC"
+    queries: "../internal/grpc/grpcuser/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "grpcusersql"
+        out: "../internal/grpc/grpcuser/grpcusersql"

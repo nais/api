@@ -10,19 +10,67 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-const deleteTeam = `-- name: DeleteTeam :exec
+const count = `-- name: Count :one
+SELECT
+	COUNT(*) AS total
+FROM
+	teams
+`
+
+func (q *Queries) Count(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, count)
+	var total int64
+	err := row.Scan(&total)
+	return total, err
+}
+
+const countEnvironments = `-- name: CountEnvironments :one
+SELECT
+	COUNT(team_all_environments.*) AS total
+FROM
+	team_all_environments
+	JOIN teams ON teams.slug = team_all_environments.team_slug
+WHERE
+	team_all_environments.team_slug = $1
+`
+
+func (q *Queries) CountEnvironments(ctx context.Context, teamSlug slug.Slug) (int64, error) {
+	row := q.db.QueryRow(ctx, countEnvironments, teamSlug)
+	var total int64
+	err := row.Scan(&total)
+	return total, err
+}
+
+const countMembers = `-- name: CountMembers :one
+SELECT
+	COUNT(user_roles.*) AS total
+FROM
+	user_roles
+	JOIN teams ON teams.slug = user_roles.target_team_slug
+WHERE
+	user_roles.target_team_slug = $1::slug
+`
+
+func (q *Queries) CountMembers(ctx context.Context, teamSlug slug.Slug) (int64, error) {
+	row := q.db.QueryRow(ctx, countMembers, teamSlug)
+	var total int64
+	err := row.Scan(&total)
+	return total, err
+}
+
+const delete = `-- name: Delete :exec
 DELETE FROM teams
 WHERE
 	slug = $1
 	AND delete_key_confirmed_at IS NOT NULL
 `
 
-func (q *Queries) DeleteTeam(ctx context.Context, argSlug slug.Slug) error {
-	_, err := q.db.Exec(ctx, deleteTeam, argSlug)
+func (q *Queries) Delete(ctx context.Context, argSlug slug.Slug) error {
+	_, err := q.db.Exec(ctx, delete, argSlug)
 	return err
 }
 
-const getTeamBySlug = `-- name: GetTeamBySlug :one
+const get = `-- name: Get :one
 SELECT
 	slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
 FROM
@@ -31,8 +79,8 @@ WHERE
 	slug = $1
 `
 
-func (q *Queries) GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error) {
-	row := q.db.QueryRow(ctx, getTeamBySlug, argSlug)
+func (q *Queries) Get(ctx context.Context, argSlug slug.Slug) (*Team, error) {
+	row := q.db.QueryRow(ctx, get, argSlug)
 	var i Team
 	err := row.Scan(
 		&i.Slug,
@@ -49,138 +97,7 @@ func (q *Queries) GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, 
 	return &i, err
 }
 
-const getTeamEnvironments = `-- name: GetTeamEnvironments :many
-SELECT
-	team_all_environments.team_slug, team_all_environments.environment, team_all_environments.gcp, team_all_environments.gcp_project_id, team_all_environments.id, team_all_environments.slack_alerts_channel
-FROM
-	team_all_environments
-	JOIN teams ON teams.slug = team_all_environments.team_slug
-WHERE
-	team_all_environments.team_slug = $1
-ORDER BY
-	team_all_environments.environment ASC
-LIMIT
-	$3
-OFFSET
-	$2
-`
-
-type GetTeamEnvironmentsParams struct {
-	TeamSlug slug.Slug
-	Offset   int32
-	Limit    int32
-}
-
-func (q *Queries) GetTeamEnvironments(ctx context.Context, arg GetTeamEnvironmentsParams) ([]*TeamAllEnvironment, error) {
-	rows, err := q.db.Query(ctx, getTeamEnvironments, arg.TeamSlug, arg.Offset, arg.Limit)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []*TeamAllEnvironment{}
-	for rows.Next() {
-		var i TeamAllEnvironment
-		if err := rows.Scan(
-			&i.TeamSlug,
-			&i.Environment,
-			&i.Gcp,
-			&i.GcpProjectID,
-			&i.ID,
-			&i.SlackAlertsChannel,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getTeamEnvironmentsCount = `-- name: GetTeamEnvironmentsCount :one
-SELECT
-	COUNT(team_all_environments.*) AS total
-FROM
-	team_all_environments
-	JOIN teams ON teams.slug = team_all_environments.team_slug
-WHERE
-	team_all_environments.team_slug = $1
-`
-
-func (q *Queries) GetTeamEnvironmentsCount(ctx context.Context, teamSlug slug.Slug) (int64, error) {
-	row := q.db.QueryRow(ctx, getTeamEnvironmentsCount, teamSlug)
-	var total int64
-	err := row.Scan(&total)
-	return total, err
-}
-
-const getTeamMembers = `-- name: GetTeamMembers :many
-SELECT
-	users.id, users.email, users.name, users.external_id
-FROM
-	user_roles
-	JOIN teams ON teams.slug = user_roles.target_team_slug
-	JOIN users ON users.id = user_roles.user_id
-WHERE
-	user_roles.target_team_slug = $1::slug
-ORDER BY
-	users.name ASC
-LIMIT
-	$3
-OFFSET
-	$2
-`
-
-type GetTeamMembersParams struct {
-	TeamSlug slug.Slug
-	Offset   int32
-	Limit    int32
-}
-
-func (q *Queries) GetTeamMembers(ctx context.Context, arg GetTeamMembersParams) ([]*User, error) {
-	rows, err := q.db.Query(ctx, getTeamMembers, arg.TeamSlug, arg.Offset, arg.Limit)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []*User{}
-	for rows.Next() {
-		var i User
-		if err := rows.Scan(
-			&i.ID,
-			&i.Email,
-			&i.Name,
-			&i.ExternalID,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getTeamMembersCount = `-- name: GetTeamMembersCount :one
-SELECT
-	COUNT(user_roles.*) AS total
-FROM
-	user_roles
-	JOIN teams ON teams.slug = user_roles.target_team_slug
-WHERE
-	user_roles.target_team_slug = $1::slug
-`
-
-func (q *Queries) GetTeamMembersCount(ctx context.Context, teamSlug slug.Slug) (int64, error) {
-	row := q.db.QueryRow(ctx, getTeamMembersCount, teamSlug)
-	var total int64
-	err := row.Scan(&total)
-	return total, err
-}
-
-const getTeams = `-- name: GetTeams :many
+const list = `-- name: List :many
 SELECT
 	slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
 FROM
@@ -193,13 +110,13 @@ OFFSET
 	$1
 `
 
-type GetTeamsParams struct {
+type ListParams struct {
 	Offset int32
 	Limit  int32
 }
 
-func (q *Queries) GetTeams(ctx context.Context, arg GetTeamsParams) ([]*Team, error) {
-	rows, err := q.db.Query(ctx, getTeams, arg.Offset, arg.Limit)
+func (q *Queries) List(ctx context.Context, arg ListParams) ([]*Team, error) {
+	rows, err := q.db.Query(ctx, list, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -229,21 +146,104 @@ func (q *Queries) GetTeams(ctx context.Context, arg GetTeamsParams) ([]*Team, er
 	return items, nil
 }
 
-const getTeamsCount = `-- name: GetTeamsCount :one
+const listEnvironments = `-- name: ListEnvironments :many
 SELECT
-	COUNT(*) AS total
+	team_all_environments.team_slug, team_all_environments.environment, team_all_environments.gcp, team_all_environments.gcp_project_id, team_all_environments.id, team_all_environments.slack_alerts_channel
 FROM
-	teams
+	team_all_environments
+	JOIN teams ON teams.slug = team_all_environments.team_slug
+WHERE
+	team_all_environments.team_slug = $1
+ORDER BY
+	team_all_environments.environment ASC
+LIMIT
+	$3
+OFFSET
+	$2
 `
 
-func (q *Queries) GetTeamsCount(ctx context.Context) (int64, error) {
-	row := q.db.QueryRow(ctx, getTeamsCount)
-	var total int64
-	err := row.Scan(&total)
-	return total, err
+type ListEnvironmentsParams struct {
+	TeamSlug slug.Slug
+	Offset   int32
+	Limit    int32
 }
 
-const setLastSuccessfulSyncForTeam = `-- name: SetLastSuccessfulSyncForTeam :exec
+func (q *Queries) ListEnvironments(ctx context.Context, arg ListEnvironmentsParams) ([]*TeamAllEnvironment, error) {
+	rows, err := q.db.Query(ctx, listEnvironments, arg.TeamSlug, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*TeamAllEnvironment{}
+	for rows.Next() {
+		var i TeamAllEnvironment
+		if err := rows.Scan(
+			&i.TeamSlug,
+			&i.Environment,
+			&i.Gcp,
+			&i.GcpProjectID,
+			&i.ID,
+			&i.SlackAlertsChannel,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listMembers = `-- name: ListMembers :many
+SELECT
+	users.id, users.email, users.name, users.external_id
+FROM
+	user_roles
+	JOIN teams ON teams.slug = user_roles.target_team_slug
+	JOIN users ON users.id = user_roles.user_id
+WHERE
+	user_roles.target_team_slug = $1::slug
+ORDER BY
+	users.name ASC
+LIMIT
+	$3
+OFFSET
+	$2
+`
+
+type ListMembersParams struct {
+	TeamSlug slug.Slug
+	Offset   int32
+	Limit    int32
+}
+
+func (q *Queries) ListMembers(ctx context.Context, arg ListMembersParams) ([]*User, error) {
+	rows, err := q.db.Query(ctx, listMembers, arg.TeamSlug, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*User{}
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.Name,
+			&i.ExternalID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const setLastSuccessfulSync = `-- name: SetLastSuccessfulSync :exec
 UPDATE teams
 SET
 	last_successful_sync = NOW()
@@ -251,12 +251,12 @@ WHERE
 	teams.slug = $1
 `
 
-func (q *Queries) SetLastSuccessfulSyncForTeam(ctx context.Context, argSlug slug.Slug) error {
-	_, err := q.db.Exec(ctx, setLastSuccessfulSyncForTeam, argSlug)
+func (q *Queries) SetLastSuccessfulSync(ctx context.Context, argSlug slug.Slug) error {
+	_, err := q.db.Exec(ctx, setLastSuccessfulSync, argSlug)
 	return err
 }
 
-const updateTeamExternalReferences = `-- name: UpdateTeamExternalReferences :exec
+const updateExternalReferences = `-- name: UpdateExternalReferences :exec
 UPDATE teams
 SET
 	google_group_email = COALESCE($1, google_group_email),
@@ -268,7 +268,7 @@ WHERE
 	teams.slug = $6
 `
 
-type UpdateTeamExternalReferencesParams struct {
+type UpdateExternalReferencesParams struct {
 	GoogleGroupEmail *string
 	AzureGroupID     *uuid.UUID
 	GithubTeamSlug   *string
@@ -277,8 +277,8 @@ type UpdateTeamExternalReferencesParams struct {
 	Slug             slug.Slug
 }
 
-func (q *Queries) UpdateTeamExternalReferences(ctx context.Context, arg UpdateTeamExternalReferencesParams) error {
-	_, err := q.db.Exec(ctx, updateTeamExternalReferences,
+func (q *Queries) UpdateExternalReferences(ctx context.Context, arg UpdateExternalReferencesParams) error {
+	_, err := q.db.Exec(ctx, updateExternalReferences,
 		arg.GoogleGroupEmail,
 		arg.AzureGroupID,
 		arg.GithubTeamSlug,
@@ -289,7 +289,7 @@ func (q *Queries) UpdateTeamExternalReferences(ctx context.Context, arg UpdateTe
 	return err
 }
 
-const upsertTeamEnvironment = `-- name: UpsertTeamEnvironment :exec
+const upsertEnvironment = `-- name: UpsertEnvironment :exec
 INSERT INTO
 	team_environments (
 		team_slug,
@@ -317,15 +317,15 @@ SET
 	)
 `
 
-type UpsertTeamEnvironmentParams struct {
+type UpsertEnvironmentParams struct {
 	TeamSlug           slug.Slug
 	Environment        string
 	SlackAlertsChannel *string
 	GcpProjectID       *string
 }
 
-func (q *Queries) UpsertTeamEnvironment(ctx context.Context, arg UpsertTeamEnvironmentParams) error {
-	_, err := q.db.Exec(ctx, upsertTeamEnvironment,
+func (q *Queries) UpsertEnvironment(ctx context.Context, arg UpsertEnvironmentParams) error {
+	_, err := q.db.Exec(ctx, upsertEnvironment,
 		arg.TeamSlug,
 		arg.Environment,
 		arg.SlackAlertsChannel,

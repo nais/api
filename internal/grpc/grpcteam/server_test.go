@@ -21,7 +21,7 @@ func TestTeamsServer_Get(t *testing.T) {
 	t.Run("team not found", func(t *testing.T) {
 		querier := grpcteamsql.NewMockQuerier(t)
 		querier.EXPECT().
-			GetTeamBySlug(ctx, slug.Slug("team-not-found")).
+			Get(ctx, slug.Slug("team-not-found")).
 			Return(nil, pgx.ErrNoRows).
 			Once()
 
@@ -38,7 +38,7 @@ func TestTeamsServer_Get(t *testing.T) {
 	t.Run("database error", func(t *testing.T) {
 		querier := grpcteamsql.NewMockQuerier(t)
 		querier.EXPECT().
-			GetTeamBySlug(ctx, slug.Slug("team-not-found")).
+			Get(ctx, slug.Slug("team-not-found")).
 			Return(nil, fmt.Errorf("some database error")).
 			Once()
 
@@ -66,7 +66,7 @@ func TestTeamsServer_Get(t *testing.T) {
 
 		querier := grpcteamsql.NewMockQuerier(t)
 		querier.EXPECT().
-			GetTeamBySlug(ctx, slug.Slug(teamSlug)).
+			Get(ctx, slug.Slug(teamSlug)).
 			Return(&grpcteamsql.Team{
 				Slug:             teamSlug,
 				Purpose:          purpose,
@@ -135,7 +135,7 @@ func TestTeamsServer_Delete(t *testing.T) {
 		const teamSlug = "team-slug"
 		querier := grpcteamsql.NewMockQuerier(t)
 		querier.EXPECT().
-			DeleteTeam(ctx, slug.Slug(teamSlug)).
+			Delete(ctx, slug.Slug(teamSlug)).
 			Return(nil).
 			Once()
 		resp, err := grpcteam.NewServer(querier).Delete(ctx, &protoapi.DeleteTeamRequest{Slug: teamSlug})
@@ -154,7 +154,7 @@ func TestTeamsServer_ToBeReconciled(t *testing.T) {
 	t.Run("error when fetching teams from database", func(t *testing.T) {
 		querier := grpcteamsql.NewMockQuerier(t)
 		querier.EXPECT().
-			GetTeams(ctx, grpcteamsql.GetTeamsParams{Limit: 123, Offset: 2}).
+			List(ctx, grpcteamsql.ListParams{Limit: 123, Offset: 2}).
 			Return(nil, fmt.Errorf("some error")).
 			Once()
 		resp, err := grpcteam.NewServer(querier).List(ctx, &protoapi.ListTeamsRequest{
@@ -177,11 +177,11 @@ func TestTeamsServer_ToBeReconciled(t *testing.T) {
 		}
 		querier := grpcteamsql.NewMockQuerier(t)
 		querier.EXPECT().
-			GetTeams(ctx, grpcteamsql.GetTeamsParams{Limit: 2, Offset: 0}).
+			List(ctx, grpcteamsql.ListParams{Limit: 2, Offset: 0}).
 			Return(teamsFromDatabase, nil).
 			Once()
 		querier.EXPECT().
-			GetTeamsCount(ctx).
+			Count(ctx).
 			Return(2, nil).
 			Once()
 		resp, err := grpcteam.NewServer(querier).List(ctx, &protoapi.ListTeamsRequest{

@@ -22,12 +22,182 @@ func (_m *MockQuerier) EXPECT() *MockQuerier_Expecter {
 	return &MockQuerier_Expecter{mock: &_m.Mock}
 }
 
-// DeleteTeam provides a mock function with given fields: ctx, argSlug
-func (_m *MockQuerier) DeleteTeam(ctx context.Context, argSlug slug.Slug) error {
+// Count provides a mock function with given fields: ctx
+func (_m *MockQuerier) Count(ctx context.Context) (int64, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Count")
+	}
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (int64, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) int64); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_Count_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Count'
+type MockQuerier_Count_Call struct {
+	*mock.Call
+}
+
+// Count is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockQuerier_Expecter) Count(ctx interface{}) *MockQuerier_Count_Call {
+	return &MockQuerier_Count_Call{Call: _e.mock.On("Count", ctx)}
+}
+
+func (_c *MockQuerier_Count_Call) Run(run func(ctx context.Context)) *MockQuerier_Count_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_Count_Call) Return(_a0 int64, _a1 error) *MockQuerier_Count_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_Count_Call) RunAndReturn(run func(context.Context) (int64, error)) *MockQuerier_Count_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CountEnvironments provides a mock function with given fields: ctx, teamSlug
+func (_m *MockQuerier) CountEnvironments(ctx context.Context, teamSlug slug.Slug) (int64, error) {
+	ret := _m.Called(ctx, teamSlug)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CountEnvironments")
+	}
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (int64, error)); ok {
+		return rf(ctx, teamSlug)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) int64); ok {
+		r0 = rf(ctx, teamSlug)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
+		r1 = rf(ctx, teamSlug)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_CountEnvironments_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CountEnvironments'
+type MockQuerier_CountEnvironments_Call struct {
+	*mock.Call
+}
+
+// CountEnvironments is a helper method to define mock.On call
+//   - ctx context.Context
+//   - teamSlug slug.Slug
+func (_e *MockQuerier_Expecter) CountEnvironments(ctx interface{}, teamSlug interface{}) *MockQuerier_CountEnvironments_Call {
+	return &MockQuerier_CountEnvironments_Call{Call: _e.mock.On("CountEnvironments", ctx, teamSlug)}
+}
+
+func (_c *MockQuerier_CountEnvironments_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockQuerier_CountEnvironments_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(slug.Slug))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_CountEnvironments_Call) Return(_a0 int64, _a1 error) *MockQuerier_CountEnvironments_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_CountEnvironments_Call) RunAndReturn(run func(context.Context, slug.Slug) (int64, error)) *MockQuerier_CountEnvironments_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CountMembers provides a mock function with given fields: ctx, teamSlug
+func (_m *MockQuerier) CountMembers(ctx context.Context, teamSlug slug.Slug) (int64, error) {
+	ret := _m.Called(ctx, teamSlug)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CountMembers")
+	}
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (int64, error)); ok {
+		return rf(ctx, teamSlug)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) int64); ok {
+		r0 = rf(ctx, teamSlug)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
+		r1 = rf(ctx, teamSlug)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_CountMembers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CountMembers'
+type MockQuerier_CountMembers_Call struct {
+	*mock.Call
+}
+
+// CountMembers is a helper method to define mock.On call
+//   - ctx context.Context
+//   - teamSlug slug.Slug
+func (_e *MockQuerier_Expecter) CountMembers(ctx interface{}, teamSlug interface{}) *MockQuerier_CountMembers_Call {
+	return &MockQuerier_CountMembers_Call{Call: _e.mock.On("CountMembers", ctx, teamSlug)}
+}
+
+func (_c *MockQuerier_CountMembers_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockQuerier_CountMembers_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(slug.Slug))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_CountMembers_Call) Return(_a0 int64, _a1 error) *MockQuerier_CountMembers_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_CountMembers_Call) RunAndReturn(run func(context.Context, slug.Slug) (int64, error)) *MockQuerier_CountMembers_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Delete provides a mock function with given fields: ctx, argSlug
+func (_m *MockQuerier) Delete(ctx context.Context, argSlug slug.Slug) error {
 	ret := _m.Called(ctx, argSlug)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeleteTeam")
+		panic("no return value specified for Delete")
 	}
 
 	var r0 error
@@ -40,41 +210,41 @@ func (_m *MockQuerier) DeleteTeam(ctx context.Context, argSlug slug.Slug) error 
 	return r0
 }
 
-// MockQuerier_DeleteTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteTeam'
-type MockQuerier_DeleteTeam_Call struct {
+// MockQuerier_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
+type MockQuerier_Delete_Call struct {
 	*mock.Call
 }
 
-// DeleteTeam is a helper method to define mock.On call
+// Delete is a helper method to define mock.On call
 //   - ctx context.Context
 //   - argSlug slug.Slug
-func (_e *MockQuerier_Expecter) DeleteTeam(ctx interface{}, argSlug interface{}) *MockQuerier_DeleteTeam_Call {
-	return &MockQuerier_DeleteTeam_Call{Call: _e.mock.On("DeleteTeam", ctx, argSlug)}
+func (_e *MockQuerier_Expecter) Delete(ctx interface{}, argSlug interface{}) *MockQuerier_Delete_Call {
+	return &MockQuerier_Delete_Call{Call: _e.mock.On("Delete", ctx, argSlug)}
 }
 
-func (_c *MockQuerier_DeleteTeam_Call) Run(run func(ctx context.Context, argSlug slug.Slug)) *MockQuerier_DeleteTeam_Call {
+func (_c *MockQuerier_Delete_Call) Run(run func(ctx context.Context, argSlug slug.Slug)) *MockQuerier_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(slug.Slug))
 	})
 	return _c
 }
 
-func (_c *MockQuerier_DeleteTeam_Call) Return(_a0 error) *MockQuerier_DeleteTeam_Call {
+func (_c *MockQuerier_Delete_Call) Return(_a0 error) *MockQuerier_Delete_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockQuerier_DeleteTeam_Call) RunAndReturn(run func(context.Context, slug.Slug) error) *MockQuerier_DeleteTeam_Call {
+func (_c *MockQuerier_Delete_Call) RunAndReturn(run func(context.Context, slug.Slug) error) *MockQuerier_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetTeamBySlug provides a mock function with given fields: ctx, argSlug
-func (_m *MockQuerier) GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error) {
+// Get provides a mock function with given fields: ctx, argSlug
+func (_m *MockQuerier) Get(ctx context.Context, argSlug slug.Slug) (*Team, error) {
 	ret := _m.Called(ctx, argSlug)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetTeamBySlug")
+		panic("no return value specified for Get")
 	}
 
 	var r0 *Team
@@ -99,263 +269,31 @@ func (_m *MockQuerier) GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*T
 	return r0, r1
 }
 
-// MockQuerier_GetTeamBySlug_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamBySlug'
-type MockQuerier_GetTeamBySlug_Call struct {
+// MockQuerier_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
+type MockQuerier_Get_Call struct {
 	*mock.Call
 }
 
-// GetTeamBySlug is a helper method to define mock.On call
+// Get is a helper method to define mock.On call
 //   - ctx context.Context
 //   - argSlug slug.Slug
-func (_e *MockQuerier_Expecter) GetTeamBySlug(ctx interface{}, argSlug interface{}) *MockQuerier_GetTeamBySlug_Call {
-	return &MockQuerier_GetTeamBySlug_Call{Call: _e.mock.On("GetTeamBySlug", ctx, argSlug)}
+func (_e *MockQuerier_Expecter) Get(ctx interface{}, argSlug interface{}) *MockQuerier_Get_Call {
+	return &MockQuerier_Get_Call{Call: _e.mock.On("Get", ctx, argSlug)}
 }
 
-func (_c *MockQuerier_GetTeamBySlug_Call) Run(run func(ctx context.Context, argSlug slug.Slug)) *MockQuerier_GetTeamBySlug_Call {
+func (_c *MockQuerier_Get_Call) Run(run func(ctx context.Context, argSlug slug.Slug)) *MockQuerier_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(slug.Slug))
 	})
 	return _c
 }
 
-func (_c *MockQuerier_GetTeamBySlug_Call) Return(_a0 *Team, _a1 error) *MockQuerier_GetTeamBySlug_Call {
+func (_c *MockQuerier_Get_Call) Return(_a0 *Team, _a1 error) *MockQuerier_Get_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockQuerier_GetTeamBySlug_Call) RunAndReturn(run func(context.Context, slug.Slug) (*Team, error)) *MockQuerier_GetTeamBySlug_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetTeamEnvironments provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) GetTeamEnvironments(ctx context.Context, arg GetTeamEnvironmentsParams) ([]*TeamAllEnvironment, error) {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetTeamEnvironments")
-	}
-
-	var r0 []*TeamAllEnvironment
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, GetTeamEnvironmentsParams) ([]*TeamAllEnvironment, error)); ok {
-		return rf(ctx, arg)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, GetTeamEnvironmentsParams) []*TeamAllEnvironment); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*TeamAllEnvironment)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, GetTeamEnvironmentsParams) error); ok {
-		r1 = rf(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_GetTeamEnvironments_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamEnvironments'
-type MockQuerier_GetTeamEnvironments_Call struct {
-	*mock.Call
-}
-
-// GetTeamEnvironments is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg GetTeamEnvironmentsParams
-func (_e *MockQuerier_Expecter) GetTeamEnvironments(ctx interface{}, arg interface{}) *MockQuerier_GetTeamEnvironments_Call {
-	return &MockQuerier_GetTeamEnvironments_Call{Call: _e.mock.On("GetTeamEnvironments", ctx, arg)}
-}
-
-func (_c *MockQuerier_GetTeamEnvironments_Call) Run(run func(ctx context.Context, arg GetTeamEnvironmentsParams)) *MockQuerier_GetTeamEnvironments_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(GetTeamEnvironmentsParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_GetTeamEnvironments_Call) Return(_a0 []*TeamAllEnvironment, _a1 error) *MockQuerier_GetTeamEnvironments_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_GetTeamEnvironments_Call) RunAndReturn(run func(context.Context, GetTeamEnvironmentsParams) ([]*TeamAllEnvironment, error)) *MockQuerier_GetTeamEnvironments_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetTeamEnvironmentsCount provides a mock function with given fields: ctx, teamSlug
-func (_m *MockQuerier) GetTeamEnvironmentsCount(ctx context.Context, teamSlug slug.Slug) (int64, error) {
-	ret := _m.Called(ctx, teamSlug)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetTeamEnvironmentsCount")
-	}
-
-	var r0 int64
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (int64, error)); ok {
-		return rf(ctx, teamSlug)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) int64); ok {
-		r0 = rf(ctx, teamSlug)
-	} else {
-		r0 = ret.Get(0).(int64)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
-		r1 = rf(ctx, teamSlug)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_GetTeamEnvironmentsCount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamEnvironmentsCount'
-type MockQuerier_GetTeamEnvironmentsCount_Call struct {
-	*mock.Call
-}
-
-// GetTeamEnvironmentsCount is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-func (_e *MockQuerier_Expecter) GetTeamEnvironmentsCount(ctx interface{}, teamSlug interface{}) *MockQuerier_GetTeamEnvironmentsCount_Call {
-	return &MockQuerier_GetTeamEnvironmentsCount_Call{Call: _e.mock.On("GetTeamEnvironmentsCount", ctx, teamSlug)}
-}
-
-func (_c *MockQuerier_GetTeamEnvironmentsCount_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockQuerier_GetTeamEnvironmentsCount_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_GetTeamEnvironmentsCount_Call) Return(_a0 int64, _a1 error) *MockQuerier_GetTeamEnvironmentsCount_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_GetTeamEnvironmentsCount_Call) RunAndReturn(run func(context.Context, slug.Slug) (int64, error)) *MockQuerier_GetTeamEnvironmentsCount_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetTeamMembers provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) GetTeamMembers(ctx context.Context, arg GetTeamMembersParams) ([]*User, error) {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetTeamMembers")
-	}
-
-	var r0 []*User
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, GetTeamMembersParams) ([]*User, error)); ok {
-		return rf(ctx, arg)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, GetTeamMembersParams) []*User); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*User)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, GetTeamMembersParams) error); ok {
-		r1 = rf(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_GetTeamMembers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamMembers'
-type MockQuerier_GetTeamMembers_Call struct {
-	*mock.Call
-}
-
-// GetTeamMembers is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg GetTeamMembersParams
-func (_e *MockQuerier_Expecter) GetTeamMembers(ctx interface{}, arg interface{}) *MockQuerier_GetTeamMembers_Call {
-	return &MockQuerier_GetTeamMembers_Call{Call: _e.mock.On("GetTeamMembers", ctx, arg)}
-}
-
-func (_c *MockQuerier_GetTeamMembers_Call) Run(run func(ctx context.Context, arg GetTeamMembersParams)) *MockQuerier_GetTeamMembers_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(GetTeamMembersParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_GetTeamMembers_Call) Return(_a0 []*User, _a1 error) *MockQuerier_GetTeamMembers_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_GetTeamMembers_Call) RunAndReturn(run func(context.Context, GetTeamMembersParams) ([]*User, error)) *MockQuerier_GetTeamMembers_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetTeamMembersCount provides a mock function with given fields: ctx, teamSlug
-func (_m *MockQuerier) GetTeamMembersCount(ctx context.Context, teamSlug slug.Slug) (int64, error) {
-	ret := _m.Called(ctx, teamSlug)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetTeamMembersCount")
-	}
-
-	var r0 int64
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (int64, error)); ok {
-		return rf(ctx, teamSlug)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) int64); ok {
-		r0 = rf(ctx, teamSlug)
-	} else {
-		r0 = ret.Get(0).(int64)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
-		r1 = rf(ctx, teamSlug)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_GetTeamMembersCount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamMembersCount'
-type MockQuerier_GetTeamMembersCount_Call struct {
-	*mock.Call
-}
-
-// GetTeamMembersCount is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-func (_e *MockQuerier_Expecter) GetTeamMembersCount(ctx interface{}, teamSlug interface{}) *MockQuerier_GetTeamMembersCount_Call {
-	return &MockQuerier_GetTeamMembersCount_Call{Call: _e.mock.On("GetTeamMembersCount", ctx, teamSlug)}
-}
-
-func (_c *MockQuerier_GetTeamMembersCount_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockQuerier_GetTeamMembersCount_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_GetTeamMembersCount_Call) Return(_a0 int64, _a1 error) *MockQuerier_GetTeamMembersCount_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_GetTeamMembersCount_Call) RunAndReturn(run func(context.Context, slug.Slug) (int64, error)) *MockQuerier_GetTeamMembersCount_Call {
+func (_c *MockQuerier_Get_Call) RunAndReturn(run func(context.Context, slug.Slug) (*Team, error)) *MockQuerier_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -419,121 +357,6 @@ func (_c *MockQuerier_GetTeamRepositories_Call) RunAndReturn(run func(context.Co
 	return _c
 }
 
-// GetTeams provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) GetTeams(ctx context.Context, arg GetTeamsParams) ([]*Team, error) {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetTeams")
-	}
-
-	var r0 []*Team
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, GetTeamsParams) ([]*Team, error)); ok {
-		return rf(ctx, arg)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, GetTeamsParams) []*Team); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*Team)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, GetTeamsParams) error); ok {
-		r1 = rf(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_GetTeams_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeams'
-type MockQuerier_GetTeams_Call struct {
-	*mock.Call
-}
-
-// GetTeams is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg GetTeamsParams
-func (_e *MockQuerier_Expecter) GetTeams(ctx interface{}, arg interface{}) *MockQuerier_GetTeams_Call {
-	return &MockQuerier_GetTeams_Call{Call: _e.mock.On("GetTeams", ctx, arg)}
-}
-
-func (_c *MockQuerier_GetTeams_Call) Run(run func(ctx context.Context, arg GetTeamsParams)) *MockQuerier_GetTeams_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(GetTeamsParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_GetTeams_Call) Return(_a0 []*Team, _a1 error) *MockQuerier_GetTeams_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_GetTeams_Call) RunAndReturn(run func(context.Context, GetTeamsParams) ([]*Team, error)) *MockQuerier_GetTeams_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetTeamsCount provides a mock function with given fields: ctx
-func (_m *MockQuerier) GetTeamsCount(ctx context.Context) (int64, error) {
-	ret := _m.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetTeamsCount")
-	}
-
-	var r0 int64
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (int64, error)); ok {
-		return rf(ctx)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context) int64); ok {
-		r0 = rf(ctx)
-	} else {
-		r0 = ret.Get(0).(int64)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_GetTeamsCount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamsCount'
-type MockQuerier_GetTeamsCount_Call struct {
-	*mock.Call
-}
-
-// GetTeamsCount is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *MockQuerier_Expecter) GetTeamsCount(ctx interface{}) *MockQuerier_GetTeamsCount_Call {
-	return &MockQuerier_GetTeamsCount_Call{Call: _e.mock.On("GetTeamsCount", ctx)}
-}
-
-func (_c *MockQuerier_GetTeamsCount_Call) Run(run func(ctx context.Context)) *MockQuerier_GetTeamsCount_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_GetTeamsCount_Call) Return(_a0 int64, _a1 error) *MockQuerier_GetTeamsCount_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_GetTeamsCount_Call) RunAndReturn(run func(context.Context) (int64, error)) *MockQuerier_GetTeamsCount_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // IsTeamRepository provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) IsTeamRepository(ctx context.Context, arg IsTeamRepositoryParams) (bool, error) {
 	ret := _m.Called(ctx, arg)
@@ -591,12 +414,189 @@ func (_c *MockQuerier_IsTeamRepository_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
-// SetLastSuccessfulSyncForTeam provides a mock function with given fields: ctx, argSlug
-func (_m *MockQuerier) SetLastSuccessfulSyncForTeam(ctx context.Context, argSlug slug.Slug) error {
+// List provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) List(ctx context.Context, arg ListParams) ([]*Team, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for List")
+	}
+
+	var r0 []*Team
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, ListParams) ([]*Team, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, ListParams) []*Team); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*Team)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, ListParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_List_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'List'
+type MockQuerier_List_Call struct {
+	*mock.Call
+}
+
+// List is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg ListParams
+func (_e *MockQuerier_Expecter) List(ctx interface{}, arg interface{}) *MockQuerier_List_Call {
+	return &MockQuerier_List_Call{Call: _e.mock.On("List", ctx, arg)}
+}
+
+func (_c *MockQuerier_List_Call) Run(run func(ctx context.Context, arg ListParams)) *MockQuerier_List_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(ListParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_List_Call) Return(_a0 []*Team, _a1 error) *MockQuerier_List_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_List_Call) RunAndReturn(run func(context.Context, ListParams) ([]*Team, error)) *MockQuerier_List_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListEnvironments provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) ListEnvironments(ctx context.Context, arg ListEnvironmentsParams) ([]*TeamAllEnvironment, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListEnvironments")
+	}
+
+	var r0 []*TeamAllEnvironment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, ListEnvironmentsParams) ([]*TeamAllEnvironment, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, ListEnvironmentsParams) []*TeamAllEnvironment); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*TeamAllEnvironment)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, ListEnvironmentsParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_ListEnvironments_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListEnvironments'
+type MockQuerier_ListEnvironments_Call struct {
+	*mock.Call
+}
+
+// ListEnvironments is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg ListEnvironmentsParams
+func (_e *MockQuerier_Expecter) ListEnvironments(ctx interface{}, arg interface{}) *MockQuerier_ListEnvironments_Call {
+	return &MockQuerier_ListEnvironments_Call{Call: _e.mock.On("ListEnvironments", ctx, arg)}
+}
+
+func (_c *MockQuerier_ListEnvironments_Call) Run(run func(ctx context.Context, arg ListEnvironmentsParams)) *MockQuerier_ListEnvironments_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(ListEnvironmentsParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_ListEnvironments_Call) Return(_a0 []*TeamAllEnvironment, _a1 error) *MockQuerier_ListEnvironments_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_ListEnvironments_Call) RunAndReturn(run func(context.Context, ListEnvironmentsParams) ([]*TeamAllEnvironment, error)) *MockQuerier_ListEnvironments_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListMembers provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) ListMembers(ctx context.Context, arg ListMembersParams) ([]*User, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListMembers")
+	}
+
+	var r0 []*User
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, ListMembersParams) ([]*User, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, ListMembersParams) []*User); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*User)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, ListMembersParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_ListMembers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListMembers'
+type MockQuerier_ListMembers_Call struct {
+	*mock.Call
+}
+
+// ListMembers is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg ListMembersParams
+func (_e *MockQuerier_Expecter) ListMembers(ctx interface{}, arg interface{}) *MockQuerier_ListMembers_Call {
+	return &MockQuerier_ListMembers_Call{Call: _e.mock.On("ListMembers", ctx, arg)}
+}
+
+func (_c *MockQuerier_ListMembers_Call) Run(run func(ctx context.Context, arg ListMembersParams)) *MockQuerier_ListMembers_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(ListMembersParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_ListMembers_Call) Return(_a0 []*User, _a1 error) *MockQuerier_ListMembers_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_ListMembers_Call) RunAndReturn(run func(context.Context, ListMembersParams) ([]*User, error)) *MockQuerier_ListMembers_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SetLastSuccessfulSync provides a mock function with given fields: ctx, argSlug
+func (_m *MockQuerier) SetLastSuccessfulSync(ctx context.Context, argSlug slug.Slug) error {
 	ret := _m.Called(ctx, argSlug)
 
 	if len(ret) == 0 {
-		panic("no return value specified for SetLastSuccessfulSyncForTeam")
+		panic("no return value specified for SetLastSuccessfulSync")
 	}
 
 	var r0 error
@@ -609,45 +609,45 @@ func (_m *MockQuerier) SetLastSuccessfulSyncForTeam(ctx context.Context, argSlug
 	return r0
 }
 
-// MockQuerier_SetLastSuccessfulSyncForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetLastSuccessfulSyncForTeam'
-type MockQuerier_SetLastSuccessfulSyncForTeam_Call struct {
+// MockQuerier_SetLastSuccessfulSync_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetLastSuccessfulSync'
+type MockQuerier_SetLastSuccessfulSync_Call struct {
 	*mock.Call
 }
 
-// SetLastSuccessfulSyncForTeam is a helper method to define mock.On call
+// SetLastSuccessfulSync is a helper method to define mock.On call
 //   - ctx context.Context
 //   - argSlug slug.Slug
-func (_e *MockQuerier_Expecter) SetLastSuccessfulSyncForTeam(ctx interface{}, argSlug interface{}) *MockQuerier_SetLastSuccessfulSyncForTeam_Call {
-	return &MockQuerier_SetLastSuccessfulSyncForTeam_Call{Call: _e.mock.On("SetLastSuccessfulSyncForTeam", ctx, argSlug)}
+func (_e *MockQuerier_Expecter) SetLastSuccessfulSync(ctx interface{}, argSlug interface{}) *MockQuerier_SetLastSuccessfulSync_Call {
+	return &MockQuerier_SetLastSuccessfulSync_Call{Call: _e.mock.On("SetLastSuccessfulSync", ctx, argSlug)}
 }
 
-func (_c *MockQuerier_SetLastSuccessfulSyncForTeam_Call) Run(run func(ctx context.Context, argSlug slug.Slug)) *MockQuerier_SetLastSuccessfulSyncForTeam_Call {
+func (_c *MockQuerier_SetLastSuccessfulSync_Call) Run(run func(ctx context.Context, argSlug slug.Slug)) *MockQuerier_SetLastSuccessfulSync_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(slug.Slug))
 	})
 	return _c
 }
 
-func (_c *MockQuerier_SetLastSuccessfulSyncForTeam_Call) Return(_a0 error) *MockQuerier_SetLastSuccessfulSyncForTeam_Call {
+func (_c *MockQuerier_SetLastSuccessfulSync_Call) Return(_a0 error) *MockQuerier_SetLastSuccessfulSync_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockQuerier_SetLastSuccessfulSyncForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug) error) *MockQuerier_SetLastSuccessfulSyncForTeam_Call {
+func (_c *MockQuerier_SetLastSuccessfulSync_Call) RunAndReturn(run func(context.Context, slug.Slug) error) *MockQuerier_SetLastSuccessfulSync_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// UpdateTeamExternalReferences provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) UpdateTeamExternalReferences(ctx context.Context, arg UpdateTeamExternalReferencesParams) error {
+// UpdateExternalReferences provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) UpdateExternalReferences(ctx context.Context, arg UpdateExternalReferencesParams) error {
 	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
-		panic("no return value specified for UpdateTeamExternalReferences")
+		panic("no return value specified for UpdateExternalReferences")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, UpdateTeamExternalReferencesParams) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, UpdateExternalReferencesParams) error); ok {
 		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
@@ -656,45 +656,45 @@ func (_m *MockQuerier) UpdateTeamExternalReferences(ctx context.Context, arg Upd
 	return r0
 }
 
-// MockQuerier_UpdateTeamExternalReferences_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateTeamExternalReferences'
-type MockQuerier_UpdateTeamExternalReferences_Call struct {
+// MockQuerier_UpdateExternalReferences_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateExternalReferences'
+type MockQuerier_UpdateExternalReferences_Call struct {
 	*mock.Call
 }
 
-// UpdateTeamExternalReferences is a helper method to define mock.On call
+// UpdateExternalReferences is a helper method to define mock.On call
 //   - ctx context.Context
-//   - arg UpdateTeamExternalReferencesParams
-func (_e *MockQuerier_Expecter) UpdateTeamExternalReferences(ctx interface{}, arg interface{}) *MockQuerier_UpdateTeamExternalReferences_Call {
-	return &MockQuerier_UpdateTeamExternalReferences_Call{Call: _e.mock.On("UpdateTeamExternalReferences", ctx, arg)}
+//   - arg UpdateExternalReferencesParams
+func (_e *MockQuerier_Expecter) UpdateExternalReferences(ctx interface{}, arg interface{}) *MockQuerier_UpdateExternalReferences_Call {
+	return &MockQuerier_UpdateExternalReferences_Call{Call: _e.mock.On("UpdateExternalReferences", ctx, arg)}
 }
 
-func (_c *MockQuerier_UpdateTeamExternalReferences_Call) Run(run func(ctx context.Context, arg UpdateTeamExternalReferencesParams)) *MockQuerier_UpdateTeamExternalReferences_Call {
+func (_c *MockQuerier_UpdateExternalReferences_Call) Run(run func(ctx context.Context, arg UpdateExternalReferencesParams)) *MockQuerier_UpdateExternalReferences_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(UpdateTeamExternalReferencesParams))
+		run(args[0].(context.Context), args[1].(UpdateExternalReferencesParams))
 	})
 	return _c
 }
 
-func (_c *MockQuerier_UpdateTeamExternalReferences_Call) Return(_a0 error) *MockQuerier_UpdateTeamExternalReferences_Call {
+func (_c *MockQuerier_UpdateExternalReferences_Call) Return(_a0 error) *MockQuerier_UpdateExternalReferences_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockQuerier_UpdateTeamExternalReferences_Call) RunAndReturn(run func(context.Context, UpdateTeamExternalReferencesParams) error) *MockQuerier_UpdateTeamExternalReferences_Call {
+func (_c *MockQuerier_UpdateExternalReferences_Call) RunAndReturn(run func(context.Context, UpdateExternalReferencesParams) error) *MockQuerier_UpdateExternalReferences_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// UpsertTeamEnvironment provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) UpsertTeamEnvironment(ctx context.Context, arg UpsertTeamEnvironmentParams) error {
+// UpsertEnvironment provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) UpsertEnvironment(ctx context.Context, arg UpsertEnvironmentParams) error {
 	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
-		panic("no return value specified for UpsertTeamEnvironment")
+		panic("no return value specified for UpsertEnvironment")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, UpsertTeamEnvironmentParams) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, UpsertEnvironmentParams) error); ok {
 		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
@@ -703,31 +703,31 @@ func (_m *MockQuerier) UpsertTeamEnvironment(ctx context.Context, arg UpsertTeam
 	return r0
 }
 
-// MockQuerier_UpsertTeamEnvironment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpsertTeamEnvironment'
-type MockQuerier_UpsertTeamEnvironment_Call struct {
+// MockQuerier_UpsertEnvironment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpsertEnvironment'
+type MockQuerier_UpsertEnvironment_Call struct {
 	*mock.Call
 }
 
-// UpsertTeamEnvironment is a helper method to define mock.On call
+// UpsertEnvironment is a helper method to define mock.On call
 //   - ctx context.Context
-//   - arg UpsertTeamEnvironmentParams
-func (_e *MockQuerier_Expecter) UpsertTeamEnvironment(ctx interface{}, arg interface{}) *MockQuerier_UpsertTeamEnvironment_Call {
-	return &MockQuerier_UpsertTeamEnvironment_Call{Call: _e.mock.On("UpsertTeamEnvironment", ctx, arg)}
+//   - arg UpsertEnvironmentParams
+func (_e *MockQuerier_Expecter) UpsertEnvironment(ctx interface{}, arg interface{}) *MockQuerier_UpsertEnvironment_Call {
+	return &MockQuerier_UpsertEnvironment_Call{Call: _e.mock.On("UpsertEnvironment", ctx, arg)}
 }
 
-func (_c *MockQuerier_UpsertTeamEnvironment_Call) Run(run func(ctx context.Context, arg UpsertTeamEnvironmentParams)) *MockQuerier_UpsertTeamEnvironment_Call {
+func (_c *MockQuerier_UpsertEnvironment_Call) Run(run func(ctx context.Context, arg UpsertEnvironmentParams)) *MockQuerier_UpsertEnvironment_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(UpsertTeamEnvironmentParams))
+		run(args[0].(context.Context), args[1].(UpsertEnvironmentParams))
 	})
 	return _c
 }
 
-func (_c *MockQuerier_UpsertTeamEnvironment_Call) Return(_a0 error) *MockQuerier_UpsertTeamEnvironment_Call {
+func (_c *MockQuerier_UpsertEnvironment_Call) Return(_a0 error) *MockQuerier_UpsertEnvironment_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockQuerier_UpsertTeamEnvironment_Call) RunAndReturn(run func(context.Context, UpsertTeamEnvironmentParams) error) *MockQuerier_UpsertTeamEnvironment_Call {
+func (_c *MockQuerier_UpsertEnvironment_Call) RunAndReturn(run func(context.Context, UpsertEnvironmentParams) error) *MockQuerier_UpsertEnvironment_Call {
 	_c.Call.Return(run)
 	return _c
 }

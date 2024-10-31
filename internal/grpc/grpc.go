@@ -6,6 +6,9 @@ import (
 	"net"
 	"time"
 
+	"github.com/nais/api/internal/grpc/grpcuser"
+	"github.com/nais/api/internal/grpc/grpcuser/grpcusersql"
+
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/grpc/grpcteam"
@@ -29,9 +32,9 @@ func Run(ctx context.Context, listenAddress string, repo database.Database, audi
 	}
 	s := grpc.NewServer(opts...)
 
-	connectionPool := repo.GetPool()
-	protoapi.RegisterTeamsServer(s, grpcteam.NewServer(grpcteamsql.New(connectionPool)))
-	protoapi.RegisterUsersServer(s, &UsersServer{db: repo})
+	pool := repo.GetPool()
+	protoapi.RegisterTeamsServer(s, grpcteam.NewServer(grpcteamsql.New(pool)))
+	protoapi.RegisterUsersServer(s, grpcuser.NewServer(grpcusersql.New(pool)))
 	protoapi.RegisterReconcilersServer(s, &ReconcilersServer{db: repo})
 	protoapi.RegisterAuditLogsServer(s, &AuditLogsServer{db: repo, auditlog: auditlog})
 

@@ -6,11 +6,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/grpc/grpcpagination"
 	"github.com/nais/api/internal/grpc/grpcteam/grpcteamsql"
-	"github.com/nais/api/internal/grpc/grpcuser"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/pkg/apiclient/protoapi"
 	"google.golang.org/grpc/codes"
@@ -35,7 +32,7 @@ func (t *Server) Delete(ctx context.Context, req *protoapi.DeleteTeamRequest) (*
 		return nil, status.Errorf(codes.InvalidArgument, "slug is required")
 	}
 
-	if err := t.querier.DeleteTeam(ctx, slug.Slug(req.Slug)); err != nil {
+	if err := t.querier.Delete(ctx, slug.Slug(req.Slug)); err != nil {
 		return nil, status.Errorf(codes.Internal, "unable to delete team: %q", req.Slug)
 	}
 
@@ -43,7 +40,7 @@ func (t *Server) Delete(ctx context.Context, req *protoapi.DeleteTeamRequest) (*
 }
 
 func (t *Server) Get(ctx context.Context, req *protoapi.GetTeamRequest) (*protoapi.GetTeamResponse, error) {
-	team, err := t.querier.GetTeamBySlug(ctx, slug.Slug(req.Slug))
+	team, err := t.querier.Get(ctx, slug.Slug(req.Slug))
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, status.Errorf(codes.NotFound, "team not found")
 	} else if err != nil {
@@ -57,7 +54,7 @@ func (t *Server) Get(ctx context.Context, req *protoapi.GetTeamRequest) (*protoa
 
 func (t *Server) List(ctx context.Context, req *protoapi.ListTeamsRequest) (*protoapi.ListTeamsResponse, error) {
 	limit, offset := grpcpagination.Pagination(req)
-	teams, err := t.querier.GetTeams(ctx, grpcteamsql.GetTeamsParams{
+	teams, err := t.querier.List(ctx, grpcteamsql.ListParams{
 		Offset: int32(offset),
 		Limit:  int32(limit),
 	})
@@ -65,16 +62,17 @@ func (t *Server) List(ctx context.Context, req *protoapi.ListTeamsRequest) (*pro
 		return nil, status.Errorf(codes.Internal, "failed to list teams: %s", err)
 	}
 
-	total, err := t.querier.GetTeamsCount(ctx)
+	total, err := t.querier.Count(ctx)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to get teams count: %s", err)
 	}
 
 	resp := &protoapi.ListTeamsResponse{
 		PageInfo: grpcpagination.PageInfo(req, int(total)),
+		Nodes:    make([]*protoapi.Team, len(teams)),
 	}
-	for _, team := range teams {
-		resp.Nodes = append(resp.Nodes, toProtoTeam(team))
+	for i, team := range teams {
+		resp.Nodes[i] = toProtoTeam(team)
 	}
 
 	return resp, nil
@@ -82,7 +80,7 @@ func (t *Server) List(ctx context.Context, req *protoapi.ListTeamsRequest) (*pro
 
 func (t *Server) Members(ctx context.Context, req *protoapi.ListTeamMembersRequest) (*protoapi.ListTeamMembersResponse, error) {
 	limit, offset := grpcpagination.Pagination(req)
-	users, err := t.querier.GetTeamMembers(ctx, grpcteamsql.GetTeamMembersParams{
+	users, err := t.querier.ListMembers(ctx, grpcteamsql.ListMembersParams{
 		TeamSlug: slug.Slug(req.Slug),
 		Offset:   int32(limit),
 		Limit:    int32(offset),
@@ -91,16 +89,17 @@ func (t *Server) Members(ctx context.Context, req *protoapi.ListTeamMembersReque
 		return nil, status.Errorf(codes.Internal, "failed to list team members: %s", err)
 	}
 
-	total, err := t.querier.GetTeamMembersCount(ctx, slug.Slug(req.Slug))
+	total, err := t.querier.CountMembers(ctx, slug.Slug(req.Slug))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to get team members count: %s", err)
 	}
 
 	resp := &protoapi.ListTeamMembersResponse{
 		PageInfo: grpcpagination.PageInfo(req, int(total)),
+		Nodes:    make([]*protoapi.TeamMember, len(users)),
 	}
-	for _, user := range users {
-		resp.Nodes = append(resp.Nodes, toProtoTeamMember(user))
+	for i, user := range users {
+		resp.Nodes[i] = toProtoTeamMember(user)
 	}
 
 	return resp, nil
@@ -120,7 +119,7 @@ func (t *Server) SetTeamExternalReferences(ctx context.Context, req *protoapi.Se
 		aID = &id
 	}
 
-	err := t.querier.UpdateTeamExternalReferences(ctx, grpcteamsql.UpdateTeamExternalReferencesParams{
+	err := t.querier.UpdateExternalReferences(ctx, grpcteamsql.UpdateExternalReferencesParams{
 		Slug:             slug.Slug(req.Slug),
 		AzureGroupID:     aID,
 		GithubTeamSlug:   req.GithubTeamSlug,
@@ -140,7 +139,7 @@ func (t *Server) SetTeamEnvironmentExternalReferences(ctx context.Context, req *
 		return nil, status.Errorf(codes.InvalidArgument, "slug is required")
 	}
 
-	err := t.querier.UpsertTeamEnvironment(ctx, grpcteamsql.UpsertTeamEnvironmentParams{
+	err := t.querier.UpsertEnvironment(ctx, grpcteamsql.UpsertEnvironmentParams{
 		TeamSlug:     slug.Slug(req.Slug),
 		Environment:  req.EnvironmentName,
 		GcpProjectID: req.GcpProjectId,
@@ -154,7 +153,7 @@ func (t *Server) SetTeamEnvironmentExternalReferences(ctx context.Context, req *
 
 func (t *Server) Environments(ctx context.Context, req *protoapi.ListTeamEnvironmentsRequest) (*protoapi.ListTeamEnvironmentsResponse, error) {
 	limit, offset := grpcpagination.Pagination(req)
-	environments, err := t.querier.GetTeamEnvironments(ctx, grpcteamsql.GetTeamEnvironmentsParams{
+	environments, err := t.querier.ListEnvironments(ctx, grpcteamsql.ListEnvironmentsParams{
 		TeamSlug: slug.Slug(req.Slug),
 		Offset:   int32(offset),
 		Limit:    int32(limit),
@@ -163,16 +162,17 @@ func (t *Server) Environments(ctx context.Context, req *protoapi.ListTeamEnviron
 		return nil, status.Errorf(codes.Internal, "failed to list team environments: %s", err)
 	}
 
-	total, err := t.querier.GetTeamEnvironmentsCount(ctx, slug.Slug(req.Slug))
+	total, err := t.querier.CountEnvironments(ctx, slug.Slug(req.Slug))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to get team environments count: %s", err)
 	}
 
 	resp := &protoapi.ListTeamEnvironmentsResponse{
 		PageInfo: grpcpagination.PageInfo(req, int(total)),
+		Nodes:    make([]*protoapi.TeamEnvironment, len(environments)),
 	}
-	for _, env := range environments {
-		resp.Nodes = append(resp.Nodes, toProtoTeamEnvironment(env))
+	for i, env := range environments {
+		resp.Nodes[i] = toProtoTeamEnvironment(env)
 	}
 
 	return resp, nil
@@ -228,14 +228,12 @@ func toProtoTeam(team *grpcteamsql.Team) *protoapi.Team {
 
 func toProtoTeamMember(u *grpcteamsql.User) *protoapi.TeamMember {
 	return &protoapi.TeamMember{
-		User: grpcuser.ToProtoUser(&database.User{
-			User: &gensql.User{
-				ID:         u.ID,
-				Email:      u.Email,
-				Name:       u.Name,
-				ExternalID: u.ExternalID,
-			},
-		}),
+		User: &protoapi.User{
+			Id:         u.ID.String(),
+			Name:       u.Name,
+			Email:      u.Email,
+			ExternalId: u.ExternalID,
+		},
 	}
 }
 

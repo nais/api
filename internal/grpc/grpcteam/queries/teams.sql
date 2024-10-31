@@ -1,4 +1,4 @@
--- name: SetLastSuccessfulSyncForTeam :exec
+-- name: SetLastSuccessfulSync :exec
 UPDATE teams
 SET
 	last_successful_sync = NOW()
@@ -6,14 +6,14 @@ WHERE
 	teams.slug = @slug
 ;
 
--- name: DeleteTeam :exec
+-- name: Delete :exec
 DELETE FROM teams
 WHERE
 	slug = @slug
 	AND delete_key_confirmed_at IS NOT NULL
 ;
 
--- name: GetTeamBySlug :one
+-- name: Get :one
 SELECT
 	*
 FROM
@@ -22,7 +22,7 @@ WHERE
 	slug = @slug
 ;
 
--- name: GetTeams :many
+-- name: List :many
 SELECT
 	*
 FROM
@@ -35,14 +35,14 @@ OFFSET
 	sqlc.arg('offset')
 ;
 
--- name: GetTeamsCount :one
+-- name: Count :one
 SELECT
 	COUNT(*) AS total
 FROM
 	teams
 ;
 
--- name: GetTeamMembers :many
+-- name: ListMembers :many
 SELECT
 	users.*
 FROM
@@ -59,7 +59,7 @@ OFFSET
 	sqlc.arg('offset')
 ;
 
--- name: GetTeamMembersCount :one
+-- name: CountMembers :one
 SELECT
 	COUNT(user_roles.*) AS total
 FROM
@@ -69,7 +69,7 @@ WHERE
 	user_roles.target_team_slug = @team_slug::slug
 ;
 
--- name: UpdateTeamExternalReferences :exec
+-- name: UpdateExternalReferences :exec
 UPDATE teams
 SET
 	google_group_email = COALESCE(@google_group_email, google_group_email),
@@ -81,7 +81,7 @@ WHERE
 	teams.slug = @slug
 ;
 
--- name: UpsertTeamEnvironment :exec
+-- name: UpsertEnvironment :exec
 INSERT INTO
 	team_environments (
 		team_slug,
@@ -109,7 +109,7 @@ SET
 	)
 ;
 
--- name: GetTeamEnvironments :many
+-- name: ListEnvironments :many
 SELECT
 	team_all_environments.*
 FROM
@@ -125,7 +125,7 @@ OFFSET
 	sqlc.arg('offset')
 ;
 
--- name: GetTeamEnvironmentsCount :one
+-- name: CountEnvironments :one
 SELECT
 	COUNT(team_all_environments.*) AS total
 FROM
