@@ -54,6 +54,10 @@ func (f FakeGoogleAPI) Close() {
 }
 
 func (f FakeGoogleAPI) ListTimeSeries(_ context.Context, request *monitoringpb.ListTimeSeriesRequest) (*monitoringpb.ListTimeSeriesResponse, error) {
+	if request.Aggregation != nil {
+		return f.aggregatedTimeSeries(request)
+	}
+
 	instances := f.instances.All()
 
 	timeSeries := make([]*monitoringpb.TimeSeries, 0)
@@ -103,6 +107,48 @@ func (f FakeGoogleAPI) ListTimeSeries(_ context.Context, request *monitoringpb.L
 	}
 	return &monitoringpb.ListTimeSeriesResponse{
 		TimeSeries: timeSeries,
+	}, nil
+}
+
+func (f FakeGoogleAPI) aggregatedTimeSeries(request *monitoringpb.ListTimeSeriesRequest) (*monitoringpb.ListTimeSeriesResponse, error) {
+	min := 0.0
+	max := 10.0
+	switch {
+	case strings.Contains(request.Filter, "cpu/reserved_cores"):
+		min = 5.0
+		max = 10.0
+	case strings.Contains(request.Filter, "cpu/usage_time"):
+		min = 0.0
+		max = 5.0
+	case strings.Contains(request.Filter, "memory/quota"):
+		min = 4000000000
+		max = 40000000000
+	case strings.Contains(request.Filter, "memory/total_usage"):
+		min = 2000000000
+		max = 4000000000
+	case strings.Contains(request.Filter, "disk/quota"):
+		min = 1000000000
+		max = 10000000000
+	case strings.Contains(request.Filter, "disk/bytes_used"):
+		min = 500000000
+		max = 1000000000
+	}
+
+	return &monitoringpb.ListTimeSeriesResponse{
+		TimeSeries: []*monitoringpb.TimeSeries{
+			{
+				Metric: &metric.Metric{},
+				Points: []*monitoringpb.Point{
+					{
+						Value: &monitoringpb.TypedValue{
+							Value: &monitoringpb.TypedValue_DoubleValue{
+								DoubleValue: min + rand.Float64()*(max-min),
+							},
+						},
+					},
+				},
+			},
+		},
 	}, nil
 }
 
