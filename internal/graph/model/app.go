@@ -12,8 +12,7 @@ type App struct {
 	Ingresses []string `json:"ingresses"`
 }
 
-func (App) IsSearchNode()        {}
-func (a App) Type() WorkloadType { return WorkloadTypeApp }
+func (App) IsSearchNode() {}
 
 var _ Workload = (*App)(nil)
 

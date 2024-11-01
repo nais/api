@@ -6,10 +6,4 @@ interface Workload {
   status: WorkloadStatus!
   variables: [Variable!]!
   team: Team!
-  type: WorkloadType!
-}
-
-enum WorkloadType {
-  APP
-  NAISJOB
 }

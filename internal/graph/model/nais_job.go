@@ -15,8 +15,7 @@ type NaisJob struct {
 	Retries     int    `json:"retries"`
 }
 
-func (NaisJob) IsSearchNode()        {}
-func (j NaisJob) Type() WorkloadType { return WorkloadTypeNaisjob }
+func (NaisJob) IsSearchNode() {}
 
 var _ Workload = (*NaisJob)(nil)
 
