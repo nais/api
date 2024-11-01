@@ -8,7 +8,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/nais/api/internal/graph/apierror"
+	"github.com/nais/api/internal/v1/graphv1/apierror"
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"

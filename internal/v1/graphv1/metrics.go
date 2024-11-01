@@ -1,4 +1,4 @@
-package graph
+package graphv1
 
 import (
 	"context"

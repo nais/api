@@ -65,17 +65,6 @@ func ContextWithActor(ctx context.Context, user AuthenticatedUser, roles []*Role
 	})
 }
 
-// RequireRole Check if an actor has a required role
-func RequireRole(actor *Actor, requiredRoleName gensql.RoleName) error {
-	for _, role := range actor.Roles {
-		if role.RoleName == requiredRoleName {
-			return nil
-		}
-	}
-
-	return ErrMissingRole{role: string(requiredRoleName)}
-}
-
 // ActorFromContext Get the actor stored in the context. Requires that a middleware has stored an actor in the first
 // place.
 func ActorFromContext(ctx context.Context) *Actor {

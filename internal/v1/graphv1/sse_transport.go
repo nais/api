@@ -1,4 +1,4 @@
-package graph
+package graphv1
 
 // This is a copy of github.com/99designs/gqlgen/graphql/handler/transport.SSE
 // but with ping support.

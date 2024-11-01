@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/nais/api/internal/v1/workload"
-
-	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/v1/graphv1/apierror"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
 	"github.com/nais/api/internal/v1/searchv1"
+	"github.com/nais/api/internal/v1/workload"
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"

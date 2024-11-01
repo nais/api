@@ -8,7 +8,7 @@ import (
 
 	monitoring "cloud.google.com/go/monitoring/apiv3/v2"
 	"cloud.google.com/go/monitoring/apiv3/v2/monitoringpb"
-	"github.com/nais/api/internal/graph/apierror"
+	"github.com/nais/api/internal/v1/graphv1/apierror"
 	"github.com/patrickmn/go-cache"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/api/iterator"

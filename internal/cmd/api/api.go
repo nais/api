@@ -14,9 +14,6 @@ import (
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/fixtures"
-	"github.com/nais/api/internal/graph"
-	"github.com/nais/api/internal/graph/directives"
-	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/grpc"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/thirdparty/hookd"
@@ -94,7 +91,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	// Sync environments to database
 	syncEnvs := []*database.Environment{}
-	for name, env := range cfg.K8s.GraphClusterList() {
+	for name, env := range cfg.K8s.ClusterList() {
 		syncEnvs = append(syncEnvs, &database.Environment{
 			Name: name,
 			GCP:  env.GCP,
@@ -107,24 +104,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	if err := fixtures.SetupStaticServiceAccounts(ctx, db, cfg.StaticServiceAccounts); err != nil {
 		return err
-	}
-
-	resolver := graph.NewResolver(
-		db,
-		cfg.Tenant,
-		cfg.TenantDomain,
-		cfg.K8s.GraphClusterList(),
-		log,
-	)
-
-	graphHandler, err := graph.NewHandler(gengql.Config{
-		Resolvers: resolver,
-		Directives: gengql.DirectiveRoot{
-			Auth: directives.Auth(),
-		},
-	}, log)
-	if err != nil {
-		return fmt.Errorf("create graph handler: %w", err)
 	}
 
 	scheme, err := kubernetes.NewScheme()
@@ -219,7 +198,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			watcherMgr,
 			mgmtWatcher,
 			authHandler,
-			graphHandler,
 			graphv1Handler,
 			promReg,
 			vulnClient,

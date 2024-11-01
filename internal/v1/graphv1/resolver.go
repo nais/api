@@ -8,8 +8,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
-	"github.com/nais/api/internal/graph"
-	"github.com/nais/api/internal/graph/apierror"
+	"github.com/nais/api/internal/v1/graphv1/apierror"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
@@ -47,7 +46,7 @@ func NewResolver(topic PubsubTopic, opts ...ResolverOption) *Resolver {
 }
 
 func NewHandler(config gengqlv1.Config, log logrus.FieldLogger) (*handler.Server, error) {
-	metricsMiddleware, err := graph.NewMetrics(otel.Meter("graphv1"))
+	metricsMiddleware, err := NewMetrics(otel.Meter("graphv1"))
 	if err != nil {
 		return nil, fmt.Errorf("create metrics middleware: %w", err)
 	}
@@ -55,7 +54,7 @@ func NewHandler(config gengqlv1.Config, log logrus.FieldLogger) (*handler.Server
 	schema := gengqlv1.NewExecutableSchema(config)
 	graphHandler := handler.New(schema)
 	graphHandler.Use(metricsMiddleware)
-	graphHandler.AddTransport(graph.SSE{})
+	graphHandler.AddTransport(SSE{})
 	graphHandler.AddTransport(transport.Options{})
 	graphHandler.AddTransport(transport.POST{})
 	graphHandler.SetQueryCache(lru.New[*ast.QueryDocument](1000))

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/v1/graphv1/scalar"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -50,6 +50,6 @@ func TestDate_UnmarshalGQLContext(t *testing.T) {
 		date := scalar.NewDate(time.Now())
 		err := date.UnmarshalGQLContext(ctx, "2020-04-20")
 		assert.NoError(t, err)
-		assert.Equal(t, "2020-04-20", string(date))
+		assert.Equal(t, "2020-04-20", date.String())
 	})
 }

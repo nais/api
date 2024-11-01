@@ -1,7 +1,7 @@
 package pagination
 
 import (
-	"github.com/nais/api/internal/graph/apierror"
+	"github.com/nais/api/internal/v1/graphv1/apierror"
 )
 
 type Pagination struct {

@@ -14,7 +14,6 @@ import (
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/v1/auditv1"
 	"github.com/nais/api/internal/v1/cost"
@@ -67,7 +66,6 @@ func runHttpServer(
 	watcherMgr *watcher.Manager,
 	mgmtWatcherMgr *watcher.Manager,
 	authHandler authn.Handler,
-	graphHandler *handler.Server,
 	graphv1Handler *handler.Server,
 	reg prometheus.Gatherer,
 	vClient vulnerability.Client,
@@ -95,20 +93,6 @@ func runHttpServer(
 			},
 		).Handler,
 	)
-	router.Route("/query", func(r chi.Router) {
-		oldMiddlewares := append(middlewares,
-			middleware.ApiKeyAuthentication(db),
-			middleware.Oauth2Authentication(db, authHandler),
-		)
-
-		if insecureAuthAndFakes {
-			oldMiddlewares = append([]func(http.Handler) http.Handler{auth.InsecureUserHeader(db)}, oldMiddlewares...)
-		}
-		r.Use(oldMiddlewares...)
-		r.Use(loader.Middleware(db))
-		r.Use(otelhttp.NewMiddleware("graphql", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))
-		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphHandler))
-	})
 
 	graphMiddleware, err := ConfigureV1Graph(ctx, insecureAuthAndFakes, watcherMgr, mgmtWatcherMgr, db, k8sClientSets, vClient, tenantName, clusters, hookdClient, log)
 	if err != nil {

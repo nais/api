@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/v1/databasev1"
+	"github.com/nais/api/internal/v1/graphv1/apierror"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/reconciler/reconcilersql"

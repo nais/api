@@ -3,10 +3,10 @@ package api
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/nais/api/internal/fixtures"
-	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/k8s"
 	"github.com/sethvargo/go-envconfig"
 )
@@ -30,15 +30,55 @@ func (k *k8sConfig) AllClusterNames() []string {
 	return clusters
 }
 
-func (k *k8sConfig) GraphClusterList() graph.ClusterList {
-	clusters := make(graph.ClusterList)
+type ClusterInfo struct {
+	GCP bool
+}
+
+type ClusterList map[string]ClusterInfo
+
+func (c ClusterList) GCPClusters() []string {
+	if c == nil {
+		return nil
+	}
+
+	var ret []string
+	for cluster, info := range c {
+		if info.GCP {
+			ret = append(ret, cluster)
+		}
+	}
+
+	return ret
+}
+
+func (c ClusterList) Names() []string {
+	if c == nil {
+		return nil
+	}
+
+	var ret []string
+	for cluster := range c {
+		ret = append(ret, cluster)
+	}
+
+	slices.SortFunc(ret, func(i, j string) int {
+		if i < j {
+			return -1
+		}
+		return 1
+	})
+	return ret
+}
+
+func (k *k8sConfig) ClusterList() ClusterList {
+	clusters := make(ClusterList)
 	for _, cluster := range k.Clusters {
-		clusters[cluster] = graph.ClusterInfo{
+		clusters[cluster] = ClusterInfo{
 			GCP: true,
 		}
 	}
 	for _, staticCluster := range k.StaticClusters {
-		clusters[staticCluster.Name] = graph.ClusterInfo{}
+		clusters[staticCluster.Name] = ClusterInfo{}
 	}
 
 	return clusters
