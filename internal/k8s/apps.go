@@ -348,15 +348,6 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 
 	ret.Resources = r
 
-	ret.Resources = r
-
-	authz, err := appAuthz(app)
-	if err != nil {
-		return nil, fmt.Errorf("getting authz: %w", err)
-	}
-
-	ret.Authz = authz
-
 	for _, v := range app.Spec.Env {
 		m := &model.Variable{
 			Name:  v.Name,
@@ -507,47 +498,6 @@ func synchronizationStateCondition(conditions []metav1.Condition) *metav1.Condit
 		}
 	}
 	return nil
-}
-
-func appAuthz(app *naisv1alpha1.Application) ([]model.Authz, error) {
-	ret := make([]model.Authz, 0)
-	if app.Spec.Azure != nil {
-		isApp := app.Spec.Azure.Application != nil && app.Spec.Azure.Application.Enabled
-		isSidecar := app.Spec.Azure.Sidecar != nil && app.Spec.Azure.Sidecar.Enabled
-		if isApp || isSidecar {
-			azureAd := model.AzureAd{}
-			if err := convert(app.Spec.Azure, &azureAd); err != nil {
-				return nil, fmt.Errorf("converting azureAd: %w", err)
-			}
-			ret = append(ret, azureAd)
-		}
-	}
-
-	if app.Spec.IDPorten != nil && app.Spec.IDPorten.Enabled {
-		idPorten := model.IDPorten{}
-		if err := convert(app.Spec.IDPorten, &idPorten); err != nil {
-			return nil, fmt.Errorf("converting idPorten: %w", err)
-		}
-		ret = append(ret, idPorten)
-	}
-
-	if app.Spec.Maskinporten != nil && app.Spec.Maskinporten.Enabled {
-		maskinporten := model.Maskinporten{}
-		if err := convert(app.Spec.Maskinporten, &maskinporten); err != nil {
-			return nil, fmt.Errorf("converting maskinporten: %w", err)
-		}
-		ret = append(ret, maskinporten)
-	}
-
-	if app.Spec.TokenX != nil && app.Spec.TokenX.Enabled {
-		tokenX := model.TokenX{}
-		if err := convert(app.Spec.TokenX, &tokenX); err != nil {
-			return nil, fmt.Errorf("converting tokenX: %w", err)
-		}
-		ret = append(ret, tokenX)
-	}
-
-	return ret, nil
 }
 
 func (c *Client) DeleteApp(ctx context.Context, name, team, env string) error {

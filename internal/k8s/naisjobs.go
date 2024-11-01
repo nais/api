@@ -399,13 +399,6 @@ func (c *Client) ToNaisJob(u *unstructured.Unstructured, env string) (*model.Nai
 	}
 	ret.Retries = int(naisjob.Spec.BackoffLimit)
 
-	authz, err := jobAuthz(naisjob)
-	if err != nil {
-		return nil, fmt.Errorf("getting authz: %w", err)
-	}
-
-	ret.Authz = authz
-
 	secrets := make([]string, 0)
 	for _, filesFrom := range naisjob.Spec.FilesFrom {
 		secrets = append(secrets, filesFrom.Secret)
@@ -421,30 +414,6 @@ func (c *Client) ToNaisJob(u *unstructured.Unstructured, env string) (*model.Nai
 		Kafka:      naisjob.Spec.Kafka,
 		OpenSearch: naisjob.Spec.OpenSearch,
 		Redis:      naisjob.Spec.Redis,
-	}
-
-	return ret, nil
-}
-
-func jobAuthz(job *naisv1.Naisjob) ([]model.Authz, error) {
-	ret := make([]model.Authz, 0)
-	if job.Spec.Azure != nil {
-		isApp := job.Spec.Azure.Application != nil && job.Spec.Azure.Application.Enabled
-		if isApp {
-			azureAd := model.AzureAd{}
-			if err := convert(job.Spec.Azure, &azureAd); err != nil {
-				return nil, fmt.Errorf("converting azureAd: %w", err)
-			}
-			ret = append(ret, azureAd)
-		}
-	}
-
-	if job.Spec.Maskinporten != nil && job.Spec.Maskinporten.Enabled {
-		maskinporten := model.Maskinporten{}
-		if err := convert(job.Spec.Maskinporten, &maskinporten); err != nil {
-			return nil, fmt.Errorf("converting maskinporten: %w", err)
-		}
-		ret = append(ret, maskinporten)
 	}
 
 	return ret, nil

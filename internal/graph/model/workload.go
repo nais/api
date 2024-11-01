@@ -13,7 +13,6 @@ type WorkloadBase struct {
 	Image       string              `json:"image"`
 	Env         Env                 `json:"env"`
 	Status      WorkloadStatus      `json:"status"`
-	Authz       []Authz             `json:"authz"`
 	Variables   []*Variable         `json:"variables"`
 	Resources   Resources           `json:"resources"`
 	Utilization AppUtilization      `json:"utilization"`

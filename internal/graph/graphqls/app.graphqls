@@ -18,7 +18,6 @@ type App implements Workload {
   image: String!
   env: Env!
   status: WorkloadStatus!
-  authz: [Authz!]!
   variables: [Variable!]!
   resources: Resources!
   type: WorkloadType!

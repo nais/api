@@ -16,10 +16,6 @@ type AuthenticatedUser interface {
 	IsAuthenticatedUser()
 }
 
-type Authz interface {
-	IsAuthz()
-}
-
 type ScalingStrategy interface {
 	IsScalingStrategy()
 }
@@ -44,40 +40,11 @@ type AppsStatus struct {
 	Vulnerabilities int `json:"vulnerabilities"`
 }
 
-type AzureAd struct {
-	Application *AzureApplication `json:"application,omitempty"`
-	Sidecar     *Sidecar          `json:"sidecar,omitempty"`
-}
-
-func (AzureAd) IsAuthz() {}
-
-type AzureApplication struct {
-	AllowAllUsers         bool     `json:"allowAllUsers"`
-	Claims                Claims   `json:"claims"`
-	ReplyURLs             []string `json:"replyURLs"`
-	SinglePageApplication bool     `json:"singlePageApplication"`
-	Tenant                string   `json:"tenant"`
-}
-
 type CPUScalingStrategy struct {
 	Threshold int `json:"threshold"`
 }
 
 func (CPUScalingStrategy) IsScalingStrategy() {}
-
-type Claims struct {
-	Extra  []string `json:"extra"`
-	Groups []*Group `json:"groups"`
-}
-
-type Consume struct {
-	Name string `json:"name"`
-}
-
-type Consumer struct {
-	Name  string `json:"name"`
-	Orgno string `json:"orgno"`
-}
 
 type DeprecatedIngressError struct {
 	Revision string     `json:"revision"`
@@ -98,15 +65,6 @@ type DeprecatedRegistryError struct {
 
 func (DeprecatedRegistryError) IsStateError() {}
 
-type Expose struct {
-	AllowedIntegrations []string    `json:"allowedIntegrations"`
-	AtMaxAge            int         `json:"atMaxAge"`
-	Consumers           []*Consumer `json:"consumers"`
-	Enabled             bool        `json:"enabled"`
-	Name                string      `json:"name"`
-	Product             string      `json:"product"`
-}
-
 type FailedRunError struct {
 	Revision   string     `json:"revision"`
 	Level      ErrorLevel `json:"level"`
@@ -124,33 +82,6 @@ type GCPProject struct {
 	ProjectName string `json:"projectName"`
 	// The GCP project ID.
 	ProjectID string `json:"projectId"`
-}
-
-type Group struct {
-	ID string `json:"id"`
-}
-
-type IDPorten struct {
-	AccessTokenLifetime    *int             `json:"accessTokenLifetime,omitempty"`
-	ClientURI              *string          `json:"clientURI,omitempty"`
-	FrontchannelLogoutPath *string          `json:"frontchannelLogoutPath,omitempty"`
-	IntegrationType        *string          `json:"integrationType,omitempty"`
-	PostLogoutRedirectURIs []*string        `json:"postLogoutRedirectURIs,omitempty"`
-	RedirectPath           *string          `json:"redirectPath,omitempty"`
-	Scopes                 []*string        `json:"scopes,omitempty"`
-	SessionLifetime        *int             `json:"sessionLifetime,omitempty"`
-	Sidecar                *IDPortenSidecar `json:"sidecar,omitempty"`
-}
-
-func (IDPorten) IsAuthz() {}
-
-type IDPortenSidecar struct {
-	AutoLogin            *bool      `json:"autoLogin,omitempty"`
-	AutoLoginIgnorePaths []*string  `json:"autoLoginIgnorePaths,omitempty"`
-	Enabled              *bool      `json:"enabled,omitempty"`
-	Level                *string    `json:"level,omitempty"`
-	Locale               *string    `json:"locale,omitempty"`
-	Resources            *Resources `json:"resources,omitempty"`
 }
 
 type InboundAccessError struct {
@@ -186,18 +117,6 @@ func (KafkaLagScalingStrategy) IsScalingStrategy() {}
 type Limits struct {
 	CPU    string `json:"cpu"`
 	Memory string `json:"memory"`
-}
-
-type Maskinporten struct {
-	Scopes  MaskinportenScope `json:"scopes"`
-	Enabled bool              `json:"enabled"`
-}
-
-func (Maskinporten) IsAuthz() {}
-
-type MaskinportenScope struct {
-	Consumes []*Consume `json:"consumes"`
-	Exposes  []*Expose  `json:"exposes"`
 }
 
 type MissingSbomError struct {
@@ -281,12 +200,6 @@ type Scaling struct {
 	Strategies []ScalingStrategy `json:"strategies"`
 }
 
-type Sidecar struct {
-	AutoLogin            bool      `json:"autoLogin"`
-	AutoLoginIgnorePaths []string  `json:"autoLoginIgnorePaths"`
-	Resources            Resources `json:"resources"`
-}
-
 // Slack alerts channel type.
 type SlackAlertsChannel struct {
 	// The environment for the alerts sent to the channel.
@@ -325,12 +238,6 @@ type TeamMemberList struct {
 	Nodes    []*TeamMember `json:"nodes"`
 	PageInfo PageInfo      `json:"pageInfo"`
 }
-
-type TokenX struct {
-	MountSecretsAsFilesOnly bool `json:"mountSecretsAsFilesOnly"`
-}
-
-func (TokenX) IsAuthz() {}
 
 // Slack alerts channel input.
 type UpdateTeamSlackAlertsChannelInput struct {

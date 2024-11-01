@@ -4,7 +4,6 @@ interface Workload {
   image: String!
   env: Env!
   status: WorkloadStatus!
-  authz: [Authz!]!
   variables: [Variable!]!
   resources: Resources!
   team: Team!
