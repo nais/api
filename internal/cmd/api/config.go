@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/nais/api/internal/fixtures"
-	"github.com/nais/api/internal/k8s"
 	"github.com/sethvargo/go-envconfig"
 )
 
@@ -82,23 +81,6 @@ func (k *k8sConfig) ClusterList() ClusterList {
 	}
 
 	return clusters
-}
-
-func (k *k8sConfig) PkgConfig() k8s.Config {
-	return k8s.Config{
-		Clusters: k.Clusters,
-		StaticClusters: func() []k8s.StaticCluster {
-			var clusters []k8s.StaticCluster
-			for _, c := range k.StaticClusters {
-				clusters = append(clusters, k8s.StaticCluster{
-					Name:  c.Name,
-					Host:  c.Host,
-					Token: c.Token,
-				})
-			}
-			return clusters
-		}(),
-	}
 }
 
 func (c *StaticCluster) EnvDecode(value string) error {
