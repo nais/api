@@ -1178,7 +1178,7 @@ type ComplexityRoot struct {
 	}
 
 	Team struct {
-		Applications           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder) int
+		Applications           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) int
 		AuditEntries           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		AzureGroupID           func(childComplexity int) int
 		BigQueryDatasets       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) int
@@ -1988,7 +1988,7 @@ type TeamResolver interface {
 	Environment(ctx context.Context, obj *team.Team, name string) (*team.TeamEnvironment, error)
 	DeleteKey(ctx context.Context, obj *team.Team, key string) (*team.TeamDeleteKey, error)
 	InventoryCounts(ctx context.Context, obj *team.Team) (*team.TeamInventoryCounts, error)
-	Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder) (*pagination.Connection[*application.Application], error)
+	Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) (*pagination.Connection[*application.Application], error)
 	AuditEntries(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[auditv1.AuditEntry], error)
 	BigQueryDatasets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
 	Buckets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
@@ -6430,7 +6430,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Team.Applications(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*application.ApplicationOrder)), true
+		return e.complexity.Team.Applications(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*application.ApplicationOrder), args["filter"].(*application.TeamApplicationsFilter)), true
 
 	case "Team.auditEntries":
 		if e.complexity.Team.AuditEntries == nil {
@@ -8930,6 +8930,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSqlInstanceUserOrder,
 		ec.unmarshalInputSynchronizeTeamInput,
 		ec.unmarshalInputTeamCostDailyFilter,
+		ec.unmarshalInputTeamApplicationsFilter,
 		ec.unmarshalInputTeamMemberOrder,
 		ec.unmarshalInputTeamOrder,
 		ec.unmarshalInputTeamRepositoryFilter,
@@ -9075,6 +9076,9 @@ var sources = []*ast.Source{
 
 		"Ordering options for items returned from the connection."
 		orderBy: ApplicationOrder
+
+		"Filtering options for items returned from the connection."
+		filter: TeamApplicationsFilter
 	): ApplicationConnection!
 }
 
@@ -9147,6 +9151,10 @@ type Application implements Node & Workload {
 		"Get items before this cursor."
 		before: Cursor
 	): ApplicationInstanceConnection!
+}
+
+input TeamApplicationsFilter {
+	name: String!
 }
 
 type ApplicationManifest implements WorkloadManifest {
@@ -18451,6 +18459,11 @@ func (ec *executionContext) field_Team_applications_args(ctx context.Context, ra
 		return nil, err
 	}
 	args["orderBy"] = arg4
+	arg5, err := ec.field_Team_applications_argsFilter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg5
 	return args, nil
 }
 func (ec *executionContext) field_Team_applications_argsFirst(
@@ -18560,6 +18573,28 @@ func (ec *executionContext) field_Team_applications_argsOrderBy(
 	}
 
 	var zeroVal *application.ApplicationOrder
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Team_applications_argsFilter(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*application.TeamApplicationsFilter, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["filter"]
+	if !ok {
+		var zeroVal *application.TeamApplicationsFilter
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+	if tmp, ok := rawArgs["filter"]; ok {
+		return ec.unmarshalOTeamApplicationsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐTeamApplicationsFilter(ctx, tmp)
+	}
+
+	var zeroVal *application.TeamApplicationsFilter
 	return zeroVal, nil
 }
 
@@ -52125,7 +52160,7 @@ func (ec *executionContext) _Team_applications(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().Applications(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*application.ApplicationOrder))
+		return ec.resolvers.Team().Applications(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*application.ApplicationOrder), fc.Args["filter"].(*application.TeamApplicationsFilter))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -70711,6 +70746,33 @@ func (ec *executionContext) unmarshalInputTeamCostDailyFilter(ctx context.Contex
 				return it, err
 			}
 			it.Services = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTeamApplicationsFilter(ctx context.Context, obj interface{}) (application.TeamApplicationsFilter, error) {
+	var it application.TeamApplicationsFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
 		}
 	}
 
@@ -98211,6 +98273,14 @@ func (ec *executionContext) unmarshalOTeamCostDailyFilter2ᚖgithubᚗcomᚋnais
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputTeamCostDailyFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOTeamApplicationsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐTeamApplicationsFilter(ctx context.Context, v interface{}) (*application.TeamApplicationsFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTeamApplicationsFilter(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

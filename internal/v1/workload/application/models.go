@@ -445,3 +445,7 @@ type ApplicationInstanceStatus struct {
 	State   ApplicationInstanceState `json:"state"`
 	Message string                   `json:"message"`
 }
+
+type TeamApplicationsFilter struct {
+	Name string `json:"name"`
+}

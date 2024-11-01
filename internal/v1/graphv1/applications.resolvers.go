@@ -94,7 +94,11 @@ func (r *restartApplicationPayloadResolver) Application(ctx context.Context, obj
 	return application.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ApplicationName)
 }
 
-func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder) (*pagination.Connection[*application.Application], error) {
+func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) (*pagination.Connection[*application.Application], error) {
+	if filter == nil {
+		filter = &application.TeamApplicationsFilter{}
+	}
+
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -108,6 +112,8 @@ func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *
 	}
 
 	ret := application.ListAllForTeam(ctx, obj.Slug)
+	ret = application.SortFilter.Filter(ctx, ret, filter)
+
 	application.SortFilter.Sort(ctx, ret, orderBy.Field, orderBy.Direction)
 	apps := pagination.Slice(ret, page)
 	return pagination.NewConnection(apps, page, int32(len(ret))), nil

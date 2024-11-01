@@ -15,6 +15,9 @@ extend type Team {
 
 		"Ordering options for items returned from the connection."
 		orderBy: ApplicationOrder
+
+		"Filtering options for items returned from the connection."
+		filter: TeamApplicationsFilter
 	): ApplicationConnection!
 }
 
@@ -87,6 +90,10 @@ type Application implements Node & Workload {
 		"Get items before this cursor."
 		before: Cursor
 	): ApplicationInstanceConnection!
+}
+
+input TeamApplicationsFilter {
+	name: String!
 }
 
 type ApplicationManifest implements WorkloadManifest {
