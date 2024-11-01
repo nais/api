@@ -1,7 +1,9 @@
 package auth
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/nais/api/internal/auth/authz"
@@ -17,8 +19,22 @@ func InsecureUserHeaderV1(db database.Database) func(next http.Handler) http.Han
 
 			email := r.Header.Get("X-User-Email")
 			if email == "" {
-				next.ServeHTTP(w, r)
-				return
+				// Hack to allow introspection locally without a user
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					http.Error(w, jsonError("Unable to read request body"), http.StatusBadRequest)
+					return
+				}
+
+				// Recreate request with body
+				r.Body = io.NopCloser(bytes.NewReader(body))
+
+				if bytes.Contains(body, []byte("query IntrospectionQuery {")) {
+					email = "dev.usersen@example.com"
+				} else {
+					next.ServeHTTP(w, r)
+					return
+				}
 			}
 
 			usr, err := user.GetByEmail(ctx, email)
