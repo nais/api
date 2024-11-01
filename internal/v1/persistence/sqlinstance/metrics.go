@@ -14,16 +14,20 @@ import (
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 	"google.golang.org/genproto/googleapis/api/metric"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
 	cpuUtilization    metricType = "cloudsql.googleapis.com/database/cpu/utilization"
 	cpuCores          metricType = "cloudsql.googleapis.com/database/cpu/reserved_cores"
+	cpuUsage          metricType = "cloudsql.googleapis.com/database/cpu/usage_time"
 	memoryUtilization metricType = "cloudsql.googleapis.com/database/memory/utilization"
 	memoryQuota       metricType = "cloudsql.googleapis.com/database/memory/quota"
+	memoryUsage       metricType = "cloudsql.googleapis.com/database/memory/total_usage" // Includes buffer/cache, skip `total_` to exclude buffer/cache
 	diskUtilization   metricType = "cloudsql.googleapis.com/database/disk/utilization"
 	diskQuota         metricType = "cloudsql.googleapis.com/database/disk/quota"
+	diskUsage         metricType = "cloudsql.googleapis.com/database/disk/bytes_used"
 
 	filter metricsFilter = `metric.type="%s"
 		AND resource.type="cloudsql_database"`
@@ -40,10 +44,10 @@ type metricsQuery struct {
 }
 
 type Metrics struct {
-	monitoring  *monitoring.MetricClient
-	log         log.FieldLogger
-	defaultOpts *MetricsOptions
-	cache       *cache.Cache
+	monitoring *monitoring.MetricClient
+	log        log.FieldLogger
+	cache      *cache.Cache
+	sumCache   *cache.Cache
 }
 
 type MetricsOptions struct {
@@ -54,7 +58,10 @@ type MetricsOptions struct {
 
 type Option func(*MetricsOptions)
 
-type teamMetricsCache = map[metricType]map[string]float64
+type (
+	teamMetricsCache    = map[metricType]map[string]float64
+	teamSumMetricsCache = map[metricType]float64
+)
 
 func NewMetrics(ctx context.Context, log log.FieldLogger, opts ...option.ClientOption) (*Metrics, error) {
 	client, err := monitoring.NewMetricClient(ctx, opts...)
@@ -65,23 +72,24 @@ func NewMetrics(ctx context.Context, log log.FieldLogger, opts ...option.ClientO
 	return &Metrics{
 		monitoring: client,
 		log:        log,
-		defaultOpts: &MetricsOptions{
-			interval: &monitoringpb.TimeInterval{
-				StartTime: timestamppb.New(time.Now().Add(-1 * time.Hour)),
-				EndTime:   timestamppb.New(time.Now()),
-			},
-		},
-		cache: cache.New(30*time.Minute, 40*time.Minute),
+		cache:      cache.New(30*time.Minute, 40*time.Minute),
+		sumCache:   cache.New(30*time.Minute, 40*time.Minute),
 	}, nil
 }
 
-func WithDefaultQuery(metricType metricType) Option {
+func withDefaultQuery(metricType metricType) Option {
 	return func(o *MetricsOptions) {
 		q := &metricsQuery{
 			MetricType: metricType,
 		}
 		q.Filter = fmt.Sprintf(filter, metricType)
 		o.query = q
+	}
+}
+
+func withAggregation(a *monitoringpb.Aggregation) Option {
+	return func(o *MetricsOptions) {
+		o.aggregation = a
 	}
 }
 
@@ -100,7 +108,7 @@ func (m *Metrics) averageForTeam(ctx context.Context, projectID string, metricTy
 		}
 	}
 
-	ts, err := m.listTimeSeries(ctx, projectID, WithDefaultQuery(metricType))
+	ts, err := m.listTimeSeries(ctx, projectID, withDefaultQuery(metricType))
 	if err != nil {
 		return nil, err
 	}
@@ -156,8 +164,54 @@ func (m *Metrics) average(metricType metricType, ts []*monitoringpb.TimeSeries) 
 	return averages
 }
 
+func (m *Metrics) sumForTeam(ctx context.Context, projectID string, metric metricType) (float64, error) {
+	entry, found := m.sumCache.Get(projectID)
+	tc := teamSumMetricsCache{}
+	if found {
+		tc = entry.(teamSumMetricsCache)
+		if idToMetricValues, found := tc[metric]; found {
+			m.log.Debugf("found metrics in cache for metricType %q", metric)
+			return idToMetricValues, nil
+		}
+	}
+
+	perSeriesAligner := monitoringpb.Aggregation_ALIGN_RATE
+	switch metric {
+	case memoryUsage, diskUsage, cpuCores, diskQuota, memoryQuota:
+		perSeriesAligner = monitoringpb.Aggregation_ALIGN_MEAN
+	}
+
+	ts, err := m.listTimeSeries(ctx, projectID, withDefaultQuery(metric), withAggregation(&monitoringpb.Aggregation{
+		CrossSeriesReducer: monitoringpb.Aggregation_REDUCE_SUM,
+		PerSeriesAligner:   perSeriesAligner,
+		AlignmentPeriod:    &durationpb.Duration{Seconds: 60},
+	}))
+	if err != nil {
+		fmt.Println(metric, "\n", err)
+		return 0, err
+	}
+
+	sum := 0.0
+	if len(ts) > 0 {
+		t := ts[0]
+		if len(t.Points) > 0 {
+			sum = t.Points[len(t.Points)-1].Value.GetDoubleValue()
+		}
+	}
+	tc[metric] = sum
+
+	m.sumCache.Set(projectID, tc, cache.DefaultExpiration)
+
+	return sum, nil
+}
+
 func (m *Metrics) listTimeSeries(ctx context.Context, projectID string, opts ...Option) ([]*monitoringpb.TimeSeries, error) {
-	options := m.defaultOpts
+	options := &MetricsOptions{
+		interval: &monitoringpb.TimeInterval{
+			StartTime: timestamppb.New(time.Now().Add(-1 * time.Hour)),
+			EndTime:   timestamppb.New(time.Now()),
+		},
+	}
 	for _, o := range opts {
 		o(options)
 	}
@@ -224,6 +278,75 @@ func (m *Metrics) memoryForSQLInstance(ctx context.Context, projectID, name stri
 	return &SQLInstanceMemory{
 		Utilization: memory * 100,
 		QuotaBytes:  int(memoryQuota),
+	}, nil
+}
+
+func (m *Metrics) teamSummaryCPU(ctx context.Context, projectID string) (*TeamServiceUtilizationSQLInstancesCPU, error) {
+	usage, err := m.sumForTeam(ctx, projectID, cpuUsage)
+	if err != nil {
+		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+	}
+
+	cores, err := m.sumForTeam(ctx, projectID, cpuCores)
+	if err != nil {
+		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+	}
+
+	utilization := 0.0
+	if cores > 0 {
+		utilization = usage / cores
+	}
+
+	return &TeamServiceUtilizationSQLInstancesCPU{
+		Used:        usage,
+		Requested:   cores,
+		Utilization: utilization,
+	}, nil
+}
+
+func (m *Metrics) teamSummaryMemory(ctx context.Context, projectID string) (*TeamServiceUtilizationSQLInstancesMemory, error) {
+	usage, err := m.sumForTeam(ctx, projectID, memoryUsage)
+	if err != nil {
+		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+	}
+
+	quota, err := m.sumForTeam(ctx, projectID, memoryQuota)
+	if err != nil {
+		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+	}
+
+	utilization := 0.0
+	if quota > 0 {
+		utilization = usage / quota
+	}
+
+	return &TeamServiceUtilizationSQLInstancesMemory{
+		Used:        int(usage),
+		Requested:   int(quota),
+		Utilization: utilization,
+	}, nil
+}
+
+func (m *Metrics) teamSummaryDisk(ctx context.Context, projectID string) (*TeamServiceUtilizationSQLInstancesDisk, error) {
+	usage, err := m.sumForTeam(ctx, projectID, diskUsage)
+	if err != nil {
+		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+	}
+
+	quota, err := m.sumForTeam(ctx, projectID, diskQuota)
+	if err != nil {
+		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+	}
+
+	utilization := 0.0
+	if quota > 0 {
+		utilization = usage / quota
+	}
+
+	return &TeamServiceUtilizationSQLInstancesDisk{
+		Used:        int(usage),
+		Requested:   int(quota),
+		Utilization: utilization,
 	}, nil
 }
 

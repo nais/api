@@ -4,11 +4,14 @@ extend type Application {
 
 extend type Team {
 	workloadUtilization(resourceType: UtilizationResourceType!): [WorkloadUtilizationData]!
+	serviceUtilization: TeamServiceUtilization!
 }
 
 extend type Query {
 	teamsUtilization(resourceType: UtilizationResourceType!): [TeamUtilizationData!]!
 }
+
+type TeamServiceUtilization
 
 type WorkloadUtilizationData {
 	"The workload."

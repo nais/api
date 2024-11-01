@@ -9,6 +9,7 @@ import (
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
 	"github.com/nais/api/internal/v1/persistence/sqlinstance"
 	"github.com/nais/api/internal/v1/team"
+	"github.com/nais/api/internal/v1/utilization"
 	"github.com/nais/api/internal/v1/workload"
 	"github.com/nais/api/internal/v1/workload/application"
 	"github.com/nais/api/internal/v1/workload/job"
@@ -122,6 +123,79 @@ func (r *teamInventoryCountsResolver) SQLInstances(ctx context.Context, obj *tea
 	}, nil
 }
 
+func (r *teamServiceUtilizationResolver) SQLInstances(ctx context.Context, obj *utilization.TeamServiceUtilization) (*sqlinstance.TeamServiceUtilizationSQLInstances, error) {
+	envs, err := team.ListTeamEnvironments(ctx, obj.TeamSlug)
+	if err != nil {
+		return nil, err
+	}
+
+	var gcpProjectIDs []string
+	for _, env := range envs {
+		if env.GCPProjectID != nil {
+			gcpProjectIDs = append(gcpProjectIDs, *env.GCPProjectID)
+		}
+	}
+
+	return &sqlinstance.TeamServiceUtilizationSQLInstances{
+		TeamSlug:   obj.TeamSlug,
+		ProjectIDs: gcpProjectIDs,
+	}, nil
+}
+
+func (r *teamServiceUtilizationSqlInstancesResolver) CPU(ctx context.Context, obj *sqlinstance.TeamServiceUtilizationSQLInstances) (*sqlinstance.TeamServiceUtilizationSQLInstancesCPU, error) {
+	ret := &sqlinstance.TeamServiceUtilizationSQLInstancesCPU{}
+	for _, projectID := range obj.ProjectIDs {
+		r, err := sqlinstance.TeamSummaryCPU(ctx, projectID)
+		if err != nil {
+			return nil, err
+		}
+		ret.Used += r.Used
+		ret.Requested += r.Requested
+	}
+
+	if ret.Requested > 0 {
+		ret.Utilization = ret.Used / ret.Requested
+	}
+
+	return ret, nil
+}
+
+func (r *teamServiceUtilizationSqlInstancesResolver) Memory(ctx context.Context, obj *sqlinstance.TeamServiceUtilizationSQLInstances) (*sqlinstance.TeamServiceUtilizationSQLInstancesMemory, error) {
+	ret := &sqlinstance.TeamServiceUtilizationSQLInstancesMemory{}
+	for _, projectID := range obj.ProjectIDs {
+		r, err := sqlinstance.TeamSummaryMemory(ctx, projectID)
+		if err != nil {
+			return nil, err
+		}
+		ret.Used += r.Used
+		ret.Requested += r.Requested
+	}
+
+	if ret.Requested > 0 {
+		ret.Utilization = float64(ret.Used) / float64(ret.Requested)
+	}
+
+	return ret, nil
+}
+
+func (r *teamServiceUtilizationSqlInstancesResolver) Disk(ctx context.Context, obj *sqlinstance.TeamServiceUtilizationSQLInstances) (*sqlinstance.TeamServiceUtilizationSQLInstancesDisk, error) {
+	ret := &sqlinstance.TeamServiceUtilizationSQLInstancesDisk{}
+	for _, projectID := range obj.ProjectIDs {
+		r, err := sqlinstance.TeamSummaryDisk(ctx, projectID)
+		if err != nil {
+			return nil, err
+		}
+		ret.Used += r.Used
+		ret.Requested += r.Requested
+	}
+
+	if ret.Requested > 0 {
+		ret.Utilization = float64(ret.Used) / float64(ret.Requested)
+	}
+
+	return ret, nil
+}
+
 func (r *Resolver) SqlDatabase() gengqlv1.SqlDatabaseResolver { return &sqlDatabaseResolver{r} }
 
 func (r *Resolver) SqlInstance() gengqlv1.SqlInstanceResolver { return &sqlInstanceResolver{r} }
@@ -130,8 +204,13 @@ func (r *Resolver) SqlInstanceMetrics() gengqlv1.SqlInstanceMetricsResolver {
 	return &sqlInstanceMetricsResolver{r}
 }
 
+func (r *Resolver) TeamServiceUtilizationSqlInstances() gengqlv1.TeamServiceUtilizationSqlInstancesResolver {
+	return &teamServiceUtilizationSqlInstancesResolver{r}
+}
+
 type (
-	sqlDatabaseResolver        struct{ *Resolver }
-	sqlInstanceResolver        struct{ *Resolver }
-	sqlInstanceMetricsResolver struct{ *Resolver }
+	sqlDatabaseResolver                        struct{ *Resolver }
+	sqlInstanceResolver                        struct{ *Resolver }
+	sqlInstanceMetricsResolver                 struct{ *Resolver }
+	teamServiceUtilizationSqlInstancesResolver struct{ *Resolver }
 )

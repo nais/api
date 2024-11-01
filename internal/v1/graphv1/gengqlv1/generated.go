@@ -112,6 +112,8 @@ type ResolverRoot interface {
 	TeamMemberAddedAuditEntryData() TeamMemberAddedAuditEntryDataResolver
 	TeamMemberRemovedAuditEntryData() TeamMemberRemovedAuditEntryDataResolver
 	TeamMemberSetRoleAuditEntryData() TeamMemberSetRoleAuditEntryDataResolver
+	TeamServiceUtilization() TeamServiceUtilizationResolver
+	TeamServiceUtilizationSqlInstances() TeamServiceUtilizationSqlInstancesResolver
 	TeamUtilizationData() TeamUtilizationDataResolver
 	TeamUtilizationEnvironmentDataPoint() TeamUtilizationEnvironmentDataPointResolver
 	TeamVulnerabilitySummary() TeamVulnerabilitySummaryResolver
@@ -1205,6 +1207,7 @@ type ComplexityRoot struct {
 		Repositories           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *repository.TeamRepositoryFilter) int
 		SQLInstances           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) int
 		Secrets                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder) int
+		ServiceUtilization     func(childComplexity int) int
 		SlackChannel           func(childComplexity int) int
 		Slug                   func(childComplexity int) int
 		Unleash                func(childComplexity int) int
@@ -1454,6 +1457,34 @@ type ComplexityRoot struct {
 		User      func(childComplexity int) int
 		UserEmail func(childComplexity int) int
 		UserID    func(childComplexity int) int
+	}
+
+	TeamServiceUtilization struct {
+		SQLInstances func(childComplexity int) int
+	}
+
+	TeamServiceUtilizationSqlInstances struct {
+		CPU    func(childComplexity int) int
+		Disk   func(childComplexity int) int
+		Memory func(childComplexity int) int
+	}
+
+	TeamServiceUtilizationSqlInstancesCPU struct {
+		Requested   func(childComplexity int) int
+		Used        func(childComplexity int) int
+		Utilization func(childComplexity int) int
+	}
+
+	TeamServiceUtilizationSqlInstancesDisk struct {
+		Requested   func(childComplexity int) int
+		Used        func(childComplexity int) int
+		Utilization func(childComplexity int) int
+	}
+
+	TeamServiceUtilizationSqlInstancesMemory struct {
+		Requested   func(childComplexity int) int
+		Used        func(childComplexity int) int
+		Utilization func(childComplexity int) int
 	}
 
 	TeamUpdatedAuditEntry struct {
@@ -1973,6 +2004,7 @@ type TeamResolver interface {
 	SQLInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
 	Unleash(ctx context.Context, obj *team.Team) (*unleash.UnleashInstance, error)
 	WorkloadUtilization(ctx context.Context, obj *team.Team, resourceType utilization.UtilizationResourceType) ([]*utilization.WorkloadUtilizationData, error)
+	ServiceUtilization(ctx context.Context, obj *team.Team) (*utilization.TeamServiceUtilization, error)
 	VulnerabilitySummary(ctx context.Context, obj *team.Team) (*vulnerability.TeamVulnerabilitySummary, error)
 	Workloads(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) (*pagination.Connection[workload.Workload], error)
 }
@@ -2023,6 +2055,14 @@ type TeamMemberRemovedAuditEntryDataResolver interface {
 }
 type TeamMemberSetRoleAuditEntryDataResolver interface {
 	User(ctx context.Context, obj *team.TeamMemberSetRoleAuditEntryData) (*user.User, error)
+}
+type TeamServiceUtilizationResolver interface {
+	SQLInstances(ctx context.Context, obj *utilization.TeamServiceUtilization) (*sqlinstance.TeamServiceUtilizationSQLInstances, error)
+}
+type TeamServiceUtilizationSqlInstancesResolver interface {
+	CPU(ctx context.Context, obj *sqlinstance.TeamServiceUtilizationSQLInstances) (*sqlinstance.TeamServiceUtilizationSQLInstancesCPU, error)
+	Memory(ctx context.Context, obj *sqlinstance.TeamServiceUtilizationSQLInstances) (*sqlinstance.TeamServiceUtilizationSQLInstancesMemory, error)
+	Disk(ctx context.Context, obj *sqlinstance.TeamServiceUtilizationSQLInstances) (*sqlinstance.TeamServiceUtilizationSQLInstancesDisk, error)
 }
 type TeamUtilizationDataResolver interface {
 	Team(ctx context.Context, obj *utilization.TeamUtilizationData) (*team.Team, error)
@@ -6663,6 +6703,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.Secrets(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*secret.SecretOrder)), true
 
+	case "Team.serviceUtilization":
+		if e.complexity.Team.ServiceUtilization == nil {
+			break
+		}
+
+		return e.complexity.Team.ServiceUtilization(childComplexity), true
+
 	case "Team.slackChannel":
 		if e.complexity.Team.SlackChannel == nil {
 			break
@@ -7761,6 +7808,97 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamMemberSetRoleAuditEntryData.UserID(childComplexity), true
+
+	case "TeamServiceUtilization.sqlInstances":
+		if e.complexity.TeamServiceUtilization.SQLInstances == nil {
+			break
+		}
+
+		return e.complexity.TeamServiceUtilization.SQLInstances(childComplexity), true
+
+	case "TeamServiceUtilizationSqlInstances.cpu":
+		if e.complexity.TeamServiceUtilizationSqlInstances.CPU == nil {
+			break
+		}
+
+		return e.complexity.TeamServiceUtilizationSqlInstances.CPU(childComplexity), true
+
+	case "TeamServiceUtilizationSqlInstances.disk":
+		if e.complexity.TeamServiceUtilizationSqlInstances.Disk == nil {
+			break
+		}
+
+		return e.complexity.TeamServiceUtilizationSqlInstances.Disk(childComplexity), true
+
+	case "TeamServiceUtilizationSqlInstances.memory":
+		if e.complexity.TeamServiceUtilizationSqlInstances.Memory == nil {
+			break
+		}
+
+		return e.complexity.TeamServiceUtilizationSqlInstances.Memory(childComplexity), true
+
+	case "TeamServiceUtilizationSqlInstancesCPU.requested":
+		if e.complexity.TeamServiceUtilizationSqlInstancesCPU.Requested == nil {
+			break
+		}
+
+		return e.complexity.TeamServiceUtilizationSqlInstancesCPU.Requested(childComplexity), true
+
+	case "TeamServiceUtilizationSqlInstancesCPU.used":
+		if e.complexity.TeamServiceUtilizationSqlInstancesCPU.Used == nil {
+			break
+		}
+
+		return e.complexity.TeamServiceUtilizationSqlInstancesCPU.Used(childComplexity), true
+
+	case "TeamServiceUtilizationSqlInstancesCPU.utilization":
+		if e.complexity.TeamServiceUtilizationSqlInstancesCPU.Utilization == nil {
+			break
+		}
+
+		return e.complexity.TeamServiceUtilizationSqlInstancesCPU.Utilization(childComplexity), true
+
+	case "TeamServiceUtilizationSqlInstancesDisk.requested":
+		if e.complexity.TeamServiceUtilizationSqlInstancesDisk.Requested == nil {
+			break
+		}
+
+		return e.complexity.TeamServiceUtilizationSqlInstancesDisk.Requested(childComplexity), true
+
+	case "TeamServiceUtilizationSqlInstancesDisk.used":
+		if e.complexity.TeamServiceUtilizationSqlInstancesDisk.Used == nil {
+			break
+		}
+
+		return e.complexity.TeamServiceUtilizationSqlInstancesDisk.Used(childComplexity), true
+
+	case "TeamServiceUtilizationSqlInstancesDisk.utilization":
+		if e.complexity.TeamServiceUtilizationSqlInstancesDisk.Utilization == nil {
+			break
+		}
+
+		return e.complexity.TeamServiceUtilizationSqlInstancesDisk.Utilization(childComplexity), true
+
+	case "TeamServiceUtilizationSqlInstancesMemory.requested":
+		if e.complexity.TeamServiceUtilizationSqlInstancesMemory.Requested == nil {
+			break
+		}
+
+		return e.complexity.TeamServiceUtilizationSqlInstancesMemory.Requested(childComplexity), true
+
+	case "TeamServiceUtilizationSqlInstancesMemory.used":
+		if e.complexity.TeamServiceUtilizationSqlInstancesMemory.Used == nil {
+			break
+		}
+
+		return e.complexity.TeamServiceUtilizationSqlInstancesMemory.Used(childComplexity), true
+
+	case "TeamServiceUtilizationSqlInstancesMemory.utilization":
+		if e.complexity.TeamServiceUtilizationSqlInstancesMemory.Utilization == nil {
+			break
+		}
+
+		return e.complexity.TeamServiceUtilizationSqlInstancesMemory.Utilization(childComplexity), true
 
 	case "TeamUpdatedAuditEntry.actor":
 		if e.complexity.TeamUpdatedAuditEntry.Actor == nil {
@@ -11528,6 +11666,34 @@ type SecretDeletedAuditEntry implements AuditEntry & Node {
 	): SqlInstanceConnection!
 }
 
+extend type TeamServiceUtilization {
+	sqlInstances: TeamServiceUtilizationSqlInstances!
+}
+
+type TeamServiceUtilizationSqlInstances {
+	cpu: TeamServiceUtilizationSqlInstancesCPU!
+	memory: TeamServiceUtilizationSqlInstancesMemory!
+	disk: TeamServiceUtilizationSqlInstancesDisk!
+}
+
+type TeamServiceUtilizationSqlInstancesCPU {
+	used: Float!
+	requested: Float!
+	utilization: Float!
+}
+
+type TeamServiceUtilizationSqlInstancesMemory {
+	used: Int!
+	requested: Int!
+	utilization: Float!
+}
+
+type TeamServiceUtilizationSqlInstancesDisk {
+	used: Int!
+	requested: Int!
+	utilization: Float!
+}
+
 extend type TeamEnvironment {
 	"SQL instance in the team environment."
 	sqlInstance(name: String!): SqlInstance!
@@ -12947,11 +13113,14 @@ union AuthenticatedUser = User #| ServiceAccount
 
 extend type Team {
 	workloadUtilization(resourceType: UtilizationResourceType!): [WorkloadUtilizationData]!
+	serviceUtilization: TeamServiceUtilization!
 }
 
 extend type Query {
 	teamsUtilization(resourceType: UtilizationResourceType!): [TeamUtilizationData!]!
 }
+
+type TeamServiceUtilization
 
 type WorkloadUtilizationData {
 	"The workload."
@@ -21212,6 +21381,8 @@ func (ec *executionContext) fieldContext_Application_team(_ context.Context, fie
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -24058,6 +24229,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(_ context.Context,
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -25388,6 +25561,8 @@ func (ec *executionContext) fieldContext_Bucket_team(_ context.Context, field gr
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -26982,6 +27157,8 @@ func (ec *executionContext) fieldContext_CreateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -27158,6 +27335,8 @@ func (ec *executionContext) fieldContext_DeleteApplicationPayload_team(_ context
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -27316,6 +27495,8 @@ func (ec *executionContext) fieldContext_DeleteJobPayload_team(_ context.Context
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -27562,6 +27743,8 @@ func (ec *executionContext) fieldContext_Deployment_team(_ context.Context, fiel
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -31013,6 +31196,8 @@ func (ec *executionContext) fieldContext_Job_team(_ context.Context, field graph
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -34043,6 +34228,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_team(_ context.Context, fiel
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -34584,6 +34771,8 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_team(_ context.Context, f
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -37697,6 +37886,8 @@ func (ec *executionContext) fieldContext_NetworkPolicyRule_targetTeam(_ context.
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -37949,6 +38140,8 @@ func (ec *executionContext) fieldContext_OpenSearch_team(_ context.Context, fiel
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -39698,6 +39891,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -41255,6 +41450,8 @@ func (ec *executionContext) fieldContext_ReconcilerError_team(_ context.Context,
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -41725,6 +41922,8 @@ func (ec *executionContext) fieldContext_RedisInstance_team(_ context.Context, f
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -42987,6 +43186,8 @@ func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_team(_ context.
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -43195,6 +43396,8 @@ func (ec *executionContext) fieldContext_Repository_team(_ context.Context, fiel
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -44180,6 +44383,8 @@ func (ec *executionContext) fieldContext_Secret_team(_ context.Context, field gr
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -47384,6 +47589,8 @@ func (ec *executionContext) fieldContext_SqlDatabase_team(_ context.Context, fie
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -47837,6 +48044,8 @@ func (ec *executionContext) fieldContext_SqlInstance_team(_ context.Context, fie
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -50913,6 +51122,8 @@ func (ec *executionContext) fieldContext_SynchronizeTeamPayload_team(_ context.C
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -52879,6 +53090,54 @@ func (ec *executionContext) fieldContext_Team_workloadUtilization(ctx context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_serviceUtilization(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_serviceUtilization(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().ServiceUtilization(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*utilization.TeamServiceUtilization)
+	fc.Result = res
+	return ec.marshalNTeamServiceUtilization2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋutilizationᚐTeamServiceUtilization(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_serviceUtilization(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "sqlInstances":
+				return ec.fieldContext_TeamServiceUtilization_sqlInstances(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamServiceUtilization", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_vulnerabilitySummary(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 	if err != nil {
@@ -53526,6 +53785,8 @@ func (ec *executionContext) fieldContext_TeamConnection_nodes(_ context.Context,
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -54973,6 +55234,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(_ context.Context, f
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -55137,6 +55400,8 @@ func (ec *executionContext) fieldContext_TeamEdge_node(_ context.Context, field 
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -55430,6 +55695,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_team(_ context.Context,
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -58012,6 +58279,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, fiel
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -60107,6 +60376,610 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntryData_user(_ 
 	return fc, nil
 }
 
+func (ec *executionContext) _TeamServiceUtilization_sqlInstances(ctx context.Context, field graphql.CollectedField, obj *utilization.TeamServiceUtilization) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamServiceUtilization_sqlInstances(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamServiceUtilization().SQLInstances(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*sqlinstance.TeamServiceUtilizationSQLInstances)
+	fc.Result = res
+	return ec.marshalNTeamServiceUtilizationSqlInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstances(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamServiceUtilization_sqlInstances(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamServiceUtilization",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cpu":
+				return ec.fieldContext_TeamServiceUtilizationSqlInstances_cpu(ctx, field)
+			case "memory":
+				return ec.fieldContext_TeamServiceUtilizationSqlInstances_memory(ctx, field)
+			case "disk":
+				return ec.fieldContext_TeamServiceUtilizationSqlInstances_disk(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamServiceUtilizationSqlInstances", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamServiceUtilizationSqlInstances_cpu(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstances) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamServiceUtilizationSqlInstances_cpu(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamServiceUtilizationSqlInstances().CPU(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*sqlinstance.TeamServiceUtilizationSQLInstancesCPU)
+	fc.Result = res
+	return ec.marshalNTeamServiceUtilizationSqlInstancesCPU2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesCPU(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstances_cpu(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamServiceUtilizationSqlInstances",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "used":
+				return ec.fieldContext_TeamServiceUtilizationSqlInstancesCPU_used(ctx, field)
+			case "requested":
+				return ec.fieldContext_TeamServiceUtilizationSqlInstancesCPU_requested(ctx, field)
+			case "utilization":
+				return ec.fieldContext_TeamServiceUtilizationSqlInstancesCPU_utilization(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamServiceUtilizationSqlInstancesCPU", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamServiceUtilizationSqlInstances_memory(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstances) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamServiceUtilizationSqlInstances_memory(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamServiceUtilizationSqlInstances().Memory(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*sqlinstance.TeamServiceUtilizationSQLInstancesMemory)
+	fc.Result = res
+	return ec.marshalNTeamServiceUtilizationSqlInstancesMemory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesMemory(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstances_memory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamServiceUtilizationSqlInstances",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "used":
+				return ec.fieldContext_TeamServiceUtilizationSqlInstancesMemory_used(ctx, field)
+			case "requested":
+				return ec.fieldContext_TeamServiceUtilizationSqlInstancesMemory_requested(ctx, field)
+			case "utilization":
+				return ec.fieldContext_TeamServiceUtilizationSqlInstancesMemory_utilization(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamServiceUtilizationSqlInstancesMemory", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamServiceUtilizationSqlInstances_disk(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstances) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamServiceUtilizationSqlInstances_disk(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamServiceUtilizationSqlInstances().Disk(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*sqlinstance.TeamServiceUtilizationSQLInstancesDisk)
+	fc.Result = res
+	return ec.marshalNTeamServiceUtilizationSqlInstancesDisk2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesDisk(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstances_disk(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamServiceUtilizationSqlInstances",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "used":
+				return ec.fieldContext_TeamServiceUtilizationSqlInstancesDisk_used(ctx, field)
+			case "requested":
+				return ec.fieldContext_TeamServiceUtilizationSqlInstancesDisk_requested(ctx, field)
+			case "utilization":
+				return ec.fieldContext_TeamServiceUtilizationSqlInstancesDisk_utilization(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamServiceUtilizationSqlInstancesDisk", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamServiceUtilizationSqlInstancesCPU_used(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesCPU) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamServiceUtilizationSqlInstancesCPU_used(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Used, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesCPU_used(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamServiceUtilizationSqlInstancesCPU",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamServiceUtilizationSqlInstancesCPU_requested(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesCPU) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamServiceUtilizationSqlInstancesCPU_requested(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Requested, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesCPU_requested(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamServiceUtilizationSqlInstancesCPU",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamServiceUtilizationSqlInstancesCPU_utilization(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesCPU) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamServiceUtilizationSqlInstancesCPU_utilization(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Utilization, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesCPU_utilization(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamServiceUtilizationSqlInstancesCPU",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamServiceUtilizationSqlInstancesDisk_used(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesDisk) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamServiceUtilizationSqlInstancesDisk_used(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Used, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesDisk_used(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamServiceUtilizationSqlInstancesDisk",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamServiceUtilizationSqlInstancesDisk_requested(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesDisk) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamServiceUtilizationSqlInstancesDisk_requested(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Requested, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesDisk_requested(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamServiceUtilizationSqlInstancesDisk",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamServiceUtilizationSqlInstancesDisk_utilization(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesDisk) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamServiceUtilizationSqlInstancesDisk_utilization(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Utilization, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesDisk_utilization(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamServiceUtilizationSqlInstancesDisk",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamServiceUtilizationSqlInstancesMemory_used(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesMemory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamServiceUtilizationSqlInstancesMemory_used(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Used, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesMemory_used(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamServiceUtilizationSqlInstancesMemory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamServiceUtilizationSqlInstancesMemory_requested(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesMemory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamServiceUtilizationSqlInstancesMemory_requested(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Requested, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesMemory_requested(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamServiceUtilizationSqlInstancesMemory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamServiceUtilizationSqlInstancesMemory_utilization(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesMemory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamServiceUtilizationSqlInstancesMemory_utilization(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Utilization, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesMemory_utilization(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamServiceUtilizationSqlInstancesMemory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TeamUpdatedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedAuditEntry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamUpdatedAuditEntry_id(ctx, field)
 	if err != nil {
@@ -60788,6 +61661,8 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_team(_ context.Cont
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -63581,6 +64456,8 @@ func (ec *executionContext) fieldContext_UpdateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_unleash(ctx, field)
 			case "workloadUtilization":
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -83654,6 +84531,42 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "serviceUtilization":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_serviceUtilization(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "vulnerabilitySummary":
 			field := field
 
@@ -86468,6 +87381,365 @@ func (ec *executionContext) _TeamMemberSetRoleAuditEntryData(ctx context.Context
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamServiceUtilizationImplementors = []string{"TeamServiceUtilization"}
+
+func (ec *executionContext) _TeamServiceUtilization(ctx context.Context, sel ast.SelectionSet, obj *utilization.TeamServiceUtilization) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamServiceUtilizationImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamServiceUtilization")
+		case "sqlInstances":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamServiceUtilization_sqlInstances(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamServiceUtilizationSqlInstancesImplementors = []string{"TeamServiceUtilizationSqlInstances"}
+
+func (ec *executionContext) _TeamServiceUtilizationSqlInstances(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.TeamServiceUtilizationSQLInstances) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamServiceUtilizationSqlInstancesImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamServiceUtilizationSqlInstances")
+		case "cpu":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamServiceUtilizationSqlInstances_cpu(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "memory":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamServiceUtilizationSqlInstances_memory(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "disk":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamServiceUtilizationSqlInstances_disk(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamServiceUtilizationSqlInstancesCPUImplementors = []string{"TeamServiceUtilizationSqlInstancesCPU"}
+
+func (ec *executionContext) _TeamServiceUtilizationSqlInstancesCPU(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.TeamServiceUtilizationSQLInstancesCPU) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamServiceUtilizationSqlInstancesCPUImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamServiceUtilizationSqlInstancesCPU")
+		case "used":
+			out.Values[i] = ec._TeamServiceUtilizationSqlInstancesCPU_used(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "requested":
+			out.Values[i] = ec._TeamServiceUtilizationSqlInstancesCPU_requested(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "utilization":
+			out.Values[i] = ec._TeamServiceUtilizationSqlInstancesCPU_utilization(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamServiceUtilizationSqlInstancesDiskImplementors = []string{"TeamServiceUtilizationSqlInstancesDisk"}
+
+func (ec *executionContext) _TeamServiceUtilizationSqlInstancesDisk(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.TeamServiceUtilizationSQLInstancesDisk) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamServiceUtilizationSqlInstancesDiskImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamServiceUtilizationSqlInstancesDisk")
+		case "used":
+			out.Values[i] = ec._TeamServiceUtilizationSqlInstancesDisk_used(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "requested":
+			out.Values[i] = ec._TeamServiceUtilizationSqlInstancesDisk_requested(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "utilization":
+			out.Values[i] = ec._TeamServiceUtilizationSqlInstancesDisk_utilization(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamServiceUtilizationSqlInstancesMemoryImplementors = []string{"TeamServiceUtilizationSqlInstancesMemory"}
+
+func (ec *executionContext) _TeamServiceUtilizationSqlInstancesMemory(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.TeamServiceUtilizationSQLInstancesMemory) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamServiceUtilizationSqlInstancesMemoryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamServiceUtilizationSqlInstancesMemory")
+		case "used":
+			out.Values[i] = ec._TeamServiceUtilizationSqlInstancesMemory_used(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "requested":
+			out.Values[i] = ec._TeamServiceUtilizationSqlInstancesMemory_requested(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "utilization":
+			out.Values[i] = ec._TeamServiceUtilizationSqlInstancesMemory_utilization(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -95286,6 +96558,76 @@ func (ec *executionContext) unmarshalNTeamOrderField2githubᚗcomᚋnaisᚋapi�
 
 func (ec *executionContext) marshalNTeamOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamOrderField(ctx context.Context, sel ast.SelectionSet, v team.TeamOrderField) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) marshalNTeamServiceUtilization2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋutilizationᚐTeamServiceUtilization(ctx context.Context, sel ast.SelectionSet, v utilization.TeamServiceUtilization) graphql.Marshaler {
+	return ec._TeamServiceUtilization(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamServiceUtilization2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋutilizationᚐTeamServiceUtilization(ctx context.Context, sel ast.SelectionSet, v *utilization.TeamServiceUtilization) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamServiceUtilization(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamServiceUtilizationSqlInstances2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstances(ctx context.Context, sel ast.SelectionSet, v sqlinstance.TeamServiceUtilizationSQLInstances) graphql.Marshaler {
+	return ec._TeamServiceUtilizationSqlInstances(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamServiceUtilizationSqlInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstances(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.TeamServiceUtilizationSQLInstances) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamServiceUtilizationSqlInstances(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamServiceUtilizationSqlInstancesCPU2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesCPU(ctx context.Context, sel ast.SelectionSet, v sqlinstance.TeamServiceUtilizationSQLInstancesCPU) graphql.Marshaler {
+	return ec._TeamServiceUtilizationSqlInstancesCPU(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamServiceUtilizationSqlInstancesCPU2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesCPU(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.TeamServiceUtilizationSQLInstancesCPU) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamServiceUtilizationSqlInstancesCPU(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamServiceUtilizationSqlInstancesDisk2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesDisk(ctx context.Context, sel ast.SelectionSet, v sqlinstance.TeamServiceUtilizationSQLInstancesDisk) graphql.Marshaler {
+	return ec._TeamServiceUtilizationSqlInstancesDisk(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamServiceUtilizationSqlInstancesDisk2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesDisk(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.TeamServiceUtilizationSQLInstancesDisk) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamServiceUtilizationSqlInstancesDisk(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamServiceUtilizationSqlInstancesMemory2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesMemory(ctx context.Context, sel ast.SelectionSet, v sqlinstance.TeamServiceUtilizationSQLInstancesMemory) graphql.Marshaler {
+	return ec._TeamServiceUtilizationSqlInstancesMemory(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamServiceUtilizationSqlInstancesMemory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesMemory(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.TeamServiceUtilizationSQLInstancesMemory) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamServiceUtilizationSqlInstancesMemory(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNTeamUpdatedAuditEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamUpdatedAuditEntryDataUpdatedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamUpdatedAuditEntryDataUpdatedField) graphql.Marshaler {

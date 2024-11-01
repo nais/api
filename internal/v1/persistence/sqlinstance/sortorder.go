@@ -53,12 +53,12 @@ func init() {
 		if a.WorkloadReference == nil {
 			return 0
 		}
-		a_cost, err := cost.MonthlyForService(ctx, a.TeamSlug, a.EnvironmentName, a.WorkloadReference.Name, "Cloud SQL")
+		aCost, err := cost.MonthlyForService(ctx, a.TeamSlug, a.EnvironmentName, a.WorkloadReference.Name, "Cloud SQL")
 		if err != nil {
 			return 0
 		}
 
-		return int(a_cost * 100)
+		return int(aCost * 100)
 	})
 	SortFilterSQLInstance.RegisterConcurrentOrderBy(SQLInstanceOrderFieldCPU, func(ctx context.Context, a *SQLInstance) int {
 		aCPU, err := CPUForInstance(ctx, a.ProjectID, a.Name)

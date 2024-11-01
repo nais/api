@@ -397,3 +397,26 @@ var AllSQLInstanceState = []SQLInstanceState{
 func (e SQLInstanceState) String() string {
 	return string(e)
 }
+
+type TeamServiceUtilizationSQLInstances struct {
+	TeamSlug   slug.Slug `json:"-"`
+	ProjectIDs []string  `json:"-"`
+}
+
+type TeamServiceUtilizationSQLInstancesCPU struct {
+	Used        float64 `json:"used"`
+	Requested   float64 `json:"requested"`
+	Utilization float64 `json:"utilization"`
+}
+
+type TeamServiceUtilizationSQLInstancesMemory struct {
+	Used        int     `json:"used"`
+	Requested   int     `json:"requested"`
+	Utilization float64 `json:"utilization"`
+}
+
+type TeamServiceUtilizationSQLInstancesDisk struct {
+	Used        int     `json:"used"`
+	Requested   int     `json:"requested"`
+	Utilization float64 `json:"utilization"`
+}

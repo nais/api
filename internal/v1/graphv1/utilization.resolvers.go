@@ -27,6 +27,12 @@ func (r *teamResolver) WorkloadUtilization(ctx context.Context, obj *team.Team, 
 	return utilization.ForTeam(ctx, obj.Slug, resourceType)
 }
 
+func (r *teamResolver) ServiceUtilization(ctx context.Context, obj *team.Team) (*utilization.TeamServiceUtilization, error) {
+	return &utilization.TeamServiceUtilization{
+		TeamSlug: obj.Slug,
+	}, nil
+}
+
 func (r *teamUtilizationDataResolver) Team(ctx context.Context, obj *utilization.TeamUtilizationData) (*team.Team, error) {
 	return team.Get(ctx, obj.TeamSlug)
 }
@@ -55,6 +61,10 @@ func (r *workloadUtilizationDataResolver) Workload(ctx context.Context, obj *uti
 	return tryWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadName)
 }
 
+func (r *Resolver) TeamServiceUtilization() gengqlv1.TeamServiceUtilizationResolver {
+	return &teamServiceUtilizationResolver{r}
+}
+
 func (r *Resolver) TeamUtilizationData() gengqlv1.TeamUtilizationDataResolver {
 	return &teamUtilizationDataResolver{r}
 }
@@ -72,6 +82,7 @@ func (r *Resolver) WorkloadUtilizationData() gengqlv1.WorkloadUtilizationDataRes
 }
 
 type (
+	teamServiceUtilizationResolver              struct{ *Resolver }
 	teamUtilizationDataResolver                 struct{ *Resolver }
 	teamUtilizationEnvironmentDataPointResolver struct{ *Resolver }
 	workloadUtilizationResolver                 struct{ *Resolver }

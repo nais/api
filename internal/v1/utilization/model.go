@@ -119,3 +119,7 @@ const (
 type TeamUtilization struct {
 	TeamSlug slug.Slug `json:"-"`
 }
+
+type TeamServiceUtilization struct {
+	TeamSlug slug.Slug `json:"-"`
+}

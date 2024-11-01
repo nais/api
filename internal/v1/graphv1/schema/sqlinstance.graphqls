@@ -18,6 +18,34 @@ extend type Team {
 	): SqlInstanceConnection!
 }
 
+extend type TeamServiceUtilization {
+	sqlInstances: TeamServiceUtilizationSqlInstances!
+}
+
+type TeamServiceUtilizationSqlInstances {
+	cpu: TeamServiceUtilizationSqlInstancesCPU!
+	memory: TeamServiceUtilizationSqlInstancesMemory!
+	disk: TeamServiceUtilizationSqlInstancesDisk!
+}
+
+type TeamServiceUtilizationSqlInstancesCPU {
+	used: Float!
+	requested: Float!
+	utilization: Float!
+}
+
+type TeamServiceUtilizationSqlInstancesMemory {
+	used: Int!
+	requested: Int!
+	utilization: Float!
+}
+
+type TeamServiceUtilizationSqlInstancesDisk {
+	used: Int!
+	requested: Int!
+	utilization: Float!
+}
+
 extend type TeamEnvironment {
 	"SQL instance in the team environment."
 	sqlInstance(name: String!): SqlInstance!

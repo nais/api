@@ -159,3 +159,15 @@ func MemoryForInstance(ctx context.Context, projectID, instance string) (*SQLIns
 func DiskForInstance(ctx context.Context, projectID, instance string) (*SQLInstanceDisk, error) {
 	return fromContext(ctx).sqlMetricsService.diskForSQLInstance(ctx, projectID, instance)
 }
+
+func TeamSummaryCPU(ctx context.Context, projectID string) (*TeamServiceUtilizationSQLInstancesCPU, error) {
+	return fromContext(ctx).sqlMetricsService.teamSummaryCPU(ctx, projectID)
+}
+
+func TeamSummaryMemory(ctx context.Context, projectID string) (*TeamServiceUtilizationSQLInstancesMemory, error) {
+	return fromContext(ctx).sqlMetricsService.teamSummaryMemory(ctx, projectID)
+}
+
+func TeamSummaryDisk(ctx context.Context, projectID string) (*TeamServiceUtilizationSQLInstancesDisk, error) {
+	return fromContext(ctx).sqlMetricsService.teamSummaryDisk(ctx, projectID)
+}
