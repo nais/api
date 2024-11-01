@@ -2,7 +2,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
@@ -12,7 +11,6 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
-	"github.com/sourcegraph/conc/pool"
 	"k8s.io/utils/ptr"
 )
 
@@ -61,51 +59,6 @@ func (r *teamResolver) ID(ctx context.Context, obj *model.Team) (*scalar.Ident, 
 
 func (r *teamResolver) DeletionInProgress(ctx context.Context, obj *model.Team) (bool, error) {
 	return obj.DeleteKeyConfirmedAt != nil, nil
-}
-
-func (r *teamResolver) ResourceInventory(ctx context.Context, obj *model.Team) (*model.ResourceInventory, error) {
-	wg := pool.NewWithResults[any]().WithErrors().WithFirstError()
-	results := make(map[string]int)
-	wg.Go(func() (any, error) {
-		apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
-		if err != nil {
-			return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
-		}
-		results["apps"] = len(apps)
-		return results, nil
-	})
-
-	wg.Go(func() (any, error) {
-		jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
-		if err != nil {
-			return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
-		}
-		results["jobs"] = len(jobs)
-		return results, nil
-	})
-
-	wgRes, err := wg.Wait()
-	if err != nil {
-		return nil, err
-	}
-
-	inventory := &model.ResourceInventory{}
-	inventory.IsEmpty = true
-	for _, result := range wgRes {
-		for k, v := range result.(map[string]int) {
-			switch k {
-			case "apps":
-				inventory.TotalApps = v
-			case "jobs":
-				inventory.TotalJobs = v
-			}
-			if v > 0 {
-				inventory.IsEmpty = false
-			}
-		}
-	}
-
-	return inventory, nil
 }
 
 func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error) {

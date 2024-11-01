@@ -23,13 +23,6 @@ type Workload interface {
 	IsWorkload()
 }
 
-// Team status for apps.
-type AppsStatus struct {
-	Failing         int `json:"failing"`
-	NotNais         int `json:"notNais"`
-	Vulnerabilities int `json:"vulnerabilities"`
-}
-
 type DeprecatedIngressError struct {
 	Revision string     `json:"revision"`
 	Level    ErrorLevel `json:"level"`
@@ -82,13 +75,6 @@ type InvalidNaisYamlError struct {
 }
 
 func (InvalidNaisYamlError) IsStateError() {}
-
-// Team status for jobs.
-type JobsStatus struct {
-	Failing         int `json:"failing"`
-	NotNais         int `json:"notNais"`
-	Vulnerabilities int `json:"vulnerabilities"`
-}
 
 type MissingSbomError struct {
 	Revision string     `json:"revision"`
@@ -148,13 +134,6 @@ type PageInfo struct {
 type Query struct {
 }
 
-// A teams inventory of resources.
-type ResourceInventory struct {
-	TotalJobs int  `json:"totalJobs"`
-	TotalApps int  `json:"totalApps"`
-	IsEmpty   bool `json:"isEmpty"`
-}
-
 // Slack alerts channel type.
 type SlackAlertsChannel struct {
 	// The environment for the alerts sent to the channel.
@@ -177,14 +156,6 @@ type TeamList struct {
 	Nodes []*Team `json:"nodes"`
 	// Pagination information.
 	PageInfo PageInfo `json:"pageInfo"`
-}
-
-// Slack alerts channel input.
-type UpdateTeamSlackAlertsChannelInput struct {
-	// The environment for the alerts sent to the channel.
-	Environment string `json:"environment"`
-	// The name of the Slack channel.
-	ChannelName *string `json:"channelName,omitempty"`
 }
 
 type UserList struct {
@@ -424,50 +395,6 @@ func (e *State) UnmarshalGQL(v interface{}) error {
 }
 
 func (e State) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-// Available team roles.
-type TeamRole string
-
-const (
-	// Regular member, read only access.
-	TeamRoleMember TeamRole = "MEMBER"
-	// Team owner, full access to the team.
-	TeamRoleOwner TeamRole = "OWNER"
-)
-
-var AllTeamRole = []TeamRole{
-	TeamRoleMember,
-	TeamRoleOwner,
-}
-
-func (e TeamRole) IsValid() bool {
-	switch e {
-	case TeamRoleMember, TeamRoleOwner:
-		return true
-	}
-	return false
-}
-
-func (e TeamRole) String() string {
-	return string(e)
-}
-
-func (e *TeamRole) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = TeamRole(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid TeamRole", str)
-	}
-	return nil
-}
-
-func (e TeamRole) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

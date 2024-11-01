@@ -72,12 +72,6 @@ type ComplexityRoot struct {
 		Variables func(childComplexity int) int
 	}
 
-	AppsStatus struct {
-		Failing         func(childComplexity int) int
-		NotNais         func(childComplexity int) int
-		Vulnerabilities func(childComplexity int) int
-	}
-
 	DeprecatedIngressError struct {
 		Ingress  func(childComplexity int) int
 		Level    func(childComplexity int) int
@@ -132,12 +126,6 @@ type ComplexityRoot struct {
 		Detail   func(childComplexity int) int
 		Level    func(childComplexity int) int
 		Revision func(childComplexity int) int
-	}
-
-	JobsStatus struct {
-		Failing         func(childComplexity int) int
-		NotNais         func(childComplexity int) int
-		Vulnerabilities func(childComplexity int) int
 	}
 
 	MissingSbomError struct {
@@ -200,12 +188,6 @@ type ComplexityRoot struct {
 		UsersyncRuns func(childComplexity int, limit *int, offset *int) int
 	}
 
-	ResourceInventory struct {
-		IsEmpty   func(childComplexity int) int
-		TotalApps func(childComplexity int) int
-		TotalJobs func(childComplexity int) int
-	}
-
 	Role struct {
 		IsGlobal             func(childComplexity int) int
 		Name                 func(childComplexity int) int
@@ -253,7 +235,6 @@ type ComplexityRoot struct {
 		ID                     func(childComplexity int) int
 		LastSuccessfulSync     func(childComplexity int) int
 		Purpose                func(childComplexity int) int
-		ResourceInventory      func(childComplexity int) int
 		SlackChannel           func(childComplexity int) int
 		Slug                   func(childComplexity int) int
 	}
@@ -339,7 +320,6 @@ type TeamResolver interface {
 	ID(ctx context.Context, obj *model.Team) (*scalar.Ident, error)
 
 	DeletionInProgress(ctx context.Context, obj *model.Team) (bool, error)
-	ResourceInventory(ctx context.Context, obj *model.Team) (*model.ResourceInventory, error)
 	Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error)
 }
 type UserResolver interface {
@@ -446,27 +426,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.App.Variables(childComplexity), true
-
-	case "AppsStatus.failing":
-		if e.complexity.AppsStatus.Failing == nil {
-			break
-		}
-
-		return e.complexity.AppsStatus.Failing(childComplexity), true
-
-	case "AppsStatus.notNais":
-		if e.complexity.AppsStatus.NotNais == nil {
-			break
-		}
-
-		return e.complexity.AppsStatus.NotNais(childComplexity), true
-
-	case "AppsStatus.vulnerabilities":
-		if e.complexity.AppsStatus.Vulnerabilities == nil {
-			break
-		}
-
-		return e.complexity.AppsStatus.Vulnerabilities(childComplexity), true
 
 	case "DeprecatedIngressError.ingress":
 		if e.complexity.DeprecatedIngressError.Ingress == nil {
@@ -691,27 +650,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.InvalidNaisYamlError.Revision(childComplexity), true
-
-	case "JobsStatus.failing":
-		if e.complexity.JobsStatus.Failing == nil {
-			break
-		}
-
-		return e.complexity.JobsStatus.Failing(childComplexity), true
-
-	case "JobsStatus.notNais":
-		if e.complexity.JobsStatus.NotNais == nil {
-			break
-		}
-
-		return e.complexity.JobsStatus.NotNais(childComplexity), true
-
-	case "JobsStatus.vulnerabilities":
-		if e.complexity.JobsStatus.Vulnerabilities == nil {
-			break
-		}
-
-		return e.complexity.JobsStatus.Vulnerabilities(childComplexity), true
 
 	case "MissingSbomError.level":
 		if e.complexity.MissingSbomError.Level == nil {
@@ -1000,27 +938,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.UsersyncRuns(childComplexity, args["limit"].(*int), args["offset"].(*int)), true
 
-	case "ResourceInventory.isEmpty":
-		if e.complexity.ResourceInventory.IsEmpty == nil {
-			break
-		}
-
-		return e.complexity.ResourceInventory.IsEmpty(childComplexity), true
-
-	case "ResourceInventory.totalApps":
-		if e.complexity.ResourceInventory.TotalApps == nil {
-			break
-		}
-
-		return e.complexity.ResourceInventory.TotalApps(childComplexity), true
-
-	case "ResourceInventory.totalJobs":
-		if e.complexity.ResourceInventory.TotalJobs == nil {
-			break
-		}
-
-		return e.complexity.ResourceInventory.TotalJobs(childComplexity), true
-
 	case "Role.isGlobal":
 		if e.complexity.Role.IsGlobal == nil {
 			break
@@ -1238,13 +1155,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.Purpose(childComplexity), true
 
-	case "Team.resourceInventory":
-		if e.complexity.Team.ResourceInventory == nil {
-			break
-		}
-
-		return e.complexity.Team.ResourceInventory(childComplexity), true
-
 	case "Team.slackChannel":
 		if e.complexity.Team.SlackChannel == nil {
 			break
@@ -1415,7 +1325,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputOrderBy,
-		ec.unmarshalInputUpdateTeamSlackAlertsChannelInput,
 		ec.unmarshalInputVariableInput,
 	)
 	first := true
@@ -1844,9 +1753,6 @@ type Team {
   "Whether or not the team is currently being deleted."
   deletionInProgress: Boolean!
 
-  "The teams resources"
-  resourceInventory: ResourceInventory!
-
   "The environments available for the team."
   environments: [Env!]!
 }
@@ -1879,45 +1785,6 @@ type NaisNamespace {
 
   "The namespace."
   namespace: Slug!
-}
-
-"Team status for apps."
-type AppsStatus {
-  failing: Int!
-  notNais: Int!
-  vulnerabilities: Int!
-}
-
-"Team status for jobs."
-type JobsStatus {
-  failing: Int!
-  notNais: Int!
-  vulnerabilities: Int!
-}
-
-"A teams inventory of resources."
-type ResourceInventory {
-  totalJobs: Int!
-  totalApps: Int!
-  isEmpty: Boolean!
-}
-
-"Slack alerts channel input."
-input UpdateTeamSlackAlertsChannelInput {
-  "The environment for the alerts sent to the channel."
-  environment: String!
-
-  "The name of the Slack channel."
-  channelName: String
-}
-
-"Available team roles."
-enum TeamRole {
-  "Regular member, read only access."
-  MEMBER
-
-  "Team owner, full access to the team."
-  OWNER
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/users.graphqls", Input: `extend type Query {
@@ -3107,144 +2974,10 @@ func (ec *executionContext) fieldContext_App_team(_ context.Context, field graph
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "deletionInProgress":
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "resourceInventory":
-				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AppsStatus_failing(ctx context.Context, field graphql.CollectedField, obj *model.AppsStatus) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AppsStatus_failing(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Failing, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AppsStatus_failing(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AppsStatus",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AppsStatus_notNais(ctx context.Context, field graphql.CollectedField, obj *model.AppsStatus) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AppsStatus_notNais(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.NotNais, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AppsStatus_notNais(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AppsStatus",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AppsStatus_vulnerabilities(ctx context.Context, field graphql.CollectedField, obj *model.AppsStatus) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AppsStatus_vulnerabilities(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Vulnerabilities, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AppsStatus_vulnerabilities(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AppsStatus",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4655,138 +4388,6 @@ func (ec *executionContext) fieldContext_InvalidNaisYamlError_detail(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _JobsStatus_failing(ctx context.Context, field graphql.CollectedField, obj *model.JobsStatus) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobsStatus_failing(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Failing, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_JobsStatus_failing(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "JobsStatus",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _JobsStatus_notNais(ctx context.Context, field graphql.CollectedField, obj *model.JobsStatus) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobsStatus_notNais(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.NotNais, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_JobsStatus_notNais(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "JobsStatus",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _JobsStatus_vulnerabilities(ctx context.Context, field graphql.CollectedField, obj *model.JobsStatus) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobsStatus_vulnerabilities(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Vulnerabilities, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_JobsStatus_vulnerabilities(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "JobsStatus",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _MissingSbomError_revision(ctx context.Context, field graphql.CollectedField, obj *model.MissingSbomError) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_MissingSbomError_revision(ctx, field)
 	if err != nil {
@@ -5418,8 +5019,6 @@ func (ec *executionContext) fieldContext_NaisJob_team(_ context.Context, field g
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "deletionInProgress":
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "resourceInventory":
-				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -6485,8 +6084,6 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "deletionInProgress":
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "resourceInventory":
-				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -6893,138 +6490,6 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _ResourceInventory_totalJobs(ctx context.Context, field graphql.CollectedField, obj *model.ResourceInventory) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ResourceInventory_totalJobs(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TotalJobs, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ResourceInventory_totalJobs(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ResourceInventory",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ResourceInventory_totalApps(ctx context.Context, field graphql.CollectedField, obj *model.ResourceInventory) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ResourceInventory_totalApps(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TotalApps, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ResourceInventory_totalApps(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ResourceInventory",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ResourceInventory_isEmpty(ctx context.Context, field graphql.CollectedField, obj *model.ResourceInventory) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ResourceInventory_isEmpty(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.IsEmpty, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ResourceInventory_isEmpty(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ResourceInventory",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Role_name(ctx context.Context, field graphql.CollectedField, obj *model.Role) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Role_name(ctx, field)
 	if err != nil {
@@ -7220,8 +6685,6 @@ func (ec *executionContext) fieldContext_Role_targetTeam(_ context.Context, fiel
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "deletionInProgress":
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "resourceInventory":
-				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -8449,58 +7912,6 @@ func (ec *executionContext) fieldContext_Team_deletionInProgress(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_resourceInventory(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Team_resourceInventory(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().ResourceInventory(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.ResourceInventory)
-	fc.Result = res
-	return ec.marshalNResourceInventory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceInventory(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Team_resourceInventory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Team",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "totalJobs":
-				return ec.fieldContext_ResourceInventory_totalJobs(ctx, field)
-			case "totalApps":
-				return ec.fieldContext_ResourceInventory_totalApps(ctx, field)
-			case "isEmpty":
-				return ec.fieldContext_ResourceInventory_isEmpty(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ResourceInventory", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Team_environments(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_environments(ctx, field)
 	if err != nil {
@@ -8616,8 +8027,6 @@ func (ec *executionContext) fieldContext_TeamList_nodes(_ context.Context, field
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "deletionInProgress":
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "resourceInventory":
-				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -11368,40 +10777,6 @@ func (ec *executionContext) unmarshalInputOrderBy(ctx context.Context, obj inter
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateTeamSlackAlertsChannelInput(ctx context.Context, obj interface{}) (model.UpdateTeamSlackAlertsChannelInput, error) {
-	var it model.UpdateTeamSlackAlertsChannelInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"environment", "channelName"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "environment":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Environment = data
-		case "channelName":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("channelName"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ChannelName = data
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputVariableInput(ctx context.Context, obj interface{}) (model.VariableInput, error) {
 	var it model.VariableInput
 	asMap := map[string]interface{}{}
@@ -11728,55 +11103,6 @@ func (ec *executionContext) _App(ctx context.Context, sel ast.SelectionSet, obj 
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var appsStatusImplementors = []string{"AppsStatus"}
-
-func (ec *executionContext) _AppsStatus(ctx context.Context, sel ast.SelectionSet, obj *model.AppsStatus) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, appsStatusImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("AppsStatus")
-		case "failing":
-			out.Values[i] = ec._AppsStatus_failing(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "notNais":
-			out.Values[i] = ec._AppsStatus_notNais(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "vulnerabilities":
-			out.Values[i] = ec._AppsStatus_vulnerabilities(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12296,55 +11622,6 @@ func (ec *executionContext) _InvalidNaisYamlError(ctx context.Context, sel ast.S
 			}
 		case "detail":
 			out.Values[i] = ec._InvalidNaisYamlError_detail(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var jobsStatusImplementors = []string{"JobsStatus"}
-
-func (ec *executionContext) _JobsStatus(ctx context.Context, sel ast.SelectionSet, obj *model.JobsStatus) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, jobsStatusImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("JobsStatus")
-		case "failing":
-			out.Values[i] = ec._JobsStatus_failing(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "notNais":
-			out.Values[i] = ec._JobsStatus_notNais(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "vulnerabilities":
-			out.Values[i] = ec._JobsStatus_vulnerabilities(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -13068,55 +12345,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	return out
 }
 
-var resourceInventoryImplementors = []string{"ResourceInventory"}
-
-func (ec *executionContext) _ResourceInventory(ctx context.Context, sel ast.SelectionSet, obj *model.ResourceInventory) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, resourceInventoryImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ResourceInventory")
-		case "totalJobs":
-			out.Values[i] = ec._ResourceInventory_totalJobs(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "totalApps":
-			out.Values[i] = ec._ResourceInventory_totalApps(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "isEmpty":
-			out.Values[i] = ec._ResourceInventory_isEmpty(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var roleImplementors = []string{"Role"}
 
 func (ec *executionContext) _Role(ctx context.Context, sel ast.SelectionSet, obj *model.Role) graphql.Marshaler {
@@ -13557,42 +12785,6 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._Team_deletionInProgress(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "resourceInventory":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Team_resourceInventory(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -14687,20 +13879,6 @@ func (ec *executionContext) marshalNOrderByField2githubᚗcomᚋnaisᚋapiᚋint
 
 func (ec *executionContext) marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPageInfo(ctx context.Context, sel ast.SelectionSet, v model.PageInfo) graphql.Marshaler {
 	return ec._PageInfo(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNResourceInventory2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceInventory(ctx context.Context, sel ast.SelectionSet, v model.ResourceInventory) graphql.Marshaler {
-	return ec._ResourceInventory(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNResourceInventory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceInventory(ctx context.Context, sel ast.SelectionSet, v *model.ResourceInventory) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._ResourceInventory(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNRole2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRoleᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Role) graphql.Marshaler {

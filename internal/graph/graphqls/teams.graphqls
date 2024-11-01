@@ -55,9 +55,6 @@ type Team {
   "Whether or not the team is currently being deleted."
   deletionInProgress: Boolean!
 
-  "The teams resources"
-  resourceInventory: ResourceInventory!
-
   "The environments available for the team."
   environments: [Env!]!
 }
@@ -90,43 +87,4 @@ type NaisNamespace {
 
   "The namespace."
   namespace: Slug!
-}
-
-"Team status for apps."
-type AppsStatus {
-  failing: Int!
-  notNais: Int!
-  vulnerabilities: Int!
-}
-
-"Team status for jobs."
-type JobsStatus {
-  failing: Int!
-  notNais: Int!
-  vulnerabilities: Int!
-}
-
-"A teams inventory of resources."
-type ResourceInventory {
-  totalJobs: Int!
-  totalApps: Int!
-  isEmpty: Boolean!
-}
-
-"Slack alerts channel input."
-input UpdateTeamSlackAlertsChannelInput {
-  "The environment for the alerts sent to the channel."
-  environment: String!
-
-  "The name of the Slack channel."
-  channelName: String
-}
-
-"Available team roles."
-enum TeamRole {
-  "Regular member, read only access."
-  MEMBER
-
-  "Team owner, full access to the team."
-  OWNER
 }
