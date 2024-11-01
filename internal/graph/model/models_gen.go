@@ -168,16 +168,6 @@ type UsersyncRunList struct {
 	PageInfo PageInfo       `json:"pageInfo"`
 }
 
-type Variable struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-
-type VariableInput struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-
 type ErrorLevel string
 
 const (

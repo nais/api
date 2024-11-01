@@ -318,14 +318,6 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 	}
 	ret.Ingresses = ingresses
 
-	for _, v := range app.Spec.Env {
-		m := &model.Variable{
-			Name:  v.Name,
-			Value: v.Value,
-		}
-		ret.Variables = append(ret.Variables, m)
-	}
-
 	secrets := make([]string, 0)
 	for _, filesFrom := range app.Spec.FilesFrom {
 		secrets = append(secrets, filesFrom.Secret)

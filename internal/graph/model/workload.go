@@ -13,7 +13,6 @@ type WorkloadBase struct {
 	Image       string              `json:"image"`
 	Env         Env                 `json:"env"`
 	Status      WorkloadStatus      `json:"status"`
-	Variables   []*Variable         `json:"variables"`
 	Utilization AppUtilization      `json:"utilization"`
 	GQLVars     WorkloadBaseGQLVars `json:"-"`
 }

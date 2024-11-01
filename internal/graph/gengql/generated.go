@@ -68,7 +68,6 @@ type ComplexityRoot struct {
 		Name      func(childComplexity int) int
 		Status    func(childComplexity int) int
 		Team      func(childComplexity int) int
-		Variables func(childComplexity int) int
 	}
 
 	DeprecatedIngressError struct {
@@ -145,7 +144,6 @@ type ComplexityRoot struct {
 		Schedule    func(childComplexity int) int
 		Status      func(childComplexity int) int
 		Team        func(childComplexity int) int
-		Variables   func(childComplexity int) int
 	}
 
 	NaisNamespace struct {
@@ -267,11 +265,6 @@ type ComplexityRoot struct {
 	UsersyncRunList struct {
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
-	}
-
-	Variable struct {
-		Name  func(childComplexity int) int
-		Value func(childComplexity int) int
 	}
 
 	WorkloadStatus struct {
@@ -410,13 +403,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.App.Team(childComplexity), true
-
-	case "App.variables":
-		if e.complexity.App.Variables == nil {
-			break
-		}
-
-		return e.complexity.App.Variables(childComplexity), true
 
 	case "DeprecatedIngressError.ingress":
 		if e.complexity.DeprecatedIngressError.Ingress == nil {
@@ -739,13 +725,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.NaisJob.Team(childComplexity), true
-
-	case "NaisJob.variables":
-		if e.complexity.NaisJob.Variables == nil {
-			break
-		}
-
-		return e.complexity.NaisJob.Variables(childComplexity), true
 
 	case "NaisNamespace.environment":
 		if e.complexity.NaisNamespace.Environment == nil {
@@ -1272,20 +1251,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UsersyncRunList.PageInfo(childComplexity), true
 
-	case "Variable.name":
-		if e.complexity.Variable.Name == nil {
-			break
-		}
-
-		return e.complexity.Variable.Name(childComplexity), true
-
-	case "Variable.value":
-		if e.complexity.Variable.Value == nil {
-			break
-		}
-
-		return e.complexity.Variable.Value(childComplexity), true
-
 	case "WorkloadStatus.errors":
 		if e.complexity.WorkloadStatus.Errors == nil {
 			break
@@ -1309,7 +1274,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputOrderBy,
-		ec.unmarshalInputVariableInput,
 	)
 	first := true
 
@@ -1412,7 +1376,6 @@ type App implements Workload {
   image: String!
   env: Env!
   status: WorkloadStatus!
-  variables: [Variable!]!
   ingresses: [String!]!
   instances: [Instance!]!
   manifest: String!
@@ -1566,7 +1529,6 @@ type NaisJob implements Workload {
   image: String!
   env: Env!
   status: WorkloadStatus!
-  variables: [Variable!]!
 
   runs: [Run!]!
   manifest: String!
@@ -1641,16 +1603,7 @@ enum SortOrder {
   "Descending sort order."
   DESC
 }
-
-type Variable {
-  name: String!
-  value: String!
-}
-
-input VariableInput {
-  name: String!
-  value: String!
-}`, BuiltIn: false},
+`, BuiltIn: false},
 	{Name: "../graphqls/serviceAccounts.graphqls", Input: `"Service account type."
 type ServiceAccount {
   "Unique ID of the service account."
@@ -1856,7 +1809,6 @@ type UserList {
   image: String!
   env: Env!
   status: WorkloadStatus!
-  variables: [Variable!]!
   team: Team!
 }
 `, BuiltIn: false},
@@ -2642,56 +2594,6 @@ func (ec *executionContext) fieldContext_App_status(_ context.Context, field gra
 				return ec.fieldContext_WorkloadStatus_errors(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type WorkloadStatus", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _App_variables(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_App_variables(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Variables, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Variable)
-	fc.Result = res
-	return ec.marshalNVariable2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVariableᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_App_variables(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "App",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "name":
-				return ec.fieldContext_Variable_name(ctx, field)
-			case "value":
-				return ec.fieldContext_Variable_value(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Variable", field.Name)
 		},
 	}
 	return fc, nil
@@ -4644,56 +4546,6 @@ func (ec *executionContext) fieldContext_NaisJob_status(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _NaisJob_variables(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_NaisJob_variables(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Variables, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Variable)
-	fc.Result = res
-	return ec.marshalNVariable2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVariableᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_NaisJob_variables(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "NaisJob",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "name":
-				return ec.fieldContext_Variable_name(ctx, field)
-			case "value":
-				return ec.fieldContext_Variable_value(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Variable", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _NaisJob_runs(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_NaisJob_runs(ctx, field)
 	if err != nil {
@@ -5625,8 +5477,6 @@ func (ec *executionContext) fieldContext_Query_app(ctx context.Context, field gr
 				return ec.fieldContext_App_env(ctx, field)
 			case "status":
 				return ec.fieldContext_App_status(ctx, field)
-			case "variables":
-				return ec.fieldContext_App_variables(ctx, field)
 			case "ingresses":
 				return ec.fieldContext_App_ingresses(ctx, field)
 			case "instances":
@@ -5768,8 +5618,6 @@ func (ec *executionContext) fieldContext_Query_naisjob(ctx context.Context, fiel
 				return ec.fieldContext_NaisJob_env(ctx, field)
 			case "status":
 				return ec.fieldContext_NaisJob_status(ctx, field)
-			case "variables":
-				return ec.fieldContext_NaisJob_variables(ctx, field)
 			case "runs":
 				return ec.fieldContext_NaisJob_runs(ctx, field)
 			case "manifest":
@@ -8678,94 +8526,6 @@ func (ec *executionContext) fieldContext_UsersyncRunList_pageInfo(_ context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _Variable_name(ctx context.Context, field graphql.CollectedField, obj *model.Variable) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Variable_name(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Variable_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Variable",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Variable_value(ctx context.Context, field graphql.CollectedField, obj *model.Variable) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Variable_value(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Value, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Variable_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Variable",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _WorkloadStatus_state(ctx context.Context, field graphql.CollectedField, obj *model.WorkloadStatus) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_WorkloadStatus_state(ctx, field)
 	if err != nil {
@@ -10661,40 +10421,6 @@ func (ec *executionContext) unmarshalInputOrderBy(ctx context.Context, obj inter
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputVariableInput(ctx context.Context, obj interface{}) (model.VariableInput, error) {
-	var it model.VariableInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"name", "value"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "name":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Name = data
-		case "value":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Value = data
-		}
-	}
-
-	return it, nil
-}
-
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -10861,11 +10587,6 @@ func (ec *executionContext) _App(ctx context.Context, sel ast.SelectionSet, obj 
 			}
 		case "status":
 			out.Values[i] = ec._App_status(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "variables":
-			out.Values[i] = ec._App_variables(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -11604,11 +11325,6 @@ func (ec *executionContext) _NaisJob(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "status":
 			out.Values[i] = ec._NaisJob_status(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "variables":
-			out.Values[i] = ec._NaisJob_variables(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -13086,50 +12802,6 @@ func (ec *executionContext) _UsersyncRunList(ctx context.Context, sel ast.Select
 	return out
 }
 
-var variableImplementors = []string{"Variable"}
-
-func (ec *executionContext) _Variable(ctx context.Context, sel ast.SelectionSet, obj *model.Variable) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, variableImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Variable")
-		case "name":
-			out.Values[i] = ec._Variable_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "value":
-			out.Values[i] = ec._Variable_value(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var workloadStatusImplementors = []string{"WorkloadStatus"}
 
 func (ec *executionContext) _WorkloadStatus(ctx context.Context, sel ast.SelectionSet, obj *model.WorkloadStatus) graphql.Marshaler {
@@ -14229,60 +13901,6 @@ func (ec *executionContext) unmarshalNUsersyncRunStatus2githubᚗcomᚋnaisᚋap
 
 func (ec *executionContext) marshalNUsersyncRunStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsersyncRunStatus(ctx context.Context, sel ast.SelectionSet, v model.UsersyncRunStatus) graphql.Marshaler {
 	return v
-}
-
-func (ec *executionContext) marshalNVariable2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVariableᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Variable) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNVariable2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVariable(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNVariable2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVariable(ctx context.Context, sel ast.SelectionSet, v *model.Variable) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Variable(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNWorkloadStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkloadStatus(ctx context.Context, sel ast.SelectionSet, v model.WorkloadStatus) graphql.Marshaler {

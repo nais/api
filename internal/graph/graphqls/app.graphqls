@@ -18,7 +18,6 @@ type App implements Workload {
   image: String!
   env: Env!
   status: WorkloadStatus!
-  variables: [Variable!]!
   ingresses: [String!]!
   instances: [Instance!]!
   manifest: String!

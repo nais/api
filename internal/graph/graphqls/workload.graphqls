@@ -4,6 +4,5 @@ interface Workload {
   image: String!
   env: Env!
   status: WorkloadStatus!
-  variables: [Variable!]!
   team: Team!
 }
