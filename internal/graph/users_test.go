@@ -18,7 +18,7 @@ func TestQueryResolver_Users(t *testing.T) {
 	db := database.NewMockDatabase(t)
 	log, _ := test.NewNullLogger()
 	resolver := graph.
-		NewResolver(nil, db, "example", "example.com", nil, nil, log).
+		NewResolver(nil, db, "example", "example.com", nil, log).
 		Query()
 
 	t.Run("unauthenticated user", func(t *testing.T) {

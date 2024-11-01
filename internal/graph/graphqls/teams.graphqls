@@ -12,48 +12,6 @@ extend type Query {
   team("Slug of the team." slug: Slug!): Team! @auth
 }
 
-extend type Mutation {
-  """
-  Update an existing team's Slack alerts channel
-
-  The updated team will be returned on success.
-  """
-  updateTeamSlackAlertsChannel(
-    "Slug of the team to update."
-    slug: Slug!
-
-    "Input for updating the team."
-    input: UpdateTeamSlackAlertsChannelInput!
-  ): Team! @auth
-
-  """
-  Manually synchronize a team
-
-  This action will trigger a full synchronization of the team against the configured third party systems. The action
-  is asynchronous.
-
-  The team will be returned.
-  """
-  synchronizeTeam(
-    "The slug of the team to synchronize."
-    slug: Slug!
-  ): TeamSync! @auth
-
-  """
-  Manually synchronize all teams
-
-  This action will trigger a full synchronization of all teams against the configured third party systems. The action
-  is asynchronous. The operation can take a while, depending on the amount of teams currently managed.
-  """
-  synchronizeAllTeams: TeamSync! @auth
-}
-
-"Team sync type."
-type TeamSync {
-  "The correlation ID for the sync."
-  correlationID: ID!
-}
-
 "Paginated teams type."
 type TeamList {
   "The list of teams."

@@ -11935,6 +11935,14 @@ extend type Mutation {
 	"""
 	synchronizeTeam(input: SynchronizeTeamInput!): SynchronizeTeamPayload!
 
+	# """
+	# Manually synchronize all teams
+	#
+	# This action will trigger a full synchronization of all teams with the configured third party systems. The process is
+	# asynchronous.
+	# """
+	# synchronizeAllTeams(input: SynchronizeAllTeamsInput!): SynchronizeAllTeamsPayload!
+
 	"""
 	Request a key that can be used to trigger a team deletion process
 

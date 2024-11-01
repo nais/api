@@ -133,27 +133,12 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("unable to create k8s client: %w", err)
 	}
 
-	pubsubClient, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
-	if err != nil {
-		return err
-	}
-
-	pubsubTopic := pubsubClient.Topic("nais-api")
-
-	var hookdClient hookd.Client
-	if cfg.WithFakeClients {
-		hookdClient = fakehookd.New()
-	} else {
-		hookdClient = hookd.New(cfg.Hookd.Endpoint, cfg.Hookd.PSK, log.WithField("client", "hookd"))
-	}
-
 	resolver := graph.NewResolver(
 		k8sClient,
 		db,
 		cfg.Tenant,
 		cfg.TenantDomain,
 		cfg.K8s.GraphClusterList(),
-		pubsubTopic,
 		log,
 	)
 
@@ -198,6 +183,12 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("create k8s client sets: %w", err)
 	}
 
+	pubsubClient, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
+	if err != nil {
+		return err
+	}
+	pubsubTopic := pubsubClient.Topic("nais-api")
+
 	graphv1Handler, err := graphv1.NewHandler(gengqlv1.Config{
 		Resolvers: graphv1.NewResolver(
 			&graphv1.TopicWrapper{Topic: pubsubTopic},
@@ -228,15 +219,23 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return err
 	}
 
-	vulnClient := vulnerability.NewDependencyTrackClient(vulnerability.DependencyTrackConfig{
-		Endpoint:    cfg.DependencyTrack.Endpoint,
-		Username:    cfg.DependencyTrack.Username,
-		Password:    cfg.DependencyTrack.Password,
-		FrontendURL: cfg.DependencyTrack.Frontend,
-		EnableFakes: cfg.WithFakeClients,
-	},
+	vulnClient := vulnerability.NewDependencyTrackClient(
+		vulnerability.DependencyTrackConfig{
+			Endpoint:    cfg.DependencyTrack.Endpoint,
+			Username:    cfg.DependencyTrack.Username,
+			Password:    cfg.DependencyTrack.Password,
+			FrontendURL: cfg.DependencyTrack.Frontend,
+			EnableFakes: cfg.WithFakeClients,
+		},
 		log.WithField("client", "dependencytrack"),
 	)
+
+	var hookdClient hookd.Client
+	if cfg.WithFakeClients {
+		hookdClient = fakehookd.New()
+	} else {
+		hookdClient = hookd.New(cfg.Hookd.Endpoint, cfg.Hookd.PSK, log.WithField("client", "hookd"))
+	}
 
 	// HTTP server
 	wg.Go(func() error {

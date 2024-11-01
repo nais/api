@@ -3,32 +3,11 @@ package graph
 import (
 	"context"
 
-	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
-	"k8s.io/utils/ptr"
 )
-
-func (r *mutationResolver) DeleteJob(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteJobResult, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamMembership(actor, team)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := r.k8sClient.DeleteJob(ctx, name, team.String(), env); err != nil {
-		return &model.DeleteJobResult{
-			Deleted: false,
-			Error:   ptr.To(err.Error()),
-		}, nil
-	}
-
-	return &model.DeleteJobResult{
-		Deleted: true,
-	}, nil
-}
 
 func (r *naisJobResolver) Runs(ctx context.Context, obj *model.NaisJob) ([]*model.Run, error) {
 	runs, err := r.k8sClient.Runs(ctx, obj.GQLVars.Team.String(), obj.Env.Name, obj.Name)
@@ -55,11 +34,6 @@ func (r *queryResolver) Naisjob(ctx context.Context, name string, team slug.Slug
 	return job, nil
 }
 
-func (r *Resolver) Mutation() gengql.MutationResolver { return &mutationResolver{r} }
-
 func (r *Resolver) NaisJob() gengql.NaisJobResolver { return &naisJobResolver{r} }
 
-type (
-	mutationResolver struct{ *Resolver }
-	naisJobResolver  struct{ *Resolver }
-)
+type naisJobResolver struct{ *Resolver }

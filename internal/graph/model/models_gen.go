@@ -79,12 +79,6 @@ type Consumer struct {
 	Orgno string `json:"orgno"`
 }
 
-type DeleteJobResult struct {
-	// Whether the job was deleted or not.
-	Deleted bool    `json:"deleted"`
-	Error   *string `json:"error,omitempty"`
-}
-
 type DeprecatedIngressError struct {
 	Revision string     `json:"revision"`
 	Level    ErrorLevel `json:"level"`
@@ -212,9 +206,6 @@ type MissingSbomError struct {
 }
 
 func (MissingSbomError) IsStateError() {}
-
-type Mutation struct {
-}
 
 type NaisJobList struct {
 	Nodes    []*NaisJob `json:"nodes"`

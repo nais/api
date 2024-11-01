@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
@@ -16,69 +15,9 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/pkg/apiclient/protoapi"
 	"github.com/sourcegraph/conc/pool"
 	"k8s.io/utils/ptr"
 )
-
-func (r *mutationResolver) UpdateTeamSlackAlertsChannel(ctx context.Context, slug slug.Slug, input model.UpdateTeamSlackAlertsChannelInput) (*model.Team, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMetadataUpdate, slug)
-	if err != nil {
-		return nil, err
-	}
-
-	input = input.Sanitize()
-	err = input.Validate(r.clusters.Names())
-	if err != nil {
-		return nil, err
-	}
-
-	correlationID := uuid.New()
-	err = r.database.UpsertTeamEnvironment(ctx, slug, input.Environment, input.ChannelName, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	r.triggerTeamUpdatedEvent(ctx, slug, correlationID)
-
-	return loader.GetTeam(ctx, slug)
-}
-
-func (r *mutationResolver) SynchronizeTeam(ctx context.Context, slug slug.Slug) (*model.TeamSync, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsSynchronize, slug)
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err := loader.GetTeam(ctx, slug); err != nil {
-		return nil, err
-	}
-
-	correlationID := uuid.New()
-
-	r.triggerTeamUpdatedEvent(ctx, slug, correlationID)
-
-	return &model.TeamSync{
-		CorrelationID: correlationID,
-	}, nil
-}
-
-func (r *mutationResolver) SynchronizeAllTeams(ctx context.Context) (*model.TeamSync, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationTeamsSynchronize)
-	if err != nil {
-		return nil, err
-	}
-
-	correlationID := uuid.New()
-	r.triggerEvent(ctx, protoapi.EventTypes_EVENT_SYNC_ALL_TEAMS, &protoapi.EventSyncAllTeams{}, correlationID)
-
-	return &model.TeamSync{
-		CorrelationID: correlationID,
-	}, nil
-}
 
 func (r *queryResolver) Teams(ctx context.Context, offset *int, limit *int) (*model.TeamList, error) {
 	actor := authz.ActorFromContext(ctx)

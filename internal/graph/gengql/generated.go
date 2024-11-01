@@ -44,7 +44,6 @@ type Config struct {
 type ResolverRoot interface {
 	App() AppResolver
 	Env() EnvResolver
-	Mutation() MutationResolver
 	NaisJob() NaisJobResolver
 	Query() QueryResolver
 	Role() RoleResolver
@@ -117,11 +116,6 @@ type ComplexityRoot struct {
 	Consumer struct {
 		Name  func(childComplexity int) int
 		Orgno func(childComplexity int) int
-	}
-
-	DeleteJobResult struct {
-		Deleted func(childComplexity int) int
-		Error   func(childComplexity int) int
 	}
 
 	DeprecatedIngressError struct {
@@ -244,13 +238,6 @@ type ComplexityRoot struct {
 	MissingSbomError struct {
 		Level    func(childComplexity int) int
 		Revision func(childComplexity int) int
-	}
-
-	Mutation struct {
-		DeleteJob                    func(childComplexity int, name string, team slug.Slug, env string) int
-		SynchronizeAllTeams          func(childComplexity int) int
-		SynchronizeTeam              func(childComplexity int, slug slug.Slug) int
-		UpdateTeamSlackAlertsChannel func(childComplexity int, slug slug.Slug, input model.UpdateTeamSlackAlertsChannelInput) int
 	}
 
 	NaisJob struct {
@@ -424,10 +411,6 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
-	TeamSync struct {
-		CorrelationID func(childComplexity int) int
-	}
-
 	TokenX struct {
 		MountSecretsAsFilesOnly func(childComplexity int) int
 	}
@@ -481,12 +464,6 @@ type EnvResolver interface {
 
 	GCPProjectID(ctx context.Context, obj *model.Env) (*string, error)
 	SlackAlertsChannel(ctx context.Context, obj *model.Env) (string, error)
-}
-type MutationResolver interface {
-	DeleteJob(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteJobResult, error)
-	UpdateTeamSlackAlertsChannel(ctx context.Context, slug slug.Slug, input model.UpdateTeamSlackAlertsChannelInput) (*model.Team, error)
-	SynchronizeTeam(ctx context.Context, slug slug.Slug) (*model.TeamSync, error)
-	SynchronizeAllTeams(ctx context.Context) (*model.TeamSync, error)
 }
 type NaisJobResolver interface {
 	Runs(ctx context.Context, obj *model.NaisJob) ([]*model.Run, error)
@@ -775,20 +752,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Consumer.Orgno(childComplexity), true
-
-	case "DeleteJobResult.deleted":
-		if e.complexity.DeleteJobResult.Deleted == nil {
-			break
-		}
-
-		return e.complexity.DeleteJobResult.Deleted(childComplexity), true
-
-	case "DeleteJobResult.error":
-		if e.complexity.DeleteJobResult.Error == nil {
-			break
-		}
-
-		return e.complexity.DeleteJobResult.Error(childComplexity), true
 
 	case "DeprecatedIngressError.ingress":
 		if e.complexity.DeprecatedIngressError.Ingress == nil {
@@ -1265,49 +1228,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MissingSbomError.Revision(childComplexity), true
-
-	case "Mutation.deleteJob":
-		if e.complexity.Mutation.DeleteJob == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_deleteJob_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.DeleteJob(childComplexity, args["name"].(string), args["team"].(slug.Slug), args["env"].(string)), true
-
-	case "Mutation.synchronizeAllTeams":
-		if e.complexity.Mutation.SynchronizeAllTeams == nil {
-			break
-		}
-
-		return e.complexity.Mutation.SynchronizeAllTeams(childComplexity), true
-
-	case "Mutation.synchronizeTeam":
-		if e.complexity.Mutation.SynchronizeTeam == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_synchronizeTeam_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.SynchronizeTeam(childComplexity, args["slug"].(slug.Slug)), true
-
-	case "Mutation.updateTeamSlackAlertsChannel":
-		if e.complexity.Mutation.UpdateTeamSlackAlertsChannel == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_updateTeamSlackAlertsChannel_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.UpdateTeamSlackAlertsChannel(childComplexity, args["slug"].(slug.Slug), args["input"].(model.UpdateTeamSlackAlertsChannelInput)), true
 
 	case "NaisJob.authz":
 		if e.complexity.NaisJob.Authz == nil {
@@ -2078,13 +1998,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamMemberList.PageInfo(childComplexity), true
 
-	case "TeamSync.correlationID":
-		if e.complexity.TeamSync.CorrelationID == nil {
-			break
-		}
-
-		return e.complexity.TeamSync.CorrelationID(childComplexity), true
-
 	case "TokenX.mountSecretsAsFilesOnly":
 		if e.complexity.TokenX.MountSecretsAsFilesOnly == nil {
 			break
@@ -2281,21 +2194,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			}
 
 			return &response
-		}
-	case ast.Mutation:
-		return func(ctx context.Context) *graphql.Response {
-			if !first {
-				return nil
-			}
-			first = false
-			ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
-			data := ec._Mutation(ctx, rc.Operation.SelectionSet)
-			var buf bytes.Buffer
-			data.MarshalGQL(&buf)
-
-			return &graphql.Response{
-				Data: buf.Bytes(),
-			}
 		}
 
 	default:
@@ -2575,24 +2473,7 @@ directive @admin on FIELD_DEFINITION
   slackAlertsChannel: String!
 }
 `, BuiltIn: false},
-	{Name: "../graphqls/naisjob.graphqls", Input: `extend type Mutation {
-  deleteJob(
-    "The name of the naisjob."
-    name: String!
-
-    "The name of the team who owns the naisjob."
-    team: Slug!
-
-    "The environment the naisjob is deployed to."
-    env: String!
-  ): DeleteJobResult!
-}
-type DeleteJobResult {
-  "Whether the job was deleted or not."
-  deleted: Boolean!
-  error: String
-}
-extend type Query {
+	{Name: "../graphqls/naisjob.graphqls", Input: `extend type Query {
   "Get a naisjob by name, team and env."
   naisjob(
     "The name of the naisjob."
@@ -2802,48 +2683,6 @@ type Role {
 
   "Get a specific team."
   team("Slug of the team." slug: Slug!): Team! @auth
-}
-
-extend type Mutation {
-  """
-  Update an existing team's Slack alerts channel
-
-  The updated team will be returned on success.
-  """
-  updateTeamSlackAlertsChannel(
-    "Slug of the team to update."
-    slug: Slug!
-
-    "Input for updating the team."
-    input: UpdateTeamSlackAlertsChannelInput!
-  ): Team! @auth
-
-  """
-  Manually synchronize a team
-
-  This action will trigger a full synchronization of the team against the configured third party systems. The action
-  is asynchronous.
-
-  The team will be returned.
-  """
-  synchronizeTeam(
-    "The slug of the team to synchronize."
-    slug: Slug!
-  ): TeamSync! @auth
-
-  """
-  Manually synchronize all teams
-
-  This action will trigger a full synchronization of all teams against the configured third party systems. The action
-  is asynchronous. The operation can take a while, depending on the amount of teams currently managed.
-  """
-  synchronizeAllTeams: TeamSync! @auth
-}
-
-"Team sync type."
-type TeamSync {
-  "The correlation ID for the sync."
-  correlationID: ID!
 }
 
 "Paginated teams type."
@@ -3144,183 +2983,6 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
-
-func (ec *executionContext) field_Mutation_deleteJob_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_deleteJob_argsName(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["name"] = arg0
-	arg1, err := ec.field_Mutation_deleteJob_argsTeam(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["team"] = arg1
-	arg2, err := ec.field_Mutation_deleteJob_argsEnv(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["env"] = arg2
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_deleteJob_argsName(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["name"]
-	if !ok {
-		var zeroVal string
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-	if tmp, ok := rawArgs["name"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_deleteJob_argsTeam(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (slug.Slug, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["team"]
-	if !ok {
-		var zeroVal slug.Slug
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-	if tmp, ok := rawArgs["team"]; ok {
-		return ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
-	}
-
-	var zeroVal slug.Slug
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_deleteJob_argsEnv(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["env"]
-	if !ok {
-		var zeroVal string
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("env"))
-	if tmp, ok := rawArgs["env"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_synchronizeTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_synchronizeTeam_argsSlug(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["slug"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_synchronizeTeam_argsSlug(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (slug.Slug, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["slug"]
-	if !ok {
-		var zeroVal slug.Slug
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
-	if tmp, ok := rawArgs["slug"]; ok {
-		return ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
-	}
-
-	var zeroVal slug.Slug
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_updateTeamSlackAlertsChannel_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_updateTeamSlackAlertsChannel_argsSlug(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["slug"] = arg0
-	arg1, err := ec.field_Mutation_updateTeamSlackAlertsChannel_argsInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg1
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_updateTeamSlackAlertsChannel_argsSlug(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (slug.Slug, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["slug"]
-	if !ok {
-		var zeroVal slug.Slug
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
-	if tmp, ok := rawArgs["slug"]; ok {
-		return ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
-	}
-
-	var zeroVal slug.Slug
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_updateTeamSlackAlertsChannel_argsInput(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (model.UpdateTeamSlackAlertsChannelInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
-		var zeroVal model.UpdateTeamSlackAlertsChannelInput
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNUpdateTeamSlackAlertsChannelInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUpdateTeamSlackAlertsChannelInput(ctx, tmp)
-	}
-
-	var zeroVal model.UpdateTeamSlackAlertsChannelInput
-	return zeroVal, nil
-}
 
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -5688,91 +5350,6 @@ func (ec *executionContext) _Consumer_orgno(ctx context.Context, field graphql.C
 func (ec *executionContext) fieldContext_Consumer_orgno(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Consumer",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _DeleteJobResult_deleted(ctx context.Context, field graphql.CollectedField, obj *model.DeleteJobResult) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_DeleteJobResult_deleted(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Deleted, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_DeleteJobResult_deleted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "DeleteJobResult",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _DeleteJobResult_error(ctx context.Context, field graphql.CollectedField, obj *model.DeleteJobResult) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_DeleteJobResult_error(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Error, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_DeleteJobResult_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "DeleteJobResult",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -8774,335 +8351,6 @@ func (ec *executionContext) fieldContext_MissingSbomError_level(_ context.Contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ErrorLevel does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_deleteJob(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_deleteJob(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteJob(rctx, fc.Args["name"].(string), fc.Args["team"].(slug.Slug), fc.Args["env"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.DeleteJobResult)
-	fc.Result = res
-	return ec.marshalNDeleteJobResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐDeleteJobResult(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_deleteJob(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "deleted":
-				return ec.fieldContext_DeleteJobResult_deleted(ctx, field)
-			case "error":
-				return ec.fieldContext_DeleteJobResult_error(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type DeleteJobResult", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_deleteJob_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_updateTeamSlackAlertsChannel(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateTeamSlackAlertsChannel(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().UpdateTeamSlackAlertsChannel(rctx, fc.Args["slug"].(slug.Slug), fc.Args["input"].(model.UpdateTeamSlackAlertsChannelInput))
-		}
-
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				var zeroVal *model.Team
-				return zeroVal, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.Team); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.Team`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Team)
-	fc.Result = res
-	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_updateTeamSlackAlertsChannel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Team_slug(ctx, field)
-			case "purpose":
-				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
-			case "lastSuccessfulSync":
-				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
-			case "slackChannel":
-				return ec.fieldContext_Team_slackChannel(ctx, field)
-			case "deletionInProgress":
-				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			case "resourceInventory":
-				return ec.fieldContext_Team_resourceInventory(ctx, field)
-			case "apps":
-				return ec.fieldContext_Team_apps(ctx, field)
-			case "naisjobs":
-				return ec.fieldContext_Team_naisjobs(ctx, field)
-			case "environments":
-				return ec.fieldContext_Team_environments(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateTeamSlackAlertsChannel_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_synchronizeTeam(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_synchronizeTeam(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().SynchronizeTeam(rctx, fc.Args["slug"].(slug.Slug))
-		}
-
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				var zeroVal *model.TeamSync
-				return zeroVal, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.TeamSync); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.TeamSync`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.TeamSync)
-	fc.Result = res
-	return ec.marshalNTeamSync2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamSync(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_synchronizeTeam(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "correlationID":
-				return ec.fieldContext_TeamSync_correlationID(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamSync", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_synchronizeTeam_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_synchronizeAllTeams(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_synchronizeAllTeams(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().SynchronizeAllTeams(rctx)
-		}
-
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				var zeroVal *model.TeamSync
-				return zeroVal, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.TeamSync); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.TeamSync`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.TeamSync)
-	fc.Result = res
-	return ec.marshalNTeamSync2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamSync(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_synchronizeAllTeams(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "correlationID":
-				return ec.fieldContext_TeamSync_correlationID(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamSync", field.Name)
 		},
 	}
 	return fc, nil
@@ -14466,50 +13714,6 @@ func (ec *executionContext) fieldContext_TeamMemberList_pageInfo(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamSync_correlationID(ctx context.Context, field graphql.CollectedField, obj *model.TeamSync) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamSync_correlationID(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CorrelationID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(uuid.UUID)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamSync_correlationID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamSync",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _TokenX_mountSecretsAsFilesOnly(ctx context.Context, field graphql.CollectedField, obj *model.TokenX) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TokenX_mountSecretsAsFilesOnly(ctx, field)
 	if err != nil {
@@ -18115,47 +17319,6 @@ func (ec *executionContext) _Consumer(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var deleteJobResultImplementors = []string{"DeleteJobResult"}
-
-func (ec *executionContext) _DeleteJobResult(ctx context.Context, sel ast.SelectionSet, obj *model.DeleteJobResult) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, deleteJobResultImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("DeleteJobResult")
-		case "deleted":
-			out.Values[i] = ec._DeleteJobResult_deleted(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "error":
-			out.Values[i] = ec._DeleteJobResult_error(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var deprecatedIngressErrorImplementors = []string{"DeprecatedIngressError", "StateError"}
 
 func (ec *executionContext) _DeprecatedIngressError(ctx context.Context, sel ast.SelectionSet, obj *model.DeprecatedIngressError) graphql.Marshaler {
@@ -19127,76 +18290,6 @@ func (ec *executionContext) _MissingSbomError(ctx context.Context, sel ast.Selec
 			}
 		case "level":
 			out.Values[i] = ec._MissingSbomError_level(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var mutationImplementors = []string{"Mutation"}
-
-func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, mutationImplementors)
-	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
-		Object: "Mutation",
-	})
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		innerCtx := graphql.WithRootFieldContext(ctx, &graphql.RootFieldContext{
-			Object: field.Name,
-			Field:  field,
-		})
-
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Mutation")
-		case "deleteJob":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_deleteJob(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "updateTeamSlackAlertsChannel":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateTeamSlackAlertsChannel(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "synchronizeTeam":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_synchronizeTeam(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "synchronizeAllTeams":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_synchronizeAllTeams(ctx, field)
-			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -21226,45 +20319,6 @@ func (ec *executionContext) _TeamMemberList(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var teamSyncImplementors = []string{"TeamSync"}
-
-func (ec *executionContext) _TeamSync(ctx context.Context, sel ast.SelectionSet, obj *model.TeamSync) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamSyncImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamSync")
-		case "correlationID":
-			out.Values[i] = ec._TeamSync_correlationID(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var tokenXImplementors = []string{"TokenX", "Authz"}
 
 func (ec *executionContext) _TokenX(ctx context.Context, sel ast.SelectionSet, obj *model.TokenX) graphql.Marshaler {
@@ -22315,20 +21369,6 @@ func (ec *executionContext) marshalNConsumer2ᚖgithubᚗcomᚋnaisᚋapiᚋinte
 	return ec._Consumer(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNDeleteJobResult2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐDeleteJobResult(ctx context.Context, sel ast.SelectionSet, v model.DeleteJobResult) graphql.Marshaler {
-	return ec._DeleteJobResult(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNDeleteJobResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐDeleteJobResult(ctx context.Context, sel ast.SelectionSet, v *model.DeleteJobResult) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._DeleteJobResult(ctx, sel, v)
-}
-
 func (ec *executionContext) marshalNEnv2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnv(ctx context.Context, sel ast.SelectionSet, v model.Env) graphql.Marshaler {
 	return ec._Env(ctx, sel, &v)
 }
@@ -23192,20 +22232,6 @@ func (ec *executionContext) marshalNTeamRole2githubᚗcomᚋnaisᚋapiᚋinterna
 	return v
 }
 
-func (ec *executionContext) marshalNTeamSync2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamSync(ctx context.Context, sel ast.SelectionSet, v model.TeamSync) graphql.Marshaler {
-	return ec._TeamSync(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNTeamSync2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamSync(ctx context.Context, sel ast.SelectionSet, v *model.TeamSync) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._TeamSync(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
 	res, err := graphql.UnmarshalTime(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -23219,11 +22245,6 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) unmarshalNUpdateTeamSlackAlertsChannelInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUpdateTeamSlackAlertsChannelInput(ctx context.Context, v interface{}) (model.UpdateTeamSlackAlertsChannelInput, error) {
-	res, err := ec.unmarshalInputUpdateTeamSlackAlertsChannelInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {

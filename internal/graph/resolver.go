@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"slices"
 
-	"cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -71,7 +70,6 @@ type Resolver struct {
 	database     database.Database
 	tenant       string
 	tenantDomain string
-	pubsubTopic  *pubsub.Topic
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
@@ -81,7 +79,6 @@ func NewResolver(
 	tenant string,
 	tenantDomain string,
 	clusters ClusterList,
-	pubsubTopic *pubsub.Topic,
 	log logrus.FieldLogger,
 ) *Resolver {
 	return &Resolver{
@@ -91,7 +88,6 @@ func NewResolver(
 		log:          log,
 		database:     db,
 		clusters:     clusters,
-		pubsubTopic:  pubsubTopic,
 	}
 }
 
