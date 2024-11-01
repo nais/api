@@ -19,7 +19,6 @@ type App implements Workload {
   env: Env!
   status: WorkloadStatus!
   variables: [Variable!]!
-  resources: Resources!
   type: WorkloadType!
   ingresses: [String!]!
   instances: [Instance!]!
@@ -117,9 +116,4 @@ enum State {
 	NOTNAIS
 	FAILING
 	UNKNOWN
-}
-
-type AppList {
-	nodes: [App!]!
-	pageInfo: PageInfo!
 }

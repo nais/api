@@ -38,7 +38,6 @@ type NaisJob implements Workload {
   env: Env!
   status: WorkloadStatus!
   variables: [Variable!]!
-  resources: Resources!
   type: WorkloadType!
 
   runs: [Run!]!
@@ -48,9 +47,4 @@ type NaisJob implements Workload {
   completions: Int!
   parallelism: Int!
   retries: Int!
-}
-
-type NaisJobList {
-  nodes: [NaisJob!]!
-  pageInfo: PageInfo!
 }

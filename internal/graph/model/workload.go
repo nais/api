@@ -14,7 +14,6 @@ type WorkloadBase struct {
 	Env         Env                 `json:"env"`
 	Status      WorkloadStatus      `json:"status"`
 	Variables   []*Variable         `json:"variables"`
-	Resources   Resources           `json:"resources"`
 	Utilization AppUtilization      `json:"utilization"`
 	GQLVars     WorkloadBaseGQLVars `json:"-"`
 }
@@ -49,12 +48,4 @@ type WorkloadBaseGQLVars struct {
 	Spec        WorkloadSpec
 	SecretNames []string
 	Team        slug.Slug
-}
-
-type Resources struct {
-	// Instances using resources above this threshold will be killed
-	Limits Limits `json:"limits"`
-	// How many resources are allocated to each instance
-	Requests Requests `json:"requests"`
-	Scaling  Scaling  `json:"scaling"`
 }

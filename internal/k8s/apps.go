@@ -318,36 +318,6 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 	}
 	ret.Ingresses = ingresses
 
-	r := model.Resources{}
-	if err := convert(app.Spec.Resources, &r); err != nil {
-		return nil, fmt.Errorf("converting resources: %w", err)
-	}
-
-	if app.Spec.Replicas != nil {
-		if app.Spec.Replicas.Min != nil {
-			r.Scaling.Min = *app.Spec.Replicas.Min
-		}
-		if app.Spec.Replicas.Max != nil {
-			r.Scaling.Max = *app.Spec.Replicas.Max
-		}
-
-		if app.Spec.Replicas.ScalingStrategy != nil && app.Spec.Replicas.ScalingStrategy.Cpu != nil && app.Spec.Replicas.ScalingStrategy.Cpu.ThresholdPercentage > 0 {
-			r.Scaling.Strategies = append(r.Scaling.Strategies, model.CPUScalingStrategy{
-				Threshold: app.Spec.Replicas.ScalingStrategy.Cpu.ThresholdPercentage,
-			})
-		}
-
-		if app.Spec.Replicas.ScalingStrategy != nil && app.Spec.Replicas.ScalingStrategy.Kafka != nil && app.Spec.Replicas.ScalingStrategy.Kafka.Threshold > 0 {
-			r.Scaling.Strategies = append(r.Scaling.Strategies, model.KafkaLagScalingStrategy{
-				Threshold:     app.Spec.Replicas.ScalingStrategy.Kafka.Threshold,
-				ConsumerGroup: app.Spec.Replicas.ScalingStrategy.Kafka.ConsumerGroup,
-				Topic:         app.Spec.Replicas.ScalingStrategy.Kafka.Topic,
-			})
-		}
-	}
-
-	ret.Resources = r
-
 	for _, v := range app.Spec.Env {
 		m := &model.Variable{
 			Name:  v.Name,
@@ -423,13 +393,6 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 		}
 	}
 
-	if (len(instances) == 0 || numFailing == len(instances)) && app.Resources.Scaling.Min > 0 && app.Resources.Scaling.Max > 0 {
-		appState.Errors = append(appState.Errors, &model.NoRunningInstancesError{
-			Level: model.ErrorLevelError,
-		})
-		appState.State = model.StateFailing
-	}
-
 	if !strings.Contains(app.Image, "europe-north1-docker.pkg.dev") {
 		parts := strings.Split(app.Image, ":")
 		tag := "unknown"
@@ -450,9 +413,6 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 			Tag:        tag,
 			Repository: repository,
 		})
-		/*if appState.State != model.StateFailing {
-			appState.State = model.StateNotnais
-		}*/
 	}
 
 	deprecatedIngresses := getDeprecatedIngresses(app.Env.Name)
@@ -464,9 +424,6 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 					Level:   model.ErrorLevelTodo,
 					Ingress: ingress,
 				})
-				/*if appState.State != model.StateFailing {
-					appState.State = model.StateNotnais
-				}*/
 			}
 		}
 	}

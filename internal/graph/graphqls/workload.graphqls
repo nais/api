@@ -5,7 +5,6 @@ interface Workload {
   env: Env!
   status: WorkloadStatus!
   variables: [Variable!]!
-  resources: Resources!
   team: Team!
   type: WorkloadType!
 }

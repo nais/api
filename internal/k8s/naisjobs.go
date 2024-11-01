@@ -379,16 +379,6 @@ func (c *Client) ToNaisJob(u *unstructured.Unstructured, env string) (*model.Nai
 	ret.Image = naisjob.Spec.Image
 
 	ret.GQLVars.Team = slug.Slug(naisjob.GetNamespace())
-
-	r := model.Resources{}
-	if err := convert(naisjob.Spec.Resources, &r); err != nil {
-		return nil, fmt.Errorf("converting resources: %w", err)
-	}
-
-	r.Requests = model.Requests{}
-	r.Limits = model.Limits{}
-	ret.Resources = r
-
 	ret.Schedule = naisjob.Spec.Schedule
 
 	if naisjob.Spec.Completions != nil {

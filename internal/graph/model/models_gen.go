@@ -16,10 +16,6 @@ type AuthenticatedUser interface {
 	IsAuthenticatedUser()
 }
 
-type ScalingStrategy interface {
-	IsScalingStrategy()
-}
-
 type StateError interface {
 	IsStateError()
 }
@@ -28,23 +24,12 @@ type Workload interface {
 	IsWorkload()
 }
 
-type AppList struct {
-	Nodes    []*App   `json:"nodes"`
-	PageInfo PageInfo `json:"pageInfo"`
-}
-
 // Team status for apps.
 type AppsStatus struct {
 	Failing         int `json:"failing"`
 	NotNais         int `json:"notNais"`
 	Vulnerabilities int `json:"vulnerabilities"`
 }
-
-type CPUScalingStrategy struct {
-	Threshold int `json:"threshold"`
-}
-
-func (CPUScalingStrategy) IsScalingStrategy() {}
 
 type DeprecatedIngressError struct {
 	Revision string     `json:"revision"`
@@ -106,30 +91,12 @@ type JobsStatus struct {
 	Vulnerabilities int `json:"vulnerabilities"`
 }
 
-type KafkaLagScalingStrategy struct {
-	Threshold     int    `json:"threshold"`
-	ConsumerGroup string `json:"consumerGroup"`
-	Topic         string `json:"topic"`
-}
-
-func (KafkaLagScalingStrategy) IsScalingStrategy() {}
-
-type Limits struct {
-	CPU    string `json:"cpu"`
-	Memory string `json:"memory"`
-}
-
 type MissingSbomError struct {
 	Revision string     `json:"revision"`
 	Level    ErrorLevel `json:"level"`
 }
 
 func (MissingSbomError) IsStateError() {}
-
-type NaisJobList struct {
-	Nodes    []*NaisJob `json:"nodes"`
-	PageInfo PageInfo   `json:"pageInfo"`
-}
 
 // NAIS namespace type.
 type NaisNamespace struct {
@@ -182,22 +149,11 @@ type PageInfo struct {
 type Query struct {
 }
 
-type Requests struct {
-	CPU    string `json:"cpu"`
-	Memory string `json:"memory"`
-}
-
 // A teams inventory of resources.
 type ResourceInventory struct {
 	TotalJobs int  `json:"totalJobs"`
 	TotalApps int  `json:"totalApps"`
 	IsEmpty   bool `json:"isEmpty"`
-}
-
-type Scaling struct {
-	Min        int               `json:"min"`
-	Max        int               `json:"max"`
-	Strategies []ScalingStrategy `json:"strategies"`
 }
 
 // Slack alerts channel type.

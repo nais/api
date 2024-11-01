@@ -66,26 +66,16 @@ type ComplexityRoot struct {
 		Instances func(childComplexity int) int
 		Manifest  func(childComplexity int) int
 		Name      func(childComplexity int) int
-		Resources func(childComplexity int) int
 		Status    func(childComplexity int) int
 		Team      func(childComplexity int) int
 		Type      func(childComplexity int) int
 		Variables func(childComplexity int) int
 	}
 
-	AppList struct {
-		Nodes    func(childComplexity int) int
-		PageInfo func(childComplexity int) int
-	}
-
 	AppsStatus struct {
 		Failing         func(childComplexity int) int
 		NotNais         func(childComplexity int) int
 		Vulnerabilities func(childComplexity int) int
-	}
-
-	CPUScalingStrategy struct {
-		Threshold func(childComplexity int) int
 	}
 
 	DeprecatedIngressError struct {
@@ -150,17 +140,6 @@ type ComplexityRoot struct {
 		Vulnerabilities func(childComplexity int) int
 	}
 
-	KafkaLagScalingStrategy struct {
-		ConsumerGroup func(childComplexity int) int
-		Threshold     func(childComplexity int) int
-		Topic         func(childComplexity int) int
-	}
-
-	Limits struct {
-		CPU    func(childComplexity int) int
-		Memory func(childComplexity int) int
-	}
-
 	MissingSbomError struct {
 		Level    func(childComplexity int) int
 		Revision func(childComplexity int) int
@@ -174,7 +153,6 @@ type ComplexityRoot struct {
 		Manifest    func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Parallelism func(childComplexity int) int
-		Resources   func(childComplexity int) int
 		Retries     func(childComplexity int) int
 		Runs        func(childComplexity int) int
 		Schedule    func(childComplexity int) int
@@ -182,11 +160,6 @@ type ComplexityRoot struct {
 		Team        func(childComplexity int) int
 		Type        func(childComplexity int) int
 		Variables   func(childComplexity int) int
-	}
-
-	NaisJobList struct {
-		Nodes    func(childComplexity int) int
-		PageInfo func(childComplexity int) int
 	}
 
 	NaisNamespace struct {
@@ -227,21 +200,10 @@ type ComplexityRoot struct {
 		UsersyncRuns func(childComplexity int, limit *int, offset *int) int
 	}
 
-	Requests struct {
-		CPU    func(childComplexity int) int
-		Memory func(childComplexity int) int
-	}
-
 	ResourceInventory struct {
 		IsEmpty   func(childComplexity int) int
 		TotalApps func(childComplexity int) int
 		TotalJobs func(childComplexity int) int
-	}
-
-	Resources struct {
-		Limits   func(childComplexity int) int
-		Requests func(childComplexity int) int
-		Scaling  func(childComplexity int) int
 	}
 
 	Role struct {
@@ -261,12 +223,6 @@ type ComplexityRoot struct {
 		Name           func(childComplexity int) int
 		PodNames       func(childComplexity int) int
 		StartTime      func(childComplexity int) int
-	}
-
-	Scaling struct {
-		Max        func(childComplexity int) int
-		Min        func(childComplexity int) int
-		Strategies func(childComplexity int) int
 	}
 
 	ServiceAccount struct {
@@ -293,7 +249,6 @@ type ComplexityRoot struct {
 	}
 
 	Team struct {
-		Apps                   func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		AzureGroupID           func(childComplexity int) int
 		CdnBucket              func(childComplexity int) int
 		DeletionInProgress     func(childComplexity int) int
@@ -303,7 +258,6 @@ type ComplexityRoot struct {
 		GoogleGroupEmail       func(childComplexity int) int
 		ID                     func(childComplexity int) int
 		LastSuccessfulSync     func(childComplexity int) int
-		Naisjobs               func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		Purpose                func(childComplexity int) int
 		ResourceInventory      func(childComplexity int) int
 		SlackChannel           func(childComplexity int) int
@@ -392,8 +346,6 @@ type TeamResolver interface {
 
 	DeletionInProgress(ctx context.Context, obj *model.Team) (bool, error)
 	ResourceInventory(ctx context.Context, obj *model.Team) (*model.ResourceInventory, error)
-	Apps(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.AppList, error)
-	Naisjobs(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.NaisJobList, error)
 	Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error)
 }
 type UserResolver interface {
@@ -473,13 +425,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.App.Name(childComplexity), true
 
-	case "App.resources":
-		if e.complexity.App.Resources == nil {
-			break
-		}
-
-		return e.complexity.App.Resources(childComplexity), true
-
 	case "App.status":
 		if e.complexity.App.Status == nil {
 			break
@@ -508,20 +453,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.App.Variables(childComplexity), true
 
-	case "AppList.nodes":
-		if e.complexity.AppList.Nodes == nil {
-			break
-		}
-
-		return e.complexity.AppList.Nodes(childComplexity), true
-
-	case "AppList.pageInfo":
-		if e.complexity.AppList.PageInfo == nil {
-			break
-		}
-
-		return e.complexity.AppList.PageInfo(childComplexity), true
-
 	case "AppsStatus.failing":
 		if e.complexity.AppsStatus.Failing == nil {
 			break
@@ -542,13 +473,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AppsStatus.Vulnerabilities(childComplexity), true
-
-	case "CPUScalingStrategy.threshold":
-		if e.complexity.CPUScalingStrategy.Threshold == nil {
-			break
-		}
-
-		return e.complexity.CPUScalingStrategy.Threshold(childComplexity), true
 
 	case "DeprecatedIngressError.ingress":
 		if e.complexity.DeprecatedIngressError.Ingress == nil {
@@ -795,41 +719,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.JobsStatus.Vulnerabilities(childComplexity), true
 
-	case "KafkaLagScalingStrategy.consumerGroup":
-		if e.complexity.KafkaLagScalingStrategy.ConsumerGroup == nil {
-			break
-		}
-
-		return e.complexity.KafkaLagScalingStrategy.ConsumerGroup(childComplexity), true
-
-	case "KafkaLagScalingStrategy.threshold":
-		if e.complexity.KafkaLagScalingStrategy.Threshold == nil {
-			break
-		}
-
-		return e.complexity.KafkaLagScalingStrategy.Threshold(childComplexity), true
-
-	case "KafkaLagScalingStrategy.topic":
-		if e.complexity.KafkaLagScalingStrategy.Topic == nil {
-			break
-		}
-
-		return e.complexity.KafkaLagScalingStrategy.Topic(childComplexity), true
-
-	case "Limits.cpu":
-		if e.complexity.Limits.CPU == nil {
-			break
-		}
-
-		return e.complexity.Limits.CPU(childComplexity), true
-
-	case "Limits.memory":
-		if e.complexity.Limits.Memory == nil {
-			break
-		}
-
-		return e.complexity.Limits.Memory(childComplexity), true
-
 	case "MissingSbomError.level":
 		if e.complexity.MissingSbomError.Level == nil {
 			break
@@ -893,13 +782,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.NaisJob.Parallelism(childComplexity), true
 
-	case "NaisJob.resources":
-		if e.complexity.NaisJob.Resources == nil {
-			break
-		}
-
-		return e.complexity.NaisJob.Resources(childComplexity), true
-
 	case "NaisJob.retries":
 		if e.complexity.NaisJob.Retries == nil {
 			break
@@ -948,20 +830,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.NaisJob.Variables(childComplexity), true
-
-	case "NaisJobList.nodes":
-		if e.complexity.NaisJobList.Nodes == nil {
-			break
-		}
-
-		return e.complexity.NaisJobList.Nodes(childComplexity), true
-
-	case "NaisJobList.pageInfo":
-		if e.complexity.NaisJobList.PageInfo == nil {
-			break
-		}
-
-		return e.complexity.NaisJobList.PageInfo(childComplexity), true
 
 	case "NaisNamespace.environment":
 		if e.complexity.NaisNamespace.Environment == nil {
@@ -1138,20 +1006,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.UsersyncRuns(childComplexity, args["limit"].(*int), args["offset"].(*int)), true
 
-	case "Requests.cpu":
-		if e.complexity.Requests.CPU == nil {
-			break
-		}
-
-		return e.complexity.Requests.CPU(childComplexity), true
-
-	case "Requests.memory":
-		if e.complexity.Requests.Memory == nil {
-			break
-		}
-
-		return e.complexity.Requests.Memory(childComplexity), true
-
 	case "ResourceInventory.isEmpty":
 		if e.complexity.ResourceInventory.IsEmpty == nil {
 			break
@@ -1172,27 +1026,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ResourceInventory.TotalJobs(childComplexity), true
-
-	case "Resources.limits":
-		if e.complexity.Resources.Limits == nil {
-			break
-		}
-
-		return e.complexity.Resources.Limits(childComplexity), true
-
-	case "Resources.requests":
-		if e.complexity.Resources.Requests == nil {
-			break
-		}
-
-		return e.complexity.Resources.Requests(childComplexity), true
-
-	case "Resources.scaling":
-		if e.complexity.Resources.Scaling == nil {
-			break
-		}
-
-		return e.complexity.Resources.Scaling(childComplexity), true
 
 	case "Role.isGlobal":
 		if e.complexity.Role.IsGlobal == nil {
@@ -1285,27 +1118,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Run.StartTime(childComplexity), true
 
-	case "Scaling.max":
-		if e.complexity.Scaling.Max == nil {
-			break
-		}
-
-		return e.complexity.Scaling.Max(childComplexity), true
-
-	case "Scaling.min":
-		if e.complexity.Scaling.Min == nil {
-			break
-		}
-
-		return e.complexity.Scaling.Min(childComplexity), true
-
-	case "Scaling.strategies":
-		if e.complexity.Scaling.Strategies == nil {
-			break
-		}
-
-		return e.complexity.Scaling.Strategies(childComplexity), true
-
 	case "ServiceAccount.id":
 		if e.complexity.ServiceAccount.ID == nil {
 			break
@@ -1383,18 +1195,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SynchronizationFailingError.Revision(childComplexity), true
 
-	case "Team.apps":
-		if e.complexity.Team.Apps == nil {
-			break
-		}
-
-		args, err := ec.field_Team_apps_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Team.Apps(childComplexity, args["offset"].(*int), args["limit"].(*int), args["orderBy"].(*model.OrderBy)), true
-
 	case "Team.azureGroupID":
 		if e.complexity.Team.AzureGroupID == nil {
 			break
@@ -1457,18 +1257,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Team.LastSuccessfulSync(childComplexity), true
-
-	case "Team.naisjobs":
-		if e.complexity.Team.Naisjobs == nil {
-			break
-		}
-
-		args, err := ec.field_Team_naisjobs_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Team.Naisjobs(childComplexity, args["offset"].(*int), args["limit"].(*int), args["orderBy"].(*model.OrderBy)), true
 
 	case "Team.purpose":
 		if e.complexity.Team.Purpose == nil {
@@ -1759,7 +1547,6 @@ type App implements Workload {
   env: Env!
   status: WorkloadStatus!
   variables: [Variable!]!
-  resources: Resources!
   type: WorkloadType!
   ingresses: [String!]!
   instances: [Instance!]!
@@ -1858,11 +1645,6 @@ enum State {
 	FAILING
 	UNKNOWN
 }
-
-type AppList {
-	nodes: [App!]!
-	pageInfo: PageInfo!
-}
 `, BuiltIn: false},
 	{Name: "../graphqls/authentication.graphqls", Input: `extend type Query {
     "The currently authenticated user."
@@ -1920,7 +1702,6 @@ type NaisJob implements Workload {
   env: Env!
   status: WorkloadStatus!
   variables: [Variable!]!
-  resources: Resources!
   type: WorkloadType!
 
   runs: [Run!]!
@@ -1930,50 +1711,6 @@ type NaisJob implements Workload {
   completions: Int!
   parallelism: Int!
   retries: Int!
-}
-
-type NaisJobList {
-  nodes: [NaisJob!]!
-  pageInfo: PageInfo!
-}
-`, BuiltIn: false},
-	{Name: "../graphqls/resources.graphqls", Input: `type Limits {
-  cpu: String!
-  memory: String!
-}
-
-type Requests {
-  cpu: String!
-  memory: String!
-}
-
-interface ScalingStrategy {
-  threshold: Int!
-}
-
-type CPUScalingStrategy implements ScalingStrategy {
-  threshold: Int!
-}
-
-type KafkaLagScalingStrategy implements ScalingStrategy {
-  threshold: Int!
-  consumerGroup: String!
-  topic: String!
-}
-
-type Scaling {
-  min: Int!
-  max: Int!
-  strategies: [ScalingStrategy!]!
-}
-
-type Resources {
-  "Instances using resources above this threshold will be killed"
-  limits: Limits!
-  "How many resources are allocated to each instance "
-  requests: Requests!
-  scaling: Scaling!
-
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/scalars.graphqls", Input: `"Time is a string in [RFC 3339](https://rfc-editor.org/rfc/rfc3339.html) format, with sub-second precision added if present. E.g. ` + "`" + `2024-09-06T13:37:00Z` + "`" + `."
@@ -2136,30 +1873,6 @@ type Team {
 
   "The teams resources"
   resourceInventory: ResourceInventory!
-
-  "The NAIS applications owned by the team."
-  apps(
-    "Returns the first n entries from the list."
-    offset: Int
-
-    "Returns the last n entries from the list."
-    limit: Int
-
-    "Order entries by"
-    orderBy: OrderBy
-  ): AppList!
-
-  "The NAIS jobs owned by the team."
-  naisjobs(
-    "Returns the first n entries from the list."
-    offset: Int
-
-    "Returns the last n entries from the list."
-    limit: Int
-
-    "Order entries by"
-    orderBy: OrderBy
-  ): NaisJobList!
 
   "The environments available for the team."
   environments: [Env!]!
@@ -2334,7 +2047,6 @@ type UserList {
   env: Env!
   status: WorkloadStatus!
   variables: [Variable!]!
-  resources: Resources!
   team: Team!
   type: WorkloadType!
 }
@@ -2823,178 +2535,6 @@ func (ec *executionContext) field_Query_usersyncRuns_argsOffset(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Team_apps_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Team_apps_argsOffset(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["offset"] = arg0
-	arg1, err := ec.field_Team_apps_argsLimit(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["limit"] = arg1
-	arg2, err := ec.field_Team_apps_argsOrderBy(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["orderBy"] = arg2
-	return args, nil
-}
-func (ec *executionContext) field_Team_apps_argsOffset(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*int, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["offset"]
-	if !ok {
-		var zeroVal *int
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-	if tmp, ok := rawArgs["offset"]; ok {
-		return ec.unmarshalOInt2ᚖint(ctx, tmp)
-	}
-
-	var zeroVal *int
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Team_apps_argsLimit(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*int, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["limit"]
-	if !ok {
-		var zeroVal *int
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-	if tmp, ok := rawArgs["limit"]; ok {
-		return ec.unmarshalOInt2ᚖint(ctx, tmp)
-	}
-
-	var zeroVal *int
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Team_apps_argsOrderBy(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*model.OrderBy, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["orderBy"]
-	if !ok {
-		var zeroVal *model.OrderBy
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
-	if tmp, ok := rawArgs["orderBy"]; ok {
-		return ec.unmarshalOOrderBy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderBy(ctx, tmp)
-	}
-
-	var zeroVal *model.OrderBy
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Team_naisjobs_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Team_naisjobs_argsOffset(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["offset"] = arg0
-	arg1, err := ec.field_Team_naisjobs_argsLimit(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["limit"] = arg1
-	arg2, err := ec.field_Team_naisjobs_argsOrderBy(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["orderBy"] = arg2
-	return args, nil
-}
-func (ec *executionContext) field_Team_naisjobs_argsOffset(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*int, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["offset"]
-	if !ok {
-		var zeroVal *int
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-	if tmp, ok := rawArgs["offset"]; ok {
-		return ec.unmarshalOInt2ᚖint(ctx, tmp)
-	}
-
-	var zeroVal *int
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Team_naisjobs_argsLimit(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*int, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["limit"]
-	if !ok {
-		var zeroVal *int
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-	if tmp, ok := rawArgs["limit"]; ok {
-		return ec.unmarshalOInt2ᚖint(ctx, tmp)
-	}
-
-	var zeroVal *int
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Team_naisjobs_argsOrderBy(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*model.OrderBy, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["orderBy"]
-	if !ok {
-		var zeroVal *model.OrderBy
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
-	if tmp, ok := rawArgs["orderBy"]; ok {
-		return ec.unmarshalOOrderBy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderBy(ctx, tmp)
-	}
-
-	var zeroVal *model.OrderBy
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field___Type_enumValues_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3353,58 +2893,6 @@ func (ec *executionContext) fieldContext_App_variables(_ context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _App_resources(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_App_resources(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Resources, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.Resources)
-	fc.Result = res
-	return ec.marshalNResources2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResources(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_App_resources(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "App",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "limits":
-				return ec.fieldContext_Resources_limits(ctx, field)
-			case "requests":
-				return ec.fieldContext_Resources_requests(ctx, field)
-			case "scaling":
-				return ec.fieldContext_Resources_scaling(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Resources", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _App_type(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_App_type(ctx, field)
 	if err != nil {
@@ -3660,136 +3148,10 @@ func (ec *executionContext) fieldContext_App_team(_ context.Context, field graph
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
 			case "resourceInventory":
 				return ec.fieldContext_Team_resourceInventory(ctx, field)
-			case "apps":
-				return ec.fieldContext_Team_apps(ctx, field)
-			case "naisjobs":
-				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AppList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.AppList) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AppList_nodes(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Nodes, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.App)
-	fc.Result = res
-	return ec.marshalNApp2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAppᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AppList_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AppList",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_App_id(ctx, field)
-			case "name":
-				return ec.fieldContext_App_name(ctx, field)
-			case "image":
-				return ec.fieldContext_App_image(ctx, field)
-			case "env":
-				return ec.fieldContext_App_env(ctx, field)
-			case "status":
-				return ec.fieldContext_App_status(ctx, field)
-			case "variables":
-				return ec.fieldContext_App_variables(ctx, field)
-			case "resources":
-				return ec.fieldContext_App_resources(ctx, field)
-			case "type":
-				return ec.fieldContext_App_type(ctx, field)
-			case "ingresses":
-				return ec.fieldContext_App_ingresses(ctx, field)
-			case "instances":
-				return ec.fieldContext_App_instances(ctx, field)
-			case "manifest":
-				return ec.fieldContext_App_manifest(ctx, field)
-			case "team":
-				return ec.fieldContext_App_team(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type App", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AppList_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.AppList) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AppList_pageInfo(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PageInfo, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.PageInfo)
-	fc.Result = res
-	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AppList_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AppList",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "totalCount":
-				return ec.fieldContext_PageInfo_totalCount(ctx, field)
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
 	}
 	return fc, nil
@@ -3917,50 +3279,6 @@ func (ec *executionContext) _AppsStatus_vulnerabilities(ctx context.Context, fie
 func (ec *executionContext) fieldContext_AppsStatus_vulnerabilities(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AppsStatus",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _CPUScalingStrategy_threshold(ctx context.Context, field graphql.CollectedField, obj *model.CPUScalingStrategy) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CPUScalingStrategy_threshold(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Threshold, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CPUScalingStrategy_threshold(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CPUScalingStrategy",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -5508,226 +4826,6 @@ func (ec *executionContext) fieldContext_JobsStatus_vulnerabilities(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaLagScalingStrategy_threshold(ctx context.Context, field graphql.CollectedField, obj *model.KafkaLagScalingStrategy) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_KafkaLagScalingStrategy_threshold(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Threshold, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_KafkaLagScalingStrategy_threshold(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaLagScalingStrategy",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _KafkaLagScalingStrategy_consumerGroup(ctx context.Context, field graphql.CollectedField, obj *model.KafkaLagScalingStrategy) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_KafkaLagScalingStrategy_consumerGroup(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ConsumerGroup, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_KafkaLagScalingStrategy_consumerGroup(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaLagScalingStrategy",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _KafkaLagScalingStrategy_topic(ctx context.Context, field graphql.CollectedField, obj *model.KafkaLagScalingStrategy) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_KafkaLagScalingStrategy_topic(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Topic, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_KafkaLagScalingStrategy_topic(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaLagScalingStrategy",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Limits_cpu(ctx context.Context, field graphql.CollectedField, obj *model.Limits) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Limits_cpu(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CPU, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Limits_cpu(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Limits",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Limits_memory(ctx context.Context, field graphql.CollectedField, obj *model.Limits) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Limits_memory(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Memory, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Limits_memory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Limits",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _MissingSbomError_revision(ctx context.Context, field graphql.CollectedField, obj *model.MissingSbomError) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_MissingSbomError_revision(ctx, field)
 	if err != nil {
@@ -6102,58 +5200,6 @@ func (ec *executionContext) fieldContext_NaisJob_variables(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _NaisJob_resources(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_NaisJob_resources(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Resources, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.Resources)
-	fc.Result = res
-	return ec.marshalNResources2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResources(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_NaisJob_resources(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "NaisJob",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "limits":
-				return ec.fieldContext_Resources_limits(ctx, field)
-			case "requests":
-				return ec.fieldContext_Resources_requests(ctx, field)
-			case "scaling":
-				return ec.fieldContext_Resources_scaling(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Resources", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _NaisJob_type(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_NaisJob_type(ctx, field)
 	if err != nil {
@@ -6413,10 +5459,6 @@ func (ec *executionContext) fieldContext_NaisJob_team(_ context.Context, field g
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
 			case "resourceInventory":
 				return ec.fieldContext_Team_resourceInventory(ctx, field)
-			case "apps":
-				return ec.fieldContext_Team_apps(ctx, field)
-			case "naisjobs":
-				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -6553,134 +5595,6 @@ func (ec *executionContext) fieldContext_NaisJob_retries(_ context.Context, fiel
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _NaisJobList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.NaisJobList) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_NaisJobList_nodes(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Nodes, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.NaisJob)
-	fc.Result = res
-	return ec.marshalNNaisJob2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐNaisJobᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_NaisJobList_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "NaisJobList",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_NaisJob_id(ctx, field)
-			case "name":
-				return ec.fieldContext_NaisJob_name(ctx, field)
-			case "image":
-				return ec.fieldContext_NaisJob_image(ctx, field)
-			case "env":
-				return ec.fieldContext_NaisJob_env(ctx, field)
-			case "status":
-				return ec.fieldContext_NaisJob_status(ctx, field)
-			case "variables":
-				return ec.fieldContext_NaisJob_variables(ctx, field)
-			case "resources":
-				return ec.fieldContext_NaisJob_resources(ctx, field)
-			case "type":
-				return ec.fieldContext_NaisJob_type(ctx, field)
-			case "runs":
-				return ec.fieldContext_NaisJob_runs(ctx, field)
-			case "manifest":
-				return ec.fieldContext_NaisJob_manifest(ctx, field)
-			case "schedule":
-				return ec.fieldContext_NaisJob_schedule(ctx, field)
-			case "team":
-				return ec.fieldContext_NaisJob_team(ctx, field)
-			case "completions":
-				return ec.fieldContext_NaisJob_completions(ctx, field)
-			case "parallelism":
-				return ec.fieldContext_NaisJob_parallelism(ctx, field)
-			case "retries":
-				return ec.fieldContext_NaisJob_retries(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type NaisJob", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _NaisJobList_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.NaisJobList) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_NaisJobList_pageInfo(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PageInfo, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.PageInfo)
-	fc.Result = res
-	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_NaisJobList_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "NaisJobList",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "totalCount":
-				return ec.fieldContext_PageInfo_totalCount(ctx, field)
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
 	}
 	return fc, nil
@@ -7265,8 +6179,6 @@ func (ec *executionContext) fieldContext_Query_app(ctx context.Context, field gr
 				return ec.fieldContext_App_status(ctx, field)
 			case "variables":
 				return ec.fieldContext_App_variables(ctx, field)
-			case "resources":
-				return ec.fieldContext_App_resources(ctx, field)
 			case "type":
 				return ec.fieldContext_App_type(ctx, field)
 			case "ingresses":
@@ -7412,8 +6324,6 @@ func (ec *executionContext) fieldContext_Query_naisjob(ctx context.Context, fiel
 				return ec.fieldContext_NaisJob_status(ctx, field)
 			case "variables":
 				return ec.fieldContext_NaisJob_variables(ctx, field)
-			case "resources":
-				return ec.fieldContext_NaisJob_resources(ctx, field)
 			case "type":
 				return ec.fieldContext_NaisJob_type(ctx, field)
 			case "runs":
@@ -7616,10 +6526,6 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
 			case "resourceInventory":
 				return ec.fieldContext_Team_resourceInventory(ctx, field)
-			case "apps":
-				return ec.fieldContext_Team_apps(ctx, field)
-			case "naisjobs":
-				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -8026,94 +6932,6 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Requests_cpu(ctx context.Context, field graphql.CollectedField, obj *model.Requests) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Requests_cpu(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CPU, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Requests_cpu(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Requests",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Requests_memory(ctx context.Context, field graphql.CollectedField, obj *model.Requests) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Requests_memory(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Memory, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Requests_memory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Requests",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _ResourceInventory_totalJobs(ctx context.Context, field graphql.CollectedField, obj *model.ResourceInventory) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ResourceInventory_totalJobs(ctx, field)
 	if err != nil {
@@ -8241,158 +7059,6 @@ func (ec *executionContext) fieldContext_ResourceInventory_isEmpty(_ context.Con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Resources_limits(ctx context.Context, field graphql.CollectedField, obj *model.Resources) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Resources_limits(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Limits, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.Limits)
-	fc.Result = res
-	return ec.marshalNLimits2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLimits(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Resources_limits(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Resources",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "cpu":
-				return ec.fieldContext_Limits_cpu(ctx, field)
-			case "memory":
-				return ec.fieldContext_Limits_memory(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Limits", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Resources_requests(ctx context.Context, field graphql.CollectedField, obj *model.Resources) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Resources_requests(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Requests, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.Requests)
-	fc.Result = res
-	return ec.marshalNRequests2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRequests(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Resources_requests(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Resources",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "cpu":
-				return ec.fieldContext_Requests_cpu(ctx, field)
-			case "memory":
-				return ec.fieldContext_Requests_memory(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Requests", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Resources_scaling(ctx context.Context, field graphql.CollectedField, obj *model.Resources) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Resources_scaling(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Scaling, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.Scaling)
-	fc.Result = res
-	return ec.marshalNScaling2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐScaling(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Resources_scaling(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Resources",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "min":
-				return ec.fieldContext_Scaling_min(ctx, field)
-			case "max":
-				return ec.fieldContext_Scaling_max(ctx, field)
-			case "strategies":
-				return ec.fieldContext_Scaling_strategies(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Scaling", field.Name)
 		},
 	}
 	return fc, nil
@@ -8595,10 +7261,6 @@ func (ec *executionContext) fieldContext_Role_targetTeam(_ context.Context, fiel
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
 			case "resourceInventory":
 				return ec.fieldContext_Team_resourceInventory(ctx, field)
-			case "apps":
-				return ec.fieldContext_Team_apps(ctx, field)
-			case "naisjobs":
-				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -8993,138 +7655,6 @@ func (ec *executionContext) fieldContext_Run_failed(_ context.Context, field gra
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Scaling_min(ctx context.Context, field graphql.CollectedField, obj *model.Scaling) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Scaling_min(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Min, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Scaling_min(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Scaling",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Scaling_max(ctx context.Context, field graphql.CollectedField, obj *model.Scaling) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Scaling_max(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Max, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Scaling_max(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Scaling",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Scaling_strategies(ctx context.Context, field graphql.CollectedField, obj *model.Scaling) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Scaling_strategies(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Strategies, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]model.ScalingStrategy)
-	fc.Result = res
-	return ec.marshalNScalingStrategy2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐScalingStrategyᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Scaling_strategies(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Scaling",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
 	}
 	return fc, nil
@@ -10142,128 +8672,6 @@ func (ec *executionContext) fieldContext_Team_resourceInventory(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_apps(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Team_apps(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().Apps(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int), fc.Args["orderBy"].(*model.OrderBy))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.AppList)
-	fc.Result = res
-	return ec.marshalNAppList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAppList(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Team_apps(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Team",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "nodes":
-				return ec.fieldContext_AppList_nodes(ctx, field)
-			case "pageInfo":
-				return ec.fieldContext_AppList_pageInfo(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type AppList", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_apps_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Team_naisjobs(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Team_naisjobs(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().Naisjobs(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int), fc.Args["orderBy"].(*model.OrderBy))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.NaisJobList)
-	fc.Result = res
-	return ec.marshalNNaisJobList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐNaisJobList(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Team_naisjobs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Team",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "nodes":
-				return ec.fieldContext_NaisJobList_nodes(ctx, field)
-			case "pageInfo":
-				return ec.fieldContext_NaisJobList_pageInfo(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type NaisJobList", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_naisjobs_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Team_environments(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_environments(ctx, field)
 	if err != nil {
@@ -10381,10 +8789,6 @@ func (ec *executionContext) fieldContext_TeamList_nodes(_ context.Context, field
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
 			case "resourceInventory":
 				return ec.fieldContext_Team_resourceInventory(ctx, field)
-			case "apps":
-				return ec.fieldContext_Team_apps(ctx, field)
-			case "naisjobs":
-				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -13230,29 +11634,6 @@ func (ec *executionContext) _AuthenticatedUser(ctx context.Context, sel ast.Sele
 	}
 }
 
-func (ec *executionContext) _ScalingStrategy(ctx context.Context, sel ast.SelectionSet, obj model.ScalingStrategy) graphql.Marshaler {
-	switch obj := (obj).(type) {
-	case nil:
-		return graphql.Null
-	case model.CPUScalingStrategy:
-		return ec._CPUScalingStrategy(ctx, sel, &obj)
-	case *model.CPUScalingStrategy:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._CPUScalingStrategy(ctx, sel, obj)
-	case model.KafkaLagScalingStrategy:
-		return ec._KafkaLagScalingStrategy(ctx, sel, &obj)
-	case *model.KafkaLagScalingStrategy:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._KafkaLagScalingStrategy(ctx, sel, obj)
-	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
-	}
-}
-
 func (ec *executionContext) _StateError(ctx context.Context, sel ast.SelectionSet, obj model.StateError) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -13400,11 +11781,6 @@ func (ec *executionContext) _App(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "resources":
-			out.Values[i] = ec._App_resources(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "type":
 			out.Values[i] = ec._App_type(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -13546,50 +11922,6 @@ func (ec *executionContext) _App(ctx context.Context, sel ast.SelectionSet, obj 
 	return out
 }
 
-var appListImplementors = []string{"AppList"}
-
-func (ec *executionContext) _AppList(ctx context.Context, sel ast.SelectionSet, obj *model.AppList) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, appListImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("AppList")
-		case "nodes":
-			out.Values[i] = ec._AppList_nodes(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "pageInfo":
-			out.Values[i] = ec._AppList_pageInfo(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var appsStatusImplementors = []string{"AppsStatus"}
 
 func (ec *executionContext) _AppsStatus(ctx context.Context, sel ast.SelectionSet, obj *model.AppsStatus) graphql.Marshaler {
@@ -13613,45 +11945,6 @@ func (ec *executionContext) _AppsStatus(ctx context.Context, sel ast.SelectionSe
 			}
 		case "vulnerabilities":
 			out.Values[i] = ec._AppsStatus_vulnerabilities(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var cPUScalingStrategyImplementors = []string{"CPUScalingStrategy", "ScalingStrategy"}
-
-func (ec *executionContext) _CPUScalingStrategy(ctx context.Context, sel ast.SelectionSet, obj *model.CPUScalingStrategy) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, cPUScalingStrategyImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("CPUScalingStrategy")
-		case "threshold":
-			out.Values[i] = ec._CPUScalingStrategy_threshold(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -14249,99 +12542,6 @@ func (ec *executionContext) _JobsStatus(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
-var kafkaLagScalingStrategyImplementors = []string{"KafkaLagScalingStrategy", "ScalingStrategy"}
-
-func (ec *executionContext) _KafkaLagScalingStrategy(ctx context.Context, sel ast.SelectionSet, obj *model.KafkaLagScalingStrategy) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaLagScalingStrategyImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("KafkaLagScalingStrategy")
-		case "threshold":
-			out.Values[i] = ec._KafkaLagScalingStrategy_threshold(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "consumerGroup":
-			out.Values[i] = ec._KafkaLagScalingStrategy_consumerGroup(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "topic":
-			out.Values[i] = ec._KafkaLagScalingStrategy_topic(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var limitsImplementors = []string{"Limits"}
-
-func (ec *executionContext) _Limits(ctx context.Context, sel ast.SelectionSet, obj *model.Limits) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, limitsImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Limits")
-		case "cpu":
-			out.Values[i] = ec._Limits_cpu(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "memory":
-			out.Values[i] = ec._Limits_memory(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var missingSbomErrorImplementors = []string{"MissingSbomError", "StateError"}
 
 func (ec *executionContext) _MissingSbomError(ctx context.Context, sel ast.SelectionSet, obj *model.MissingSbomError) graphql.Marshaler {
@@ -14424,11 +12624,6 @@ func (ec *executionContext) _NaisJob(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "variables":
 			out.Values[i] = ec._NaisJob_variables(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "resources":
-			out.Values[i] = ec._NaisJob_resources(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -14564,50 +12759,6 @@ func (ec *executionContext) _NaisJob(ctx context.Context, sel ast.SelectionSet, 
 			out.Values[i] = ec._NaisJob_retries(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var naisJobListImplementors = []string{"NaisJobList"}
-
-func (ec *executionContext) _NaisJobList(ctx context.Context, sel ast.SelectionSet, obj *model.NaisJobList) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, naisJobListImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("NaisJobList")
-		case "nodes":
-			out.Values[i] = ec._NaisJobList_nodes(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "pageInfo":
-			out.Values[i] = ec._NaisJobList_pageInfo(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -15088,50 +13239,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	return out
 }
 
-var requestsImplementors = []string{"Requests"}
-
-func (ec *executionContext) _Requests(ctx context.Context, sel ast.SelectionSet, obj *model.Requests) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, requestsImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Requests")
-		case "cpu":
-			out.Values[i] = ec._Requests_cpu(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "memory":
-			out.Values[i] = ec._Requests_memory(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var resourceInventoryImplementors = []string{"ResourceInventory"}
 
 func (ec *executionContext) _ResourceInventory(ctx context.Context, sel ast.SelectionSet, obj *model.ResourceInventory) graphql.Marshaler {
@@ -15155,55 +13262,6 @@ func (ec *executionContext) _ResourceInventory(ctx context.Context, sel ast.Sele
 			}
 		case "isEmpty":
 			out.Values[i] = ec._ResourceInventory_isEmpty(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var resourcesImplementors = []string{"Resources"}
-
-func (ec *executionContext) _Resources(ctx context.Context, sel ast.SelectionSet, obj *model.Resources) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, resourcesImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Resources")
-		case "limits":
-			out.Values[i] = ec._Resources_limits(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "requests":
-			out.Values[i] = ec._Resources_requests(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "scaling":
-			out.Values[i] = ec._Resources_scaling(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -15387,55 +13445,6 @@ func (ec *executionContext) _Run(ctx context.Context, sel ast.SelectionSet, obj 
 			}
 		case "failed":
 			out.Values[i] = ec._Run_failed(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var scalingImplementors = []string{"Scaling"}
-
-func (ec *executionContext) _Scaling(ctx context.Context, sel ast.SelectionSet, obj *model.Scaling) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, scalingImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Scaling")
-		case "min":
-			out.Values[i] = ec._Scaling_min(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "max":
-			out.Values[i] = ec._Scaling_max(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "strategies":
-			out.Values[i] = ec._Scaling_strategies(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -15804,78 +13813,6 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._Team_resourceInventory(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "apps":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Team_apps(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "naisjobs":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Team_naisjobs(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -16721,50 +14658,6 @@ func (ec *executionContext) marshalNApp2githubᚗcomᚋnaisᚋapiᚋinternalᚋg
 	return ec._App(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNApp2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAppᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.App) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNApp2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐApp(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
 func (ec *executionContext) marshalNApp2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐApp(ctx context.Context, sel ast.SelectionSet, v *model.App) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -16773,20 +14666,6 @@ func (ec *executionContext) marshalNApp2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal�
 		return graphql.Null
 	}
 	return ec._App(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNAppList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAppList(ctx context.Context, sel ast.SelectionSet, v model.AppList) graphql.Marshaler {
-	return ec._AppList(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNAppList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAppList(ctx context.Context, sel ast.SelectionSet, v *model.AppList) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._AppList(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNAuthenticatedUser2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuthenticatedUser(ctx context.Context, sel ast.SelectionSet, v model.AuthenticatedUser) graphql.Marshaler {
@@ -17002,56 +14881,8 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) marshalNLimits2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLimits(ctx context.Context, sel ast.SelectionSet, v model.Limits) graphql.Marshaler {
-	return ec._Limits(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalNNaisJob2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐNaisJob(ctx context.Context, sel ast.SelectionSet, v model.NaisJob) graphql.Marshaler {
 	return ec._NaisJob(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNNaisJob2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐNaisJobᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.NaisJob) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNNaisJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐNaisJob(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) marshalNNaisJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐNaisJob(ctx context.Context, sel ast.SelectionSet, v *model.NaisJob) graphql.Marshaler {
@@ -17062,20 +14893,6 @@ func (ec *executionContext) marshalNNaisJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinter
 		return graphql.Null
 	}
 	return ec._NaisJob(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNNaisJobList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐNaisJobList(ctx context.Context, sel ast.SelectionSet, v model.NaisJobList) graphql.Marshaler {
-	return ec._NaisJobList(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNNaisJobList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐNaisJobList(ctx context.Context, sel ast.SelectionSet, v *model.NaisJobList) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._NaisJobList(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNOrderByField2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderByField(ctx context.Context, v interface{}) (model.OrderByField, error) {
@@ -17092,10 +14909,6 @@ func (ec *executionContext) marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinterna
 	return ec._PageInfo(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNRequests2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRequests(ctx context.Context, sel ast.SelectionSet, v model.Requests) graphql.Marshaler {
-	return ec._Requests(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalNResourceInventory2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceInventory(ctx context.Context, sel ast.SelectionSet, v model.ResourceInventory) graphql.Marshaler {
 	return ec._ResourceInventory(ctx, sel, &v)
 }
@@ -17108,10 +14921,6 @@ func (ec *executionContext) marshalNResourceInventory2ᚖgithubᚗcomᚋnaisᚋa
 		return graphql.Null
 	}
 	return ec._ResourceInventory(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNResources2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResources(ctx context.Context, sel ast.SelectionSet, v model.Resources) graphql.Marshaler {
-	return ec._Resources(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNRole2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRoleᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Role) graphql.Marshaler {
@@ -17220,64 +15029,6 @@ func (ec *executionContext) marshalNRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal�
 		return graphql.Null
 	}
 	return ec._Run(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNScaling2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐScaling(ctx context.Context, sel ast.SelectionSet, v model.Scaling) graphql.Marshaler {
-	return ec._Scaling(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNScalingStrategy2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐScalingStrategy(ctx context.Context, sel ast.SelectionSet, v model.ScalingStrategy) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._ScalingStrategy(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNScalingStrategy2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐScalingStrategyᚄ(ctx context.Context, sel ast.SelectionSet, v []model.ScalingStrategy) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNScalingStrategy2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐScalingStrategy(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, v interface{}) (slug.Slug, error) {
@@ -18041,14 +15792,6 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	}
 	res := graphql.MarshalInt(*v)
 	return res
-}
-
-func (ec *executionContext) unmarshalOOrderBy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderBy(ctx context.Context, v interface{}) (*model.OrderBy, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputOrderBy(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐServiceAccount(ctx context.Context, sel ast.SelectionSet, v *model.ServiceAccount) graphql.Marshaler {

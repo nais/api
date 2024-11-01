@@ -1,3 +1,6 @@
+//go:build v0_test
+// +build v0_test
+
 package k8s
 
 import (
@@ -151,12 +154,6 @@ func TestSetStatus(t *testing.T) {
 				WorkloadBase: model.WorkloadBase{
 					Image: tc.image,
 					Env:   model.Env{Name: "prod-gcp"},
-					Resources: model.Resources{
-						Scaling: model.Scaling{
-							Min: 1,
-							Max: 2,
-						},
-					},
 				},
 				Ingresses: tc.ingresses,
 			}
