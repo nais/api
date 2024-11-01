@@ -67,16 +67,23 @@ WHERE
 		ELSE TRUE
 	END
 ORDER BY
+	CASE
+		WHEN $3::TEXT = 'name:asc' THEN github_repository
+	END ASC,
+	CASE
+		WHEN $3::TEXT = 'name:desc' THEN github_repository
+	END DESC,
 	github_repository ASC
 LIMIT
-	$4
+	$5
 OFFSET
-	$3
+	$4
 `
 
 type ListForTeamParams struct {
 	TeamSlug slug.Slug
 	Search   *string
+	OrderBy  string
 	Offset   int32
 	Limit    int32
 }
@@ -85,6 +92,7 @@ func (q *Queries) ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*Te
 	rows, err := q.db.Query(ctx, listForTeam,
 		arg.TeamSlug,
 		arg.Search,
+		arg.OrderBy,
 		arg.Offset,
 		arg.Limit,
 	)

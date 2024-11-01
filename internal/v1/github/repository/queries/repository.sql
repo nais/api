@@ -23,6 +23,12 @@ WHERE
 		ELSE TRUE
 	END
 ORDER BY
+	CASE
+		WHEN @order_by::TEXT = 'name:asc' THEN github_repository
+	END ASC,
+	CASE
+		WHEN @order_by::TEXT = 'name:desc' THEN github_repository
+	END DESC,
 	github_repository ASC
 LIMIT
 	sqlc.arg('limit')

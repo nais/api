@@ -21,7 +21,7 @@ func getByIdent(_ context.Context, id ident.Ident) (*Repository, error) {
 	}, nil
 }
 
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, filter *TeamRepositoryFilter) (*RepositoryConnection, error) {
+func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *RepositoryOrder, filter *TeamRepositoryFilter) (*RepositoryConnection, error) {
 	if filter == nil {
 		filter = &TeamRepositoryFilter{}
 	}
@@ -33,6 +33,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		Offset:   page.Offset(),
 		Limit:    page.Limit(),
 		Search:   filter.Name,
+		OrderBy:  orderBy.String(),
 	})
 	if err != nil {
 		return nil, err

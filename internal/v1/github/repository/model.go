@@ -1,9 +1,15 @@
 package repository
 
 import (
+	"fmt"
+	"io"
+	"strconv"
+	"strings"
+
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/github/repository/repositorysql"
 	"github.com/nais/api/internal/v1/graphv1/ident"
+	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 )
 
@@ -50,4 +56,60 @@ type RemoveRepositoryFromTeamPayload struct {
 
 type TeamRepositoryFilter struct {
 	Name *string `json:"name"`
+}
+
+// Ordering options when fetching repositories.
+type RepositoryOrder struct {
+	// The field to order items by.
+	Field RepositoryOrderField `json:"field"`
+	// The direction to order items by.
+	Direction modelv1.OrderDirection `json:"direction"`
+}
+
+func (o *RepositoryOrder) String() string {
+	if o == nil {
+		return ""
+	}
+
+	return strings.ToLower(o.Field.String() + ":" + o.Direction.String())
+}
+
+type RepositoryOrderField string
+
+const (
+	// Order repositories by name.
+	RepositoryOrderFieldName RepositoryOrderField = "NAME"
+)
+
+var AllRepositoryOrderField = []RepositoryOrderField{
+	RepositoryOrderFieldName,
+}
+
+func (e RepositoryOrderField) IsValid() bool {
+	switch e {
+	case RepositoryOrderFieldName:
+		return true
+	}
+	return false
+}
+
+func (e RepositoryOrderField) String() string {
+	return string(e)
+}
+
+func (e *RepositoryOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = RepositoryOrderField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid RepositoryOrderField", str)
+	}
+	return nil
+}
+
+func (e RepositoryOrderField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

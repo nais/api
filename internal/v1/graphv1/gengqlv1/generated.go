@@ -1210,7 +1210,7 @@ type ComplexityRoot struct {
 		OpenSearchInstances    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) int
 		Purpose                func(childComplexity int) int
 		RedisInstances         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceOrder) int
-		Repositories           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *repository.TeamRepositoryFilter) int
+		Repositories           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) int
 		SQLInstances           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) int
 		Secrets                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder) int
 		ServiceUtilization     func(childComplexity int) int
@@ -2005,7 +2005,7 @@ type TeamResolver interface {
 	KafkaTopics(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder) (*pagination.Connection[*kafkatopic.KafkaTopic], error)
 	OpenSearchInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) (*pagination.Connection[*opensearch.OpenSearch], error)
 	RedisInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceOrder) (*pagination.Connection[*redis.RedisInstance], error)
-	Repositories(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *repository.TeamRepositoryFilter) (*pagination.Connection[*repository.Repository], error)
+	Repositories(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) (*pagination.Connection[*repository.Repository], error)
 	Secrets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder) (*pagination.Connection[*secret.Secret], error)
 	SQLInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
 	Unleash(ctx context.Context, obj *team.Team) (*unleash.UnleashInstance, error)
@@ -6704,7 +6704,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Team.Repositories(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*repository.TeamRepositoryFilter)), true
+		return e.complexity.Team.Repositories(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*repository.RepositoryOrder), args["filter"].(*repository.TeamRepositoryFilter)), true
 
 	case "Team.sqlInstances":
 		if e.complexity.Team.SQLInstances == nil {
@@ -8946,6 +8946,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRemoveRepositoryFromTeamInput,
 		ec.unmarshalInputRemoveSecretValueInput,
 		ec.unmarshalInputRemoveTeamMemberInput,
+		ec.unmarshalInputRepositoryOrder,
 		ec.unmarshalInputRequestTeamDeletionInput,
 		ec.unmarshalInputRestartApplicationInput,
 		ec.unmarshalInputRevokeTeamAccessToUnleashInput,
@@ -11031,6 +11032,9 @@ extend enum SearchType {
 		"Get items before this cursor."
 		before: Cursor
 
+		"Ordering options for items returned from the connection."
+		orderBy: RepositoryOrder
+
 		filter: TeamRepositoryFilter
 	): RepositoryConnection!
 }
@@ -11102,6 +11106,20 @@ type Repository implements Node {
 input TeamRepositoryFilter {
 	"Filter by repository name containing the phrase."
 	name: String
+}
+
+"Ordering options when fetching repositories."
+input RepositoryOrder {
+	"The field to order items by."
+	field: RepositoryOrderField!
+
+	"The direction to order items by."
+	direction: OrderDirection!
+}
+
+enum RepositoryOrderField {
+	"Order repositories by name."
+	NAME
 }
 `, BuiltIn: false},
 	{Name: "../schema/scalars.graphqls", Input: `"Time is a string in [RFC 3339](https://rfc-editor.org/rfc/rfc3339.html) format, with sub-second precision added if present."
@@ -19996,11 +20014,16 @@ func (ec *executionContext) field_Team_repositories_args(ctx context.Context, ra
 		return nil, err
 	}
 	args["before"] = arg3
-	arg4, err := ec.field_Team_repositories_argsFilter(ctx, rawArgs)
+	arg4, err := ec.field_Team_repositories_argsOrderBy(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["filter"] = arg4
+	args["orderBy"] = arg4
+	arg5, err := ec.field_Team_repositories_argsFilter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg5
 	return args, nil
 }
 func (ec *executionContext) field_Team_repositories_argsFirst(
@@ -20088,6 +20111,28 @@ func (ec *executionContext) field_Team_repositories_argsBefore(
 	}
 
 	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Team_repositories_argsOrderBy(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*repository.RepositoryOrder, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["orderBy"]
+	if !ok {
+		var zeroVal *repository.RepositoryOrder
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		return ec.unmarshalORepositoryOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐRepositoryOrder(ctx, tmp)
+	}
+
+	var zeroVal *repository.RepositoryOrder
 	return zeroVal, nil
 }
 
@@ -53038,7 +53083,7 @@ func (ec *executionContext) _Team_repositories(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().Repositories(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*repository.TeamRepositoryFilter))
+		return ec.resolvers.Team().Repositories(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*repository.RepositoryOrder), fc.Args["filter"].(*repository.TeamRepositoryFilter))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -70589,6 +70634,40 @@ func (ec *executionContext) unmarshalInputRemoveTeamMemberInput(ctx context.Cont
 				return it, err
 			}
 			it.UserEmail = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputRepositoryOrder(ctx context.Context, obj interface{}) (repository.RepositoryOrder, error) {
+	var it repository.RepositoryOrder
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNRepositoryOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐRepositoryOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋmodelv1ᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
 		}
 	}
 
@@ -95175,6 +95254,16 @@ func (ec *executionContext) marshalNRepositoryEdge2ᚕgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
+func (ec *executionContext) unmarshalNRepositoryOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐRepositoryOrderField(ctx context.Context, v interface{}) (repository.RepositoryOrderField, error) {
+	var res repository.RepositoryOrderField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRepositoryOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐRepositoryOrderField(ctx context.Context, sel ast.SelectionSet, v repository.RepositoryOrderField) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNRequestTeamDeletionInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐRequestTeamDeletionInput(ctx context.Context, v interface{}) (team.RequestTeamDeletionInput, error) {
 	res, err := ec.unmarshalInputRequestTeamDeletionInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -98447,6 +98536,14 @@ func (ec *executionContext) marshalORepository2ᚖgithubᚗcomᚋnaisᚋapiᚋin
 		return graphql.Null
 	}
 	return ec._Repository(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalORepositoryOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐRepositoryOrder(ctx context.Context, v interface{}) (*repository.RepositoryOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputRepositoryOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOSearchType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋsearchv1ᚐSearchType(ctx context.Context, v interface{}) (*searchv1.SearchType, error) {

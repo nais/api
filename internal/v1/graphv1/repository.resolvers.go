@@ -31,12 +31,12 @@ func (r *repositoryResolver) Team(ctx context.Context, obj *repository.Repositor
 	return team.Get(ctx, obj.TeamSlug)
 }
 
-func (r *teamResolver) Repositories(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *repository.TeamRepositoryFilter) (*pagination.Connection[*repository.Repository], error) {
+func (r *teamResolver) Repositories(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) (*pagination.Connection[*repository.Repository], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
-	return repository.ListForTeam(ctx, obj.Slug, page, filter)
+	return repository.ListForTeam(ctx, obj.Slug, page, orderBy, filter)
 }
 
 func (r *Resolver) Repository() gengqlv1.RepositoryResolver { return &repositoryResolver{r} }
