@@ -145,8 +145,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	graphHandler, err := graph.NewHandler(gengql.Config{
 		Resolvers: resolver,
 		Directives: gengql.DirectiveRoot{
-			Admin: directives.Admin(),
-			Auth:  directives.Auth(),
+			Auth: directives.Auth(),
 		},
 	}, log)
 	if err != nil {

@@ -55,8 +55,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	Admin func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
-	Auth  func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	Auth func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -2461,11 +2460,7 @@ type TokenX {
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/directives.graphqls", Input: `"Require an authenticated user for all requests with this directive."
-directive @auth on FIELD_DEFINITION
-
-"Require an authenticated user with the admin role for all requests with this directive."
-directive @admin on FIELD_DEFINITION
-`, BuiltIn: false},
+directive @auth on FIELD_DEFINITION`, BuiltIn: false},
 	{Name: "../graphqls/env.graphqls", Input: `type Env {
   id: ID!
   name: String!

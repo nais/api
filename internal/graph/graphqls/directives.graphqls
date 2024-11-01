@@ -1,5 +1,2 @@
 "Require an authenticated user for all requests with this directive."
 directive @auth on FIELD_DEFINITION
-
-"Require an authenticated user with the admin role for all requests with this directive."
-directive @admin on FIELD_DEFINITION
