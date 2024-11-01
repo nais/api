@@ -12,7 +12,6 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
-	"github.com/nais/api/internal/k8s"
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -64,7 +63,6 @@ func (c ClusterList) Names() []string {
 }
 
 type Resolver struct {
-	k8sClient    *k8s.Client
 	log          logrus.FieldLogger
 	clusters     ClusterList
 	database     database.Database
@@ -74,7 +72,6 @@ type Resolver struct {
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
 func NewResolver(
-	k8sClient *k8s.Client,
 	db database.Database,
 	tenant string,
 	tenantDomain string,
@@ -82,7 +79,6 @@ func NewResolver(
 	log logrus.FieldLogger,
 ) *Resolver {
 	return &Resolver{
-		k8sClient:    k8sClient,
 		tenant:       tenant,
 		tenantDomain: tenantDomain,
 		log:          log,

@@ -11,20 +11,14 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/slug"
-	"k8s.io/apimachinery/pkg/types"
 )
 
 type IdentType string
 
 const (
-	IdentTypeApp           IdentType = "app"
-	IdentTypeCorrelationID IdentType = "correlationID"
-	IdentTypeEnv           IdentType = "env"
-	IdentTypeJob           IdentType = "job"
-	IdentTypePod           IdentType = "pod"
-	IdentTypeTeam          IdentType = "team"
-	IdentTypeUser          IdentType = "user"
-	IdentTypeUsersyncRun   IdentType = "usersyncRun"
+	IdentTypeTeam        IdentType = "team"
+	IdentTypeUser        IdentType = "user"
+	IdentTypeUsersyncRun IdentType = "usersyncRun"
 
 	idSeparator = "-"
 )
@@ -71,28 +65,8 @@ func (i *Ident) UnmarshalGQLContext(_ context.Context, v interface{}) error {
 	return nil
 }
 
-func AppIdent(envName string, teamSlug slug.Slug, appName string) Ident {
-	return newIdent(IdentTypeApp, envName, string(teamSlug), appName)
-}
-
-func EnvIdent(envName string) Ident {
-	return newIdent(IdentTypeEnv, envName)
-}
-
-func JobIdent(jobName string) Ident {
-	return newIdent(IdentTypeJob, jobName)
-}
-
-func PodIdent(id types.UID) Ident {
-	return newIdent(IdentTypePod, string(id))
-}
-
 func TeamIdent(teamSlug slug.Slug) Ident {
 	return newIdent(IdentTypeTeam, string(teamSlug))
-}
-
-func CorrelationID(id uuid.UUID) Ident {
-	return newIdent(IdentTypeCorrelationID, id.String())
 }
 
 func UserIdent(userID uuid.UUID) Ident {

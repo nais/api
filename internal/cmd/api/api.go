@@ -18,8 +18,6 @@ import (
 	"github.com/nais/api/internal/graph/directives"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/grpc"
-	"github.com/nais/api/internal/k8s"
-	"github.com/nais/api/internal/k8s/fake"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
@@ -31,7 +29,6 @@ import (
 	"github.com/nais/api/internal/v1/vulnerability"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/oauth2/google"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -112,29 +109,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return err
 	}
 
-	k8sOpts := []k8s.Opt{}
-	if cfg.WithFakeClients {
-		k8sOpts = append(k8sOpts, k8s.WithClientsCreator(fake.Clients(os.DirFS("./data/k8s"))))
-	}
-
-	k8sClient, err := k8s.New(
-		cfg.Tenant,
-		cfg.K8s.PkgConfig(),
-		db,
-		cfg.WithFakeClients,
-		log.WithField("client", "k8s"),
-		k8sOpts...,
-	)
-	if err != nil {
-		var authErr *google.AuthenticationError
-		if errors.As(err, &authErr) {
-			return fmt.Errorf("unable to create k8s client. You should probably run `gcloud auth login --update-adc` and authenticate with your @nais.io-account before starting api: %w", err)
-		}
-		return fmt.Errorf("unable to create k8s client: %w", err)
-	}
-
 	resolver := graph.NewResolver(
-		k8sClient,
 		db,
 		cfg.Tenant,
 		cfg.TenantDomain,
@@ -203,11 +178,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	wg.Go(func() error {
 		return runUsersync(ctx, cfg, db, log)
 	})
-
-	// k8s informers
-	if err := k8sClient.Informers().Start(ctx, log); err != nil {
-		return fmt.Errorf("start k8s informers: %w", err)
-	}
 
 	wg.Go(func() error {
 		return costUpdater(ctx, cfg, db.GetPool(), log)

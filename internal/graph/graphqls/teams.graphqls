@@ -54,37 +54,4 @@ type Team {
 
   "Whether or not the team is currently being deleted."
   deletionInProgress: Boolean!
-
-  "The environments available for the team."
-  environments: [Env!]!
-}
-
-"Slack alerts channel type."
-type SlackAlertsChannel {
-  "The environment for the alerts sent to the channel."
-  environment: String!
-
-  "The name of the Slack channel."
-  channelName: String!
-}
-
-"GCP project type."
-type GcpProject {
-  "The environment for the project."
-  environment: String!
-
-  "The display name of the project."
-  projectName: String!
-
-  "The GCP project ID."
-  projectId: String!
-}
-
-"NAIS namespace type."
-type NaisNamespace {
-  "The environment for the namespace."
-  environment: String!
-
-  "The namespace."
-  namespace: Slug!
 }

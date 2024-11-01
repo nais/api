@@ -39,15 +39,13 @@ func NewLoaders(db database.Database) *Loaders {
 	ur := &userReader{db: db}
 	tr := &teamReader{db: db}
 	urr := &userRolesReader{db: db}
-	ter := &teamEnvironmentReader{db: db}
 	sar := &serviceAccountReader{db: db}
 
 	return &Loaders{
-		UserLoader:            dataloadgen.NewLoader(ur.getUsers, opts...),
-		TeamLoader:            dataloadgen.NewLoader(tr.getTeams, opts...),
-		UserRolesLoader:       dataloadgen.NewLoader(urr.getUserRoles, opts...),
-		TeamEnvironmentLoader: dataloadgen.NewLoader(ter.getEnvironments, opts...),
-		ServiceAccountLoader:  dataloadgen.NewLoader(sar.getServiceAccounts, opts...),
+		UserLoader:           dataloadgen.NewLoader(ur.getUsers, opts...),
+		TeamLoader:           dataloadgen.NewLoader(tr.getTeams, opts...),
+		UserRolesLoader:      dataloadgen.NewLoader(urr.getUserRoles, opts...),
+		ServiceAccountLoader: dataloadgen.NewLoader(sar.getServiceAccounts, opts...),
 	}
 }
 

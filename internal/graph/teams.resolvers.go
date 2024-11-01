@@ -61,23 +61,6 @@ func (r *teamResolver) DeletionInProgress(ctx context.Context, obj *model.Team) 
 	return obj.DeleteKeyConfirmedAt != nil, nil
 }
 
-func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error) {
-	// Env is a bit special, given that it will be created from k8s etc.
-	// All fields, except name and team, are resolved.
-
-	dbEnvs, _, err := r.database.GetTeamEnvironments(ctx, obj.Slug, database.Page{Limit: 50})
-	if err != nil {
-		return nil, err
-	}
-
-	ret := make([]*model.Env, len(dbEnvs))
-	for i, env := range dbEnvs {
-		ret[i] = &model.Env{Name: env.Environment, Team: obj.Slug.String()}
-	}
-
-	return ret, nil
-}
-
 func (r *Resolver) Team() gengql.TeamResolver { return &teamResolver{r} }
 
 type teamResolver struct{ *Resolver }

@@ -1,8 +1,0 @@
-interface Workload {
-  id: ID!
-  name: String!
-  image: String!
-  env: Env!
-  status: WorkloadStatus!
-  team: Team!
-}

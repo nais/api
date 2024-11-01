@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-
-	"github.com/nais/api/internal/slug"
 )
 
 // Authenticated user type. Can be a user or a service account.
@@ -15,110 +13,12 @@ type AuthenticatedUser interface {
 	IsAuthenticatedUser()
 }
 
-type StateError interface {
-	IsStateError()
-}
-
-type Workload interface {
-	IsWorkload()
-}
-
-type DeprecatedIngressError struct {
-	Revision string     `json:"revision"`
-	Level    ErrorLevel `json:"level"`
-	Ingress  string     `json:"ingress"`
-}
-
-func (DeprecatedIngressError) IsStateError() {}
-
-type DeprecatedRegistryError struct {
-	Revision   string     `json:"revision"`
-	Level      ErrorLevel `json:"level"`
-	Registry   string     `json:"registry"`
-	Repository string     `json:"repository"`
-	Name       string     `json:"name"`
-	Tag        string     `json:"tag"`
-}
-
-func (DeprecatedRegistryError) IsStateError() {}
-
-type FailedRunError struct {
-	Revision   string     `json:"revision"`
-	Level      ErrorLevel `json:"level"`
-	RunMessage string     `json:"runMessage"`
-	RunName    string     `json:"runName"`
-}
-
-func (FailedRunError) IsStateError() {}
-
-// GCP project type.
-type GCPProject struct {
-	// The environment for the project.
-	Environment string `json:"environment"`
-	// The display name of the project.
-	ProjectName string `json:"projectName"`
-	// The GCP project ID.
-	ProjectID string `json:"projectId"`
-}
-
-type InboundAccessError struct {
-	Revision string     `json:"revision"`
-	Level    ErrorLevel `json:"level"`
-}
-
-func (InboundAccessError) IsStateError() {}
-
-type InvalidNaisYamlError struct {
-	Revision string     `json:"revision"`
-	Level    ErrorLevel `json:"level"`
-	Detail   string     `json:"detail"`
-}
-
-func (InvalidNaisYamlError) IsStateError() {}
-
-type MissingSbomError struct {
-	Revision string     `json:"revision"`
-	Level    ErrorLevel `json:"level"`
-}
-
-func (MissingSbomError) IsStateError() {}
-
-// NAIS namespace type.
-type NaisNamespace struct {
-	// The environment for the namespace.
-	Environment string `json:"environment"`
-	// The namespace.
-	Namespace slug.Slug `json:"namespace"`
-}
-
-type NewInstancesFailingError struct {
-	Revision         string     `json:"revision"`
-	Level            ErrorLevel `json:"level"`
-	FailingInstances []string   `json:"failingInstances"`
-}
-
-func (NewInstancesFailingError) IsStateError() {}
-
-type NoRunningInstancesError struct {
-	Revision string     `json:"revision"`
-	Level    ErrorLevel `json:"level"`
-}
-
-func (NoRunningInstancesError) IsStateError() {}
-
 type OrderBy struct {
 	// Order direction.
 	Direction SortOrder `json:"direction"`
 	// The field to order by.
 	Field OrderByField `json:"field"`
 }
-
-type OutboundAccessError struct {
-	Revision string     `json:"revision"`
-	Level    ErrorLevel `json:"level"`
-}
-
-func (OutboundAccessError) IsStateError() {}
 
 // Pagination information.
 type PageInfo struct {
@@ -133,22 +33,6 @@ type PageInfo struct {
 // The query root for the NAIS GraphQL API.
 type Query struct {
 }
-
-// Slack alerts channel type.
-type SlackAlertsChannel struct {
-	// The environment for the alerts sent to the channel.
-	Environment string `json:"environment"`
-	// The name of the Slack channel.
-	ChannelName string `json:"channelName"`
-}
-
-type SynchronizationFailingError struct {
-	Revision string     `json:"revision"`
-	Level    ErrorLevel `json:"level"`
-	Detail   string     `json:"detail"`
-}
-
-func (SynchronizationFailingError) IsStateError() {}
 
 // Paginated teams type.
 type TeamList struct {
@@ -166,92 +50,6 @@ type UserList struct {
 type UsersyncRunList struct {
 	Nodes    []*UsersyncRun `json:"nodes"`
 	PageInfo PageInfo       `json:"pageInfo"`
-}
-
-type ErrorLevel string
-
-const (
-	ErrorLevelTodo    ErrorLevel = "TODO"
-	ErrorLevelWarning ErrorLevel = "WARNING"
-	ErrorLevelError   ErrorLevel = "ERROR"
-)
-
-var AllErrorLevel = []ErrorLevel{
-	ErrorLevelTodo,
-	ErrorLevelWarning,
-	ErrorLevelError,
-}
-
-func (e ErrorLevel) IsValid() bool {
-	switch e {
-	case ErrorLevelTodo, ErrorLevelWarning, ErrorLevelError:
-		return true
-	}
-	return false
-}
-
-func (e ErrorLevel) String() string {
-	return string(e)
-}
-
-func (e *ErrorLevel) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = ErrorLevel(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ErrorLevel", str)
-	}
-	return nil
-}
-
-func (e ErrorLevel) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type InstanceState string
-
-const (
-	InstanceStateRunning InstanceState = "RUNNING"
-	InstanceStateFailing InstanceState = "FAILING"
-	InstanceStateUnknown InstanceState = "UNKNOWN"
-)
-
-var AllInstanceState = []InstanceState{
-	InstanceStateRunning,
-	InstanceStateFailing,
-	InstanceStateUnknown,
-}
-
-func (e InstanceState) IsValid() bool {
-	switch e {
-	case InstanceStateRunning, InstanceStateFailing, InstanceStateUnknown:
-		return true
-	}
-	return false
-}
-
-func (e InstanceState) String() string {
-	return string(e)
-}
-
-func (e *InstanceState) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = InstanceState(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid InstanceState", str)
-	}
-	return nil
-}
-
-func (e InstanceState) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type OrderByField string
@@ -340,51 +138,6 @@ func (e *SortOrder) UnmarshalGQL(v interface{}) error {
 }
 
 func (e SortOrder) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type State string
-
-const (
-	StateNais    State = "NAIS"
-	StateNotnais State = "NOTNAIS"
-	StateFailing State = "FAILING"
-	StateUnknown State = "UNKNOWN"
-)
-
-var AllState = []State{
-	StateNais,
-	StateNotnais,
-	StateFailing,
-	StateUnknown,
-}
-
-func (e State) IsValid() bool {
-	switch e {
-	case StateNais, StateNotnais, StateFailing, StateUnknown:
-		return true
-	}
-	return false
-}
-
-func (e State) String() string {
-	return string(e)
-}
-
-func (e *State) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = State(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid State", str)
-	}
-	return nil
-}
-
-func (e State) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
