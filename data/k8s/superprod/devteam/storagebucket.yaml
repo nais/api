@@ -23,3 +23,11 @@ spec:
   publicAccessPrevention: inherited
   resourceID: uniquebucketname-bucket
   storageClass: STANDARD
+
+status:
+  conditions:
+    - lastTransitionTime: "2023-03-29T09:16:41Z"
+      message: The resource is up to date
+      reason: UpToDate
+      status: "True"
+      type: Ready

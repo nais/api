@@ -68,8 +68,20 @@ type Bucket implements Persistence & Node {
 	status: BucketStatus!
 }
 
+enum BucketState {
+	HEALTHY
+	ERROR
+	UNKNOWN
+}
+
 type BucketStatus {
-	state: String!
+	state: BucketState!
+	errors: [BucketError!]!
+}
+
+type BucketError {
+	message: String!
+	details: String
 }
 
 type BucketConnection {

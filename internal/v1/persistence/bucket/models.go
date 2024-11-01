@@ -71,7 +71,8 @@ type BucketOrder struct {
 }
 
 type BucketStatus struct {
-	State string `json:"state"`
+	State  BucketState    `json:"state"`
+	Errors []*BucketError `json:"errors"`
 }
 
 type BucketOrderField string
@@ -124,8 +125,41 @@ func toBucketCors(cors []storage_cnrm_cloud_google_com_v1beta1.BucketCors) []*Bu
 }
 
 func toBucketStatus(status storage_cnrm_cloud_google_com_v1beta1.StorageBucketStatus) *BucketStatus {
-	// TODO: Implement
-	return &BucketStatus{}
+	ready := false
+	errors := make([]*BucketError, 0)
+	unknown := make([]*BucketError, 0)
+
+	for _, condition := range status.Conditions {
+		switch condition.Type {
+		case "Ready":
+			ready = condition.Status == "True"
+			if !ready {
+				errors = append(errors, &BucketError{
+					Message: "Bucket is unhealthy",
+					Details: ptr.To(condition.Message),
+				})
+			}
+		default:
+			unknown = append(errors, &BucketError{
+				Message: fmt.Sprintf("Unknown state: %s", condition.Type),
+				Details: ptr.To(condition.Message),
+			})
+		}
+	}
+
+	state := BucketStateUnknown
+	if len(errors) > 0 {
+		state = BucketStateError
+	} else if ready && len(unknown) == 0 {
+		state = BucketStateHealthy
+	} else {
+		state = BucketStateUnknown
+	}
+
+	return &BucketStatus{
+		State:  state,
+		Errors: append(errors, unknown...),
+	}
 }
 
 func toBucket(u *unstructured.Unstructured, env string) (*Bucket, error) {
@@ -156,4 +190,52 @@ func toBucket(u *unstructured.Unstructured, env string) (*Bucket, error) {
 
 type TeamInventoryCountBuckets struct {
 	Total int
+}
+
+type BucketError struct {
+	Message string  `json:"Message"`
+	Details *string `json:"Details,omitempty"`
+}
+
+type BucketState string
+
+const (
+	BucketStateHealthy BucketState = "HEALTHY"
+	BucketStateError   BucketState = "ERROR"
+	BucketStateUnknown BucketState = "UNKNOWN"
+)
+
+var AllBucketState = []BucketState{
+	BucketStateHealthy,
+	BucketStateError,
+	BucketStateUnknown,
+}
+
+func (e BucketState) IsValid() bool {
+	switch e {
+	case BucketStateHealthy, BucketStateError, BucketStateUnknown:
+		return true
+	}
+	return false
+}
+
+func (e BucketState) String() string {
+	return string(e)
+}
+
+func (e *BucketState) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = BucketState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid BucketState", str)
+	}
+	return nil
+}
+
+func (e BucketState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
