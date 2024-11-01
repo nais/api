@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-	"time"
 
 	"github.com/nais/api/internal/slug"
 )
@@ -162,16 +161,6 @@ type SlackAlertsChannel struct {
 	Environment string `json:"environment"`
 	// The name of the Slack channel.
 	ChannelName string `json:"channelName"`
-}
-
-// Sync error type.
-type SyncError struct {
-	// Creation time of the error.
-	CreatedAt time.Time `json:"createdAt"`
-	// The name of the reconciler.
-	Reconciler string `json:"reconciler"`
-	// Error message.
-	Error string `json:"error"`
 }
 
 type SynchronizationFailingError struct {

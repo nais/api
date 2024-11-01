@@ -92,18 +92,6 @@ type NaisNamespace {
   namespace: Slug!
 }
 
-"Sync error type."
-type SyncError {
-  "Creation time of the error."
-  createdAt: Time!
-
-  "The name of the reconciler."
-  reconciler: String!
-
-  "Error message."
-  error: String!
-}
-
 "Team status for apps."
 type AppsStatus {
   failing: Int!

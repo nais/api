@@ -236,12 +236,6 @@ type ComplexityRoot struct {
 		Environment func(childComplexity int) int
 	}
 
-	SyncError struct {
-		CreatedAt  func(childComplexity int) int
-		Error      func(childComplexity int) int
-		Reconciler func(childComplexity int) int
-	}
-
 	SynchronizationFailingError struct {
 		Detail   func(childComplexity int) int
 		Level    func(childComplexity int) int
@@ -1153,27 +1147,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SlackAlertsChannel.Environment(childComplexity), true
 
-	case "SyncError.createdAt":
-		if e.complexity.SyncError.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.SyncError.CreatedAt(childComplexity), true
-
-	case "SyncError.error":
-		if e.complexity.SyncError.Error == nil {
-			break
-		}
-
-		return e.complexity.SyncError.Error(childComplexity), true
-
-	case "SyncError.reconciler":
-		if e.complexity.SyncError.Reconciler == nil {
-			break
-		}
-
-		return e.complexity.SyncError.Reconciler(childComplexity), true
-
 	case "SynchronizationFailingError.detail":
 		if e.complexity.SynchronizationFailingError.Detail == nil {
 			break
@@ -1906,18 +1879,6 @@ type NaisNamespace {
 
   "The namespace."
   namespace: Slug!
-}
-
-"Sync error type."
-type SyncError {
-  "Creation time of the error."
-  createdAt: Time!
-
-  "The name of the reconciler."
-  reconciler: String!
-
-  "Error message."
-  error: String!
 }
 
 "Team status for apps."
@@ -7890,138 +7851,6 @@ func (ec *executionContext) fieldContext_SlackAlertsChannel_channelName(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _SyncError_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.SyncError) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SyncError_createdAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SyncError_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SyncError",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SyncError_reconciler(ctx context.Context, field graphql.CollectedField, obj *model.SyncError) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SyncError_reconciler(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Reconciler, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SyncError_reconciler(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SyncError",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SyncError_error(ctx context.Context, field graphql.CollectedField, obj *model.SyncError) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SyncError_error(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Error, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SyncError_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SyncError",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _SynchronizationFailingError_revision(ctx context.Context, field graphql.CollectedField, obj *model.SynchronizationFailingError) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SynchronizationFailingError_revision(ctx, field)
 	if err != nil {
@@ -13569,55 +13398,6 @@ func (ec *executionContext) _SlackAlertsChannel(ctx context.Context, sel ast.Sel
 			}
 		case "channelName":
 			out.Values[i] = ec._SlackAlertsChannel_channelName(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var syncErrorImplementors = []string{"SyncError"}
-
-func (ec *executionContext) _SyncError(ctx context.Context, sel ast.SelectionSet, obj *model.SyncError) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, syncErrorImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("SyncError")
-		case "createdAt":
-			out.Values[i] = ec._SyncError_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "reconciler":
-			out.Values[i] = ec._SyncError_reconciler(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "error":
-			out.Values[i] = ec._SyncError_error(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
