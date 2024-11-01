@@ -20,7 +20,6 @@ func init() {
 	SortFilter.RegisterOrderBy(WorkloadOrderFieldDeploymentTime, func(ctx context.Context, a, b Workload) int {
 		return int(a.GetRolloutCompleteTime() - b.GetRolloutCompleteTime())
 	})
-
 	SortFilter.RegisterFilter(func(ctx context.Context, v Workload, filter *TeamWorkloadsFilter) bool {
 		if len(filter.Environments) == 0 {
 			return true

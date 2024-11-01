@@ -15,6 +15,9 @@ extend type Team {
 
 		"Ordering options for items returned from the connection."
 		orderBy: JobOrder
+
+		"Filtering options for items returned from the connection."
+		filter: TeamJobsFilter
 	): JobConnection!
 }
 
@@ -35,6 +38,9 @@ extend type TeamInventoryCounts {
 	jobs: TeamInventoryCountJobs!
 }
 
+input TeamJobsFilter {
+	name: String!
+}
 type Job implements Node & Workload {
 	"The globally unique ID of the job."
 	id: ID!

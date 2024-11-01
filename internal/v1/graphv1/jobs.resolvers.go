@@ -90,7 +90,10 @@ func (r *mutationResolver) TriggerJob(ctx context.Context, input job.TriggerJobI
 	}, nil
 }
 
-func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder) (*pagination.Connection[*job.Job], error) {
+func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder, filter *job.TeamJobsFilter) (*pagination.Connection[*job.Job], error) {
+	if filter == nil {
+		filter = &job.TeamJobsFilter{}
+	}
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -104,6 +107,8 @@ func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, aft
 	}
 
 	ret := job.ListAllForTeam(ctx, obj.Slug)
+	ret = job.SortFilter.Filter(ctx, ret, filter)
+
 	job.SortFilter.Sort(ctx, ret, orderBy.Field, orderBy.Direction)
 	jobs := pagination.Slice(ret, page)
 	return pagination.NewConnection(jobs, page, int32(len(ret))), nil

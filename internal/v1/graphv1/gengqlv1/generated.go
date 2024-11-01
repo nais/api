@@ -1196,7 +1196,7 @@ type ComplexityRoot struct {
 		GoogleGroupEmail       func(childComplexity int) int
 		ID                     func(childComplexity int) int
 		InventoryCounts        func(childComplexity int) int
-		Jobs                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder) int
+		Jobs                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder, filter *job.TeamJobsFilter) int
 		KafkaTopics            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder) int
 		LastSuccessfulSync     func(childComplexity int) int
 		Member                 func(childComplexity int, email string) int
@@ -1995,7 +1995,7 @@ type TeamResolver interface {
 	Cost(ctx context.Context, obj *team.Team) (*cost.TeamCost, error)
 	DeploymentKey(ctx context.Context, obj *team.Team) (*deployment.DeploymentKey, error)
 	Deployments(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error)
-	Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder) (*pagination.Connection[*job.Job], error)
+	Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder, filter *job.TeamJobsFilter) (*pagination.Connection[*job.Job], error)
 	KafkaTopics(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder) (*pagination.Connection[*kafkatopic.KafkaTopic], error)
 	OpenSearchInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) (*pagination.Connection[*opensearch.OpenSearch], error)
 	RedisInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceOrder) (*pagination.Connection[*redis.RedisInstance], error)
@@ -6591,7 +6591,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Team.Jobs(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*job.JobOrder)), true
+		return e.complexity.Team.Jobs(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*job.JobOrder), args["filter"].(*job.TeamJobsFilter)), true
 
 	case "Team.kafkaTopics":
 		if e.complexity.Team.KafkaTopics == nil {
@@ -8929,8 +8929,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSqlInstanceOrder,
 		ec.unmarshalInputSqlInstanceUserOrder,
 		ec.unmarshalInputSynchronizeTeamInput,
-		ec.unmarshalInputTeamCostDailyFilter,
 		ec.unmarshalInputTeamApplicationsFilter,
+		ec.unmarshalInputTeamCostDailyFilter,
+		ec.unmarshalInputTeamJobsFilter,
 		ec.unmarshalInputTeamMemberOrder,
 		ec.unmarshalInputTeamOrder,
 		ec.unmarshalInputTeamRepositoryFilter,
@@ -10019,6 +10020,9 @@ extend enum JobOrderField {
 
 		"Ordering options for items returned from the connection."
 		orderBy: JobOrder
+
+		"Filtering options for items returned from the connection."
+		filter: TeamJobsFilter
 	): JobConnection!
 }
 
@@ -10039,6 +10043,9 @@ extend type TeamInventoryCounts {
 	jobs: TeamInventoryCountJobs!
 }
 
+input TeamJobsFilter {
+	name: String!
+}
 type Job implements Node & Workload {
 	"The globally unique ID of the job."
 	id: ID!
@@ -19196,6 +19203,11 @@ func (ec *executionContext) field_Team_jobs_args(ctx context.Context, rawArgs ma
 		return nil, err
 	}
 	args["orderBy"] = arg4
+	arg5, err := ec.field_Team_jobs_argsFilter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg5
 	return args, nil
 }
 func (ec *executionContext) field_Team_jobs_argsFirst(
@@ -19305,6 +19317,28 @@ func (ec *executionContext) field_Team_jobs_argsOrderBy(
 	}
 
 	var zeroVal *job.JobOrder
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Team_jobs_argsFilter(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*job.TeamJobsFilter, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["filter"]
+	if !ok {
+		var zeroVal *job.TeamJobsFilter
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+	if tmp, ok := rawArgs["filter"]; ok {
+		return ec.unmarshalOTeamJobsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐTeamJobsFilter(ctx, tmp)
+	}
+
+	var zeroVal *job.TeamJobsFilter
 	return zeroVal, nil
 }
 
@@ -52576,7 +52610,7 @@ func (ec *executionContext) _Team_jobs(ctx context.Context, field graphql.Collec
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().Jobs(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*job.JobOrder))
+		return ec.resolvers.Team().Jobs(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*job.JobOrder), fc.Args["filter"].(*job.TeamJobsFilter))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -70725,6 +70759,33 @@ func (ec *executionContext) unmarshalInputSynchronizeTeamInput(ctx context.Conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputTeamApplicationsFilter(ctx context.Context, obj interface{}) (application.TeamApplicationsFilter, error) {
+	var it application.TeamApplicationsFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputTeamCostDailyFilter(ctx context.Context, obj interface{}) (cost.TeamCostDailyFilter, error) {
 	var it cost.TeamCostDailyFilter
 	asMap := map[string]interface{}{}
@@ -70752,8 +70813,8 @@ func (ec *executionContext) unmarshalInputTeamCostDailyFilter(ctx context.Contex
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputTeamApplicationsFilter(ctx context.Context, obj interface{}) (application.TeamApplicationsFilter, error) {
-	var it application.TeamApplicationsFilter
+func (ec *executionContext) unmarshalInputTeamJobsFilter(ctx context.Context, obj interface{}) (job.TeamJobsFilter, error) {
+	var it job.TeamJobsFilter
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -98268,19 +98329,19 @@ func (ec *executionContext) marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 	return ec._Team(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOTeamCostDailyFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐTeamCostDailyFilter(ctx context.Context, v interface{}) (*cost.TeamCostDailyFilter, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputTeamCostDailyFilter(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalOTeamApplicationsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐTeamApplicationsFilter(ctx context.Context, v interface{}) (*application.TeamApplicationsFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputTeamApplicationsFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOTeamCostDailyFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐTeamCostDailyFilter(ctx context.Context, v interface{}) (*cost.TeamCostDailyFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTeamCostDailyFilter(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -98296,6 +98357,14 @@ func (ec *executionContext) marshalOTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapi
 		return graphql.Null
 	}
 	return ec._TeamEnvironment(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOTeamJobsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐTeamJobsFilter(ctx context.Context, v interface{}) (*job.TeamJobsFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTeamJobsFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMember(ctx context.Context, sel ast.SelectionSet, v *team.TeamMember) graphql.Marshaler {

@@ -445,3 +445,7 @@ type JobRunStatus struct {
 	State   JobRunState `json:"state"`
 	Message string      `json:"message"`
 }
+
+type TeamJobsFilter struct {
+	Name string `json:"name"`
+}
