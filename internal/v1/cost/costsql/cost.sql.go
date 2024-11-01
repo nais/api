@@ -85,8 +85,8 @@ WITH
 			date
 		FROM
 			GENERATE_SERIES(
-				$2::date,
 				$3::date,
+				$4::date,
 				'1 day'::INTERVAL
 			) AS date
 	)
@@ -98,8 +98,14 @@ FROM
 	date_range
 	LEFT OUTER JOIN cost ON cost.date = date_range.date
 WHERE
-	team_slug IS NULL
-	OR team_slug = $1::slug
+	(
+		team_slug IS NULL
+		OR team_slug = $1::slug
+	)
+	AND CASE
+		WHEN $2::TEXT[] IS NOT NULL THEN service = ANY ($2)
+		ELSE TRUE
+	END
 GROUP BY
 	date_range.date,
 	service
@@ -110,6 +116,7 @@ ORDER BY
 
 type DailyCostForTeamParams struct {
 	TeamSlug slug.Slug
+	Services []string
 	FromDate pgtype.Date
 	ToDate   pgtype.Date
 }
@@ -121,7 +128,12 @@ type DailyCostForTeamRow struct {
 }
 
 func (q *Queries) DailyCostForTeam(ctx context.Context, arg DailyCostForTeamParams) ([]*DailyCostForTeamRow, error) {
-	rows, err := q.db.Query(ctx, dailyCostForTeam, arg.TeamSlug, arg.FromDate, arg.ToDate)
+	rows, err := q.db.Query(ctx, dailyCostForTeam,
+		arg.TeamSlug,
+		arg.Services,
+		arg.FromDate,
+		arg.ToDate,
+	)
 	if err != nil {
 		return nil, err
 	}

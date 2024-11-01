@@ -122,14 +122,14 @@ func (r *teamResolver) Cost(ctx context.Context, obj *team.Team) (*cost.TeamCost
 	return &cost.TeamCost{TeamSlug: obj.Slug}, nil
 }
 
-func (r *teamCostResolver) Daily(ctx context.Context, obj *cost.TeamCost, from scalar.Date, to scalar.Date) (*cost.TeamCostPeriod, error) {
+func (r *teamCostResolver) Daily(ctx context.Context, obj *cost.TeamCost, from scalar.Date, to scalar.Date, filter *cost.TeamCostDailyFilter) (*cost.TeamCostPeriod, error) {
 	if !to.Time().After(from.Time()) {
 		return nil, apierror.Errorf("`to` must be after `from`.")
 	} else if to.Time().After(time.Now()) {
 		return nil, apierror.Errorf("`to` cannot be in the future.")
 	}
 
-	return cost.DailyForTeam(ctx, obj.TeamSlug, from.Time(), to.Time())
+	return cost.DailyForTeam(ctx, obj.TeamSlug, from.Time(), to.Time(), filter)
 }
 
 func (r *teamCostResolver) MonthlySummary(ctx context.Context, obj *cost.TeamCost) (*cost.TeamCostMonthlySummary, error) {

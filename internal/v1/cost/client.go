@@ -17,7 +17,7 @@ type Client interface {
 	DailyForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string, fromDate, toDate time.Time) (*WorkloadCostPeriod, error)
 	MonthlyForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string) (*WorkloadCostPeriod, error)
 	DailyForTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environmentName string, fromDate, toDate time.Time) (*TeamEnvironmentCostPeriod, error)
-	DailyForTeam(ctx context.Context, teamSlug slug.Slug, fromDate, toDate time.Time) (*TeamCostPeriod, error)
+	DailyForTeam(ctx context.Context, teamSlug slug.Slug, fromDate, toDate time.Time, filter *TeamCostDailyFilter) (*TeamCostPeriod, error)
 	MonthlySummaryForTeam(ctx context.Context, teamSlug slug.Slug) (*TeamCostMonthlySummary, error)
 	MonthlyForService(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName, costType string) (float32, error)
 }
@@ -135,11 +135,17 @@ func (client) DailyForTeamEnvironment(ctx context.Context, teamSlug slug.Slug, e
 	}, nil
 }
 
-func (client) DailyForTeam(ctx context.Context, teamSlug slug.Slug, fromDate, toDate time.Time) (*TeamCostPeriod, error) {
+func (client) DailyForTeam(ctx context.Context, teamSlug slug.Slug, fromDate, toDate time.Time, filter *TeamCostDailyFilter) (*TeamCostPeriod, error) {
+	var services []string
+	if filter != nil {
+		services = filter.Services
+	}
+
 	rows, err := db(ctx).DailyCostForTeam(ctx, costsql.DailyCostForTeamParams{
 		FromDate: pgtype.Date{Time: fromDate, Valid: true},
 		ToDate:   pgtype.Date{Time: toDate, Valid: true},
 		TeamSlug: teamSlug,
+		Services: services,
 	})
 	if err != nil {
 		return nil, err

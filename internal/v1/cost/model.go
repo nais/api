@@ -1,8 +1,11 @@
 package cost
 
 import (
+	"context"
+
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/scalar"
+	"github.com/nais/api/internal/v1/validate"
 )
 
 type WorkloadCost struct {
@@ -125,4 +128,19 @@ func (w *TeamEnvironmentCostPeriod) Sum() float64 {
 
 type SQLInstanceCost struct {
 	Sum float64 `json:"sum"`
+}
+
+type TeamCostDailyFilter struct {
+	// Services to include in the summary.
+	Services []string `json:"services,omitempty"`
+}
+
+func (i *TeamCostDailyFilter) Validate(ctx context.Context) error {
+	if i == nil {
+		return nil
+	}
+
+	verr := validate.New()
+
+	return verr.NilIfEmpty()
 }

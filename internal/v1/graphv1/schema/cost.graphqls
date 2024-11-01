@@ -15,9 +15,17 @@ type TeamCost {
 
 		"End date of the period, inclusive."
 		to: Date!
+
+		"Filter the results."
+		filter: TeamCostDailyFilter
 	): TeamCostPeriod!
 
 	monthlySummary: TeamCostMonthlySummary!
+}
+
+input TeamCostDailyFilter {
+	"Services to include in the summary."
+	services: [String!]
 }
 
 type TeamEnvironmentCost {

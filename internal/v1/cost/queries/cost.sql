@@ -138,8 +138,14 @@ FROM
 	date_range
 	LEFT OUTER JOIN cost ON cost.date = date_range.date
 WHERE
-	team_slug IS NULL
-	OR team_slug = @team_slug::slug
+	(
+		team_slug IS NULL
+		OR team_slug = @team_slug::slug
+	)
+	AND CASE
+		WHEN sqlc.narg(services)::TEXT[] IS NOT NULL THEN service = ANY (@services)
+		ELSE TRUE
+	END
 GROUP BY
 	date_range.date,
 	service

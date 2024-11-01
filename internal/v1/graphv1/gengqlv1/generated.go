@@ -1233,7 +1233,7 @@ type ComplexityRoot struct {
 	}
 
 	TeamCost struct {
-		Daily          func(childComplexity int, from scalar.Date, to scalar.Date) int
+		Daily          func(childComplexity int, from scalar.Date, to scalar.Date, filter *cost.TeamCostDailyFilter) int
 		MonthlySummary func(childComplexity int) int
 	}
 
@@ -1977,7 +1977,7 @@ type TeamResolver interface {
 	Workloads(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) (*pagination.Connection[workload.Workload], error)
 }
 type TeamCostResolver interface {
-	Daily(ctx context.Context, obj *cost.TeamCost, from scalar.Date, to scalar.Date) (*cost.TeamCostPeriod, error)
+	Daily(ctx context.Context, obj *cost.TeamCost, from scalar.Date, to scalar.Date, filter *cost.TeamCostDailyFilter) (*cost.TeamCostPeriod, error)
 	MonthlySummary(ctx context.Context, obj *cost.TeamCost) (*cost.TeamCostMonthlySummary, error)
 }
 type TeamDeleteKeyResolver interface {
@@ -6816,7 +6816,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.TeamCost.Daily(childComplexity, args["from"].(scalar.Date), args["to"].(scalar.Date)), true
+		return e.complexity.TeamCost.Daily(childComplexity, args["from"].(scalar.Date), args["to"].(scalar.Date), args["filter"].(*cost.TeamCostDailyFilter)), true
 
 	case "TeamCost.monthlySummary":
 		if e.complexity.TeamCost.MonthlySummary == nil {
@@ -8791,6 +8791,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSqlInstanceOrder,
 		ec.unmarshalInputSqlInstanceUserOrder,
 		ec.unmarshalInputSynchronizeTeamInput,
+		ec.unmarshalInputTeamCostDailyFilter,
 		ec.unmarshalInputTeamMemberOrder,
 		ec.unmarshalInputTeamOrder,
 		ec.unmarshalInputTeamRepositoryFilter,
@@ -9518,9 +9519,17 @@ type TeamCost {
 
 		"End date of the period, inclusive."
 		to: Date!
+
+		"Filter the results."
+		filter: TeamCostDailyFilter
 	): TeamCostPeriod!
 
 	monthlySummary: TeamCostMonthlySummary!
+}
+
+input TeamCostDailyFilter {
+	"Services to include in the summary."
+	services: [String!]
 }
 
 type TeamEnvironmentCost {
@@ -17793,6 +17802,11 @@ func (ec *executionContext) field_TeamCost_daily_args(ctx context.Context, rawAr
 		return nil, err
 	}
 	args["to"] = arg1
+	arg2, err := ec.field_TeamCost_daily_argsFilter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_TeamCost_daily_argsFrom(
@@ -17836,6 +17850,28 @@ func (ec *executionContext) field_TeamCost_daily_argsTo(
 	}
 
 	var zeroVal scalar.Date
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_TeamCost_daily_argsFilter(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*cost.TeamCostDailyFilter, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["filter"]
+	if !ok {
+		var zeroVal *cost.TeamCostDailyFilter
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+	if tmp, ok := rawArgs["filter"]; ok {
+		return ec.unmarshalOTeamCostDailyFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐTeamCostDailyFilter(ctx, tmp)
+	}
+
+	var zeroVal *cost.TeamCostDailyFilter
 	return zeroVal, nil
 }
 
@@ -53565,7 +53601,7 @@ func (ec *executionContext) _TeamCost_daily(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TeamCost().Daily(rctx, obj, fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date))
+		return ec.resolvers.TeamCost().Daily(rctx, obj, fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date), fc.Args["filter"].(*cost.TeamCostDailyFilter))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -69771,6 +69807,33 @@ func (ec *executionContext) unmarshalInputSynchronizeTeamInput(ctx context.Conte
 				return it, err
 			}
 			it.Slug = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTeamCostDailyFilter(ctx context.Context, obj interface{}) (cost.TeamCostDailyFilter, error) {
+	var it cost.TeamCostDailyFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"services"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "services":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("services"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Services = data
 		}
 	}
 
@@ -96799,6 +96862,14 @@ func (ec *executionContext) marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 		return graphql.Null
 	}
 	return ec._Team(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOTeamCostDailyFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐTeamCostDailyFilter(ctx context.Context, v interface{}) (*cost.TeamCostDailyFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTeamCostDailyFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamDeleteKey(ctx context.Context, sel ast.SelectionSet, v *team.TeamDeleteKey) graphql.Marshaler {

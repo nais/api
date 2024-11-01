@@ -3,6 +3,7 @@ package cost
 import (
 	"context"
 	"math/rand/v2"
+	"slices"
 	"sort"
 	"sync"
 	"time"
@@ -98,13 +99,13 @@ func (c *FakeClient) DailyForTeamEnvironment(ctx context.Context, teamSlug slug.
 	return c.dailyForTeamEnvironmentCache[cc], nil
 }
 
-func (c *FakeClient) DailyForTeam(_ context.Context, teamSlug slug.Slug, fromDate, toDate time.Time) (*TeamCostPeriod, error) {
+func (c *FakeClient) DailyForTeam(_ context.Context, teamSlug slug.Slug, fromDate, toDate time.Time, filter *TeamCostDailyFilter) (*TeamCostPeriod, error) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
 	cc := teamSlug.String() + fromDate.String() + toDate.String()
 	if cached, exists := c.dailyForTeamCache[cc]; exists {
-		return cached, nil
+		return filterDailyCost(cached, filter), nil
 	}
 
 	numDays := int(toDate.Sub(fromDate).Hours()/24) + 1 // inclusive
@@ -115,7 +116,7 @@ func (c *FakeClient) DailyForTeam(_ context.Context, teamSlug slug.Slug, fromDat
 	c.dailyForTeamCache[cc] = &TeamCostPeriod{
 		Series: series,
 	}
-	return c.dailyForTeamCache[cc], nil
+	return filterDailyCost(c.dailyForTeamCache[cc], filter), nil
 }
 
 func (c *FakeClient) MonthlySummaryForTeam(_ context.Context, teamSlug slug.Slug) (*TeamCostMonthlySummary, error) {
@@ -230,4 +231,23 @@ func workloadCostSeries(ctx context.Context, d time.Time, teamSlug slug.Slug, en
 		Date:      scalar.Date(d),
 		Workloads: workloads,
 	}
+}
+
+func filterDailyCost(source *TeamCostPeriod, filter *TeamCostDailyFilter) *TeamCostPeriod {
+	ret := &TeamCostPeriod{}
+	for _, series := range source.Series {
+		newSeries := &ServiceCostSeries{
+			Date: series.Date,
+		}
+		for _, point := range series.Services {
+			if filter == nil || len(filter.Services) == 0 || slices.Contains(filter.Services, point.Service) {
+				newSeries.Services = append(newSeries.Services, point)
+			}
+		}
+		if len(newSeries.Services) > 0 {
+			ret.Series = append(ret.Series, newSeries)
+		}
+	}
+
+	return ret
 }

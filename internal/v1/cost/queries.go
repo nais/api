@@ -19,8 +19,8 @@ func DailyForTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environmen
 	return fromContext(ctx).client.DailyForTeamEnvironment(ctx, teamSlug, environmentName, fromDate, toDate)
 }
 
-func DailyForTeam(ctx context.Context, teamSlug slug.Slug, fromDate, toDate time.Time) (*TeamCostPeriod, error) {
-	return fromContext(ctx).client.DailyForTeam(ctx, teamSlug, fromDate, toDate)
+func DailyForTeam(ctx context.Context, teamSlug slug.Slug, fromDate, toDate time.Time, filter *TeamCostDailyFilter) (*TeamCostPeriod, error) {
+	return fromContext(ctx).client.DailyForTeam(ctx, teamSlug, fromDate, toDate, filter)
 }
 
 func MonthlySummaryForTeam(ctx context.Context, teamSlug slug.Slug) (*TeamCostMonthlySummary, error) {
