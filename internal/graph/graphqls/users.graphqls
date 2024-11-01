@@ -59,9 +59,6 @@ type User {
   "The name of the user."
   name: String!
 
-  "List of team memberships."
-  teams(limit: Int, offset: Int): TeamMemberList!
-
   "Roles attached to the user."
   roles: [Role!]!
 
@@ -79,10 +76,5 @@ type UsersyncRunList {
 
 type UserList {
   nodes: [User!]!
-  pageInfo: PageInfo!
-}
-
-type TeamMemberList {
-  nodes: [TeamMember!]!
   pageInfo: PageInfo!
 }

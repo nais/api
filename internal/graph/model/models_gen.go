@@ -234,11 +234,6 @@ type TeamList struct {
 	PageInfo PageInfo `json:"pageInfo"`
 }
 
-type TeamMemberList struct {
-	Nodes    []*TeamMember `json:"nodes"`
-	PageInfo PageInfo      `json:"pageInfo"`
-}
-
 // Slack alerts channel input.
 type UpdateTeamSlackAlertsChannelInput struct {
 	// The environment for the alerts sent to the channel.

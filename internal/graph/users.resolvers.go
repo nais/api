@@ -100,50 +100,6 @@ func (r *queryResolver) UsersyncRuns(ctx context.Context, limit *int, offset *in
 	}, nil
 }
 
-func (r *userResolver) Teams(ctx context.Context, obj *model.User, limit *int, offset *int) (*model.TeamMemberList, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationTeamsList)
-	if err != nil {
-		return nil, err
-	}
-	p := model.NewPagination(offset, limit)
-	uid, err := obj.ID.AsUUID()
-	if err != nil {
-		return nil, err
-	}
-
-	userTeams, totalCount, err := r.database.GetUserTeamsPaginated(ctx, uid, database.Page{
-		Limit:  p.Limit,
-		Offset: p.Offset,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	teams := make([]*model.TeamMember, 0)
-	for _, userTeam := range userTeams {
-		var teamRole model.TeamRole
-		switch userTeam.RoleName {
-		case gensql.RoleNameTeammember:
-			teamRole = model.TeamRoleMember
-		case gensql.RoleNameTeamowner:
-			teamRole = model.TeamRoleOwner
-		default:
-			continue
-		}
-		teams = append(teams, &model.TeamMember{
-			TeamRole: teamRole,
-			TeamSlug: userTeam.Team.Slug,
-			UserID:   obj.ID,
-		})
-	}
-
-	return &model.TeamMemberList{
-		PageInfo: model.NewPageInfo(p, totalCount),
-		Nodes:    teams,
-	}, nil
-}
-
 func (r *userResolver) Roles(ctx context.Context, obj *model.User) ([]*model.Role, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireRole(actor, gensql.RoleNameAdmin)

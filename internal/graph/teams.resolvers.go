@@ -2,14 +2,11 @@ package graph
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
-	pgx "github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
@@ -62,79 +59,8 @@ func (r *teamResolver) ID(ctx context.Context, obj *model.Team) (*scalar.Ident, 
 	return ptr.To(scalar.TeamIdent(obj.Slug)), nil
 }
 
-func (r *teamResolver) Members(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.TeamMemberList, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationUsersList)
-	if err != nil {
-		return nil, err
-	}
-
-	p := model.NewPagination(offset, limit)
-
-	users, total, err := r.database.GetTeamMembers(ctx, obj.Slug, database.Page{
-		Limit:  p.Limit,
-		Offset: p.Offset,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	members := make([]*model.TeamMember, len(users))
-	for idx, user := range users {
-		members[idx] = &model.TeamMember{
-			UserID:   scalar.UserIdent(user.ID),
-			TeamSlug: obj.Slug,
-		}
-	}
-
-	return &model.TeamMemberList{
-		Nodes:    members,
-		PageInfo: model.NewPageInfo(p, total),
-	}, nil
-}
-
-func (r *teamResolver) Member(ctx context.Context, obj *model.Team, userID scalar.Ident) (*model.TeamMember, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationUsersList)
-	if err != nil {
-		return nil, err
-	}
-
-	uid, err := userID.AsUUID()
-	if err != nil {
-		return nil, err
-	}
-
-	user, err := r.database.GetUserByID(ctx, uid)
-	if err != nil {
-		return nil, apierror.ErrUserNotExists
-	}
-
-	return &model.TeamMember{
-		UserID:   scalar.UserIdent(user.ID),
-		TeamSlug: obj.Slug,
-	}, nil
-}
-
 func (r *teamResolver) DeletionInProgress(ctx context.Context, obj *model.Team) (bool, error) {
 	return obj.DeleteKeyConfirmedAt != nil, nil
-}
-
-func (r *teamResolver) ViewerIsOwner(ctx context.Context, obj *model.Team) (bool, error) {
-	actor := authz.ActorFromContext(ctx)
-	return r.database.UserIsTeamOwner(ctx, actor.User.GetID(), obj.Slug)
-}
-
-func (r *teamResolver) ViewerIsMember(ctx context.Context, obj *model.Team) (bool, error) {
-	actor := authz.ActorFromContext(ctx)
-	u, err := r.database.GetTeamMember(ctx, obj.Slug, actor.User.GetID())
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return false, nil
-		}
-		return false, err
-	}
-	return u != nil, nil
 }
 
 func (r *teamResolver) ResourceInventory(ctx context.Context, obj *model.Team) (*model.ResourceInventory, error) {
@@ -309,45 +235,6 @@ func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*mo
 	return ret, nil
 }
 
-func (r *teamMemberResolver) Team(ctx context.Context, obj *model.TeamMember) (*model.Team, error) {
-	return loader.GetTeam(ctx, obj.TeamSlug)
-}
-
-func (r *teamMemberResolver) User(ctx context.Context, obj *model.TeamMember) (*model.User, error) {
-	uid, err := obj.UserID.AsUUID()
-	if err != nil {
-		return nil, err
-	}
-	return loader.GetUser(ctx, uid)
-}
-
-func (r *teamMemberResolver) Role(ctx context.Context, obj *model.TeamMember) (model.TeamRole, error) {
-	if obj.TeamRole != "" {
-		return obj.TeamRole, nil
-	}
-	uid, err := obj.UserID.AsUUID()
-	if err != nil {
-		return "", err
-	}
-
-	isOwner, err := r.database.UserIsTeamOwner(ctx, uid, obj.TeamSlug)
-	if err != nil {
-		return "", err
-	}
-
-	role := model.TeamRoleMember
-	if isOwner {
-		role = model.TeamRoleOwner
-	}
-
-	return role, nil
-}
-
 func (r *Resolver) Team() gengql.TeamResolver { return &teamResolver{r} }
 
-func (r *Resolver) TeamMember() gengql.TeamMemberResolver { return &teamMemberResolver{r} }
-
-type (
-	teamResolver       struct{ *Resolver }
-	teamMemberResolver struct{ *Resolver }
-)
+type teamResolver struct{ *Resolver }

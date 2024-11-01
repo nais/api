@@ -23,15 +23,6 @@ type Team struct {
 
 func (Team) IsSearchNode() {}
 
-type TeamMemberReconciler struct {
-	Enabled bool                        `json:"enabled"`
-	GQLVars TeamMemberReconcilerGQLVars `json:"-"`
-}
-
-type TeamMemberReconcilerGQLVars struct {
-	Name string
-}
-
 type TeamSync struct {
 	CorrelationID uuid.UUID `json:"correlationID"`
 }

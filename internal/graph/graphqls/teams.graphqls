@@ -46,18 +46,6 @@ type Team {
   "The CDN bucket for the team."
   cdnBucket: String
 
-  "Team members."
-  members(
-    "Offset to start listing team members from. Default is 0."
-    offset: Int
-
-    "Limit the number of team members to return. Default is 20."
-    limit: Int
-  ): TeamMemberList!
-
-  "Single team member"
-  member("The ID of the user." userId: ID!): TeamMember!
-
   "Timestamp of the last successful synchronization of the team."
   lastSuccessfulSync: Time
 
@@ -66,12 +54,6 @@ type Team {
 
   "Whether or not the team is currently being deleted."
   deletionInProgress: Boolean!
-
-  "Whether or not the viewer is an owner of the team."
-  viewerIsOwner: Boolean!
-
-  "Whether or not the viewer is a member of the team."
-  viewerIsMember: Boolean!
 
   "The teams resources"
   resourceInventory: ResourceInventory!
@@ -144,18 +126,6 @@ type SyncError {
 
   "Error message."
   error: String!
-}
-
-"Team member."
-type TeamMember {
-  "Team instance."
-  team: Team!
-
-  "User instance."
-  user: User!
-
-  "The role that the user has in the team."
-  role: TeamRole!
 }
 
 "Team status for apps."

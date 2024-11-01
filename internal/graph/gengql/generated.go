@@ -49,7 +49,6 @@ type ResolverRoot interface {
 	Role() RoleResolver
 	ServiceAccount() ServiceAccountResolver
 	Team() TeamResolver
-	TeamMember() TeamMemberResolver
 	User() UserResolver
 	UsersyncRun() UsersyncRunResolver
 }
@@ -304,29 +303,14 @@ type ComplexityRoot struct {
 		GoogleGroupEmail       func(childComplexity int) int
 		ID                     func(childComplexity int) int
 		LastSuccessfulSync     func(childComplexity int) int
-		Member                 func(childComplexity int, userID scalar.Ident) int
-		Members                func(childComplexity int, offset *int, limit *int) int
 		Naisjobs               func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		Purpose                func(childComplexity int) int
 		ResourceInventory      func(childComplexity int) int
 		SlackChannel           func(childComplexity int) int
 		Slug                   func(childComplexity int) int
-		ViewerIsMember         func(childComplexity int) int
-		ViewerIsOwner          func(childComplexity int) int
 	}
 
 	TeamList struct {
-		Nodes    func(childComplexity int) int
-		PageInfo func(childComplexity int) int
-	}
-
-	TeamMember struct {
-		Role func(childComplexity int) int
-		Team func(childComplexity int) int
-		User func(childComplexity int) int
-	}
-
-	TeamMemberList struct {
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -338,7 +322,6 @@ type ComplexityRoot struct {
 		IsAdmin    func(childComplexity int) int
 		Name       func(childComplexity int) int
 		Roles      func(childComplexity int) int
-		Teams      func(childComplexity int, limit *int, offset *int) int
 	}
 
 	UserList struct {
@@ -407,24 +390,13 @@ type ServiceAccountResolver interface {
 type TeamResolver interface {
 	ID(ctx context.Context, obj *model.Team) (*scalar.Ident, error)
 
-	Members(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.TeamMemberList, error)
-	Member(ctx context.Context, obj *model.Team, userID scalar.Ident) (*model.TeamMember, error)
-
 	DeletionInProgress(ctx context.Context, obj *model.Team) (bool, error)
-	ViewerIsOwner(ctx context.Context, obj *model.Team) (bool, error)
-	ViewerIsMember(ctx context.Context, obj *model.Team) (bool, error)
 	ResourceInventory(ctx context.Context, obj *model.Team) (*model.ResourceInventory, error)
 	Apps(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.AppList, error)
 	Naisjobs(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.NaisJobList, error)
 	Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error)
 }
-type TeamMemberResolver interface {
-	Team(ctx context.Context, obj *model.TeamMember) (*model.Team, error)
-	User(ctx context.Context, obj *model.TeamMember) (*model.User, error)
-	Role(ctx context.Context, obj *model.TeamMember) (model.TeamRole, error)
-}
 type UserResolver interface {
-	Teams(ctx context.Context, obj *model.User, limit *int, offset *int) (*model.TeamMemberList, error)
 	Roles(ctx context.Context, obj *model.User) ([]*model.Role, error)
 
 	IsAdmin(ctx context.Context, obj *model.User) (*bool, error)
@@ -1486,30 +1458,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.LastSuccessfulSync(childComplexity), true
 
-	case "Team.member":
-		if e.complexity.Team.Member == nil {
-			break
-		}
-
-		args, err := ec.field_Team_member_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Team.Member(childComplexity, args["userId"].(scalar.Ident)), true
-
-	case "Team.members":
-		if e.complexity.Team.Members == nil {
-			break
-		}
-
-		args, err := ec.field_Team_members_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Team.Members(childComplexity, args["offset"].(*int), args["limit"].(*int)), true
-
 	case "Team.naisjobs":
 		if e.complexity.Team.Naisjobs == nil {
 			break
@@ -1550,20 +1498,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.Slug(childComplexity), true
 
-	case "Team.viewerIsMember":
-		if e.complexity.Team.ViewerIsMember == nil {
-			break
-		}
-
-		return e.complexity.Team.ViewerIsMember(childComplexity), true
-
-	case "Team.viewerIsOwner":
-		if e.complexity.Team.ViewerIsOwner == nil {
-			break
-		}
-
-		return e.complexity.Team.ViewerIsOwner(childComplexity), true
-
 	case "TeamList.nodes":
 		if e.complexity.TeamList.Nodes == nil {
 			break
@@ -1577,41 +1511,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamList.PageInfo(childComplexity), true
-
-	case "TeamMember.role":
-		if e.complexity.TeamMember.Role == nil {
-			break
-		}
-
-		return e.complexity.TeamMember.Role(childComplexity), true
-
-	case "TeamMember.team":
-		if e.complexity.TeamMember.Team == nil {
-			break
-		}
-
-		return e.complexity.TeamMember.Team(childComplexity), true
-
-	case "TeamMember.user":
-		if e.complexity.TeamMember.User == nil {
-			break
-		}
-
-		return e.complexity.TeamMember.User(childComplexity), true
-
-	case "TeamMemberList.nodes":
-		if e.complexity.TeamMemberList.Nodes == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberList.Nodes(childComplexity), true
-
-	case "TeamMemberList.pageInfo":
-		if e.complexity.TeamMemberList.PageInfo == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberList.PageInfo(childComplexity), true
 
 	case "User.email":
 		if e.complexity.User.Email == nil {
@@ -1654,18 +1553,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.Roles(childComplexity), true
-
-	case "User.teams":
-		if e.complexity.User.Teams == nil {
-			break
-		}
-
-		args, err := ec.field_User_teams_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.User.Teams(childComplexity, args["limit"].(*int), args["offset"].(*int)), true
 
 	case "UserList.nodes":
 		if e.complexity.UserList.Nodes == nil {
@@ -2238,18 +2125,6 @@ type Team {
   "The CDN bucket for the team."
   cdnBucket: String
 
-  "Team members."
-  members(
-    "Offset to start listing team members from. Default is 0."
-    offset: Int
-
-    "Limit the number of team members to return. Default is 20."
-    limit: Int
-  ): TeamMemberList!
-
-  "Single team member"
-  member("The ID of the user." userId: ID!): TeamMember!
-
   "Timestamp of the last successful synchronization of the team."
   lastSuccessfulSync: Time
 
@@ -2258,12 +2133,6 @@ type Team {
 
   "Whether or not the team is currently being deleted."
   deletionInProgress: Boolean!
-
-  "Whether or not the viewer is an owner of the team."
-  viewerIsOwner: Boolean!
-
-  "Whether or not the viewer is a member of the team."
-  viewerIsMember: Boolean!
 
   "The teams resources"
   resourceInventory: ResourceInventory!
@@ -2336,18 +2205,6 @@ type SyncError {
 
   "Error message."
   error: String!
-}
-
-"Team member."
-type TeamMember {
-  "Team instance."
-  team: Team!
-
-  "User instance."
-  user: User!
-
-  "The role that the user has in the team."
-  role: TeamRole!
 }
 
 "Team status for apps."
@@ -2450,9 +2307,6 @@ type User {
   "The name of the user."
   name: String!
 
-  "List of team memberships."
-  teams(limit: Int, offset: Int): TeamMemberList!
-
   "Roles attached to the user."
   roles: [Role!]!
 
@@ -2470,11 +2324,6 @@ type UsersyncRunList {
 
 type UserList {
   nodes: [User!]!
-  pageInfo: PageInfo!
-}
-
-type TeamMemberList {
-  nodes: [TeamMember!]!
   pageInfo: PageInfo!
 }
 `, BuiltIn: false},
@@ -3060,97 +2909,6 @@ func (ec *executionContext) field_Team_apps_argsOrderBy(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Team_member_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Team_member_argsUserID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["userId"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Team_member_argsUserID(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (scalar.Ident, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["userId"]
-	if !ok {
-		var zeroVal scalar.Ident
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-	if tmp, ok := rawArgs["userId"]; ok {
-		return ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, tmp)
-	}
-
-	var zeroVal scalar.Ident
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Team_members_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Team_members_argsOffset(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["offset"] = arg0
-	arg1, err := ec.field_Team_members_argsLimit(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["limit"] = arg1
-	return args, nil
-}
-func (ec *executionContext) field_Team_members_argsOffset(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*int, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["offset"]
-	if !ok {
-		var zeroVal *int
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-	if tmp, ok := rawArgs["offset"]; ok {
-		return ec.unmarshalOInt2ᚖint(ctx, tmp)
-	}
-
-	var zeroVal *int
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Team_members_argsLimit(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*int, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["limit"]
-	if !ok {
-		var zeroVal *int
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-	if tmp, ok := rawArgs["limit"]; ok {
-		return ec.unmarshalOInt2ᚖint(ctx, tmp)
-	}
-
-	var zeroVal *int
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Team_naisjobs_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3234,65 +2992,6 @@ func (ec *executionContext) field_Team_naisjobs_argsOrderBy(
 	}
 
 	var zeroVal *model.OrderBy
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_User_teams_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_User_teams_argsLimit(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["limit"] = arg0
-	arg1, err := ec.field_User_teams_argsOffset(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["offset"] = arg1
-	return args, nil
-}
-func (ec *executionContext) field_User_teams_argsLimit(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*int, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["limit"]
-	if !ok {
-		var zeroVal *int
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-	if tmp, ok := rawArgs["limit"]; ok {
-		return ec.unmarshalOInt2ᚖint(ctx, tmp)
-	}
-
-	var zeroVal *int
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_User_teams_argsOffset(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*int, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["offset"]
-	if !ok {
-		var zeroVal *int
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-	if tmp, ok := rawArgs["offset"]; ok {
-		return ec.unmarshalOInt2ᚖint(ctx, tmp)
-	}
-
-	var zeroVal *int
 	return zeroVal, nil
 }
 
@@ -3953,20 +3652,12 @@ func (ec *executionContext) fieldContext_App_team(_ context.Context, field graph
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "deletionInProgress":
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "resourceInventory":
 				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "apps":
@@ -6714,20 +6405,12 @@ func (ec *executionContext) fieldContext_NaisJob_team(_ context.Context, field g
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "deletionInProgress":
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "resourceInventory":
 				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "apps":
@@ -7925,20 +7608,12 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "deletionInProgress":
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "resourceInventory":
 				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "apps":
@@ -8115,8 +7790,6 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 				return ec.fieldContext_User_email(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
-			case "teams":
-				return ec.fieldContext_User_teams(ctx, field)
 			case "roles":
 				return ec.fieldContext_User_roles(ctx, field)
 			case "externalId":
@@ -8914,20 +8587,12 @@ func (ec *executionContext) fieldContext_Role_targetTeam(_ context.Context, fiel
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "deletionInProgress":
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "resourceInventory":
 				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "apps":
@@ -10296,130 +9961,6 @@ func (ec *executionContext) fieldContext_Team_cdnBucket(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_members(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Team_members(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().Members(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.TeamMemberList)
-	fc.Result = res
-	return ec.marshalNTeamMemberList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMemberList(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Team_members(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Team",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "nodes":
-				return ec.fieldContext_TeamMemberList_nodes(ctx, field)
-			case "pageInfo":
-				return ec.fieldContext_TeamMemberList_pageInfo(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamMemberList", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_members_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Team_member(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Team_member(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().Member(rctx, obj, fc.Args["userId"].(scalar.Ident))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.TeamMember)
-	fc.Result = res
-	return ec.marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMember(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Team_member(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Team",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "team":
-				return ec.fieldContext_TeamMember_team(ctx, field)
-			case "user":
-				return ec.fieldContext_TeamMember_user(ctx, field)
-			case "role":
-				return ec.fieldContext_TeamMember_role(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamMember", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_member_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Team_lastSuccessfulSync(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
 	if err != nil {
@@ -10537,94 +10078,6 @@ func (ec *executionContext) _Team_deletionInProgress(ctx context.Context, field 
 }
 
 func (ec *executionContext) fieldContext_Team_deletionInProgress(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Team",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Team_viewerIsOwner(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Team_viewerIsOwner(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().ViewerIsOwner(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Team_viewerIsOwner(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Team",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Team_viewerIsMember(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Team_viewerIsMember(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().ViewerIsMember(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Team_viewerIsMember(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
@@ -10920,20 +10373,12 @@ func (ec *executionContext) fieldContext_TeamList_nodes(_ context.Context, field
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "deletionInProgress":
 				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "resourceInventory":
 				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "apps":
@@ -10983,298 +10428,6 @@ func (ec *executionContext) _TeamList_pageInfo(ctx context.Context, field graphq
 func (ec *executionContext) fieldContext_TeamList_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamList",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "totalCount":
-				return ec.fieldContext_PageInfo_totalCount(ctx, field)
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMember_team(ctx context.Context, field graphql.CollectedField, obj *model.TeamMember) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMember_team(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TeamMember().Team(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Team)
-	fc.Result = res
-	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMember",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Team_slug(ctx, field)
-			case "purpose":
-				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
-			case "lastSuccessfulSync":
-				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
-			case "slackChannel":
-				return ec.fieldContext_Team_slackChannel(ctx, field)
-			case "deletionInProgress":
-				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			case "resourceInventory":
-				return ec.fieldContext_Team_resourceInventory(ctx, field)
-			case "apps":
-				return ec.fieldContext_Team_apps(ctx, field)
-			case "naisjobs":
-				return ec.fieldContext_Team_naisjobs(ctx, field)
-			case "environments":
-				return ec.fieldContext_Team_environments(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMember_user(ctx context.Context, field graphql.CollectedField, obj *model.TeamMember) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMember_user(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TeamMember().User(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.User)
-	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMember_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMember",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			case "name":
-				return ec.fieldContext_User_name(ctx, field)
-			case "teams":
-				return ec.fieldContext_User_teams(ctx, field)
-			case "roles":
-				return ec.fieldContext_User_roles(ctx, field)
-			case "externalId":
-				return ec.fieldContext_User_externalId(ctx, field)
-			case "isAdmin":
-				return ec.fieldContext_User_isAdmin(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMember_role(ctx context.Context, field graphql.CollectedField, obj *model.TeamMember) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMember_role(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TeamMember().Role(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.TeamRole)
-	fc.Result = res
-	return ec.marshalNTeamRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamRole(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMember_role(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMember",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type TeamRole does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.TeamMemberList) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberList_nodes(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Nodes, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.TeamMember)
-	fc.Result = res
-	return ec.marshalNTeamMember2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMemberᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberList_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberList",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "team":
-				return ec.fieldContext_TeamMember_team(ctx, field)
-			case "user":
-				return ec.fieldContext_TeamMember_user(ctx, field)
-			case "role":
-				return ec.fieldContext_TeamMember_role(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamMember", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberList_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.TeamMemberList) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberList_pageInfo(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PageInfo, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.PageInfo)
-	fc.Result = res
-	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberList_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberList",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -11421,67 +10574,6 @@ func (ec *executionContext) fieldContext_User_name(_ context.Context, field grap
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _User_teams(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_teams(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.User().Teams(rctx, obj, fc.Args["limit"].(*int), fc.Args["offset"].(*int))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.TeamMemberList)
-	fc.Result = res
-	return ec.marshalNTeamMemberList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMemberList(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_User_teams(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "nodes":
-				return ec.fieldContext_TeamMemberList_nodes(ctx, field)
-			case "pageInfo":
-				return ec.fieldContext_TeamMemberList_pageInfo(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamMemberList", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_User_teams_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -11670,8 +10762,6 @@ func (ec *executionContext) fieldContext_UserList_nodes(_ context.Context, field
 				return ec.fieldContext_User_email(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
-			case "teams":
-				return ec.fieldContext_User_teams(ctx, field)
 			case "roles":
 				return ec.fieldContext_User_roles(ctx, field)
 			case "externalId":
@@ -16661,78 +15751,6 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Team_googleArtifactRegistry(ctx, field, obj)
 		case "cdnBucket":
 			out.Values[i] = ec._Team_cdnBucket(ctx, field, obj)
-		case "members":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Team_members(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "member":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Team_member(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "lastSuccessfulSync":
 			out.Values[i] = ec._Team_lastSuccessfulSync(ctx, field, obj)
 		case "slackChannel":
@@ -16750,78 +15768,6 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._Team_deletionInProgress(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "viewerIsOwner":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Team_viewerIsOwner(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "viewerIsMember":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Team_viewerIsMember(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -17059,192 +16005,6 @@ func (ec *executionContext) _TeamList(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var teamMemberImplementors = []string{"TeamMember"}
-
-func (ec *executionContext) _TeamMember(ctx context.Context, sel ast.SelectionSet, obj *model.TeamMember) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamMember")
-		case "team":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._TeamMember_team(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "user":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._TeamMember_user(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "role":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._TeamMember_role(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var teamMemberListImplementors = []string{"TeamMemberList"}
-
-func (ec *executionContext) _TeamMemberList(ctx context.Context, sel ast.SelectionSet, obj *model.TeamMemberList) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberListImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamMemberList")
-		case "nodes":
-			out.Values[i] = ec._TeamMemberList_nodes(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "pageInfo":
-			out.Values[i] = ec._TeamMemberList_pageInfo(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var userImplementors = []string{"User", "AuthenticatedUser"}
 
 func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *model.User) graphql.Marshaler {
@@ -17271,42 +16031,6 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "teams":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._User_teams(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "roles":
 			field := field
 
@@ -18757,88 +17481,6 @@ func (ec *executionContext) marshalNTeamList2ᚖgithubᚗcomᚋnaisᚋapiᚋinte
 		return graphql.Null
 	}
 	return ec._TeamList(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNTeamMember2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMember(ctx context.Context, sel ast.SelectionSet, v model.TeamMember) graphql.Marshaler {
-	return ec._TeamMember(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNTeamMember2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMemberᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.TeamMember) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMember(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMember(ctx context.Context, sel ast.SelectionSet, v *model.TeamMember) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._TeamMember(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNTeamMemberList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMemberList(ctx context.Context, sel ast.SelectionSet, v model.TeamMemberList) graphql.Marshaler {
-	return ec._TeamMemberList(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNTeamMemberList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMemberList(ctx context.Context, sel ast.SelectionSet, v *model.TeamMemberList) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._TeamMemberList(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNTeamRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamRole(ctx context.Context, v interface{}) (model.TeamRole, error) {
-	var res model.TeamRole
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNTeamRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamRole(ctx context.Context, sel ast.SelectionSet, v model.TeamRole) graphql.Marshaler {
-	return v
 }
 
 func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
