@@ -3,6 +3,7 @@ package deployment
 import (
 	"context"
 	"fmt"
+	"github.com/nais/api/internal/v1/role"
 	"time"
 
 	"github.com/nais/api/internal/auth/authz"
@@ -111,7 +112,7 @@ func getByIdent(ctx context.Context, id ident.Ident) (*DeploymentKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := authz.RequireTeamMembershipCtx(ctx, teamSlug); err != nil {
+	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationDeployKeyRead, teamSlug); err != nil {
 		return nil, err
 	}
 	return KeyForTeam(ctx, teamSlug)

@@ -24,10 +24,21 @@ const (
 	AuthorizationTeamsRead             Authorization = "teams:read"
 	AuthorizationTeamsMetadataUpdate   Authorization = "teams:metadata:update"
 	AuthorizationTeamsMembersAdmin     Authorization = "teams:members:admin"
+	AuthorizationSecretsCreate         Authorization = "teams:secrets:create"
+	AuthorizationSecretsDelete         Authorization = "teams:secrets:delete"
+	AuthorizationSecretsUpdate         Authorization = "teams:secrets:update"
+	AuthorizationSecretsRead           Authorization = "teams:secrets:read"
+	AuthorizationSecretsList           Authorization = "teams:secrets:list"
+	AuthorizationApplicationsUpdate    Authorization = "applications:update"
+	AuthorizationApplicationsDelete    Authorization = "applications:delete"
+	AuthorizationJobsDelete            Authorization = "jobs:delete"
 	AuthorizationUsersList             Authorization = "users:list"
 	AuthorizationTeamsSynchronize      Authorization = "teams:synchronize"
 	AuthorizationUsersyncSynchronize   Authorization = "usersync:synchronize"
-	AuthorizationDeployKeyView         Authorization = "deploy_key:view"
+	AuthorizationDeployKeyRead         Authorization = "deploy_key:read"
+	AuthorizationDeployKeyUpdate       Authorization = "deploy_key:update"
+	AuthorizationUnleashCreate         Authorization = "unleash:create"
+	AuthorizationUnleashUpdate         Authorization = "unleash:update"
 )
 
 var roles = map[rolesql.RoleName][]Authorization{
@@ -49,7 +60,16 @@ var roles = map[rolesql.RoleName][]Authorization{
 		AuthorizationUsersList,
 		AuthorizationTeamsSynchronize,
 		AuthorizationUsersyncSynchronize,
-		AuthorizationDeployKeyView,
+		AuthorizationDeployKeyRead,
+		AuthorizationJobsDelete,
+		AuthorizationSecretsCreate,
+		AuthorizationSecretsDelete,
+		AuthorizationSecretsUpdate,
+		AuthorizationSecretsRead,
+		AuthorizationSecretsList,
+		AuthorizationApplicationsUpdate,
+		AuthorizationApplicationsDelete,
+		AuthorizationJobsDelete,
 	},
 	rolesql.RoleNameServiceaccountcreator: {
 		AuthorizationServiceAccountsCreate,
@@ -66,8 +86,17 @@ var roles = map[rolesql.RoleName][]Authorization{
 		AuthorizationAuditLogsRead,
 		AuthorizationTeamsRead,
 		AuthorizationTeamsMetadataUpdate,
-		AuthorizationDeployKeyView,
+		AuthorizationDeployKeyRead,
 		AuthorizationTeamsSynchronize,
+		AuthorizationJobsDelete,
+		AuthorizationSecretsCreate,
+		AuthorizationSecretsDelete,
+		AuthorizationSecretsUpdate,
+		AuthorizationSecretsRead,
+		AuthorizationSecretsList,
+		AuthorizationDeployKeyUpdate,
+		AuthorizationUnleashCreate,
+		AuthorizationUnleashUpdate,
 	},
 	rolesql.RoleNameTeamowner: {
 		AuthorizationAuditLogsRead,
@@ -76,7 +105,16 @@ var roles = map[rolesql.RoleName][]Authorization{
 		AuthorizationTeamsMetadataUpdate,
 		AuthorizationTeamsSynchronize,
 		AuthorizationTeamsMembersAdmin,
-		AuthorizationDeployKeyView,
+		AuthorizationDeployKeyRead,
+		AuthorizationJobsDelete,
+		AuthorizationSecretsCreate,
+		AuthorizationSecretsDelete,
+		AuthorizationSecretsUpdate,
+		AuthorizationSecretsRead,
+		AuthorizationSecretsList,
+		AuthorizationDeployKeyUpdate,
+		AuthorizationUnleashCreate,
+		AuthorizationUnleashUpdate,
 	},
 	rolesql.RoleNameTeamviewer: {
 		AuthorizationAuditLogsRead,
@@ -94,7 +132,7 @@ var roles = map[rolesql.RoleName][]Authorization{
 		AuthorizationUsersyncSynchronize,
 	},
 	rolesql.RoleNameDeploykeyviewer: {
-		AuthorizationDeployKeyView,
+		AuthorizationDeployKeyRead,
 	},
 }
 

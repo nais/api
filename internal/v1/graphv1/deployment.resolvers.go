@@ -2,6 +2,7 @@ package graphv1
 
 import (
 	"context"
+	"github.com/nais/api/internal/v1/role"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/v1/deployment"
@@ -38,7 +39,7 @@ func (r *jobResolver) DeploymentInfo(ctx context.Context, obj *job.Job) (*deploy
 }
 
 func (r *mutationResolver) ChangeDeploymentKey(ctx context.Context, input deployment.ChangeDeploymentKeyInput) (*deployment.ChangeDeploymentKeyPayload, error) {
-	if err := authz.RequireTeamMembershipCtx(ctx, input.TeamSlug); err != nil {
+	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationDeployKeyUpdate, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
@@ -51,7 +52,7 @@ func (r *mutationResolver) ChangeDeploymentKey(ctx context.Context, input deploy
 }
 
 func (r *teamResolver) DeploymentKey(ctx context.Context, obj *team.Team) (*deployment.DeploymentKey, error) {
-	if err := authz.RequireTeamMembershipCtx(ctx, obj.Slug); err != nil {
+	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationDeployKeyRead, obj.Slug); err != nil {
 		return nil, err
 	}
 

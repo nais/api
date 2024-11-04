@@ -2,6 +2,7 @@ package graphv1
 
 import (
 	"context"
+	"github.com/nais/api/internal/v1/role"
 	"math"
 
 	"github.com/nais/api/internal/auth/authz"
@@ -70,7 +71,7 @@ func (r *jobRunResolver) Instances(ctx context.Context, obj *job.JobRun, first *
 }
 
 func (r *mutationResolver) DeleteJob(ctx context.Context, input job.DeleteJobInput) (*job.DeleteJobPayload, error) {
-	if err := authz.RequireTeamMembershipCtx(ctx, input.TeamSlug); err != nil {
+	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationJobsDelete, input.TeamSlug); err != nil {
 		return nil, err
 	}
 	return job.Delete(ctx, input.TeamSlug, input.EnvironmentName, input.Name)
