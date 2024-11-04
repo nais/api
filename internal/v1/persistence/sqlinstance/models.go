@@ -307,14 +307,18 @@ func toSQLInstance(u *unstructured.Unstructured, environmentName string) (*SQLIn
 		return nil, fmt.Errorf("converting to SQL instance: %w", err)
 	}
 
-	projectID := obj.GetAnnotations()["cnrm.cloud.google.com/project-id"]
+	annotations := obj.GetAnnotations()
+	if annotations == nil {
+		annotations = make(map[string]string)
+	}
+	projectID := annotations["cnrm.cloud.google.com/project-id"]
 	if projectID == "" {
 		return nil, fmt.Errorf("missing project ID annotation")
 	}
 
 	return &SQLInstance{
 		Name:                obj.Name,
-		CascadingDelete:     obj.GetAnnotations()["cnrm.cloud.google.com/deletion-policy"] != "abandon",
+		CascadingDelete:     annotations["cnrm.cloud.google.com/deletion-policy"] != "abandon",
 		ConnectionName:      obj.Status.ConnectionName,
 		DiskAutoresize:      obj.Spec.Settings.DiskAutoresize,
 		DiskAutoresizeLimit: obj.Spec.Settings.DiskAutoresizeLimit,
