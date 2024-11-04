@@ -2,56 +2,59 @@ package usersync
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/gensql"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/usersync/usersyncsql"
 	"github.com/sirupsen/logrus"
-	admin_directory_v1 "google.golang.org/api/admin/directory/v1"
+	admindirectoryv1 "google.golang.org/api/admin/directory/v1"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/impersonate"
 	"google.golang.org/api/option"
+	"k8s.io/utils/ptr"
 )
 
-type (
-	Usersynchronizer struct {
-		db               usersyncDatabase
-		adminGroupPrefix string
-		tenantDomain     string
-		service          *admin_directory_v1.Service
-		log              logrus.FieldLogger
-	}
-
-	// Key is the ID from Azure AD
-	remoteUsersMap map[string]*database.User
-
-	userMap struct {
-		// byExternalID key is the ID from Azure AD
-		byExternalID map[string]*database.User
-		byEmail      map[string]*database.User
-	}
-
-	userByIDMap  map[uuid.UUID]*database.User
-	userRolesMap map[*database.User]map[gensql.RoleName]struct{}
-
-	usersyncDatabase interface {
-		database.Transactioner
-		database.UserRepo
-	}
-)
-
-var DefaultRoleNames = []gensql.RoleName{
-	gensql.RoleNameTeamcreator,
-	gensql.RoleNameTeamviewer,
-	gensql.RoleNameUserviewer,
-	gensql.RoleNameServiceaccountcreator,
+type Usersynchronizer struct {
+	pool             *pgxpool.Pool
+	querier          *usersyncsql.Queries
+	adminGroupPrefix string
+	tenantDomain     string
+	service          *admindirectoryv1.Service
+	log              logrus.FieldLogger
 }
 
-func New(db usersyncDatabase, adminGroupPrefix, tenantDomain string, service *admin_directory_v1.Service, log logrus.FieldLogger) *Usersynchronizer {
+type userMap struct {
+	byID         map[uuid.UUID]*usersyncsql.User
+	byExternalID map[string]*usersyncsql.User
+	byEmail      map[string]*usersyncsql.User
+}
+
+type userRolesMap map[*usersyncsql.User]map[usersyncsql.RoleName]struct{}
+
+type googleUser struct {
+	ID    string
+	Email string
+	Name  string
+}
+
+// DefaultRoleNames are the default set of roles that will be assigned to all new users.
+var DefaultRoleNames = []usersyncsql.RoleName{
+	usersyncsql.RoleNameTeamcreator,
+	usersyncsql.RoleNameTeamviewer,
+	usersyncsql.RoleNameUserviewer,
+	usersyncsql.RoleNameServiceaccountcreator,
+}
+
+func New(pool *pgxpool.Pool, adminGroupPrefix, tenantDomain string, service *admindirectoryv1.Service, log logrus.FieldLogger) *Usersynchronizer {
 	return &Usersynchronizer{
-		db:               db,
+		pool:             pool,
+		querier:          usersyncsql.New(pool),
 		adminGroupPrefix: adminGroupPrefix,
 		tenantDomain:     tenantDomain,
 		service:          service,
@@ -59,11 +62,11 @@ func New(db usersyncDatabase, adminGroupPrefix, tenantDomain string, service *ad
 	}
 }
 
-func NewFromConfig(ctx context.Context, serviceAccount, subjectEmail, tenantDomain, adminGroupPrefix string, db usersyncDatabase, log logrus.FieldLogger) (*Usersynchronizer, error) {
+func NewFromConfig(ctx context.Context, pool *pgxpool.Pool, serviceAccount, subjectEmail, tenantDomain, adminGroupPrefix string, log logrus.FieldLogger) (*Usersynchronizer, error) {
 	ts, err := impersonate.CredentialsTokenSource(ctx, impersonate.CredentialsConfig{
 		Scopes: []string{
-			admin_directory_v1.AdminDirectoryUserReadonlyScope,
-			admin_directory_v1.AdminDirectoryGroupScope,
+			admindirectoryv1.AdminDirectoryUserReadonlyScope,
+			admindirectoryv1.AdminDirectoryGroupScope,
 		},
 		Subject:         subjectEmail,
 		TargetPrincipal: serviceAccount,
@@ -72,138 +75,163 @@ func NewFromConfig(ctx context.Context, serviceAccount, subjectEmail, tenantDoma
 		return nil, fmt.Errorf("create token source: %w", err)
 	}
 
-	srv, err := admin_directory_v1.NewService(ctx, option.WithTokenSource(ts))
+	srv, err := admindirectoryv1.NewService(ctx, option.WithTokenSource(ts))
 	if err != nil {
-		return nil, fmt.Errorf("retrieve directory client: %w", err)
+		return nil, fmt.Errorf("create admin directory client: %w", err)
 	}
 
-	return New(db, adminGroupPrefix, tenantDomain, srv, log), nil
+	return New(pool, adminGroupPrefix, tenantDomain, srv, log), nil
 }
 
-// Sync Fetch all users from the tenant and add them as local users in api. If a user already exists in
-// api the local user will get the name potentially updated. After all users have been upserted, local users
-// that matches the tenant domain that does not exist in the Google Directory will be removed.
+// Sync fetches all users from the Google Directory of the tenant and adds them as users in NAIS API.
+//
+// If a user already exist in NAIS API the user will get the name and email potentially updated if it has changed in the
+// Google Directory.
+//
+// After all users have been synced, users that have an email address that matches the tenant domain that no longer
+// exist in the Google Directory will be removed.
+//
+// All users present in the admin group in the Google Directory will also be granted the admin role in NAIS API, and
+// existing admins that no longer exist in the admin group will get the admin role revoked.
 func (s *Usersynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) error {
 	log := s.log.WithField("correlation_id", correlationID)
 
-	remoteUserMapping := make(remoteUsersMap)
-	remoteUsers, err := getAllPaginatedUsers(ctx, s.service.Users, s.tenantDomain)
+	googleUsers, err := getGoogleUsers(ctx, s.service.Users, s.tenantDomain, log)
 	if err != nil {
-		return fmt.Errorf("get remote users: %w", err)
+		return fmt.Errorf("get users from Google Directory: %w", err)
 	}
 
-	err = s.db.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
-		allUsersRows, err := getAllUsers(ctx, dbtx)
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("begin transaction: %w", err)
+	}
+	defer func() {
+		if err := tx.Rollback(ctx); err == nil {
+			return
+		} else if !errors.Is(err, pgx.ErrTxClosed) {
+			s.log.WithError(err).Errorf("rollback transaction")
+		}
+	}()
+	querier := s.querier.WithTx(tx)
+
+	users, err := getUsers(ctx, querier)
+	if err != nil {
+		return fmt.Errorf("get existing users: %w", err)
+	}
+
+	userRoles, err := getUserRoles(ctx, querier, users)
+	if err != nil {
+		return fmt.Errorf("get existing user roles: %w", err)
+	}
+
+	googleUserMap := make(map[string]*usersyncsql.User)
+	for _, gu := range googleUsers {
+		user, created, err := getOrCreateUserFromGoogleUser(ctx, querier, gu, users)
 		if err != nil {
-			return fmt.Errorf("get existing users: %w", err)
+			return fmt.Errorf("get or create user %q: %w", gu.Email, err)
 		}
 
-		usersByID := make(userByIDMap)
-		existingUsers := userMap{
-			byExternalID: make(map[string]*database.User),
-			byEmail:      make(map[string]*database.User),
+		fields := logrus.Fields{
+			"external_id": gu.ID,
+			"email":       gu.Email,
+			"name":        gu.Name,
+		}
+		if created {
+			log.WithFields(fields).Debugf("created user")
+		} else {
+			log.WithFields(fields).Debugf("user already exists")
 		}
 
-		for _, user := range allUsersRows {
-			usersByID[user.ID] = user
-			existingUsers.byExternalID[user.ExternalID] = user
-			existingUsers.byEmail[user.Email] = user
-		}
-
-		allUserRolesRows, err := dbtx.GetAllUserRoles(ctx)
-		if err != nil {
-			return fmt.Errorf("get existing user roles: %w", err)
-		}
-
-		userRoles := make(userRolesMap)
-		for _, row := range allUserRolesRows {
-			user := usersByID[row.UserID]
-			if _, exists := userRoles[user]; !exists {
-				userRoles[user] = make(map[gensql.RoleName]struct{})
+		if userIsOutdated(user, gu) {
+			if err := querier.Update(ctx, usersyncsql.UpdateParams{
+				ID:         user.ID,
+				Name:       gu.Name,
+				Email:      gu.Email,
+				ExternalID: gu.ID,
+			}); err != nil {
+				return fmt.Errorf("update user %q: %w", gu.Email, err)
 			}
-			userRoles[user][row.RoleName] = struct{}{}
 		}
 
-		for _, remoteUser := range remoteUsers {
-			email := strings.ToLower(remoteUser.PrimaryEmail)
-			localUser, _, err := getOrCreateLocalUserFromRemoteUser(ctx, dbtx, remoteUser, existingUsers)
-			if err != nil {
-				return fmt.Errorf("get or create local user %q: %w", email, err)
-			}
-
-			if localUserIsOutdated(localUser, remoteUser) {
-				_, err := dbtx.UpdateUser(ctx, localUser.ID, remoteUser.Name.FullName, email, remoteUser.Id)
-				if err != nil {
-					return fmt.Errorf("update local user %q: %w", email, err)
+		for _, roleName := range DefaultRoleNames {
+			if globalRoles, userHasGlobalRoles := userRoles[user]; userHasGlobalRoles {
+				if _, userHasDefaultRole := globalRoles[roleName]; userHasDefaultRole {
+					continue
 				}
 			}
-
-			for _, roleName := range DefaultRoleNames {
-				if globalRoles, userHasGlobalRoles := userRoles[localUser]; userHasGlobalRoles {
-					if _, userHasDefaultRole := globalRoles[roleName]; userHasDefaultRole {
-						continue
-					}
-				}
-				err = dbtx.AssignGlobalRoleToUser(ctx, localUser.ID, roleName)
-				if err != nil {
-					return fmt.Errorf("attach default role %q to user %q: %w", roleName, email, err)
-				}
+			if err := querier.AssignGlobalRole(ctx, usersyncsql.AssignGlobalRoleParams{
+				UserID:   user.ID,
+				RoleName: roleName,
+			}); err != nil {
+				return fmt.Errorf("attach default role %q to user %q: %w", roleName, user.Email, err)
 			}
-
-			remoteUserMapping[remoteUser.Id] = localUser
-			delete(usersByID, localUser.ID)
 		}
 
-		deletedUsers, err := deleteUnknownUsers(ctx, dbtx, usersByID)
-		if err != nil {
-			return err
-		}
+		googleUserMap[gu.ID] = user
 
-		for _, deletedUser := range deletedUsers {
-			delete(userRoles, deletedUser)
-		}
+		// remove user from map to keep track of users that no longer exist in the Google Directory
+		delete(users.byID, user.ID)
+	}
 
-		err = assignTeamsBackendAdmins(ctx, dbtx, s.service.Members, s.adminGroupPrefix, s.tenantDomain, remoteUserMapping, userRoles, log)
-		if err != nil {
-			return err
-		}
+	deletedUsers, err := deleteUnknownUsers(ctx, querier, users.byID)
+	if err != nil {
+		return err
+	}
 
-		return nil
+	for _, deletedUser := range deletedUsers {
+		delete(userRoles, deletedUser)
+	}
+
+	if err := assignAdmins(ctx, querier, s.service.Members, s.adminGroupPrefix, s.tenantDomain, googleUserMap, userRoles, log); err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
+}
+
+// RegisterRun registers a user sync run with a potential error message in the database.
+func (s *Usersynchronizer) RegisterRun(ctx context.Context, correlationID uuid.UUID, startedAt, finishedAt time.Time, err error) error {
+	var errorMessage *string
+	if err != nil {
+		errorMessage = ptr.To(err.Error())
+	}
+	return s.querier.CreateRun(ctx, usersyncsql.CreateRunParams{
+		ID:         correlationID,
+		StartedAt:  pgtype.Timestamptz{Time: startedAt, Valid: true},
+		FinishedAt: pgtype.Timestamptz{Time: finishedAt, Valid: true},
+		Error:      errorMessage,
 	})
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
-// deleteUnknownUsers Delete users from the api database that does not exist in the Google Workspace
-func deleteUnknownUsers(ctx context.Context, dbtx database.Database, unknownUsers userByIDMap) ([]*database.User, error) {
-	deletedUsers := make([]*database.User, 0)
+// deleteUnknownUsers will delete users from NAIS API that does not exist in the Google Directory.
+func deleteUnknownUsers(ctx context.Context, querier usersyncsql.Querier, unknownUsers map[uuid.UUID]*usersyncsql.User) ([]*usersyncsql.User, error) {
+	ret := make([]*usersyncsql.User, 0)
 	for _, user := range unknownUsers {
-		err := dbtx.DeleteUser(ctx, user.ID)
-		if err != nil {
-			return nil, fmt.Errorf("delete local user %q: %w", user.Email, err)
+		if err := querier.Delete(ctx, user.ID); err != nil {
+			return nil, fmt.Errorf("delete user %q: %w", user.Email, err)
 		}
-		deletedUsers = append(deletedUsers, user)
+		ret = append(ret, user)
 	}
 
-	return deletedUsers, nil
+	return ret, nil
 }
 
-// assignTeamsBackendAdmins Assign the global admin role to users based on the admin group. Existing admins that is not
-// present in the list of admins will get the admin role revoked.
-func assignTeamsBackendAdmins(ctx context.Context, dbtx database.Database, membersService *admin_directory_v1.MembersService, adminGroupPrefix, tenantDomain string, remoteUserMapping map[string]*database.User, userRoles userRolesMap, log logrus.FieldLogger) error {
-	admins, err := getAdminUsers(ctx, membersService, adminGroupPrefix, tenantDomain, remoteUserMapping, log)
+// assignAdmins assigns the global admin role to members of the admin group in the Google Directory of the tenant.
+// Existing admins that is no longer a member of the admin group will have the admin role revoked.
+func assignAdmins(ctx context.Context, querier usersyncsql.Querier, membersService *admindirectoryv1.MembersService, adminGroupPrefix, tenantDomain string, googleUsers map[string]*usersyncsql.User, userRoles userRolesMap, log logrus.FieldLogger) error {
+	admins, err := getAdminGroupMembers(ctx, membersService, adminGroupPrefix, tenantDomain, googleUsers, log)
 	if err != nil {
 		return err
 	}
 
-	existingAdmins := getExistingTeamsBackendAdmins(userRoles)
+	existingAdmins := getExistingAdmins(userRoles)
 	for _, existingAdmin := range existingAdmins {
 		if _, shouldBeAdmin := admins[existingAdmin.ID]; !shouldBeAdmin {
-			err = dbtx.RevokeGlobalUserRole(ctx, existingAdmin.ID, gensql.RoleNameAdmin)
-			if err != nil {
+			log.WithField("email", existingAdmin.Email).Debugf("revoke admin role")
+			if err := querier.RevokeGlobalRole(ctx, usersyncsql.RevokeGlobalRoleParams{
+				UserID:   existingAdmin.ID,
+				RoleName: usersyncsql.RoleNameAdmin,
+			}); err != nil {
 				return err
 			}
 		}
@@ -211,8 +239,11 @@ func assignTeamsBackendAdmins(ctx context.Context, dbtx database.Database, membe
 
 	for _, admin := range admins {
 		if _, isAlreadyAdmin := existingAdmins[admin.ID]; !isAlreadyAdmin {
-			err = dbtx.AssignGlobalRoleToUser(ctx, admin.ID, gensql.RoleNameAdmin)
-			if err != nil {
+			log.WithField("email", admin.Email).Debugf("assign admin role")
+			if err := querier.AssignGlobalRole(ctx, usersyncsql.AssignGlobalRoleParams{
+				UserID:   admin.ID,
+				RoleName: usersyncsql.RoleNameAdmin,
+			}); err != nil {
 				return err
 			}
 		}
@@ -221,12 +252,12 @@ func assignTeamsBackendAdmins(ctx context.Context, dbtx database.Database, membe
 	return nil
 }
 
-// getExistingTeamsBackendAdmins Get all users with a globally assigned admin role
-func getExistingTeamsBackendAdmins(userWithRoles userRolesMap) map[uuid.UUID]*database.User {
-	admins := make(map[uuid.UUID]*database.User)
+// getExistingAdmins returns all users with a globally assigned admin role.
+func getExistingAdmins(userWithRoles userRolesMap) map[uuid.UUID]*usersyncsql.User {
+	admins := make(map[uuid.UUID]*usersyncsql.User)
 	for user, roles := range userWithRoles {
 		for roleName := range roles {
-			if roleName == gensql.RoleNameAdmin {
+			if roleName == usersyncsql.RoleNameAdmin {
 				admins[user.ID] = user
 			}
 		}
@@ -234,11 +265,11 @@ func getExistingTeamsBackendAdmins(userWithRoles userRolesMap) map[uuid.UUID]*da
 	return admins
 }
 
-// getAdminUsers Get a list of admin users based on the api admins group in the Google Workspace
-func getAdminUsers(ctx context.Context, membersService *admin_directory_v1.MembersService, adminGroupPrefix, tenantDomain string, remoteUserMapping map[string]*database.User, log logrus.FieldLogger) (map[uuid.UUID]*database.User, error) {
-	adminGroupKey := adminGroupPrefix + "@" + tenantDomain
-	groupMembers := make([]*admin_directory_v1.Member, 0)
-	callback := func(fragments *admin_directory_v1.Members) error {
+// getAdminGroupMembers fetches all users in the admin group from the Google Directory of the tenant.
+func getAdminGroupMembers(ctx context.Context, membersService *admindirectoryv1.MembersService, adminGroupPrefix, tenantDomain string, googleUsers map[string]*usersyncsql.User, log logrus.FieldLogger) (map[uuid.UUID]*usersyncsql.User, error) {
+	adminGroup := adminGroupPrefix + "@" + tenantDomain
+	groupMembers := make([]*admindirectoryv1.Member, 0)
+	callback := func(fragments *admindirectoryv1.Members) error {
 		for _, member := range fragments.Members {
 			if member.Type == "USER" && member.Status == "ACTIVE" {
 				groupMembers = append(groupMembers, member)
@@ -246,18 +277,17 @@ func getAdminUsers(ctx context.Context, membersService *admin_directory_v1.Membe
 		}
 		return nil
 	}
-	admins := make(map[uuid.UUID]*database.User)
+	admins := make(map[uuid.UUID]*usersyncsql.User)
 	err := membersService.
-		List(adminGroupKey).
+		List(adminGroup).
 		IncludeDerivedMembership(true).
-		Context(ctx).
 		Pages(ctx, callback)
 	if err != nil {
 		if googleError, ok := err.(*googleapi.Error); ok && googleError.Code == 404 {
-			// Special case: When the group does not exist we want to remove all existing admins. The group might never
-			// have been created by the tenant admins in the first place, or it might have been deleted. In any case, we
-			// want to treat this case as if the group exists, and that it is empty, effectively removing all admins.
-			log.Warnf("api admins group %q does not exist", adminGroupKey)
+			// Special case: When the group does not exist we want to remove all existing admins. The group might have
+			// never been created by the tenant admins in the first place, or it might have been deleted. In any case,
+			// we want to treat this case as if the group exists, and that it is empty, effectively removing all admins.
+			log.WithField("group_name", adminGroup).Warnf("api admins group does not exist")
 			return admins, nil
 		}
 
@@ -265,9 +295,9 @@ func getAdminUsers(ctx context.Context, membersService *admin_directory_v1.Membe
 	}
 
 	for _, member := range groupMembers {
-		admin, exists := remoteUserMapping[member.Id]
+		admin, exists := googleUsers[member.Id]
 		if !exists {
-			log.Errorf("unknown user %q in admins groups", member.Email)
+			log.WithField("email", member.Email).Errorf("unknown user in admins groups")
 			continue
 		}
 
@@ -277,36 +307,38 @@ func getAdminUsers(ctx context.Context, membersService *admin_directory_v1.Membe
 	return admins, nil
 }
 
-// localUserIsOutdated Check if a local user is outdated when compared to the remote user
-func localUserIsOutdated(localUser *database.User, remoteUser *admin_directory_v1.User) bool {
-	if localUser.Name != remoteUser.Name.FullName {
+// userIsOutdated checks if a user needs to get its name or its email address updated.
+func userIsOutdated(user *usersyncsql.User, gu *googleUser) bool {
+	if user.Name != gu.Name {
 		return true
 	}
 
-	if !strings.EqualFold(localUser.Email, remoteUser.PrimaryEmail) {
+	if !strings.EqualFold(user.Email, gu.Email) {
 		return true
 	}
 
-	if localUser.ExternalID != remoteUser.Id {
+	if user.ExternalID != gu.ID {
 		return true
 	}
 
 	return false
 }
 
-// getOrCreateLocalUserFromRemoteUser Look up the local user table for a match for the remote user. If no match is
-// found, create the user.
-func getOrCreateLocalUserFromRemoteUser(ctx context.Context, dbtx database.Database, remoteUser *admin_directory_v1.User, existingUsers userMap) (*database.User, bool, error) {
-	if existingUser, exists := existingUsers.byExternalID[remoteUser.Id]; exists {
+// getOrCreateUserFromGoogleUser will return a user for a Google user, creating it first if needed.
+func getOrCreateUserFromGoogleUser(ctx context.Context, querier usersyncsql.Querier, googleUser *googleUser, existingUsers *userMap) (*usersyncsql.User, bool, error) {
+	if existingUser, exists := existingUsers.byExternalID[googleUser.ID]; exists {
 		return existingUser, false, nil
 	}
 
-	email := strings.ToLower(remoteUser.PrimaryEmail)
-	if existingUser, exists := existingUsers.byEmail[email]; exists {
+	if existingUser, exists := existingUsers.byEmail[googleUser.Email]; exists {
 		return existingUser, false, nil
 	}
 
-	createdUser, err := dbtx.CreateUser(ctx, remoteUser.Name.FullName, email, remoteUser.Id)
+	createdUser, err := querier.Create(ctx, usersyncsql.CreateParams{
+		Name:       googleUser.Name,
+		Email:      googleUser.Email,
+		ExternalID: googleUser.ID,
+	})
 	if err != nil {
 		return nil, false, err
 	}
@@ -314,45 +346,71 @@ func getOrCreateLocalUserFromRemoteUser(ctx context.Context, dbtx database.Datab
 	return createdUser, true, nil
 }
 
-func getAllPaginatedUsers(ctx context.Context, svc *admin_directory_v1.UsersService, tenantDomain string) ([]*admin_directory_v1.User, error) {
-	users := make([]*admin_directory_v1.User, 0)
-
-	callback := func(fragments *admin_directory_v1.Users) error {
-		users = append(users, fragments.Users...)
+// getGoogleUsers fetches all users from the Google Directory.
+func getGoogleUsers(ctx context.Context, svc *admindirectoryv1.UsersService, tenantDomain string, log logrus.FieldLogger) ([]*googleUser, error) {
+	users := make([]*googleUser, 0)
+	callback := func(fragments *admindirectoryv1.Users) error {
+		log.WithField("num", len(fragments.Users)).Debugf("fetched batch of users from from Google Directory")
+		for _, user := range fragments.Users {
+			users = append(users, &googleUser{
+				ID:    user.Id,
+				Email: strings.ToLower(user.PrimaryEmail),
+				Name:  user.Name.FullName,
+			})
+		}
 		return nil
 	}
 
+	log.Debugf("start fetching users from Google Directory")
+	t := time.Now()
 	err := svc.
 		List().
-		Context(ctx).
 		Domain(tenantDomain).
 		ShowDeleted("false").
 		Query("isSuspended=false").
 		Pages(ctx, callback)
-
+	log.WithFields(logrus.Fields{
+		"duration":  time.Since(t),
+		"num_users": len(users),
+	}).Debugf("finished fetching users from Google Directory")
 	return users, err
 }
 
-func getAllUsers(ctx context.Context, db database.UserRepo) ([]*database.User, error) {
-	limit, offset := 100, 0
-	users := make([]*database.User, 0)
-	for {
-		page, _, err := db.GetUsers(ctx, database.Page{
-			Limit:  limit,
-			Offset: offset,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		users = append(users, page...)
-
-		if len(page) < limit {
-			break
-		}
-
-		offset += limit
+// getUsers return a collection of maps of users by ID, external ID and email.
+func getUsers(ctx context.Context, querier usersyncsql.Querier) (*userMap, error) {
+	users, err := querier.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+	ret := &userMap{
+		byID:         make(map[uuid.UUID]*usersyncsql.User),
+		byExternalID: make(map[string]*usersyncsql.User),
+		byEmail:      make(map[string]*usersyncsql.User),
+	}
+	for _, user := range users {
+		ret.byID[user.ID] = user
+		ret.byExternalID[user.ExternalID] = user
+		ret.byEmail[user.Email] = user
 	}
 
-	return users, nil
+	return ret, nil
+}
+
+// getUserRoles returns a map of users and their roles.
+func getUserRoles(ctx context.Context, querier usersyncsql.Querier, users *userMap) (userRolesMap, error) {
+	roles, err := querier.ListRoles(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	userRoles := make(userRolesMap)
+	for _, role := range roles {
+		user := users.byID[role.UserID]
+		if _, exists := userRoles[user]; !exists {
+			userRoles[user] = make(map[usersyncsql.RoleName]struct{})
+		}
+		userRoles[user][role.RoleName] = struct{}{}
+	}
+
+	return userRoles, nil
 }

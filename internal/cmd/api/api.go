@@ -155,11 +155,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	wg, ctx := errgroup.WithContext(ctx)
 
 	wg.Go(func() error {
-		return runUsersync(ctx, cfg, db, log)
+		return runUsersync(ctx, db.GetPool(), cfg, log)
 	})
 
 	wg.Go(func() error {
-		return costUpdater(ctx, cfg, db.GetPool(), log)
+		return costUpdater(ctx, db.GetPool(), cfg, log)
 	})
 
 	authHandler, err := setupAuthHandler(cfg.OAuth, db, log)

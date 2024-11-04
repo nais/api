@@ -129,3 +129,12 @@ sql:
         <<: *default_go
         package: "grpcreconcilersql"
         out: "../internal/grpc/grpcreconciler/grpcreconcilersql"
+
+  - <<: *default_domain
+    name: "Usersync SQL"
+    queries: "../internal/usersync/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "usersyncsql"
+        out: "../internal/usersync/usersyncsql"

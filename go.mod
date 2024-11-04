@@ -37,8 +37,8 @@ require (
 	github.com/sourcegraph/conc v0.3.0
 	github.com/sqlc-dev/sqlc v1.26.0
 	github.com/stretchr/testify v1.9.0
-	github.com/testcontainers/testcontainers-go v0.33.0
-	github.com/testcontainers/testcontainers-go/modules/postgres v0.33.0
+	github.com/testcontainers/testcontainers-go v0.34.0
+	github.com/testcontainers/testcontainers-go/modules/postgres v0.34.0
 	github.com/vektah/gqlparser/v2 v2.5.17
 	github.com/vektra/mockery/v2 v2.43.2
 	github.com/vikstrous/dataloadgen v0.0.6

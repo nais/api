@@ -1,255 +1,301 @@
+//go:build integration_test
+// +build integration_test
+
 package usersync_test
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/test"
 	"github.com/nais/api/internal/usersync"
+	"github.com/nais/api/internal/v1/databasev1"
+	"github.com/nais/api/internal/v1/graphv1/pagination"
+	"github.com/nais/api/internal/v1/role"
+	"github.com/nais/api/internal/v1/role/rolesql"
+	"github.com/nais/api/internal/v1/user"
+	"github.com/sirupsen/logrus"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
-	"github.com/stretchr/testify/mock"
-	admin_directory_v1 "google.golang.org/api/admin/directory/v1"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	"github.com/testcontainers/testcontainers-go/wait"
+	"github.com/vikstrous/dataloadgen"
+	admindirectoryv1 "google.golang.org/api/admin/directory/v1"
 	"google.golang.org/api/option"
 )
 
-func TestSync(t *testing.T) {
-	const (
-		domain           = "example.com"
-		adminGroupPrefix = "nais-admins"
-	)
+const (
+	domain           = "example.com"
+	adminGroupPrefix = "nais-admins"
+)
 
-	correlationID := uuid.New()
+func TestSync(t *testing.T) {
+	ctx := context.Background()
+	log, _ := logrustest.NewNullLogger()
+
+	container, connStr, cleanup, err := startPostgresql(ctx, log)
+	if err != nil {
+		t.Fatalf("failed to start postgres container: %v", err)
+	}
+	defer cleanup()
+
+	pool, cleanup, err := newDB(ctx, container, connStr, log)
+	if err != nil {
+		t.Fatalf("failed to create database: %v", err)
+	}
+	defer cleanup()
+
+	ctx = databasev1.NewLoaderContext(ctx, pool)
+	ctx = user.NewLoaderContext(ctx, pool, []dataloadgen.Option{})
+	ctx = role.NewLoaderContext(ctx, pool, []dataloadgen.Option{})
 
 	t.Run("No local users, no remote users", func(t *testing.T) {
-		ctx := context.Background()
-
-		log, _ := logrustest.NewNullLogger()
-		db := database.NewMockDatabase(t)
-
-		db.EXPECT().
-			Transaction(ctx, mock.Anything).
-			Return(nil).
-			Once()
-
-		httpClient := test.NewTestHttpClient(func(req *http.Request) *http.Response {
-			return test.Response("200 OK", `{"users":[]}`)
-		})
-		svc, err := admin_directory_v1.NewService(ctx, option.WithHTTPClient(httpClient))
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		err = usersync.
-			New(db, adminGroupPrefix, domain, svc, log).
-			Sync(ctx, correlationID)
-		if err != nil {
-			t.Fatal(err)
-		}
-	})
-
-	t.Run("Local users, no remote users", func(t *testing.T) {
-		ctx := context.Background()
-		txCtx := context.Background()
-
-		log, _ := logrustest.NewNullLogger()
-		db := database.NewMockDatabase(t)
-		dbtx := database.NewMockDatabase(t)
-
-		db.EXPECT().
-			Transaction(ctx, mock.Anything).
-			Run(func(ctx context.Context, fn database.DatabaseTransactionFunc) {
-				_ = fn(txCtx, dbtx)
-			}).
-			Return(nil).
-			Once()
-
-		user1 := &database.User{User: &gensql.User{ID: uuid.New(), Email: "user1@example.com", ExternalID: "123", Name: "User 1"}}
-		user2 := &database.User{User: &gensql.User{ID: uuid.New(), Email: "user2@example.com", ExternalID: "456", Name: "User 2"}}
-
-		p := database.Page{
-			Limit:  100,
-			Offset: 0,
-		}
-
-		dbtx.EXPECT().
-			GetUsers(txCtx, p).
-			Return([]*database.User{user1, user2}, 2, nil).
-			Once()
-		dbtx.EXPECT().
-			GetAllUserRoles(txCtx).
-			Return([]*database.UserRole{
-				{UserRole: &gensql.UserRole{UserID: user1.ID, RoleName: gensql.RoleNameTeamcreator}},
-				{UserRole: &gensql.UserRole{UserID: user2.ID, RoleName: gensql.RoleNameAdmin}},
-			}, nil).
-			Once()
-		dbtx.EXPECT().
-			DeleteUser(txCtx, user1.ID).
-			Return(nil).
-			Once()
-		dbtx.EXPECT().
-			DeleteUser(txCtx, user2.ID).
-			Return(nil).
-			Once()
+		correlationID := uuid.New()
 
 		httpClient := test.NewTestHttpClient(
-			// users
 			func(req *http.Request) *http.Response {
 				return test.Response("200 OK", `{"users":[]}`)
 			},
-			// admin group members
 			func(req *http.Request) *http.Response {
 				return test.Response("200 OK", `{"members":[]}`)
 			},
 		)
-		svc, err := admin_directory_v1.NewService(ctx, option.WithHTTPClient(httpClient))
+
+		svc, err := admindirectoryv1.NewService(ctx, option.WithHTTPClient(httpClient))
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		err = usersync.
-			New(db, adminGroupPrefix, domain, svc, log).
+			New(pool, adminGroupPrefix, domain, svc, log).
 			Sync(ctx, correlationID)
 		if err != nil {
 			t.Fatal(err)
+		}
+
+		p, _ := pagination.ParsePage(nil, nil, nil, nil)
+		if users, err := user.List(ctx, p, nil); err != nil {
+			t.Fatal(err)
+		} else if total := len(users.Nodes()); total != 0 {
+			t.Fatalf("expected 0 users, got %d", total)
+		}
+	})
+
+	t.Run("Local users, no remote users", func(t *testing.T) {
+		correlationID := uuid.New()
+
+		user1, err := user.Create(ctx, "User 1", "user1@example.com", "123")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		user2, err := user.Create(ctx, "User 2", "user2@example.com", "456")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if err := role.AssignGlobalRoleToUser(ctx, user1.UUID, rolesql.RoleNameTeamcreator); err != nil {
+			t.Fatal(err)
+		}
+
+		if err := role.AssignGlobalRoleToUser(ctx, user2.UUID, rolesql.RoleNameAdmin); err != nil {
+			t.Fatal(err)
+		}
+
+		httpClient := test.NewTestHttpClient(
+			func(req *http.Request) *http.Response {
+				return test.Response("200 OK", `{"users":[]}`)
+			},
+			func(req *http.Request) *http.Response {
+				return test.Response("200 OK", `{"members":[]}`)
+			},
+		)
+		svc, err := admindirectoryv1.NewService(ctx, option.WithHTTPClient(httpClient))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = usersync.
+			New(pool, adminGroupPrefix, domain, svc, log).
+			Sync(ctx, correlationID)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		p, _ := pagination.ParsePage(nil, nil, nil, nil)
+		if users, err := user.List(ctx, p, nil); err != nil {
+			t.Fatal(err)
+		} else if total := len(users.Nodes()); total != 0 {
+			t.Fatalf("expected 0 users, got %d", total)
 		}
 	})
 
 	t.Run("Create, update and delete users", func(t *testing.T) {
-		ctx := context.Background()
-		txCtx := context.Background()
+		correlationID := uuid.New()
 
-		log, _ := logrustest.NewNullLogger()
-		db := database.NewMockDatabase(t)
-		dbtx := database.NewMockDatabase(t)
-
-		numDefaultRoleNames := len(usersync.DefaultRoleNames)
-
-		localUserID1 := uuid.New()
-		localUserID2 := uuid.New()
-		localUserID3 := uuid.New()
-		localUserID4 := uuid.New()
-
-		localUserWithIncorrectName := &database.User{User: &gensql.User{ID: localUserID1, Email: "user1@example.com", ExternalID: "123", Name: "Incorrect Name"}}
-		localUserWithCorrectName := &database.User{User: &gensql.User{ID: localUserID1, Email: "user1@example.com", ExternalID: "123", Name: "Correct Name"}}
-
-		localUserWithIncorrectEmail := &database.User{User: &gensql.User{ID: localUserID2, Email: "user-123@example.com", ExternalID: "789", Name: "Some Name"}}
-		localUserWithCorrectEmail := &database.User{User: &gensql.User{ID: localUserID2, Email: "user3@example.com", ExternalID: "789", Name: "Some Name"}}
-
-		localUserThatWillBeDeleted := &database.User{User: &gensql.User{ID: localUserID3, Email: "delete-me@example.com", ExternalID: "321", Name: "Delete Me"}}
-
-		createdLocalUser := &database.User{User: &gensql.User{ID: localUserID4, Email: "user2@example.com", ExternalID: "456", Name: "Create Me"}}
-
-		httpClient := test.NewTestHttpClient(
-			// org users
-			func(req *http.Request) *http.Response {
-				return test.Response("200 OK", `{"users":[`+
-					`{"id": "123", "primaryEmail":"user1@example.com","name":{"fullName":"Correct Name"}},`+ // Will update name of local user
-					`{"id": "456", "primaryEmail":"user2@example.com","name":{"fullName":"Create Me"}},`+ // Will be created
-					`{"id": "789", "primaryEmail":"user3@example.com","name":{"fullName":"Some Name"}}]}`) // Will update email of local user
-			},
-			// admin group members
-			func(req *http.Request) *http.Response {
-				return test.Response("200 OK", `{"members":[`+
-					`{"id": "456", "email":"user2@example.com", "status": "ACTIVE", "type": "USER"},`+ // Will be granted admin role
-					`{"Id": "666", "email":"some-group@example.com", "type": "GROUP"},`+ // Group type, will be ignored
-					`{"Id": "111", "email":"unknown-admin@example.com", "status": "ACTIVE", "type": "USER"},`+ // Unknown user, will be logged
-					`{"Id": "789", "email":"inactive-user@example.com", "status":"SUSPENDED", "type": "USER"}]}`) // Invalid status, will be ignored
-			},
-		)
-		svc, err := admin_directory_v1.NewService(ctx, option.WithHTTPClient(httpClient))
+		userWithIncorrectName, err := user.Create(ctx, "Incorrect Name", "user1@example.com", "1")
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		db.EXPECT().
-			Transaction(mock.Anything, mock.Anything).
-			Run(func(_ context.Context, fn database.DatabaseTransactionFunc) {
-				_ = fn(txCtx, dbtx)
-			}).
-			Return(nil).
-			Once()
-
-		dbtx.EXPECT().
-			GetAllUserRoles(txCtx).
-			Return([]*database.UserRole{
-				{UserRole: &gensql.UserRole{UserID: localUserID1, RoleName: gensql.RoleNameTeamcreator}},
-				{UserRole: &gensql.UserRole{UserID: localUserID1, RoleName: gensql.RoleNameAdmin}},
-				{UserRole: &gensql.UserRole{UserID: localUserID2, RoleName: gensql.RoleNameTeamviewer}},
-			}, nil).
-			Once()
-
-		p := database.Page{
-			Limit:  100,
-			Offset: 0,
+		userWithIncorrectEmail, err := user.Create(ctx, "Some Name", "incorrect@example.com", "2")
+		if err != nil {
+			t.Fatal(err)
 		}
 
-		dbtx.EXPECT().
-			GetUsers(txCtx, p).
-			Return([]*database.User{
-				localUserWithIncorrectName,
-				localUserWithIncorrectEmail,
-				localUserThatWillBeDeleted,
-			}, 3, nil).
-			Once()
+		userThatWillBeDeleted, err := user.Create(ctx, "Delete Me", "delete-me@example.com", "3")
+		if err != nil {
+			t.Fatal(err)
+		}
 
-		// user1@example.com
-		dbtx.EXPECT().
-			UpdateUser(txCtx, localUserWithIncorrectName.ID, "Correct Name", "user1@example.com", "123").
-			Return(localUserWithCorrectName, nil).
-			Once()
-		dbtx.EXPECT().
-			AssignGlobalRoleToUser(txCtx, localUserWithCorrectName.ID, mock.MatchedBy(func(roleName gensql.RoleName) bool {
-				return roleName != gensql.RoleNameTeamcreator
-			})).
-			Return(nil).
-			Times(numDefaultRoleNames - 1)
+		userThatShouldLoseAdminRole, err := user.Create(ctx, "Should Lose Admin", "should-lose-admin@example.com", "4")
+		if err != nil {
+			t.Fatal(err)
+		}
 
-		// user2@example.com
-		dbtx.EXPECT().
-			CreateUser(txCtx, "Create Me", "user2@example.com", "456").
-			Return(createdLocalUser, nil).
-			Once()
-		dbtx.EXPECT().
-			AssignGlobalRoleToUser(txCtx, createdLocalUser.ID, mock.AnythingOfType("gensql.RoleName")).
-			Return(nil).
-			Times(numDefaultRoleNames)
+		if err := role.AssignGlobalRoleToUser(ctx, userThatShouldLoseAdminRole.UUID, rolesql.RoleNameAdmin); err != nil {
+			t.Fatal(err)
+		}
 
-		// user3@example.com
-		dbtx.EXPECT().
-			UpdateUser(txCtx, localUserWithIncorrectEmail.ID, "Some Name", "user3@example.com", "789").
-			Return(localUserWithCorrectEmail, nil).
-			Once()
-		dbtx.EXPECT().
-			AssignGlobalRoleToUser(txCtx, localUserWithCorrectEmail.ID, mock.MatchedBy(func(roleName gensql.RoleName) bool {
-				return roleName != gensql.RoleNameTeamviewer
-			})).
-			Return(nil).
-			Times(numDefaultRoleNames - 1)
-
-		dbtx.EXPECT().
-			DeleteUser(txCtx, localUserThatWillBeDeleted.ID).
-			Return(nil).
-			Once()
-
-		dbtx.EXPECT().
-			AssignGlobalRoleToUser(txCtx, createdLocalUser.ID, gensql.RoleNameAdmin).
-			Return(nil).
-			Once()
-
-		dbtx.EXPECT().
-			RevokeGlobalUserRole(txCtx, localUserID1, gensql.RoleNameAdmin).
-			Return(nil).
-			Once()
+		httpClient := test.NewTestHttpClient(
+			func(req *http.Request) *http.Response {
+				return test.Response("200 OK", `{"users":[`+
+					`{"id": "1", "primaryEmail":"user1@example.com","name":{"fullName":"Correct Name"}},`+ // Will update name of local user
+					`{"id": "2", "primaryEmail":"user2@example.com","name":{"fullName":"Some Name"}},`+ // Will update email of local user
+					`{"id": "4", "primaryEmail":"should-lose-admin@example.com","name":{"fullName":"Should Lose Admin"}},`+ // Will lose admin role
+					`{"id": "5", "primaryEmail":"create-me@example.com","name":{"fullName":"Create Me"}}]}`) // Will be created
+			},
+			func(req *http.Request) *http.Response {
+				return test.Response("200 OK", `{"members":[`+
+					`{"id": "2", "email":"user2@example.com", "status": "ACTIVE", "type": "USER"},`+ // Will be granted admin role
+					`{"Id": "6", "email":"some-group@example.com", "type": "GROUP"},`+ // Group type, will be ignored
+					`{"Id": "7", "email":"unknown-admin@example.com", "status": "ACTIVE", "type": "USER"},`+ // Unknown user, will be logged
+					`{"Id": "8", "email":"inactive-user@example.com", "status":"SUSPENDED", "type": "USER"}]}`) // Invalid status, will be ignored
+			},
+		)
+		svc, err := admindirectoryv1.NewService(ctx, option.WithHTTPClient(httpClient))
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		err = usersync.
-			New(db, adminGroupPrefix, domain, svc, log).
+			New(pool, adminGroupPrefix, domain, svc, log).
 			Sync(ctx, correlationID)
 		if err != nil {
 			t.Fatal(err)
 		}
+
+		p, _ := pagination.ParsePage(nil, nil, nil, nil)
+		if users, err := user.List(ctx, p, nil); err != nil {
+			t.Fatal(err)
+		} else if total := len(users.Nodes()); total != 4 {
+			t.Fatalf("expected 3 users, got %d", total)
+		}
+
+		if u, err := user.Get(ctx, userWithIncorrectName.UUID); err != nil {
+			t.Fatal(err)
+		} else if correctName := "Correct Name"; u.Name != correctName {
+			t.Fatalf("expected name to be %q, got %q", correctName, u.Name)
+		}
+
+		if u, err := user.Get(ctx, userWithIncorrectEmail.UUID); err != nil {
+			t.Fatal(err)
+		} else if correctEmail := "user2@example.com"; u.Email != correctEmail {
+			t.Fatalf("expected email to be %q, got %q", correctEmail, u.Email)
+		}
+
+		if u, err := user.Get(ctx, userThatWillBeDeleted.UUID); err == nil {
+			t.Fatalf("expected user to be deleted, got %v", u)
+		}
+
+		if u, err := user.GetByEmail(ctx, "create-me@example.com"); err != nil {
+			t.Fatal(err)
+		} else if correctName := "Create Me"; u.Name != correctName {
+			t.Fatalf("expected name to be %q, got %q", correctName, u.Name)
+		}
+
+		roles, err := role.ForUser(ctx, userThatShouldLoseAdminRole.UUID)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		for _, r := range roles {
+			if r.Name == rolesql.RoleNameAdmin {
+				t.Fatalf("expected user to lose admin role, but still has it")
+			}
+		}
+
+		roles, err = role.ForUser(ctx, userWithIncorrectEmail.UUID)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		foundAdminRole := false
+		for _, r := range roles {
+			if r.Name == rolesql.RoleNameAdmin {
+				foundAdminRole = true
+				break
+			}
+		}
+		if !foundAdminRole {
+			t.Fatalf("expected user to be granted admin role, but doesn't have it")
+		}
 	})
+}
+
+func startPostgresql(ctx context.Context, log logrus.FieldLogger) (*postgres.PostgresContainer, string, func(), error) {
+	container, err := postgres.Run(
+		ctx,
+		"docker.io/postgres:16-alpine",
+		postgres.WithDatabase("usersync"),
+		postgres.WithUsername("usersync"),
+		postgres.WithPassword("usersync"),
+		postgres.WithSQLDriver("pgx"),
+		testcontainers.WithWaitStrategy(
+			wait.ForLog("database system is ready to accept connections").
+				WithOccurrence(2),
+		),
+	)
+	if err != nil {
+		return nil, "", nil, fmt.Errorf("failed to start container: %w", err)
+	}
+
+	connStr, err := container.ConnectionString(ctx, "sslmode=disable")
+	if err != nil {
+		return nil, "", nil, fmt.Errorf("failed to get connection string: %w", err)
+	}
+
+	pool, err := database.NewPool(ctx, connStr, log, true)
+	if err != nil {
+		return nil, "", nil, fmt.Errorf("failed to create pool: %w", err)
+	}
+	pool.Close()
+
+	if err := container.Snapshot(ctx, postgres.WithSnapshotName("migrated")); err != nil {
+		return nil, "", nil, fmt.Errorf("failed to snapshot: %w", err)
+	}
+
+	cleanup := func() {
+		_ = testcontainers.TerminateContainer(container)
+	}
+	return container, connStr, cleanup, nil
+}
+
+func newDB(ctx context.Context, postgresContainer *postgres.PostgresContainer, connectionString string, log logrus.FieldLogger) (*pgxpool.Pool, func(), error) {
+	pool, err := database.NewPool(ctx, connectionString, log, false)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to create pool: %w", err)
+	}
+
+	cleanup := func() {
+		pool.Close()
+		_ = postgresContainer.Restore(ctx)
+	}
+
+	return pool, cleanup, nil
 }

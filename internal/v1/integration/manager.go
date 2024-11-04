@@ -17,6 +17,7 @@ import (
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/cmd/api"
 	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database/gensql"
 	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/usersync"
 	"github.com/nais/api/internal/v1/graphv1"
@@ -293,7 +294,7 @@ func newDB(ctx context.Context, container *postgres.PostgresContainer, connStr s
 
 		for _, usr := range users {
 			for _, roleName := range usersync.DefaultRoleNames {
-				err = db.AssignGlobalRoleToUser(ctx, usr.ID, roleName)
+				err = db.AssignGlobalRoleToUser(ctx, usr.ID, gensql.RoleName(roleName))
 				if err != nil {
 					cleanup()
 					return nil, nil, nil, fmt.Errorf("attach default role %q to user %q: %w", roleName, usr.Email, err)

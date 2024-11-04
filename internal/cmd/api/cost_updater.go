@@ -16,7 +16,7 @@ const (
 	costUpdateSchedule = time.Hour
 )
 
-func costUpdater(ctx context.Context, cfg *Config, pool *pgxpool.Pool, log logrus.FieldLogger) error {
+func costUpdater(ctx context.Context, pool *pgxpool.Pool, cfg *Config, log logrus.FieldLogger) error {
 	if !cfg.Cost.ImportEnabled {
 		log.Warningf(`cost import is not enabled. Enable by setting the "COST_DATA_IMPORT_ENABLED" environment variable to "true".`)
 		return nil
