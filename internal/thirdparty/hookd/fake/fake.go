@@ -128,7 +128,7 @@ func newDeploy(cluster string, team slug.Slug) hookd.Deploy {
 
 	deploy := hookd.Deploy{
 		DeploymentInfo: hookd.DeploymentInfo{
-			ID:               name,
+			ID:               uuid.New().String(),
 			Team:             team,
 			Cluster:          cluster,
 			Created:          time.Now().Add(-time.Duration(rand.Intn(1000)) * time.Hour),
