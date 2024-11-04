@@ -38,7 +38,6 @@ type Database interface {
 	SessionRepo
 	TeamRepo
 	UserRepo
-	UsersyncRepo
 	Transactioner
 	GetPool() *pgxpool.Pool
 }
