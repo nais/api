@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/nais/api/internal/v1/role"
+
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/hookd"
+	"github.com/nais/api/internal/v1/graphv1/apierror"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/role"
@@ -105,10 +108,10 @@ func InfoForWorkload(ctx context.Context, workload workload.Workload) (*Deployme
 	}, nil
 }
 
-func getByIdent(ctx context.Context, id ident.Ident) (*DeploymentKey, error) {
+func getDeploymentKeyByIdent(ctx context.Context, id ident.Ident) (*DeploymentKey, error) {
 	// We ensure that the authenticated user has access to the deployment key first
 
-	teamSlug, err := parseIdent(id)
+	teamSlug, err := parseDeploymentKeyIdent(id)
 	if err != nil {
 		return nil, err
 	}
@@ -116,4 +119,8 @@ func getByIdent(ctx context.Context, id ident.Ident) (*DeploymentKey, error) {
 		return nil, err
 	}
 	return KeyForTeam(ctx, teamSlug)
+}
+
+func getDeploymentByIdent(ctx context.Context, id ident.Ident) (*Deployment, error) {
+	return nil, apierror.Errorf("deployments are not accessible by node ID")
 }

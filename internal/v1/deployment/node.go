@@ -10,22 +10,37 @@ import (
 type identType int
 
 const (
-	identKey identType = iota
+	identKeyDeploymentKey identType = iota
+	identKeyDeployment
 )
 
 func init() {
-	ident.RegisterIdentType(identKey, "DK", getByIdent)
+	ident.RegisterIdentType(identKeyDeploymentKey, "DK", getDeploymentKeyByIdent)
+	ident.RegisterIdentType(identKeyDeployment, "DI", getDeploymentByIdent)
 }
 
-func newIdent(slug slug.Slug) ident.Ident {
-	return ident.NewIdent(identKey, slug.String())
+func newDeploymentKeyIdent(slug slug.Slug) ident.Ident {
+	return ident.NewIdent(identKeyDeploymentKey, slug.String())
 }
 
-func parseIdent(id ident.Ident) (slug.Slug, error) {
+func parseDeploymentKeyIdent(id ident.Ident) (slug.Slug, error) {
 	parts := id.Parts()
 	if len(parts) != 1 {
-		return "", fmt.Errorf("invalid team ident")
+		return "", fmt.Errorf("invalid deployment key ident")
 	}
 
 	return slug.Slug(parts[0]), nil
+}
+
+func newDeploymentIdent(id string) ident.Ident {
+	return ident.NewIdent(identKeyDeployment, id)
+}
+
+func parseDeploymentIdent(id ident.Ident) (string, error) {
+	parts := id.Parts()
+	if len(parts) != 1 {
+		return "", fmt.Errorf("invalid deployment ident")
+	}
+
+	return parts[0], nil
 }

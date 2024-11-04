@@ -47,7 +47,7 @@ func toGraphDeploymentKey(d *hookd.DeployKey, teamSlug slug.Slug) *DeploymentKey
 }
 
 func (d DeploymentKey) ID() ident.Ident {
-	return newIdent(d.TeamSlug)
+	return newDeploymentKeyIdent(d.TeamSlug)
 }
 
 func (DeploymentKey) IsNode() {}
@@ -57,6 +57,7 @@ type Deployment struct {
 	Statuses        []*DeploymentStatus   `json:"statuses"`
 	Created         time.Time             `json:"created"`
 	Repository      string                `json:"repository"`
+	ExternalID      string                `json:"-"`
 	TeamSlug        slug.Slug             `json:"-"`
 	EnvironmentName string                `json:"-"`
 }
@@ -93,11 +94,12 @@ func toGraphDeployment(d hookd.Deploy) *Deployment {
 		EnvironmentName: d.DeploymentInfo.Cluster,
 		Statuses:        statuses,
 		Resources:       resources,
+		ExternalID:      d.DeploymentInfo.ID,
 	}
 }
 
 func (d Deployment) ID() ident.Ident {
-	return newIdent(d.TeamSlug)
+	return newDeploymentIdent(d.ExternalID)
 }
 
 func (Deployment) IsNode() {}
