@@ -11,8 +11,8 @@ import (
 	"github.com/nais/api/internal/v1/user"
 )
 
-// InsecureUserHeaderV1 returns a middleware that sets the email address of the authenticated user to the given value
-func InsecureUserHeaderV1(db database.Database) func(next http.Handler) http.Handler {
+// InsecureUserHeader returns a middleware that sets the email address of the authenticated user to the given value.
+func InsecureUserHeader(db database.Database) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()

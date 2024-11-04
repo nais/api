@@ -80,35 +80,38 @@ func runHttpServer(
 		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL playground", "/graphql"), "playground")),
 	)
 
-	middlewares := []func(http.Handler) http.Handler{}
-
-	middlewares = append(middlewares,
-		cors.New(
-			cors.Options{
-				AllowedOrigins:   []string{"https://*", "http://*"},
-				AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
-				AllowCredentials: true,
-			},
-		).Handler,
-	)
-
 	graphMiddleware, err := ConfigureGraph(ctx, insecureAuthAndFakes, watcherMgr, mgmtWatcherMgr, db.GetPool(), k8sClientSets, vClient, tenantName, clusters, hookdClient, log)
 	if err != nil {
 		return err
 	}
 
 	router.Route("/graphql", func(r chi.Router) {
-		v1Middlewares := append(middlewares,
-			middleware.Oauth2Authentication(db, authHandler),
-			middleware.RequireAuthenticatedUser(),
-		)
+		middlewares := []func(http.Handler) http.Handler{
+			graphMiddleware,
+			cors.New(
+				cors.Options{
+					AllowedOrigins:   []string{"https://*", "http://*"},
+					AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+					AllowCredentials: true,
+				},
+			).Handler,
+		}
 
 		if insecureAuthAndFakes {
-			v1Middlewares = append([]func(http.Handler) http.Handler{auth.InsecureUserHeaderV1(db)}, v1Middlewares...)
+			middlewares = append(middlewares, auth.InsecureUserHeader(db))
 		}
-		r.Use(graphMiddleware)
-		r.Use(v1Middlewares...)
-		r.Use(otelhttp.NewMiddleware("graphqlv1", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))
+
+		middlewares = append(
+			middlewares,
+			middleware.Oauth2Authentication(db, authHandler),
+			middleware.RequireAuthenticatedUser(),
+			otelhttp.NewMiddleware(
+				"graphql",
+				otelhttp.WithPublicEndpoint(),
+				otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http"))),
+			),
+		)
+		r.Use(middlewares...)
 		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphHandler))
 	})
 
