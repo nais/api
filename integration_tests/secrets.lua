@@ -380,3 +380,97 @@ Test.gql("Delete secret that exists", function(t)
 		},
 	}
 end)
+
+local nonTeamMemberEmail = "email-12@example.com"
+
+Test.gql("Create secret as non-team member", function(t)
+	t.query([[
+		mutation {
+			createSecret(input: {
+				name: "secret-name"
+				environment: "dev"
+				team: "myteam"
+			}) {
+				secret {
+					name
+				}
+			}
+		}
+	]],
+		{ ["x-user-email"] = nonTeamMemberEmail }
+	)
+
+	t.check {
+		errors = {
+			{
+				message = Contains("You are authenticated"),
+				path = {
+					"createSecret",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Update secret as non-team member", function(t)
+	t.query([[
+		mutation {
+			updateSecretValue(input: {
+				name: "secret-name"
+				environment: "dev"
+				team: "myteam"
+				value: {
+					name: "value-name",
+					value: "new value"
+				}
+			}) {
+				secret {
+					name
+				}
+			}
+		}
+	]],
+		{ ["x-user-email"] = nonTeamMemberEmail }
+	)
+
+	t.check {
+		errors = {
+			{
+				message = Contains("You are authenticated"),
+				path = {
+					"updateSecretValue",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Delete secret as non-team member", function(t)
+	t.query([[
+		mutation {
+			deleteSecret(input: {
+				name: "secret-name"
+				environment: "dev"
+				team: "myteam"
+			}) {
+				secretDeleted
+			}
+		}
+	]],
+		{ ["x-user-email"] = nonTeamMemberEmail }
+	)
+
+	t.check {
+		errors = {
+			{
+				message = Contains("You are authenticated"),
+				path = {
+					"deleteSecret",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
