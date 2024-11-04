@@ -147,7 +147,7 @@ func newGQLRunner(ctx context.Context, config *Config, db database.Database, top
 
 	vulnerabilityClient := vulnerability.NewDependencyTrackClient(vulnerability.DependencyTrackConfig{EnableFakes: true}, log)
 
-	graphMiddleware, err := api.ConfigureV1Graph(ctx, true, watcherMgr, managementWatcherMgr, db, k8sClientSets, vulnerabilityClient, config.TenantName, clusters(), fakeHookd.New(), log)
+	graphMiddleware, err := api.ConfigureGraph(ctx, true, watcherMgr, managementWatcherMgr, db.GetPool(), k8sClientSets, vulnerabilityClient, config.TenantName, clusters(), fakeHookd.New(), log)
 	if err != nil {
 		return nil, fmt.Errorf("failed to configure v1 graph: %w", err)
 	}

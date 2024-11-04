@@ -10,6 +10,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/auth"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
@@ -66,7 +67,7 @@ func runHttpServer(
 	watcherMgr *watcher.Manager,
 	mgmtWatcherMgr *watcher.Manager,
 	authHandler authn.Handler,
-	graphv1Handler *handler.Server,
+	graphHandler *handler.Server,
 	reg prometheus.Gatherer,
 	vClient vulnerability.Client,
 	hookdClient hookd.Client,
@@ -76,10 +77,7 @@ func runHttpServer(
 	router.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
 	router.Get("/healthz", func(_ http.ResponseWriter, _ *http.Request) {})
 	router.Method("GET", "/",
-		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL playground", "/query"), "playground")),
-	)
-	router.Method("GET", "/v1",
-		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL v1 playground", "/graphql"), "playground")),
+		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL playground", "/graphql"), "playground")),
 	)
 
 	middlewares := []func(http.Handler) http.Handler{}
@@ -94,7 +92,7 @@ func runHttpServer(
 		).Handler,
 	)
 
-	graphMiddleware, err := ConfigureV1Graph(ctx, insecureAuthAndFakes, watcherMgr, mgmtWatcherMgr, db, k8sClientSets, vClient, tenantName, clusters, hookdClient, log)
+	graphMiddleware, err := ConfigureGraph(ctx, insecureAuthAndFakes, watcherMgr, mgmtWatcherMgr, db.GetPool(), k8sClientSets, vClient, tenantName, clusters, hookdClient, log)
 	if err != nil {
 		return err
 	}
@@ -111,7 +109,7 @@ func runHttpServer(
 		r.Use(graphMiddleware)
 		r.Use(v1Middlewares...)
 		r.Use(otelhttp.NewMiddleware("graphqlv1", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))
-		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphv1Handler))
+		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphHandler))
 	})
 
 	router.Route("/oauth2", func(r chi.Router) {
@@ -150,12 +148,12 @@ func runHttpServer(
 	return wg.Wait()
 }
 
-func ConfigureV1Graph(
+func ConfigureGraph(
 	ctx context.Context,
 	fakeClients bool,
 	watcherMgr *watcher.Manager,
 	mgmtWatcherMgr *watcher.Manager,
-	db database.Database,
+	pool *pgxpool.Pool,
 	k8sClientSets map[string]kubernetes.Interface,
 	vClient vulnerability.Client,
 	tenantName string,
@@ -223,7 +221,6 @@ func ConfigureV1Graph(
 		ctx = redis.NewLoaderContext(ctx, redisWatcher)
 		ctx = utilization.NewLoaderContext(ctx, utilizationClient)
 		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, sqlDatabaseWatcher, sqlInstanceWatcher, dataloaderOpts)
-		pool := db.GetPool()
 		ctx = databasev1.NewLoaderContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, dataloaderOpts)
 		ctx = user.NewLoaderContext(ctx, pool, dataloaderOpts)
