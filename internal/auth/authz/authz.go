@@ -5,9 +5,9 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/role"
+	"github.com/nais/api/internal/v1/role/rolesql"
 )
 
 type ContextKey string
@@ -18,31 +18,9 @@ type AuthenticatedUser interface {
 	IsServiceAccount() bool
 }
 
-type Role struct {
-	Authorizations         []role.Authorization
-	RoleName               gensql.RoleName
-	TargetServiceAccountID *uuid.UUID
-	TargetTeamSlug         *slug.Slug
-}
-
-// IsGlobal Check if the role is globally assigned or not
-func (r Role) IsGlobal() bool {
-	return r.TargetServiceAccountID == nil && r.TargetTeamSlug == nil
-}
-
-// TargetsTeam Check if the role targets a specific team
-func (r Role) TargetsTeam(targetsTeamSlug slug.Slug) bool {
-	return r.TargetTeamSlug != nil && *r.TargetTeamSlug == targetsTeamSlug
-}
-
-// TargetsServiceAccount Check if the role targets a specific service account
-func (r Role) TargetsServiceAccount(targetServiceAccountID uuid.UUID) bool {
-	return r.TargetServiceAccountID != nil && *r.TargetServiceAccountID == targetServiceAccountID
-}
-
 type Actor struct {
 	User  AuthenticatedUser
-	Roles []*Role
+	Roles []*role.Role
 }
 
 var ErrNotAuthenticated = errors.New("not authenticated")
@@ -58,7 +36,7 @@ func (u *Actor) Authenticated() bool {
 const contextKeyUser ContextKey = "actor"
 
 // ContextWithActor Return a context with an actor attached to it.
-func ContextWithActor(ctx context.Context, user AuthenticatedUser, roles []*Role) context.Context {
+func ContextWithActor(ctx context.Context, user AuthenticatedUser, roles []*role.Role) context.Context {
 	return context.WithValue(ctx, contextKeyUser, &Actor{
 		User:  user,
 		Roles: roles,
@@ -81,8 +59,16 @@ func RequireGlobalAuthorization(actor *Actor, requiredAuthzName role.Authorizati
 	authorizations := make(map[role.Authorization]struct{})
 
 	for _, r := range actor.Roles {
+		if r.Name == rolesql.RoleNameAdmin {
+			return nil
+		}
+
+		roleAuthz, err := r.Authorizations()
+		if err != nil {
+			return err
+		}
 		if r.IsGlobal() {
-			for _, authorization := range r.Authorizations {
+			for _, authorization := range roleAuthz {
 				authorizations[authorization] = struct{}{}
 			}
 		}
@@ -101,8 +87,16 @@ func RequireTeamAuthorization(actor *Actor, requiredAuthzName role.Authorization
 	authorizations := make(map[role.Authorization]struct{})
 
 	for _, r := range actor.Roles {
+		if r.Name == rolesql.RoleNameAdmin {
+			return nil
+		}
+
+		roleAuthz, err := r.Authorizations()
+		if err != nil {
+			return err
+		}
 		if r.IsGlobal() || r.TargetsTeam(targetTeamSlug) {
-			for _, authorization := range r.Authorizations {
+			for _, authorization := range roleAuthz {
 				authorizations[authorization] = struct{}{}
 			}
 		}

@@ -26,7 +26,9 @@ SELECT
 			'role_name',
 			role_name,
 			'target_team_slug',
-			target_team_slug
+			target_team_slug,
+			'target_service_account_id',
+			target_service_account_id
 		)
 	) AS roles
 FROM

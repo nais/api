@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/v1/role"
+	"github.com/nais/api/internal/v1/role/rolesql"
 )
 
 type ServiceAccount struct {
@@ -77,8 +78,7 @@ func SetupStaticServiceAccounts(ctx context.Context, db database.Database, servi
 				}
 			}
 
-			err = dbtx.RemoveApiKeysFromServiceAccount(ctx, serviceAccount.ID)
-			if err != nil {
+			if err = dbtx.RemoveApiKeysFromServiceAccount(ctx, serviceAccount.ID); err != nil {
 				return err
 			}
 
@@ -87,13 +87,12 @@ func SetupStaticServiceAccounts(ctx context.Context, db database.Database, servi
 				return err
 			}
 
-			for _, role := range serviceAccountFromInput.Roles {
-				if hasGlobalRoleRole(role.Name, existingRoles) {
+			for _, r := range serviceAccountFromInput.Roles {
+				if hasGlobalRoleRole(rolesql.RoleName(r.Name), existingRoles) {
 					continue
 				}
 
-				err = dbtx.AssignGlobalRoleToServiceAccount(ctx, serviceAccount.ID, role.Name)
-				if err != nil {
+				if err = dbtx.AssignGlobalRoleToServiceAccount(ctx, serviceAccount.ID, r.Name); err != nil {
 					return err
 				}
 			}
@@ -128,13 +127,13 @@ func SetupStaticServiceAccounts(ctx context.Context, db database.Database, servi
 	})
 }
 
-func hasGlobalRoleRole(roleName gensql.RoleName, existingRoles []*authz.Role) bool {
+func hasGlobalRoleRole(roleName rolesql.RoleName, existingRoles []*role.Role) bool {
 	for _, r := range existingRoles {
 		if r.TargetTeamSlug != nil {
 			continue
 		}
 
-		if roleName == r.RoleName {
+		if roleName == r.Name {
 			return true
 		}
 	}

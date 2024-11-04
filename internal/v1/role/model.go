@@ -2,11 +2,43 @@ package role
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/role/rolesql"
 )
+
+type Role struct {
+	Name                   rolesql.RoleName `json:"role_name"`
+	TargetTeamSlug         *slug.Slug       `json:"target_team_slug"`
+	TargetServiceAccountID *uuid.UUID       `json:"target_service_account_id"`
+}
+
+// IsGlobal checks if the role is globally assigned.
+func (r *Role) IsGlobal() bool {
+	return r.TargetServiceAccountID == nil && r.TargetTeamSlug == nil
+}
+
+// TargetsTeam checks if the role targets a specific team.
+func (r *Role) TargetsTeam(targetsTeamSlug slug.Slug) bool {
+	return r.TargetTeamSlug != nil && *r.TargetTeamSlug == targetsTeamSlug
+}
+
+// TargetsServiceAccount checks if the role targets a specific service account.
+func (r *Role) TargetsServiceAccount(targetServiceAccountID uuid.UUID) bool {
+	return r.TargetServiceAccountID != nil && *r.TargetServiceAccountID == targetServiceAccountID
+}
+
+// Authorizations returns the authorizations for the role.
+func (r *Role) Authorizations() ([]Authorization, error) {
+	authorizations, exists := roles[r.Name]
+	if !exists {
+		return nil, fmt.Errorf("unknown role: %q", r.Name)
+	}
+
+	return authorizations, nil
+}
 
 type UserRoles struct {
 	UserID uuid.UUID
@@ -23,9 +55,4 @@ func toUserRoles(row *rolesql.GetRolesForUsersRow) (*UserRoles, error) {
 		UserID: row.UserID,
 		Roles:  roles,
 	}, nil
-}
-
-type Role struct {
-	Name           rolesql.RoleName `json:"role_name"`
-	TargetTeamSlug slug.Slug        `json:"target_team_slug"`
 }

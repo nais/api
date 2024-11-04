@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/role"
@@ -16,7 +15,7 @@ type RoleRepo interface {
 	AssignGlobalRoleToUser(ctx context.Context, userID uuid.UUID, roleName gensql.RoleName) error
 	AssignTeamRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, roleName gensql.RoleName, teamSlug slug.Slug) error
 	GetAllUserRoles(ctx context.Context) ([]*UserRole, error)
-	GetUserRolesForUsers(ctx context.Context, userIDs []uuid.UUID) (map[uuid.UUID][]*authz.Role, error)
+	GetUserRolesForUsers(ctx context.Context, userIDs []uuid.UUID) (map[uuid.UUID][]*role.Role, error)
 	GetUsersWithGloballyAssignedRole(ctx context.Context, roleName gensql.RoleName) ([]*User, error)
 	RevokeGlobalUserRole(ctx context.Context, userID uuid.UUID, roleName gensql.RoleName) error
 	SetTeamMemberRole(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, roleName gensql.RoleName) error
@@ -100,13 +99,13 @@ func (d *database) GetAllUserRoles(ctx context.Context) ([]*UserRole, error) {
 	return ret, nil
 }
 
-func (d *database) GetUserRolesForUsers(ctx context.Context, userIDs []uuid.UUID) (map[uuid.UUID][]*authz.Role, error) {
+func (d *database) GetUserRolesForUsers(ctx context.Context, userIDs []uuid.UUID) (map[uuid.UUID][]*role.Role, error) {
 	usersWithRoles, err := d.querier.GetUserRolesForUsers(ctx, userIDs)
 	if err != nil {
 		return nil, err
 	}
 
-	ret := make(map[uuid.UUID][]*authz.Role)
+	ret := make(map[uuid.UUID][]*role.Role)
 	for _, user := range usersWithRoles {
 		r, err := d.roleFromRoleBinding(ctx, user.RoleName, user.TargetServiceAccountID, user.TargetTeamSlug)
 		if err != nil {
@@ -118,15 +117,9 @@ func (d *database) GetUserRolesForUsers(ctx context.Context, userIDs []uuid.UUID
 	return ret, nil
 }
 
-func (d *database) roleFromRoleBinding(_ context.Context, roleName gensql.RoleName, targetServiceAccountID *uuid.UUID, targetTeamSlug *slug.Slug) (*authz.Role, error) {
-	authorizations, err := role.Authorizations(rolesql.RoleName(roleName))
-	if err != nil {
-		return nil, err
-	}
-
-	return &authz.Role{
-		Authorizations:         authorizations,
-		RoleName:               roleName,
+func (d *database) roleFromRoleBinding(_ context.Context, roleName gensql.RoleName, targetServiceAccountID *uuid.UUID, targetTeamSlug *slug.Slug) (*role.Role, error) {
+	return &role.Role{
+		Name:                   rolesql.RoleName(roleName),
 		TargetServiceAccountID: targetServiceAccountID,
 		TargetTeamSlug:         targetTeamSlug,
 	}, nil

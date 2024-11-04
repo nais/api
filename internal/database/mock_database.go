@@ -5,13 +5,12 @@ package database
 import (
 	context "context"
 
-	authz "github.com/nais/api/internal/auth/authz"
-
 	gensql "github.com/nais/api/internal/database/gensql"
-
 	mock "github.com/stretchr/testify/mock"
 
 	pgxpool "github.com/jackc/pgx/v5/pgxpool"
+
+	role "github.com/nais/api/internal/v1/role"
 
 	slug "github.com/nais/api/internal/slug"
 
@@ -1037,23 +1036,23 @@ func (_c *MockDatabase_GetServiceAccountByName_Call) RunAndReturn(run func(conte
 }
 
 // GetServiceAccountRoles provides a mock function with given fields: ctx, serviceAccountID
-func (_m *MockDatabase) GetServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) ([]*authz.Role, error) {
+func (_m *MockDatabase) GetServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) ([]*role.Role, error) {
 	ret := _m.Called(ctx, serviceAccountID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetServiceAccountRoles")
 	}
 
-	var r0 []*authz.Role
+	var r0 []*role.Role
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) ([]*authz.Role, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) ([]*role.Role, error)); ok {
 		return rf(ctx, serviceAccountID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) []*authz.Role); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) []*role.Role); ok {
 		r0 = rf(ctx, serviceAccountID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*authz.Role)
+			r0 = ret.Get(0).([]*role.Role)
 		}
 	}
 
@@ -1085,12 +1084,12 @@ func (_c *MockDatabase_GetServiceAccountRoles_Call) Run(run func(ctx context.Con
 	return _c
 }
 
-func (_c *MockDatabase_GetServiceAccountRoles_Call) Return(_a0 []*authz.Role, _a1 error) *MockDatabase_GetServiceAccountRoles_Call {
+func (_c *MockDatabase_GetServiceAccountRoles_Call) Return(_a0 []*role.Role, _a1 error) *MockDatabase_GetServiceAccountRoles_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockDatabase_GetServiceAccountRoles_Call) RunAndReturn(run func(context.Context, uuid.UUID) ([]*authz.Role, error)) *MockDatabase_GetServiceAccountRoles_Call {
+func (_c *MockDatabase_GetServiceAccountRoles_Call) RunAndReturn(run func(context.Context, uuid.UUID) ([]*role.Role, error)) *MockDatabase_GetServiceAccountRoles_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1886,23 +1885,23 @@ func (_c *MockDatabase_GetUserByID_Call) RunAndReturn(run func(context.Context, 
 }
 
 // GetUserRoles provides a mock function with given fields: ctx, userID
-func (_m *MockDatabase) GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*authz.Role, error) {
+func (_m *MockDatabase) GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*role.Role, error) {
 	ret := _m.Called(ctx, userID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUserRoles")
 	}
 
-	var r0 []*authz.Role
+	var r0 []*role.Role
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) ([]*authz.Role, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) ([]*role.Role, error)); ok {
 		return rf(ctx, userID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) []*authz.Role); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) []*role.Role); ok {
 		r0 = rf(ctx, userID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*authz.Role)
+			r0 = ret.Get(0).([]*role.Role)
 		}
 	}
 
@@ -1934,34 +1933,34 @@ func (_c *MockDatabase_GetUserRoles_Call) Run(run func(ctx context.Context, user
 	return _c
 }
 
-func (_c *MockDatabase_GetUserRoles_Call) Return(_a0 []*authz.Role, _a1 error) *MockDatabase_GetUserRoles_Call {
+func (_c *MockDatabase_GetUserRoles_Call) Return(_a0 []*role.Role, _a1 error) *MockDatabase_GetUserRoles_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockDatabase_GetUserRoles_Call) RunAndReturn(run func(context.Context, uuid.UUID) ([]*authz.Role, error)) *MockDatabase_GetUserRoles_Call {
+func (_c *MockDatabase_GetUserRoles_Call) RunAndReturn(run func(context.Context, uuid.UUID) ([]*role.Role, error)) *MockDatabase_GetUserRoles_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetUserRolesForUsers provides a mock function with given fields: ctx, userIDs
-func (_m *MockDatabase) GetUserRolesForUsers(ctx context.Context, userIDs []uuid.UUID) (map[uuid.UUID][]*authz.Role, error) {
+func (_m *MockDatabase) GetUserRolesForUsers(ctx context.Context, userIDs []uuid.UUID) (map[uuid.UUID][]*role.Role, error) {
 	ret := _m.Called(ctx, userIDs)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUserRolesForUsers")
 	}
 
-	var r0 map[uuid.UUID][]*authz.Role
+	var r0 map[uuid.UUID][]*role.Role
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, []uuid.UUID) (map[uuid.UUID][]*authz.Role, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []uuid.UUID) (map[uuid.UUID][]*role.Role, error)); ok {
 		return rf(ctx, userIDs)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, []uuid.UUID) map[uuid.UUID][]*authz.Role); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []uuid.UUID) map[uuid.UUID][]*role.Role); ok {
 		r0 = rf(ctx, userIDs)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[uuid.UUID][]*authz.Role)
+			r0 = ret.Get(0).(map[uuid.UUID][]*role.Role)
 		}
 	}
 
@@ -1993,12 +1992,12 @@ func (_c *MockDatabase_GetUserRolesForUsers_Call) Run(run func(ctx context.Conte
 	return _c
 }
 
-func (_c *MockDatabase_GetUserRolesForUsers_Call) Return(_a0 map[uuid.UUID][]*authz.Role, _a1 error) *MockDatabase_GetUserRolesForUsers_Call {
+func (_c *MockDatabase_GetUserRolesForUsers_Call) Return(_a0 map[uuid.UUID][]*role.Role, _a1 error) *MockDatabase_GetUserRolesForUsers_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockDatabase_GetUserRolesForUsers_Call) RunAndReturn(run func(context.Context, []uuid.UUID) (map[uuid.UUID][]*authz.Role, error)) *MockDatabase_GetUserRolesForUsers_Call {
+func (_c *MockDatabase_GetUserRolesForUsers_Call) RunAndReturn(run func(context.Context, []uuid.UUID) (map[uuid.UUID][]*role.Role, error)) *MockDatabase_GetUserRolesForUsers_Call {
 	_c.Call.Return(run)
 	return _c
 }

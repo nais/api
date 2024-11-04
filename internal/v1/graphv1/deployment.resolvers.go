@@ -2,12 +2,12 @@ package graphv1
 
 import (
 	"context"
-	"github.com/nais/api/internal/v1/role"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/v1/deployment"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	"github.com/nais/api/internal/v1/role"
 	"github.com/nais/api/internal/v1/team"
 	"github.com/nais/api/internal/v1/workload/application"
 	"github.com/nais/api/internal/v1/workload/job"

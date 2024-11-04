@@ -3,10 +3,9 @@ package database
 import (
 	"context"
 
-	"github.com/nais/api/internal/database/gensql"
-
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/v1/role"
 )
 
 type ServiceAccountRepo interface {
@@ -15,7 +14,7 @@ type ServiceAccountRepo interface {
 	DeleteServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
 	GetServiceAccountByApiKey(ctx context.Context, apiKey string) (*ServiceAccount, error)
 	GetServiceAccountByName(ctx context.Context, name string) (*ServiceAccount, error)
-	GetServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) ([]*authz.Role, error)
+	GetServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) ([]*role.Role, error)
 	GetServiceAccounts(ctx context.Context) ([]*ServiceAccount, error)
 	GetServiceAccountsByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccount, error)
 	RemoveAllServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) error
@@ -103,19 +102,19 @@ func (d *database) RemoveAllServiceAccountRoles(ctx context.Context, serviceAcco
 	return d.querier.RemoveAllServiceAccountRoles(ctx, serviceAccountID)
 }
 
-func (d *database) GetServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) ([]*authz.Role, error) {
+func (d *database) GetServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) ([]*role.Role, error) {
 	serviceAccountRoles, err := d.querier.GetServiceAccountRoles(ctx, serviceAccountID)
 	if err != nil {
 		return nil, err
 	}
 
-	roles := make([]*authz.Role, len(serviceAccountRoles))
+	roles := make([]*role.Role, len(serviceAccountRoles))
 	for i, serviceAccountRole := range serviceAccountRoles {
-		role, err := d.roleFromRoleBinding(ctx, serviceAccountRole.RoleName, serviceAccountRole.TargetServiceAccountID, serviceAccountRole.TargetTeamSlug)
+		r, err := d.roleFromRoleBinding(ctx, serviceAccountRole.RoleName, serviceAccountRole.TargetServiceAccountID, serviceAccountRole.TargetTeamSlug)
 		if err != nil {
 			return nil, err
 		}
-		roles[i] = role
+		roles[i] = r
 	}
 
 	return roles, nil

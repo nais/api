@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/v1/role"
 )
 
 type UserRepo interface {
@@ -14,7 +14,7 @@ type UserRepo interface {
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserByExternalID(ctx context.Context, externalID string) (*User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (*User, error)
-	GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*authz.Role, error)
+	GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*role.Role, error)
 	GetUsers(ctx context.Context, p Page) ([]*User, int, error)
 	GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error)
 	UpdateUser(ctx context.Context, userID uuid.UUID, name, email, externalID string) (*User, error)
@@ -130,20 +130,20 @@ func wrapUser(user *gensql.User) *User {
 	return &User{User: user}
 }
 
-func (d *database) GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*authz.Role, error) {
+func (d *database) GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*role.Role, error) {
 	userRoles, err := d.querier.GetUserRoles(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	roles := make([]*authz.Role, len(userRoles))
+	roles := make([]*role.Role, len(userRoles))
 	for i, userRole := range userRoles {
-		role, err := d.roleFromRoleBinding(ctx, userRole.RoleName, userRole.TargetServiceAccountID, userRole.TargetTeamSlug)
+		r, err := d.roleFromRoleBinding(ctx, userRole.RoleName, userRole.TargetServiceAccountID, userRole.TargetTeamSlug)
 		if err != nil {
 			return nil, err
 		}
 
-		roles[i] = role
+		roles[i] = r
 	}
 
 	return roles, nil

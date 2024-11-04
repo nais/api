@@ -3,7 +3,6 @@ package deployment
 import (
 	"context"
 	"fmt"
-	"github.com/nais/api/internal/v1/role"
 	"time"
 
 	"github.com/nais/api/internal/auth/authz"
@@ -11,6 +10,7 @@ import (
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	"github.com/nais/api/internal/v1/role"
 	"github.com/nais/api/internal/v1/workload"
 )
 

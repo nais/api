@@ -1,25 +1,24 @@
-package authz_test
+package role_test
 
 import (
 	"testing"
 
-	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/slug"
-	"k8s.io/utils/ptr"
+	"github.com/nais/api/internal/v1/role"
 )
 
 func TestRole_IsGlobal(t *testing.T) {
 	targetTeamSlug := slug.Slug("slug")
 	tests := map[string]struct {
-		role authz.Role
+		role role.Role
 		want bool
 	}{
 		"global role": {
-			role: authz.Role{},
+			role: role.Role{},
 			want: true,
 		},
-		"role with target team": {
-			role: authz.Role{TargetTeamSlug: &targetTeamSlug},
+		"team targeted role": {
+			role: role.Role{TargetTeamSlug: &targetTeamSlug},
 			want: false,
 		},
 	}
@@ -34,23 +33,24 @@ func TestRole_IsGlobal(t *testing.T) {
 }
 
 func TestRole_Targets(t *testing.T) {
+	targetTeamSlug := slug.Slug("slug")
 	tests := map[string]struct {
-		role           authz.Role
+		role           role.Role
 		targetTeamSlug slug.Slug
 		want           bool
 	}{
 		"role with target team": {
-			role:           authz.Role{TargetTeamSlug: ptr.To(slug.Slug("slug"))},
+			role:           role.Role{TargetTeamSlug: &targetTeamSlug},
 			targetTeamSlug: slug.Slug("slug"),
 			want:           true,
 		},
 		"role with target team, wrong slug": {
-			role:           authz.Role{TargetTeamSlug: ptr.To(slug.Slug("slug"))},
+			role:           role.Role{TargetTeamSlug: &targetTeamSlug},
 			targetTeamSlug: slug.Slug("wrong"),
 			want:           false,
 		},
 		"role without target team": {
-			role:           authz.Role{},
+			role:           role.Role{},
 			targetTeamSlug: slug.Slug("slug"),
 			want:           false,
 		},

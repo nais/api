@@ -7,10 +7,11 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/fixtures"
+	"github.com/nais/api/internal/v1/role"
+	"github.com/nais/api/internal/v1/role/rolesql"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -153,7 +154,7 @@ func TestSetupStaticServiceAccounts(t *testing.T) {
 			Once()
 		dbtx.EXPECT().
 			GetServiceAccountRoles(txCtx, sa2.ID).
-			Return([]*authz.Role{{RoleName: gensql.RoleNameAdmin}}, nil).
+			Return([]*role.Role{{Name: rolesql.RoleNameAdmin}}, nil).
 			Once()
 		dbtx.EXPECT().
 			CreateAPIKey(txCtx, "key-2", sa2.ID).

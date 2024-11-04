@@ -13,6 +13,8 @@ import (
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/v1/role"
+	"github.com/nais/api/internal/v1/role/rolesql"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -57,8 +59,8 @@ func TestApiKeyAuthentication(t *testing.T) {
 				Name: "service-account",
 			},
 		}
-		roles := []*authz.Role{
-			{RoleName: gensql.RoleNameAdmin},
+		roles := []*role.Role{
+			{Name: rolesql.RoleNameAdmin},
 		}
 
 		db := database.NewMockDatabase(t)

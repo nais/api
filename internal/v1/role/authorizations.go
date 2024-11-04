@@ -1,8 +1,6 @@
 package role
 
 import (
-	"fmt"
-
 	"github.com/nais/api/internal/v1/role/rolesql"
 )
 
@@ -12,12 +10,8 @@ const (
 	AuthorizationAuditLogsRead         Authorization = "audit_logs:read"
 	AuthorizationServiceAccountsCreate Authorization = "service_accounts:create"
 	AuthorizationServiceAccountsDelete Authorization = "service_accounts:delete"
-	AuthorizationServiceAccountsList   Authorization = "service_accounts:list"
 	AuthorizationServiceAccountsRead   Authorization = "service_accounts:read"
 	AuthorizationServiceAccountsUpdate Authorization = "service_accounts:update"
-	AuthorizationSystemStatesDelete    Authorization = "system_states:delete"
-	AuthorizationSystemStatesRead      Authorization = "system_states:read"
-	AuthorizationSystemStatesUpdate    Authorization = "system_states:update"
 	AuthorizationTeamsCreate           Authorization = "teams:create"
 	AuthorizationTeamsDelete           Authorization = "teams:delete"
 	AuthorizationTeamsList             Authorization = "teams:list"
@@ -43,33 +37,7 @@ const (
 
 var roles = map[rolesql.RoleName][]Authorization{
 	rolesql.RoleNameAdmin: {
-		AuthorizationAuditLogsRead,
-		AuthorizationServiceAccountsCreate,
-		AuthorizationServiceAccountsDelete,
-		AuthorizationServiceAccountsList,
-		AuthorizationServiceAccountsRead,
-		AuthorizationServiceAccountsUpdate,
-		AuthorizationSystemStatesDelete,
-		AuthorizationSystemStatesRead,
-		AuthorizationSystemStatesUpdate,
-		AuthorizationTeamsCreate,
-		AuthorizationTeamsDelete,
-		AuthorizationTeamsList,
-		AuthorizationTeamsRead,
-		AuthorizationTeamsMembersAdmin,
-		AuthorizationUsersList,
-		AuthorizationTeamsSynchronize,
-		AuthorizationUsersyncSynchronize,
-		AuthorizationDeployKeyRead,
-		AuthorizationJobsDelete,
-		AuthorizationSecretsCreate,
-		AuthorizationSecretsDelete,
-		AuthorizationSecretsUpdate,
-		AuthorizationSecretsRead,
-		AuthorizationSecretsList,
-		AuthorizationApplicationsUpdate,
-		AuthorizationApplicationsDelete,
-		AuthorizationJobsDelete,
+		// Admins have all authorizations
 	},
 	rolesql.RoleNameServiceaccountcreator: {
 		AuthorizationServiceAccountsCreate,
@@ -134,13 +102,4 @@ var roles = map[rolesql.RoleName][]Authorization{
 	rolesql.RoleNameDeploykeyviewer: {
 		AuthorizationDeployKeyRead,
 	},
-}
-
-func Authorizations(roleName rolesql.RoleName) ([]Authorization, error) {
-	authorizations, exists := roles[roleName]
-	if !exists {
-		return nil, fmt.Errorf("unknown role: %q", roleName)
-	}
-
-	return authorizations, nil
 }
