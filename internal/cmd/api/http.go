@@ -99,7 +99,7 @@ func runHttpServer(
 
 	router.Route("/graphql", func(r chi.Router) {
 		v1Middlewares := append(middlewares,
-			middleware.Oauth2AuthenticationV1(db, authHandler),
+			middleware.Oauth2Authentication(db, authHandler),
 			middleware.RequireAuthenticatedUser(),
 		)
 
