@@ -13,7 +13,6 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/apierror"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
-	"github.com/nais/api/internal/v1/role"
 	"github.com/nais/api/internal/v1/workload"
 )
 
