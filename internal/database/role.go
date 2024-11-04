@@ -5,9 +5,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/auth/roles"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/v1/role"
+	"github.com/nais/api/internal/v1/role/rolesql"
 )
 
 type RoleRepo interface {
@@ -52,8 +53,8 @@ func (d *database) UserIsTeamOwner(ctx context.Context, userID uuid.UUID, teamSl
 		return false, err
 	}
 
-	for _, role := range roles {
-		if role.RoleName == gensql.RoleNameTeamowner && role.TargetTeamSlug != nil && *role.TargetTeamSlug == teamSlug {
+	for _, r := range roles {
+		if r.RoleName == gensql.RoleNameTeamowner && r.TargetTeamSlug != nil && *r.TargetTeamSlug == teamSlug {
 			return true, nil
 		}
 	}
@@ -107,18 +108,18 @@ func (d *database) GetUserRolesForUsers(ctx context.Context, userIDs []uuid.UUID
 
 	ret := make(map[uuid.UUID][]*authz.Role)
 	for _, user := range usersWithRoles {
-		role, err := d.roleFromRoleBinding(ctx, user.RoleName, user.TargetServiceAccountID, user.TargetTeamSlug)
+		r, err := d.roleFromRoleBinding(ctx, user.RoleName, user.TargetServiceAccountID, user.TargetTeamSlug)
 		if err != nil {
 			continue
 		}
-		ret[user.UserID] = append(ret[user.UserID], role)
+		ret[user.UserID] = append(ret[user.UserID], r)
 	}
 
 	return ret, nil
 }
 
 func (d *database) roleFromRoleBinding(_ context.Context, roleName gensql.RoleName, targetServiceAccountID *uuid.UUID, targetTeamSlug *slug.Slug) (*authz.Role, error) {
-	authorizations, err := roles.Authorizations(roleName)
+	authorizations, err := role.Authorizations(rolesql.RoleName(roleName))
 	if err != nil {
 		return nil, err
 	}

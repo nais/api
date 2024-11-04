@@ -1,9 +1,9 @@
-package roles
+package role
 
 import (
 	"fmt"
 
-	"github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/v1/role/rolesql"
 )
 
 type Authorization string
@@ -30,8 +30,8 @@ const (
 	AuthorizationDeployKeyView         Authorization = "deploy_key:view"
 )
 
-var roles = map[gensql.RoleName][]Authorization{
-	gensql.RoleNameAdmin: {
+var roles = map[rolesql.RoleName][]Authorization{
+	rolesql.RoleNameAdmin: {
 		AuthorizationAuditLogsRead,
 		AuthorizationServiceAccountsCreate,
 		AuthorizationServiceAccountsDelete,
@@ -51,25 +51,25 @@ var roles = map[gensql.RoleName][]Authorization{
 		AuthorizationUsersyncSynchronize,
 		AuthorizationDeployKeyView,
 	},
-	gensql.RoleNameServiceaccountcreator: {
+	rolesql.RoleNameServiceaccountcreator: {
 		AuthorizationServiceAccountsCreate,
 	},
-	gensql.RoleNameServiceaccountowner: {
+	rolesql.RoleNameServiceaccountowner: {
 		AuthorizationServiceAccountsDelete,
 		AuthorizationServiceAccountsRead,
 		AuthorizationServiceAccountsUpdate,
 	},
-	gensql.RoleNameTeamcreator: {
+	rolesql.RoleNameTeamcreator: {
 		AuthorizationTeamsCreate,
 	},
-	gensql.RoleNameTeammember: {
+	rolesql.RoleNameTeammember: {
 		AuthorizationAuditLogsRead,
 		AuthorizationTeamsRead,
 		AuthorizationTeamsMetadataUpdate,
 		AuthorizationDeployKeyView,
 		AuthorizationTeamsSynchronize,
 	},
-	gensql.RoleNameTeamowner: {
+	rolesql.RoleNameTeamowner: {
 		AuthorizationAuditLogsRead,
 		AuthorizationTeamsDelete,
 		AuthorizationTeamsRead,
@@ -78,27 +78,27 @@ var roles = map[gensql.RoleName][]Authorization{
 		AuthorizationTeamsMembersAdmin,
 		AuthorizationDeployKeyView,
 	},
-	gensql.RoleNameTeamviewer: {
+	rolesql.RoleNameTeamviewer: {
 		AuthorizationAuditLogsRead,
 		AuthorizationTeamsList,
 		AuthorizationTeamsRead,
 	},
-	gensql.RoleNameUseradmin: {
+	rolesql.RoleNameUseradmin: {
 		AuthorizationUsersList,
 	},
-	gensql.RoleNameUserviewer: {
+	rolesql.RoleNameUserviewer: {
 		AuthorizationUsersList,
 	},
-	gensql.RoleNameSynchronizer: {
+	rolesql.RoleNameSynchronizer: {
 		AuthorizationTeamsSynchronize,
 		AuthorizationUsersyncSynchronize,
 	},
-	gensql.RoleNameDeploykeyviewer: {
+	rolesql.RoleNameDeploykeyviewer: {
 		AuthorizationDeployKeyView,
 	},
 }
 
-func Authorizations(roleName gensql.RoleName) ([]Authorization, error) {
+func Authorizations(roleName rolesql.RoleName) ([]Authorization, error) {
 	authorizations, exists := roles[roleName]
 	if !exists {
 		return nil, fmt.Errorf("unknown role: %q", roleName)

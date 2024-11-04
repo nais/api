@@ -5,9 +5,9 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/auth/roles"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/v1/role"
 )
 
 type ContextKey string
@@ -19,7 +19,7 @@ type AuthenticatedUser interface {
 }
 
 type Role struct {
-	Authorizations         []roles.Authorization
+	Authorizations         []role.Authorization
 	RoleName               gensql.RoleName
 	TargetServiceAccountID *uuid.UUID
 	TargetTeamSlug         *slug.Slug
@@ -73,16 +73,16 @@ func ActorFromContext(ctx context.Context) *Actor {
 }
 
 // RequireGlobalAuthorization Require an actor to have a specific authorization through a globally assigned role.
-func RequireGlobalAuthorization(actor *Actor, requiredAuthzName roles.Authorization) error {
+func RequireGlobalAuthorization(actor *Actor, requiredAuthzName role.Authorization) error {
 	if !actor.Authenticated() {
 		return ErrNotAuthenticated
 	}
 
-	authorizations := make(map[roles.Authorization]struct{})
+	authorizations := make(map[role.Authorization]struct{})
 
-	for _, role := range actor.Roles {
-		if role.IsGlobal() {
-			for _, authorization := range role.Authorizations {
+	for _, r := range actor.Roles {
+		if r.IsGlobal() {
+			for _, authorization := range r.Authorizations {
 				authorizations[authorization] = struct{}{}
 			}
 		}
@@ -93,16 +93,16 @@ func RequireGlobalAuthorization(actor *Actor, requiredAuthzName roles.Authorizat
 
 // RequireTeamAuthorization Require an actor to have a specific authorization through a globally assigned or a correctly
 // targeted role.
-func RequireTeamAuthorization(actor *Actor, requiredAuthzName roles.Authorization, targetTeamSlug slug.Slug) error {
+func RequireTeamAuthorization(actor *Actor, requiredAuthzName role.Authorization, targetTeamSlug slug.Slug) error {
 	if !actor.Authenticated() {
 		return ErrNotAuthenticated
 	}
 
-	authorizations := make(map[roles.Authorization]struct{})
+	authorizations := make(map[role.Authorization]struct{})
 
-	for _, role := range actor.Roles {
-		if role.IsGlobal() || role.TargetsTeam(targetTeamSlug) {
-			for _, authorization := range role.Authorizations {
+	for _, r := range actor.Roles {
+		if r.IsGlobal() || r.TargetsTeam(targetTeamSlug) {
+			for _, authorization := range r.Authorizations {
 				authorizations[authorization] = struct{}{}
 			}
 		}
@@ -117,8 +117,8 @@ func RequireTeamRole(actor *Actor, targetTeamSlug slug.Slug, requiredRoleName ge
 		return ErrNotAuthenticated
 	}
 
-	for _, role := range actor.Roles {
-		if role.TargetsTeam(targetTeamSlug) && role.RoleName == requiredRoleName {
+	for _, r := range actor.Roles {
+		if r.TargetsTeam(targetTeamSlug) && r.RoleName == requiredRoleName {
 			return nil
 		}
 	}
@@ -153,7 +153,7 @@ func RequireTeamMembershipCtx(ctx context.Context, team slug.Slug) error {
 }
 
 // authorized Check if one of the authorizations in the map matches the required authorization.
-func authorized(authorizations map[roles.Authorization]struct{}, requiredAuthzName roles.Authorization) error {
+func authorized(authorizations map[role.Authorization]struct{}, requiredAuthzName role.Authorization) error {
 	for authorization := range authorizations {
 		if authorization == requiredAuthzName {
 			return nil

@@ -6,19 +6,19 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/auth/roles"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/apierror"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	"github.com/nais/api/internal/v1/role"
 	"github.com/nais/api/internal/v1/team"
 	"github.com/nais/api/internal/v1/user"
 )
 
 func (r *mutationResolver) CreateTeam(ctx context.Context, input team.CreateTeamInput) (*team.CreateTeamPayload, error) {
 	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationTeamsCreate)
+	err := authz.RequireGlobalAuthorization(actor, role.AuthorizationTeamsCreate)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input team.CreateTeam
 
 func (r *mutationResolver) UpdateTeam(ctx context.Context, input team.UpdateTeamInput) (*team.UpdateTeamPayload, error) {
 	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMetadataUpdate, input.Slug)
+	err := authz.RequireTeamAuthorization(actor, role.AuthorizationTeamsMetadataUpdate, input.Slug)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, input team.UpdateTeam
 
 func (r *mutationResolver) UpdateTeamEnvironment(ctx context.Context, input team.UpdateTeamEnvironmentInput) (*team.UpdateTeamEnvironmentPayload, error) {
 	actor := authz.ActorFromContext(ctx)
-	if err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMetadataUpdate, input.Slug); err != nil {
+	if err := authz.RequireTeamAuthorization(actor, role.AuthorizationTeamsMetadataUpdate, input.Slug); err != nil {
 		return nil, err
 	}
 
@@ -149,7 +149,7 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, input team.C
 
 func (r *mutationResolver) AddTeamMember(ctx context.Context, input team.AddTeamMemberInput) (*team.AddTeamMemberPayload, error) {
 	actor := authz.ActorFromContext(ctx)
-	if err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMembersAdmin, input.TeamSlug); err != nil {
+	if err := authz.RequireTeamAuthorization(actor, role.AuthorizationTeamsMembersAdmin, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
@@ -184,7 +184,7 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, input team.AddTeam
 
 func (r *mutationResolver) RemoveTeamMember(ctx context.Context, input team.RemoveTeamMemberInput) (*team.RemoveTeamMemberPayload, error) {
 	actor := authz.ActorFromContext(ctx)
-	if err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMembersAdmin, input.TeamSlug); err != nil {
+	if err := authz.RequireTeamAuthorization(actor, role.AuthorizationTeamsMembersAdmin, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
@@ -216,7 +216,7 @@ func (r *mutationResolver) RemoveTeamMember(ctx context.Context, input team.Remo
 
 func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, input team.SetTeamMemberRoleInput) (*team.SetTeamMemberRolePayload, error) {
 	actor := authz.ActorFromContext(ctx)
-	if err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMembersAdmin, input.TeamSlug); err != nil {
+	if err := authz.RequireTeamAuthorization(actor, role.AuthorizationTeamsMembersAdmin, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
