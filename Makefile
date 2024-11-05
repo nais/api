@@ -86,6 +86,10 @@ start-integration-test-db: stop-integration-test-db
 integration_test:
 	rm -f hack/coverprofile.txt
 	go test -coverprofile=hack/coverprofile.txt -coverpkg github.com/nais/api/... -v -tags integration_test --race ./integration_tests
+# go test -coverprofile=hack/coverprofile.txt -coverpkg $(shell go list --deps ./cmd/api | grep nais/api/ | grep -Ev 'gengqlv1|/(\w+)/\1sql' | tr '\n' ',' | sed '$$s/,$$//') -v -tags integration_test --race ./integration_tests
+
+integration_test_ui:
+	go run ./cmd/tester_run --ui
 
 tester_spec:
 	go run ./cmd/tester_spec

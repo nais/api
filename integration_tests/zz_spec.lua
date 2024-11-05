@@ -2,7 +2,7 @@
 
 
 --- Ensure the field contains a substring
----@param substr string The contained string
+---@param contains string The contained string
 ---@param caseSensitive? boolean Whether to do a case sensitive check. Defaults to true
 ---@return userdata
 function Contains(contains, caseSensitive)
