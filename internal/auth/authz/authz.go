@@ -120,3 +120,18 @@ func authorized(authorizations map[role.Authorization]struct{}, requiredAuthzNam
 
 	return ErrMissingAuthorization{authorization: string(requiredAuthzName)}
 }
+
+func RequireGlobalAdmin(ctx context.Context) error {
+	actor := ActorFromContext(ctx)
+	if !actor.Authenticated() {
+		return ErrNotAuthenticated
+	}
+
+	for _, r := range actor.Roles {
+		if r.Name == rolesql.RoleNameAdmin {
+			return nil
+		}
+	}
+
+	return ErrMissingAuthorization{authorization: "global:admin"}
+}

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/reconciler"
@@ -11,6 +12,9 @@ import (
 )
 
 func (r *mutationResolver) EnableReconciler(ctx context.Context, name string) (*reconciler.Reconciler, error) {
+	if err := authz.RequireGlobalAdmin(ctx); err != nil {
+		return nil, err
+	}
 	rec, err := reconciler.Enable(ctx, name)
 	if err != nil {
 		return nil, err
@@ -21,6 +25,9 @@ func (r *mutationResolver) EnableReconciler(ctx context.Context, name string) (*
 }
 
 func (r *mutationResolver) DisableReconciler(ctx context.Context, name string) (*reconciler.Reconciler, error) {
+	if err := authz.RequireGlobalAdmin(ctx); err != nil {
+		return nil, err
+	}
 	rec, err := reconciler.Disable(ctx, name)
 	if err != nil {
 		return nil, err
@@ -31,6 +38,9 @@ func (r *mutationResolver) DisableReconciler(ctx context.Context, name string) (
 }
 
 func (r *mutationResolver) ConfigureReconciler(ctx context.Context, name string, config []*reconciler.ReconcilerConfigInput) (*reconciler.Reconciler, error) {
+	if err := authz.RequireGlobalAdmin(ctx); err != nil {
+		return nil, err
+	}
 	rec, err := reconciler.Configure(ctx, name, config)
 	if err != nil {
 		return nil, err
@@ -50,6 +60,9 @@ func (r *queryResolver) Reconcilers(ctx context.Context, first *int, after *pagi
 }
 
 func (r *reconcilerResolver) Config(ctx context.Context, obj *reconciler.Reconciler) ([]*reconciler.ReconcilerConfig, error) {
+	if err := authz.RequireGlobalAdmin(ctx); err != nil {
+		return nil, err
+	}
 	return reconciler.GetConfig(ctx, obj.Name, false)
 }
 
@@ -69,6 +82,9 @@ func (r *reconcilerResolver) Configured(ctx context.Context, obj *reconciler.Rec
 }
 
 func (r *reconcilerResolver) Errors(ctx context.Context, obj *reconciler.Reconciler, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*reconciler.ReconcilerError], error) {
+	if err := authz.RequireGlobalAdmin(ctx); err != nil {
+		return nil, err
+	}
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
