@@ -6,7 +6,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/nais/api/internal/fixtures"
 	"github.com/sethvargo/go-envconfig"
 )
 
@@ -200,7 +199,7 @@ type Config struct {
 
 	// StaticServiceAccounts A JSON-encoded value describing a set of service accounts to be created when the
 	// application starts. Refer to the README for the format.
-	StaticServiceAccounts fixtures.ServiceAccounts `env:"STATIC_SERVICE_ACCOUNTS"`
+	StaticServiceAccounts StaticServiceAccounts `env:"STATIC_SERVICE_ACCOUNTS"`
 
 	// ResourceUtilization is the configuration for the resource utilization service
 	ResourceUtilizationImportEnabled bool `env:"RESOURCE_UTILIZATION_IMPORT_ENABLED"`

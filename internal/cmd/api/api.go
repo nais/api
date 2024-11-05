@@ -13,7 +13,6 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/fixtures"
 	"github.com/nais/api/internal/grpc"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/thirdparty/hookd"
@@ -89,20 +88,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 	defer closer()
 
-	// Sync environments to database
-	syncEnvs := []*database.Environment{}
-	for name, env := range cfg.K8s.ClusterList() {
-		syncEnvs = append(syncEnvs, &database.Environment{
-			Name: name,
-			GCP:  env.GCP,
-		})
+	if err := syncEnvironments(ctx, db.GetPool(), cfg.K8s.ClusterList()); err != nil {
+		return err
 	}
 
-	if err := db.SyncEnvironments(ctx, syncEnvs); err != nil {
-		return fmt.Errorf("sync environments to database: %w", err)
-	}
-
-	if err := fixtures.SetupStaticServiceAccounts(ctx, db.GetPool(), cfg.StaticServiceAccounts); err != nil {
+	if err := setupStaticServiceAccounts(ctx, db.GetPool(), cfg.StaticServiceAccounts); err != nil {
 		return err
 	}
 
