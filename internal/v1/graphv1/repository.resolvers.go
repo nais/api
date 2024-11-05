@@ -3,13 +3,18 @@ package graphv1
 import (
 	"context"
 
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/v1/github/repository"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	"github.com/nais/api/internal/v1/role"
 	"github.com/nais/api/internal/v1/team"
 )
 
 func (r *mutationResolver) AddRepositoryToTeam(ctx context.Context, input repository.AddRepositoryToTeamInput) (*repository.AddRepositoryToTeamPayload, error) {
+	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationRepositoriesCreate, input.TeamSlug); err != nil {
+		return nil, err
+	}
 	repo, err := repository.Create(ctx, input)
 	if err != nil {
 		return nil, err
@@ -21,6 +26,9 @@ func (r *mutationResolver) AddRepositoryToTeam(ctx context.Context, input reposi
 }
 
 func (r *mutationResolver) RemoveRepositoryFromTeam(ctx context.Context, input repository.RemoveRepositoryFromTeamInput) (*repository.RemoveRepositoryFromTeamPayload, error) {
+	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationRepositoriesDelete, input.TeamSlug); err != nil {
+		return nil, err
+	}
 	err := repository.Remove(ctx, input)
 	return &repository.RemoveRepositoryFromTeamPayload{
 		Success: err == nil,
