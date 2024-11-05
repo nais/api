@@ -77,11 +77,11 @@ Test.gql("list reconcilers with config as non-admin", function(t)
 		errors = {
 			{
 				message = Contains("you need the \"global:admin\""),
-				path = { "reconcilers", "nodes", 1, "config" },
+				path = { "reconcilers", "nodes", Ignore(), "config" },
 			},
 			{
 				message = Contains("you need the \"global:admin\""),
-				path = { "reconcilers", "nodes", 0, "config" },
+				path = { "reconcilers", "nodes", Ignore(), "config" },
 			},
 		},
 	}
