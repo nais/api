@@ -56,3 +56,20 @@ func toUserRoles(row *rolesql.GetRolesForUsersRow) (*UserRoles, error) {
 		Roles:  roles,
 	}, nil
 }
+
+type ServiceAccountRoles struct {
+	ServiceAccountID uuid.UUID
+	Roles            []*Role
+}
+
+func toServiceAccountRoles(row *rolesql.GetRolesForServiceAccountsRow) (*ServiceAccountRoles, error) {
+	var roles []*Role
+	if err := json.Unmarshal(row.Roles, &roles); err != nil {
+		return nil, err
+	}
+
+	return &ServiceAccountRoles{
+		ServiceAccountID: row.ServiceAccountID,
+		Roles:            roles,
+	}, nil
+}

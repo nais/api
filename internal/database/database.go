@@ -35,8 +35,6 @@ type Database interface {
 	EnvironmentRepo
 	RoleRepo
 	ServiceAccountRepo
-	SessionRepo
-	TeamRepo
 	UserRepo
 	Transactioner
 	GetPool() *pgxpool.Pool

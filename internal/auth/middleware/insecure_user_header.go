@@ -1,4 +1,4 @@
-package auth
+package middleware
 
 import (
 	"bytes"
@@ -7,12 +7,13 @@ import (
 	"net/http"
 
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/v1/role"
 	"github.com/nais/api/internal/v1/user"
 )
 
-// InsecureUserHeader returns a middleware that sets the email address of the authenticated user to the given value.
-func InsecureUserHeader(db database.Database) func(next http.Handler) http.Handler {
+// InsecureUserHeader returns a middleware that sets the email address of the authenticated user from the x-user-email
+// header. This middleware is intended for local development and testing purposes only.
+func InsecureUserHeader() func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -37,20 +38,19 @@ func InsecureUserHeader(db database.Database) func(next http.Handler) http.Handl
 				}
 			}
 
-			usr, err := user.GetByEmail(ctx, email)
+			u, err := user.GetByEmail(ctx, email)
 			if err != nil {
 				http.Error(w, jsonError(fmt.Sprintf("User with email %q not found", email)), http.StatusUnauthorized)
 				return
 			}
 
-			roles, err := db.GetUserRoles(ctx, usr.UUID)
+			roles, err := role.ForUser(ctx, u.UUID)
 			if err != nil {
 				http.Error(w, jsonError(fmt.Sprintf("Unable to get user roles for user with email %q", email)), http.StatusUnauthorized)
 				return
 			}
 
-			r = r.WithContext(authz.ContextWithActor(ctx, usr, roles))
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(w, r.WithContext(authz.ContextWithActor(ctx, u, roles)))
 		})
 	}
 }

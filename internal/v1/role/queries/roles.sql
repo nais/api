@@ -41,6 +41,29 @@ ORDER BY
 	user_id
 ;
 
+-- name: GetRolesForServiceAccounts :many
+SELECT
+	service_account_id,
+	JSON_AGG(
+		JSON_BUILD_OBJECT(
+			'role_name',
+			role_name,
+			'target_team_slug',
+			target_team_slug,
+			'target_service_account_id',
+			target_service_account_id
+		)
+	) AS roles
+FROM
+	service_account_roles
+WHERE
+	service_account_id = ANY (@service_account_ids::UUID [])
+GROUP BY
+	service_account_id
+ORDER BY
+	service_account_id
+;
+
 -- name: AssignGlobalRoleToUser :exec
 INSERT INTO
 	user_roles (user_id, role_name)

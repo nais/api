@@ -24,8 +24,9 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	internalQuerier *rolesql.Queries
-	userRoles       *dataloadgen.Loader[uuid.UUID, *UserRoles]
+	internalQuerier     *rolesql.Queries
+	userRoles           *dataloadgen.Loader[uuid.UUID, *UserRoles]
+	serviceAccountRoles *dataloadgen.Loader[uuid.UUID, *ServiceAccountRoles]
 }
 
 func newLoaders(dbConn *pgxpool.Pool, opts []dataloadgen.Option) *loaders {
@@ -33,8 +34,9 @@ func newLoaders(dbConn *pgxpool.Pool, opts []dataloadgen.Option) *loaders {
 	dataloader := &dataloader{db: db}
 
 	return &loaders{
-		internalQuerier: db,
-		userRoles:       dataloadgen.NewLoader(dataloader.list, opts...),
+		internalQuerier:     db,
+		userRoles:           dataloadgen.NewLoader(dataloader.listUserRoles, opts...),
+		serviceAccountRoles: dataloadgen.NewLoader(dataloader.listServiceAccountRoles, opts...),
 	}
 }
 
@@ -52,7 +54,12 @@ type dataloader struct {
 	db *rolesql.Queries
 }
 
-func (l dataloader) list(ctx context.Context, userIDs []uuid.UUID) ([]*UserRoles, []error) {
+func (l dataloader) listUserRoles(ctx context.Context, userIDs []uuid.UUID) ([]*UserRoles, []error) {
 	makeKey := func(obj *UserRoles) uuid.UUID { return obj.UserID }
 	return loaderv1.LoadModelsWithError(ctx, userIDs, l.db.GetRolesForUsers, toUserRoles, makeKey)
+}
+
+func (l dataloader) listServiceAccountRoles(ctx context.Context, serviceAccountIDs []uuid.UUID) ([]*ServiceAccountRoles, []error) {
+	makeKey := func(obj *ServiceAccountRoles) uuid.UUID { return obj.ServiceAccountID }
+	return loaderv1.LoadModelsWithError(ctx, serviceAccountIDs, l.db.GetRolesForServiceAccounts, toServiceAccountRoles, makeKey)
 }

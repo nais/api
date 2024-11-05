@@ -11,7 +11,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/nais/api/internal/auth"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
@@ -31,6 +30,8 @@ import (
 	"github.com/nais/api/internal/v1/persistence/sqlinstance"
 	"github.com/nais/api/internal/v1/reconciler"
 	"github.com/nais/api/internal/v1/role"
+	"github.com/nais/api/internal/v1/serviceaccount"
+	"github.com/nais/api/internal/v1/session"
 	"github.com/nais/api/internal/v1/team"
 	"github.com/nais/api/internal/v1/unleash"
 	"github.com/nais/api/internal/v1/user"
@@ -98,12 +99,13 @@ func runHttpServer(
 		}
 
 		if insecureAuthAndFakes {
-			middlewares = append(middlewares, auth.InsecureUserHeader(db))
+			middlewares = append(middlewares, middleware.InsecureUserHeader())
 		}
 
 		middlewares = append(
 			middlewares,
-			middleware.Oauth2Authentication(db, authHandler),
+			middleware.ApiKeyAuthentication(),
+			middleware.Oauth2Authentication(authHandler),
 			middleware.RequireAuthenticatedUser(),
 			otelhttp.NewMiddleware(
 				"graphql",
@@ -234,6 +236,8 @@ func ConfigureGraph(
 		ctx = vulnerability.NewLoaderContext(ctx, vClient, tenantName, clusters, fakeClients, log, dataloaderOpts)
 		ctx = reconciler.NewLoaderContext(ctx, pool, dataloaderOpts)
 		ctx = deployment.NewLoaderContext(ctx, hookdClient)
+		ctx = serviceaccount.NewLoaderContext(ctx, pool)
+		ctx = session.NewLoaderContext(ctx, pool)
 		ctx = unleash.NewLoaderContext(ctx, tenantName, unleashWatcher, "*fake*", log)
 		return ctx
 	}), nil

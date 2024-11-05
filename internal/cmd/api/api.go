@@ -162,7 +162,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return costUpdater(ctx, db.GetPool(), cfg, log)
 	})
 
-	authHandler, err := setupAuthHandler(cfg.OAuth, db, log)
+	authHandler, err := setupAuthHandler(cfg.OAuth, log)
 	if err != nil {
 		return err
 	}
@@ -248,11 +248,10 @@ func loadEnvFile(log logrus.FieldLogger) error {
 	return nil
 }
 
-func setupAuthHandler(cfg oAuthConfig, db database.Database, log logrus.FieldLogger) (authn.Handler, error) {
+func setupAuthHandler(cfg oAuthConfig, log logrus.FieldLogger) (authn.Handler, error) {
 	cf, err := authn.NewGoogle(cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL)
 	if err != nil {
 		return nil, err
 	}
-	handler := authn.New(cf, db, log)
-	return handler, nil
+	return authn.New(cf, log), nil
 }

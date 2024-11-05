@@ -41,6 +41,15 @@ sql:
             go_type: "github.com/google/uuid.UUID"
 
   - <<: *default_domain
+    name: "Service accounts SQL"
+    queries: "../internal/v1/serviceaccount/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "serviceaccountsql"
+        out: "../internal/v1/serviceaccount/serviceaccountsql"
+
+  - <<: *default_domain
     name: "Teams SQL"
     queries: "../internal/v1/team/queries"
     gen:
@@ -138,3 +147,12 @@ sql:
         <<: *default_go
         package: "usersyncsql"
         out: "../internal/usersync/usersyncsql"
+
+  - <<: *default_domain
+    name: "Session SQL"
+    queries: "../internal/v1/session/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "sessionsql"
+        out: "../internal/v1/session/sessionsql"
