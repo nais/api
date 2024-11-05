@@ -1,0 +1,23 @@
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: jobname-2
+spec:
+  image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+  schedule: "0 0 * * *"
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: jobname-2
+  labels:
+    app: jobname-2
+spec:
+  template:
+    spec:
+      containers:
+        - name: jobname-2
+          image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+status:
+  failed: 0
