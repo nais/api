@@ -35,12 +35,3 @@ func parseDeploymentKeyIdent(id ident.Ident) (slug.Slug, error) {
 func newDeploymentIdent(id string) ident.Ident {
 	return ident.NewIdent(identKeyDeployment, id)
 }
-
-func parseDeploymentIdent(id ident.Ident) (string, error) {
-	parts := id.Parts()
-	if len(parts) != 1 {
-		return "", fmt.Errorf("invalid deployment ident")
-	}
-
-	return parts[0], nil
-}
