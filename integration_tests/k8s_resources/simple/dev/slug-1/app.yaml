@@ -8,6 +8,36 @@ spec:
     - "https://my-app.server.com"
 
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-name
+  labels:
+    app: app-name
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-name
+  template:
+    metadata:
+      labels:
+        app: app-name
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+        - name: app-name
+          image: navikt/app-name:latest
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 80
+
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:

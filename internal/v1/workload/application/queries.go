@@ -124,17 +124,12 @@ func Restart(ctx context.Context, teamSlug slug.Slug, environmentName, name stri
 	}
 	client, err := fromContext(ctx).appWatcher.ImpersonatedClient(ctx, environmentName, opts...)
 	if err != nil {
-		return err
+		return fmt.Errorf("impersonated client: %w", err)
 	}
 
-	// depls, err := client.List(ctx, metav1.ListOptions{})
-	// if err != nil {
-	// 	return err
-	// }
-
-	b := []byte(fmt.Sprintf(`{"spec": {"template": {"metadata": {"annotations": {"kubectl.kubernetes.io/restartedAt": "%s"}}}}}`, time.Now().Format(time.RFC3339)))
-	if _, err := client.Namespace(teamSlug.String()).Patch(ctx, name, types.StrategicMergePatchType, b, metav1.PatchOptions{}); err != nil {
-		return err
+	b := []byte(fmt.Sprintf(`{"spec": {"template": {"metadata": {"annotations": {"kubectl.kubernetes.io/restartedAt": %q}}}}}`, time.Now().Format(time.RFC3339)))
+	if _, err := client.Namespace(teamSlug.String()).Patch(ctx, name, types.MergePatchType, b, metav1.PatchOptions{}); err != nil {
+		return fmt.Errorf("patch deployment: %w", err)
 	}
 
 	return nil

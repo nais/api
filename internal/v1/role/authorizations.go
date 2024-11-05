@@ -65,6 +65,8 @@ var roles = map[rolesql.RoleName][]Authorization{
 		AuthorizationDeployKeyUpdate,
 		AuthorizationUnleashCreate,
 		AuthorizationUnleashUpdate,
+		AuthorizationApplicationsUpdate,
+		AuthorizationApplicationsDelete,
 	},
 	rolesql.RoleNameTeamowner: {
 		AuthorizationAuditLogsRead,
@@ -83,6 +85,8 @@ var roles = map[rolesql.RoleName][]Authorization{
 		AuthorizationDeployKeyUpdate,
 		AuthorizationUnleashCreate,
 		AuthorizationUnleashUpdate,
+		AuthorizationApplicationsUpdate,
+		AuthorizationApplicationsDelete,
 	},
 	rolesql.RoleNameTeamviewer: {
 		AuthorizationAuditLogsRead,
