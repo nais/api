@@ -71,3 +71,11 @@ VALUES
 	(@user_id, @role_name)
 ON CONFLICT DO NOTHING
 ;
+
+-- name: AssignGlobalRoleToServiceAccount :exec
+INSERT INTO
+	service_account_roles (service_account_id, role_name)
+VALUES
+	(@service_account_id, @role_name)
+ON CONFLICT DO NOTHING
+;

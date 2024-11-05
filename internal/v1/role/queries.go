@@ -46,3 +46,10 @@ func AssignGlobalRoleToUser(ctx context.Context, userID uuid.UUID, roleName role
 		RoleName: roleName,
 	})
 }
+
+func AssignGlobalRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, roleName rolesql.RoleName) error {
+	return db(ctx).AssignGlobalRoleToServiceAccount(ctx, rolesql.AssignGlobalRoleToServiceAccountParams{
+		ServiceAccountID: serviceAccountID,
+		RoleName:         roleName,
+	})
+}

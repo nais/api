@@ -102,7 +102,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("sync environments to database: %w", err)
 	}
 
-	if err := fixtures.SetupStaticServiceAccounts(ctx, db, cfg.StaticServiceAccounts); err != nil {
+	if err := fixtures.SetupStaticServiceAccounts(ctx, db.GetPool(), cfg.StaticServiceAccounts); err != nil {
 		return err
 	}
 

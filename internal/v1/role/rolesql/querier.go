@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	AssignGlobalRoleToServiceAccount(ctx context.Context, arg AssignGlobalRoleToServiceAccountParams) error
 	AssignGlobalRoleToUser(ctx context.Context, arg AssignGlobalRoleToUserParams) error
 	AssignTeamRoleToServiceAccount(ctx context.Context, arg AssignTeamRoleToServiceAccountParams) error
 	AssignTeamRoleToUser(ctx context.Context, arg AssignTeamRoleToUserParams) error

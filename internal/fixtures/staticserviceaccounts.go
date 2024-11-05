@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/gensql"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/v1/databasev1"
 	"github.com/nais/api/internal/v1/role"
 	"github.com/nais/api/internal/v1/role/rolesql"
+	"github.com/nais/api/internal/v1/serviceaccount"
+	"github.com/vikstrous/dataloadgen"
 )
 
 type ServiceAccount struct {
@@ -20,10 +22,10 @@ type ServiceAccount struct {
 }
 
 type ServiceAccountRole struct {
-	Name gensql.RoleName `json:"name"`
+	Name rolesql.RoleName `json:"name"`
 }
 
-const NaisServiceAccountPrefix = "nais-"
+const naisServiceAccountPrefix = "nais-"
 
 type ServiceAccounts []ServiceAccount
 
@@ -41,8 +43,8 @@ func (s *ServiceAccounts) UnmarshalJSON(value []byte) error {
 	}
 
 	for _, serviceAccount := range serviceAccounts {
-		if !strings.HasPrefix(serviceAccount.Name, NaisServiceAccountPrefix) {
-			return fmt.Errorf("service account is missing required %q prefix: %q", NaisServiceAccountPrefix, serviceAccount.Name)
+		if !strings.HasPrefix(serviceAccount.Name, naisServiceAccountPrefix) {
+			return fmt.Errorf("service account is missing required %q prefix: %q", naisServiceAccountPrefix, serviceAccount.Name)
 		}
 
 		if len(serviceAccount.Roles) == 0 {
@@ -53,9 +55,9 @@ func (s *ServiceAccounts) UnmarshalJSON(value []byte) error {
 			return fmt.Errorf("service account is missing an API key: %q", serviceAccount.Name)
 		}
 
-		for _, role := range serviceAccount.Roles {
-			if !role.Name.Valid() {
-				return fmt.Errorf("invalid role name: %q for service account %q", role.Name, serviceAccount.Name)
+		for _, r := range serviceAccount.Roles {
+			if !r.Name.Valid() {
+				return fmt.Errorf("invalid role name: %q for service account %q", r.Name, serviceAccount.Name)
 			}
 		}
 	}
@@ -65,60 +67,63 @@ func (s *ServiceAccounts) UnmarshalJSON(value []byte) error {
 }
 
 // SetupStaticServiceAccounts Create a set of service accounts with roles and API keys
-func SetupStaticServiceAccounts(ctx context.Context, db database.Database, serviceAccounts ServiceAccounts) error {
-	return db.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
-		serviceAccountNames := make(map[string]struct{})
+func SetupStaticServiceAccounts(ctx context.Context, pool *pgxpool.Pool, serviceAccounts ServiceAccounts) error {
+	ctx = databasev1.NewLoaderContext(ctx, pool)
+	ctx = serviceaccount.NewLoaderContext(ctx, pool)
+	ctx = role.NewLoaderContext(ctx, pool, []dataloadgen.Option{})
+
+	return databasev1.Transaction(ctx, func(ctx context.Context) error {
+		names := make(map[string]struct{})
 		for _, serviceAccountFromInput := range serviceAccounts {
-			serviceAccountNames[serviceAccountFromInput.Name] = struct{}{}
-			serviceAccount, err := dbtx.GetServiceAccountByName(ctx, serviceAccountFromInput.Name)
+			names[serviceAccountFromInput.Name] = struct{}{}
+			sa, err := serviceaccount.GetByName(ctx, serviceAccountFromInput.Name)
 			if err != nil {
-				serviceAccount, err = dbtx.CreateServiceAccount(ctx, serviceAccountFromInput.Name)
+				sa, err = serviceaccount.Create(ctx, serviceAccountFromInput.Name)
 				if err != nil {
 					return err
 				}
 			}
 
-			if err = dbtx.RemoveApiKeysFromServiceAccount(ctx, serviceAccount.ID); err != nil {
+			if err := serviceaccount.RemoveApiKeysFromServiceAccount(ctx, sa.UUID); err != nil {
 				return err
 			}
 
-			existingRoles, err := dbtx.GetServiceAccountRoles(ctx, serviceAccount.ID)
+			existingRoles, err := role.ForServiceAccount(ctx, sa.UUID)
 			if err != nil {
 				return err
 			}
 
 			for _, r := range serviceAccountFromInput.Roles {
-				if hasGlobalRoleRole(rolesql.RoleName(r.Name), existingRoles) {
+				if hasGlobalRoleRole(r.Name, existingRoles) {
 					continue
 				}
 
-				if err = dbtx.AssignGlobalRoleToServiceAccount(ctx, serviceAccount.ID, r.Name); err != nil {
+				if err := role.AssignGlobalRoleToServiceAccount(ctx, sa.UUID, r.Name); err != nil {
 					return err
 				}
 			}
 
-			err = dbtx.CreateAPIKey(ctx, serviceAccountFromInput.APIKey, serviceAccount.ID)
-			if err != nil {
+			if err := serviceaccount.CreateAPIKey(ctx, serviceAccountFromInput.APIKey, sa.UUID); err != nil {
 				return err
 			}
 		}
 
 		// remove all NAIS service accounts that is not present in the JSON input
-		serviceAccounts, err := dbtx.GetServiceAccounts(ctx)
+		all, err := serviceaccount.List(ctx)
 		if err != nil {
 			return err
 		}
 
-		for _, serviceAccount := range serviceAccounts {
-			if !strings.HasPrefix(serviceAccount.Name, NaisServiceAccountPrefix) {
+		for _, sa := range all {
+			if !strings.HasPrefix(sa.Name, naisServiceAccountPrefix) {
 				continue
 			}
 
-			if _, shouldExist := serviceAccountNames[serviceAccount.Name]; shouldExist {
+			if _, shouldExist := names[sa.Name]; shouldExist {
 				continue
 			}
 
-			if err := dbtx.DeleteServiceAccount(ctx, serviceAccount.ID); err != nil {
+			if err := serviceaccount.Delete(ctx, sa.UUID); err != nil {
 				return err
 			}
 		}

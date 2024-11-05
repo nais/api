@@ -4,10 +4,18 @@ package serviceaccountsql
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type Querier interface {
+	Create(ctx context.Context, name string) (*ServiceAccount, error)
+	CreateAPIKey(ctx context.Context, arg CreateAPIKeyParams) error
+	Delete(ctx context.Context, id uuid.UUID) error
 	GetByApiKey(ctx context.Context, apiKey string) (*ServiceAccount, error)
+	GetByName(ctx context.Context, name string) (*ServiceAccount, error)
+	List(ctx context.Context) ([]*ServiceAccount, error)
+	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
 }
 
 var _ Querier = (*Queries)(nil)

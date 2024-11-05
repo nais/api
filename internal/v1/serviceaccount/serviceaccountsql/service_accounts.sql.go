@@ -5,7 +5,53 @@ package serviceaccountsql
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
+
+const create = `-- name: Create :one
+INSERT INTO
+	service_accounts (name)
+VALUES
+	($1)
+RETURNING
+	id, name
+`
+
+func (q *Queries) Create(ctx context.Context, name string) (*ServiceAccount, error) {
+	row := q.db.QueryRow(ctx, create, name)
+	var i ServiceAccount
+	err := row.Scan(&i.ID, &i.Name)
+	return &i, err
+}
+
+const createAPIKey = `-- name: CreateAPIKey :exec
+INSERT INTO
+	api_keys (api_key, service_account_id)
+VALUES
+	($1, $2)
+`
+
+type CreateAPIKeyParams struct {
+	ApiKey           string
+	ServiceAccountID uuid.UUID
+}
+
+func (q *Queries) CreateAPIKey(ctx context.Context, arg CreateAPIKeyParams) error {
+	_, err := q.db.Exec(ctx, createAPIKey, arg.ApiKey, arg.ServiceAccountID)
+	return err
+}
+
+const delete = `-- name: Delete :exec
+DELETE FROM service_accounts
+WHERE
+	id = $1
+`
+
+func (q *Queries) Delete(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, delete, id)
+	return err
+}
 
 const getByApiKey = `-- name: GetByApiKey :one
 SELECT
@@ -22,4 +68,60 @@ func (q *Queries) GetByApiKey(ctx context.Context, apiKey string) (*ServiceAccou
 	var i ServiceAccount
 	err := row.Scan(&i.ID, &i.Name)
 	return &i, err
+}
+
+const getByName = `-- name: GetByName :one
+SELECT
+	id, name
+FROM
+	service_accounts
+WHERE
+	name = $1
+`
+
+func (q *Queries) GetByName(ctx context.Context, name string) (*ServiceAccount, error) {
+	row := q.db.QueryRow(ctx, getByName, name)
+	var i ServiceAccount
+	err := row.Scan(&i.ID, &i.Name)
+	return &i, err
+}
+
+const list = `-- name: List :many
+SELECT
+	id, name
+FROM
+	service_accounts
+ORDER BY
+	name ASC
+`
+
+func (q *Queries) List(ctx context.Context) ([]*ServiceAccount, error) {
+	rows, err := q.db.Query(ctx, list)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ServiceAccount{}
+	for rows.Next() {
+		var i ServiceAccount
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const removeApiKeysFromServiceAccount = `-- name: RemoveApiKeysFromServiceAccount :exec
+DELETE FROM api_keys
+WHERE
+	service_account_id = $1
+`
+
+func (q *Queries) RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, removeApiKeysFromServiceAccount, serviceAccountID)
+	return err
 }
