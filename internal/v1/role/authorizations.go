@@ -25,6 +25,7 @@ const (
 	AuthorizationSecretsList           Authorization = "teams:secrets:list"
 	AuthorizationApplicationsUpdate    Authorization = "applications:update"
 	AuthorizationApplicationsDelete    Authorization = "applications:delete"
+	AuthorizationJobsUpdate            Authorization = "jobs:update"
 	AuthorizationJobsDelete            Authorization = "jobs:delete"
 	AuthorizationUsersList             Authorization = "users:list"
 	AuthorizationTeamsSynchronize      Authorization = "teams:synchronize"
@@ -57,6 +58,7 @@ var roles = map[rolesql.RoleName][]Authorization{
 		AuthorizationDeployKeyRead,
 		AuthorizationTeamsSynchronize,
 		AuthorizationJobsDelete,
+		AuthorizationJobsUpdate,
 		AuthorizationSecretsCreate,
 		AuthorizationSecretsDelete,
 		AuthorizationSecretsUpdate,
@@ -77,6 +79,7 @@ var roles = map[rolesql.RoleName][]Authorization{
 		AuthorizationTeamsMembersAdmin,
 		AuthorizationDeployKeyRead,
 		AuthorizationJobsDelete,
+		AuthorizationJobsUpdate,
 		AuthorizationSecretsCreate,
 		AuthorizationSecretsDelete,
 		AuthorizationSecretsUpdate,
