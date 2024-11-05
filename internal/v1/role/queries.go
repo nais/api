@@ -2,8 +2,10 @@ package role
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/role/rolesql"
 )
@@ -26,7 +28,9 @@ func AssignTeamRoleToUser(ctx context.Context, userID uuid.UUID, teamSlug slug.S
 
 func ForUser(ctx context.Context, userID uuid.UUID) ([]*Role, error) {
 	ur, err := fromContext(ctx).userRoles.Load(ctx, userID)
-	if err != nil {
+	if err != nil && errors.Is(err, pgx.ErrNoRows) {
+		return []*Role{}, nil
+	} else if err != nil {
 		return nil, err
 	}
 	return ur.Roles, nil
@@ -34,7 +38,9 @@ func ForUser(ctx context.Context, userID uuid.UUID) ([]*Role, error) {
 
 func ForServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) ([]*Role, error) {
 	sar, err := fromContext(ctx).serviceAccountRoles.Load(ctx, serviceAccountID)
-	if err != nil {
+	if err != nil && errors.Is(err, pgx.ErrNoRows) {
+		return []*Role{}, nil
+	} else if err != nil {
 		return nil, err
 	}
 	return sar.Roles, nil

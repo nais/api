@@ -12,11 +12,11 @@ import (
 	"cloud.google.com/go/pubsub"
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/auth/authn"
-	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/grpc"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
+	"github.com/nais/api/internal/v1/databasev1"
 	"github.com/nais/api/internal/v1/graphv1"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/kubernetes"
@@ -82,17 +82,17 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 
 	log.Info("connecting to database")
-	db, closer, err := database.New(ctx, cfg.DatabaseConnectionString, log.WithField("subsystem", "database"))
+	pool, err := databasev1.New(ctx, cfg.DatabaseConnectionString, log.WithField("subsystem", "database"))
 	if err != nil {
 		return fmt.Errorf("setting up database: %w", err)
 	}
-	defer closer()
+	defer pool.Close()
 
-	if err := syncEnvironments(ctx, db.GetPool(), cfg.K8s.ClusterList()); err != nil {
+	if err := syncEnvironments(ctx, pool, cfg.K8s.ClusterList()); err != nil {
 		return err
 	}
 
-	if err := setupStaticServiceAccounts(ctx, db.GetPool(), cfg.StaticServiceAccounts); err != nil {
+	if err := setupStaticServiceAccounts(ctx, pool, cfg.StaticServiceAccounts); err != nil {
 		return err
 	}
 
@@ -145,11 +145,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	wg, ctx := errgroup.WithContext(ctx)
 
 	wg.Go(func() error {
-		return runUsersync(ctx, db.GetPool(), cfg, log)
+		return runUsersync(ctx, pool, cfg, log)
 	})
 
 	wg.Go(func() error {
-		return costUpdater(ctx, db.GetPool(), cfg, log)
+		return costUpdater(ctx, pool, cfg, log)
 	})
 
 	authHandler, err := setupAuthHandler(cfg.OAuth, log)
@@ -183,7 +183,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			cfg.WithFakeClients,
 			cfg.Tenant,
 			cfg.K8s.Clusters,
-			db,
+			pool,
 			k8sClientSets,
 			watcherMgr,
 			mgmtWatcher,
@@ -197,7 +197,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	})
 
 	wg.Go(func() error {
-		if err := grpc.Run(ctx, cfg.GRPCListenAddress, db.GetPool(), log); err != nil {
+		if err := grpc.Run(ctx, cfg.GRPCListenAddress, pool, log); err != nil {
 			log.WithError(err).Errorf("error in GRPC server")
 			return err
 		}

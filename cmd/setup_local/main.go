@@ -14,7 +14,6 @@ import (
 	"cloud.google.com/go/pubsub"
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/auditv1"
@@ -146,13 +145,12 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 
 	log.Infof("initializing database")
 
-	db, closer, err := database.New(ctx, cfg.DatabaseURL, log)
+	pool, err := databasev1.New(ctx, cfg.DatabaseURL, log)
 	if err != nil {
 		return err
 	}
-	defer closer()
+	defer pool.Close()
 
-	pool := db.GetPool()
 	dataloaderOpts := make([]dataloadgen.Option, 0)
 	ctx = databasev1.NewLoaderContext(ctx, pool)
 	ctx = auditv1.NewLoaderContext(ctx, pool, dataloaderOpts)

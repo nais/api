@@ -15,7 +15,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/v1/databasev1"
 	"github.com/nais/api/internal/v1/kubernetes"
 	"github.com/nais/api/internal/v1/kubernetes/fake"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
@@ -348,7 +348,7 @@ func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, 
 
 	logr := logrus.New()
 	logr.Out = io.Discard
-	pool, err := database.NewPool(ctx, connStr, logr, true) // Migrate database before snapshotting
+	pool, err := databasev1.NewPool(ctx, connStr, logr, true) // Migrate database before snapshotting
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to create pool: %w", err)
 	}
@@ -365,7 +365,7 @@ func newDB(ctx context.Context, postgresContainer *postgres.PostgresContainer, c
 	logr := logrus.New()
 	logr.Out = io.Discard
 
-	pool, err := database.NewPool(ctx, connectionString, logr, false)
+	pool, err := databasev1.NewPool(ctx, connectionString, logr, false)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create pool: %w", err)
 	}

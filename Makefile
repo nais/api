@@ -8,12 +8,7 @@ LUAFMT=$(BIN_DIR)/luafmt-$(LUA_FORMATTER_VERSION)
 
 all: generate fmt test check build helm-lint
 
-generate: generate-sql generate-sql-v1 generate-graphql-v1 generate-proto generate-mocks
-
-generate-sql:
-	go run github.com/sqlc-dev/sqlc/cmd/sqlc generate -f .configs/sqlc.yaml
-	go run github.com/sqlc-dev/sqlc/cmd/sqlc vet -f .configs/sqlc.yaml
-	go run mvdan.cc/gofumpt@latest -w ./internal/database/gensql
+generate: generate-sql-v1 generate-graphql-v1 generate-proto generate-mocks
 
 generate-sql-v1:
 	go run github.com/sqlc-dev/sqlc/cmd/sqlc generate -f .configs/sqlc-v1.yaml

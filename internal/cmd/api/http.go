@@ -13,7 +13,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
-	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/v1/auditv1"
 	"github.com/nais/api/internal/v1/cost"
@@ -63,7 +62,7 @@ func runHttpServer(
 	insecureAuthAndFakes bool,
 	tenantName string,
 	clusters []string,
-	db database.Database,
+	pool *pgxpool.Pool,
 	k8sClientSets map[string]kubernetes.Interface,
 	watcherMgr *watcher.Manager,
 	mgmtWatcherMgr *watcher.Manager,
@@ -81,7 +80,7 @@ func runHttpServer(
 		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL playground", "/graphql"), "playground")),
 	)
 
-	graphMiddleware, err := ConfigureGraph(ctx, insecureAuthAndFakes, watcherMgr, mgmtWatcherMgr, db.GetPool(), k8sClientSets, vClient, tenantName, clusters, hookdClient, log)
+	graphMiddleware, err := ConfigureGraph(ctx, insecureAuthAndFakes, watcherMgr, mgmtWatcherMgr, pool, k8sClientSets, vClient, tenantName, clusters, hookdClient, log)
 	if err != nil {
 		return err
 	}

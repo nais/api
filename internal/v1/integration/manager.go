@@ -16,15 +16,19 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/cmd/api"
-	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/gensql"
 	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/usersync"
+	"github.com/nais/api/internal/v1/databasev1"
+	"github.com/nais/api/internal/v1/environment"
 	"github.com/nais/api/internal/v1/graphv1"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
+	"github.com/nais/api/internal/v1/graphv1/pagination"
 	apiRunner "github.com/nais/api/internal/v1/integration/runner"
 	"github.com/nais/api/internal/v1/kubernetes"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
+	"github.com/nais/api/internal/v1/role"
+	"github.com/nais/api/internal/v1/role/rolesql"
+	"github.com/nais/api/internal/v1/user"
 	"github.com/nais/api/internal/v1/vulnerability"
 	testmanager "github.com/nais/tester/lua"
 	"github.com/nais/tester/lua/runner"
@@ -33,8 +37,10 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
+	"github.com/vikstrous/dataloadgen"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/reflect/protoreflect"
+	"k8s.io/utils/ptr"
 )
 
 func TestRunner(ctx context.Context, skipSetup bool) (*testmanager.Manager, error) {
@@ -77,7 +83,7 @@ func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
 			return nil, nil, fmt.Errorf("failed to create k8s scheme: %w", err)
 		}
 
-		db, pool, cleanup, err := newDB(ctx, container, connStr, !config.SkipSeed, filepath.Join(dir, "seeds"))
+		pool, cleanup, err := newDB(ctx, container, connStr, !config.SkipSeed, filepath.Join(dir, "seeds"))
 		if err != nil {
 			done()
 			return nil, nil, err
@@ -85,8 +91,8 @@ func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
 		cleanups = append(cleanups, cleanup)
 
 		log := logrus.New()
-
 		log.Out = io.Discard
+
 		if testing.Verbose() {
 			log.Out = os.Stdout
 			log.Level = logrus.DebugLevel
@@ -94,7 +100,7 @@ func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
 
 		k8sRunner := apiRunner.NewK8sRunner(scheme, dir, clusters())
 		topic := newPubsubRunner()
-		gqlRunner, err := newGQLRunner(ctx, config, db, topic, k8sRunner)
+		gqlRunner, err := newGQLRunner(ctx, config, pool, topic, k8sRunner)
 		if err != nil {
 			done()
 			return nil, nil, err
@@ -116,7 +122,7 @@ func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
 	}
 }
 
-func newGQLRunner(ctx context.Context, config *Config, db database.Database, topic graphv1.PubsubTopic, k8sRunner *apiRunner.K8s) (spec.Runner, error) {
+func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic graphv1.PubsubTopic, k8sRunner *apiRunner.K8s) (spec.Runner, error) {
 	log := logrus.New()
 	log.Out = io.Discard
 
@@ -147,7 +153,7 @@ func newGQLRunner(ctx context.Context, config *Config, db database.Database, top
 
 	vulnerabilityClient := vulnerability.NewDependencyTrackClient(vulnerability.DependencyTrackConfig{EnableFakes: true}, log)
 
-	graphMiddleware, err := api.ConfigureGraph(ctx, true, watcherMgr, managementWatcherMgr, db.GetPool(), k8sClientSets, vulnerabilityClient, config.TenantName, clusters(), fakeHookd.New(), log)
+	graphMiddleware, err := api.ConfigureGraph(ctx, true, watcherMgr, managementWatcherMgr, pool, k8sClientSets, vulnerabilityClient, config.TenantName, clusters(), fakeHookd.New(), log)
 	if err != nil {
 		return nil, fmt.Errorf("failed to configure v1 graph: %w", err)
 	}
@@ -174,23 +180,23 @@ func newGQLRunner(ctx context.Context, config *Config, db database.Database, top
 				email = xemail
 			}
 
-			usr, err := db.GetUserByEmail(ctx, email)
+			usr, err := user.GetByEmail(ctx, email)
 			if err != nil {
 				panic(fmt.Sprintf("User with email %q not found", email))
 			}
 
-			roles, err := db.GetUserRoles(ctx, usr.ID)
+			roles, err := role.ForUser(ctx, usr.UUID)
 			if err != nil {
-				panic(fmt.Sprintf("Unable to get user roles for user with email %q", email))
+				panic(fmt.Sprintf("Unable to get user roles for user with email: %q, %s", email, err))
 			}
 
 			r = r.WithContext(authz.ContextWithActor(ctx, usr, roles))
 		}
 
-		graphMiddleware(middleware.RequireAuthenticatedUser()(srv)).ServeHTTP(w, r)
+		middleware.RequireAuthenticatedUser()(srv).ServeHTTP(w, r)
 	})
 
-	return runner.NewGQLRunner(authProxy), nil
+	return runner.NewGQLRunner(graphMiddleware(authProxy)), nil
 }
 
 func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, error) {
@@ -215,12 +221,12 @@ func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, 
 
 	logr := logrus.New()
 	logr.Out = io.Discard
-	pool, err := database.NewPool(ctx, connStr, logr, true) // Migrate database before snapshotting
+	pool, err := databasev1.NewPool(ctx, connStr, logr, true) // Migrate database before snapshotting
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to create pool: %w", err)
 	}
-
 	pool.Close()
+
 	if err := container.Snapshot(ctx, postgres.WithSnapshotName("migrated")); err != nil {
 		return nil, "", fmt.Errorf("failed to snapshot: %w", err)
 	}
@@ -229,16 +235,14 @@ func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, 
 }
 
 // func newDB(ctx context.Context, seed bool, connectionString string) (database.Database, *pgxpool.Pool, func(), error) {
-func newDB(ctx context.Context, container *postgres.PostgresContainer, connStr string, seed bool, seeds string) (database.Database, *pgxpool.Pool, func(), error) {
+func newDB(ctx context.Context, container *postgres.PostgresContainer, connStr string, seed bool, seeds string) (*pgxpool.Pool, func(), error) {
 	logr := logrus.New()
 	logr.Out = io.Discard
 
-	pool, err := database.NewPool(ctx, connStr, logr, false)
+	pool, err := databasev1.NewPool(ctx, connStr, logr, false)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("failed to create pool: %w", err)
+		return nil, nil, fmt.Errorf("failed to create pool: %w", err)
 	}
-
-	db := database.NewQuerier(pool)
 
 	cleanup := func() {
 		pool.Close()
@@ -270,40 +274,46 @@ func newDB(ctx context.Context, container *postgres.PostgresContainer, connStr s
 		})
 		if err != nil {
 			cleanup()
-			return nil, nil, nil, fmt.Errorf("failed to seed database: %w", err)
+			return nil, nil, fmt.Errorf("failed to seed database: %w", err)
 		}
 
-		envs := []*database.Environment{}
-		for _, name := range clusters() {
-			envs = append(envs, &database.Environment{
+		ctx = databasev1.NewLoaderContext(ctx, pool)
+		ctx = environment.NewLoaderContext(ctx, pool)
+		ctx = user.NewLoaderContext(ctx, pool, []dataloadgen.Option{})
+		ctx = role.NewLoaderContext(ctx, pool, []dataloadgen.Option{})
+
+		c := clusters()
+		envs := make([]*environment.Environment, len(c))
+		for i, name := range c {
+			envs[i] = &environment.Environment{
 				Name: name,
 				GCP:  true,
-			})
+			}
 		}
-		if err := db.SyncEnvironments(ctx, envs); err != nil {
+		if err := environment.SyncEnvironments(ctx, envs); err != nil {
 			cleanup()
-			return nil, nil, nil, fmt.Errorf("sync environments: %w", err)
+			return nil, nil, fmt.Errorf("sync environments: %w", err)
 		}
 
 		// Assign default roles to all users
-		users, _, err := db.GetUsers(ctx, database.Page{Limit: 1000})
+		p, _ := pagination.ParsePage(ptr.To(1000), nil, nil, nil)
+		users, err := user.List(ctx, p, nil)
 		if err != nil {
 			cleanup()
-			return nil, nil, nil, fmt.Errorf("get users: %w", err)
+			return nil, nil, fmt.Errorf("get users: %w", err)
 		}
 
-		for _, usr := range users {
+		for _, usr := range users.Nodes() {
 			for _, roleName := range usersync.DefaultRoleNames {
-				err = db.AssignGlobalRoleToUser(ctx, usr.ID, gensql.RoleName(roleName))
-				if err != nil {
+				if err := role.AssignGlobalRoleToUser(ctx, usr.UUID, rolesql.RoleName(roleName)); err != nil {
 					cleanup()
-					return nil, nil, nil, fmt.Errorf("attach default role %q to user %q: %w", roleName, usr.Email, err)
+					return nil, nil, fmt.Errorf("attach default role %q to user %q: %w", roleName, usr.Email, err)
 				}
 			}
 		}
 	}
 
-	return db, pool, cleanup, nil
+	return pool, cleanup, nil
 }
 
 type pubsubRunner struct {

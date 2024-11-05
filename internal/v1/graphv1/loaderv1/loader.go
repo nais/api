@@ -2,11 +2,13 @@ package loaderv1
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"net/http"
+
+	"github.com/jackc/pgx/v5"
 )
 
-var ErrObjectNotFound = errors.New("object could not be found")
+var ErrObjectNotFound = fmt.Errorf("object could not be found: %w", pgx.ErrNoRows)
 
 // Middleware injects data loaders into the context
 func Middleware(fn func(context.Context) context.Context) func(http.Handler) http.Handler {

@@ -9,7 +9,7 @@ sql:
   - &default_domain
     name: "Users SQL"
     engine: "postgresql"
-    schema: "../internal/database/migrations"
+    schema: "../internal/v1/databasev1/migrations"
     queries: "../internal/v1/user/queries"
     rules:
       - "always-order-by"

@@ -11,7 +11,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/test"
 	"github.com/nais/api/internal/usersync"
 	"github.com/nais/api/internal/v1/databasev1"
@@ -270,7 +269,7 @@ func startPostgresql(ctx context.Context, log logrus.FieldLogger) (*postgres.Pos
 		return nil, "", nil, fmt.Errorf("failed to get connection string: %w", err)
 	}
 
-	pool, err := database.NewPool(ctx, connStr, log, true)
+	pool, err := databasev1.NewPool(ctx, connStr, log, true)
 	if err != nil {
 		return nil, "", nil, fmt.Errorf("failed to create pool: %w", err)
 	}
@@ -287,7 +286,7 @@ func startPostgresql(ctx context.Context, log logrus.FieldLogger) (*postgres.Pos
 }
 
 func newDB(ctx context.Context, postgresContainer *postgres.PostgresContainer, connectionString string, log logrus.FieldLogger) (*pgxpool.Pool, func(), error) {
-	pool, err := database.NewPool(ctx, connectionString, log, false)
+	pool, err := databasev1.NewPool(ctx, connectionString, log, false)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create pool: %w", err)
 	}
