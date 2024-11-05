@@ -92,6 +92,10 @@ models:
     model:
       - github.com/nais/api/internal/v1/graphv1/scalar.Date
 
+  Time:
+    model:
+      - github.com/nais/api/internal/v1/graphv1/scalar.Time
+
   Slug:
     model:
       - github.com/nais/api/internal/slug.Slug

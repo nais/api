@@ -97271,12 +97271,12 @@ func (ec *executionContext) marshalNTeamVulnerabilitySummary2ᚖgithubᚗcomᚋn
 }
 
 func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
-	res, err := graphql.UnmarshalTime(v)
+	res, err := scalar.UnmarshalTime(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
-	res := graphql.MarshalTime(v)
+	res := scalar.MarshalTime(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -98800,7 +98800,7 @@ func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v
 	if v == nil {
 		return nil, nil
 	}
-	res, err := graphql.UnmarshalTime(v)
+	res, err := scalar.UnmarshalTime(v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -98808,7 +98808,7 @@ func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel
 	if v == nil {
 		return graphql.Null
 	}
-	res := graphql.MarshalTime(*v)
+	res := scalar.MarshalTime(*v)
 	return res
 }
 
