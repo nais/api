@@ -5,7 +5,7 @@ package authn
 import (
 	http "net/http"
 
-	session "github.com/nais/api/internal/v1/session"
+	session "github.com/nais/api/internal/session"
 	mock "github.com/stretchr/testify/mock"
 )
 

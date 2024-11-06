@@ -11,37 +11,37 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/audit"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
+	"github.com/nais/api/internal/cost"
+	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/deployment"
+	"github.com/nais/api/internal/github/repository"
+	"github.com/nais/api/internal/graph/loader"
+	"github.com/nais/api/internal/kubernetes/watcher"
+	"github.com/nais/api/internal/persistence/bigquery"
+	"github.com/nais/api/internal/persistence/bucket"
+	"github.com/nais/api/internal/persistence/kafkatopic"
+	"github.com/nais/api/internal/persistence/opensearch"
+	"github.com/nais/api/internal/persistence/redis"
+	"github.com/nais/api/internal/persistence/sqlinstance"
+	"github.com/nais/api/internal/reconciler"
+	"github.com/nais/api/internal/role"
+	"github.com/nais/api/internal/serviceaccount"
+	"github.com/nais/api/internal/session"
+	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/thirdparty/hookd"
-	"github.com/nais/api/internal/v1/auditv1"
-	"github.com/nais/api/internal/v1/cost"
-	"github.com/nais/api/internal/v1/databasev1"
-	"github.com/nais/api/internal/v1/deployment"
-	"github.com/nais/api/internal/v1/github/repository"
-	"github.com/nais/api/internal/v1/graphv1/loaderv1"
-	"github.com/nais/api/internal/v1/kubernetes/watcher"
-	"github.com/nais/api/internal/v1/persistence/bigquery"
-	"github.com/nais/api/internal/v1/persistence/bucket"
-	"github.com/nais/api/internal/v1/persistence/kafkatopic"
-	"github.com/nais/api/internal/v1/persistence/opensearch"
-	"github.com/nais/api/internal/v1/persistence/redis"
-	"github.com/nais/api/internal/v1/persistence/sqlinstance"
-	"github.com/nais/api/internal/v1/reconciler"
-	"github.com/nais/api/internal/v1/role"
-	"github.com/nais/api/internal/v1/serviceaccount"
-	"github.com/nais/api/internal/v1/session"
-	"github.com/nais/api/internal/v1/team"
-	"github.com/nais/api/internal/v1/unleash"
-	"github.com/nais/api/internal/v1/user"
-	"github.com/nais/api/internal/v1/utilization"
-	"github.com/nais/api/internal/v1/vulnerability"
-	"github.com/nais/api/internal/v1/workload"
-	"github.com/nais/api/internal/v1/workload/application"
-	"github.com/nais/api/internal/v1/workload/job"
-	"github.com/nais/api/internal/v1/workload/podlog"
-	fakepodlog "github.com/nais/api/internal/v1/workload/podlog/fake"
-	"github.com/nais/api/internal/v1/workload/secret"
+	"github.com/nais/api/internal/unleash"
+	"github.com/nais/api/internal/user"
+	"github.com/nais/api/internal/utilization"
+	"github.com/nais/api/internal/vulnerability"
+	"github.com/nais/api/internal/workload"
+	"github.com/nais/api/internal/workload/application"
+	"github.com/nais/api/internal/workload/job"
+	"github.com/nais/api/internal/workload/podlog"
+	fakepodlog "github.com/nais/api/internal/workload/podlog/fake"
+	"github.com/nais/api/internal/workload/secret"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
@@ -212,7 +212,7 @@ func ConfigureGraph(
 		dataloadgen.WithBatchCapacity(250),
 		dataloadgen.WithTracer(otel.Tracer("dataloader")),
 	}
-	return loaderv1.Middleware(func(ctx context.Context) context.Context {
+	return loader.Middleware(func(ctx context.Context) context.Context {
 		ctx = podlog.NewLoaderContext(ctx, podLogStreamer)
 		ctx = application.NewLoaderContext(ctx, appWatcher, ingressWatcher)
 		ctx = bigquery.NewLoaderContext(ctx, bqWatcher, dataloaderOpts)
@@ -225,13 +225,13 @@ func ConfigureGraph(
 		ctx = redis.NewLoaderContext(ctx, redisWatcher)
 		ctx = utilization.NewLoaderContext(ctx, utilizationClient)
 		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, sqlDatabaseWatcher, sqlInstanceWatcher, dataloaderOpts)
-		ctx = databasev1.NewLoaderContext(ctx, pool)
+		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, dataloaderOpts)
 		ctx = user.NewLoaderContext(ctx, pool, dataloaderOpts)
 		ctx = cost.NewLoaderContext(ctx, pool, costOpts...)
 		ctx = repository.NewLoaderContext(ctx, pool)
 		ctx = role.NewLoaderContext(ctx, pool, dataloaderOpts)
-		ctx = auditv1.NewLoaderContext(ctx, pool, dataloaderOpts)
+		ctx = audit.NewLoaderContext(ctx, pool, dataloaderOpts)
 		ctx = vulnerability.NewLoaderContext(ctx, vClient, tenantName, clusters, fakeClients, log, dataloaderOpts)
 		ctx = reconciler.NewLoaderContext(ctx, pool, dataloaderOpts)
 		ctx = deployment.NewLoaderContext(ctx, hookdClient)

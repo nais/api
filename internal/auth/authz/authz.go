@@ -5,9 +5,9 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/role"
+	"github.com/nais/api/internal/role/rolesql"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/v1/role"
-	"github.com/nais/api/internal/v1/role/rolesql"
 )
 
 type ContextKey string

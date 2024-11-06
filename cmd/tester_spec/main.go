@@ -5,7 +5,7 @@ import (
 	"flag"
 	"path/filepath"
 
-	"github.com/nais/api/internal/v1/integration"
+	"github.com/nais/api/internal/integration"
 )
 
 func main() {

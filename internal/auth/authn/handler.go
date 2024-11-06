@@ -10,8 +10,8 @@ import (
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/v1/session"
-	"github.com/nais/api/internal/v1/user"
+	"github.com/nais/api/internal/session"
+	"github.com/nais/api/internal/user"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )

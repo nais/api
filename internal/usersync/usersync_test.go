@@ -11,13 +11,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/role"
+	"github.com/nais/api/internal/role/rolesql"
 	"github.com/nais/api/internal/test"
+	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/usersync"
-	"github.com/nais/api/internal/v1/databasev1"
-	"github.com/nais/api/internal/v1/graphv1/pagination"
-	"github.com/nais/api/internal/v1/role"
-	"github.com/nais/api/internal/v1/role/rolesql"
-	"github.com/nais/api/internal/v1/user"
 	"github.com/sirupsen/logrus"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/testcontainers/testcontainers-go"
@@ -49,7 +49,7 @@ func TestSync(t *testing.T) {
 	}
 	defer cleanup()
 
-	ctx = databasev1.NewLoaderContext(ctx, pool)
+	ctx = database.NewLoaderContext(ctx, pool)
 	ctx = user.NewLoaderContext(ctx, pool, []dataloadgen.Option{})
 	ctx = role.NewLoaderContext(ctx, pool, []dataloadgen.Option{})
 
@@ -269,7 +269,7 @@ func startPostgresql(ctx context.Context, log logrus.FieldLogger) (*postgres.Pos
 		return nil, "", nil, fmt.Errorf("failed to get connection string: %w", err)
 	}
 
-	pool, err := databasev1.NewPool(ctx, connStr, log, true)
+	pool, err := database.NewPool(ctx, connStr, log, true)
 	if err != nil {
 		return nil, "", nil, fmt.Errorf("failed to create pool: %w", err)
 	}
@@ -286,7 +286,7 @@ func startPostgresql(ctx context.Context, log logrus.FieldLogger) (*postgres.Pos
 }
 
 func newDB(ctx context.Context, postgresContainer *postgres.PostgresContainer, connectionString string, log logrus.FieldLogger) (*pgxpool.Pool, func(), error) {
-	pool, err := databasev1.NewPool(ctx, connectionString, log, false)
+	pool, err := database.NewPool(ctx, connectionString, log, false)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create pool: %w", err)
 	}

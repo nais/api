@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/v1/role"
-	"github.com/nais/api/internal/v1/user"
+	"github.com/nais/api/internal/role"
+	"github.com/nais/api/internal/user"
 )
 
 // InsecureUserHeader returns a middleware that sets the email address of the authenticated user from the x-user-email

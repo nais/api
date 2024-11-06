@@ -9,7 +9,7 @@ The following is a set of practices for developing the GraphQL API defined by NA
 NAIS API implements the [Global Object Identification specification](https://graphql.org/learn/global-object-identification/).
 
 All types should have an `id` field of type `ID!`. We create IDs using the internal `ident` package. Refer to the
-implementation in the internal [`teams` package](../internal/v1/team/node.go) for an example.
+implementation in the internal [`teams` package](../internal/team/node.go) for an example.
 
 Types that implement the `Node` interface can be fetched using the `node` query:
 
@@ -51,7 +51,7 @@ Examples: `id`, `createdAt`.
 
 All types, fields, queries, and mutations should be documented using
 [Descriptions](https://spec.graphql.org/October2021/#sec-Descriptions) in the schema definition. Please refer to the
-[`teams` schema](../internal/v1/graphv1/schema/teams.graphqls) for examples. Keep in mind that this will be public
+[`teams` schema](../internal/graph/schema/teams.graphqls) for examples. Keep in mind that this will be public
 facing documentation, and the entry point for developer who wants to use the GraphQL API.
 
 ## Query conventions
@@ -137,7 +137,7 @@ type PageInfo {
 }
 ```
 
-Refer to the [`teams` query](../internal/v1/graphv1/schema/teams.graphqls) in the schema for an example.
+Refer to the [`teams` query](../internal/graph/schema/teams.graphqls) in the schema for an example.
 
 ### Filtering
 

@@ -8,16 +8,16 @@ LUAFMT=$(BIN_DIR)/luafmt-$(LUA_FORMATTER_VERSION)
 
 all: generate fmt test check build helm-lint
 
-generate: generate-sql-v1 generate-graphql-v1 generate-proto generate-mocks
+generate: generate-sql generate-graphql generate-proto generate-mocks
 
-generate-sql-v1:
-	go run github.com/sqlc-dev/sqlc/cmd/sqlc generate -f .configs/sqlc-v1.yaml
-	go run github.com/sqlc-dev/sqlc/cmd/sqlc vet -f .configs/sqlc-v1.yaml
+generate-sql:
+	go run github.com/sqlc-dev/sqlc/cmd/sqlc generate -f .configs/sqlc.yaml
+	go run github.com/sqlc-dev/sqlc/cmd/sqlc vet -f .configs/sqlc.yaml
 	go run mvdan.cc/gofumpt@latest -w ./
 
-generate-graphql-v1:
-	go run github.com/99designs/gqlgen generate --config .configs/gqlgen-v1.yaml
-	go run mvdan.cc/gofumpt@latest -w ./internal/v1/graphv1
+generate-graphql:
+	go run github.com/99designs/gqlgen generate --config .configs/gqlgen.yaml
+	go run mvdan.cc/gofumpt@latest -w ./internal/graph
 
 generate-mocks:
 	find internal pkg -type f -name "mock_*.go" -delete
@@ -81,7 +81,7 @@ start-integration-test-db: stop-integration-test-db
 integration_test:
 	rm -f hack/coverprofile.txt
 	go test -coverprofile=hack/coverprofile.txt -coverpkg github.com/nais/api/... -v -tags integration_test --race ./integration_tests
-# go test -coverprofile=hack/coverprofile.txt -coverpkg $(shell go list --deps ./cmd/api | grep nais/api/ | grep -Ev 'gengqlv1|/(\w+)/\1sql' | tr '\n' ',' | sed '$$s/,$$//') -v -tags integration_test --race ./integration_tests
+# go test -coverprofile=hack/coverprofile.txt -coverpkg $(shell go list --deps ./cmd/api | grep nais/api/ | grep -Ev 'gengql|/(\w+)/\1sql' | tr '\n' ',' | sed '$$s/,$$//') -v -tags integration_test --race ./integration_tests
 
 integration_test_ui:
 	go run ./cmd/tester_run --ui

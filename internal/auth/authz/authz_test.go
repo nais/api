@@ -7,10 +7,10 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/role"
+	"github.com/nais/api/internal/role/rolesql"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/v1/role"
-	"github.com/nais/api/internal/v1/role/rolesql"
-	"github.com/nais/api/internal/v1/user"
+	"github.com/nais/api/internal/user"
 )
 
 const (

@@ -7,8 +7,8 @@ import (
 
 	"cloud.google.com/go/bigquery"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/nais/api/internal/v1/cost/costsql"
-	"github.com/nais/api/internal/v1/cost/costupdater"
+	"github.com/nais/api/internal/cost/costsql"
+	"github.com/nais/api/internal/cost/costupdater"
 	"github.com/sirupsen/logrus"
 )
 

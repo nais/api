@@ -8,10 +8,10 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/nais/api/internal/v1/databasev1"
-	"github.com/nais/api/internal/v1/role"
-	"github.com/nais/api/internal/v1/role/rolesql"
-	"github.com/nais/api/internal/v1/serviceaccount"
+	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/role"
+	"github.com/nais/api/internal/role/rolesql"
+	"github.com/nais/api/internal/serviceaccount"
 	"github.com/vikstrous/dataloadgen"
 )
 
@@ -68,11 +68,11 @@ func (s *StaticServiceAccounts) UnmarshalJSON(value []byte) error {
 
 // setupStaticServiceAccounts will create a set of service accounts with roles and API keys.
 func setupStaticServiceAccounts(ctx context.Context, pool *pgxpool.Pool, serviceAccounts StaticServiceAccounts) error {
-	ctx = databasev1.NewLoaderContext(ctx, pool)
+	ctx = database.NewLoaderContext(ctx, pool)
 	ctx = serviceaccount.NewLoaderContext(ctx, pool)
 	ctx = role.NewLoaderContext(ctx, pool, []dataloadgen.Option{})
 
-	return databasev1.Transaction(ctx, func(ctx context.Context) error {
+	return database.Transaction(ctx, func(ctx context.Context) error {
 		names := make(map[string]struct{})
 		for _, serviceAccountFromInput := range serviceAccounts {
 			names[serviceAccountFromInput.Name] = struct{}{}

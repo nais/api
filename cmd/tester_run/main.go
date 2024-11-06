@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/nais/api/internal/v1/integration"
+	"github.com/nais/api/internal/integration"
 	"github.com/nais/tester/lua"
 )
 

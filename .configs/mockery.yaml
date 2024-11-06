@@ -7,7 +7,7 @@ packages:
   github.com/nais/api/internal/thirdparty/hookd:
     interfaces:
       Client:
-  github.com/nais/api/internal/v1/vulnerability:
+  github.com/nais/api/internal/vulnerability:
     interfaces:
       InternalClient:
       Prometheus:
@@ -24,6 +24,6 @@ packages:
   github.com/nais/api/internal/grpc/grpcteam/grpcteamsql:
     interfaces:
       Querier:
-  github.com/nais/api/internal/v1/cost/costsql:
+  github.com/nais/api/internal/cost/costsql:
     interfaces:
       Querier:

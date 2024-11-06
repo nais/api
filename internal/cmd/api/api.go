@@ -12,17 +12,17 @@ import (
 	"cloud.google.com/go/pubsub"
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/auth/authn"
+	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/graph"
+	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/grpc"
+	"github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/kubernetes/fake"
+	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
-	"github.com/nais/api/internal/v1/databasev1"
-	"github.com/nais/api/internal/v1/graphv1"
-	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
-	"github.com/nais/api/internal/v1/kubernetes"
-	fakev1 "github.com/nais/api/internal/v1/kubernetes/fake"
-	"github.com/nais/api/internal/v1/kubernetes/watcher"
-	"github.com/nais/api/internal/v1/vulnerability"
+	"github.com/nais/api/internal/vulnerability"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
@@ -82,7 +82,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 
 	log.Info("connecting to database")
-	pool, err := databasev1.New(ctx, cfg.DatabaseConnectionString, log.WithField("subsystem", "database"))
+	pool, err := database.New(ctx, cfg.DatabaseConnectionString, log.WithField("subsystem", "database"))
 	if err != nil {
 		return fmt.Errorf("setting up database: %w", err)
 	}
@@ -103,7 +103,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	watcherOpts := []watcher.Option{}
 	if cfg.WithFakeClients {
-		watcherOpts = append(watcherOpts, watcher.WithClientCreator(fakev1.Clients(os.DirFS("./data/k8s"))))
+		watcherOpts = append(watcherOpts, watcher.WithClientCreator(fake.Clients(os.DirFS("./data/k8s"))))
 	}
 
 	clusterConfig, err := kubernetes.CreateClusterConfigMap(cfg.Tenant, cfg.K8s.Clusters)
@@ -132,14 +132,14 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 	pubsubTopic := pubsubClient.Topic("nais-api")
 
-	graphv1Handler, err := graphv1.NewHandler(gengqlv1.Config{
-		Resolvers: graphv1.NewResolver(
-			&graphv1.TopicWrapper{Topic: pubsubTopic},
-			graphv1.WithLogger(log),
+	graphHandler, err := graph.NewHandler(gengql.Config{
+		Resolvers: graph.NewResolver(
+			&graph.TopicWrapper{Topic: pubsubTopic},
+			graph.WithLogger(log),
 		),
 	}, log)
 	if err != nil {
-		return fmt.Errorf("create graphv1 handler: %w", err)
+		return fmt.Errorf("create graph handler: %w", err)
 	}
 
 	wg, ctx := errgroup.WithContext(ctx)
@@ -188,7 +188,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			watcherMgr,
 			mgmtWatcher,
 			authHandler,
-			graphv1Handler,
+			graphHandler,
 			promReg,
 			vulnClient,
 			hookdClient,

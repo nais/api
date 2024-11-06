@@ -13,18 +13,18 @@ import (
 
 	"cloud.google.com/go/pubsub"
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/audit"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/environment"
+	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/logger"
+	"github.com/nais/api/internal/role"
+	"github.com/nais/api/internal/role/rolesql"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/v1/auditv1"
-	"github.com/nais/api/internal/v1/databasev1"
-	"github.com/nais/api/internal/v1/environment"
-	"github.com/nais/api/internal/v1/graphv1/modelv1"
-	"github.com/nais/api/internal/v1/graphv1/pagination"
-	"github.com/nais/api/internal/v1/role"
-	"github.com/nais/api/internal/v1/role/rolesql"
-	"github.com/nais/api/internal/v1/team"
-	"github.com/nais/api/internal/v1/user"
+	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/user"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 	"github.com/vikstrous/dataloadgen"
@@ -145,15 +145,15 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 
 	log.Infof("initializing database")
 
-	pool, err := databasev1.New(ctx, cfg.DatabaseURL, log)
+	pool, err := database.New(ctx, cfg.DatabaseURL, log)
 	if err != nil {
 		return err
 	}
 	defer pool.Close()
 
 	dataloaderOpts := make([]dataloadgen.Option, 0)
-	ctx = databasev1.NewLoaderContext(ctx, pool)
-	ctx = auditv1.NewLoaderContext(ctx, pool, dataloaderOpts)
+	ctx = database.NewLoaderContext(ctx, pool)
+	ctx = audit.NewLoaderContext(ctx, pool, dataloaderOpts)
 	ctx = user.NewLoaderContext(ctx, pool, dataloaderOpts)
 	ctx = team.NewLoaderContext(ctx, pool, dataloaderOpts)
 	ctx = role.NewLoaderContext(ctx, pool, dataloaderOpts)
@@ -192,7 +192,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 		}
 	}
 
-	err = databasev1.Transaction(ctx, func(ctx context.Context) error {
+	err = database.Transaction(ctx, func(ctx context.Context) error {
 		const (
 			adminName = "admin usersen"
 			devName   = "dev usersen"
@@ -406,7 +406,7 @@ func getAllUsers(ctx context.Context) ([]*user.User, error) {
 	allUsers := make([]*user.User, 0)
 	orderBy := &user.UserOrder{
 		Field:     user.UserOrderFieldName,
-		Direction: modelv1.OrderDirectionAsc,
+		Direction: model.OrderDirectionAsc,
 	}
 	var after *pagination.Cursor
 	for {
@@ -433,7 +433,7 @@ func getAllTeams(ctx context.Context) ([]*team.Team, error) {
 	allTeams := make([]*team.Team, 0)
 	orderBy := &team.TeamOrder{
 		Field:     team.TeamOrderFieldSlug,
-		Direction: modelv1.OrderDirectionAsc,
+		Direction: model.OrderDirectionAsc,
 	}
 	var after *pagination.Cursor
 	for {

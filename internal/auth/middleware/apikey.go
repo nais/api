@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/v1/role"
-	"github.com/nais/api/internal/v1/serviceaccount"
+	"github.com/nais/api/internal/role"
+	"github.com/nais/api/internal/serviceaccount"
 )
 
 // ApiKeyAuthentication If the request has an authorization header, we will try to pull the service account who owns it

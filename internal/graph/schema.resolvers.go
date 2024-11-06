@@ -1,0 +1,22 @@
+package graph
+
+import (
+	"context"
+
+	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
+)
+
+func (r *queryResolver) Node(ctx context.Context, id ident.Ident) (model.Node, error) {
+	return ident.GetByIdent(ctx, id)
+}
+
+func (r *Resolver) Mutation() gengql.MutationResolver { return &mutationResolver{r} }
+
+func (r *Resolver) Query() gengql.QueryResolver { return &queryResolver{r} }
+
+type (
+	mutationResolver struct{ *Resolver }
+	queryResolver    struct{ *Resolver }
+)
