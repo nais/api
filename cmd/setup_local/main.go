@@ -27,7 +27,6 @@ import (
 	"github.com/nais/api/internal/user"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
-	"github.com/vikstrous/dataloadgen"
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
@@ -151,12 +150,11 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 	}
 	defer pool.Close()
 
-	dataloaderOpts := make([]dataloadgen.Option, 0)
 	ctx = database.NewLoaderContext(ctx, pool)
-	ctx = audit.NewLoaderContext(ctx, pool, dataloaderOpts)
-	ctx = user.NewLoaderContext(ctx, pool, dataloaderOpts)
-	ctx = team.NewLoaderContext(ctx, pool, dataloaderOpts)
-	ctx = role.NewLoaderContext(ctx, pool, dataloaderOpts)
+	ctx = audit.NewLoaderContext(ctx, pool)
+	ctx = user.NewLoaderContext(ctx, pool)
+	ctx = team.NewLoaderContext(ctx, pool)
+	ctx = role.NewLoaderContext(ctx, pool)
 	ctx = environment.NewLoaderContext(ctx, pool)
 
 	emails := map[string]struct{}{}

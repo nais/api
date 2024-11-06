@@ -37,7 +37,6 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
-	"github.com/vikstrous/dataloadgen"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"k8s.io/utils/ptr"
@@ -279,8 +278,8 @@ func newDB(ctx context.Context, container *postgres.PostgresContainer, connStr s
 
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = environment.NewLoaderContext(ctx, pool)
-		ctx = user.NewLoaderContext(ctx, pool, []dataloadgen.Option{})
-		ctx = role.NewLoaderContext(ctx, pool, []dataloadgen.Option{})
+		ctx = user.NewLoaderContext(ctx, pool)
+		ctx = role.NewLoaderContext(ctx, pool)
 
 		c := clusters()
 		envs := make([]*environment.Environment, len(c))

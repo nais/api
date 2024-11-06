@@ -46,9 +46,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
 	"github.com/sirupsen/logrus"
-	"github.com/vikstrous/dataloadgen"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-	"go.opentelemetry.io/otel"
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/sync/errgroup"
@@ -207,15 +205,10 @@ func ConfigureGraph(
 		return nil, errors.New("timed out waiting for watchers to be ready")
 	}
 
-	dataloaderOpts := []dataloadgen.Option{
-		dataloadgen.WithWait(time.Millisecond),
-		dataloadgen.WithBatchCapacity(250),
-		dataloadgen.WithTracer(otel.Tracer("dataloader")),
-	}
 	return loader.Middleware(func(ctx context.Context) context.Context {
 		ctx = podlog.NewLoaderContext(ctx, podLogStreamer)
 		ctx = application.NewLoaderContext(ctx, appWatcher, ingressWatcher)
-		ctx = bigquery.NewLoaderContext(ctx, bqWatcher, dataloaderOpts)
+		ctx = bigquery.NewLoaderContext(ctx, bqWatcher)
 		ctx = bucket.NewLoaderContext(ctx, bucketWatcher)
 		ctx = job.NewLoaderContext(ctx, jobWatcher, runWatcher)
 		ctx = kafkatopic.NewLoaderContext(ctx, kafkaTopicWatcher)
@@ -224,16 +217,16 @@ func ConfigureGraph(
 		ctx = opensearch.NewLoaderContext(ctx, openSearchWatcher)
 		ctx = redis.NewLoaderContext(ctx, redisWatcher)
 		ctx = utilization.NewLoaderContext(ctx, utilizationClient)
-		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, sqlDatabaseWatcher, sqlInstanceWatcher, dataloaderOpts)
+		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, sqlDatabaseWatcher, sqlInstanceWatcher)
 		ctx = database.NewLoaderContext(ctx, pool)
-		ctx = team.NewLoaderContext(ctx, pool, dataloaderOpts)
-		ctx = user.NewLoaderContext(ctx, pool, dataloaderOpts)
+		ctx = team.NewLoaderContext(ctx, pool)
+		ctx = user.NewLoaderContext(ctx, pool)
 		ctx = cost.NewLoaderContext(ctx, pool, costOpts...)
 		ctx = repository.NewLoaderContext(ctx, pool)
-		ctx = role.NewLoaderContext(ctx, pool, dataloaderOpts)
-		ctx = audit.NewLoaderContext(ctx, pool, dataloaderOpts)
-		ctx = vulnerability.NewLoaderContext(ctx, vClient, tenantName, clusters, fakeClients, log, dataloaderOpts)
-		ctx = reconciler.NewLoaderContext(ctx, pool, dataloaderOpts)
+		ctx = role.NewLoaderContext(ctx, pool)
+		ctx = audit.NewLoaderContext(ctx, pool)
+		ctx = vulnerability.NewLoaderContext(ctx, vClient, tenantName, clusters, fakeClients, log)
+		ctx = reconciler.NewLoaderContext(ctx, pool)
 		ctx = deployment.NewLoaderContext(ctx, hookdClient)
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)
 		ctx = session.NewLoaderContext(ctx, pool)

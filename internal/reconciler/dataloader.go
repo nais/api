@@ -14,8 +14,8 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, dbConn *pgxpool.Pool, defaultOpts []dataloadgen.Option) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(dbConn, defaultOpts))
+func NewLoaderContext(ctx context.Context, dbConn *pgxpool.Pool) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(dbConn))
 }
 
 func fromContext(ctx context.Context) *loaders {
@@ -27,13 +27,13 @@ type loaders struct {
 	reconcilerLoader *dataloadgen.Loader[string, *Reconciler]
 }
 
-func newLoaders(dbConn *pgxpool.Pool, opts []dataloadgen.Option) *loaders {
+func newLoaders(dbConn *pgxpool.Pool) *loaders {
 	db := reconcilersql.New(dbConn)
 	reconcilerLoader := &dataloader{db: db}
 
 	return &loaders{
 		internalQuerier:  db,
-		reconcilerLoader: dataloadgen.NewLoader(reconcilerLoader.list, opts...),
+		reconcilerLoader: dataloadgen.NewLoader(reconcilerLoader.list, loader.DefaultDataLoaderOptions...),
 	}
 }
 

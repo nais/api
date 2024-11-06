@@ -15,8 +15,8 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, dbConn *pgxpool.Pool, defaultOpts []dataloadgen.Option) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(dbConn, defaultOpts))
+func NewLoaderContext(ctx context.Context, dbConn *pgxpool.Pool) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(dbConn))
 }
 
 func fromContext(ctx context.Context) *loaders {
@@ -29,14 +29,14 @@ type loaders struct {
 	teamEnvironmentLoader *dataloadgen.Loader[envSlugName, *TeamEnvironment]
 }
 
-func newLoaders(dbConn *pgxpool.Pool, opts []dataloadgen.Option) *loaders {
+func newLoaders(dbConn *pgxpool.Pool) *loaders {
 	db := teamsql.New(dbConn)
 	teamLoader := &dataloader{db: db}
 
 	return &loaders{
 		internalQuerier:       db,
-		teamLoader:            dataloadgen.NewLoader(teamLoader.list, opts...),
-		teamEnvironmentLoader: dataloadgen.NewLoader(teamLoader.getEnvironments, opts...),
+		teamLoader:            dataloadgen.NewLoader(teamLoader.list, loader.DefaultDataLoaderOptions...),
+		teamEnvironmentLoader: dataloadgen.NewLoader(teamLoader.getEnvironments, loader.DefaultDataLoaderOptions...),
 	}
 }
 

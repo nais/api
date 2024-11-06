@@ -200,7 +200,7 @@ func TestFakeQueryAll(t *testing.T) {
 	}
 
 	ctx = application.NewLoaderContext(ctx, application.NewWatcher(ctx, mgr), application.NewIngressWatcher(ctx, mgr))
-	ctx = team.NewLoaderContext(ctx, pool, nil)
+	ctx = team.NewLoaderContext(ctx, pool)
 
 	ctxWait, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()

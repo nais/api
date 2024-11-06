@@ -23,7 +23,6 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
-	"github.com/vikstrous/dataloadgen"
 	admindirectoryv1 "google.golang.org/api/admin/directory/v1"
 	"google.golang.org/api/option"
 )
@@ -50,8 +49,8 @@ func TestSync(t *testing.T) {
 	defer cleanup()
 
 	ctx = database.NewLoaderContext(ctx, pool)
-	ctx = user.NewLoaderContext(ctx, pool, []dataloadgen.Option{})
-	ctx = role.NewLoaderContext(ctx, pool, []dataloadgen.Option{})
+	ctx = user.NewLoaderContext(ctx, pool)
+	ctx = role.NewLoaderContext(ctx, pool)
 
 	t.Run("No local users, no remote users", func(t *testing.T) {
 		correlationID := uuid.New()

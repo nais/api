@@ -4,11 +4,20 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/vikstrous/dataloadgen"
+	"go.opentelemetry.io/otel"
 )
 
 var ErrObjectNotFound = fmt.Errorf("object could not be found: %w", pgx.ErrNoRows)
+
+var DefaultDataLoaderOptions = []dataloadgen.Option{
+	dataloadgen.WithWait(time.Millisecond),
+	dataloadgen.WithBatchCapacity(250),
+	dataloadgen.WithTracer(otel.Tracer("dataloader")),
+}
 
 // Middleware injects data loaders into the context
 func Middleware(fn func(context.Context) context.Context) func(http.Handler) http.Handler {

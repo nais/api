@@ -15,8 +15,8 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, dbConn *pgxpool.Pool, defaultOpts []dataloadgen.Option) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(dbConn, defaultOpts))
+func NewLoaderContext(ctx context.Context, dbConn *pgxpool.Pool) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(dbConn))
 }
 
 func fromContext(ctx context.Context) *loaders {
@@ -28,13 +28,13 @@ type loaders struct {
 	userLoader      *dataloadgen.Loader[uuid.UUID, *User]
 }
 
-func newLoaders(dbConn *pgxpool.Pool, opts []dataloadgen.Option) *loaders {
+func newLoaders(dbConn *pgxpool.Pool) *loaders {
 	db := usersql.New(dbConn)
 	userLoader := &dataloader{db: db}
 
 	return &loaders{
 		internalQuerier: db,
-		userLoader:      dataloadgen.NewLoader(userLoader.list, opts...),
+		userLoader:      dataloadgen.NewLoader(userLoader.list, loader.DefaultDataLoaderOptions...),
 	}
 }
 

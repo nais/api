@@ -12,7 +12,6 @@ import (
 	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/role/rolesql"
 	"github.com/nais/api/internal/serviceaccount"
-	"github.com/vikstrous/dataloadgen"
 )
 
 type StaticServiceAccount struct {
@@ -70,7 +69,7 @@ func (s *StaticServiceAccounts) UnmarshalJSON(value []byte) error {
 func setupStaticServiceAccounts(ctx context.Context, pool *pgxpool.Pool, serviceAccounts StaticServiceAccounts) error {
 	ctx = database.NewLoaderContext(ctx, pool)
 	ctx = serviceaccount.NewLoaderContext(ctx, pool)
-	ctx = role.NewLoaderContext(ctx, pool, []dataloadgen.Option{})
+	ctx = role.NewLoaderContext(ctx, pool)
 
 	return database.Transaction(ctx, func(ctx context.Context) error {
 		names := make(map[string]struct{})

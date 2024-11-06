@@ -21,9 +21,8 @@ func NewLoaderContext(
 	client *Client,
 	sqlDatabaseWatcher *watcher.Watcher[*SQLDatabase],
 	sqlInstanceWatcher *watcher.Watcher[*SQLInstance],
-	defaultOpts []dataloadgen.Option,
 ) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(client, sqlDatabaseWatcher, sqlInstanceWatcher, defaultOpts))
+	return context.WithValue(ctx, loadersKey, newLoaders(client, sqlDatabaseWatcher, sqlInstanceWatcher))
 }
 
 func NewInstanceWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*SQLInstance] {
@@ -74,7 +73,6 @@ func newLoaders(
 	client *Client,
 	sqlDatabaseWatcher *watcher.Watcher[*SQLDatabase],
 	sqlInstanceWatcher *watcher.Watcher[*SQLInstance],
-	defaultOpts []dataloadgen.Option,
 ) *loaders {
 	dataloader := dataloader{sqlAdminService: client.Admin}
 	return &loaders{
@@ -82,7 +80,7 @@ func newLoaders(
 		sqlMetricsService:  client.metrics,
 		sqlDatabaseWatcher: sqlDatabaseWatcher,
 		sqlInstanceWatcher: sqlInstanceWatcher,
-		remoteSQLInstance:  dataloadgen.NewLoader(dataloader.remoteInstance, defaultOpts...),
+		remoteSQLInstance:  dataloadgen.NewLoader(dataloader.remoteInstance, loader.DefaultDataLoaderOptions...),
 	}
 }
 

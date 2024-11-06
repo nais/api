@@ -14,8 +14,8 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, bqWatcher *watcher.Watcher[*BigQueryDataset], defaultOpts []dataloadgen.Option) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(bqWatcher, defaultOpts))
+func NewLoaderContext(ctx context.Context, bqWatcher *watcher.Watcher[*BigQueryDataset]) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(bqWatcher))
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*BigQueryDataset] {
@@ -43,7 +43,7 @@ type loaders struct {
 	datasetLoader *dataloadgen.Loader[resourceIdentifier, *BigQueryDataset]
 }
 
-func newLoaders(bqWatcher *watcher.Watcher[*BigQueryDataset], opts []dataloadgen.Option) *loaders {
+func newLoaders(bqWatcher *watcher.Watcher[*BigQueryDataset]) *loaders {
 	client := &client{
 		watcher: bqWatcher,
 	}
@@ -55,7 +55,7 @@ func newLoaders(bqWatcher *watcher.Watcher[*BigQueryDataset], opts []dataloadgen
 
 	return &loaders{
 		watcher:       bqWatcher,
-		datasetLoader: dataloadgen.NewLoader(datasetLoader.list, opts...),
+		datasetLoader: dataloadgen.NewLoader(datasetLoader.list, loader.DefaultDataLoaderOptions...),
 	}
 }
 
