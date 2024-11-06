@@ -26,21 +26,21 @@ require (
 	github.com/nais/tester v0.1.0-pre.8
 	github.com/nais/unleasherator v0.0.0-20240513081022-06f454638fc1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-	github.com/pressly/goose/v3 v3.21.1
+	github.com/pressly/goose/v3 v3.22.1
 	github.com/prometheus/client_golang v1.19.1
 	github.com/prometheus/common v0.55.0
 	github.com/prometheus/prometheus v0.54.1
 	github.com/ravilushqa/otelgqlgen v0.16.0
-	github.com/rs/cors v1.11.0
+	github.com/rs/cors v1.11.1
 	github.com/sethvargo/go-envconfig v1.0.3
 	github.com/sirupsen/logrus v1.9.3
 	github.com/sourcegraph/conc v0.3.0
-	github.com/sqlc-dev/sqlc v1.26.0
+	github.com/sqlc-dev/sqlc v1.27.0
 	github.com/stretchr/testify v1.9.0
 	github.com/testcontainers/testcontainers-go v0.34.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.34.0
-	github.com/vektah/gqlparser/v2 v2.5.17
-	github.com/vektra/mockery/v2 v2.43.2
+	github.com/vektah/gqlparser/v2 v2.5.18
+	github.com/vektra/mockery/v2 v2.46.3
 	github.com/vikstrous/dataloadgen v0.0.6
 	github.com/yuin/gopher-lua v1.1.1
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.53.0
@@ -81,7 +81,7 @@ require (
 	github.com/GoogleCloudPlatform/gke-fqdnnetworkpolicies-golang v0.0.0-20230613000214-83d1aa25594e // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
-	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
+	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/apache/arrow/go/v15 v15.0.2 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bytedance/sonic v1.11.6 // indirect
@@ -131,7 +131,7 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
-	github.com/google/cel-go v0.20.1 // indirect
+	github.com/google/cel-go v0.21.0 // indirect
 	github.com/google/flatbuffers v23.5.26+incompatible // indirect
 	github.com/google/gnostic-models v0.6.9-0.20230804172637-c7be7c783f49 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
@@ -204,25 +204,26 @@ require (
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
-	github.com/sethvargo/go-retry v0.2.4 // indirect
+	github.com/sethvargo/go-retry v0.3.0 // indirect
 	github.com/shirou/gopsutil/v3 v3.24.5 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
-	github.com/spf13/cobra v1.8.0 // indirect
+	github.com/spf13/cobra v1.8.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.19.0 // indirect
 	github.com/stoewer/go-strcase v1.3.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	github.com/tetratelabs/wazero v1.7.0 // indirect
+	github.com/tetratelabs/wazero v1.7.3 // indirect
 	github.com/tklauser/go-sysconf v0.3.14 // indirect
 	github.com/tklauser/numcpus v0.9.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/urfave/cli/v2 v2.27.4 // indirect
-	github.com/wasilibs/go-pgquery v0.0.0-20240319230125-b9b2e95c69a7 // indirect
+	github.com/wasilibs/go-pgquery v0.0.0-20240606042535-c0843d6592cc // indirect
+	github.com/wasilibs/wazero-helpers v0.0.0-20240604052452-61d7981e9a38 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
@@ -252,10 +253,9 @@ require (
 	k8s.io/apiextensions-apiserver v0.30.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20240403164606-bc84c2ddaf99 // indirect
 	modernc.org/gc/v3 v3.0.0-20240107210532-573471604cb6 // indirect
-	modernc.org/libc v1.41.0 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
-	modernc.org/memory v1.7.2 // indirect
-	modernc.org/sqlite v1.29.6 // indirect
+	modernc.org/memory v1.8.0 // indirect
+	modernc.org/sqlite v1.33.0 // indirect
 	modernc.org/strutil v1.2.0 // indirect
 	modernc.org/token v1.1.0 // indirect
 	sigs.k8s.io/controller-runtime v0.18.4 // indirect
