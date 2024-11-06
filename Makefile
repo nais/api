@@ -1,5 +1,3 @@
-TEST_POSTGRES_CONTAINER_NAME = nais-api-postgres-integration-test
-TEST_POSTGRES_CONTAINER_PORT = 5666
 LUA_FORMATTER_VERSION = 1.5.6
 BIN_DIR := $(shell pwd)/bin
 LUAFMT=$(BIN_DIR)/luafmt-$(LUA_FORMATTER_VERSION)
@@ -71,12 +69,6 @@ helm-lint:
 
 setup-local:
 	GOOGLE_MANAGEMENT_PROJECT_ID=nais-local-dev go run ./cmd/setup_local -users 40 -teams 10 -owners 2 -members 4 -provision_pub_sub
-
-stop-integration-test-db:
-	docker stop $(TEST_POSTGRES_CONTAINER_NAME) || true && docker rm $(TEST_POSTGRES_CONTAINER_NAME) || true
-
-start-integration-test-db: stop-integration-test-db
-	docker run -d -e POSTGRES_PASSWORD=postgres --name $(TEST_POSTGRES_CONTAINER_NAME) -p $(TEST_POSTGRES_CONTAINER_PORT):5432 postgres:14-alpine
 
 integration_test:
 	rm -f hack/coverprofile.txt
