@@ -198,4 +198,4 @@ enum UserTeamOrderField {
 """
 Authenticated user type.
 """
-union AuthenticatedUser = User
+union AuthenticatedUser = User | ServiceAccount

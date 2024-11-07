@@ -70,6 +70,37 @@ func (q *Queries) GetByApiKey(ctx context.Context, apiKey string) (*ServiceAccou
 	return &i, err
 }
 
+const getByIDs = `-- name: GetByIDs :many
+SELECT
+	id, name
+FROM
+	service_accounts
+WHERE
+	id = ANY ($1::UUID [])
+ORDER BY
+	name ASC
+`
+
+func (q *Queries) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccount, error) {
+	rows, err := q.db.Query(ctx, getByIDs, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ServiceAccount{}
+	for rows.Next() {
+		var i ServiceAccount
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getByName = `-- name: GetByName :one
 SELECT
 	id, name

@@ -13,6 +13,7 @@ type Querier interface {
 	CreateAPIKey(ctx context.Context, arg CreateAPIKeyParams) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetByApiKey(ctx context.Context, apiKey string) (*ServiceAccount, error)
+	GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccount, error)
 	GetByName(ctx context.Context, name string) (*ServiceAccount, error)
 	List(ctx context.Context) ([]*ServiceAccount, error)
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error

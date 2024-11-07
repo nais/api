@@ -93,7 +93,6 @@ func (e UserOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-// Authenticated user type. Can be a user or a service account.
 type AuthenticatedUser interface {
 	GetID() uuid.UUID
 	Identity() string
