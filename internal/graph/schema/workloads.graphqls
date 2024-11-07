@@ -1,154 +1,293 @@
 extend type Team {
-	"NAIS Workloads owned by the team."
+	"""
+	NAIS Workloads owned by the team.
+	"""
 	workloads(
-		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
 		first: Int
 
-		"Get items after this cursor."
+		"""
+		Get items after this cursor.
+		"""
 		after: Cursor
 
-		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
 		last: Int
 
-		"Get items before this cursor."
+		"""
+		Get items before this cursor.
+		"""
 		before: Cursor
 
-		"Ordering options for items returned from the connection."
+		"""
+		Ordering options for items returned from the connection.
+		"""
 		orderBy: WorkloadOrder
 
-		"Filter the returned objects"
+		"""
+		Filter the returned objects
+		"""
 		filter: TeamWorkloadsFilter
 	): WorkloadConnection!
 }
 
 extend type TeamEnvironment {
-	"Workload in the team environment."
-	workload(name: String!): Workload!
+	"""
+	Workload in the team environment.
+	"""
+	workload(
+		"""
+		The name of the workload to get.
+		"""
+		name: String!
+	): Workload!
 }
 
+"""
+Interface for workloads.
+"""
 interface Workload implements Node {
-	"The globally unique ID of the workload."
+	"""
+	The globally unique ID of the workload.
+	"""
 	id: ID!
 
-	"The name of the workload."
+	"""
+	The name of the workload.
+	"""
 	name: String!
 
-	"The team that owns the workload."
+	"""
+	The team that owns the workload.
+	"""
 	team: Team!
 
-	"The environment the workload is deployed in."
+	"""
+	The environment the workload is deployed in.
+	"""
 	environment: TeamEnvironment!
 
-	"The container image of the workload."
+	"""
+	The container image of the workload.
+	"""
 	image: ContainerImage!
 
-	"The resources allocated to the workload."
+	"""
+	The resources allocated to the workload.
+	"""
 	resources: WorkloadResources!
 
-	"The workload manifest."
+	"""
+	The workload manifest.
+	"""
 	manifest: WorkloadManifest!
 }
 
+"""
+Interface for workload manifests.
+"""
 interface WorkloadManifest {
-	"The manifest content, serialized as a YAML document."
+	"""
+	The manifest content, serialized as a YAML document.
+	"""
 	content: String!
 }
 
+"""
+Container image.
+"""
 type ContainerImage implements Node {
-	"The globally unique ID of the container image node."
+	"""
+	The globally unique ID of the container image node.
+	"""
 	id: ID!
 
-	"Name of the container image."
+	"""
+	Name of the container image.
+	"""
 	name: String!
 
-	"Tag of the container image."
+	"""
+	Tag of the container image.
+	"""
 	tag: String!
 }
 
+"""
+Interface for resources allocated to workloads.
+"""
 interface WorkloadResources {
-	"Instances using resources above this threshold will be killed."
+	"""
+	Instances using resources above this threshold will be killed.
+	"""
 	limits: WorkloadResourceQuantity!
 
-	"Resources requested by the workload."
+	"""
+	Resources requested by the workload.
+	"""
 	requests: WorkloadResourceQuantity!
 }
 
+"""
+Resource quantities for a workload.
+"""
 type WorkloadResourceQuantity {
-	"The number of CPU cores."
+	"""
+	The number of CPU cores.
+	"""
 	cpu: Float!
 
-	"The amount of memory in bytes."
+	"""
+	The amount of memory in bytes.
+	"""
 	memory: Int!
 }
 
+"""
+Interface for authentication and authorization integrations.
+
+Read more about this topic in the [NAIS documentation](https://docs.nais.io/auth/).
+"""
 interface AuthIntegration {
-	"The name of the integration."
+	"""
+	The name of the integration.
+	"""
 	name: String!
 }
 
+"""
+Entra ID (aka Azure AD) authentication.
+
+Read more: https://docs.nais.io/auth/entra-id/
+"""
 type EntraIDAuthIntegration implements AuthIntegration {
-	"The name of the integration."
+	"""
+	The name of the integration.
+	"""
 	name: String!
 }
 
+"""
+ID-porten authentication.
+
+Read more: https://docs.nais.io/auth/idporten/
+"""
 type IDPortenAuthIntegration implements AuthIntegration {
-	"The name of the integration."
+	"""
+	The name of the integration.
+	"""
 	name: String!
 }
 
+"""
+Maskinporten authentication.
+
+Read more: https://docs.nais.io/auth/maskinporten/
+"""
 type MaskinportenAuthIntegration implements AuthIntegration {
-	"The name of the integration."
+	"""
+	The name of the integration.
+	"""
 	name: String!
 }
 
+"""
+TokenX authentication.
+
+Read more: https://docs.nais.io/auth/tokenx/
+"""
 type TokenXAuthIntegration implements AuthIntegration {
-	"The name of the integration."
+	"""
+	The name of the integration.
+	"""
 	name: String!
 }
 
+"""
+Workload connection.
+"""
 type WorkloadConnection {
-	"Pagination information."
+	"""
+	Pagination information.
+	"""
 	pageInfo: PageInfo!
 
-	"List of nodes."
+	"""
+	List of nodes.
+	"""
 	nodes: [Workload!]!
 
-	"List of edges."
+	"""
+	List of edges.
+	"""
 	edges: [WorkloadEdge!]!
 }
 
+"""
+Workload edge.
+"""
 type WorkloadEdge {
-	"Cursor for this edge that can be used for pagination."
+	"""
+	Cursor for this edge that can be used for pagination.
+	"""
 	cursor: Cursor!
 
-	"The Workload."
+	"""
+	The Workload.
+	"""
 	node: Workload!
 }
 
-"Ordering options when fetching workloads."
+"""
+Ordering options when fetching workloads.
+"""
 input WorkloadOrder {
-	"The field to order items by."
+	"""
+	The field to order items by.
+	"""
 	field: WorkloadOrderField!
 
-	"The direction to order items by."
+	"""
+	The direction to order items by.
+	"""
 	direction: OrderDirection!
 }
 
+"""
+Fields to order workloads by.
+"""
 enum WorkloadOrderField {
-	"Order Workloads by name."
+	"""
+	Order by name.
+	"""
 	NAME
 
-	"Order Workloads by status."
+	"""
+	Order by status.
+	"""
 	STATUS
 
-	"Order Workloads by the name of the environment."
+	"""
+	Order by the name of the environment the workload is deployed in.
+	"""
 	ENVIRONMENT
 
-	"Order Workloads by the deployment time."
+	"""
+	Order by the deployment time.
+	"""
 	DEPLOYMENT_TIME
 }
 
+"""
+Input for filtering team workloads.
+"""
 input TeamWorkloadsFilter {
-	"Only return workloads from the given named environments."
+	"""
+	Only return workloads from the given named environments.
+	"""
 	environments: [String!]
 }
