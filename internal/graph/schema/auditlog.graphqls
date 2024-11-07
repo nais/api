@@ -1,66 +1,116 @@
 extend type Team {
-	"Audit entries associated with the team."
+	"""
+	Audit entries associated with the team.
+	"""
 	auditEntries(
-		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
 		first: Int
 
-		"Get items after this cursor."
+		"""
+		Get items after this cursor.
+		"""
 		after: Cursor
 
-		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
 		last: Int
 
-		"Get items before this cursor."
+		"""
+		Get items before this cursor.
+		"""
 		before: Cursor
 	): AuditEntryConnection!
 }
 
+"""
+Interface for audit entries.
+"""
 interface AuditEntry implements Node {
-	"ID of the entry."
+	"""
+	ID of the entry.
+	"""
 	id: ID!
 
-	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	"""
+	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
+	"""
 	actor: String!
 
-	"Creation time of the entry."
+	"""
+	Creation time of the entry.
+	"""
 	createdAt: Time!
 
-	"Message that summarizes the entry."
+	"""
+	Message that summarizes the entry.
+	"""
 	message: String!
 
-	"Type of the resource that was affected by the action."
+	"""
+	Type of the resource that was affected by the action.
+	"""
 	resourceType: AuditResourceType!
 
-	"Name of the resource that was affected by the action."
+	"""
+	Name of the resource that was affected by the action.
+	"""
 	resourceName: String!
 
-	"The team slug that the entry belongs to."
+	"""
+	The team slug that the entry belongs to.
+	"""
 	teamSlug: Slug
 
-	"The environment name that the entry belongs to."
+	"""
+	The environment name that the entry belongs to.
+	"""
 	environmentName: String
 }
 
-"The type of the resource that was affected by the action."
+"""
+The type of the resource that was affected by the action.
+"""
 enum AuditResourceType {
+	"""
+	Unknown type.
+	"""
 	UNKNOWN
 }
 
+"""
+Audit entry connection.
+"""
 type AuditEntryConnection {
-	"Pagination information."
+	"""
+	Pagination information.
+	"""
 	pageInfo: PageInfo!
 
-	"List of nodes."
+	"""
+	List of nodes.
+	"""
 	nodes: [AuditEntry!]!
 
-	"List of edges."
+	"""
+	List of edges.
+	"""
 	edges: [AuditEntryEdge!]!
 }
 
+"""
+Audit entry edge.
+"""
 type AuditEntryEdge {
-	"Cursor for this edge that can be used for pagination."
+	"""
+	Cursor for this edge that can be used for pagination.
+	"""
 	cursor: Cursor!
 
-	"The audit entry."
+	"""
+	The audit entry.
+	"""
 	node: AuditEntry!
 }

@@ -9089,108 +9089,199 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 
 var sources = []*ast.Source{
 	{Name: "../schema/applications.graphqls", Input: `extend type Team {
-	"NAIS applications owned by the team."
+	"""
+	NAIS applications owned by the team.
+	"""
 	applications(
-		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
 		first: Int
 
-		"Get items after this cursor."
+		"""
+		Get items after this cursor.
+		"""
 		after: Cursor
 
-		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
 		last: Int
 
-		"Get items before this cursor."
+		"""
+		Get items before this cursor.
+		"""
 		before: Cursor
 
-		"Ordering options for items returned from the connection."
+		"""
+		Ordering options for items returned from the connection.
+		"""
 		orderBy: ApplicationOrder
 
-		"Filtering options for items returned from the connection."
+		"""
+		Filtering options for items returned from the connection.
+		"""
 		filter: TeamApplicationsFilter
 	): ApplicationConnection!
 }
 
 extend type TeamEnvironment {
-	"NAIS application in the team environment."
-	application(name: String!): Application!
+	"""
+	NAIS application in the team environment.
+	"""
+	application(
+		"""
+		The name of the application.
+		"""
+		name: String!
+	): Application!
 }
 
 extend type Mutation {
-	"Delete an application."
-	deleteApplication(input: DeleteApplicationInput!): DeleteApplicationPayload!
+	"""
+	Delete an application.
+	"""
+	deleteApplication(
+		"""
+		Input for deleting an application.
+		"""
+		input: DeleteApplicationInput!
+	): DeleteApplicationPayload!
 
-	"Restart an application."
-	restartApplication(input: RestartApplicationInput!): RestartApplicationPayload!
+	"""
+	Restart an application.
+	"""
+	restartApplication(
+		"""
+		Input for restarting an application.
+		"""
+		input: RestartApplicationInput!
+	): RestartApplicationPayload!
 }
 
 extend type TeamInventoryCounts {
+	"""
+	Application inventory count for a team.
+	"""
 	applications: TeamInventoryCountApplications!
 }
 
+"""
+Application inventory count for a team.
+"""
 type TeamInventoryCountApplications {
-	"Total number of applications."
+	"""
+	Total number of applications.
+	"""
 	total: Int!
 
-	"Number of applications considered not nais."
+	"""
+	Number of applications considered "not nais". When an application is considered "not nais", it means that the
+	application might not be working as expected, or that it is not following the NAIS guidelines.
+	"""
 	notNais: Int!
 }
 
 """
-TODO: write
+An application lets you run one or more instances of a container image on the [NAIS platform](https://nais.io/).
+
+Learn more about how to create and configure your applications in the [NAIS documentation](https://docs.nais.io/workloads/application/).
 """
 type Application implements Node & Workload {
-	"The globally unique ID of the application."
+	"""
+	The globally unique ID of the application.
+	"""
 	id: ID!
 
-	"The name of the application."
+	"""
+	The name of the application.
+	"""
 	name: String!
 
-	"The team that owns the application."
+	"""
+	The team that owns the application.
+	"""
 	team: Team!
 
-	"The environment the application is deployed in."
+	"""
+	The environment the application is deployed in.
+	"""
 	environment: TeamEnvironment!
 
-	"The container image of the application."
+	"""
+	The container image of the application.
+	"""
 	image: ContainerImage!
 
-	"Resources for the application."
+	"""
+	Resources for the application.
+	"""
 	resources: ApplicationResources!
 
-	"List of ingresses for the application."
+	"""
+	List of ingresses for the application.
+	"""
 	ingresses: [Ingress!]!
 
-	"List of authentication and authorization for the application."
+	"""
+	List of authentication and authorization for the application.
+	"""
 	authIntegrations: [ApplicationAuthIntegrations!]!
 
-	"The application manifest."
+	"""
+	The application manifest.
+	"""
 	manifest: ApplicationManifest!
 
+	"""
+	The application instances.
+	"""
 	instances(
-		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
 		first: Int
 
-		"Get items after this cursor."
+		"""
+		Get items after this cursor.
+		"""
 		after: Cursor
 
-		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
 		last: Int
 
-		"Get items before this cursor."
+		"""
+		Get items before this cursor.
+		"""
 		before: Cursor
 	): ApplicationInstanceConnection!
 }
 
+"""
+Input for filtering the applications of a team.
+"""
 input TeamApplicationsFilter {
+	"""
+	Filter by the name of the application.
+	"""
 	name: String!
 }
 
+"""
+The manifest that describes the application.
+"""
 type ApplicationManifest implements WorkloadManifest {
-	"The manifest content, serialized as a YAML document."
+	"""
+	The manifest content, serialized as a YAML document.
+	"""
 	content: String!
 }
 
+"""
+Authentication integrations for the application.
+"""
 union ApplicationAuthIntegrations =
 	| EntraIDAuthIntegration
 	| IDPortenAuthIntegration
@@ -9198,30 +9289,45 @@ union ApplicationAuthIntegrations =
 	| TokenXAuthIntegration
 
 type ApplicationResources implements WorkloadResources {
-	"Instances using resources above this threshold will be killed."
+	"""
+	Instances using resources above this threshold will be killed.
+	"""
 	limits: WorkloadResourceQuantity!
 
-	"How many resources are allocated to each instance."
+	"""
+	How many resources are allocated to each instance.
+	"""
 	requests: WorkloadResourceQuantity!
 
-	"Scaling strategies for the application."
+	"""
+	Scaling strategies for the application.
+	"""
 	scaling: ApplicationScaling!
 }
 
 """
-TODO: write
+The scaling configuration of an application.
 """
 type ApplicationScaling {
-	"The minimum number of application instances."
+	"""
+	The minimum number of application instances.
+	"""
 	minInstances: Int!
 
-	"The maximum number of application instances."
+	"""
+	The maximum number of application instances.
+	"""
 	maxInstances: Int!
 
-	"Scaling strategies for the application."
+	"""
+	Scaling strategies for the application.
+	"""
 	strategies: [ScalingStrategy!]!
 }
 
+"""
+Types of scaling strategies.
+"""
 union ScalingStrategy = CPUScalingStrategy | KafkaLagScalingStrategy
 
 """
@@ -9230,102 +9336,165 @@ A scaling strategy based on CPU usage
 Read more: https://docs.nais.io/workloads/application/reference/automatic-scaling/#cpu-based-scaling
 """
 type CPUScalingStrategy {
-	"The threshold that must be met for the scaling to trigger."
+	"""
+	The threshold that must be met for the scaling to trigger.
+	"""
 	threshold: Int!
 }
 
 type KafkaLagScalingStrategy {
-	"The threshold that must be met for the scaling to trigger."
+	"""
+	The threshold that must be met for the scaling to trigger.
+	"""
 	threshold: Int!
 
-	"The consumer group of the topic."
+	"""
+	The consumer group of the topic.
+	"""
 	consumerGroup: String!
 
-	"The name of the Kafka topic."
+	"""
+	The name of the Kafka topic.
+	"""
 	topicName: String!
 }
 
+"""
+Application connection.
+"""
 type ApplicationConnection {
-	"Pagination information."
+	"""
+	Pagination information.
+	"""
 	pageInfo: PageInfo!
 
-	"List of nodes."
+	"""
+	List of nodes.
+	"""
 	nodes: [Application!]!
 
-	"List of edges."
+	"""
+	List of edges.
+	"""
 	edges: [ApplicationEdge!]!
 }
 
+"""
+Application edge.
+"""
 type ApplicationEdge {
-	"Cursor for this edge that can be used for pagination."
+	"""
+	Cursor for this edge that can be used for pagination.
+	"""
 	cursor: Cursor!
 
-	"The application."
+	"""
+	The application.
+	"""
 	node: Application!
 }
 
-"Ordering options when fetching applications."
+"""
+Ordering options when fetching applications.
+"""
 input ApplicationOrder {
-	"The field to order items by."
+	"""
+	The field to order items by.
+	"""
 	field: ApplicationOrderField!
 
-	"The direction to order items by."
+	"""
+	The direction to order items by.
+	"""
 	direction: OrderDirection!
 }
 
+"""
+Fields to order applications by.
+"""
 enum ApplicationOrderField {
-	"Order applications by name."
+	"""
+	Order applications by name.
+	"""
 	NAME
 
-	"Order applications by the name of the environment."
+	"""
+	Order applications by the name of the environment.
+	"""
 	ENVIRONMENT
 }
 
 extend union SearchNode = Application
+
 extend enum SearchType {
+	"""
+	Search for applications.
+	"""
 	APPLICATION
 }
 
 input DeleteApplicationInput {
-	"Name of the application."
+	"""
+	Name of the application.
+	"""
 	name: String!
 
-	"Slug of the team that owns the application."
+	"""
+	Slug of the team that owns the application.
+	"""
 	teamSlug: Slug!
 
-	"Name of the environment where the application runs."
+	"""
+	Name of the environment where the application runs.
+	"""
 	environmentName: String!
 }
 
 type DeleteApplicationPayload {
-	"The team that owned the deleted application."
+	"""
+	The team that owned the deleted application.
+	"""
 	team: Team
 
-	"Whether or not the application was deleted."
+	"""
+	Whether or not the application was deleted.
+	"""
 	success: Boolean
 }
 
 input RestartApplicationInput {
-	"Name of the application."
+	"""
+	Name of the application.
+	"""
 	name: String!
 
-	"Slug of the team that owns the application."
+	"""
+	Slug of the team that owns the application.
+	"""
 	teamSlug: Slug!
 
-	"Name of the environment where the application runs."
+	"""
+	Name of the environment where the application runs.
+	"""
 	environmentName: String!
 }
 
 type RestartApplicationPayload {
-	"The application that was restarted."
+	"""
+	The application that was restarted.
+	"""
 	application: Application
 }
 
 type Ingress {
-	"URL for the ingress."
+	"""
+	URL for the ingress.
+	"""
 	url: String!
 
-	"Type of ingress."
+	"""
+	Type of ingress.
+	"""
 	type: IngressType!
 }
 
@@ -9357,88 +9526,148 @@ enum ApplicationInstanceState {
 }
 
 type ApplicationInstanceConnection {
-	"Pagination information."
+	"""
+	Pagination information.
+	"""
 	pageInfo: PageInfo!
 
-	"List of nodes."
+	"""
+	List of nodes.
+	"""
 	nodes: [ApplicationInstance!]!
 
-	"List of edges."
+	"""
+	List of edges.
+	"""
 	edges: [ApplicationInstanceEdge!]!
 }
 
 type ApplicationInstanceEdge {
-	"Cursor for this edge that can be used for pagination."
+	"""
+	Cursor for this edge that can be used for pagination.
+	"""
 	cursor: Cursor!
 
-	"The instance."
+	"""
+	The instance.
+	"""
 	node: ApplicationInstance!
 }
 `, BuiltIn: false},
 	{Name: "../schema/auditlog.graphqls", Input: `extend type Team {
-	"Audit entries associated with the team."
+	"""
+	Audit entries associated with the team.
+	"""
 	auditEntries(
-		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
 		first: Int
 
-		"Get items after this cursor."
+		"""
+		Get items after this cursor.
+		"""
 		after: Cursor
 
-		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
 		last: Int
 
-		"Get items before this cursor."
+		"""
+		Get items before this cursor.
+		"""
 		before: Cursor
 	): AuditEntryConnection!
 }
 
+"""
+Interface for audit entries.
+"""
 interface AuditEntry implements Node {
-	"ID of the entry."
+	"""
+	ID of the entry.
+	"""
 	id: ID!
 
-	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	"""
+	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
+	"""
 	actor: String!
 
-	"Creation time of the entry."
+	"""
+	Creation time of the entry.
+	"""
 	createdAt: Time!
 
-	"Message that summarizes the entry."
+	"""
+	Message that summarizes the entry.
+	"""
 	message: String!
 
-	"Type of the resource that was affected by the action."
+	"""
+	Type of the resource that was affected by the action.
+	"""
 	resourceType: AuditResourceType!
 
-	"Name of the resource that was affected by the action."
+	"""
+	Name of the resource that was affected by the action.
+	"""
 	resourceName: String!
 
-	"The team slug that the entry belongs to."
+	"""
+	The team slug that the entry belongs to.
+	"""
 	teamSlug: Slug
 
-	"The environment name that the entry belongs to."
+	"""
+	The environment name that the entry belongs to.
+	"""
 	environmentName: String
 }
 
-"The type of the resource that was affected by the action."
+"""
+The type of the resource that was affected by the action.
+"""
 enum AuditResourceType {
+	"""
+	Unknown type.
+	"""
 	UNKNOWN
 }
 
+"""
+Audit entry connection.
+"""
 type AuditEntryConnection {
-	"Pagination information."
+	"""
+	Pagination information.
+	"""
 	pageInfo: PageInfo!
 
-	"List of nodes."
+	"""
+	List of nodes.
+	"""
 	nodes: [AuditEntry!]!
 
-	"List of edges."
+	"""
+	List of edges.
+	"""
 	edges: [AuditEntryEdge!]!
 }
 
+"""
+Audit entry edge.
+"""
 type AuditEntryEdge {
-	"Cursor for this edge that can be used for pagination."
+	"""
+	Cursor for this edge that can be used for pagination.
+	"""
 	cursor: Cursor!
 
-	"The audit entry."
+	"""
+	The audit entry.
+	"""
 	node: AuditEntry!
 }
 `, BuiltIn: false},
@@ -11122,10 +11351,14 @@ enum RepositoryOrderField {
 	NAME
 }
 `, BuiltIn: false},
-	{Name: "../schema/scalars.graphqls", Input: `"Time is a string in [RFC 3339](https://rfc-editor.org/rfc/rfc3339.html) format, with sub-second precision added if present."
+	{Name: "../schema/scalars.graphqls", Input: `"""
+Time is a string in [RFC 3339](https://rfc-editor.org/rfc/rfc3339.html) format, with sub-second precision added if present.
+"""
 scalar Time
 
-"Date type in YYYY-MM-DD format."
+"""
+Date type in YYYY-MM-DD format.
+"""
 scalar Date
 
 """
@@ -11152,20 +11385,33 @@ Cursors are opaque strings that are returned by the server for paginated results
 """
 scalar Cursor
 `, BuiltIn: false},
-	{Name: "../schema/schema.graphqls", Input: `"The query root for the NAIS GraphQL API."
+	{Name: "../schema/schema.graphqls", Input: `"""
+The query root for the NAIS GraphQL API.
+"""
 type Query {
-	"Fetch an object using its globally unique ID."
-	node(id: ID!): Node
+	"""
+	Fetch an object using its globally unique ID.
+	"""
+	node(
+		"""
+		The ID of the object to fetch.
+		"""
+		id: ID!
+	): Node
 }
 
-"The mutation root for the NAIS GraphQL API."
+"""
+The mutation root for the NAIS GraphQL API.
+"""
 type Mutation
 
 """
 This interface is implemented by types that supports the [Global Object Identification specification](https://graphql.org/learn/global-object-identification/).
 """
 interface Node {
-	"Globally unique ID of the object."
+	"""
+	Globally unique ID of the object.
+	"""
 	id: ID!
 }
 
@@ -11175,82 +11421,151 @@ This type is used for paginating the connection
 Learn more about how we have implemented pagination in the [GraphQL Best Practices documentation](https://graphql.org/learn/pagination/).
 """
 type PageInfo {
-	"Whether or not there exists a next page in the connection."
+	"""
+	Whether or not there exists a next page in the connection.
+	"""
 	hasNextPage: Boolean!
 
-	"The cursor for the last item in the edges. This cursor is used when paginating forwards."
+	"""
+	The cursor for the last item in the edges. This cursor is used when paginating forwards.
+	"""
 	endCursor: Cursor
 
-	"Whether or not there exists a previous page in the connection."
+	"""
+	Whether or not there exists a previous page in the connection.
+	"""
 	hasPreviousPage: Boolean!
 
-	"The cursor for the first item in the edges. This cursor is used when paginating backwards."
+	"""
+	The cursor for the first item in the edges. This cursor is used when paginating backwards.
+	"""
 	startCursor: Cursor
 
-	"The total amount of items in the connection."
+	"""
+	The total amount of items in the connection.
+	"""
 	totalCount: Int!
 
-	"The offset of the first item in the connection."
+	"""
+	The offset of the first item in the connection.
+	"""
 	pageStart: Int!
 
-	"The offset of the last item in the connection."
+	"""
+	The offset of the last item in the connection.
+	"""
 	pageEnd: Int!
 }
 
-"Possible directions in which to order a list of items."
+"""
+Possible directions in which to order a list of items.
+"""
 enum OrderDirection {
-	"Ascending sort order."
+	"""
+	Ascending sort order.
+	"""
 	ASC
 
-	"Descending sort order."
+	"""
+	Descending sort order.
+	"""
 	DESC
 }
 `, BuiltIn: false},
 	{Name: "../schema/search.graphqls", Input: `extend type Query {
+	"""
+	Search for entities.
+	"""
 	search(
-		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
 		first: Int
 
-		"Get items after this cursor."
+		"""
+		Get items after this cursor.
+		"""
 		after: Cursor
 
-		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
 		last: Int
 
-		"Get items before this cursor."
+		"""
+		Get items before this cursor.
+		"""
 		before: Cursor
 
+		"""
+		Filter the search results.
+		"""
 		filter: SearchFilter!
 	): SearchNodeConnection!
 }
 
+"""
+Types that can be searched for.
+"""
 union SearchNode = Team
 
+"""
+Search filter for filtering search results.
+"""
 input SearchFilter {
+	"""
+	The query string.
+	"""
 	query: String!
+
+	"""
+	The type of entities to search for. If not specified, all types will be searched.
+	"""
 	type: SearchType
 }
 
+"""
+Search node connection.
+"""
 type SearchNodeConnection {
-	"Pagination information."
+	"""
+	Pagination information.
+	"""
 	pageInfo: PageInfo!
 
-	"List of nodes."
+	"""
+	List of nodes.
+	"""
 	nodes: [SearchNode!]!
 
-	"List of edges."
+	"""
+	List of edges.
+	"""
 	edges: [SearchNodeEdge!]!
 }
 
+"""
+Search node edge.
+"""
 type SearchNodeEdge {
-	"Cursor for this edge that can be used for pagination."
+	"""
+	Cursor for this edge that can be used for pagination.
+	"""
 	cursor: Cursor!
 
-	"The SearchNode."
+	"""
+	The SearchNode.
+	"""
 	node: SearchNode!
 }
 
+"""
+A list of possible search types.
+"""
 enum SearchType {
+	"""
+	Search for teams.
+	"""
 	TEAM
 }
 `, BuiltIn: false},
