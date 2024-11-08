@@ -111,8 +111,8 @@ func (t *Server) SetTeamExternalReferences(ctx context.Context, req *protoapi.Se
 	}
 
 	var aID *uuid.UUID
-	if req.AzureGroupId != nil {
-		id, err := uuid.Parse(*req.AzureGroupId)
+	if req.EntraIdGroupId != nil {
+		id, err := uuid.Parse(*req.EntraIdGroupId)
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "azure group ID must be a valid UUID: %s", err)
 		}
@@ -121,7 +121,7 @@ func (t *Server) SetTeamExternalReferences(ctx context.Context, req *protoapi.Se
 
 	err := t.querier.UpdateExternalReferences(ctx, grpcteamsql.UpdateExternalReferencesParams{
 		Slug:             slug.Slug(req.Slug),
-		AzureGroupID:     aID,
+		EntraIDGroupID:   aID,
 		GithubTeamSlug:   req.GithubTeamSlug,
 		GoogleGroupEmail: req.GoogleGroupEmail,
 		GarRepository:    req.GarRepository,
@@ -212,7 +212,7 @@ func toProtoTeam(team *grpcteamsql.Team) *protoapi.Team {
 		Slug:             team.Slug.String(),
 		Purpose:          team.Purpose,
 		SlackChannel:     team.SlackChannel,
-		AzureGroupId:     aID,
+		EntraIdGroupId:   aID,
 		GithubTeamSlug:   team.GithubTeamSlug,
 		GoogleGroupEmail: team.GoogleGroupEmail,
 		GarRepository:    team.GarRepository,

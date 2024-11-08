@@ -160,7 +160,7 @@ interface AuthIntegration {
 }
 
 """
-Entra ID (aka Azure AD) authentication.
+Entra ID (f.k.a. Azure AD) authentication.
 
 Read more: https://docs.nais.io/auth/entra-id/
 """

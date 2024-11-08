@@ -10,7 +10,7 @@ message Team {
   string slug = 1;
   string purpose = 2;
   string slack_channel = 3;
-  optional string azure_group_id = 4;
+  optional string entra_id_group_id = 4;
   optional string github_team_slug = 5;
   optional string google_group_email = 6;
   optional string gar_repository = 7;
@@ -46,7 +46,7 @@ message DeleteTeamResponse {}
 
 message SetTeamExternalReferencesRequest {
   string slug = 1;
-  optional string azure_group_id = 2;
+  optional string entra_id_group_id = 2;
   optional string github_team_slug = 3;
   optional string google_group_email = 4;
   optional string gar_repository = 5;

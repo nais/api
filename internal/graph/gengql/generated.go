@@ -1192,7 +1192,6 @@ type ComplexityRoot struct {
 	Team struct {
 		Applications           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) int
 		AuditEntries           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		AzureGroupID           func(childComplexity int) int
 		BigQueryDatasets       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) int
 		Buckets                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) int
 		CdnBucket              func(childComplexity int) int
@@ -1201,6 +1200,7 @@ type ComplexityRoot struct {
 		DeletionInProgress     func(childComplexity int) int
 		DeploymentKey          func(childComplexity int) int
 		Deployments            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		EntraIDGroupID         func(childComplexity int) int
 		Environment            func(childComplexity int, name string) int
 		Environments           func(childComplexity int) int
 		GitHubTeamSlug         func(childComplexity int) int
@@ -6491,13 +6491,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.AuditEntries(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
-	case "Team.azureGroupID":
-		if e.complexity.Team.AzureGroupID == nil {
-			break
-		}
-
-		return e.complexity.Team.AzureGroupID(childComplexity), true
-
 	case "Team.bigQueryDatasets":
 		if e.complexity.Team.BigQueryDatasets == nil {
 			break
@@ -6573,6 +6566,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Team.Deployments(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
+	case "Team.entraIDGroupID":
+		if e.complexity.Team.EntraIDGroupID == nil {
+			break
+		}
+
+		return e.complexity.Team.EntraIDGroupID(childComplexity), true
 
 	case "Team.environment":
 		if e.complexity.Team.Environment == nil {
@@ -12593,7 +12593,7 @@ The team type represents a team on the [NAIS platform](https://nais.io/).
 
 Learn more about what NAIS teams are and what they can be used for in the [official NAIS documentation](https://docs.nais.io/explanations/team/).
 
-External resources (e.g. azureGroupID, gitHubTeamSlug) are managed by [NAIS API reconcilers](https://github.com/nais/api-reconcilers).
+External resources (e.g. entraIDGroupID, gitHubTeamSlug) are managed by [NAIS API reconcilers](https://github.com/nais/api-reconcilers).
 """
 type Team implements Node {
 	"The globally unique ID of the team."
@@ -12608,19 +12608,19 @@ type Team implements Node {
 	"Purpose of the team."
 	purpose: String!
 
-	"The ID of the Azure AD group for the team. This value is managed by the Azure AD reconciler."
-	azureGroupID: String
+	"The ID of the Entra ID (f.k.a. Azure AD) group for the team."
+	entraIDGroupID: String
 
-	"The slug of the GitHub team. This value is managed by the GitHub reconciler."
+	"The slug of the GitHub team."
 	gitHubTeamSlug: String
 
-	"The email address of the Google Workspace group for the team. This value is managed by the Google Workspace reconciler."
+	"The email address of the Google Workspace group for the team."
 	googleGroupEmail: String
 
-	"The Google Artifact Registry for the team. This value is managed by the Google Artifact Registry (GAR) reconciler."
+	"The Google Artifact Registry for the team."
 	googleArtifactRegistry: String
 
-	"The CDN bucket for the team. This value is managed by the Google CDN reconciler."
+	"The CDN bucket for the team."
 	cdnBucket: String
 
 	"Get a specific member of the team."
@@ -14161,7 +14161,7 @@ interface AuthIntegration {
 }
 
 """
-Entra ID (aka Azure AD) authentication.
+Entra ID (f.k.a. Azure AD) authentication.
 
 Read more: https://docs.nais.io/auth/entra-id/
 """
@@ -22046,8 +22046,8 @@ func (ec *executionContext) fieldContext_Application_team(_ context.Context, fie
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -24894,8 +24894,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(_ context.Context,
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -26226,8 +26226,8 @@ func (ec *executionContext) fieldContext_Bucket_team(_ context.Context, field gr
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -27959,8 +27959,8 @@ func (ec *executionContext) fieldContext_CreateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -28137,8 +28137,8 @@ func (ec *executionContext) fieldContext_DeleteApplicationPayload_team(_ context
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -28297,8 +28297,8 @@ func (ec *executionContext) fieldContext_DeleteJobPayload_team(_ context.Context
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -28545,8 +28545,8 @@ func (ec *executionContext) fieldContext_Deployment_team(_ context.Context, fiel
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -31998,8 +31998,8 @@ func (ec *executionContext) fieldContext_Job_team(_ context.Context, field graph
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -35030,8 +35030,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_team(_ context.Context, fiel
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -35573,8 +35573,8 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_team(_ context.Context, f
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -38688,8 +38688,8 @@ func (ec *executionContext) fieldContext_NetworkPolicyRule_targetTeam(_ context.
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -38942,8 +38942,8 @@ func (ec *executionContext) fieldContext_OpenSearch_team(_ context.Context, fiel
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -40693,8 +40693,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -42252,8 +42252,8 @@ func (ec *executionContext) fieldContext_ReconcilerError_team(_ context.Context,
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -42724,8 +42724,8 @@ func (ec *executionContext) fieldContext_RedisInstance_team(_ context.Context, f
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -43988,8 +43988,8 @@ func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_team(_ context.
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -44198,8 +44198,8 @@ func (ec *executionContext) fieldContext_Repository_team(_ context.Context, fiel
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -45185,8 +45185,8 @@ func (ec *executionContext) fieldContext_Secret_team(_ context.Context, field gr
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -48479,8 +48479,8 @@ func (ec *executionContext) fieldContext_SqlDatabase_team(_ context.Context, fie
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -48934,8 +48934,8 @@ func (ec *executionContext) fieldContext_SqlInstance_team(_ context.Context, fie
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -52012,8 +52012,8 @@ func (ec *executionContext) fieldContext_SynchronizeTeamPayload_team(_ context.C
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -52263,8 +52263,8 @@ func (ec *executionContext) fieldContext_Team_purpose(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_azureGroupID(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Team_azureGroupID(ctx, field)
+func (ec *executionContext) _Team_entraIDGroupID(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_entraIDGroupID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -52277,7 +52277,7 @@ func (ec *executionContext) _Team_azureGroupID(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.AzureGroupID, nil
+		return obj.EntraIDGroupID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -52291,7 +52291,7 @@ func (ec *executionContext) _Team_azureGroupID(ctx context.Context, field graphq
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Team_azureGroupID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Team_entraIDGroupID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
@@ -54675,8 +54675,8 @@ func (ec *executionContext) fieldContext_TeamConnection_nodes(_ context.Context,
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -56124,8 +56124,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(_ context.Context, f
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -56290,8 +56290,8 @@ func (ec *executionContext) fieldContext_TeamEdge_node(_ context.Context, field 
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -56585,8 +56585,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_team(_ context.Context,
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -59169,8 +59169,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, fiel
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -62551,8 +62551,8 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_team(_ context.Cont
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -65346,8 +65346,8 @@ func (ec *executionContext) fieldContext_UpdateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "entraIDGroupID":
+				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
 			case "gitHubTeamSlug":
 				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
@@ -84798,8 +84798,8 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "azureGroupID":
-			out.Values[i] = ec._Team_azureGroupID(ctx, field, obj)
+		case "entraIDGroupID":
+			out.Values[i] = ec._Team_entraIDGroupID(ctx, field, obj)
 		case "gitHubTeamSlug":
 			out.Values[i] = ec._Team_gitHubTeamSlug(ctx, field, obj)
 		case "googleGroupEmail":

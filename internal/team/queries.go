@@ -540,7 +540,7 @@ func UpdateExternalReferences(ctx context.Context, teamSlug slug.Slug, reference
 	return db(ctx).UpdateExternalReferences(ctx, teamsql.UpdateExternalReferencesParams{
 		Slug:             teamSlug,
 		GoogleGroupEmail: references.GoogleGroupEmail,
-		AzureGroupID:     references.AzureGroupID,
+		EntraIDGroupID:   references.EntraIDGroupID,
 		GithubTeamSlug:   references.GithubTeamSlug,
 		GarRepository:    references.GarRepository,
 		CdnBucket:        references.CdnBucket,

@@ -550,7 +550,7 @@ WHERE
 
 type UpdateExternalReferencesParams struct {
 	GoogleGroupEmail *string
-	AzureGroupID     *uuid.UUID
+	EntraIDGroupID   *uuid.UUID
 	GithubTeamSlug   *string
 	GarRepository    *string
 	CdnBucket        *string
@@ -560,7 +560,7 @@ type UpdateExternalReferencesParams struct {
 func (q *Queries) UpdateExternalReferences(ctx context.Context, arg UpdateExternalReferencesParams) error {
 	_, err := q.db.Exec(ctx, updateExternalReferences,
 		arg.GoogleGroupEmail,
-		arg.AzureGroupID,
+		arg.EntraIDGroupID,
 		arg.GithubTeamSlug,
 		arg.GarRepository,
 		arg.CdnBucket,

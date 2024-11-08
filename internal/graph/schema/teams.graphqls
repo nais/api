@@ -116,7 +116,7 @@ The team type represents a team on the [NAIS platform](https://nais.io/).
 
 Learn more about what NAIS teams are and what they can be used for in the [official NAIS documentation](https://docs.nais.io/explanations/team/).
 
-External resources (e.g. azureGroupID, gitHubTeamSlug) are managed by [NAIS API reconcilers](https://github.com/nais/api-reconcilers).
+External resources (e.g. entraIDGroupID, gitHubTeamSlug) are managed by [NAIS API reconcilers](https://github.com/nais/api-reconcilers).
 """
 type Team implements Node {
 	"The globally unique ID of the team."
@@ -131,19 +131,19 @@ type Team implements Node {
 	"Purpose of the team."
 	purpose: String!
 
-	"The ID of the Azure AD group for the team. This value is managed by the Azure AD reconciler."
-	azureGroupID: String
+	"The ID of the Entra ID (f.k.a. Azure AD) group for the team."
+	entraIDGroupID: String
 
-	"The slug of the GitHub team. This value is managed by the GitHub reconciler."
+	"The slug of the GitHub team."
 	gitHubTeamSlug: String
 
-	"The email address of the Google Workspace group for the team. This value is managed by the Google Workspace reconciler."
+	"The email address of the Google Workspace group for the team."
 	googleGroupEmail: String
 
-	"The Google Artifact Registry for the team. This value is managed by the Google Artifact Registry (GAR) reconciler."
+	"The Google Artifact Registry for the team."
 	googleArtifactRegistry: String
 
-	"The CDN bucket for the team. This value is managed by the Google CDN reconciler."
+	"The CDN bucket for the team."
 	cdnBucket: String
 
 	"Get a specific member of the team."

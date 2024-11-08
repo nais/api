@@ -99,8 +99,8 @@ func TestTeamsServer_Get(t *testing.T) {
 			t.Errorf("expected Slack channel to be %q, got %q", slackChannel, resp.Team.SlackChannel)
 		}
 
-		if *resp.Team.AzureGroupId != aid.String() {
-			t.Errorf("expected Azure group ID to be %q, got %q", aid.String(), *resp.Team.AzureGroupId)
+		if *resp.Team.EntraIdGroupId != aid.String() {
+			t.Errorf("expected Azure group ID to be %q, got %q", aid.String(), *resp.Team.EntraIdGroupId)
 		}
 
 		if *resp.Team.GithubTeamSlug != gitHubTeamSlug {

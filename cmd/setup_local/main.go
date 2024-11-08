@@ -291,7 +291,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 
 		references := &team.ExternalReferences{
 			GoogleGroupEmail: ptr.To("nais-team-devteam@" + cfg.Domain),
-			AzureGroupID:     ptr.To(uuid.MustParse("70c0541d-c079-4d10-9c50-164681e0b900")),
+			EntraIDGroupID:   ptr.To(uuid.MustParse("70c0541d-c079-4d10-9c50-164681e0b900")),
 			GithubTeamSlug:   ptr.To("devteam"),
 			GarRepository:    ptr.To("projects/some-project-123/locations/europe-north1/repositories/devteam"),
 		}

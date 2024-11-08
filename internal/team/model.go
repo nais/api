@@ -29,7 +29,7 @@ type (
 type Team struct {
 	Slug                   slug.Slug  `json:"slug"`
 	Purpose                string     `json:"purpose"`
-	AzureGroupID           *string    `json:"azureGroupID"`
+	EntraIDGroupID         *string    `json:"entraIDGroupID"`
 	GitHubTeamSlug         *string    `json:"gitHubTeamSlug"`
 	GoogleGroupEmail       *string    `json:"googleGroupEmail"`
 	GoogleArtifactRegistry *string    `json:"googleArtifactRegistry"`
@@ -41,7 +41,7 @@ type Team struct {
 
 type ExternalReferences struct {
 	GoogleGroupEmail *string
-	AzureGroupID     *uuid.UUID
+	EntraIDGroupID   *uuid.UUID
 	GithubTeamSlug   *string
 	GarRepository    *string
 	CdnBucket        *string
@@ -119,7 +119,7 @@ func toGraphTeam(m *teamsql.Team) *Team {
 
 	if m.AzureGroupID != nil {
 		azureGroupID := m.AzureGroupID.String()
-		ret.AzureGroupID = &azureGroupID
+		ret.EntraIDGroupID = &azureGroupID
 	}
 
 	if m.LastSuccessfulSync.Valid {
