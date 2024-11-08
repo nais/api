@@ -58,19 +58,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - id: asdf-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf/
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-      - uses: asdf-vm/actions/install@v3
-        if: steps.asdf-cache.outputs.cache-hit != 'true'
-        with:
-          before_install: |
-            asdf install golang latest
-            asdf global golang latest
       - id: go_version
-        run: echo "go_version=$(asdf current golang | awk '{print $2}')" >> $GITHUB_OUTPUT
+        run: echo "go_version=$(cat .tool-versions | grep golang | awk '{print $2}')" >> $GITHUB_OUTPUT
       - uses: nais/platform-build-push-sign@main
         id: build-push-sign
         with:
