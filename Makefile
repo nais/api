@@ -45,7 +45,7 @@ test:
 test-with-cc:
 	go test -cover --race ./... github.com/nais/api/pkg/apiclient/...
 
-check: staticcheck vulncheck deadcode
+check: staticcheck vulncheck deadcode gosec
 
 staticcheck:
 	go run honnef.co/go/tools/cmd/staticcheck@latest ./...
@@ -55,6 +55,15 @@ vulncheck:
 
 deadcode:
 	go run golang.org/x/tools/cmd/deadcode@latest -test ./...
+
+gosec:
+	go run github.com/securego/gosec/v2/cmd/gosec@latest --exclude G404,G101 --exclude-generated -terse ./...
+# We've disabled G404 and G101 as they are not relevant for our use case
+# G404: Use of weak random number generator (math/rand instead of crypto/rand).
+#    We don't use random numbers for security purposes.
+# G101: Look for hard coded credentials
+#    The check for credentials is a bit weak and triggers on multiple variables just including
+#    the word `secret`. We depend on GitHub to find possible credentials in our code.
 
 fmt: prettier install-lua-formatter
 	go run mvdan.cc/gofumpt@latest -w ./

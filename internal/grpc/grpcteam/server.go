@@ -55,8 +55,8 @@ func (t *Server) Get(ctx context.Context, req *protoapi.GetTeamRequest) (*protoa
 func (t *Server) List(ctx context.Context, req *protoapi.ListTeamsRequest) (*protoapi.ListTeamsResponse, error) {
 	limit, offset := grpcpagination.Pagination(req)
 	teams, err := t.querier.List(ctx, grpcteamsql.ListParams{
-		Offset: int32(offset),
-		Limit:  int32(limit),
+		Offset: offset,
+		Limit:  limit,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to list teams: %s", err)
@@ -82,8 +82,8 @@ func (t *Server) Members(ctx context.Context, req *protoapi.ListTeamMembersReque
 	limit, offset := grpcpagination.Pagination(req)
 	users, err := t.querier.ListMembers(ctx, grpcteamsql.ListMembersParams{
 		TeamSlug: slug.Slug(req.Slug),
-		Offset:   int32(limit),
-		Limit:    int32(offset),
+		Offset:   limit,
+		Limit:    offset,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to list team members: %s", err)
@@ -155,8 +155,8 @@ func (t *Server) Environments(ctx context.Context, req *protoapi.ListTeamEnviron
 	limit, offset := grpcpagination.Pagination(req)
 	environments, err := t.querier.ListEnvironments(ctx, grpcteamsql.ListEnvironmentsParams{
 		TeamSlug: slug.Slug(req.Slug),
-		Offset:   int32(offset),
-		Limit:    int32(limit),
+		Offset:   offset,
+		Limit:    limit,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to list team environments: %s", err)

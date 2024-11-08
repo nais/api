@@ -45,7 +45,7 @@ func (r *bigQueryDatasetResolver) Access(ctx context.Context, obj *bigquery.BigQ
 	bigquery.SortFilterAccess.Sort(ctx, obj.Access, orderBy.Field, orderBy.Direction)
 
 	ret := pagination.Slice(obj.Access, page)
-	return pagination.NewConnection(ret, page, int32(len(obj.Access))), nil
+	return pagination.NewConnection(ret, page, len(obj.Access)), nil
 }
 
 func (r *bigQueryDatasetResolver) Workload(ctx context.Context, obj *bigquery.BigQueryDataset) (workload.Workload, error) {

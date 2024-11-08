@@ -5,7 +5,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"math/rand"
+	"math/rand/v2"
 	"os"
 	"strings"
 	"time"
@@ -250,8 +250,8 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 
 		users := []*user.User{devUser}
 		for i := 1; i <= *cfg.NumUsers; i++ {
-			firstName := firstNames[rand.Intn(numFirstNames)]
-			lastName := lastNames[rand.Intn(numLastNames)]
+			firstName := firstNames[rand.IntN(numFirstNames)]
+			lastName := lastNames[rand.IntN(numLastNames)]
 			name := firstName + " " + lastName
 			email := nameToEmail(name, cfg.Domain)
 			if _, exists := emails[email]; exists {
@@ -340,14 +340,14 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			}
 
 			for o := 0; o < *cfg.NumOwnersPerTeam; o++ {
-				u := users[rand.Intn(usersCreated)]
+				u := users[rand.IntN(usersCreated)]
 				if err = role.AssignTeamRoleToUser(ctx, u.UUID, t.Slug, rolesql.RoleNameTeamowner); err != nil {
 					return fmt.Errorf("assign team owner role to user %q in team %q: %w", u.Email, t.Slug, err)
 				}
 			}
 
 			for o := 0; o < *cfg.NumMembersPerTeam; o++ {
-				u := users[rand.Intn(usersCreated)]
+				u := users[rand.IntN(usersCreated)]
 				if err = role.AssignTeamRoleToUser(ctx, u.UUID, t.Slug, rolesql.RoleNameTeammember); err != nil {
 					return fmt.Errorf("assign team member role to user %q in team %q: %w", u.Email, t.Slug, err)
 				}
@@ -371,7 +371,7 @@ func teamName() slug.Slug {
 	letters := []byte("abcdefghijklmnopqrstuvwxyz")
 	b := make([]byte, 10)
 	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
+		b[i] = letters[rand.IntN(len(letters))]
 	}
 	return slug.Slug(b)
 }
@@ -384,7 +384,7 @@ func nameToEmail(name, domain string) string {
 }
 
 func fileToSlice(path string) ([]string, error) {
-	file, err := os.Open(path)
+	file, err := os.Open(path) // #nosec: G304
 	if err != nil {
 		return nil, err
 	}

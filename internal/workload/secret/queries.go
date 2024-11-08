@@ -33,7 +33,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 		watcher.WithObjectNames(workload.GetSecrets()),
 	)
 	paginated := pagination.Slice(watcher.Objects(all), page)
-	return pagination.NewConnection(paginated, page, int32(len(all))), nil
+	return pagination.NewConnection(paginated, page, len(all)), nil
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *SecretOrder) (*SecretConnection, error) {
@@ -51,7 +51,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	SortFilter.Sort(ctx, retVal, orderBy.Field, orderBy.Direction)
 
 	secrets := pagination.Slice(retVal, page)
-	return pagination.NewConnection(secrets, page, int32(len(retVal))), nil
+	return pagination.NewConnection(secrets, page, len(retVal)), nil
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Secret, error) {

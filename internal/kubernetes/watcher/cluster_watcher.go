@@ -56,7 +56,9 @@ func newClusterWatcher[T Object](mgr *clusterManager, cluster string, watcher *W
 		gvr:           gvr,
 	}
 
-	inf.Informer().AddEventHandler(w)
+	if _, err := inf.Informer().AddEventHandler(w); err != nil {
+		panic(err)
+	}
 
 	return w
 }

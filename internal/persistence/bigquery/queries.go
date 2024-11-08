@@ -34,7 +34,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	orderDatasets(ctx, all, orderBy)
 
 	datasets := pagination.Slice(all, page)
-	return pagination.NewConnection(datasets, page, int32(len(all))), nil
+	return pagination.NewConnection(datasets, page, len(all)), nil
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*BigQueryDataset {

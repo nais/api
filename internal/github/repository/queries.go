@@ -46,7 +46,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	if err != nil {
 		return nil, err
 	}
-	return pagination.NewConvertConnection(ret, page, int32(total), toGraphRepository), nil
+	return pagination.NewConvertConnection(ret, page, total, toGraphRepository), nil
 }
 
 func Create(ctx context.Context, input AddRepositoryToTeamInput) (*Repository, error) {

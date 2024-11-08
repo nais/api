@@ -117,7 +117,7 @@ func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *
 
 	application.SortFilter.Sort(ctx, ret, orderBy.Field, orderBy.Direction)
 	apps := pagination.Slice(ret, page)
-	return pagination.NewConnection(apps, page, int32(len(ret))), nil
+	return pagination.NewConnection(apps, page, len(ret)), nil
 }
 
 func (r *teamEnvironmentResolver) Application(ctx context.Context, obj *team.TeamEnvironment, name string) (*application.Application, error) {

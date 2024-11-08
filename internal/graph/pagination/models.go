@@ -26,25 +26,25 @@ type PageInfo struct {
 	EndCursor       *Cursor `json:"endCursor"`
 }
 
-func (p *PageInfo) PageStart() int32 {
+func (p *PageInfo) PageStart() int {
 	if p.StartCursor == nil {
 		return 0
 	}
 	return p.StartCursor.Offset + 1
 }
 
-func (p *PageInfo) PageEnd() int32 {
+func (p *PageInfo) PageEnd() int {
 	if p.EndCursor == nil {
 		return 0
 	}
 	return p.EndCursor.Offset + 1
 }
 
-func NewConnection[T any](nodes []T, page *Pagination, total int32) *Connection[T] {
+func NewConnection[T any, I Integer](nodes []T, page *Pagination, total I) *Connection[T] {
 	return NewConvertConnection(nodes, page, total, func(from T) T { return from })
 }
 
-func NewConvertConnection[T any, F any](nodes []T, page *Pagination, total int32, fn func(from T) F) *Connection[F] {
+func NewConvertConnection[T any, F any, I Integer](nodes []T, page *Pagination, total I, fn func(from T) F) *Connection[F] {
 	c, _ := NewConvertConnectionWithError(nodes, page, total, func(from T) (F, error) {
 		return fn(from), nil
 	})
@@ -53,9 +53,9 @@ func NewConvertConnection[T any, F any](nodes []T, page *Pagination, total int32
 
 func NewConnectionWithoutPagination[T any](nodes []T) *Connection[T] {
 	page := &Pagination{
-		limit: int32(len(nodes)),
+		limit: len(nodes),
 	}
-	return NewConnection(nodes, page, int32(len(nodes)))
+	return NewConnection(nodes, page, len(nodes))
 }
 
 func EmptyConnection[T any]() *Connection[T] {
@@ -67,7 +67,7 @@ func EmptyConnection[T any]() *Connection[T] {
 	}
 }
 
-func NewConvertConnectionWithError[T any, F any](nodes []T, page *Pagination, total int32, fn func(from T) (F, error)) (*Connection[F], error) {
+func NewConvertConnectionWithError[T any, F any, I Integer](nodes []T, page *Pagination, total I, fn func(from T) (F, error)) (*Connection[F], error) {
 	edges := make([]Edge[F], len(nodes))
 	for i, node := range nodes {
 		converted, err := fn(node)
@@ -77,7 +77,7 @@ func NewConvertConnectionWithError[T any, F any](nodes []T, page *Pagination, to
 		edges[i] = Edge[F]{
 			Node: converted,
 			Cursor: Cursor{
-				Offset: page.Offset() + int32(i),
+				Offset: int(page.Offset()) + i,
 			},
 		}
 	}
@@ -94,8 +94,12 @@ func NewConvertConnectionWithError[T any, F any](nodes []T, page *Pagination, to
 			TotalCount:      int(total),
 			StartCursor:     startCursor,
 			EndCursor:       endCursor,
-			HasNextPage:     page.Offset()+page.Limit() < total,
+			HasNextPage:     page.Offset()+page.Limit() < int32(total),
 			HasPreviousPage: page.Offset() > 0,
 		},
 	}, nil
+}
+
+type Integer interface {
+	int64 | int32 | int
 }

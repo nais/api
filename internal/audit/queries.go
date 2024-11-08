@@ -88,7 +88,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	if err != nil {
 		return nil, err
 	}
-	return pagination.NewConvertConnectionWithError(ret, page, int32(total), toGraphAuditLog)
+	return pagination.NewConvertConnectionWithError(ret, page, total, toGraphAuditLog)
 }
 
 var titler = cases.Title(language.English)

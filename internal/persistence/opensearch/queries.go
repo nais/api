@@ -30,7 +30,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	orderOpenSearch(ctx, all, orderBy)
 
 	instances := pagination.Slice(all, page)
-	return pagination.NewConnection(instances, page, int32(len(all))), nil
+	return pagination.NewConnection(instances, page, len(all)), nil
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*OpenSearch {
@@ -61,7 +61,7 @@ func ListAccess(ctx context.Context, openSearch *OpenSearch, page *pagination.Pa
 	SortFilterOpenSearchAccess.Sort(ctx, all, orderBy.Field, orderBy.Direction)
 
 	ret := pagination.Slice(all, page)
-	return pagination.NewConnection(ret, page, int32(len(all))), nil
+	return pagination.NewConnection(ret, page, len(all)), nil
 }
 
 func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environment string, reference *nais_io_v1.OpenSearch) (*OpenSearch, error) {

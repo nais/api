@@ -92,7 +92,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	orderSQLInstances(ctx, all, orderBy)
 
 	instances := pagination.Slice(all, page)
-	return pagination.NewConnection(instances, page, int32(len(all))), nil
+	return pagination.NewConnection(instances, page, len(all)), nil
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*SQLInstance {
@@ -126,7 +126,7 @@ func ListSQLInstanceUsers(ctx context.Context, sqlInstance *SQLInstance, page *p
 	SortFilterSQLInstanceUser.Sort(ctx, all, orderBy.Field, orderBy.Direction)
 
 	users := pagination.Slice(all, page)
-	return pagination.NewConnection(users, page, int32(len(all))), nil
+	return pagination.NewConnection(users, page, len(all)), nil
 }
 
 func GetState(ctx context.Context, project, instance string) (SQLInstanceState, error) {

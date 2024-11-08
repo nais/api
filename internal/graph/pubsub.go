@@ -43,8 +43,8 @@ func (t *TopicWrapper) String() string {
 	return t.Topic.String()
 }
 
-func (r *Resolver) triggerTeamCreatedEvent(ctx context.Context, teamSlug slug.Slug, correlationID uuid.UUID) error {
-	return r.triggerEvent(
+func (r *Resolver) triggerTeamCreatedEvent(ctx context.Context, teamSlug slug.Slug, correlationID uuid.UUID) {
+	r.triggerEvent(
 		ctx,
 		protoapi.EventTypes_EVENT_TEAM_CREATED,
 		&protoapi.EventTeamCreated{
@@ -54,8 +54,8 @@ func (r *Resolver) triggerTeamCreatedEvent(ctx context.Context, teamSlug slug.Sl
 	)
 }
 
-func (r *Resolver) triggerTeamUpdatedEvent(ctx context.Context, teamSlug slug.Slug, correlationID uuid.UUID) error {
-	return r.triggerEvent(
+func (r *Resolver) triggerTeamUpdatedEvent(ctx context.Context, teamSlug slug.Slug, correlationID uuid.UUID) {
+	r.triggerEvent(
 		ctx,
 		protoapi.EventTypes_EVENT_TEAM_UPDATED,
 		&protoapi.EventTeamUpdated{
@@ -65,8 +65,8 @@ func (r *Resolver) triggerTeamUpdatedEvent(ctx context.Context, teamSlug slug.Sl
 	)
 }
 
-func (r *Resolver) triggerTeamDeletedEvent(ctx context.Context, teamSlug slug.Slug, correlationID uuid.UUID) error {
-	return r.triggerEvent(
+func (r *Resolver) triggerTeamDeletedEvent(ctx context.Context, teamSlug slug.Slug, correlationID uuid.UUID) {
+	r.triggerEvent(
 		ctx,
 		protoapi.EventTypes_EVENT_TEAM_DELETED,
 		&protoapi.EventTeamDeleted{
@@ -76,8 +76,8 @@ func (r *Resolver) triggerTeamDeletedEvent(ctx context.Context, teamSlug slug.Sl
 	)
 }
 
-func (r *Resolver) triggerReconcilerEnabledEvent(ctx context.Context, reconcilerName string, correlationID uuid.UUID) error {
-	return r.triggerEvent(
+func (r *Resolver) triggerReconcilerEnabledEvent(ctx context.Context, reconcilerName string, correlationID uuid.UUID) {
+	r.triggerEvent(
 		ctx,
 		protoapi.EventTypes_EVENT_RECONCILER_ENABLED,
 		&protoapi.EventReconcilerEnabled{Reconciler: reconcilerName},
@@ -85,8 +85,8 @@ func (r *Resolver) triggerReconcilerEnabledEvent(ctx context.Context, reconciler
 	)
 }
 
-func (r *Resolver) triggerReconcilerDisabledEvent(ctx context.Context, reconcilerName string, correlationID uuid.UUID) error {
-	return r.triggerEvent(
+func (r *Resolver) triggerReconcilerDisabledEvent(ctx context.Context, reconcilerName string, correlationID uuid.UUID) {
+	r.triggerEvent(
 		ctx,
 		protoapi.EventTypes_EVENT_RECONCILER_DISABLED,
 		&protoapi.EventReconcilerDisabled{Reconciler: reconcilerName},
@@ -94,8 +94,8 @@ func (r *Resolver) triggerReconcilerDisabledEvent(ctx context.Context, reconcile
 	)
 }
 
-func (r *Resolver) triggerReconcilerConfiguredEvent(ctx context.Context, reconcilerName string, correlationID uuid.UUID) error {
-	return r.triggerEvent(
+func (r *Resolver) triggerReconcilerConfiguredEvent(ctx context.Context, reconcilerName string, correlationID uuid.UUID) {
+	r.triggerEvent(
 		ctx,
 		protoapi.EventTypes_EVENT_RECONCILER_CONFIGURED,
 		&protoapi.EventReconcilerConfigured{Reconciler: reconcilerName},
@@ -103,7 +103,7 @@ func (r *Resolver) triggerReconcilerConfiguredEvent(ctx context.Context, reconci
 	)
 }
 
-func (r *Resolver) triggerEvent(ctx context.Context, event protoapi.EventTypes, msg proto.Message, correlationID uuid.UUID) error {
+func (r *Resolver) triggerEvent(ctx context.Context, event protoapi.EventTypes, msg proto.Message, correlationID uuid.UUID) {
 	ctx, span := otel.Tracer("").
 		Start(ctx, "trigger Pub/Sub event", trace.WithSpanKind(trace.SpanKindProducer), trace.WithAttributes(
 			semconv.EventName(event.String()),
@@ -132,5 +132,4 @@ func (r *Resolver) triggerEvent(ctx context.Context, event protoapi.EventTypes, 
 		"correlationID": correlationID,
 		"event":         event,
 	}).Debugf("Published Pub/Sub message")
-	return nil
 }

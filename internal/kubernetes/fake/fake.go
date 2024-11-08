@@ -200,7 +200,9 @@ func AddObjectToDynamicClient(scheme *runtime.Scheme, fc *dynfake.FakeDynamicCli
 			gvr.Resource = depluralized(gvr.Resource)
 			// Get namespace from object
 			ns := obj.(namespaced).GetNamespace()
-			fc.Tracker().Create(gvr, obj, ns)
+			if err := fc.Tracker().Create(gvr, obj, ns); err != nil {
+				panic(err)
+			}
 		}
 	}
 }

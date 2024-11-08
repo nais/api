@@ -2,7 +2,7 @@ package fake
 
 import (
 	"context"
-	"math/rand"
+	"math/rand/v2"
 	"net/http"
 	"net/url"
 	"strings"
@@ -110,7 +110,7 @@ func (f *FakeHookdClient) Deployments(ctx context.Context, opts ...hookd.Request
 	}
 
 	ret := []hookd.Deploy{}
-	for i := 0; i < rand.Intn(30); i++ {
+	for i := 0; i < rand.IntN(30); i++ {
 		ret = append(ret, newDeploy(cluster, slug.Slug(team)))
 	}
 
@@ -118,10 +118,10 @@ func (f *FakeHookdClient) Deployments(ctx context.Context, opts ...hookd.Request
 }
 
 func newDeploy(cluster string, team slug.Slug) hookd.Deploy {
-	num := rand.Intn(3) + 1
+	num := rand.IntN(3) + 1
 	parts := make([]string, num)
 	for i := 0; i < num; i++ {
-		parts[i] = nameParts[rand.Intn(len(nameParts))]
+		parts[i] = nameParts[rand.IntN(len(nameParts))]
 	}
 
 	name := "fake-" + strings.Join(parts, "-")
@@ -131,16 +131,16 @@ func newDeploy(cluster string, team slug.Slug) hookd.Deploy {
 			ID:               uuid.New().String(),
 			Team:             team,
 			Cluster:          cluster,
-			Created:          time.Now().Add(-time.Duration(rand.Intn(1000)) * time.Hour),
+			Created:          time.Now().Add(-time.Duration(rand.IntN(1000)) * time.Hour),
 			GithubRepository: "somerepo",
 		},
 	}
 
 	deploy.Statuses = append(deploy.Statuses, hookd.Status{
 		ID:      uuid.New().String(),
-		Status:  statuses[rand.Intn(len(statuses))],
+		Status:  statuses[rand.IntN(len(statuses))],
 		Message: "Some message",
-		Created: time.Now().Add(-time.Duration(rand.Intn(1000)) * time.Hour),
+		Created: time.Now().Add(-time.Duration(rand.IntN(1000)) * time.Hour),
 	})
 
 	deploy.Resources = append(deploy.Resources, hookd.Resource{

@@ -106,11 +106,11 @@ end)
 
 Test.gql("Create team with invalid Slack channel name", function(t)
 	local invalidSlackChannelNames = {
-		"foo",                                                                          -- missing hash
-		"#a",                                                                           -- too short
+		"foo",                                                                              -- missing hash
+		"#a",                                                                               -- too short
 		"#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", -- too long
-		"#foo bar",                                                                     -- space not allowed
-		"#Foobar",                                                                      -- upper case not allowed
+		"#foo bar",                                                                         -- space not allowed
+		"#Foobar",                                                                          -- upper case not allowed
 	}
 	for _, s in ipairs(invalidSlackChannelNames) do
 		t.query(string.format([[

@@ -52,7 +52,7 @@ func ListJobRunInstances(ctx context.Context, teamSlug slug.Slug, environmentNam
 		converted[i] = toGraphJobRunInstance(pod, environmentName)
 	}
 	paginated := pagination.Slice(converted, page)
-	return pagination.NewConnection(paginated, page, int32(len(converted))), nil
+	return pagination.NewConnection(paginated, page, len(converted)), nil
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Job, error) {
@@ -120,7 +120,7 @@ func Runs(ctx context.Context, teamSlug slug.Slug, jobName string, page *paginat
 	})
 
 	runs := pagination.Slice(ret, page)
-	return pagination.NewConnection(runs, page, int32(len(ret))), nil
+	return pagination.NewConnection(runs, page, len(ret)), nil
 }
 
 func Search(ctx context.Context, q string) ([]*search.Result, error) {

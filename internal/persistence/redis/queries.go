@@ -30,7 +30,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	orderRedisInstance(ctx, all, orderBy)
 
 	instances := pagination.Slice(all, page)
-	return pagination.NewConnection(instances, page, int32(len(all))), nil
+	return pagination.NewConnection(instances, page, len(all)), nil
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*RedisInstance {
@@ -61,7 +61,7 @@ func ListAccess(ctx context.Context, redis *RedisInstance, page *pagination.Pagi
 	SortFilterRedisInstanceAccess.Sort(ctx, all, orderBy.Field, orderBy.Direction)
 
 	ret := pagination.Slice(all, page)
-	return pagination.NewConnection(ret, page, int32(len(all))), nil
+	return pagination.NewConnection(ret, page, len(all)), nil
 }
 
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, references []nais_io_v1.Redis, orderBy *RedisInstanceOrder) (*RedisInstanceConnection, error) {

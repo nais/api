@@ -53,8 +53,8 @@ func (u *Server) Get(ctx context.Context, r *protoapi.GetUserRequest) (*protoapi
 func (u *Server) List(ctx context.Context, r *protoapi.ListUsersRequest) (*protoapi.ListUsersResponse, error) {
 	limit, offset := grpcpagination.Pagination(r)
 	users, err := u.querier.List(ctx, grpcusersql.ListParams{
-		Limit:  int32(limit),
-		Offset: int32(offset),
+		Limit:  limit,
+		Offset: offset,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to list users")

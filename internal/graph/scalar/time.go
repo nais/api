@@ -15,7 +15,7 @@ func MarshalTime(t time.Time) graphql.Marshaler {
 	}
 
 	return graphql.WriterFunc(func(w io.Writer) {
-		io.WriteString(w, strconv.Quote(t.UTC().Format(time.RFC3339Nano)))
+		_, _ = io.WriteString(w, strconv.Quote(t.UTC().Format(time.RFC3339Nano)))
 	})
 }
 

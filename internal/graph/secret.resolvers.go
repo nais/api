@@ -141,7 +141,7 @@ func (r *secretResolver) Applications(ctx context.Context, obj *secret.Secret, f
 	}
 
 	apps := pagination.Slice(ret, page)
-	return pagination.NewConnection(apps, page, int32(len(ret))), nil
+	return pagination.NewConnection(apps, page, len(ret)), nil
 }
 
 func (r *secretResolver) Jobs(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*job.Job], error) {
@@ -160,7 +160,7 @@ func (r *secretResolver) Jobs(ctx context.Context, obj *secret.Secret, first *in
 	}
 
 	jobs := pagination.Slice(ret, page)
-	return pagination.NewConnection(jobs, page, int32(len(ret))), nil
+	return pagination.NewConnection(jobs, page, len(ret)), nil
 }
 
 func (r *secretResolver) Workloads(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.Workload], error) {
@@ -189,7 +189,7 @@ func (r *secretResolver) Workloads(ctx context.Context, obj *secret.Secret, firs
 	slices.SortStableFunc(workloads, func(a, b workload.Workload) int {
 		return model.Compare(a.GetName(), b.GetName(), model.OrderDirectionAsc)
 	})
-	return pagination.NewConnection(workloads, page, int32(len(ret))), nil
+	return pagination.NewConnection(workloads, page, len(ret)), nil
 }
 
 func (r *secretResolver) LastModifiedBy(ctx context.Context, obj *secret.Secret) (*user.User, error) {

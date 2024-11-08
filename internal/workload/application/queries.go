@@ -142,7 +142,7 @@ func ListInstances(ctx context.Context, teamSlug slug.Slug, environmentName, app
 	}
 
 	apps := pagination.Slice(ret, page)
-	return pagination.NewConnection(apps, page, int32(len(ret))), nil
+	return pagination.NewConnection(apps, page, len(ret)), nil
 }
 
 func ListAllInstances(ctx context.Context, teamSlug slug.Slug, environmentName, appName string) ([]*ApplicationInstance, error) {

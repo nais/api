@@ -1,26 +1,35 @@
 package pagination
 
 import (
+	"fmt"
+	"math"
+
 	"github.com/nais/api/internal/graph/apierror"
 )
 
 type Pagination struct {
-	offset int32
-	limit  int32
+	offset int
+	limit  int
 }
 
 func (p *Pagination) Offset() int32 {
 	if p == nil || p.offset < 0 {
 		return 0
 	}
-	return p.offset
+	if p.offset > math.MaxInt32 {
+		panic(fmt.Sprintf("offset out of bounds: %d", p.offset))
+	}
+	return int32(p.offset)
 }
 
 func (p *Pagination) Limit() int32 {
 	if p == nil || p.limit <= 0 {
 		return 20
 	}
-	return p.limit
+	if p.limit > math.MaxInt32 {
+		panic(fmt.Sprintf("limit out of bounds: %d", p.limit))
+	}
+	return int32(p.limit)
 }
 
 func ParsePage(first *int, after *Cursor, last *int, before *Cursor) (*Pagination, error) {
@@ -40,13 +49,13 @@ func ParsePage(first *int, after *Cursor, last *int, before *Cursor) (*Paginatio
 	}
 
 	if first != nil {
-		f := int32(*first)
+		f := *first
 		if f < 1 {
 			return nil, apierror.Errorf("first must be greater than or equal to 1")
 		}
 		p.limit = f
 	} else if last != nil {
-		l := int32(*last)
+		l := *last
 		if l < 1 {
 			return nil, apierror.Errorf("last must be greater than or equal to 1")
 		}
@@ -56,7 +65,7 @@ func ParsePage(first *int, after *Cursor, last *int, before *Cursor) (*Paginatio
 	if after != nil {
 		p.offset = after.Offset + 1
 	} else if before != nil {
-		p.offset = before.Offset - p.Limit()
+		p.offset = before.Offset - int(p.Limit())
 	}
 
 	if p.offset < 0 {

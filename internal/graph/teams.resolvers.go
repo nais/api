@@ -28,9 +28,7 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input team.CreateTeam
 	}
 
 	correlationID := uuid.New()
-	if err := r.triggerTeamCreatedEvent(ctx, input.Slug, correlationID); err != nil {
-		return nil, fmt.Errorf("failed to trigger team created event: %w", err)
-	}
+	r.triggerTeamCreatedEvent(ctx, input.Slug, correlationID)
 
 	return &team.CreateTeamPayload{
 		Team: t,
@@ -50,9 +48,7 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, input team.UpdateTeam
 	}
 
 	correlationID := uuid.New()
-	if err := r.triggerTeamUpdatedEvent(ctx, input.Slug, correlationID); err != nil {
-		return nil, fmt.Errorf("failed to trigger team updated event: %w", err)
-	}
+	r.triggerTeamUpdatedEvent(ctx, input.Slug, correlationID)
 
 	return &team.UpdateTeamPayload{
 		Team: t,
@@ -71,9 +67,7 @@ func (r *mutationResolver) UpdateTeamEnvironment(ctx context.Context, input team
 	}
 
 	correlationID := uuid.New()
-	if err := r.triggerTeamUpdatedEvent(ctx, input.Slug, correlationID); err != nil {
-		return nil, fmt.Errorf("failed to trigger team updated event: %w", err)
-	}
+	r.triggerTeamUpdatedEvent(ctx, input.Slug, correlationID)
 
 	return &team.UpdateTeamEnvironmentPayload{
 		Environment: teamEnvironment,
@@ -137,9 +131,7 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, input team.C
 	}
 
 	correlationID := uuid.New()
-	if err := r.triggerTeamDeletedEvent(ctx, deleteKey.TeamSlug, correlationID); err != nil {
-		return nil, fmt.Errorf("failed to trigger team created event: %w", err)
-	}
+	r.triggerTeamDeletedEvent(ctx, deleteKey.TeamSlug, correlationID)
 
 	return &team.ConfirmTeamDeletionPayload{
 		DeletionStarted: true,
@@ -168,9 +160,7 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, input team.AddTeam
 	}
 
 	correlationID := uuid.New()
-	if err := r.triggerTeamUpdatedEvent(ctx, input.TeamSlug, correlationID); err != nil {
-		return nil, err
-	}
+	r.triggerTeamUpdatedEvent(ctx, input.TeamSlug, correlationID)
 
 	return &team.AddTeamMemberPayload{
 		Member: &team.TeamMember{
@@ -203,9 +193,7 @@ func (r *mutationResolver) RemoveTeamMember(ctx context.Context, input team.Remo
 	}
 
 	correlationID := uuid.New()
-	if err := r.triggerTeamUpdatedEvent(ctx, input.TeamSlug, correlationID); err != nil {
-		return nil, err
-	}
+	r.triggerTeamUpdatedEvent(ctx, input.TeamSlug, correlationID)
 
 	return &team.RemoveTeamMemberPayload{
 		UserID:   u.UUID,
@@ -235,9 +223,7 @@ func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, input team.Set
 	}
 
 	correlationID := uuid.New()
-	if err := r.triggerTeamUpdatedEvent(ctx, input.TeamSlug, correlationID); err != nil {
-		return nil, err
-	}
+	r.triggerTeamUpdatedEvent(ctx, input.TeamSlug, correlationID)
 
 	return &team.SetTeamMemberRolePayload{
 		Member: &team.TeamMember{

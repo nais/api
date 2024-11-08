@@ -41,7 +41,7 @@ func Search(ctx context.Context, page *pagination.Pagination, filter SearchFilte
 		return ret[i].Rank < ret[j].Rank
 	})
 
-	return pagination.NewConvertConnection(pagination.Slice(ret, page), page, int32(len(ret)), func(from *Result) SearchNode {
+	return pagination.NewConvertConnection(pagination.Slice(ret, page), page, len(ret), func(from *Result) SearchNode {
 		return from.Node
 	}), nil
 }

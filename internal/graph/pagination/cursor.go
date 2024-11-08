@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"math"
 	"strconv"
 
 	"github.com/btcsuite/btcutil/base58"
@@ -15,7 +16,7 @@ var cursorVersions = map[string]func(c *Cursor, i []byte) error{
 }
 
 type Cursor struct {
-	Offset int32 `json:"offset"`
+	Offset int `json:"offset"`
 }
 
 func (c Cursor) MarshalGQLContext(_ context.Context, w io.Writer) error {
@@ -55,7 +56,11 @@ func parseCursorV1(c *Cursor, offsetb []byte) error {
 		return fmt.Errorf("invalid cursor v1 offset: %w", err)
 	}
 
-	c.Offset = int32(offset)
+	if offset > math.MaxInt32 {
+		return fmt.Errorf("cursor v1 offset out of bounds")
+	}
+
+	c.Offset = int(offset)
 
 	return nil
 }

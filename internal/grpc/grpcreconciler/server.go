@@ -122,8 +122,8 @@ func (s *Server) Get(ctx context.Context, req *protoapi.GetReconcilerRequest) (*
 func (s *Server) List(ctx context.Context, req *protoapi.ListReconcilersRequest) (*protoapi.ListReconcilersResponse, error) {
 	limit, offset := grpcpagination.Pagination(req)
 	recs, err := s.querier.List(ctx, grpcreconcilersql.ListParams{
-		Limit:  int32(limit),
-		Offset: int32(offset),
+		Limit:  limit,
+		Offset: offset,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to get reconcilers")

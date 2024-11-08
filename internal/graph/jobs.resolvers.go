@@ -115,7 +115,7 @@ func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, aft
 
 	job.SortFilter.Sort(ctx, ret, orderBy.Field, orderBy.Direction)
 	jobs := pagination.Slice(ret, page)
-	return pagination.NewConnection(jobs, page, int32(len(ret))), nil
+	return pagination.NewConnection(jobs, page, len(ret)), nil
 }
 
 func (r *teamEnvironmentResolver) Job(ctx context.Context, obj *team.TeamEnvironment, name string) (*job.Job, error) {

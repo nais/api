@@ -72,7 +72,7 @@ func (r *sqlInstanceResolver) Flags(ctx context.Context, obj *sqlinstance.SQLIns
 	}
 
 	ret := pagination.Slice(obj.Flags, page)
-	return pagination.NewConnection(ret, page, int32(len(obj.Flags))), nil
+	return pagination.NewConnection(ret, page, len(obj.Flags)), nil
 }
 
 func (r *sqlInstanceResolver) Users(ctx context.Context, obj *sqlinstance.SQLInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceUserOrder) (*pagination.Connection[*sqlinstance.SQLInstanceUser], error) {

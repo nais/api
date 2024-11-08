@@ -36,7 +36,7 @@ func (r *teamResolver) Workloads(ctx context.Context, obj *team.Team, first *int
 	workload.SortFilter.Sort(ctx, filtered, orderBy.Field, orderBy.Direction)
 
 	ret := pagination.Slice(filtered, page)
-	return pagination.NewConnection(ret, page, int32(len(filtered))), nil
+	return pagination.NewConnection(ret, page, len(filtered)), nil
 }
 
 func (r *teamEnvironmentResolver) Workload(ctx context.Context, obj *team.TeamEnvironment, name string) (workload.Workload, error) {

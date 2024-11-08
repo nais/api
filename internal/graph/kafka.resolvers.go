@@ -57,7 +57,7 @@ func (r *kafkaTopicResolver) ACL(ctx context.Context, obj *kafkatopic.KafkaTopic
 	kafkatopic.SortFilterTopicACL.Sort(ctx, filteredACLs, orderBy.Field, orderBy.Direction)
 
 	ret := pagination.Slice(filteredACLs, page)
-	return pagination.NewConnection(ret, page, int32(len(filteredACLs))), nil
+	return pagination.NewConnection(ret, page, len(filteredACLs)), nil
 }
 
 func (r *kafkaTopicAclResolver) Team(ctx context.Context, obj *kafkatopic.KafkaTopicACL) (*team.Team, error) {

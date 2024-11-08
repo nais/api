@@ -23,7 +23,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	}
 
 	ret := pagination.Slice(all, page)
-	return pagination.NewConvertConnection(ret, page, int32(len(all)), toGraphDeployment), nil
+	return pagination.NewConvertConnection(ret, page, len(all), toGraphDeployment), nil
 }
 
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string, workloadType workload.Type, page *pagination.Pagination) (*DeploymentConnection, error) {
@@ -54,7 +54,7 @@ deploys:
 	}
 
 	ret := pagination.Slice(filtered, page)
-	return pagination.NewConvertConnection(ret, page, int32(len(filtered)), toGraphDeployment), nil
+	return pagination.NewConvertConnection(ret, page, len(filtered), toGraphDeployment), nil
 }
 
 func KeyForTeam(ctx context.Context, teamSlug slug.Slug) (*DeploymentKey, error) {

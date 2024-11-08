@@ -30,7 +30,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	orderTopics(ctx, all, orderBy)
 
 	slice := pagination.Slice(all, page)
-	return pagination.NewConnection(slice, page, int32(len(all))), nil
+	return pagination.NewConnection(slice, page, len(all)), nil
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*KafkaTopic {

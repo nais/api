@@ -159,7 +159,7 @@ func List(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder) 
 	if err != nil {
 		return nil, err
 	}
-	return pagination.NewConvertConnection(ret, page, int32(total), toGraphTeam), nil
+	return pagination.NewConvertConnection(ret, page, total, toGraphTeam), nil
 }
 
 func ListForUser(ctx context.Context, userID uuid.UUID, page *pagination.Pagination, orderBy *UserTeamOrder) (*TeamMemberConnection, error) {
@@ -179,7 +179,7 @@ func ListForUser(ctx context.Context, userID uuid.UUID, page *pagination.Paginat
 	if err != nil {
 		return nil, err
 	}
-	return pagination.NewConvertConnection(ret, page, int32(total), toGraphUserTeam), nil
+	return pagination.NewConvertConnection(ret, page, total, toGraphUserTeam), nil
 }
 
 func ListGCPGroupsForUser(ctx context.Context, userID uuid.UUID) ([]string, error) {
@@ -220,7 +220,7 @@ func ListMembers(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	if err != nil {
 		return nil, err
 	}
-	return pagination.NewConvertConnection(ret, page, int32(total), toGraphTeamMember), nil
+	return pagination.NewConvertConnection(ret, page, total, toGraphTeamMember), nil
 }
 
 func GetTeamEnvironment(ctx context.Context, teamSlug slug.Slug, envName string) (*TeamEnvironment, error) {
@@ -554,5 +554,5 @@ func ListBySlugs(ctx context.Context, slugs []slug.Slug, page *pagination.Pagina
 	}
 
 	p := pagination.Slice(ret, page)
-	return pagination.NewConvertConnection(p, page, int32(len(ret)), toGraphTeam), nil
+	return pagination.NewConvertConnection(p, page, len(ret), toGraphTeam), nil
 }

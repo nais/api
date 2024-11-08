@@ -41,7 +41,7 @@ func List(ctx context.Context, page *pagination.Pagination, orderBy *UserOrder) 
 	if err != nil {
 		return nil, err
 	}
-	return pagination.NewConvertConnection(ret, page, int32(total), toGraphUser), nil
+	return pagination.NewConvertConnection(ret, page, total, toGraphUser), nil
 }
 
 func GetByEmail(ctx context.Context, email string) (*User, error) {
