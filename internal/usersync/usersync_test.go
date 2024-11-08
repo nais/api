@@ -1,5 +1,4 @@
 //go:build integration_test
-// +build integration_test
 
 package usersync_test
 
@@ -20,9 +19,7 @@ import (
 	"github.com/nais/api/internal/usersync"
 	"github.com/sirupsen/logrus"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
-	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
-	"github.com/testcontainers/testcontainers-go/wait"
 	admindirectoryv1 "google.golang.org/api/admin/directory/v1"
 	"google.golang.org/api/option"
 )
@@ -36,24 +33,20 @@ func TestSync(t *testing.T) {
 	ctx := context.Background()
 	log, _ := logrustest.NewNullLogger()
 
-	container, connStr, cleanup, err := startPostgresql(ctx, log)
+	container, dsn, err := startPostgresql(ctx, log)
 	if err != nil {
 		t.Fatalf("failed to start postgres container: %v", err)
 	}
-	defer cleanup()
 
-	pool, cleanup, err := newDB(ctx, container, connStr, log)
-	if err != nil {
-		t.Fatalf("failed to create database: %v", err)
+	setup := func(t *testing.T) (context.Context, *pgxpool.Pool) {
+		pool := getConnection(ctx, t, container, dsn, log)
+		ctx = database.NewLoaderContext(ctx, pool)
+		ctx = user.NewLoaderContext(ctx, pool)
+		ctx = role.NewLoaderContext(ctx, pool)
+		return ctx, pool
 	}
-	defer cleanup()
-
-	ctx = database.NewLoaderContext(ctx, pool)
-	ctx = user.NewLoaderContext(ctx, pool)
-	ctx = role.NewLoaderContext(ctx, pool)
-
 	t.Run("No local users, no remote users", func(t *testing.T) {
-		correlationID := uuid.New()
+		ctx, pool := setup(t)
 
 		httpClient := test.NewTestHttpClient(
 			func(req *http.Request) *http.Response {
@@ -69,6 +62,7 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 
+		correlationID := uuid.New()
 		err = usersync.
 			New(pool, adminGroupPrefix, domain, svc, log).
 			Sync(ctx, correlationID)
@@ -85,7 +79,7 @@ func TestSync(t *testing.T) {
 	})
 
 	t.Run("Local users, no remote users", func(t *testing.T) {
-		correlationID := uuid.New()
+		ctx, pool := setup(t)
 
 		user1, err := user.Create(ctx, "User 1", "user1@example.com", "123")
 		if err != nil {
@@ -118,6 +112,7 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 
+		correlationID := uuid.New()
 		err = usersync.
 			New(pool, adminGroupPrefix, domain, svc, log).
 			Sync(ctx, correlationID)
@@ -134,7 +129,7 @@ func TestSync(t *testing.T) {
 	})
 
 	t.Run("Create, update and delete users", func(t *testing.T) {
-		correlationID := uuid.New()
+		ctx, pool := setup(t)
 
 		userWithIncorrectName, err := user.Create(ctx, "Incorrect Name", "user1@example.com", "1")
 		if err != nil {
@@ -181,6 +176,7 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 
+		correlationID := uuid.New()
 		err = usersync.
 			New(pool, adminGroupPrefix, domain, svc, log).
 			Sync(ctx, correlationID)
@@ -246,54 +242,47 @@ func TestSync(t *testing.T) {
 	})
 }
 
-func startPostgresql(ctx context.Context, log logrus.FieldLogger) (*postgres.PostgresContainer, string, func(), error) {
-	container, err := postgres.Run(
+func startPostgresql(ctx context.Context, log logrus.FieldLogger) (container *postgres.PostgresContainer, dsn string, err error) {
+	container, err = postgres.Run(
 		ctx,
 		"docker.io/postgres:16-alpine",
-		postgres.WithDatabase("usersync"),
-		postgres.WithUsername("usersync"),
-		postgres.WithPassword("usersync"),
+		postgres.WithDatabase("test"),
+		postgres.WithUsername("test"),
+		postgres.WithPassword("test"),
 		postgres.WithSQLDriver("pgx"),
-		testcontainers.WithWaitStrategy(
-			wait.ForLog("database system is ready to accept connections").
-				WithOccurrence(2),
-		),
+		postgres.BasicWaitStrategies(),
 	)
 	if err != nil {
-		return nil, "", nil, fmt.Errorf("failed to start container: %w", err)
+		return nil, "", fmt.Errorf("failed to start container: %w", err)
 	}
 
-	connStr, err := container.ConnectionString(ctx, "sslmode=disable")
+	dsn, err = container.ConnectionString(ctx, "sslmode=disable")
 	if err != nil {
-		return nil, "", nil, fmt.Errorf("failed to get connection string: %w", err)
+		return nil, "", fmt.Errorf("failed to get connection string: %w", err)
 	}
 
-	pool, err := database.NewPool(ctx, connStr, log, true)
+	pool, err := database.NewPool(ctx, dsn, log, true)
 	if err != nil {
-		return nil, "", nil, fmt.Errorf("failed to create pool: %w", err)
+		return nil, "", fmt.Errorf("failed to create pool: %w", err)
 	}
 	pool.Close()
 
-	if err := container.Snapshot(ctx, postgres.WithSnapshotName("migrated")); err != nil {
-		return nil, "", nil, fmt.Errorf("failed to snapshot: %w", err)
+	if err := container.Snapshot(ctx); err != nil {
+		return nil, "", fmt.Errorf("failed to snapshot: %w", err)
 	}
 
-	cleanup := func() {
-		_ = testcontainers.TerminateContainer(container)
-	}
-	return container, connStr, cleanup, nil
+	return container, dsn, nil
 }
 
-func newDB(ctx context.Context, postgresContainer *postgres.PostgresContainer, connectionString string, log logrus.FieldLogger) (*pgxpool.Pool, func(), error) {
-	pool, err := database.NewPool(ctx, connectionString, log, false)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to create pool: %w", err)
-	}
+func getConnection(ctx context.Context, t *testing.T, container *postgres.PostgresContainer, dsn string, log logrus.FieldLogger) *pgxpool.Pool {
+	pool, _ := database.NewPool(ctx, dsn, log, false)
 
-	cleanup := func() {
+	t.Cleanup(func() {
 		pool.Close()
-		_ = postgresContainer.Restore(ctx)
-	}
+		if err := container.Restore(ctx); err != nil {
+			t.Fatalf("failed to restore database: %v", err)
+		}
+	})
 
-	return pool, cleanup, nil
+	return pool
 }

@@ -168,7 +168,6 @@ func TestFakeQueryAll(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to start postgres container: %v", err)
 	}
-	defer container.Terminate(ctx)
 
 	pool, cleanup, err := newDB(ctx, container, connStr)
 	if err != nil {
