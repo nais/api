@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"cloud.google.com/go/pubsub"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/database"
@@ -107,12 +106,10 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		watcherOpts = append(watcherOpts, watcher.WithClientCreator(fake.Clients(os.DirFS("./data/k8s"))))
 	}
 
-	clusterConfig, err := kubernetes.CreateClusterConfigMap(cfg.Tenant, cfg.K8s.Clusters)
+	clusterConfig, err := kubernetes.CreateClusterConfigMap(cfg.Tenant, cfg.K8s.Clusters, cfg.K8s.StaticClusters)
 	if err != nil {
 		return fmt.Errorf("creating cluster config map: %w", err)
 	}
-
-	spew.Dump(clusterConfig)
 
 	watcherMgr, err := watcher.NewManager(scheme, clusterConfig, log.WithField("subsystem", "k8s_watcher"), watcherOpts...)
 	if err != nil {
