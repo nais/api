@@ -13,19 +13,12 @@ import (
 )
 
 type settings struct {
-	clientCreator func(cluster string) (dynamic.Interface, error)
-	configCreator func(cluster string) *rest.Config
+	clientCreator func(cluster string) (dynamic.Interface, *rest.Config, error)
 }
 
 type Option func(*settings)
 
-func WithConfigCreator(fn func(cluster string) *rest.Config) Option {
-	return func(m *settings) {
-		m.configCreator = fn
-	}
-}
-
-func WithClientCreator(fn func(cluster string) (dynamic.Interface, error)) Option {
+func WithClientCreator(fn func(cluster string) (dynamic.Interface, *rest.Config, error)) Option {
 	return func(m *settings) {
 		m.clientCreator = fn
 	}
@@ -41,8 +34,30 @@ type Manager struct {
 
 func NewManager(scheme *runtime.Scheme, clusterConfig kubernetes.ClusterConfigMap, log logrus.FieldLogger, opts ...Option) (*Manager, error) {
 	s := &settings{
-		configCreator: func(cluster string) *rest.Config {
-			return clusterConfig[cluster]
+		clientCreator: func(cluster string) (dynamic.Interface, *rest.Config, error) {
+			if cluster == "management" {
+				config, err := rest.InClusterConfig()
+				if err != nil {
+					return nil, nil, fmt.Errorf("creating in-cluster config: %w", err)
+				}
+				client, err := dynamic.NewForConfig(config)
+				if err != nil {
+					return nil, nil, fmt.Errorf("creating dynamic client with in-cluster config: %w", err)
+				}
+				return client, config, nil
+			}
+
+			config, ok := clusterConfig[cluster]
+			if !ok {
+				return nil, nil, fmt.Errorf("no config for cluster %s", cluster)
+			}
+
+			client, err := dynamic.NewForConfig(clusterConfig[cluster])
+			if err != nil {
+				return nil, nil, fmt.Errorf("creating dynamic client from config: %w", err)
+			}
+
+			return client, config, nil
 		},
 	}
 	for _, opt := range opts {
@@ -52,14 +67,9 @@ func NewManager(scheme *runtime.Scheme, clusterConfig kubernetes.ClusterConfigMa
 	managers := map[string]*clusterManager{}
 
 	for cluster := range clusterConfig {
-		cfg := s.configCreator(cluster)
-		var client dynamic.Interface
-		var err error
-		if s.clientCreator != nil {
-			client, err = s.clientCreator(cluster)
-			if err != nil {
-				return nil, fmt.Errorf("creating dynamic client: %w", err)
-			}
+		client, cfg, err := s.clientCreator(cluster)
+		if err != nil {
+			return nil, fmt.Errorf("creating client for cluster %s: %w", cluster, err)
 		}
 		mgr, err := newClusterManager(client, scheme, cfg, log.WithField("cluster", cluster))
 		if err != nil {

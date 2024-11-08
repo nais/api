@@ -16,6 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	dynfake "k8s.io/client-go/dynamic/fake"
+	"k8s.io/client-go/rest"
 )
 
 var _ spec.Runner = &K8s{}
@@ -78,12 +79,12 @@ func (k *K8s) HelperFunctions() []*spec.Function {
 	}
 }
 
-func (k *K8s) ClientCreator(cluster string) (dynamic.Interface, error) {
+func (k *K8s) ClientCreator(cluster string) (dynamic.Interface, *rest.Config, error) {
 	c, ok := k.clients[cluster]
 	if !ok {
-		return nil, fmt.Errorf("cluster %q not found", cluster)
+		return nil, nil, fmt.Errorf("cluster %q not found", cluster)
 	}
-	return c, nil
+	return c, nil, nil
 }
 
 func (k *K8s) check(L *lua.LState) int {

@@ -18,6 +18,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	dynfake "k8s.io/client-go/dynamic/fake"
+	"k8s.io/client-go/rest"
 	"sigs.k8s.io/yaml"
 )
 
@@ -28,15 +29,15 @@ type clients struct {
 // Clients returns a new fake kubernetes clientset for each directory at root in the given directory.
 // Each yaml file in the directory will be created as a resource, where resources in a "teams" directory
 // will be created in a namespace with the same name as the file.
-func Clients(dir fs.FS) func(cluster string) (dynamic.Interface, error) {
+func Clients(dir fs.FS) func(cluster string) (dynamic.Interface, *rest.Config, error) {
 	scheme, err := kubernetes.NewScheme()
 	if err != nil {
 		panic(err)
 	}
 
 	if dir == nil {
-		return func(cluster string) (dynamic.Interface, error) {
-			return newDynamicClient(scheme), nil
+		return func(cluster string) (dynamic.Interface, *rest.Config, error) {
+			return newDynamicClient(scheme), nil, nil
 		}
 	}
 
@@ -53,15 +54,15 @@ func Clients(dir fs.FS) func(cluster string) (dynamic.Interface, error) {
 		}
 	}
 
-	return func(cluster string) (dynamic.Interface, error) {
+	return func(cluster string) (dynamic.Interface, *rest.Config, error) {
 		c, ok := ret[cluster]
 		if !ok {
 			fmt.Println("no fake client for cluster", cluster)
-			return newDynamicClient(scheme), nil
+			return newDynamicClient(scheme), nil, nil
 			// return nil, fmt.Errorf("no fake client for cluster %s", cluster)
 		}
 
-		return c.Dynamic, nil
+		return c.Dynamic, nil, nil
 	}
 }
 
