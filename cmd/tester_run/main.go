@@ -14,16 +14,11 @@ func main() {
 	dir := filepath.Join(".", "integration_tests")
 	ui := false
 	flag.BoolVar(&ui, "ui", ui, "run with UI")
-	flag.StringVar(&dir, "d", dir, "write spec to this directory")
 	flag.Parse()
 
 	ctx := context.Background()
 	mgr, err := integration.TestRunner(ctx, false)
 	if err != nil {
-		panic(err)
-	}
-
-	if err := mgr.GenerateSpec(dir); err != nil {
 		panic(err)
 	}
 
