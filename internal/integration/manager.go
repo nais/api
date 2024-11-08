@@ -125,7 +125,7 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 	log := logrus.New()
 	log.Out = io.Discard
 
-	clusterConfig, err := kubernetes.CreateClusterConfigMap("dev-nais", clusters())
+	clusterConfig, err := kubernetes.CreateClusterConfigMap("dev-nais", clusters(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("creating cluster config map: %w", err)
 	}
