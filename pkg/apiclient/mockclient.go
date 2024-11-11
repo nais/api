@@ -92,7 +92,11 @@ func NewMockClient(t testing.TB) (*APIClient, *MockServers) {
 		return listener.DialContext(ctx)
 	}
 
-	client, err := New("bufconn", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(dialer))
+	client, err := New(
+		"passthrough://",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithContextDialer(dialer),
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
