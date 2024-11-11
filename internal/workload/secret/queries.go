@@ -27,19 +27,61 @@ import (
 )
 
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, workload workload.Workload, page *pagination.Pagination) (*SecretConnection, error) {
-	all := fromContext(ctx).secretWatcher.GetByNamespace(
-		teamSlug.String(),
-		watcher.InCluster(environmentName),
-		watcher.WithObjectNames(workload.GetSecrets()),
-	)
-	paginated := pagination.Slice(watcher.Objects(all), page)
-	return pagination.NewConnection(paginated, page, len(all)), nil
+	// all := fromContext(ctx).secretWatcher.GetByNamespace(
+	// 	teamSlug.String(),
+	// 	watcher.InCluster(environmentName),
+	// 	watcher.WithObjectNames(workload.GetSecrets()),
+	// )
+	client, err := fromContext(ctx).Client(ctx, environmentName)
+	if err != nil {
+		return nil, err
+	}
+
+	all, err := client.Namespace(teamSlug.String()).List(ctx, v1.ListOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("listing secretsasdfasdfsdf: %w", err)
+	}
+
+	secretNames := workload.GetSecrets()
+
+	ret := make([]*Secret, 0, len(all.Items))
+	for _, u := range all.Items {
+		if !slices.Contains(secretNames, u.GetName()) {
+			continue
+		}
+		s, ok := toGraphSecret(&u, environmentName)
+		if !ok {
+			continue
+		}
+		ret = append(ret, s)
+	}
+
+	SortFilter.Sort(ctx, ret, SecretOrderFieldName, model.OrderDirectionAsc)
+	paginated := pagination.Slice(ret, page)
+	return pagination.NewConnection(paginated, page, len(ret)), nil
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *SecretOrder) (*SecretConnection, error) {
-	all := fromContext(ctx).secretWatcher.GetByNamespace(teamSlug.String())
+	clients, err := fromContext(ctx).Clients(ctx)
+	if err != nil {
+		return nil, err
+	}
 
-	retVal := watcher.Objects(all)
+	retVal := make([]*Secret, 0)
+	for env, client := range clients {
+		secrets, err := client.Namespace(teamSlug.String()).List(ctx, v1.ListOptions{})
+		if err != nil {
+			return nil, fmt.Errorf("listing secrets for environment %q: %w", env, err)
+		}
+
+		for _, u := range secrets.Items {
+			s, ok := toGraphSecret(&u, env)
+			if !ok {
+				continue
+			}
+			retVal = append(retVal, s)
+		}
+	}
 
 	if orderBy == nil {
 		orderBy = &SecretOrder{
@@ -55,7 +97,21 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Secret, error) {
-	return fromContext(ctx).secretWatcher.Get(environment, teamSlug.String(), name)
+	client, err := fromContext(ctx).Client(ctx, environment)
+	if err != nil {
+		return nil, err
+	}
+
+	u, err := client.Namespace(teamSlug.String()).Get(ctx, name, v1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	s, ok := toGraphSecret(u, environment)
+	if !ok {
+		return nil, &watcher.ErrorNotFound{Cluster: environment, Namespace: teamSlug.String(), Name: name}
+	}
+	return s, nil
 }
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*Secret, error) {
@@ -67,7 +123,7 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*Secret, error) {
 }
 
 func GetSecretValues(ctx context.Context, teamSlug slug.Slug, environmentName, name string) ([]*SecretValue, error) {
-	client, err := fromContext(ctx).secretWatcher.ImpersonatedClient(ctx, environmentName)
+	client, err := fromContext(ctx).Client(ctx, environmentName)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +159,7 @@ func GetSecretValues(ctx context.Context, teamSlug slug.Slug, environmentName, n
 }
 
 func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Secret, error) {
-	client, err := fromContext(ctx).secretWatcher.ImpersonatedClient(ctx, environment)
+	client, err := fromContext(ctx).Client(ctx, environment)
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +233,7 @@ func AddSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secret
 		Value: valueToAdd.Value,
 	})
 
-	client, err := fromContext(ctx).secretWatcher.ImpersonatedClient(ctx, environment)
+	client, err := fromContext(ctx).Client(ctx, environment)
 	if err != nil {
 		return nil, err
 	}
@@ -251,7 +307,7 @@ func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 		return nil, apierror.Errorf("The secret does not contain a secret value with the name %q.", valueToUpdate.Name)
 	}
 
-	client, err := fromContext(ctx).secretWatcher.ImpersonatedClient(ctx, environment)
+	client, err := fromContext(ctx).Client(ctx, environment)
 	if err != nil {
 		return nil, err
 	}
@@ -316,7 +372,7 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 
 	delete(secretMap, valueName)
 
-	client, err := fromContext(ctx).secretWatcher.ImpersonatedClient(ctx, environment)
+	client, err := fromContext(ctx).Client(ctx, environment)
 	if err != nil {
 		return nil, err
 	}
@@ -369,16 +425,23 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 }
 
 func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) error {
-	sw := fromContext(ctx).secretWatcher
-	if _, err := sw.Get(environment, teamSlug.String(), name); err != nil {
+	client, err := fromContext(ctx).Client(ctx, environment)
+	if err != nil {
 		return err
 	}
 
-	if err := sw.Delete(ctx, environment, teamSlug.String(), name); err != nil {
+	if _, err := client.Namespace(teamSlug.String()).Get(ctx, name, v1.GetOptions{}); err != nil {
+		if k8serrors.IsNotFound(err) {
+			return &watcher.ErrorNotFound{Cluster: environment, Namespace: teamSlug.String(), Name: name}
+		}
 		return err
 	}
 
-	err := audit.Create(ctx, audit.CreateInput{
+	if err := client.Namespace(teamSlug.String()).Delete(ctx, name, v1.DeleteOptions{}); err != nil {
+		return err
+	}
+
+	err = audit.Create(ctx, audit.CreateInput{
 		Action:          auditActionDeleteSecret,
 		Actor:           authz.ActorFromContext(ctx).User,
 		EnvironmentName: ptr.To(environment),

@@ -5,13 +5,13 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"github.com/nais/api/internal/kubernetes/fake"
 	"github.com/nais/tester/lua/runner"
 	"github.com/nais/tester/lua/spec"
 	lua "github.com/yuin/gopher-lua"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
@@ -127,16 +127,11 @@ func (k *K8s) readK8sResources(L *lua.LState) int {
 	}
 
 	for cluster, objs := range resources {
-		convertedObjs := make([]runtime.Object, len(objs))
-		for i, obj := range objs {
-			converted, err := runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
-			if err != nil {
-				L.RaiseError("convert object: %v", err)
-			}
-			convertedObjs[i] = &unstructured.Unstructured{Object: converted}
-		}
-		fake.AddObjectToDynamicClient(k.Scheme, k.clients[cluster], convertedObjs...)
+		fake.AddObjectToDynamicClient(k.Scheme, k.clients[cluster], objs...)
 	}
+
+	// Allow time for informers to sync
+	time.Sleep(10 * time.Millisecond)
 
 	return 0
 }

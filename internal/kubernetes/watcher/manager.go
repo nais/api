@@ -96,6 +96,15 @@ func (m *Manager) WaitForReady(ctx context.Context) bool {
 	return cache.WaitForCacheSync(ctx.Done(), m.cacheSyncs...)
 }
 
+func (m *Manager) GetDynamicClients() map[string]dynamic.Interface {
+	clients := map[string]dynamic.Interface{}
+	for cluster, mgr := range m.managers {
+		clients[cluster] = mgr.client
+	}
+
+	return clients
+}
+
 func (m *Manager) addCacheSync(sync cache.InformerSynced) {
 	m.cacheSyncs = append(m.cacheSyncs, sync)
 }

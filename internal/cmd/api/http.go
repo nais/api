@@ -19,6 +19,7 @@ import (
 	"github.com/nais/api/internal/deployment"
 	"github.com/nais/api/internal/github/repository"
 	"github.com/nais/api/internal/graph/loader"
+	apik8s "github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/bucket"
@@ -50,7 +51,6 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/sync/errgroup"
-	"k8s.io/client-go/kubernetes"
 )
 
 // runHttpServer will start the HTTP server
@@ -61,7 +61,7 @@ func runHttpServer(
 	tenantName string,
 	clusters []string,
 	pool *pgxpool.Pool,
-	k8sClientSets map[string]kubernetes.Interface,
+	k8sClients apik8s.ClusterConfigMap,
 	watcherMgr *watcher.Manager,
 	mgmtWatcherMgr *watcher.Manager,
 	authHandler authn.Handler,
@@ -78,7 +78,7 @@ func runHttpServer(
 		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL playground", "/graphql"), "playground")),
 	)
 
-	graphMiddleware, err := ConfigureGraph(ctx, insecureAuthAndFakes, watcherMgr, mgmtWatcherMgr, pool, k8sClientSets, vClient, tenantName, clusters, hookdClient, log)
+	graphMiddleware, err := ConfigureGraph(ctx, insecureAuthAndFakes, watcherMgr, mgmtWatcherMgr, pool, k8sClients, vClient, tenantName, clusters, hookdClient, log)
 	if err != nil {
 		return err
 	}
@@ -157,7 +157,7 @@ func ConfigureGraph(
 	watcherMgr *watcher.Manager,
 	mgmtWatcherMgr *watcher.Manager,
 	pool *pgxpool.Pool,
-	k8sClientSets map[string]kubernetes.Interface,
+	k8sClients apik8s.ClusterConfigMap,
 	vClient vulnerability.Client,
 	tenantName string,
 	clusters []string,
@@ -174,7 +174,6 @@ func ConfigureGraph(
 	sqlDatabaseWatcher := sqlinstance.NewDatabaseWatcher(ctx, watcherMgr)
 	sqlInstanceWatcher := sqlinstance.NewInstanceWatcher(ctx, watcherMgr)
 	kafkaTopicWatcher := kafkatopic.NewWatcher(ctx, watcherMgr)
-	secretWatcher := secret.NewWatcher(ctx, watcherMgr)
 	podWatcher := workload.NewWatcher(ctx, watcherMgr)
 	ingressWatcher := application.NewIngressWatcher(ctx, watcherMgr)
 	unleashWatcher := unleash.NewWatcher(ctx, mgmtWatcherMgr)
@@ -187,17 +186,26 @@ func ConfigureGraph(
 	var utilizationClient utilization.ResourceUsageClient
 	var costOpts []cost.Option
 	var podLogStreamer podlog.Streamer
+	var secretClientCreator secret.ClientCreator
 	if fakeClients {
 		utilizationClient = utilization.NewFakeClient(clusters, nil, nil)
 		costOpts = append(costOpts, cost.WithClient(cost.NewFakeClient()))
 		podLogStreamer = fakepodlog.NewLogStreamer()
+
+		secretClientCreator = secret.CreatorFromClients(watcherMgr.GetDynamicClients())
 	} else {
 		var err error
 		utilizationClient, err = utilization.NewClient(clusters, tenantName, log)
 		if err != nil {
 			return nil, fmt.Errorf("create utilization client: %w", err)
 		}
-		podLogStreamer = podlog.NewLogStreamer(k8sClientSets, log)
+
+		clients, err := apik8s.NewClientSets(k8sClients)
+		if err != nil {
+			return nil, fmt.Errorf("create k8s client sets: %w", err)
+		}
+		podLogStreamer = podlog.NewLogStreamer(clients, log)
+		secretClientCreator = secret.CreatorFromConfig(ctx, k8sClients)
 	}
 
 	syncCtx, cancelSync := context.WithTimeout(ctx, 20*time.Second)
@@ -214,7 +222,7 @@ func ConfigureGraph(
 		ctx = job.NewLoaderContext(ctx, jobWatcher, runWatcher)
 		ctx = kafkatopic.NewLoaderContext(ctx, kafkaTopicWatcher)
 		ctx = workload.NewLoaderContext(ctx, podWatcher)
-		ctx = secret.NewLoaderContext(ctx, secretWatcher, log)
+		ctx = secret.NewLoaderContext(ctx, secretClientCreator, clusters, log)
 		ctx = opensearch.NewLoaderContext(ctx, openSearchWatcher)
 		ctx = redis.NewLoaderContext(ctx, redisWatcher)
 		ctx = utilization.NewLoaderContext(ctx, utilizationClient)

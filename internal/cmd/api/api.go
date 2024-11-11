@@ -121,11 +121,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("create k8s watcher manager for management: %w", err)
 	}
 
-	k8sClientSets, err := kubernetes.NewClientSets(clusterConfig)
-	if err != nil {
-		return fmt.Errorf("create k8s client sets: %w", err)
-	}
-
 	pubsubClient, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
 	if err != nil {
 		return err
@@ -184,7 +179,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			cfg.Tenant,
 			cfg.K8s.Clusters,
 			pool,
-			k8sClientSets,
+			clusterConfig,
 			watcherMgr,
 			mgmtWatcher,
 			authHandler,

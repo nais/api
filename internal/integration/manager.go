@@ -145,14 +145,9 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 		return nil, fmt.Errorf("failed to create management watcher manager: %w", err)
 	}
 
-	// k8sClientSets, err := kubernetes.NewClientSets(clusterConfig)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("failed to create k8s client sets: %w", err)
-	// }
-
 	vulnerabilityClient := vulnerability.NewDependencyTrackClient(vulnerability.DependencyTrackConfig{EnableFakes: true}, log)
 
-	graphMiddleware, err := api.ConfigureGraph(ctx, true, watcherMgr, managementWatcherMgr, pool, nil, vulnerabilityClient, config.TenantName, clusters(), fakeHookd.New(), log)
+	graphMiddleware, err := api.ConfigureGraph(ctx, true, watcherMgr, managementWatcherMgr, pool, clusterConfig, vulnerabilityClient, config.TenantName, clusters(), fakeHookd.New(), log)
 	if err != nil {
 		return nil, fmt.Errorf("failed to configure graph: %w", err)
 	}
