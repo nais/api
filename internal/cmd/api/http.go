@@ -78,14 +78,14 @@ func runHttpServer(
 		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL playground", "/graphql"), "playground")),
 	)
 
-	graphMiddleware, err := ConfigureGraph(ctx, insecureAuthAndFakes, watcherMgr, mgmtWatcherMgr, pool, k8sClients, vClient, tenantName, clusters, hookdClient, log)
+	contextDependencies, err := ConfigureGraph(ctx, insecureAuthAndFakes, watcherMgr, mgmtWatcherMgr, pool, k8sClients, vClient, tenantName, clusters, hookdClient, log)
 	if err != nil {
 		return err
 	}
 
 	router.Route("/graphql", func(r chi.Router) {
 		middlewares := []func(http.Handler) http.Handler{
-			graphMiddleware,
+			contextDependencies,
 			cors.New(
 				cors.Options{
 					AllowedOrigins:   []string{"https://*", "http://*"},
@@ -115,6 +115,7 @@ func runHttpServer(
 	})
 
 	router.Route("/oauth2", func(r chi.Router) {
+		r.Use(contextDependencies)
 		r.Get("/login", authHandler.Login)
 		r.Get("/logout", authHandler.Logout)
 		r.Get("/callback", authHandler.Callback)
