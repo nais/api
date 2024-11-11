@@ -188,7 +188,7 @@ func TestFakeQueryAll(t *testing.T) {
 
 	tenant := "nav"
 	clusters := []string{"test", "dev"}
-	ccm, err := kubernetes.CreateClusterConfigMap(tenant, clusters)
+	ccm, err := kubernetes.CreateClusterConfigMap(tenant, clusters, nil)
 	if err != nil {
 		t.Fatalf("failed to create cluster config map: %v", err)
 	}
