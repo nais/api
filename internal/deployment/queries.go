@@ -3,21 +3,27 @@ package deployment
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
-
-	"github.com/nais/api/internal/role"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/workload"
 )
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*DeploymentConnection, error) {
-	all, err := fromContext(ctx).client.Deployments(ctx, hookd.WithTeam(teamSlug.String()), hookd.WithLimit(100))
+	cluster, err := withCluster(ctx, teamSlug)
+	if err != nil {
+		return nil, err
+	}
+
+	all, err := fromContext(ctx).client.Deployments(ctx, hookd.WithTeam(teamSlug.String()), hookd.WithLimit(100), hookd.WithCluster(cluster))
 	if err != nil {
 		return nil, fmt.Errorf("getting deploys from Hookd: %w", err)
 	}
@@ -27,7 +33,12 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 }
 
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string, workloadType workload.Type, page *pagination.Pagination) (*DeploymentConnection, error) {
-	all, err := fromContext(ctx).client.Deployments(ctx, hookd.WithTeam(teamSlug.String()), hookd.WithCluster(environmentName))
+	cluster, err := withCluster(ctx, teamSlug)
+	if err != nil {
+		return nil, err
+	}
+
+	all, err := fromContext(ctx).client.Deployments(ctx, hookd.WithTeam(teamSlug.String()), hookd.WithCluster(environmentName), hookd.WithCluster(cluster))
 	if err != nil {
 		return nil, fmt.Errorf("getting deploys from Hookd: %w", err)
 	}
@@ -122,4 +133,18 @@ func getDeploymentKeyByIdent(ctx context.Context, id ident.Ident) (*DeploymentKe
 
 func getDeploymentByIdent(ctx context.Context, id ident.Ident) (*Deployment, error) {
 	return nil, apierror.Errorf("deployments are not accessible by node ID")
+}
+
+func withCluster(ctx context.Context, teamSlug slug.Slug) (string, error) {
+	envs, err := team.ListTeamEnvironments(ctx, teamSlug)
+	if err != nil {
+		return "", err
+	}
+
+	names := make([]string, 0, len(envs))
+	for _, env := range envs {
+		names = append(names, env.Name)
+	}
+
+	return strings.Join(names, ","), nil
 }
