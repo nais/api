@@ -12,9 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	costUpdateSchedule = time.Hour
-)
+const costUpdateSchedule = time.Hour
 
 func costUpdater(ctx context.Context, pool *pgxpool.Pool, cfg *Config, log logrus.FieldLogger) error {
 	if !cfg.Cost.ImportEnabled {
@@ -22,8 +20,7 @@ func costUpdater(ctx context.Context, pool *pgxpool.Pool, cfg *Config, log logru
 		return nil
 	}
 
-	err := runCostUpdater(ctx, pool, cfg.Tenant, cfg.Cost.BigQueryProjectID, log.WithField("task", "cost_updater"))
-	if err != nil {
+	if err := runCostUpdater(ctx, pool, cfg.Tenant, cfg.Cost.BigQueryProjectID, log.WithField("task", "cost_updater")); err != nil {
 		log.WithError(err).Errorf("error in cost updater")
 		return err
 	}
@@ -38,58 +35,51 @@ func runCostUpdater(ctx context.Context, pool *pgxpool.Pool, tenant, bigQueryPro
 		return fmt.Errorf("unable to set up and run cost updater: %w", err)
 	}
 
-	ticker := time.NewTicker(1 * time.Second) // initial run
-	defer ticker.Stop()
-
 	for {
+		func() {
+			log.Infof("start scheduled cost update run")
+			start := time.Now()
+
+			if shouldUpdate, err := updater.ShouldUpdateCosts(ctx); err != nil {
+				log.WithError(err).Errorf("unable to check if costs should be updated")
+				return
+			} else if !shouldUpdate {
+				log.Infof("no need to update costs yet")
+				return
+			}
+
+			ctx, cancel := context.WithTimeout(ctx, costUpdateSchedule-5*time.Minute)
+			defer cancel()
+
+			done := make(chan struct{})
+			defer close(done)
+
+			ch := make(chan costsql.CostUpsertParams, costupdater.UpsertBatchSize*2)
+
+			go func() {
+				if err := updater.UpdateCosts(ctx, ch); err != nil {
+					log.WithError(err).Errorf("failed to update costs")
+				}
+				done <- struct{}{}
+			}()
+
+			if err := updater.FetchBigQueryData(ctx, ch); err != nil {
+				log.WithError(err).Errorf("failed to fetch bigquery data")
+			}
+			close(ch)
+			<-done
+
+			if err := updater.RefreshView(ctx); err != nil {
+				log.WithError(err).Errorf("unable to refresh cost team monthly")
+			}
+
+			log.WithField("duration", time.Since(start)).Infof("cost update run finished")
+		}()
+
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-ticker.C:
-			func() {
-				ticker.Reset(costUpdateSchedule) // regular schedule
-				log.Infof("start scheduled cost update run")
-				start := time.Now()
-
-				if shouldUpdate, err := updater.ShouldUpdateCosts(ctx); err != nil {
-					log.WithError(err).Errorf("unable to check if costs should be updated")
-					return
-				} else if !shouldUpdate {
-					log.Infof("no need to update costs yet")
-					return
-				}
-
-				ctx, cancel := context.WithTimeout(ctx, costUpdateSchedule-5*time.Minute)
-				defer cancel()
-
-				done := make(chan struct{})
-				defer close(done)
-
-				ch := make(chan costsql.CostUpsertParams, costupdater.UpsertBatchSize*2)
-
-				go func() {
-					err := updater.UpdateCosts(ctx, ch)
-					if err != nil {
-						log.WithError(err).Errorf("failed to update costs")
-					}
-					done <- struct{}{}
-				}()
-
-				err = updater.FetchBigQueryData(ctx, ch)
-				if err != nil {
-					log.WithError(err).Errorf("failed to fetch bigquery data")
-				}
-				close(ch)
-				<-done
-
-				if err := updater.RefreshView(ctx); err != nil {
-					log.WithError(err).Errorf("unable to refresh cost team monthly")
-				}
-
-				log.WithFields(logrus.Fields{
-					"duration": time.Since(start),
-				}).Infof("cost update run finished")
-			}()
+		case <-time.After(costUpdateSchedule):
 		}
 	}
 }
