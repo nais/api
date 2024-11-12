@@ -103,15 +103,15 @@ WHERE
 		OR team_slug = $1::slug
 	)
 	AND CASE
-		WHEN $2::TEXT[] IS NOT NULL THEN service = ANY ($2)
+		WHEN $2::TEXT[] IS NOT NULL THEN cost.cost_type = ANY ($2)
 		ELSE TRUE
 	END
 GROUP BY
 	date_range.date,
-	service
+	cost.cost_type
 ORDER BY
 	date_range.date,
-	service ASC
+	cost.cost_type ASC
 `
 
 type DailyCostForTeamParams struct {
@@ -260,7 +260,7 @@ WHERE
 	)
 ORDER BY
 	date_range.date,
-	service ASC
+	cost.cost_type ASC
 `
 
 type DailyCostForWorkloadParams struct {
@@ -492,7 +492,7 @@ GROUP BY
 	team_slug,
 	app,
 	environment,
-	service,
+	cost_type,
 	MONTH
 ORDER BY
 	MONTH DESC

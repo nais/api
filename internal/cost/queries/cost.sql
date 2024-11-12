@@ -39,7 +39,7 @@ GROUP BY
 	team_slug,
 	app,
 	environment,
-	service,
+	cost_type,
 	MONTH
 ORDER BY
 	MONTH DESC
@@ -115,7 +115,7 @@ WHERE
 	)
 ORDER BY
 	date_range.date,
-	service ASC
+	cost.cost_type ASC
 ;
 
 -- name: DailyCostForTeam :many
@@ -143,15 +143,15 @@ WHERE
 		OR team_slug = @team_slug::slug
 	)
 	AND CASE
-		WHEN sqlc.narg(services)::TEXT[] IS NOT NULL THEN service = ANY (@services)
+		WHEN sqlc.narg(services)::TEXT[] IS NOT NULL THEN cost.cost_type = ANY (@services)
 		ELSE TRUE
 	END
 GROUP BY
 	date_range.date,
-	service
+	cost.cost_type
 ORDER BY
 	date_range.date,
-	service ASC
+	cost.cost_type ASC
 ;
 
 -- name: DailyEnvCostForTeam :many
