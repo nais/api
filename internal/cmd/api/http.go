@@ -72,8 +72,13 @@ func runHttpServer(
 	log logrus.FieldLogger,
 ) error {
 	router := chi.NewRouter()
+	router.Use(accessLogg(log))
 	router.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
-	router.Get("/healthz", func(_ http.ResponseWriter, _ *http.Request) {})
+	router.Get("/healthz", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Header().Add("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"status":"ok"}`))
+	})
 	router.Method("GET", "/",
 		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL playground", "/graphql"), "playground")),
 	)
@@ -243,4 +248,14 @@ func ConfigureGraph(
 		ctx = unleash.NewLoaderContext(ctx, tenantName, unleashWatcher, "*fake*", log)
 		return ctx
 	}), nil
+}
+
+func accessLogg(log logrus.FieldLogger) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			start := time.Now()
+			next.ServeHTTP(w, r)
+			log.Infof("access: %v %v %v in %v", r.Method, r.URL, r.RemoteAddr, time.Since(start))
+		})
+	}
 }
