@@ -237,3 +237,10 @@ SET
 WHERE
 	teams.slug = @slug
 ;
+
+-- name: ListAllSlugs :one
+SELECT
+	ARRAY_AGG(slug)::slug[] AS slugs
+FROM
+	teams
+;

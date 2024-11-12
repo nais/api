@@ -556,3 +556,7 @@ func ListBySlugs(ctx context.Context, slugs []slug.Slug, page *pagination.Pagina
 	p := pagination.Slice(ret, page)
 	return pagination.NewConvertConnection(p, page, len(ret), toGraphTeam), nil
 }
+
+func ListAllSlugs(ctx context.Context) ([]slug.Slug, error) {
+	return db(ctx).ListAllSlugs(ctx)
+}

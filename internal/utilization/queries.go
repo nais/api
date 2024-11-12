@@ -3,10 +3,12 @@ package utilization
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/common/model"
 )
@@ -63,6 +65,19 @@ func ForTeams(ctx context.Context, resourceType UtilizationResourceType) ([]*Tea
 	if err != nil {
 		return nil, err
 	}
+
+	slugs, err := team.ListAllSlugs(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	filtered := []*TeamUtilizationData{}
+	for _, data := range ret {
+		if slices.Contains(slugs, data.TeamSlug) {
+			filtered = append(filtered, data)
+		}
+	}
+	ret = filtered
 
 	for _, samples := range used {
 		for _, sample := range samples {

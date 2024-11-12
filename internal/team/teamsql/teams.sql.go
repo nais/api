@@ -256,6 +256,20 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]*Team, error) {
 	return items, nil
 }
 
+const listAllSlugs = `-- name: ListAllSlugs :one
+SELECT
+	ARRAY_AGG(slug)::slug[] AS slugs
+FROM
+	teams
+`
+
+func (q *Queries) ListAllSlugs(ctx context.Context) ([]slug.Slug, error) {
+	row := q.db.QueryRow(ctx, listAllSlugs)
+	var slugs []slug.Slug
+	err := row.Scan(&slugs)
+	return slugs, err
+}
+
 const listBySlugs = `-- name: ListBySlugs :many
 SELECT
 	slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
