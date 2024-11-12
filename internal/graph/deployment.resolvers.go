@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"log"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/deployment"
@@ -22,7 +23,13 @@ func (r *deploymentResolver) Team(ctx context.Context, obj *deployment.Deploymen
 }
 
 func (r *deploymentResolver) Environment(ctx context.Context, obj *deployment.Deployment) (*team.TeamEnvironment, error) {
-	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+	env, err := team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+	if err != nil {
+		log.Println(err, obj.TeamSlug, obj.EnvironmentName)
+		return nil, err
+	}
+
+	return env, nil
 }
 
 func (r *deploymentInfoResolver) History(ctx context.Context, obj *deployment.DeploymentInfo, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error) {
