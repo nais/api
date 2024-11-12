@@ -50,22 +50,6 @@ extend type Mutation {
 	updateTeamEnvironment(input: UpdateTeamEnvironmentInput!): UpdateTeamEnvironmentPayload!
 
 	"""
-	Manually synchronize a team
-
-	This action will trigger a full synchronization of the team with the configured third party systems. The process is
-	asynchronous.
-	"""
-	synchronizeTeam(input: SynchronizeTeamInput!): SynchronizeTeamPayload!
-
-	# """
-	# Manually synchronize all teams
-	#
-	# This action will trigger a full synchronization of all teams with the configured third party systems. The process is
-	# asynchronous.
-	# """
-	# synchronizeAllTeams(input: SynchronizeAllTeamsInput!): SynchronizeAllTeamsPayload!
-
-	"""
 	Request a key that can be used to trigger a team deletion process
 
 	Deleting a team is a two step process. First an owner of the team (or an admin) must request a team deletion key,
@@ -235,11 +219,6 @@ type UpdateTeamEnvironmentPayload {
 	environment: TeamEnvironment
 }
 
-type SynchronizeTeamPayload {
-	"The synchronized team."
-	team: Team
-}
-
 type RequestTeamDeletionPayload {
 	"The delete key for the team. This can be used to confirm the deletion of the team."
 	key: TeamDeleteKey
@@ -378,11 +357,6 @@ input UpdateTeamEnvironmentInput {
 
 	"Slack alerts channel for the environment. Set to an empty string to remove the existing value."
 	slackAlertsChannel: String
-}
-
-input SynchronizeTeamInput {
-	"Slug of the team to synchronize."
-	slug: Slug!
 }
 
 "Ordering options when fetching teams."

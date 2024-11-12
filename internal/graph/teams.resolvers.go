@@ -2,7 +2,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
@@ -72,10 +71,6 @@ func (r *mutationResolver) UpdateTeamEnvironment(ctx context.Context, input team
 	return &team.UpdateTeamEnvironmentPayload{
 		Environment: teamEnvironment,
 	}, nil
-}
-
-func (r *mutationResolver) SynchronizeTeam(ctx context.Context, input team.SynchronizeTeamInput) (*team.SynchronizeTeamPayload, error) {
-	panic(fmt.Errorf("not implemented: SynchronizeTeam - synchronizeTeam"))
 }
 
 func (r *mutationResolver) RequestTeamDeletion(ctx context.Context, input team.RequestTeamDeletionInput) (*team.RequestTeamDeletionPayload, error) {
