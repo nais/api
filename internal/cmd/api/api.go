@@ -141,16 +141,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("create graph handler: %w", err)
 	}
 
-	wg, ctx := errgroup.WithContext(ctx)
-
-	wg.Go(func() error {
-		return runUsersync(ctx, pool, cfg, log)
-	})
-
-	wg.Go(func() error {
-		return costUpdater(ctx, pool, cfg, log)
-	})
-
 	authHandler, err := setupAuthHandler(cfg.OAuth, log)
 	if err != nil {
 		return err
@@ -188,6 +178,8 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("starting leader election: %w", err)
 	}
 
+	wg, ctx := errgroup.WithContext(ctx)
+
 	// HTTP server
 	wg.Go(func() error {
 		return runHttpServer(
@@ -215,6 +207,14 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			return err
 		}
 		return nil
+	})
+
+	wg.Go(func() error {
+		return runUsersync(ctx, pool, cfg, log)
+	})
+
+	wg.Go(func() error {
+		return costUpdater(ctx, pool, cfg, log)
 	})
 
 	<-ctx.Done()
