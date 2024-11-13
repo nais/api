@@ -6,6 +6,8 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes/watcher"
@@ -108,6 +110,20 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environmentName, name strin
 	if err != nil {
 		return nil, err
 	}
+
+	actor := authz.ActorFromContext(ctx)
+
+	if err := audit.Create(ctx, audit.CreateInput{
+		Action:          audit.AuditActionDeleted,
+		ResourceType:    auditResourceTypeApplication,
+		TeamSlug:        &teamSlug,
+		EnvironmentName: &environmentName,
+		ResourceName:    name,
+		Actor:           actor.User,
+	}); err != nil {
+		return nil, err
+	}
+
 	return &DeleteApplicationPayload{
 		TeamSlug: &teamSlug,
 		Success:  true,
@@ -132,7 +148,16 @@ func Restart(ctx context.Context, teamSlug slug.Slug, environmentName, name stri
 		return fmt.Errorf("patch deployment: %w", err)
 	}
 
-	return nil
+	actor := authz.ActorFromContext(ctx)
+
+	return audit.Create(ctx, audit.CreateInput{
+		Action:          auditActionRestartApplication,
+		ResourceType:    auditResourceTypeApplication,
+		TeamSlug:        &teamSlug,
+		EnvironmentName: &environmentName,
+		ResourceName:    name,
+		Actor:           actor.User,
+	})
 }
 
 func ListInstances(ctx context.Context, teamSlug slug.Slug, environmentName, appName string, page *pagination.Pagination) (*ApplicationInstanceConnection, error) {
