@@ -92,7 +92,7 @@ func (f *FakeHookdClient) DeployKey(ctx context.Context, team string) (*hookd.De
 
 func (f *FakeHookdClient) Deployments(ctx context.Context, opts ...hookd.RequestOption) ([]hookd.Deploy, error) {
 	team := "nais"
-	cluster := "dev"
+	clusters := []string{"dev"}
 
 	if len(opts) > 0 {
 		r := &http.Request{URL: &url.URL{}}
@@ -105,13 +105,13 @@ func (f *FakeHookdClient) Deployments(ctx context.Context, opts ...hookd.Request
 		}
 
 		if c := r.URL.Query().Get("cluster"); c != "" {
-			cluster = c
+			clusters = strings.Split(c, ",")
 		}
 	}
 
 	ret := []hookd.Deploy{}
 	for i := 0; i < rand.IntN(30); i++ {
-		ret = append(ret, newDeploy(cluster, slug.Slug(team)))
+		ret = append(ret, newDeploy(clusters[rand.IntN(len(clusters))], slug.Slug(team)))
 	}
 
 	return ret, nil
