@@ -15,6 +15,7 @@ func (r *mutationResolver) EnableReconciler(ctx context.Context, name string) (*
 	if err := authz.RequireGlobalAdmin(ctx); err != nil {
 		return nil, err
 	}
+
 	rec, err := reconciler.Enable(ctx, name)
 	if err != nil {
 		return nil, err
@@ -28,6 +29,7 @@ func (r *mutationResolver) DisableReconciler(ctx context.Context, name string) (
 	if err := authz.RequireGlobalAdmin(ctx); err != nil {
 		return nil, err
 	}
+
 	rec, err := reconciler.Disable(ctx, name)
 	if err != nil {
 		return nil, err
@@ -41,6 +43,7 @@ func (r *mutationResolver) ConfigureReconciler(ctx context.Context, name string,
 	if err := authz.RequireGlobalAdmin(ctx); err != nil {
 		return nil, err
 	}
+
 	rec, err := reconciler.Configure(ctx, name, config)
 	if err != nil {
 		return nil, err

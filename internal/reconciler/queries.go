@@ -87,43 +87,24 @@ func Enable(ctx context.Context, name string) (*Reconciler, error) {
 		return nil, apierror.Errorf("Unable to enable reconciler")
 	}
 
-	// TODO: Implement audit logging
-	// actor := authz.ActorFromContext(ctx)
-	// targets := []auditlogger.Target{
-	// 	auditlogger.ReconcilerTarget(name),
-	// }
-	// fields := auditlogger.Fields{
-	// 	Action:        audittype.AuditActionGraphqlApiReconcilersEnable,
-	// 	Actor:         actor,
-	// 	CorrelationID: correlationID,
-	// }
-	// r.auditLogger.Logf(ctx, targets, fields, "Enable reconciler: %q", name)
+	// TODO(chredvar): Audit event
 
 	return toGraphReconciler(reconciler), nil
 }
 
 func Disable(ctx context.Context, name string) (*Reconciler, error) {
-	_, err := Get(ctx, name)
+	q := db(ctx)
+
+	if _, err := q.Get(ctx, name); err != nil {
+		return nil, err
+	}
+
+	reconcilerRow, err := q.Disable(ctx, name)
 	if err != nil {
 		return nil, err
 	}
 
-	reconcilerRow, err := db(ctx).Disable(ctx, name)
-	if err != nil {
-		return nil, err
-	}
-
-	// TODO: Implement audit logging
-	// actor := authz.ActorFromContext(ctx)
-	// targets := []auditlogger.Target{
-	// 	auditlogger.ReconcilerTarget(name),
-	// }
-	// fields := auditlogger.Fields{
-	// 	Action:        audittype.AuditActionGraphqlApiReconcilersDisable,
-	// 	Actor:         actor,
-	// 	CorrelationID: correlationID,
-	// }
-	// r.auditLogger.Logf(ctx, targets, fields, "Disable reconciler: %q", name)
+	// TODO(chredvar): Audit event
 
 	return toGraphReconciler(reconcilerRow), nil
 }
@@ -164,6 +145,8 @@ func Configure(ctx context.Context, name string, config []*ReconcilerConfigInput
 			}
 		}
 
+		// TODO(chredvar): Audit event
+
 		return nil
 	})
 	if err != nil {
@@ -174,19 +157,6 @@ func Configure(ctx context.Context, name string, config []*ReconcilerConfigInput
 	if err != nil {
 		return nil, err
 	}
-
-	// TODO: Implement audit logging
-	// correlationID := uuid.New()
-	// actor := authz.ActorFromContext(ctx)
-	// targets := []auditlogger.Target{
-	// 	auditlogger.ReconcilerTarget(name),
-	// }
-	// fields := auditlogger.Fields{
-	// 	Action:        audittype.AuditActionGraphqlApiReconcilersConfigure,
-	// 	Actor:         actor,
-	// 	CorrelationID: correlationID,
-	// }
-	// r.auditLogger.Logf(ctx, targets, fields, "Configure reconciler: %q", name)
 
 	return reconciler, nil
 }

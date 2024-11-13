@@ -106,12 +106,9 @@ func Manifest(ctx context.Context, teamSlug slug.Slug, environmentName, name str
 }
 
 func Delete(ctx context.Context, teamSlug slug.Slug, environmentName, name string) (*DeleteApplicationPayload, error) {
-	err := fromContext(ctx).appWatcher.Delete(ctx, environmentName, teamSlug.String(), name)
-	if err != nil {
+	if err := fromContext(ctx).appWatcher.Delete(ctx, environmentName, teamSlug.String(), name); err != nil {
 		return nil, err
 	}
-
-	actor := authz.ActorFromContext(ctx)
 
 	if err := audit.Create(ctx, audit.CreateInput{
 		Action:          audit.AuditActionDeleted,
@@ -119,7 +116,7 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environmentName, name strin
 		TeamSlug:        &teamSlug,
 		EnvironmentName: &environmentName,
 		ResourceName:    name,
-		Actor:           actor.User,
+		Actor:           authz.ActorFromContext(ctx).User,
 	}); err != nil {
 		return nil, err
 	}
@@ -148,15 +145,13 @@ func Restart(ctx context.Context, teamSlug slug.Slug, environmentName, name stri
 		return fmt.Errorf("patch deployment: %w", err)
 	}
 
-	actor := authz.ActorFromContext(ctx)
-
 	return audit.Create(ctx, audit.CreateInput{
 		Action:          auditActionRestartApplication,
 		ResourceType:    auditResourceTypeApplication,
 		TeamSlug:        &teamSlug,
 		EnvironmentName: &environmentName,
 		ResourceName:    name,
-		Actor:           actor.User,
+		Actor:           authz.ActorFromContext(ctx).User,
 	})
 }
 

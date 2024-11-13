@@ -50,9 +50,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 }
 
 func Create(ctx context.Context, input AddRepositoryToTeamInput) (*Repository, error) {
-	q := db(ctx)
-
-	ret, err := q.Create(ctx, repositorysql.CreateParams{
+	ret, err := db(ctx).Create(ctx, repositorysql.CreateParams{
 		TeamSlug:         input.TeamSlug,
 		GithubRepository: input.RepositoryName,
 	})
@@ -60,10 +58,14 @@ func Create(ctx context.Context, input AddRepositoryToTeamInput) (*Repository, e
 		return nil, err
 	}
 
+	// TODO(chredvar): Audit event
+
 	return toGraphRepository(ret), nil
 }
 
 func Remove(ctx context.Context, input RemoveRepositoryFromTeamInput) error {
+	// TODO(chredvar): Audit event
+
 	return db(ctx).Remove(ctx, repositorysql.RemoveParams{
 		TeamSlug:         input.TeamSlug,
 		GithubRepository: input.RepositoryName,

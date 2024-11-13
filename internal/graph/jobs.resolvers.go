@@ -74,6 +74,7 @@ func (r *mutationResolver) DeleteJob(ctx context.Context, input job.DeleteJobInp
 	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationJobsDelete, input.TeamSlug); err != nil {
 		return nil, err
 	}
+
 	return job.Delete(ctx, input.TeamSlug, input.EnvironmentName, input.Name)
 }
 
@@ -81,6 +82,7 @@ func (r *mutationResolver) TriggerJob(ctx context.Context, input job.TriggerJobI
 	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationJobsUpdate, input.TeamSlug); err != nil {
 		return nil, err
 	}
+
 	ret, err := job.Trigger(ctx, input.TeamSlug, input.EnvironmentName, input.Name, input.RunName)
 	if err != nil {
 		return nil, err

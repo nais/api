@@ -76,6 +76,7 @@ func (r *mutationResolver) DeleteApplication(ctx context.Context, input applicat
 	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationApplicationsDelete, input.TeamSlug); err != nil {
 		return nil, err
 	}
+
 	return application.Delete(ctx, input.TeamSlug, input.EnvironmentName, input.Name)
 }
 
@@ -83,8 +84,8 @@ func (r *mutationResolver) RestartApplication(ctx context.Context, input applica
 	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationApplicationsUpdate, input.TeamSlug); err != nil {
 		return nil, err
 	}
-	err := application.Restart(ctx, input.TeamSlug, input.EnvironmentName, input.Name)
-	if err != nil {
+
+	if err := application.Restart(ctx, input.TeamSlug, input.EnvironmentName, input.Name); err != nil {
 		return nil, err
 	}
 

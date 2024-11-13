@@ -15,6 +15,7 @@ func (r *mutationResolver) AddRepositoryToTeam(ctx context.Context, input reposi
 	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationRepositoriesCreate, input.TeamSlug); err != nil {
 		return nil, err
 	}
+
 	repo, err := repository.Create(ctx, input)
 	if err != nil {
 		return nil, err
@@ -29,6 +30,7 @@ func (r *mutationResolver) RemoveRepositoryFromTeam(ctx context.Context, input r
 	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationRepositoriesDelete, input.TeamSlug); err != nil {
 		return nil, err
 	}
+
 	err := repository.Remove(ctx, input)
 	return &repository.RemoveRepositoryFromTeamPayload{
 		Success: err == nil,

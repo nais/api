@@ -83,6 +83,8 @@ func ChangeDeploymentKey(ctx context.Context, teamSlug slug.Slug) (*DeploymentKe
 		return nil, err
 	}
 
+	// TODO(chredvar): Audit event
+
 	return toGraphDeploymentKey(dk, teamSlug), nil
 }
 

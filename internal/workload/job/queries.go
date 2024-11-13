@@ -168,10 +168,12 @@ func Manifest(ctx context.Context, teamSlug slug.Slug, environmentName, name str
 }
 
 func Delete(ctx context.Context, teamSlug slug.Slug, environmentName, name string) (*DeleteJobPayload, error) {
-	err := fromContext(ctx).jobWatcher.Delete(ctx, environmentName, teamSlug.String(), name)
-	if err != nil {
+	if err := fromContext(ctx).jobWatcher.Delete(ctx, environmentName, teamSlug.String(), name); err != nil {
 		return nil, err
 	}
+
+	// TODO(chredvar): Audit event
+
 	return &DeleteJobPayload{
 		TeamSlug: &teamSlug,
 		Success:  true,
@@ -199,6 +201,8 @@ func Trigger(ctx context.Context, teamSlug slug.Slug, environmentName, name, run
 		return nil, fmt.Errorf("getting cronjob: %w", err)
 	}
 
+	// TODO(chredvar): Audit event
+
 	jobRun, err := createJobFromCronJob(runName, cronJob)
 	if err != nil {
 		return nil, fmt.Errorf("creating job from cronjob: %w", err)
@@ -215,8 +219,6 @@ func Trigger(ctx context.Context, teamSlug slug.Slug, environmentName, name, run
 	}
 
 	jobRunBatch := &batchv1.Job{}
-
-	// Convert the unstructured object to a typed object
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(jobRun.Object, jobRunBatch); err != nil {
 		return nil, err
 	}
