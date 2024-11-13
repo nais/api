@@ -173,6 +173,9 @@ type Config struct {
 	// GRPCListenAddress is host:port combination used by the GRPC server
 	GRPCListenAddress string `env:"GRPC_LISTEN_ADDRESS,default=127.0.0.1:3001"`
 
+	LeaseName      string `env:"LEASE_NAME,default=nais-api-lease"`
+	LeaseNamespace string `env:"LEASE_NAMESPACE,default=nais-system"`
+
 	K8s             k8sConfig
 	Usersync        usersyncConfig
 	Cost            costConfig

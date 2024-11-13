@@ -19,6 +19,7 @@ import (
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/fake"
 	"github.com/nais/api/internal/kubernetes/watcher"
+	"github.com/nais/api/internal/leaderelection"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
@@ -26,6 +27,9 @@ import (
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
+	k8s "k8s.io/client-go/kubernetes"
+	k8sfake "k8s.io/client-go/kubernetes/fake"
+	"k8s.io/client-go/rest"
 )
 
 const (
@@ -164,10 +168,24 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	)
 
 	var hookdClient hookd.Client
+	var mgmtK8sClient k8s.Interface
 	if cfg.WithFakeClients {
 		hookdClient = fakehookd.New()
+		mgmtK8sClient = k8sfake.NewSimpleClientset()
 	} else {
 		hookdClient = hookd.New(cfg.Hookd.Endpoint, cfg.Hookd.PSK, log.WithField("client", "hookd"))
+		cfg, err := rest.InClusterConfig()
+		if err != nil {
+			return fmt.Errorf("creating in-cluster config: %w", err)
+		}
+		mgmtK8sClient, err = k8s.NewForConfig(cfg)
+		if err != nil {
+			return fmt.Errorf("creating k8s client: %w", err)
+		}
+	}
+
+	if err := leaderelection.Start(ctx, mgmtK8sClient, cfg.LeaseName, cfg.LeaseNamespace, log); err != nil {
+		return fmt.Errorf("starting leader election: %w", err)
 	}
 
 	// HTTP server

@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/leaderelection"
 	"github.com/nais/api/internal/usersync"
 	"github.com/sirupsen/logrus"
 )
@@ -29,6 +30,11 @@ func runUsersync(ctx context.Context, pool *pgxpool.Pool, cfg *Config, log logru
 
 	for {
 		func() {
+			if !leaderelection.IsLeader() {
+				log.Debug("not leader, skipping usersync")
+				return
+			}
+
 			correlationID := uuid.New()
 			log := log.WithField("correlation_id", correlationID)
 			log.Debugf("starting usersync...")

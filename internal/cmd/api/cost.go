@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/cost/costsql"
 	"github.com/nais/api/internal/cost/costupdater"
+	"github.com/nais/api/internal/leaderelection"
 	"github.com/sirupsen/logrus"
 )
 
@@ -37,6 +38,11 @@ func runCostUpdater(ctx context.Context, pool *pgxpool.Pool, tenant, bigQueryPro
 
 	for {
 		func() {
+			if !leaderelection.IsLeader() {
+				log.Debug("not leader, skipping cost update run")
+				return
+			}
+
 			log.Infof("start scheduled cost update run")
 			start := time.Now()
 
