@@ -21,9 +21,6 @@ packages:
     config:
       include-regex: ".*Server"
       exclude-regex: "Unsafe.*"
-  github.com/nais/api/internal/grpc/grpcteam/grpcteamsql:
-    interfaces:
-      Querier:
   github.com/nais/api/internal/cost/costsql:
     interfaces:
       Querier:

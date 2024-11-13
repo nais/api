@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/grpc/grpcpagination"
 	"github.com/nais/api/internal/grpc/grpcuser/grpcusersql"
 	"github.com/nais/api/pkg/apiclient/protoapi"
@@ -16,9 +17,9 @@ type Server struct {
 	protoapi.UnimplementedUsersServer
 }
 
-func NewServer(querier grpcusersql.Querier) *Server {
+func NewServer(pool *pgxpool.Pool) *Server {
 	return &Server{
-		querier: querier,
+		querier: grpcusersql.New(pool),
 	}
 }
 

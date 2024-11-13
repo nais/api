@@ -8,11 +8,8 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/grpc/grpcreconciler"
-	"github.com/nais/api/internal/grpc/grpcreconciler/grpcreconcilersql"
 	"github.com/nais/api/internal/grpc/grpcteam"
-	"github.com/nais/api/internal/grpc/grpcteam/grpcteamsql"
 	"github.com/nais/api/internal/grpc/grpcuser"
-	"github.com/nais/api/internal/grpc/grpcuser/grpcusersql"
 	"github.com/nais/api/pkg/apiclient/protoapi"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -32,9 +29,9 @@ func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, log logr
 	}
 	s := grpc.NewServer(opts...)
 
-	protoapi.RegisterTeamsServer(s, grpcteam.NewServer(grpcteamsql.New(pool)))
-	protoapi.RegisterUsersServer(s, grpcuser.NewServer(grpcusersql.New(pool)))
-	protoapi.RegisterReconcilersServer(s, grpcreconciler.NewServer(grpcreconcilersql.New(pool)))
+	protoapi.RegisterTeamsServer(s, grpcteam.NewServer(pool))
+	protoapi.RegisterUsersServer(s, grpcuser.NewServer(pool))
+	protoapi.RegisterReconcilersServer(s, grpcreconciler.NewServer(pool))
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error { return s.Serve(lis) })

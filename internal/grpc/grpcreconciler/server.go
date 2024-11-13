@@ -3,9 +3,11 @@ package grpcreconciler
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/grpc/grpcpagination"
 	"github.com/nais/api/internal/grpc/grpcreconciler/grpcreconcilersql"
 	"github.com/nais/api/internal/slug"
@@ -17,13 +19,15 @@ import (
 )
 
 type Server struct {
-	querier grpcreconcilersql.Querier
+	pool    *pgxpool.Pool
+	querier *grpcreconcilersql.Queries
 	protoapi.UnimplementedReconcilersServer
 }
 
-func NewServer(querier grpcreconcilersql.Querier) *Server {
+func NewServer(pool *pgxpool.Pool) *Server {
 	return &Server{
-		querier: querier,
+		pool:    pool,
+		querier: grpcreconcilersql.New(pool),
 	}
 }
 
@@ -240,9 +244,16 @@ func (s *Server) syncReconcilerConfig(ctx context.Context, reconcilerName string
 		existing[c.Key] = struct{}{}
 	}
 
-	// TODO: use transaction for upsert / delete
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("begin transaction: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	querier := s.querier.WithTx(tx)
+
 	for _, c := range configs {
-		if err := s.querier.UpsertConfig(ctx, grpcreconcilersql.UpsertConfigParams{
+		if err := querier.UpsertConfig(ctx, grpcreconcilersql.UpsertConfigParams{
 			Reconciler:  reconcilerName,
 			Key:         c.Key,
 			DisplayName: c.DisplayName,
@@ -259,10 +270,15 @@ func (s *Server) syncReconcilerConfig(ctx context.Context, reconcilerName string
 		toDelete = append(toDelete, k)
 	}
 
-	return s.querier.DeleteConfig(ctx, grpcreconcilersql.DeleteConfigParams{
+	err = querier.DeleteConfig(ctx, grpcreconcilersql.DeleteConfigParams{
 		Reconciler: reconcilerName,
 		Keys:       toDelete,
 	})
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }
 
 func toProtoReconcilerState(res *grpcreconcilersql.ReconcilerState) *protoapi.ReconcilerState {

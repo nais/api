@@ -1,3 +1,5 @@
+//go:build integration_test
+
 package grpcteam_test
 
 import (
@@ -6,26 +8,29 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/grpc/grpcteam"
-	"github.com/nais/api/internal/grpc/grpcteam/grpcteamsql"
-	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/pkg/apiclient/protoapi"
+	"github.com/sirupsen/logrus"
+	logrustest "github.com/sirupsen/logrus/hooks/test"
+	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"k8s.io/utils/ptr"
 )
 
 func TestTeamsServer_Get(t *testing.T) {
 	ctx := context.Background()
-	t.Run("team not found", func(t *testing.T) {
-		querier := grpcteamsql.NewMockQuerier(t)
-		querier.EXPECT().
-			Get(ctx, slug.Slug("team-not-found")).
-			Return(nil, pgx.ErrNoRows).
-			Once()
+	log, _ := logrustest.NewNullLogger()
 
-		resp, err := grpcteam.NewServer(querier).Get(ctx, &protoapi.GetTeamRequest{Slug: "team-not-found"})
+	container, dsn, err := startPostgresql(ctx, log)
+	if err != nil {
+		t.Fatalf("failed to start postgres container: %v", err)
+	}
+
+	t.Run("team not found", func(t *testing.T) {
+		pool := getConnection(ctx, t, container, dsn, log)
+		resp, err := grpcteam.NewServer(pool).Get(ctx, &protoapi.GetTeamRequest{Slug: "team-not-found"})
 		if resp != nil {
 			t.Error("expected response to be nil")
 		}
@@ -35,50 +40,25 @@ func TestTeamsServer_Get(t *testing.T) {
 		}
 	})
 
-	t.Run("database error", func(t *testing.T) {
-		querier := grpcteamsql.NewMockQuerier(t)
-		querier.EXPECT().
-			Get(ctx, slug.Slug("team-not-found")).
-			Return(nil, fmt.Errorf("some database error")).
-			Once()
-
-		resp, err := grpcteam.NewServer(querier).Get(ctx, &protoapi.GetTeamRequest{Slug: "team-not-found"})
-		if resp != nil {
-			t.Error("expected response to be nil")
-		}
-
-		if s, ok := status.FromError(err); !ok || s.Code() != codes.Internal {
-			t.Errorf("expected status code %v, got %v", codes.Internal, err)
-		}
-	})
-
 	t.Run("get team", func(t *testing.T) {
-		const (
-			teamSlug         = "team"
-			purpose          = "purpose"
-			slackChannel     = "slackChannel"
-			gitHubTeamSlug   = "github-team-slug"
-			googleGroupEmail = "mail@example.com"
-			garRepository    = "gar-repository"
-		)
+		pool := getConnection(ctx, t, container, dsn, log)
 
-		aid := uuid.New()
+		teamSlug := "team"
+		purpose := "purpose"
+		slackChannel := "#channel"
+		entraIDgroupID := uuid.New()
+		gitHubTeamSlug := "github-team-slug"
+		googleGroupEmail := "mail@example.com"
+		garRepository := "gar-repository"
 
-		querier := grpcteamsql.NewMockQuerier(t)
-		querier.EXPECT().
-			Get(ctx, slug.Slug(teamSlug)).
-			Return(&grpcteamsql.Team{
-				Slug:             teamSlug,
-				Purpose:          purpose,
-				SlackChannel:     slackChannel,
-				AzureGroupID:     &aid,
-				GithubTeamSlug:   ptr.To(gitHubTeamSlug),
-				GoogleGroupEmail: ptr.To(googleGroupEmail),
-				GarRepository:    ptr.To(garRepository),
-			}, nil).
-			Once()
+		stmt := `
+			INSERT INTO teams (slug, purpose, slack_channel, azure_group_id, github_team_slug, google_group_email, gar_repository) VALUES 
+			($1, $2, $3, $4, $5, $6, $7)`
+		if _, err = pool.Exec(ctx, stmt, teamSlug, purpose, slackChannel, entraIDgroupID, gitHubTeamSlug, googleGroupEmail, garRepository); err != nil {
+			t.Fatalf("failed to insert team: %v", err)
+		}
 
-		resp, err := grpcteam.NewServer(querier).Get(ctx, &protoapi.GetTeamRequest{Slug: teamSlug})
+		resp, err := grpcteam.NewServer(pool).Get(ctx, &protoapi.GetTeamRequest{Slug: teamSlug})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -99,8 +79,8 @@ func TestTeamsServer_Get(t *testing.T) {
 			t.Errorf("expected Slack channel to be %q, got %q", slackChannel, resp.Team.SlackChannel)
 		}
 
-		if *resp.Team.EntraIdGroupId != aid.String() {
-			t.Errorf("expected Azure group ID to be %q, got %q", aid.String(), *resp.Team.EntraIdGroupId)
+		if *resp.Team.EntraIdGroupId != entraIDgroupID.String() {
+			t.Errorf("expected Azure group ID to be %q, got %q", entraIDgroupID.String(), *resp.Team.EntraIdGroupId)
 		}
 
 		if *resp.Team.GithubTeamSlug != gitHubTeamSlug {
@@ -119,9 +99,17 @@ func TestTeamsServer_Get(t *testing.T) {
 
 func TestTeamsServer_Delete(t *testing.T) {
 	ctx := context.Background()
+	log, _ := logrustest.NewNullLogger()
+
+	container, dsn, err := startPostgresql(ctx, log)
+	if err != nil {
+		t.Fatalf("failed to start postgres container: %v", err)
+	}
+
 	t.Run("missing slug", func(t *testing.T) {
-		querier := grpcteamsql.NewMockQuerier(t)
-		resp, err := grpcteam.NewServer(querier).Delete(ctx, &protoapi.DeleteTeamRequest{})
+		pool := getConnection(ctx, t, container, dsn, log)
+
+		resp, err := grpcteam.NewServer(pool).Delete(ctx, &protoapi.DeleteTeamRequest{})
 		if resp != nil {
 			t.Error("expected response to be nil")
 		}
@@ -132,13 +120,16 @@ func TestTeamsServer_Delete(t *testing.T) {
 	})
 
 	t.Run("delete team", func(t *testing.T) {
-		const teamSlug = "team-slug"
-		querier := grpcteamsql.NewMockQuerier(t)
-		querier.EXPECT().
-			Delete(ctx, slug.Slug(teamSlug)).
-			Return(nil).
-			Once()
-		resp, err := grpcteam.NewServer(querier).Delete(ctx, &protoapi.DeleteTeamRequest{Slug: teamSlug})
+		pool := getConnection(ctx, t, container, dsn, log)
+
+		teamSlug := "team-slug"
+
+		stmt := "INSERT INTO teams (slug, purpose, slack_channel, delete_key_confirmed_at) VALUES ($1, 'some purpose', '#channel', NOW())"
+		if _, err := pool.Exec(ctx, stmt, teamSlug); err != nil {
+			t.Fatalf("failed to insert team: %v", err)
+		}
+
+		resp, err := grpcteam.NewServer(pool).Delete(ctx, &protoapi.DeleteTeamRequest{Slug: teamSlug})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -146,45 +137,40 @@ func TestTeamsServer_Delete(t *testing.T) {
 		if resp == nil {
 			t.Error("expected response to be non-nil")
 		}
+
+		count := 0
+		stmt = "SELECT COUNT(*) FROM teams WHERE slug = $1"
+		if err := pool.QueryRow(ctx, stmt, teamSlug).Scan(&count); err != nil {
+			t.Fatalf("failed to count teams: %v", err)
+		} else if count != 0 {
+			t.Fatalf("expected team to be deleted")
+		}
 	})
 }
 
 func TestTeamsServer_ToBeReconciled(t *testing.T) {
 	ctx := context.Background()
-	t.Run("error when fetching teams from database", func(t *testing.T) {
-		querier := grpcteamsql.NewMockQuerier(t)
-		querier.EXPECT().
-			List(ctx, grpcteamsql.ListParams{Limit: 123, Offset: 2}).
-			Return(nil, fmt.Errorf("some error")).
-			Once()
-		resp, err := grpcteam.NewServer(querier).List(ctx, &protoapi.ListTeamsRequest{
-			Limit:  123,
-			Offset: 2,
-		})
-		if resp != nil {
-			t.Error("expected response to be nil")
-		}
+	log, _ := logrustest.NewNullLogger()
 
-		if s, ok := status.FromError(err); !ok || s.Code() != codes.Internal {
-			t.Errorf("expected status code %v, got %v", codes.Internal, err)
-		}
-	})
+	container, dsn, err := startPostgresql(ctx, log)
+	if err != nil {
+		t.Fatalf("failed to start postgres container: %v", err)
+	}
 
 	t.Run("fetch teams", func(t *testing.T) {
-		teamsFromDatabase := []*grpcteamsql.Team{
-			{Slug: "team1"},
-			{Slug: "team2"},
+		pool := getConnection(ctx, t, container, dsn, log)
+
+		stmt := "INSERT INTO teams (slug, purpose, slack_channel) VALUES ('team-1', 'some purpose', '#channel')"
+		if _, err := pool.Exec(ctx, stmt); err != nil {
+			t.Fatalf("failed to insert team: %v", err)
 		}
-		querier := grpcteamsql.NewMockQuerier(t)
-		querier.EXPECT().
-			List(ctx, grpcteamsql.ListParams{Limit: 2, Offset: 0}).
-			Return(teamsFromDatabase, nil).
-			Once()
-		querier.EXPECT().
-			Count(ctx).
-			Return(2, nil).
-			Once()
-		resp, err := grpcteam.NewServer(querier).List(ctx, &protoapi.ListTeamsRequest{
+
+		stmt = "INSERT INTO teams (slug, purpose, slack_channel) VALUES ('team-2', 'some purpose', '#channel')"
+		if _, err := pool.Exec(ctx, stmt); err != nil {
+			t.Fatalf("failed to insert team: %v", err)
+		}
+
+		resp, err := grpcteam.NewServer(pool).List(ctx, &protoapi.ListTeamsRequest{
 			Limit:  2,
 			Offset: 0,
 		})
@@ -196,11 +182,11 @@ func TestTeamsServer_ToBeReconciled(t *testing.T) {
 			t.Errorf("expected 2 teams, got %v", resp.Nodes)
 		}
 
-		if expected := "team1"; resp.Nodes[0].Slug != expected {
+		if expected := "team-1"; resp.Nodes[0].Slug != expected {
 			t.Errorf("expected first team to be %q, got %q", expected, resp.Nodes[0].Slug)
 		}
 
-		if expected := "team2"; resp.Nodes[1].Slug != expected {
+		if expected := "team-2"; resp.Nodes[1].Slug != expected {
 			t.Errorf("expected first team to be %q, got %q", expected, resp.Nodes[1].Slug)
 		}
 	})
@@ -208,46 +194,32 @@ func TestTeamsServer_ToBeReconciled(t *testing.T) {
 
 func TestTeamsServer_IsRepositoryAuthorized(t *testing.T) {
 	ctx := context.Background()
-	t.Run("error when fetching authorizations from database", func(t *testing.T) {
-		const (
-			teamSlug = "team-slug"
-			repoName = "repo-name"
-		)
-		querier := grpcteamsql.NewMockQuerier(t)
-		querier.EXPECT().
-			IsTeamRepository(ctx, grpcteamsql.IsTeamRepositoryParams{
-				TeamSlug:         teamSlug,
-				GithubRepository: repoName,
-			}).
-			Return(false, fmt.Errorf("some error")).
-			Once()
-		resp, err := grpcteam.NewServer(querier).IsRepositoryAuthorized(ctx, &protoapi.IsRepositoryAuthorizedRequest{
-			TeamSlug:   teamSlug,
-			Repository: repoName,
-		})
-		if resp != nil {
-			t.Error("expected response to be nil")
-		}
+	log, _ := logrustest.NewNullLogger()
 
-		if s, ok := status.FromError(err); !ok || s.Code() != codes.Internal {
-			t.Errorf("expected status code %v, got %v", codes.Internal, err)
-		}
-	})
+	container, dsn, err := startPostgresql(ctx, log)
+	if err != nil {
+		t.Fatalf("failed to start postgres container: %v", err)
+	}
 
 	t.Run("repo is authorized", func(t *testing.T) {
+		pool := getConnection(ctx, t, container, dsn, log)
+
 		const (
 			teamSlug = "team-slug"
 			repoName = "repo-name"
 		)
-		querier := grpcteamsql.NewMockQuerier(t)
-		querier.EXPECT().
-			IsTeamRepository(ctx, grpcteamsql.IsTeamRepositoryParams{
-				TeamSlug:         teamSlug,
-				GithubRepository: repoName,
-			}).
-			Return(true, nil).
-			Once()
-		resp, err := grpcteam.NewServer(querier).IsRepositoryAuthorized(ctx, &protoapi.IsRepositoryAuthorizedRequest{
+
+		stmt := "INSERT INTO teams (slug, purpose, slack_channel) VALUES ($1, 'some purpose', '#channel')"
+		if _, err := pool.Exec(ctx, stmt, teamSlug); err != nil {
+			t.Fatalf("failed to insert team: %v", err)
+		}
+
+		stmt = "INSERT INTO team_repositories (team_slug, github_repository) VALUES ($1, $2)"
+		if _, err := pool.Exec(ctx, stmt, teamSlug, repoName); err != nil {
+			t.Fatalf("failed to insert team: %v", err)
+		}
+
+		resp, err := grpcteam.NewServer(pool).IsRepositoryAuthorized(ctx, &protoapi.IsRepositoryAuthorizedRequest{
 			TeamSlug:   teamSlug,
 			Repository: repoName,
 		})
@@ -263,21 +235,20 @@ func TestTeamsServer_IsRepositoryAuthorized(t *testing.T) {
 			t.Errorf("expected repository to be authorized")
 		}
 	})
-
 	t.Run("repo is not authorized", func(t *testing.T) {
+		pool := getConnection(ctx, t, container, dsn, log)
+
 		const (
 			teamSlug = "team-slug"
 			repoName = "repo-name"
 		)
-		querier := grpcteamsql.NewMockQuerier(t)
-		querier.EXPECT().
-			IsTeamRepository(ctx, grpcteamsql.IsTeamRepositoryParams{
-				TeamSlug:         teamSlug,
-				GithubRepository: repoName,
-			}).
-			Return(false, nil).
-			Once()
-		resp, err := grpcteam.NewServer(querier).IsRepositoryAuthorized(ctx, &protoapi.IsRepositoryAuthorizedRequest{
+
+		stmt := "INSERT INTO teams (slug, purpose, slack_channel) VALUES ($1, 'some purpose', '#channel')"
+		if _, err := pool.Exec(ctx, stmt, teamSlug); err != nil {
+			t.Fatalf("failed to insert team: %v", err)
+		}
+
+		resp, err := grpcteam.NewServer(pool).IsRepositoryAuthorized(ctx, &protoapi.IsRepositoryAuthorizedRequest{
 			TeamSlug:   teamSlug,
 			Repository: repoName,
 		})
@@ -293,4 +264,49 @@ func TestTeamsServer_IsRepositoryAuthorized(t *testing.T) {
 			t.Errorf("did not expect repository to be authorized")
 		}
 	})
+}
+
+func startPostgresql(ctx context.Context, log logrus.FieldLogger) (container *postgres.PostgresContainer, dsn string, err error) {
+	container, err = postgres.Run(
+		ctx,
+		"docker.io/postgres:16-alpine",
+		postgres.WithDatabase("test"),
+		postgres.WithUsername("test"),
+		postgres.WithPassword("test"),
+		postgres.WithSQLDriver("pgx"),
+		postgres.BasicWaitStrategies(),
+	)
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to start container: %w", err)
+	}
+
+	dsn, err = container.ConnectionString(ctx, "sslmode=disable")
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to get connection string: %w", err)
+	}
+
+	pool, err := database.NewPool(ctx, dsn, log, true)
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to create pool: %w", err)
+	}
+	pool.Close()
+
+	if err := container.Snapshot(ctx); err != nil {
+		return nil, "", fmt.Errorf("failed to snapshot: %w", err)
+	}
+
+	return container, dsn, nil
+}
+
+func getConnection(ctx context.Context, t *testing.T, container *postgres.PostgresContainer, dsn string, log logrus.FieldLogger) *pgxpool.Pool {
+	pool, _ := database.NewPool(ctx, dsn, log, false)
+
+	t.Cleanup(func() {
+		pool.Close()
+		if err := container.Restore(ctx); err != nil {
+			t.Fatalf("failed to restore database: %v", err)
+		}
+	})
+
+	return pool
 }
