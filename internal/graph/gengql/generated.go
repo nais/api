@@ -647,7 +647,6 @@ type ComplexityRoot struct {
 		ID            func(childComplexity int) int
 		Name          func(childComplexity int) int
 		Pool          func(childComplexity int) int
-		Status        func(childComplexity int) int
 		Team          func(childComplexity int) int
 	}
 
@@ -691,10 +690,6 @@ type ComplexityRoot struct {
 	KafkaTopicEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
-	}
-
-	KafkaTopicStatus struct {
-		State func(childComplexity int) int
 	}
 
 	MaskinportenAuthIntegration struct {
@@ -4189,13 +4184,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.KafkaTopic.Pool(childComplexity), true
 
-	case "KafkaTopic.status":
-		if e.complexity.KafkaTopic.Status == nil {
-			break
-		}
-
-		return e.complexity.KafkaTopic.Status(childComplexity), true
-
 	case "KafkaTopic.team":
 		if e.complexity.KafkaTopic.Team == nil {
 			break
@@ -4370,13 +4358,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.KafkaTopicEdge.Node(childComplexity), true
-
-	case "KafkaTopicStatus.state":
-		if e.complexity.KafkaTopicStatus.State == nil {
-			break
-		}
-
-		return e.complexity.KafkaTopicStatus.State(childComplexity), true
 
 	case "MaskinportenAuthIntegration.name":
 		if e.complexity.MaskinportenAuthIntegration.Name == nil {
@@ -10908,7 +10889,6 @@ type KafkaTopic implements Persistence & Node {
 	): KafkaTopicAclConnection!
 	configuration: KafkaTopicConfiguration
 	pool: String!
-	status: KafkaTopicStatus!
 }
 
 type KafkaTopicAcl {
@@ -10929,10 +10909,6 @@ type KafkaTopicConfiguration {
 	retentionBytes: Int
 	retentionHours: Int
 	segmentHours: Int
-}
-
-type KafkaTopicStatus {
-	state: String!
 }
 
 type KafkaTopicConnection {
@@ -36417,54 +36393,6 @@ func (ec *executionContext) fieldContext_KafkaTopic_pool(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopic_status(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_KafkaTopic_status(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Status, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*kafkatopic.KafkaTopicStatus)
-	fc.Result = res
-	return ec.marshalNKafkaTopicStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicStatus(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_KafkaTopic_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaTopic",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "state":
-				return ec.fieldContext_KafkaTopicStatus_state(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type KafkaTopicStatus", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _KafkaTopicAcl_access(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_KafkaTopicAcl_access(ctx, field)
 	if err != nil {
@@ -36810,8 +36738,6 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_topic(_ context.Context, 
 				return ec.fieldContext_KafkaTopic_configuration(ctx, field)
 			case "pool":
 				return ec.fieldContext_KafkaTopic_pool(ctx, field)
-			case "status":
-				return ec.fieldContext_KafkaTopic_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type KafkaTopic", field.Name)
 		},
@@ -37530,8 +37456,6 @@ func (ec *executionContext) fieldContext_KafkaTopicConnection_nodes(_ context.Co
 				return ec.fieldContext_KafkaTopic_configuration(ctx, field)
 			case "pool":
 				return ec.fieldContext_KafkaTopic_pool(ctx, field)
-			case "status":
-				return ec.fieldContext_KafkaTopic_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type KafkaTopic", field.Name)
 		},
@@ -37686,54 +37610,8 @@ func (ec *executionContext) fieldContext_KafkaTopicEdge_node(_ context.Context, 
 				return ec.fieldContext_KafkaTopic_configuration(ctx, field)
 			case "pool":
 				return ec.fieldContext_KafkaTopic_pool(ctx, field)
-			case "status":
-				return ec.fieldContext_KafkaTopic_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type KafkaTopic", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _KafkaTopicStatus_state(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicStatus) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_KafkaTopicStatus_state(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.State, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_KafkaTopicStatus_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaTopicStatus",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -58016,8 +57894,6 @@ func (ec *executionContext) fieldContext_TeamEnvironment_kafkaTopic(ctx context.
 				return ec.fieldContext_KafkaTopic_configuration(ctx, field)
 			case "pool":
 				return ec.fieldContext_KafkaTopic_pool(ctx, field)
-			case "status":
-				return ec.fieldContext_KafkaTopic_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type KafkaTopic", field.Name)
 		},
@@ -80136,11 +80012,6 @@ func (ec *executionContext) _KafkaTopic(ctx context.Context, sel ast.SelectionSe
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "status":
-			out.Values[i] = ec._KafkaTopic_status(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -80525,45 +80396,6 @@ func (ec *executionContext) _KafkaTopicEdge(ctx context.Context, sel ast.Selecti
 			}
 		case "node":
 			out.Values[i] = ec._KafkaTopicEdge_node(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var kafkaTopicStatusImplementors = []string{"KafkaTopicStatus"}
-
-func (ec *executionContext) _KafkaTopicStatus(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.KafkaTopicStatus) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaTopicStatusImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("KafkaTopicStatus")
-		case "state":
-			out.Values[i] = ec._KafkaTopicStatus_state(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -96176,16 +96008,6 @@ func (ec *executionContext) unmarshalNKafkaTopicOrderField2githubᚗcomᚋnais�
 
 func (ec *executionContext) marshalNKafkaTopicOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicOrderField(ctx context.Context, sel ast.SelectionSet, v kafkatopic.KafkaTopicOrderField) graphql.Marshaler {
 	return v
-}
-
-func (ec *executionContext) marshalNKafkaTopicStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicStatus(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.KafkaTopicStatus) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._KafkaTopicStatus(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNNetworkPolicy2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicy(ctx context.Context, sel ast.SelectionSet, v netpol.NetworkPolicy) graphql.Marshaler {

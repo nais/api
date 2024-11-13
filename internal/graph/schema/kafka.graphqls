@@ -71,7 +71,6 @@ type KafkaTopic implements Persistence & Node {
 	): KafkaTopicAclConnection!
 	configuration: KafkaTopicConfiguration
 	pool: String!
-	status: KafkaTopicStatus!
 }
 
 type KafkaTopicAcl {
@@ -92,10 +91,6 @@ type KafkaTopicConfiguration {
 	retentionBytes: Int
 	retentionHours: Int
 	segmentHours: Int
-}
-
-type KafkaTopicStatus {
-	state: String!
 }
 
 type KafkaTopicConnection {

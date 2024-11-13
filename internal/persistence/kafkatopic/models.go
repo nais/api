@@ -27,7 +27,6 @@ type KafkaTopic struct {
 	Name            string                   `json:"name"`
 	Pool            string                   `json:"pool"`
 	Configuration   *KafkaTopicConfiguration `json:"configuration,omitempty"`
-	Status          *KafkaTopicStatus        `json:"status"`
 	ACLs            []*KafkaTopicACL         `json:"-"`
 	TeamSlug        slug.Slug                `json:"-"`
 	EnvironmentName string                   `json:"-"`
@@ -123,10 +122,6 @@ type KafkaTopicConfiguration struct {
 	SegmentHours          *int    `json:"segmentHours,omitempty"`
 }
 
-type KafkaTopicStatus struct {
-	State string `json:"state"`
-}
-
 type KafkaTopicACLOrderField string
 
 const (
@@ -202,11 +197,6 @@ func toKafkaTopicACLs(acls []kafka_nais_io_v1.TopicACL, teamSlug slug.Slug, envN
 	return ret
 }
 
-func toKafkaTopicStatus(status *kafka_nais_io_v1.TopicStatus) *KafkaTopicStatus {
-	// TODO: Implement
-	return &KafkaTopicStatus{}
-}
-
 func toKafkaTopic(u *unstructured.Unstructured, envName string) (*KafkaTopic, error) {
 	obj := &kafka_nais_io_v1.Topic{}
 
@@ -220,7 +210,6 @@ func toKafkaTopic(u *unstructured.Unstructured, envName string) (*KafkaTopic, er
 		Name:            obj.Name,
 		Pool:            obj.Spec.Pool,
 		Configuration:   toKafkaTopicConfiguration(obj.Spec.Config),
-		Status:          toKafkaTopicStatus(obj.Status),
 		ACLs:            toKafkaTopicACLs(obj.Spec.ACL, teamSlug, envName, obj.Name),
 		TeamSlug:        teamSlug,
 		EnvironmentName: envName,
