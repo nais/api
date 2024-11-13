@@ -486,7 +486,7 @@ func UpdateEnvironment(ctx context.Context, input *UpdateTeamEnvironmentInput, a
 				TeamSlug:           input.Slug,
 				Environment:        input.EnvironmentName,
 				SlackAlertsChannel: input.SlackAlertsChannel,
-				GcpProjectID:       input.GCPProjectID, // TODO(chredvar): Only used from GRPC, move to separate function / package?
+				GcpProjectID:       input.GCPProjectID,
 			})
 		}
 		if err != nil {
@@ -535,7 +535,6 @@ func Exists(ctx context.Context, slug slug.Slug) (bool, error) {
 	return db(ctx).Exists(ctx, slug)
 }
 
-// TODO(chredvar): move to grpc package?
 func UpdateExternalReferences(ctx context.Context, teamSlug slug.Slug, references *ExternalReferences) error {
 	return db(ctx).UpdateExternalReferences(ctx, teamsql.UpdateExternalReferencesParams{
 		Slug:             teamSlug,

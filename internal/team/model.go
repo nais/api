@@ -483,7 +483,7 @@ type UpdateTeamEnvironmentInput struct {
 	Slug               slug.Slug `json:"slug"`
 	EnvironmentName    string    `json:"environmentName"`
 	SlackAlertsChannel *string   `json:"slackAlertsChannel"`
-	GCPProjectID       *string   `json:"-"` // TODO(chredvar): Only used from GRPC, move to separate input / package?
+	GCPProjectID       *string   `json:"-"`
 }
 
 func (i *UpdateTeamEnvironmentInput) Validate() error {
