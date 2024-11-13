@@ -14068,6 +14068,7 @@ enum ImageVulnerabilityOrderField {
 	SEVERITY
 	PACKAGE
 	STATE
+	SUPPRESSED
 }
 
 type TeamVulnerabilitySummary {
