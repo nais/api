@@ -106,6 +106,11 @@ Test.gql("job list after deletion", function(t)
 						totalCount
 					}
 				}
+				auditEntries {
+					nodes {
+						message
+					}
+				}
 			}
 		}
 	]]
@@ -113,6 +118,13 @@ Test.gql("job list after deletion", function(t)
 	t.check {
 		data = {
 			team = {
+				auditEntries = {
+					nodes = {
+						{
+							message = "Job deleted",
+						},
+					},
+				},
 				jobs = {
 					nodes = {
 						{ name = "jobname-2" },

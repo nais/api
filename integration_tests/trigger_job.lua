@@ -112,6 +112,11 @@ Test.gql("job details after trigger", function(t)
 	t.query [[
 		{
 			team(slug: "slug-1") {
+				auditEntries {
+					nodes {
+						message
+					}
+				}
 				environment(name: "dev") {
 					job(name: "jobname-1") {
 						runs {
@@ -131,6 +136,13 @@ Test.gql("job details after trigger", function(t)
 	t.check {
 		data = {
 			team = {
+				auditEntries = {
+					nodes = {
+						{
+							message = "Job triggered",
+						},
+					},
+				},
 				environment = {
 					job = {
 						runs = {
