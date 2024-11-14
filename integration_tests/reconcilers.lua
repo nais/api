@@ -248,6 +248,16 @@ Test.gql("list reconcilers after modifications", function(t)
 		query {
 			reconcilers {
 				nodes {
+					auditEntries {
+						nodes {
+							message
+							... on ReconcilerConfiguredAuditEntry {
+								data {
+									updatedKeys
+								}
+							}
+						}
+					}
 					name
 					enabled
 				}
@@ -262,8 +272,36 @@ Test.gql("list reconcilers after modifications", function(t)
 		data = {
 			reconcilers = {
 				nodes = {
-					{ name = "reconciler-1", enabled = true },
-					{ name = "reconciler-2", enabled = false },
+					{
+						auditEntries = {
+							nodes = {
+								{ message = "Enable reconciler" },
+								{
+									message = "Configure reconciler",
+									data = {
+										updatedKeys = { "config-visible" },
+									},
+								},
+								{
+									message = "Configure reconciler",
+									data = {
+										updatedKeys = { "config-secret" },
+									},
+								},
+							},
+						},
+						name = "reconciler-1",
+						enabled = true,
+					},
+					{
+						auditEntries = {
+							nodes = {
+								{ message = "Disable reconciler" },
+							},
+						},
+						name = "reconciler-2",
+						enabled = false,
+					},
 				},
 				pageInfo = {
 					totalCount = 2,

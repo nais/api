@@ -3,8 +3,12 @@ package reconciler
 import (
 	"context"
 	"fmt"
+	"maps"
+	"slices"
 	"strings"
 
+	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
@@ -74,7 +78,7 @@ func Enable(ctx context.Context, name string) (*Reconciler, error) {
 	missingOptions := make([]string, 0)
 	for _, config := range configs {
 		if !config.Configured {
-			missingOptions = append(missingOptions, string(config.Key))
+			missingOptions = append(missingOptions, config.Key)
 		}
 	}
 
@@ -82,37 +86,59 @@ func Enable(ctx context.Context, name string) (*Reconciler, error) {
 		return nil, apierror.Errorf("Reconciler is not fully configured, missing one or more options: %s", strings.Join(missingOptions, ", "))
 	}
 
-	reconciler, err := q.Enable(ctx, name)
-	if err != nil {
-		return nil, apierror.Errorf("Unable to enable reconciler")
-	}
+	var reconciler *reconcilersql.Reconciler
+	err = database.Transaction(ctx, func(ctx context.Context) error {
+		var err error
+		reconciler, err = db(ctx).Enable(ctx, name)
+		if err != nil {
+			return err
+		}
 
-	// TODO(chredvar): Audit event
+		return audit.Create(ctx, audit.CreateInput{
+			Action:       auditActionEnableReconciler,
+			Actor:        authz.ActorFromContext(ctx).User,
+			ResourceType: AuditResourceTypeReconciler,
+			ResourceName: name,
+		})
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	return toGraphReconciler(reconciler), nil
 }
 
 func Disable(ctx context.Context, name string) (*Reconciler, error) {
-	q := db(ctx)
-
-	if _, err := q.Get(ctx, name); err != nil {
+	if _, err := db(ctx).Get(ctx, name); err != nil {
 		return nil, err
 	}
 
-	reconcilerRow, err := q.Disable(ctx, name)
+	var reconciler *reconcilersql.Reconciler
+	err := database.Transaction(ctx, func(ctx context.Context) error {
+		var err error
+		reconciler, err = db(ctx).Disable(ctx, name)
+		if err != nil {
+			return err
+		}
+
+		return audit.Create(ctx, audit.CreateInput{
+			Action:       auditActionDisableReconciler,
+			Actor:        authz.ActorFromContext(ctx).User,
+			ResourceType: AuditResourceTypeReconciler,
+			ResourceName: name,
+		})
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO(chredvar): Audit event
-
-	return toGraphReconciler(reconcilerRow), nil
+	return toGraphReconciler(reconciler), nil
 }
 
 func Configure(ctx context.Context, name string, config []*ReconcilerConfigInput) (*Reconciler, error) {
 	reconcilerConfig := make(map[string]string)
 	for _, entry := range config {
-		reconcilerConfig[string(entry.Key)] = entry.Value
+		reconcilerConfig[entry.Key] = entry.Value
 	}
 
 	err := database.Transaction(ctx, func(ctx context.Context) error {
@@ -145,9 +171,15 @@ func Configure(ctx context.Context, name string, config []*ReconcilerConfigInput
 			}
 		}
 
-		// TODO(chredvar): Audit event
-
-		return nil
+		return audit.Create(ctx, audit.CreateInput{
+			Action:       auditActionConfigureReconciler,
+			Actor:        authz.ActorFromContext(ctx).User,
+			ResourceType: AuditResourceTypeReconciler,
+			ResourceName: name,
+			Data: &ReconcilerConfiguredAuditEntryData{
+				UpdatedKeys: slices.Sorted(maps.Keys(reconcilerConfig)),
+			},
+		})
 	})
 	if err != nil {
 		return nil, err

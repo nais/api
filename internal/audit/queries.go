@@ -91,9 +91,31 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	return pagination.NewConvertConnectionWithError(ret, page, total, toGraphAuditLog)
 }
 
-var titler = cases.Title(language.English)
+func ListForResource(ctx context.Context, resourceType AuditResourceType, resourceName string, page *pagination.Pagination) (*AuditEntryConnection, error) {
+	q := db(ctx)
+
+	ret, err := q.ListForResource(ctx, auditsql.ListForResourceParams{
+		ResourceType: string(resourceType),
+		ResourceName: resourceName,
+		Offset:       page.Offset(),
+		Limit:        page.Limit(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	total, err := q.CountForResource(ctx, auditsql.CountForResourceParams{
+		ResourceType: string(resourceType),
+		ResourceName: resourceName,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return pagination.NewConvertConnectionWithError(ret, page, total, toGraphAuditLog)
+}
 
 func toGraphAuditLog(row *auditsql.AuditEvent) (AuditEntry, error) {
+	titler := cases.Title(language.English)
 	entry := GenericAuditEntry{
 		Action:          AuditAction(row.Action),
 		Actor:           row.Actor,

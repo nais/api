@@ -25,6 +25,33 @@ extend type Team {
 	): AuditEntryConnection!
 }
 
+extend type Reconciler {
+	"""
+	Audit entries associated with the reconciler.
+	"""
+	auditEntries(
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
+		first: Int
+
+		"""
+		Get items after this cursor.
+		"""
+		after: Cursor
+
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
+		last: Int
+
+		"""
+		Get items before this cursor.
+		"""
+		before: Cursor
+	): AuditEntryConnection!
+}
+
 """
 Interface for audit entries.
 """

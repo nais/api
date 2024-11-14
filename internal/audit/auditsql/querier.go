@@ -10,11 +10,13 @@ import (
 )
 
 type Querier interface {
+	CountForResource(ctx context.Context, arg CountForResourceParams) (int64, error)
 	CountForTeam(ctx context.Context, teamSlug *slug.Slug) (int64, error)
 	CountForTeamByResource(ctx context.Context, arg CountForTeamByResourceParams) (int64, error)
 	Create(ctx context.Context, arg CreateParams) error
 	Get(ctx context.Context, id uuid.UUID) (*AuditEvent, error)
 	ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*AuditEvent, error)
+	ListForResource(ctx context.Context, arg ListForResourceParams) ([]*AuditEvent, error)
 	ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*AuditEvent, error)
 	ListForTeamByResource(ctx context.Context, arg ListForTeamByResourceParams) ([]*AuditEvent, error)
 }

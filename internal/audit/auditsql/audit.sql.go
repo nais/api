@@ -10,6 +10,28 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
+const countForResource = `-- name: CountForResource :one
+SELECT
+	COUNT(*)
+FROM
+	audit_events
+WHERE
+	resource_type = $1
+	AND resource_name = $2
+`
+
+type CountForResourceParams struct {
+	ResourceType string
+	ResourceName string
+}
+
+func (q *Queries) CountForResource(ctx context.Context, arg CountForResourceParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countForResource, arg.ResourceType, arg.ResourceName)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countForTeam = `-- name: CountForTeam :one
 SELECT
 	COUNT(*)
@@ -133,6 +155,64 @@ ORDER BY
 
 func (q *Queries) ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*AuditEvent, error) {
 	rows, err := q.db.Query(ctx, listByIDs, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*AuditEvent{}
+	for rows.Next() {
+		var i AuditEvent
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.Actor,
+			&i.Action,
+			&i.ResourceType,
+			&i.ResourceName,
+			&i.TeamSlug,
+			&i.Data,
+			&i.Environment,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listForResource = `-- name: ListForResource :many
+SELECT
+	id, created_at, actor, action, resource_type, resource_name, team_slug, data, environment
+FROM
+	audit_events
+WHERE
+	resource_type = $1
+	AND resource_name = $2
+ORDER BY
+	created_at DESC
+LIMIT
+	$4
+OFFSET
+	$3
+`
+
+type ListForResourceParams struct {
+	ResourceType string
+	ResourceName string
+	Offset       int32
+	Limit        int32
+}
+
+func (q *Queries) ListForResource(ctx context.Context, arg ListForResourceParams) ([]*AuditEvent, error) {
+	rows, err := q.db.Query(ctx, listForResource,
+		arg.ResourceType,
+		arg.ResourceName,
+		arg.Offset,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}

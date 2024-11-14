@@ -13,6 +13,22 @@ OFFSET
 	sqlc.arg('offset')
 ;
 
+-- name: ListForResource :many
+SELECT
+	*
+FROM
+	audit_events
+WHERE
+	resource_type = @resource_type
+	AND resource_name = @resource_name
+ORDER BY
+	created_at DESC
+LIMIT
+	sqlc.arg('limit')
+OFFSET
+	sqlc.arg('offset')
+;
+
 -- name: ListForTeamByResource :many
 SELECT
 	*
@@ -79,6 +95,16 @@ FROM
 	audit_events
 WHERE
 	team_slug = @team_slug
+;
+
+-- name: CountForResource :one
+SELECT
+	COUNT(*)
+FROM
+	audit_events
+WHERE
+	resource_type = @resource_type
+	AND resource_name = @resource_name
 ;
 
 -- name: CountForTeamByResource :one
