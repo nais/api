@@ -1768,6 +1768,17 @@ type ComplexityRoot struct {
 		Value     func(childComplexity int) int
 	}
 
+	VulnerabilityUpdatedAuditEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
 	WorkloadConnection struct {
 		Edges    func(childComplexity int) int
 		Nodes    func(childComplexity int) int
@@ -9268,6 +9279,62 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UtilizationDataPoint.Value(childComplexity), true
 
+	case "VulnerabilityUpdatedAuditEntry.actor":
+		if e.complexity.VulnerabilityUpdatedAuditEntry.Actor == nil {
+			break
+		}
+
+		return e.complexity.VulnerabilityUpdatedAuditEntry.Actor(childComplexity), true
+
+	case "VulnerabilityUpdatedAuditEntry.createdAt":
+		if e.complexity.VulnerabilityUpdatedAuditEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.VulnerabilityUpdatedAuditEntry.CreatedAt(childComplexity), true
+
+	case "VulnerabilityUpdatedAuditEntry.environmentName":
+		if e.complexity.VulnerabilityUpdatedAuditEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.complexity.VulnerabilityUpdatedAuditEntry.EnvironmentName(childComplexity), true
+
+	case "VulnerabilityUpdatedAuditEntry.id":
+		if e.complexity.VulnerabilityUpdatedAuditEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.VulnerabilityUpdatedAuditEntry.ID(childComplexity), true
+
+	case "VulnerabilityUpdatedAuditEntry.message":
+		if e.complexity.VulnerabilityUpdatedAuditEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.VulnerabilityUpdatedAuditEntry.Message(childComplexity), true
+
+	case "VulnerabilityUpdatedAuditEntry.resourceName":
+		if e.complexity.VulnerabilityUpdatedAuditEntry.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.VulnerabilityUpdatedAuditEntry.ResourceName(childComplexity), true
+
+	case "VulnerabilityUpdatedAuditEntry.resourceType":
+		if e.complexity.VulnerabilityUpdatedAuditEntry.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.VulnerabilityUpdatedAuditEntry.ResourceType(childComplexity), true
+
+	case "VulnerabilityUpdatedAuditEntry.teamSlug":
+		if e.complexity.VulnerabilityUpdatedAuditEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.complexity.VulnerabilityUpdatedAuditEntry.TeamSlug(childComplexity), true
+
 	case "WorkloadConnection.edges":
 		if e.complexity.WorkloadConnection.Edges == nil {
 			break
@@ -15016,6 +15083,32 @@ type ImageVulnerabilityAnalysisCommentConnection {
 type ImageVulnerabilityAnalysisCommentEdge {
 	cursor: Cursor!
 	node: ImageVulnerabilityAnalysisComment!
+}
+
+type VulnerabilityUpdatedAuditEntry implements AuditEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: AuditResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
 }
 `, BuiltIn: false},
 	{Name: "../schema/workloads.graphqls", Input: `extend type Team {
@@ -70897,6 +70990,355 @@ func (ec *executionContext) fieldContext_UtilizationDataPoint_value(_ context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedAuditEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VulnerabilityUpdatedAuditEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedAuditEntry_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VulnerabilityUpdatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedAuditEntry_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VulnerabilityUpdatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedAuditEntry_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VulnerabilityUpdatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedAuditEntry_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(audit.AuditResourceType)
+	fc.Result = res
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VulnerabilityUpdatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedAuditEntry_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VulnerabilityUpdatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedAuditEntry_teamSlug(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TeamSlug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*slug.Slug)
+	fc.Result = res
+	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VulnerabilityUpdatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedAuditEntry_environmentName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnvironmentName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VulnerabilityUpdatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _WorkloadConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[workload.Workload]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_WorkloadConnection_pageInfo(ctx, field)
 	if err != nil {
@@ -77358,6 +77800,13 @@ func (ec *executionContext) _AuditEntry(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._UnleashInstanceUpdatedAuditEntry(ctx, sel, obj)
+	case vulnerability.VulnerabilityUpdatedAuditEntry:
+		return ec._VulnerabilityUpdatedAuditEntry(ctx, sel, &obj)
+	case *vulnerability.VulnerabilityUpdatedAuditEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._VulnerabilityUpdatedAuditEntry(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -77476,13 +77925,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._SecretCreatedAuditEntry(ctx, sel, obj)
-	case team.TeamUpdatedAuditEntry:
-		return ec._TeamUpdatedAuditEntry(ctx, sel, &obj)
-	case *team.TeamUpdatedAuditEntry:
+	case vulnerability.VulnerabilityUpdatedAuditEntry:
+		return ec._VulnerabilityUpdatedAuditEntry(ctx, sel, &obj)
+	case *vulnerability.VulnerabilityUpdatedAuditEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamUpdatedAuditEntry(ctx, sel, obj)
+		return ec._VulnerabilityUpdatedAuditEntry(ctx, sel, obj)
 	case application.ApplicationDeletedAuditEntry:
 		return ec._ApplicationDeletedAuditEntry(ctx, sel, &obj)
 	case *application.ApplicationDeletedAuditEntry:
@@ -77490,20 +77939,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ApplicationDeletedAuditEntry(ctx, sel, obj)
-	case repository.RepositoryAddedAuditEntry:
-		return ec._RepositoryAddedAuditEntry(ctx, sel, &obj)
-	case *repository.RepositoryAddedAuditEntry:
+	case application.ApplicationRestartedAuditEntry:
+		return ec._ApplicationRestartedAuditEntry(ctx, sel, &obj)
+	case *application.ApplicationRestartedAuditEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RepositoryAddedAuditEntry(ctx, sel, obj)
-	case repository.RepositoryRemovedAuditEntry:
-		return ec._RepositoryRemovedAuditEntry(ctx, sel, &obj)
-	case *repository.RepositoryRemovedAuditEntry:
+		return ec._ApplicationRestartedAuditEntry(ctx, sel, obj)
+	case application.Application:
+		return ec._Application(ctx, sel, &obj)
+	case *application.Application:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RepositoryRemovedAuditEntry(ctx, sel, obj)
+		return ec._Application(ctx, sel, obj)
 	case bigquery.BigQueryDataset:
 		return ec._BigQueryDataset(ctx, sel, &obj)
 	case *bigquery.BigQueryDataset:
@@ -77518,13 +77967,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Bucket(ctx, sel, obj)
-	case unleash.UnleashInstanceUpdatedAuditEntry:
-		return ec._UnleashInstanceUpdatedAuditEntry(ctx, sel, &obj)
-	case *unleash.UnleashInstanceUpdatedAuditEntry:
+	case secret.SecretValueAddedAuditEntry:
+		return ec._SecretValueAddedAuditEntry(ctx, sel, &obj)
+	case *secret.SecretValueAddedAuditEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._UnleashInstanceUpdatedAuditEntry(ctx, sel, obj)
+		return ec._SecretValueAddedAuditEntry(ctx, sel, obj)
 	case unleash.UnleashInstanceCreatedAuditEntry:
 		return ec._UnleashInstanceCreatedAuditEntry(ctx, sel, &obj)
 	case *unleash.UnleashInstanceCreatedAuditEntry:
@@ -77644,34 +78093,34 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamCreateDeleteKeyAuditEntry(ctx, sel, obj)
-	case team.TeamCreatedAuditEntry:
-		return ec._TeamCreatedAuditEntry(ctx, sel, &obj)
-	case *team.TeamCreatedAuditEntry:
+	case repository.RepositoryRemovedAuditEntry:
+		return ec._RepositoryRemovedAuditEntry(ctx, sel, &obj)
+	case *repository.RepositoryRemovedAuditEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamCreatedAuditEntry(ctx, sel, obj)
-	case application.ApplicationRestartedAuditEntry:
-		return ec._ApplicationRestartedAuditEntry(ctx, sel, &obj)
-	case *application.ApplicationRestartedAuditEntry:
+		return ec._RepositoryRemovedAuditEntry(ctx, sel, obj)
+	case repository.RepositoryAddedAuditEntry:
+		return ec._RepositoryAddedAuditEntry(ctx, sel, &obj)
+	case *repository.RepositoryAddedAuditEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ApplicationRestartedAuditEntry(ctx, sel, obj)
-	case application.Application:
-		return ec._Application(ctx, sel, &obj)
-	case *application.Application:
+		return ec._RepositoryAddedAuditEntry(ctx, sel, obj)
+	case team.TeamUpdatedAuditEntry:
+		return ec._TeamUpdatedAuditEntry(ctx, sel, &obj)
+	case *team.TeamUpdatedAuditEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Application(ctx, sel, obj)
-	case secret.SecretValueAddedAuditEntry:
-		return ec._SecretValueAddedAuditEntry(ctx, sel, &obj)
-	case *secret.SecretValueAddedAuditEntry:
+		return ec._TeamUpdatedAuditEntry(ctx, sel, obj)
+	case unleash.UnleashInstanceUpdatedAuditEntry:
+		return ec._UnleashInstanceUpdatedAuditEntry(ctx, sel, &obj)
+	case *unleash.UnleashInstanceUpdatedAuditEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueAddedAuditEntry(ctx, sel, obj)
+		return ec._UnleashInstanceUpdatedAuditEntry(ctx, sel, obj)
 	case secret.SecretValueUpdatedAuditEntry:
 		return ec._SecretValueUpdatedAuditEntry(ctx, sel, &obj)
 	case *secret.SecretValueUpdatedAuditEntry:
@@ -77693,13 +78142,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._SecretDeletedAuditEntry(ctx, sel, obj)
-	case sqlinstance.SQLInstance:
-		return ec._SqlInstance(ctx, sel, &obj)
-	case *sqlinstance.SQLInstance:
+	case team.TeamCreatedAuditEntry:
+		return ec._TeamCreatedAuditEntry(ctx, sel, &obj)
+	case *team.TeamCreatedAuditEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SqlInstance(ctx, sel, obj)
+		return ec._TeamCreatedAuditEntry(ctx, sel, obj)
 	case sqlinstance.SQLDatabase:
 		return ec._SqlDatabase(ctx, sel, &obj)
 	case *sqlinstance.SQLDatabase:
@@ -77707,6 +78156,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._SqlDatabase(ctx, sel, obj)
+	case sqlinstance.SQLInstance:
+		return ec._SqlInstance(ctx, sel, &obj)
+	case *sqlinstance.SQLInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SqlInstance(ctx, sel, obj)
 	case workload.ContainerImage:
 		return ec._ContainerImage(ctx, sel, &obj)
 	case *workload.ContainerImage:
@@ -77714,72 +78170,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ContainerImage(ctx, sel, obj)
-	case team.TeamEnvironment:
-		return ec._TeamEnvironment(ctx, sel, &obj)
-	case *team.TeamEnvironment:
+	case serviceaccount.ServiceAccount:
+		return ec._ServiceAccount(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccount:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamEnvironment(ctx, sel, obj)
-	case job.JobRun:
-		return ec._JobRun(ctx, sel, &obj)
-	case *job.JobRun:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._JobRun(ctx, sel, obj)
-	case job.JobRunInstance:
-		return ec._JobRunInstance(ctx, sel, &obj)
-	case *job.JobRunInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._JobRunInstance(ctx, sel, obj)
-	case application.ApplicationInstance:
-		return ec._ApplicationInstance(ctx, sel, &obj)
-	case *application.ApplicationInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ApplicationInstance(ctx, sel, obj)
-	case vulnerability.ImageVulnerability:
-		return ec._ImageVulnerability(ctx, sel, &obj)
-	case *vulnerability.ImageVulnerability:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ImageVulnerability(ctx, sel, obj)
-	case repository.Repository:
-		return ec._Repository(ctx, sel, &obj)
-	case *repository.Repository:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Repository(ctx, sel, obj)
-	case team.Team:
-		return ec._Team(ctx, sel, &obj)
-	case *team.Team:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Team(ctx, sel, obj)
-	case persistence.Persistence:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Persistence(ctx, sel, obj)
-	case reconciler.Reconciler:
-		return ec._Reconciler(ctx, sel, &obj)
-	case *reconciler.Reconciler:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Reconciler(ctx, sel, obj)
-	case audit.AuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._AuditEntry(ctx, sel, obj)
+		return ec._ServiceAccount(ctx, sel, obj)
 	case unleash.UnleashInstance:
 		return ec._UnleashInstance(ctx, sel, &obj)
 	case *unleash.UnleashInstance:
@@ -77787,6 +78184,60 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UnleashInstance(ctx, sel, obj)
+	case job.JobRun:
+		return ec._JobRun(ctx, sel, &obj)
+	case *job.JobRun:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._JobRun(ctx, sel, obj)
+	case secret.Secret:
+		return ec._Secret(ctx, sel, &obj)
+	case *secret.Secret:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Secret(ctx, sel, obj)
+	case repository.Repository:
+		return ec._Repository(ctx, sel, &obj)
+	case *repository.Repository:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Repository(ctx, sel, obj)
+	case reconciler.Reconciler:
+		return ec._Reconciler(ctx, sel, &obj)
+	case *reconciler.Reconciler:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Reconciler(ctx, sel, obj)
+	case team.TeamEnvironment:
+		return ec._TeamEnvironment(ctx, sel, &obj)
+	case *team.TeamEnvironment:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamEnvironment(ctx, sel, obj)
+	case job.JobRunInstance:
+		return ec._JobRunInstance(ctx, sel, &obj)
+	case *job.JobRunInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._JobRunInstance(ctx, sel, obj)
+	case persistence.Persistence:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Persistence(ctx, sel, obj)
+	case application.ApplicationInstance:
+		return ec._ApplicationInstance(ctx, sel, &obj)
+	case *application.ApplicationInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationInstance(ctx, sel, obj)
 	case deployment.Deployment:
 		return ec._Deployment(ctx, sel, &obj)
 	case *deployment.Deployment:
@@ -77808,25 +78259,30 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._User(ctx, sel, obj)
-	case secret.Secret:
-		return ec._Secret(ctx, sel, &obj)
-	case *secret.Secret:
+	case vulnerability.ImageVulnerability:
+		return ec._ImageVulnerability(ctx, sel, &obj)
+	case *vulnerability.ImageVulnerability:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Secret(ctx, sel, obj)
+		return ec._ImageVulnerability(ctx, sel, obj)
+	case audit.AuditEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AuditEntry(ctx, sel, obj)
 	case workload.Workload:
 		if obj == nil {
 			return graphql.Null
 		}
 		return ec._Workload(ctx, sel, obj)
-	case serviceaccount.ServiceAccount:
-		return ec._ServiceAccount(ctx, sel, &obj)
-	case *serviceaccount.ServiceAccount:
+	case team.Team:
+		return ec._Team(ctx, sel, &obj)
+	case *team.Team:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ServiceAccount(ctx, sel, obj)
+		return ec._Team(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -96234,6 +96690,77 @@ func (ec *executionContext) _UtilizationDataPoint(ctx context.Context, sel ast.S
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var vulnerabilityUpdatedAuditEntryImplementors = []string{"VulnerabilityUpdatedAuditEntry", "AuditEntry", "Node"}
+
+func (ec *executionContext) _VulnerabilityUpdatedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *vulnerability.VulnerabilityUpdatedAuditEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, vulnerabilityUpdatedAuditEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("VulnerabilityUpdatedAuditEntry")
+		case "id":
+			out.Values[i] = ec._VulnerabilityUpdatedAuditEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			out.Values[i] = ec._VulnerabilityUpdatedAuditEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._VulnerabilityUpdatedAuditEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._VulnerabilityUpdatedAuditEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			out.Values[i] = ec._VulnerabilityUpdatedAuditEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			out.Values[i] = ec._VulnerabilityUpdatedAuditEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			out.Values[i] = ec._VulnerabilityUpdatedAuditEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			out.Values[i] = ec._VulnerabilityUpdatedAuditEntry_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
