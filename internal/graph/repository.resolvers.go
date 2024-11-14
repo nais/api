@@ -16,7 +16,7 @@ func (r *mutationResolver) AddRepositoryToTeam(ctx context.Context, input reposi
 		return nil, err
 	}
 
-	repo, err := repository.Create(ctx, input)
+	repo, err := repository.AddToTeam(ctx, input)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func (r *mutationResolver) RemoveRepositoryFromTeam(ctx context.Context, input r
 		return nil, err
 	}
 
-	err := repository.Remove(ctx, input)
+	err := repository.RemoveFromTeam(ctx, input)
 	return &repository.RemoveRepositoryFromTeamPayload{
 		Success: err == nil,
 	}, err

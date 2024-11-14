@@ -9,6 +9,27 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
+const addToTeam = `-- name: AddToTeam :one
+INSERT INTO
+	team_repositories (team_slug, github_repository)
+VALUES
+	($1, $2)
+RETURNING
+	team_slug, github_repository
+`
+
+type AddToTeamParams struct {
+	TeamSlug         slug.Slug
+	GithubRepository string
+}
+
+func (q *Queries) AddToTeam(ctx context.Context, arg AddToTeamParams) (*TeamRepository, error) {
+	row := q.db.QueryRow(ctx, addToTeam, arg.TeamSlug, arg.GithubRepository)
+	var i TeamRepository
+	err := row.Scan(&i.TeamSlug, &i.GithubRepository)
+	return &i, err
+}
+
 const countForTeam = `-- name: CountForTeam :one
 SELECT
 	COUNT(*)
@@ -32,27 +53,6 @@ func (q *Queries) CountForTeam(ctx context.Context, arg CountForTeamParams) (int
 	var count int64
 	err := row.Scan(&count)
 	return count, err
-}
-
-const create = `-- name: Create :one
-INSERT INTO
-	team_repositories (team_slug, github_repository)
-VALUES
-	($1, $2)
-RETURNING
-	team_slug, github_repository
-`
-
-type CreateParams struct {
-	TeamSlug         slug.Slug
-	GithubRepository string
-}
-
-func (q *Queries) Create(ctx context.Context, arg CreateParams) (*TeamRepository, error) {
-	row := q.db.QueryRow(ctx, create, arg.TeamSlug, arg.GithubRepository)
-	var i TeamRepository
-	err := row.Scan(&i.TeamSlug, &i.GithubRepository)
-	return &i, err
 }
 
 const listForTeam = `-- name: ListForTeam :many
@@ -114,19 +114,19 @@ func (q *Queries) ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*Te
 	return items, nil
 }
 
-const remove = `-- name: Remove :exec
+const removeFromTeam = `-- name: RemoveFromTeam :exec
 DELETE FROM team_repositories
 WHERE
 	team_slug = $1
 	AND github_repository = $2
 `
 
-type RemoveParams struct {
+type RemoveFromTeamParams struct {
 	TeamSlug         slug.Slug
 	GithubRepository string
 }
 
-func (q *Queries) Remove(ctx context.Context, arg RemoveParams) error {
-	_, err := q.db.Exec(ctx, remove, arg.TeamSlug, arg.GithubRepository)
+func (q *Queries) RemoveFromTeam(ctx context.Context, arg RemoveFromTeamParams) error {
+	_, err := q.db.Exec(ctx, removeFromTeam, arg.TeamSlug, arg.GithubRepository)
 	return err
 }

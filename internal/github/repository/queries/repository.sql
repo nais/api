@@ -36,7 +36,7 @@ OFFSET
 	sqlc.arg('offset')
 ;
 
--- name: Create :one
+-- name: AddToTeam :one
 INSERT INTO
 	team_repositories (team_slug, github_repository)
 VALUES
@@ -45,7 +45,7 @@ RETURNING
 	*
 ;
 
--- name: Remove :exec
+-- name: RemoveFromTeam :exec
 DELETE FROM team_repositories
 WHERE
 	team_slug = @team_slug

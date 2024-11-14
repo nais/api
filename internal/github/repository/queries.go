@@ -3,10 +3,14 @@ package repository
 import (
 	"context"
 
+	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/github/repository/repositorysql"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
+	"k8s.io/utils/ptr"
 )
 
 func getByIdent(_ context.Context, id ident.Ident) (*Repository, error) {
@@ -49,25 +53,49 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	return pagination.NewConvertConnection(ret, page, total, toGraphRepository), nil
 }
 
-func Create(ctx context.Context, input AddRepositoryToTeamInput) (*Repository, error) {
-	ret, err := db(ctx).Create(ctx, repositorysql.CreateParams{
-		TeamSlug:         input.TeamSlug,
-		GithubRepository: input.RepositoryName,
+func AddToTeam(ctx context.Context, input AddRepositoryToTeamInput) (*Repository, error) {
+	var tr *repositorysql.TeamRepository
+	err := database.Transaction(ctx, func(ctx context.Context) error {
+		var err error
+		tr, err = db(ctx).AddToTeam(ctx, repositorysql.AddToTeamParams{
+			TeamSlug:         input.TeamSlug,
+			GithubRepository: input.RepositoryName,
+		})
+		if err != nil {
+			return err
+		}
+
+		return audit.Create(ctx, audit.CreateInput{
+			Action:       audit.AuditActionAdded,
+			Actor:        authz.ActorFromContext(ctx).User,
+			ResourceType: auditResourceTypeRepository,
+			ResourceName: input.RepositoryName,
+			TeamSlug:     ptr.To(input.TeamSlug),
+		})
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO(chredvar): Audit event
-
-	return toGraphRepository(ret), nil
+	return toGraphRepository(tr), nil
 }
 
-func Remove(ctx context.Context, input RemoveRepositoryFromTeamInput) error {
-	// TODO(chredvar): Audit event
+func RemoveFromTeam(ctx context.Context, input RemoveRepositoryFromTeamInput) error {
+	return database.Transaction(ctx, func(ctx context.Context) error {
+		err := db(ctx).RemoveFromTeam(ctx, repositorysql.RemoveFromTeamParams{
+			TeamSlug:         input.TeamSlug,
+			GithubRepository: input.RepositoryName,
+		})
+		if err != nil {
+			return err
+		}
 
-	return db(ctx).Remove(ctx, repositorysql.RemoveParams{
-		TeamSlug:         input.TeamSlug,
-		GithubRepository: input.RepositoryName,
+		return audit.Create(ctx, audit.CreateInput{
+			Action:       audit.AuditActionRemoved,
+			Actor:        authz.ActorFromContext(ctx).User,
+			ResourceType: auditResourceTypeRepository,
+			ResourceName: input.RepositoryName,
+			TeamSlug:     ptr.To(input.TeamSlug),
+		})
 	})
 }

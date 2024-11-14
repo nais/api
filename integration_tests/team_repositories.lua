@@ -95,6 +95,12 @@ Test.gql("List repositories for team after creation", function(t)
 	t.query [[
 		{
 			team(slug: "slug-1") {
+				auditEntries {
+					nodes {
+						message
+						resourceName
+					}
+				}
 				repositories {
 					nodes {
 						name
@@ -110,9 +116,19 @@ Test.gql("List repositories for team after creation", function(t)
 	t.check {
 		data = {
 			team = {
+				auditEntries = {
+					nodes = {
+						{
+							message = "Added repository to team",
+							resourceName = "nais/api",
+						},
+					},
+				},
 				repositories = {
 					nodes = {
-						{ name = "nais/api" },
+						{
+							name = "nais/api",
+						},
 					},
 					pageInfo = {
 						totalCount = 1,
@@ -165,6 +181,12 @@ Test.gql("List repositories for team after deletion", function(t)
 	t.query [[
 		{
 			team(slug: "slug-1") {
+				auditEntries {
+					nodes {
+						message
+						resourceName
+					}
+				}
 				repositories {
 					nodes {
 						name
@@ -180,6 +202,18 @@ Test.gql("List repositories for team after deletion", function(t)
 	t.check {
 		data = {
 			team = {
+				auditEntries = {
+					nodes = {
+						{
+							message = "Removed repository from team",
+							resourceName = "nais/api",
+						},
+						{
+							message = "Added repository to team",
+							resourceName = "nais/api",
+						},
+					},
+				},
 				repositories = {
 					nodes = {},
 					pageInfo = {
