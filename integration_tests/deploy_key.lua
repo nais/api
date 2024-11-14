@@ -117,6 +117,33 @@ Test.gql("Change deploy key as member", function(t)
 	}
 end)
 
+Test.gql("Check audit entries after deploy key change", function(t)
+	t.query [[
+		query {
+			team(slug: "newteam") {
+				auditEntries {
+					nodes {
+						message
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				auditEntries = {
+					nodes = {
+						{ message = "Updated deployment key" },
+						{ message = "Created team" },
+					},
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("Change deploy key as non-member", function(t)
 	t.query([[
 		mutation {

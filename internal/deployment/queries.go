@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/nais/api/internal/audit"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
@@ -15,6 +16,7 @@ import (
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/workload"
+	"k8s.io/utils/ptr"
 )
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*DeploymentConnection, error) {
@@ -83,7 +85,16 @@ func ChangeDeploymentKey(ctx context.Context, teamSlug slug.Slug) (*DeploymentKe
 		return nil, err
 	}
 
-	// TODO(chredvar): Audit event
+	err = audit.Create(ctx, audit.CreateInput{
+		Action:       audit.AuditActionUpdated,
+		Actor:        authz.ActorFromContext(ctx).User,
+		ResourceType: auditResourceTypeDeployKey,
+		ResourceName: "deploy-key",
+		TeamSlug:     ptr.To(teamSlug),
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	return toGraphDeploymentKey(dk, teamSlug), nil
 }

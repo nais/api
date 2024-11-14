@@ -1398,6 +1398,17 @@ type ComplexityRoot struct {
 		Team      func(childComplexity int) int
 	}
 
+	TeamDeployKeyUpdatedAuditEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
 	TeamEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
@@ -7736,6 +7747,62 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamDeleteKey.Team(childComplexity), true
 
+	case "TeamDeployKeyUpdatedAuditEntry.actor":
+		if e.complexity.TeamDeployKeyUpdatedAuditEntry.Actor == nil {
+			break
+		}
+
+		return e.complexity.TeamDeployKeyUpdatedAuditEntry.Actor(childComplexity), true
+
+	case "TeamDeployKeyUpdatedAuditEntry.createdAt":
+		if e.complexity.TeamDeployKeyUpdatedAuditEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.TeamDeployKeyUpdatedAuditEntry.CreatedAt(childComplexity), true
+
+	case "TeamDeployKeyUpdatedAuditEntry.environmentName":
+		if e.complexity.TeamDeployKeyUpdatedAuditEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.complexity.TeamDeployKeyUpdatedAuditEntry.EnvironmentName(childComplexity), true
+
+	case "TeamDeployKeyUpdatedAuditEntry.id":
+		if e.complexity.TeamDeployKeyUpdatedAuditEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.TeamDeployKeyUpdatedAuditEntry.ID(childComplexity), true
+
+	case "TeamDeployKeyUpdatedAuditEntry.message":
+		if e.complexity.TeamDeployKeyUpdatedAuditEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.TeamDeployKeyUpdatedAuditEntry.Message(childComplexity), true
+
+	case "TeamDeployKeyUpdatedAuditEntry.resourceName":
+		if e.complexity.TeamDeployKeyUpdatedAuditEntry.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.TeamDeployKeyUpdatedAuditEntry.ResourceName(childComplexity), true
+
+	case "TeamDeployKeyUpdatedAuditEntry.resourceType":
+		if e.complexity.TeamDeployKeyUpdatedAuditEntry.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.TeamDeployKeyUpdatedAuditEntry.ResourceType(childComplexity), true
+
+	case "TeamDeployKeyUpdatedAuditEntry.teamSlug":
+		if e.complexity.TeamDeployKeyUpdatedAuditEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.complexity.TeamDeployKeyUpdatedAuditEntry.TeamSlug(childComplexity), true
+
 	case "TeamEdge.cursor":
 		if e.complexity.TeamEdge.Cursor == nil {
 			break
@@ -11038,6 +11105,32 @@ extend enum ApplicationOrderField {
 extend enum JobOrderField {
 	"Order applications by the deployment time."
 	DEPLOYMENT_TIME
+}
+
+type TeamDeployKeyUpdatedAuditEntry implements AuditEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: AuditResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
 }
 `, BuiltIn: false},
 	{Name: "../schema/jobs.graphqls", Input: `extend type Team {
@@ -60410,6 +60503,355 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedAuditEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamDeployKeyUpdatedAuditEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedAuditEntry_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamDeployKeyUpdatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedAuditEntry_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamDeployKeyUpdatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedAuditEntry_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamDeployKeyUpdatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedAuditEntry_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(audit.AuditResourceType)
+	fc.Result = res
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamDeployKeyUpdatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedAuditEntry_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamDeployKeyUpdatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedAuditEntry_teamSlug(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TeamSlug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*slug.Slug)
+	fc.Result = res
+	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamDeployKeyUpdatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedAuditEntry_environmentName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnvironmentName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamDeployKeyUpdatedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TeamEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*team.Team]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamEdge_cursor(ctx, field)
 	if err != nil {
@@ -76755,6 +77197,13 @@ func (ec *executionContext) _AuditEntry(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._ApplicationRestartedAuditEntry(ctx, sel, obj)
+	case deployment.TeamDeployKeyUpdatedAuditEntry:
+		return ec._TeamDeployKeyUpdatedAuditEntry(ctx, sel, &obj)
+	case *deployment.TeamDeployKeyUpdatedAuditEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamDeployKeyUpdatedAuditEntry(ctx, sel, obj)
 	case job.JobDeletedAuditEntry:
 		return ec._JobDeletedAuditEntry(ctx, sel, &obj)
 	case *job.JobDeletedAuditEntry:
@@ -77020,34 +77469,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case repository.RepositoryRemovedAuditEntry:
-		return ec._RepositoryRemovedAuditEntry(ctx, sel, &obj)
-	case *repository.RepositoryRemovedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._RepositoryRemovedAuditEntry(ctx, sel, obj)
-	case bucket.Bucket:
-		return ec._Bucket(ctx, sel, &obj)
-	case *bucket.Bucket:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Bucket(ctx, sel, obj)
-	case application.ApplicationDeletedAuditEntry:
-		return ec._ApplicationDeletedAuditEntry(ctx, sel, &obj)
-	case *application.ApplicationDeletedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ApplicationDeletedAuditEntry(ctx, sel, obj)
-	case application.ApplicationRestartedAuditEntry:
-		return ec._ApplicationRestartedAuditEntry(ctx, sel, &obj)
-	case *application.ApplicationRestartedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ApplicationRestartedAuditEntry(ctx, sel, obj)
 	case secret.SecretCreatedAuditEntry:
 		return ec._SecretCreatedAuditEntry(ctx, sel, &obj)
 	case *secret.SecretCreatedAuditEntry:
@@ -77055,6 +77476,34 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._SecretCreatedAuditEntry(ctx, sel, obj)
+	case team.TeamUpdatedAuditEntry:
+		return ec._TeamUpdatedAuditEntry(ctx, sel, &obj)
+	case *team.TeamUpdatedAuditEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamUpdatedAuditEntry(ctx, sel, obj)
+	case application.ApplicationDeletedAuditEntry:
+		return ec._ApplicationDeletedAuditEntry(ctx, sel, &obj)
+	case *application.ApplicationDeletedAuditEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationDeletedAuditEntry(ctx, sel, obj)
+	case repository.RepositoryAddedAuditEntry:
+		return ec._RepositoryAddedAuditEntry(ctx, sel, &obj)
+	case *repository.RepositoryAddedAuditEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RepositoryAddedAuditEntry(ctx, sel, obj)
+	case repository.RepositoryRemovedAuditEntry:
+		return ec._RepositoryRemovedAuditEntry(ctx, sel, &obj)
+	case *repository.RepositoryRemovedAuditEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RepositoryRemovedAuditEntry(ctx, sel, obj)
 	case bigquery.BigQueryDataset:
 		return ec._BigQueryDataset(ctx, sel, &obj)
 	case *bigquery.BigQueryDataset:
@@ -77062,6 +77511,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._BigQueryDataset(ctx, sel, obj)
+	case bucket.Bucket:
+		return ec._Bucket(ctx, sel, &obj)
+	case *bucket.Bucket:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Bucket(ctx, sel, obj)
 	case unleash.UnleashInstanceUpdatedAuditEntry:
 		return ec._UnleashInstanceUpdatedAuditEntry(ctx, sel, &obj)
 	case *unleash.UnleashInstanceUpdatedAuditEntry:
@@ -77076,13 +77532,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UnleashInstanceCreatedAuditEntry(ctx, sel, obj)
-	case team.TeamEnvironmentUpdatedAuditEntry:
-		return ec._TeamEnvironmentUpdatedAuditEntry(ctx, sel, &obj)
-	case *team.TeamEnvironmentUpdatedAuditEntry:
+	case deployment.TeamDeployKeyUpdatedAuditEntry:
+		return ec._TeamDeployKeyUpdatedAuditEntry(ctx, sel, &obj)
+	case *deployment.TeamDeployKeyUpdatedAuditEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamEnvironmentUpdatedAuditEntry(ctx, sel, obj)
+		return ec._TeamDeployKeyUpdatedAuditEntry(ctx, sel, obj)
 	case job.Job:
 		return ec._Job(ctx, sel, &obj)
 	case *job.Job:
@@ -77090,6 +77546,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Job(ctx, sel, obj)
+	case team.TeamEnvironmentUpdatedAuditEntry:
+		return ec._TeamEnvironmentUpdatedAuditEntry(ctx, sel, &obj)
+	case *team.TeamEnvironmentUpdatedAuditEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamEnvironmentUpdatedAuditEntry(ctx, sel, obj)
 	case team.TeamMemberSetRoleAuditEntry:
 		return ec._TeamMemberSetRoleAuditEntry(ctx, sel, &obj)
 	case *team.TeamMemberSetRoleAuditEntry:
@@ -77097,13 +77560,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamMemberSetRoleAuditEntry(ctx, sel, obj)
-	case team.TeamMemberRemovedAuditEntry:
-		return ec._TeamMemberRemovedAuditEntry(ctx, sel, &obj)
-	case *team.TeamMemberRemovedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamMemberRemovedAuditEntry(ctx, sel, obj)
 	case job.JobDeletedAuditEntry:
 		return ec._JobDeletedAuditEntry(ctx, sel, &obj)
 	case *job.JobDeletedAuditEntry:
@@ -77132,6 +77588,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._OpenSearch(ctx, sel, obj)
+	case team.TeamMemberRemovedAuditEntry:
+		return ec._TeamMemberRemovedAuditEntry(ctx, sel, &obj)
+	case *team.TeamMemberRemovedAuditEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamMemberRemovedAuditEntry(ctx, sel, obj)
 	case team.TeamMemberAddedAuditEntry:
 		return ec._TeamMemberAddedAuditEntry(ctx, sel, &obj)
 	case *team.TeamMemberAddedAuditEntry:
@@ -77139,20 +77602,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamMemberAddedAuditEntry(ctx, sel, obj)
-	case team.TeamConfirmDeleteKeyAuditEntry:
-		return ec._TeamConfirmDeleteKeyAuditEntry(ctx, sel, &obj)
-	case *team.TeamConfirmDeleteKeyAuditEntry:
+	case reconciler.ReconcilerEnabledAuditEntry:
+		return ec._ReconcilerEnabledAuditEntry(ctx, sel, &obj)
+	case *reconciler.ReconcilerEnabledAuditEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamConfirmDeleteKeyAuditEntry(ctx, sel, obj)
-	case application.Application:
-		return ec._Application(ctx, sel, &obj)
-	case *application.Application:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Application(ctx, sel, obj)
+		return ec._ReconcilerEnabledAuditEntry(ctx, sel, obj)
 	case reconciler.ReconcilerDisabledAuditEntry:
 		return ec._ReconcilerDisabledAuditEntry(ctx, sel, &obj)
 	case *reconciler.ReconcilerDisabledAuditEntry:
@@ -77174,6 +77630,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._RedisInstance(ctx, sel, obj)
+	case team.TeamConfirmDeleteKeyAuditEntry:
+		return ec._TeamConfirmDeleteKeyAuditEntry(ctx, sel, &obj)
+	case *team.TeamConfirmDeleteKeyAuditEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamConfirmDeleteKeyAuditEntry(ctx, sel, obj)
 	case team.TeamCreateDeleteKeyAuditEntry:
 		return ec._TeamCreateDeleteKeyAuditEntry(ctx, sel, &obj)
 	case *team.TeamCreateDeleteKeyAuditEntry:
@@ -77181,27 +77644,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamCreateDeleteKeyAuditEntry(ctx, sel, obj)
-	case repository.RepositoryAddedAuditEntry:
-		return ec._RepositoryAddedAuditEntry(ctx, sel, &obj)
-	case *repository.RepositoryAddedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._RepositoryAddedAuditEntry(ctx, sel, obj)
-	case reconciler.ReconcilerEnabledAuditEntry:
-		return ec._ReconcilerEnabledAuditEntry(ctx, sel, &obj)
-	case *reconciler.ReconcilerEnabledAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ReconcilerEnabledAuditEntry(ctx, sel, obj)
-	case team.TeamUpdatedAuditEntry:
-		return ec._TeamUpdatedAuditEntry(ctx, sel, &obj)
-	case *team.TeamUpdatedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamUpdatedAuditEntry(ctx, sel, obj)
 	case team.TeamCreatedAuditEntry:
 		return ec._TeamCreatedAuditEntry(ctx, sel, &obj)
 	case *team.TeamCreatedAuditEntry:
@@ -77209,6 +77651,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamCreatedAuditEntry(ctx, sel, obj)
+	case application.ApplicationRestartedAuditEntry:
+		return ec._ApplicationRestartedAuditEntry(ctx, sel, &obj)
+	case *application.ApplicationRestartedAuditEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationRestartedAuditEntry(ctx, sel, obj)
+	case application.Application:
+		return ec._Application(ctx, sel, &obj)
+	case *application.Application:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Application(ctx, sel, obj)
 	case secret.SecretValueAddedAuditEntry:
 		return ec._SecretValueAddedAuditEntry(ctx, sel, &obj)
 	case *secret.SecretValueAddedAuditEntry:
@@ -77265,13 +77721,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamEnvironment(ctx, sel, obj)
-	case deployment.Deployment:
-		return ec._Deployment(ctx, sel, &obj)
-	case *deployment.Deployment:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Deployment(ctx, sel, obj)
 	case job.JobRun:
 		return ec._JobRun(ctx, sel, &obj)
 	case *job.JobRun:
@@ -77279,34 +77728,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._JobRun(ctx, sel, obj)
-	case application.ApplicationInstance:
-		return ec._ApplicationInstance(ctx, sel, &obj)
-	case *application.ApplicationInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ApplicationInstance(ctx, sel, obj)
-	case repository.Repository:
-		return ec._Repository(ctx, sel, &obj)
-	case *repository.Repository:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Repository(ctx, sel, obj)
-	case reconciler.Reconciler:
-		return ec._Reconciler(ctx, sel, &obj)
-	case *reconciler.Reconciler:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Reconciler(ctx, sel, obj)
-	case team.Team:
-		return ec._Team(ctx, sel, &obj)
-	case *team.Team:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Team(ctx, sel, obj)
 	case job.JobRunInstance:
 		return ec._JobRunInstance(ctx, sel, &obj)
 	case *job.JobRunInstance:
@@ -77314,44 +77735,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._JobRunInstance(ctx, sel, obj)
-	case persistence.Persistence:
+	case application.ApplicationInstance:
+		return ec._ApplicationInstance(ctx, sel, &obj)
+	case *application.ApplicationInstance:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Persistence(ctx, sel, obj)
-	case workload.Workload:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Workload(ctx, sel, obj)
-	case unleash.UnleashInstance:
-		return ec._UnleashInstance(ctx, sel, &obj)
-	case *unleash.UnleashInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._UnleashInstance(ctx, sel, obj)
-	case deployment.DeploymentKey:
-		return ec._DeploymentKey(ctx, sel, &obj)
-	case *deployment.DeploymentKey:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._DeploymentKey(ctx, sel, obj)
-	case secret.Secret:
-		return ec._Secret(ctx, sel, &obj)
-	case *secret.Secret:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Secret(ctx, sel, obj)
-	case user.User:
-		return ec._User(ctx, sel, &obj)
-	case *user.User:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._User(ctx, sel, obj)
+		return ec._ApplicationInstance(ctx, sel, obj)
 	case vulnerability.ImageVulnerability:
 		return ec._ImageVulnerability(ctx, sel, &obj)
 	case *vulnerability.ImageVulnerability:
@@ -77359,11 +77749,77 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ImageVulnerability(ctx, sel, obj)
+	case repository.Repository:
+		return ec._Repository(ctx, sel, &obj)
+	case *repository.Repository:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Repository(ctx, sel, obj)
+	case team.Team:
+		return ec._Team(ctx, sel, &obj)
+	case *team.Team:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Team(ctx, sel, obj)
+	case persistence.Persistence:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Persistence(ctx, sel, obj)
+	case reconciler.Reconciler:
+		return ec._Reconciler(ctx, sel, &obj)
+	case *reconciler.Reconciler:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Reconciler(ctx, sel, obj)
 	case audit.AuditEntry:
 		if obj == nil {
 			return graphql.Null
 		}
 		return ec._AuditEntry(ctx, sel, obj)
+	case unleash.UnleashInstance:
+		return ec._UnleashInstance(ctx, sel, &obj)
+	case *unleash.UnleashInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._UnleashInstance(ctx, sel, obj)
+	case deployment.Deployment:
+		return ec._Deployment(ctx, sel, &obj)
+	case *deployment.Deployment:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Deployment(ctx, sel, obj)
+	case deployment.DeploymentKey:
+		return ec._DeploymentKey(ctx, sel, &obj)
+	case *deployment.DeploymentKey:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._DeploymentKey(ctx, sel, obj)
+	case user.User:
+		return ec._User(ctx, sel, &obj)
+	case *user.User:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._User(ctx, sel, obj)
+	case secret.Secret:
+		return ec._Secret(ctx, sel, &obj)
+	case *secret.Secret:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Secret(ctx, sel, obj)
+	case workload.Workload:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Workload(ctx, sel, obj)
 	case serviceaccount.ServiceAccount:
 		return ec._ServiceAccount(ctx, sel, &obj)
 	case *serviceaccount.ServiceAccount:
@@ -91619,6 +92075,77 @@ func (ec *executionContext) _TeamDeleteKey(ctx context.Context, sel ast.Selectio
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamDeployKeyUpdatedAuditEntryImplementors = []string{"TeamDeployKeyUpdatedAuditEntry", "AuditEntry", "Node"}
+
+func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *deployment.TeamDeployKeyUpdatedAuditEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamDeployKeyUpdatedAuditEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamDeployKeyUpdatedAuditEntry")
+		case "id":
+			out.Values[i] = ec._TeamDeployKeyUpdatedAuditEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			out.Values[i] = ec._TeamDeployKeyUpdatedAuditEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._TeamDeployKeyUpdatedAuditEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._TeamDeployKeyUpdatedAuditEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			out.Values[i] = ec._TeamDeployKeyUpdatedAuditEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			out.Values[i] = ec._TeamDeployKeyUpdatedAuditEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			out.Values[i] = ec._TeamDeployKeyUpdatedAuditEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			out.Values[i] = ec._TeamDeployKeyUpdatedAuditEntry_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
