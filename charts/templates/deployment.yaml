@@ -58,8 +58,6 @@ spec:
               value: "{{ .Values.google.managementProjectID }}"
             - name: COST_DATA_IMPORT_ENABLED
               value: "true"
-            - name: RESOURCE_UTILIZATION_IMPORT_ENABLED
-              value: "true"
             - name: DEPENDENCYTRACK_FRONTEND
               value: "{{ .Values.dependencytrack.frontend }}"
             - name: DEPENDENCYTRACK_ENDPOINT

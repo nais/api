@@ -1,9 +1,8 @@
 {{if .Values.unleash.enabled }}
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRole
 metadata:
   name: "{{ .Release.Name }}-unleash-admin"
-  namespace: {{ .Values.unleash.namespace }}
   labels:
     app: "{{ .Release.Name }}"
 rules:
