@@ -122,14 +122,7 @@ type oAuthConfig struct {
 	RedirectURL string `env:"OAUTH_REDIRECT_URL"`
 }
 
-type slackConfig struct {
-	// ApiToken is the OAuth token for the Slack application that will post the feedback message.
-	ApiToken string `env:"SLACK_API_TOKEN"`
-
-	// FeedbackChannelID is the ID of the Slack channel where feedback messages will be posted.
-	FeedbackChannelID string `env:"SLACK_FEEDBACK_CHANNEL_ID"`
-}
-
+// TODO(thokra): Is this still needed?
 type unleashConfig struct {
 	// Enabled When set to true, the Unleash feature flag service will be enabled.
 	Enabled bool `env:"UNLEASH_ENABLED"`
@@ -161,9 +154,6 @@ type Config struct {
 	// application starts. Refer to the README for the format.
 	StaticServiceAccounts StaticServiceAccounts `env:"STATIC_SERVICE_ACCOUNTS"`
 
-	// ResourceUtilization is the configuration for the resource utilization service
-	ResourceUtilizationImportEnabled bool `env:"RESOURCE_UTILIZATION_IMPORT_ENABLED"`
-
 	// WithFakeKubernetes When set to true, the api will use a fake kubernetes client.
 	WithFakeClients bool `env:"WITH_FAKE_CLIENTS"`
 
@@ -183,7 +173,6 @@ type Config struct {
 	Hookd           hookdConfig
 	OAuth           oAuthConfig
 	Unleash         unleashConfig
-	Slack           slackConfig
 }
 
 // NewConfig creates a new configuration instance from environment variables
