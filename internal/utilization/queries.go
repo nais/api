@@ -170,7 +170,7 @@ func WorkloadResourceUsage(ctx context.Context, env string, teamSlug slug.Slug, 
 	return ensuredVal(v), nil
 }
 
-func WorkloadResourceUsageRange(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, resourceType UtilizationResourceType, start time.Time, end time.Time, step int) ([]*UtilizationDataPoint, error) {
+func WorkloadResourceUsageRange(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, resourceType UtilizationResourceType, start time.Time, end time.Time, step int) ([]*UtilizationSample, error) {
 	q := appMemoryUsage
 	if resourceType == UtilizationResourceTypeCPU {
 		q = appCPUUsage
@@ -190,11 +190,11 @@ func WorkloadResourceUsageRange(ctx context.Context, env string, teamSlug slug.S
 		return nil, fmt.Errorf("expected prometheus matrix, got %T", v)
 	}
 
-	ret := make([]*UtilizationDataPoint, 0)
+	ret := make([]*UtilizationSample, 0)
 
 	for _, sample := range matrix {
 		for _, value := range sample.Values {
-			ret = append(ret, &UtilizationDataPoint{
+			ret = append(ret, &UtilizationSample{
 				Value:     float64(value.Value),
 				Timestamp: value.Timestamp.Time(),
 			})

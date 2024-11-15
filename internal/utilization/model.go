@@ -58,14 +58,14 @@ func (e UtilizationResourceType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-type TeamUtilizationEnvironmentDataPoint struct {
+type TeamUtilizationEnvironmentSample struct {
 	Value           float64   `json:"value"`
 	WorkloadName    string    `json:"-"`
 	TeamSlug        slug.Slug `json:"-"`
 	EnvironmentName string    `json:"-"`
 }
 
-type UtilizationDataPoint struct {
+type UtilizationSample struct {
 	Timestamp time.Time `json:"timestamp"`
 	Value     float64   `json:"value"`
 }

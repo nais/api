@@ -43,7 +43,7 @@ type TeamCostMonthlySummary {
 	sum: Float!
 
 	"The cost series."
-	series: [TeamCostMonthlySample!]! # TODO: Ask Vebjørn about naming things for analytic purposes
+	series: [TeamCostMonthlySample!]!
 }
 
 type TeamCostMonthlySample {
@@ -115,7 +115,7 @@ type ServiceCostSeries {
 	sum: Float!
 
 	"The cost for the services used by the workload."
-	services: [ServiceCostPoint!]!
+	services: [ServiceCostSample!]!
 }
 
 type WorkloadCostSeries {
@@ -126,10 +126,10 @@ type WorkloadCostSeries {
 	sum: Float!
 
 	"The cost for the workloads in the environment."
-	workloads: [WorkloadCostPoint!]!
+	workloads: [WorkloadCostSample!]!
 }
 
-type ServiceCostPoint {
+type ServiceCostSample {
 	"The name of the service."
 	service: String!
 
@@ -137,7 +137,7 @@ type ServiceCostPoint {
 	cost: Float!
 }
 
-type WorkloadCostPoint {
+type WorkloadCostSample {
 	"The workload."
 	workload: Workload
 

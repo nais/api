@@ -190,10 +190,10 @@ func serviceCostSeries(d time.Time) *ServiceCostSeries {
 			Date: scalar.Date(d),
 		}
 	}
-	services := make([]*ServiceCostPoint, 0)
+	services := make([]*ServiceCostSample, 0)
 	serviceNames := randomServices()
 	for _, service := range serviceNames {
-		services = append(services, &ServiceCostPoint{
+		services = append(services, &ServiceCostSample{
 			Service: service,
 			Cost:    rand.Float64(),
 		})
@@ -218,9 +218,9 @@ func workloadCostSeries(ctx context.Context, d time.Time, teamSlug slug.Slug, en
 	for _, j := range job.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName) {
 		workloadNames = append(workloadNames, j.Name)
 	}
-	workloads := make([]*WorkloadCostPoint, len(workloadNames))
+	workloads := make([]*WorkloadCostSample, len(workloadNames))
 	for i, name := range workloadNames {
-		workloads[i] = &WorkloadCostPoint{
+		workloads[i] = &WorkloadCostSample{
 			TeamSlug:        teamSlug,
 			EnvironmentName: environmentName,
 			WorkloadName:    name,

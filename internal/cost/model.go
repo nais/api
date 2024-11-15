@@ -19,8 +19,8 @@ type TeamCost struct {
 }
 
 type ServiceCostSeries struct {
-	Date     scalar.Date         `json:"date"`
-	Services []*ServiceCostPoint `json:"services"`
+	Date     scalar.Date          `json:"date"`
+	Services []*ServiceCostSample `json:"services"`
 }
 
 func (w *ServiceCostSeries) Sum() float64 {
@@ -43,7 +43,7 @@ func (w *WorkloadCostPeriod) Sum() float64 {
 	return sum
 }
 
-type ServiceCostPoint struct {
+type ServiceCostSample struct {
 	Service string  `json:"service"`
 	Cost    float64 `json:"cost"`
 }
@@ -94,7 +94,7 @@ type TeamEnvironmentCost struct {
 	EnvironmentName string    `json:"-"`
 }
 
-type WorkloadCostPoint struct {
+type WorkloadCostSample struct {
 	Cost            float64   `json:"cost"`
 	WorkloadName    string    `json:"workloadName"`
 	TeamSlug        slug.Slug `json:"-"`
@@ -106,8 +106,8 @@ type TeamEnvironmentCostPeriod struct {
 }
 
 type WorkloadCostSeries struct {
-	Date      scalar.Date          `json:"date"`
-	Workloads []*WorkloadCostPoint `json:"workloads"`
+	Date      scalar.Date           `json:"date"`
+	Workloads []*WorkloadCostSample `json:"workloads"`
 }
 
 func (w *WorkloadCostSeries) Sum() float64 {

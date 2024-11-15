@@ -41,7 +41,7 @@ func (r *teamUtilizationDataResolver) Environment(ctx context.Context, obj *util
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
-func (r *teamUtilizationEnvironmentDataPointResolver) Environment(ctx context.Context, obj *utilization.TeamUtilizationEnvironmentDataPoint) (*team.TeamEnvironment, error) {
+func (r *teamUtilizationEnvironmentSampleResolver) Environment(ctx context.Context, obj *utilization.TeamUtilizationEnvironmentSample) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
@@ -53,7 +53,7 @@ func (r *workloadUtilizationResolver) Requested(ctx context.Context, obj *utiliz
 	return utilization.WorkloadResourceRequest(ctx, obj.EnvironmentName, obj.TeamSlug, obj.WorkloadName, resourceType)
 }
 
-func (r *workloadUtilizationResolver) Series(ctx context.Context, obj *utilization.WorkloadUtilization, input utilization.WorkloadUtilizationSeriesInput) ([]*utilization.UtilizationDataPoint, error) {
+func (r *workloadUtilizationResolver) Series(ctx context.Context, obj *utilization.WorkloadUtilization, input utilization.WorkloadUtilizationSeriesInput) ([]*utilization.UtilizationSample, error) {
 	return utilization.WorkloadResourceUsageRange(ctx, obj.EnvironmentName, obj.TeamSlug, obj.WorkloadName, input.ResourceType, input.Start, input.End, input.Step())
 }
 
@@ -69,8 +69,8 @@ func (r *Resolver) TeamUtilizationData() gengql.TeamUtilizationDataResolver {
 	return &teamUtilizationDataResolver{r}
 }
 
-func (r *Resolver) TeamUtilizationEnvironmentDataPoint() gengql.TeamUtilizationEnvironmentDataPointResolver {
-	return &teamUtilizationEnvironmentDataPointResolver{r}
+func (r *Resolver) TeamUtilizationEnvironmentSample() gengql.TeamUtilizationEnvironmentSampleResolver {
+	return &teamUtilizationEnvironmentSampleResolver{r}
 }
 
 func (r *Resolver) WorkloadUtilization() gengql.WorkloadUtilizationResolver {
@@ -82,9 +82,9 @@ func (r *Resolver) WorkloadUtilizationData() gengql.WorkloadUtilizationDataResol
 }
 
 type (
-	teamServiceUtilizationResolver              struct{ *Resolver }
-	teamUtilizationDataResolver                 struct{ *Resolver }
-	teamUtilizationEnvironmentDataPointResolver struct{ *Resolver }
-	workloadUtilizationResolver                 struct{ *Resolver }
-	workloadUtilizationDataResolver             struct{ *Resolver }
+	teamServiceUtilizationResolver           struct{ *Resolver }
+	teamUtilizationDataResolver              struct{ *Resolver }
+	teamUtilizationEnvironmentSampleResolver struct{ *Resolver }
+	workloadUtilizationResolver              struct{ *Resolver }
+	workloadUtilizationDataResolver          struct{ *Resolver }
 )

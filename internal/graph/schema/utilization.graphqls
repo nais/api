@@ -24,7 +24,7 @@ type WorkloadUtilizationData {
 	used: Float!
 }
 
-type TeamUtilizationEnvironmentDataPoint {
+type TeamUtilizationEnvironmentSample {
 	"Value of the used resource at the given timestamp."
 	value: Float!
 
@@ -40,7 +40,7 @@ type WorkloadUtilization {
 	requested(resourceType: UtilizationResourceType!): Float!
 
 	"Usage between start and end with step size for given resource type."
-	series(input: WorkloadUtilizationSeriesInput!): [UtilizationDataPoint!]!
+	series(input: WorkloadUtilizationSeriesInput!): [UtilizationSample!]!
 }
 
 input WorkloadUtilizationSeriesInput {
@@ -61,7 +61,7 @@ enum UtilizationResourceType {
 }
 
 "Resource utilization type."
-type UtilizationDataPoint {
+type UtilizationSample {
 	"Timestamp of the value."
 	timestamp: Time!
 

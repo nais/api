@@ -164,7 +164,7 @@ func (r *workloadCostResolver) Monthly(ctx context.Context, obj *cost.WorkloadCo
 	return cost.MonthlyForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadName)
 }
 
-func (r *workloadCostPointResolver) Workload(ctx context.Context, obj *cost.WorkloadCostPoint) (workload.Workload, error) {
+func (r *workloadCostSampleResolver) Workload(ctx context.Context, obj *cost.WorkloadCostSample) (workload.Workload, error) {
 	w, err := tryWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadName)
 	if errors.Is(err, &watcher.ErrorNotFound{}) {
 		return nil, nil
@@ -182,13 +182,13 @@ func (r *Resolver) TeamEnvironmentCost() gengql.TeamEnvironmentCostResolver {
 
 func (r *Resolver) WorkloadCost() gengql.WorkloadCostResolver { return &workloadCostResolver{r} }
 
-func (r *Resolver) WorkloadCostPoint() gengql.WorkloadCostPointResolver {
-	return &workloadCostPointResolver{r}
+func (r *Resolver) WorkloadCostSample() gengql.WorkloadCostSampleResolver {
+	return &workloadCostSampleResolver{r}
 }
 
 type (
 	teamCostResolver            struct{ *Resolver }
 	teamEnvironmentCostResolver struct{ *Resolver }
 	workloadCostResolver        struct{ *Resolver }
-	workloadCostPointResolver   struct{ *Resolver }
+	workloadCostSampleResolver  struct{ *Resolver }
 )

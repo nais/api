@@ -117,14 +117,14 @@ type ResolverRoot interface {
 	TeamServiceUtilization() TeamServiceUtilizationResolver
 	TeamServiceUtilizationSqlInstances() TeamServiceUtilizationSqlInstancesResolver
 	TeamUtilizationData() TeamUtilizationDataResolver
-	TeamUtilizationEnvironmentDataPoint() TeamUtilizationEnvironmentDataPointResolver
+	TeamUtilizationEnvironmentSample() TeamUtilizationEnvironmentSampleResolver
 	TeamVulnerabilitySummary() TeamVulnerabilitySummaryResolver
 	TriggerJobPayload() TriggerJobPayloadResolver
 	UnleashInstance() UnleashInstanceResolver
 	UnleashInstanceMetrics() UnleashInstanceMetricsResolver
 	User() UserResolver
 	WorkloadCost() WorkloadCostResolver
-	WorkloadCostPoint() WorkloadCostPointResolver
+	WorkloadCostSample() WorkloadCostSampleResolver
 	WorkloadUtilization() WorkloadUtilizationResolver
 	WorkloadUtilizationData() WorkloadUtilizationDataResolver
 }
@@ -1147,7 +1147,7 @@ type ComplexityRoot struct {
 		Name func(childComplexity int) int
 	}
 
-	ServiceCostPoint struct {
+	ServiceCostSample struct {
 		Cost    func(childComplexity int) int
 		Service func(childComplexity int) int
 	}
@@ -1640,7 +1640,7 @@ type ComplexityRoot struct {
 		Used        func(childComplexity int) int
 	}
 
-	TeamUtilizationEnvironmentDataPoint struct {
+	TeamUtilizationEnvironmentSample struct {
 		Environment func(childComplexity int) int
 		Value       func(childComplexity int) int
 	}
@@ -1763,7 +1763,7 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
-	UtilizationDataPoint struct {
+	UtilizationSample struct {
 		Timestamp func(childComplexity int) int
 		Value     func(childComplexity int) int
 	}
@@ -1795,7 +1795,7 @@ type ComplexityRoot struct {
 		Sum    func(childComplexity int) int
 	}
 
-	WorkloadCostPoint struct {
+	WorkloadCostSample struct {
 		Cost         func(childComplexity int) int
 		Workload     func(childComplexity int) int
 		WorkloadName func(childComplexity int) int
@@ -2214,8 +2214,8 @@ type TeamUtilizationDataResolver interface {
 
 	Environment(ctx context.Context, obj *utilization.TeamUtilizationData) (*team.TeamEnvironment, error)
 }
-type TeamUtilizationEnvironmentDataPointResolver interface {
-	Environment(ctx context.Context, obj *utilization.TeamUtilizationEnvironmentDataPoint) (*team.TeamEnvironment, error)
+type TeamUtilizationEnvironmentSampleResolver interface {
+	Environment(ctx context.Context, obj *utilization.TeamUtilizationEnvironmentSample) (*team.TeamEnvironment, error)
 }
 type TeamVulnerabilitySummaryResolver interface {
 	Ranking(ctx context.Context, obj *vulnerability.TeamVulnerabilitySummary) (vulnerability.TeamVulnerabilityRanking, error)
@@ -2243,13 +2243,13 @@ type WorkloadCostResolver interface {
 	Daily(ctx context.Context, obj *cost.WorkloadCost, from scalar.Date, to scalar.Date) (*cost.WorkloadCostPeriod, error)
 	Monthly(ctx context.Context, obj *cost.WorkloadCost) (*cost.WorkloadCostPeriod, error)
 }
-type WorkloadCostPointResolver interface {
-	Workload(ctx context.Context, obj *cost.WorkloadCostPoint) (workload.Workload, error)
+type WorkloadCostSampleResolver interface {
+	Workload(ctx context.Context, obj *cost.WorkloadCostSample) (workload.Workload, error)
 }
 type WorkloadUtilizationResolver interface {
 	Current(ctx context.Context, obj *utilization.WorkloadUtilization, resourceType utilization.UtilizationResourceType) (float64, error)
 	Requested(ctx context.Context, obj *utilization.WorkloadUtilization, resourceType utilization.UtilizationResourceType) (float64, error)
-	Series(ctx context.Context, obj *utilization.WorkloadUtilization, input utilization.WorkloadUtilizationSeriesInput) ([]*utilization.UtilizationDataPoint, error)
+	Series(ctx context.Context, obj *utilization.WorkloadUtilization, input utilization.WorkloadUtilizationSeriesInput) ([]*utilization.UtilizationSample, error)
 }
 type WorkloadUtilizationDataResolver interface {
 	Workload(ctx context.Context, obj *utilization.WorkloadUtilizationData) (workload.Workload, error)
@@ -6558,19 +6558,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ServiceAccount.Name(childComplexity), true
 
-	case "ServiceCostPoint.cost":
-		if e.complexity.ServiceCostPoint.Cost == nil {
+	case "ServiceCostSample.cost":
+		if e.complexity.ServiceCostSample.Cost == nil {
 			break
 		}
 
-		return e.complexity.ServiceCostPoint.Cost(childComplexity), true
+		return e.complexity.ServiceCostSample.Cost(childComplexity), true
 
-	case "ServiceCostPoint.service":
-		if e.complexity.ServiceCostPoint.Service == nil {
+	case "ServiceCostSample.service":
+		if e.complexity.ServiceCostSample.Service == nil {
 			break
 		}
 
-		return e.complexity.ServiceCostPoint.Service(childComplexity), true
+		return e.complexity.ServiceCostSample.Service(childComplexity), true
 
 	case "ServiceCostSeries.date":
 		if e.complexity.ServiceCostSeries.Date == nil {
@@ -8772,19 +8772,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamUtilizationData.Used(childComplexity), true
 
-	case "TeamUtilizationEnvironmentDataPoint.environment":
-		if e.complexity.TeamUtilizationEnvironmentDataPoint.Environment == nil {
+	case "TeamUtilizationEnvironmentSample.environment":
+		if e.complexity.TeamUtilizationEnvironmentSample.Environment == nil {
 			break
 		}
 
-		return e.complexity.TeamUtilizationEnvironmentDataPoint.Environment(childComplexity), true
+		return e.complexity.TeamUtilizationEnvironmentSample.Environment(childComplexity), true
 
-	case "TeamUtilizationEnvironmentDataPoint.value":
-		if e.complexity.TeamUtilizationEnvironmentDataPoint.Value == nil {
+	case "TeamUtilizationEnvironmentSample.value":
+		if e.complexity.TeamUtilizationEnvironmentSample.Value == nil {
 			break
 		}
 
-		return e.complexity.TeamUtilizationEnvironmentDataPoint.Value(childComplexity), true
+		return e.complexity.TeamUtilizationEnvironmentSample.Value(childComplexity), true
 
 	case "TeamVulnerabilityStatus.description":
 		if e.complexity.TeamVulnerabilityStatus.Description == nil {
@@ -9265,19 +9265,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserEdge.Node(childComplexity), true
 
-	case "UtilizationDataPoint.timestamp":
-		if e.complexity.UtilizationDataPoint.Timestamp == nil {
+	case "UtilizationSample.timestamp":
+		if e.complexity.UtilizationSample.Timestamp == nil {
 			break
 		}
 
-		return e.complexity.UtilizationDataPoint.Timestamp(childComplexity), true
+		return e.complexity.UtilizationSample.Timestamp(childComplexity), true
 
-	case "UtilizationDataPoint.value":
-		if e.complexity.UtilizationDataPoint.Value == nil {
+	case "UtilizationSample.value":
+		if e.complexity.UtilizationSample.Value == nil {
 			break
 		}
 
-		return e.complexity.UtilizationDataPoint.Value(childComplexity), true
+		return e.complexity.UtilizationSample.Value(childComplexity), true
 
 	case "VulnerabilityUpdatedAuditEntry.actor":
 		if e.complexity.VulnerabilityUpdatedAuditEntry.Actor == nil {
@@ -9389,26 +9389,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.WorkloadCostPeriod.Sum(childComplexity), true
 
-	case "WorkloadCostPoint.cost":
-		if e.complexity.WorkloadCostPoint.Cost == nil {
+	case "WorkloadCostSample.cost":
+		if e.complexity.WorkloadCostSample.Cost == nil {
 			break
 		}
 
-		return e.complexity.WorkloadCostPoint.Cost(childComplexity), true
+		return e.complexity.WorkloadCostSample.Cost(childComplexity), true
 
-	case "WorkloadCostPoint.workload":
-		if e.complexity.WorkloadCostPoint.Workload == nil {
+	case "WorkloadCostSample.workload":
+		if e.complexity.WorkloadCostSample.Workload == nil {
 			break
 		}
 
-		return e.complexity.WorkloadCostPoint.Workload(childComplexity), true
+		return e.complexity.WorkloadCostSample.Workload(childComplexity), true
 
-	case "WorkloadCostPoint.workloadName":
-		if e.complexity.WorkloadCostPoint.WorkloadName == nil {
+	case "WorkloadCostSample.workloadName":
+		if e.complexity.WorkloadCostSample.WorkloadName == nil {
 			break
 		}
 
-		return e.complexity.WorkloadCostPoint.WorkloadName(childComplexity), true
+		return e.complexity.WorkloadCostSample.WorkloadName(childComplexity), true
 
 	case "WorkloadCostSeries.date":
 		if e.complexity.WorkloadCostSeries.Date == nil {
@@ -10865,7 +10865,7 @@ type TeamCostMonthlySummary {
 	sum: Float!
 
 	"The cost series."
-	series: [TeamCostMonthlySample!]! # TODO: Ask Vebjørn about naming things for analytic purposes
+	series: [TeamCostMonthlySample!]!
 }
 
 type TeamCostMonthlySample {
@@ -10937,7 +10937,7 @@ type ServiceCostSeries {
 	sum: Float!
 
 	"The cost for the services used by the workload."
-	services: [ServiceCostPoint!]!
+	services: [ServiceCostSample!]!
 }
 
 type WorkloadCostSeries {
@@ -10948,10 +10948,10 @@ type WorkloadCostSeries {
 	sum: Float!
 
 	"The cost for the workloads in the environment."
-	workloads: [WorkloadCostPoint!]!
+	workloads: [WorkloadCostSample!]!
 }
 
-type ServiceCostPoint {
+type ServiceCostSample {
 	"The name of the service."
 	service: String!
 
@@ -10959,7 +10959,7 @@ type ServiceCostPoint {
 	cost: Float!
 }
 
-type WorkloadCostPoint {
+type WorkloadCostSample {
 	"The workload."
 	workload: Workload
 
@@ -14699,7 +14699,7 @@ type WorkloadUtilizationData {
 	used: Float!
 }
 
-type TeamUtilizationEnvironmentDataPoint {
+type TeamUtilizationEnvironmentSample {
 	"Value of the used resource at the given timestamp."
 	value: Float!
 
@@ -14715,7 +14715,7 @@ type WorkloadUtilization {
 	requested(resourceType: UtilizationResourceType!): Float!
 
 	"Usage between start and end with step size for given resource type."
-	series(input: WorkloadUtilizationSeriesInput!): [UtilizationDataPoint!]!
+	series(input: WorkloadUtilizationSeriesInput!): [UtilizationSample!]!
 }
 
 input WorkloadUtilizationSeriesInput {
@@ -14736,7 +14736,7 @@ enum UtilizationResourceType {
 }
 
 "Resource utilization type."
-type UtilizationDataPoint {
+type UtilizationSample {
 	"Timestamp of the value."
 	timestamp: Time!
 
@@ -52572,8 +52572,8 @@ func (ec *executionContext) fieldContext_ServiceAccount_name(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceCostPoint_service(ctx context.Context, field graphql.CollectedField, obj *cost.ServiceCostPoint) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ServiceCostPoint_service(ctx, field)
+func (ec *executionContext) _ServiceCostSample_service(ctx context.Context, field graphql.CollectedField, obj *cost.ServiceCostSample) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceCostSample_service(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -52603,9 +52603,9 @@ func (ec *executionContext) _ServiceCostPoint_service(ctx context.Context, field
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ServiceCostPoint_service(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ServiceCostSample_service(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ServiceCostPoint",
+		Object:     "ServiceCostSample",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -52616,8 +52616,8 @@ func (ec *executionContext) fieldContext_ServiceCostPoint_service(_ context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceCostPoint_cost(ctx context.Context, field graphql.CollectedField, obj *cost.ServiceCostPoint) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ServiceCostPoint_cost(ctx, field)
+func (ec *executionContext) _ServiceCostSample_cost(ctx context.Context, field graphql.CollectedField, obj *cost.ServiceCostSample) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceCostSample_cost(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -52647,9 +52647,9 @@ func (ec *executionContext) _ServiceCostPoint_cost(ctx context.Context, field gr
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ServiceCostPoint_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ServiceCostSample_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ServiceCostPoint",
+		Object:     "ServiceCostSample",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -52774,9 +52774,9 @@ func (ec *executionContext) _ServiceCostSeries_services(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*cost.ServiceCostPoint)
+	res := resTmp.([]*cost.ServiceCostSample)
 	fc.Result = res
-	return ec.marshalNServiceCostPoint2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostPointᚄ(ctx, field.Selections, res)
+	return ec.marshalNServiceCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSampleᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ServiceCostSeries_services(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -52788,11 +52788,11 @@ func (ec *executionContext) fieldContext_ServiceCostSeries_services(_ context.Co
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "service":
-				return ec.fieldContext_ServiceCostPoint_service(ctx, field)
+				return ec.fieldContext_ServiceCostSample_service(ctx, field)
 			case "cost":
-				return ec.fieldContext_ServiceCostPoint_cost(ctx, field)
+				return ec.fieldContext_ServiceCostSample_cost(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ServiceCostPoint", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ServiceCostSample", field.Name)
 		},
 	}
 	return fc, nil
@@ -67536,8 +67536,8 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_environment(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUtilizationEnvironmentDataPoint_value(ctx context.Context, field graphql.CollectedField, obj *utilization.TeamUtilizationEnvironmentDataPoint) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUtilizationEnvironmentDataPoint_value(ctx, field)
+func (ec *executionContext) _TeamUtilizationEnvironmentSample_value(ctx context.Context, field graphql.CollectedField, obj *utilization.TeamUtilizationEnvironmentSample) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUtilizationEnvironmentSample_value(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -67567,9 +67567,9 @@ func (ec *executionContext) _TeamUtilizationEnvironmentDataPoint_value(ctx conte
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamUtilizationEnvironmentDataPoint_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamUtilizationEnvironmentSample_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamUtilizationEnvironmentDataPoint",
+		Object:     "TeamUtilizationEnvironmentSample",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -67580,8 +67580,8 @@ func (ec *executionContext) fieldContext_TeamUtilizationEnvironmentDataPoint_val
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUtilizationEnvironmentDataPoint_environment(ctx context.Context, field graphql.CollectedField, obj *utilization.TeamUtilizationEnvironmentDataPoint) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUtilizationEnvironmentDataPoint_environment(ctx, field)
+func (ec *executionContext) _TeamUtilizationEnvironmentSample_environment(ctx context.Context, field graphql.CollectedField, obj *utilization.TeamUtilizationEnvironmentSample) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUtilizationEnvironmentSample_environment(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -67594,7 +67594,7 @@ func (ec *executionContext) _TeamUtilizationEnvironmentDataPoint_environment(ctx
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TeamUtilizationEnvironmentDataPoint().Environment(rctx, obj)
+		return ec.resolvers.TeamUtilizationEnvironmentSample().Environment(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -67611,9 +67611,9 @@ func (ec *executionContext) _TeamUtilizationEnvironmentDataPoint_environment(ctx
 	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamUtilizationEnvironmentDataPoint_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamUtilizationEnvironmentSample_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamUtilizationEnvironmentDataPoint",
+		Object:     "TeamUtilizationEnvironmentSample",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
@@ -70902,8 +70902,8 @@ func (ec *executionContext) fieldContext_UserEdge_node(_ context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _UtilizationDataPoint_timestamp(ctx context.Context, field graphql.CollectedField, obj *utilization.UtilizationDataPoint) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UtilizationDataPoint_timestamp(ctx, field)
+func (ec *executionContext) _UtilizationSample_timestamp(ctx context.Context, field graphql.CollectedField, obj *utilization.UtilizationSample) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UtilizationSample_timestamp(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -70933,9 +70933,9 @@ func (ec *executionContext) _UtilizationDataPoint_timestamp(ctx context.Context,
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UtilizationDataPoint_timestamp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UtilizationSample_timestamp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UtilizationDataPoint",
+		Object:     "UtilizationSample",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -70946,8 +70946,8 @@ func (ec *executionContext) fieldContext_UtilizationDataPoint_timestamp(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _UtilizationDataPoint_value(ctx context.Context, field graphql.CollectedField, obj *utilization.UtilizationDataPoint) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UtilizationDataPoint_value(ctx, field)
+func (ec *executionContext) _UtilizationSample_value(ctx context.Context, field graphql.CollectedField, obj *utilization.UtilizationSample) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UtilizationSample_value(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -70977,9 +70977,9 @@ func (ec *executionContext) _UtilizationDataPoint_value(ctx context.Context, fie
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UtilizationDataPoint_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UtilizationSample_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UtilizationDataPoint",
+		Object:     "UtilizationSample",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -71700,8 +71700,8 @@ func (ec *executionContext) fieldContext_WorkloadCostPeriod_series(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadCostPoint_workload(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostPoint) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkloadCostPoint_workload(ctx, field)
+func (ec *executionContext) _WorkloadCostSample_workload(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostSample) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadCostSample_workload(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -71714,7 +71714,7 @@ func (ec *executionContext) _WorkloadCostPoint_workload(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.WorkloadCostPoint().Workload(rctx, obj)
+		return ec.resolvers.WorkloadCostSample().Workload(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -71728,9 +71728,9 @@ func (ec *executionContext) _WorkloadCostPoint_workload(ctx context.Context, fie
 	return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WorkloadCostPoint_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_WorkloadCostSample_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "WorkloadCostPoint",
+		Object:     "WorkloadCostSample",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
@@ -71741,8 +71741,8 @@ func (ec *executionContext) fieldContext_WorkloadCostPoint_workload(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadCostPoint_workloadName(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostPoint) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkloadCostPoint_workloadName(ctx, field)
+func (ec *executionContext) _WorkloadCostSample_workloadName(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostSample) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadCostSample_workloadName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -71772,9 +71772,9 @@ func (ec *executionContext) _WorkloadCostPoint_workloadName(ctx context.Context,
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WorkloadCostPoint_workloadName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_WorkloadCostSample_workloadName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "WorkloadCostPoint",
+		Object:     "WorkloadCostSample",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -71785,8 +71785,8 @@ func (ec *executionContext) fieldContext_WorkloadCostPoint_workloadName(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadCostPoint_cost(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostPoint) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkloadCostPoint_cost(ctx, field)
+func (ec *executionContext) _WorkloadCostSample_cost(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostSample) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadCostSample_cost(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -71816,9 +71816,9 @@ func (ec *executionContext) _WorkloadCostPoint_cost(ctx context.Context, field g
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WorkloadCostPoint_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_WorkloadCostSample_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "WorkloadCostPoint",
+		Object:     "WorkloadCostSample",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -71943,9 +71943,9 @@ func (ec *executionContext) _WorkloadCostSeries_workloads(ctx context.Context, f
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*cost.WorkloadCostPoint)
+	res := resTmp.([]*cost.WorkloadCostSample)
 	fc.Result = res
-	return ec.marshalNWorkloadCostPoint2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostPointᚄ(ctx, field.Selections, res)
+	return ec.marshalNWorkloadCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSampleᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_WorkloadCostSeries_workloads(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -71957,13 +71957,13 @@ func (ec *executionContext) fieldContext_WorkloadCostSeries_workloads(_ context.
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "workload":
-				return ec.fieldContext_WorkloadCostPoint_workload(ctx, field)
+				return ec.fieldContext_WorkloadCostSample_workload(ctx, field)
 			case "workloadName":
-				return ec.fieldContext_WorkloadCostPoint_workloadName(ctx, field)
+				return ec.fieldContext_WorkloadCostSample_workloadName(ctx, field)
 			case "cost":
-				return ec.fieldContext_WorkloadCostPoint_cost(ctx, field)
+				return ec.fieldContext_WorkloadCostSample_cost(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type WorkloadCostPoint", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type WorkloadCostSample", field.Name)
 		},
 	}
 	return fc, nil
@@ -73597,9 +73597,9 @@ func (ec *executionContext) _WorkloadUtilization_series(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*utilization.UtilizationDataPoint)
+	res := resTmp.([]*utilization.UtilizationSample)
 	fc.Result = res
-	return ec.marshalNUtilizationDataPoint2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationDataPointᚄ(ctx, field.Selections, res)
+	return ec.marshalNUtilizationSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSampleᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_WorkloadUtilization_series(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -73611,11 +73611,11 @@ func (ec *executionContext) fieldContext_WorkloadUtilization_series(ctx context.
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "timestamp":
-				return ec.fieldContext_UtilizationDataPoint_timestamp(ctx, field)
+				return ec.fieldContext_UtilizationSample_timestamp(ctx, field)
 			case "value":
-				return ec.fieldContext_UtilizationDataPoint_value(ctx, field)
+				return ec.fieldContext_UtilizationSample_value(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type UtilizationDataPoint", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type UtilizationSample", field.Name)
 		},
 	}
 	defer func() {
@@ -89408,24 +89408,24 @@ func (ec *executionContext) _ServiceAccount(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var serviceCostPointImplementors = []string{"ServiceCostPoint"}
+var serviceCostSampleImplementors = []string{"ServiceCostSample"}
 
-func (ec *executionContext) _ServiceCostPoint(ctx context.Context, sel ast.SelectionSet, obj *cost.ServiceCostPoint) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, serviceCostPointImplementors)
+func (ec *executionContext) _ServiceCostSample(ctx context.Context, sel ast.SelectionSet, obj *cost.ServiceCostSample) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, serviceCostSampleImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ServiceCostPoint")
+			out.Values[i] = graphql.MarshalString("ServiceCostSample")
 		case "service":
-			out.Values[i] = ec._ServiceCostPoint_service(ctx, field, obj)
+			out.Values[i] = ec._ServiceCostSample_service(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "cost":
-			out.Values[i] = ec._ServiceCostPoint_cost(ctx, field, obj)
+			out.Values[i] = ec._ServiceCostSample_cost(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -95376,19 +95376,19 @@ func (ec *executionContext) _TeamUtilizationData(ctx context.Context, sel ast.Se
 	return out
 }
 
-var teamUtilizationEnvironmentDataPointImplementors = []string{"TeamUtilizationEnvironmentDataPoint"}
+var teamUtilizationEnvironmentSampleImplementors = []string{"TeamUtilizationEnvironmentSample"}
 
-func (ec *executionContext) _TeamUtilizationEnvironmentDataPoint(ctx context.Context, sel ast.SelectionSet, obj *utilization.TeamUtilizationEnvironmentDataPoint) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamUtilizationEnvironmentDataPointImplementors)
+func (ec *executionContext) _TeamUtilizationEnvironmentSample(ctx context.Context, sel ast.SelectionSet, obj *utilization.TeamUtilizationEnvironmentSample) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamUtilizationEnvironmentSampleImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamUtilizationEnvironmentDataPoint")
+			out.Values[i] = graphql.MarshalString("TeamUtilizationEnvironmentSample")
 		case "value":
-			out.Values[i] = ec._TeamUtilizationEnvironmentDataPoint_value(ctx, field, obj)
+			out.Values[i] = ec._TeamUtilizationEnvironmentSample_value(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -95401,7 +95401,7 @@ func (ec *executionContext) _TeamUtilizationEnvironmentDataPoint(ctx context.Con
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamUtilizationEnvironmentDataPoint_environment(ctx, field, obj)
+				res = ec._TeamUtilizationEnvironmentSample_environment(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -96669,24 +96669,24 @@ func (ec *executionContext) _UserEdge(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var utilizationDataPointImplementors = []string{"UtilizationDataPoint"}
+var utilizationSampleImplementors = []string{"UtilizationSample"}
 
-func (ec *executionContext) _UtilizationDataPoint(ctx context.Context, sel ast.SelectionSet, obj *utilization.UtilizationDataPoint) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, utilizationDataPointImplementors)
+func (ec *executionContext) _UtilizationSample(ctx context.Context, sel ast.SelectionSet, obj *utilization.UtilizationSample) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, utilizationSampleImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("UtilizationDataPoint")
+			out.Values[i] = graphql.MarshalString("UtilizationSample")
 		case "timestamp":
-			out.Values[i] = ec._UtilizationDataPoint_timestamp(ctx, field, obj)
+			out.Values[i] = ec._UtilizationSample_timestamp(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "value":
-			out.Values[i] = ec._UtilizationDataPoint_value(ctx, field, obj)
+			out.Values[i] = ec._UtilizationSample_value(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -96983,17 +96983,17 @@ func (ec *executionContext) _WorkloadCostPeriod(ctx context.Context, sel ast.Sel
 	return out
 }
 
-var workloadCostPointImplementors = []string{"WorkloadCostPoint"}
+var workloadCostSampleImplementors = []string{"WorkloadCostSample"}
 
-func (ec *executionContext) _WorkloadCostPoint(ctx context.Context, sel ast.SelectionSet, obj *cost.WorkloadCostPoint) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, workloadCostPointImplementors)
+func (ec *executionContext) _WorkloadCostSample(ctx context.Context, sel ast.SelectionSet, obj *cost.WorkloadCostSample) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadCostSampleImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("WorkloadCostPoint")
+			out.Values[i] = graphql.MarshalString("WorkloadCostSample")
 		case "workload":
 			field := field
 
@@ -97003,7 +97003,7 @@ func (ec *executionContext) _WorkloadCostPoint(ctx context.Context, sel ast.Sele
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._WorkloadCostPoint_workload(ctx, field, obj)
+				res = ec._WorkloadCostSample_workload(ctx, field, obj)
 				return res
 			}
 
@@ -97028,12 +97028,12 @@ func (ec *executionContext) _WorkloadCostPoint(ctx context.Context, sel ast.Sele
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "workloadName":
-			out.Values[i] = ec._WorkloadCostPoint_workloadName(ctx, field, obj)
+			out.Values[i] = ec._WorkloadCostSample_workloadName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "cost":
-			out.Values[i] = ec._WorkloadCostPoint_cost(ctx, field, obj)
+			out.Values[i] = ec._WorkloadCostSample_cost(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -102734,7 +102734,7 @@ func (ec *executionContext) unmarshalNSecretValueInput2ᚖgithubᚗcomᚋnaisᚋ
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNServiceCostPoint2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostPointᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.ServiceCostPoint) graphql.Marshaler {
+func (ec *executionContext) marshalNServiceCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSampleᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.ServiceCostSample) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -102758,7 +102758,7 @@ func (ec *executionContext) marshalNServiceCostPoint2ᚕᚖgithubᚗcomᚋnais�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNServiceCostPoint2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostPoint(ctx, sel, v[i])
+			ret[i] = ec.marshalNServiceCostSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSample(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -102778,14 +102778,14 @@ func (ec *executionContext) marshalNServiceCostPoint2ᚕᚖgithubᚗcomᚋnais�
 	return ret
 }
 
-func (ec *executionContext) marshalNServiceCostPoint2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostPoint(ctx context.Context, sel ast.SelectionSet, v *cost.ServiceCostPoint) graphql.Marshaler {
+func (ec *executionContext) marshalNServiceCostSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSample(ctx context.Context, sel ast.SelectionSet, v *cost.ServiceCostSample) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ServiceCostPoint(ctx, sel, v)
+	return ec._ServiceCostSample(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNServiceCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeriesᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.ServiceCostSeries) graphql.Marshaler {
@@ -104624,7 +104624,17 @@ func (ec *executionContext) marshalNUserTeamOrderField2githubᚗcomᚋnaisᚋapi
 	return v
 }
 
-func (ec *executionContext) marshalNUtilizationDataPoint2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationDataPointᚄ(ctx context.Context, sel ast.SelectionSet, v []*utilization.UtilizationDataPoint) graphql.Marshaler {
+func (ec *executionContext) unmarshalNUtilizationResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationResourceType(ctx context.Context, v interface{}) (utilization.UtilizationResourceType, error) {
+	var res utilization.UtilizationResourceType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUtilizationResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationResourceType(ctx context.Context, sel ast.SelectionSet, v utilization.UtilizationResourceType) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNUtilizationSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSampleᚄ(ctx context.Context, sel ast.SelectionSet, v []*utilization.UtilizationSample) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -104648,7 +104658,7 @@ func (ec *executionContext) marshalNUtilizationDataPoint2ᚕᚖgithubᚗcomᚋna
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUtilizationDataPoint2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationDataPoint(ctx, sel, v[i])
+			ret[i] = ec.marshalNUtilizationSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSample(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -104668,24 +104678,14 @@ func (ec *executionContext) marshalNUtilizationDataPoint2ᚕᚖgithubᚗcomᚋna
 	return ret
 }
 
-func (ec *executionContext) marshalNUtilizationDataPoint2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationDataPoint(ctx context.Context, sel ast.SelectionSet, v *utilization.UtilizationDataPoint) graphql.Marshaler {
+func (ec *executionContext) marshalNUtilizationSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSample(ctx context.Context, sel ast.SelectionSet, v *utilization.UtilizationSample) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._UtilizationDataPoint(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNUtilizationResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationResourceType(ctx context.Context, v interface{}) (utilization.UtilizationResourceType, error) {
-	var res utilization.UtilizationResourceType
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNUtilizationResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationResourceType(ctx context.Context, sel ast.SelectionSet, v utilization.UtilizationResourceType) graphql.Marshaler {
-	return v
+	return ec._UtilizationSample(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx context.Context, sel ast.SelectionSet, v workload.Workload) graphql.Marshaler {
@@ -104784,7 +104784,7 @@ func (ec *executionContext) marshalNWorkloadCostPeriod2ᚖgithubᚗcomᚋnaisᚋ
 	return ec._WorkloadCostPeriod(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNWorkloadCostPoint2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostPointᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.WorkloadCostPoint) graphql.Marshaler {
+func (ec *executionContext) marshalNWorkloadCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSampleᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.WorkloadCostSample) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -104808,7 +104808,7 @@ func (ec *executionContext) marshalNWorkloadCostPoint2ᚕᚖgithubᚗcomᚋnais�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNWorkloadCostPoint2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostPoint(ctx, sel, v[i])
+			ret[i] = ec.marshalNWorkloadCostSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSample(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -104828,14 +104828,14 @@ func (ec *executionContext) marshalNWorkloadCostPoint2ᚕᚖgithubᚗcomᚋnais�
 	return ret
 }
 
-func (ec *executionContext) marshalNWorkloadCostPoint2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostPoint(ctx context.Context, sel ast.SelectionSet, v *cost.WorkloadCostPoint) graphql.Marshaler {
+func (ec *executionContext) marshalNWorkloadCostSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSample(ctx context.Context, sel ast.SelectionSet, v *cost.WorkloadCostSample) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._WorkloadCostPoint(ctx, sel, v)
+	return ec._WorkloadCostSample(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNWorkloadCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSeriesᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.WorkloadCostSeries) graphql.Marshaler {
