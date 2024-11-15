@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/kubernetes/fake"
+	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/tester/lua/runner"
 	"github.com/nais/tester/lua/spec"
 	lua "github.com/yuin/gopher-lua"
@@ -79,12 +80,13 @@ func (k *K8s) HelperFunctions() []*spec.Function {
 	}
 }
 
-func (k *K8s) ClientCreator(cluster string) (dynamic.Interface, *rest.Config, error) {
+func (k *K8s) ClientCreator(cluster string) (dynamic.Interface, watcher.Discovery, *rest.Config, error) {
 	c, ok := k.clients[cluster]
 	if !ok {
-		return nil, nil, fmt.Errorf("cluster %q not found", cluster)
+		return nil, nil, nil, fmt.Errorf("cluster %q not found", cluster)
 	}
-	return c, nil, nil
+
+	return c, &fake.DiscoveryClient{}, nil, nil
 }
 
 func (k *K8s) check(L *lua.LState) int {

@@ -6,19 +6,27 @@ import (
 
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/sirupsen/logrus"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/serializer"
+	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
+	schemepkg "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 )
 
+type Discovery interface {
+	ServerResourcesForGroupVersion(groupVersion string) (*metav1.APIResourceList, error)
+}
+
 type settings struct {
-	clientCreator func(cluster string) (dynamic.Interface, *rest.Config, error)
+	clientCreator func(cluster string) (dynamic.Interface, Discovery, *rest.Config, error)
 }
 
 type Option func(*settings)
 
-func WithClientCreator(fn func(cluster string) (dynamic.Interface, *rest.Config, error)) Option {
+func WithClientCreator(fn func(cluster string) (dynamic.Interface, Discovery, *rest.Config, error)) Option {
 	return func(m *settings) {
 		m.clientCreator = fn
 	}
@@ -34,30 +42,32 @@ type Manager struct {
 
 func NewManager(scheme *runtime.Scheme, clusterConfig kubernetes.ClusterConfigMap, log logrus.FieldLogger, opts ...Option) (*Manager, error) {
 	s := &settings{
-		clientCreator: func(cluster string) (dynamic.Interface, *rest.Config, error) {
-			if cluster == "management" {
-				config, err := rest.InClusterConfig()
-				if err != nil {
-					return nil, nil, fmt.Errorf("creating in-cluster config: %w", err)
-				}
-				client, err := dynamic.NewForConfig(config)
-				if err != nil {
-					return nil, nil, fmt.Errorf("creating dynamic client with in-cluster config: %w", err)
-				}
-				return client, config, nil
-			}
-
+		clientCreator: func(cluster string) (dynamic.Interface, Discovery, *rest.Config, error) {
 			config, ok := clusterConfig[cluster]
 			if !ok {
-				return nil, nil, fmt.Errorf("no config for cluster %s", cluster)
+				return nil, nil, nil, fmt.Errorf("no config for cluster %s", cluster)
 			}
 
-			client, err := dynamic.NewForConfig(clusterConfig[cluster])
+			if cluster == "management" && config == nil {
+				var err error
+				config, err = rest.InClusterConfig()
+				if err != nil {
+					return nil, nil, nil, fmt.Errorf("creating in-cluster config: %w", err)
+				}
+			}
+
+			if config.NegotiatedSerializer == nil {
+				config.NegotiatedSerializer = serializer.WithoutConversionCodecFactory{CodecFactory: schemepkg.Codecs}
+			}
+
+			restClient, err := rest.UnversionedRESTClientFor(config)
 			if err != nil {
-				return nil, nil, fmt.Errorf("creating dynamic client from config: %w", err)
+				return nil, nil, nil, fmt.Errorf("creating REST client: %w", err)
 			}
 
-			return client, config, nil
+			client := dynamic.New(restClient)
+			dynamicClient := discovery.NewDiscoveryClient(restClient)
+			return client, dynamicClient, config, nil
 		},
 	}
 	for _, opt := range opts {
@@ -67,11 +77,11 @@ func NewManager(scheme *runtime.Scheme, clusterConfig kubernetes.ClusterConfigMa
 	managers := map[string]*clusterManager{}
 
 	for cluster := range clusterConfig {
-		client, cfg, err := s.clientCreator(cluster)
+		client, discovery, cfg, err := s.clientCreator(cluster)
 		if err != nil {
 			return nil, fmt.Errorf("creating client for cluster %s: %w", cluster, err)
 		}
-		mgr, err := newClusterManager(client, scheme, cfg, log.WithField("cluster", cluster))
+		mgr, err := newClusterManager(scheme, client, discovery, cfg, log.WithField("cluster", cluster))
 		if err != nil {
 			return nil, fmt.Errorf("creating cluster manager: %w", err)
 		}

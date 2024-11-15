@@ -9,9 +9,11 @@ import (
 	"strings"
 
 	"github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/kubernetes/watcher"
 	liberator_aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -28,15 +30,17 @@ type clients struct {
 // Clients returns a new fake kubernetes clientset for each directory at root in the given directory.
 // Each yaml file in the directory will be created as a resource, where resources in a "teams" directory
 // will be created in a namespace with the same name as the file.
-func Clients(dir fs.FS) func(cluster string) (dynamic.Interface, *rest.Config, error) {
+func Clients(dir fs.FS) func(cluster string) (dynamic.Interface, watcher.Discovery, *rest.Config, error) {
 	scheme, err := kubernetes.NewScheme()
 	if err != nil {
 		panic(err)
 	}
 
+	discovery := &DiscoveryClient{}
+
 	if dir == nil {
-		return func(cluster string) (dynamic.Interface, *rest.Config, error) {
-			return newDynamicClient(scheme), nil, nil
+		return func(cluster string) (dynamic.Interface, watcher.Discovery, *rest.Config, error) {
+			return newDynamicClient(scheme), discovery, nil, nil
 		}
 	}
 
@@ -53,15 +57,15 @@ func Clients(dir fs.FS) func(cluster string) (dynamic.Interface, *rest.Config, e
 		}
 	}
 
-	return func(cluster string) (dynamic.Interface, *rest.Config, error) {
+	return func(cluster string) (dynamic.Interface, watcher.Discovery, *rest.Config, error) {
 		c, ok := ret[cluster]
 		if !ok {
 			fmt.Println("no fake client for cluster", cluster)
-			return newDynamicClient(scheme), nil, nil
+			return newDynamicClient(scheme), discovery, nil, nil
 			// return nil, fmt.Errorf("no fake client for cluster %s", cluster)
 		}
 
-		return c.Dynamic, nil, nil
+		return c.Dynamic, discovery, nil, nil
 	}
 }
 
@@ -215,4 +219,10 @@ func newDynamicClient(scheme *runtime.Scheme, objs ...runtime.Object) dynamic.In
 	fc := NewDynamicClient(scheme)
 	AddObjectToDynamicClient(scheme, fc, objs...)
 	return fc
+}
+
+type DiscoveryClient struct{}
+
+func (d *DiscoveryClient) ServerResourcesForGroupVersion(groupVersion string) (*metav1.APIResourceList, error) {
+	return &metav1.APIResourceList{}, nil
 }
