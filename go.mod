@@ -61,11 +61,11 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20240711142825-46eb208f015d
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.2
-	k8s.io/api v0.30.2
-	k8s.io/apimachinery v0.30.2
-	k8s.io/client-go v0.30.2
+	k8s.io/api v0.31.2
+	k8s.io/apimachinery v0.31.2
+	k8s.io/client-go v0.31.2
 	k8s.io/klog/v2 v2.130.1
-	k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0
+	k8s.io/utils v0.0.0-20240711033017-18e509b52bc8
 	sigs.k8s.io/yaml v1.4.0
 )
 
@@ -111,6 +111,7 @@ require (
 	github.com/fatih/structtag v1.2.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.10.0 // indirect
@@ -224,6 +225,7 @@ require (
 	github.com/urfave/cli/v2 v2.27.4 // indirect
 	github.com/wasilibs/go-pgquery v0.0.0-20240606042535-c0843d6592cc // indirect
 	github.com/wasilibs/wazero-helpers v0.0.0-20240604052452-61d7981e9a38 // indirect
+	github.com/x448/float16 v0.8.4 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
@@ -245,12 +247,13 @@ require (
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
 	google.golang.org/genproto v0.0.0-20240708141625-4ad9e859172b // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240708141625-4ad9e859172b // indirect
+	gopkg.in/evanphx/json-patch.v4 v4.12.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apiextensions-apiserver v0.30.1 // indirect
+	k8s.io/apiextensions-apiserver v0.31.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20240403164606-bc84c2ddaf99 // indirect
 	modernc.org/gc/v3 v3.0.0-20240107210532-573471604cb6 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
@@ -258,7 +261,7 @@ require (
 	modernc.org/sqlite v1.33.0 // indirect
 	modernc.org/strutil v1.2.0 // indirect
 	modernc.org/token v1.1.0 // indirect
-	sigs.k8s.io/controller-runtime v0.18.4 // indirect
+	sigs.k8s.io/controller-runtime v0.19.1 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
 )
