@@ -60,13 +60,15 @@ func NewManager(scheme *runtime.Scheme, clusterConfig kubernetes.ClusterConfigMa
 				config.NegotiatedSerializer = serializer.WithoutConversionCodecFactory{CodecFactory: schemepkg.Codecs}
 			}
 
-			restClient, err := rest.UnversionedRESTClientFor(config)
+			config.UserAgent = "nais.io/api"
+			client, err := dynamic.NewForConfig(config)
 			if err != nil {
 				return nil, nil, nil, fmt.Errorf("creating REST client: %w", err)
 			}
-
-			client := dynamic.New(restClient)
-			dynamicClient := discovery.NewDiscoveryClient(restClient)
+			dynamicClient, err := discovery.NewDiscoveryClientForConfig(config)
+			if err != nil {
+				return nil, nil, nil, fmt.Errorf("creating discovery client: %w", err)
+			}
 			return client, dynamicClient, config, nil
 		},
 	}
