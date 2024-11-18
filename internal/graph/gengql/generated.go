@@ -1676,17 +1676,12 @@ type ComplexityRoot struct {
 	UnleashInstanceCreatedAuditEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
 		ResourceName    func(childComplexity int) int
 		ResourceType    func(childComplexity int) int
 		TeamSlug        func(childComplexity int) int
-	}
-
-	UnleashInstanceCreatedAuditEntryData struct {
-		Name func(childComplexity int) int
 	}
 
 	UnleashInstanceMetrics struct {
@@ -8921,13 +8916,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UnleashInstanceCreatedAuditEntry.CreatedAt(childComplexity), true
 
-	case "UnleashInstanceCreatedAuditEntry.data":
-		if e.complexity.UnleashInstanceCreatedAuditEntry.Data == nil {
-			break
-		}
-
-		return e.complexity.UnleashInstanceCreatedAuditEntry.Data(childComplexity), true
-
 	case "UnleashInstanceCreatedAuditEntry.environmentName":
 		if e.complexity.UnleashInstanceCreatedAuditEntry.EnvironmentName == nil {
 			break
@@ -8969,13 +8957,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.UnleashInstanceCreatedAuditEntry.TeamSlug(childComplexity), true
-
-	case "UnleashInstanceCreatedAuditEntryData.name":
-		if e.complexity.UnleashInstanceCreatedAuditEntryData.Name == nil {
-			break
-		}
-
-		return e.complexity.UnleashInstanceCreatedAuditEntryData.Name(childComplexity), true
 
 	case "UnleashInstanceMetrics.apiTokens":
 		if e.complexity.UnleashInstanceMetrics.APITokens == nil {
@@ -14348,14 +14329,6 @@ type UnleashInstanceCreatedAuditEntry implements AuditEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
-
-	"Data associated with the creation."
-	data: UnleashInstanceCreatedAuditEntryData!
-}
-
-type UnleashInstanceCreatedAuditEntryData {
-	"Name of the Unleash instance."
-	name: String!
 }
 
 type UnleashInstanceUpdatedAuditEntry implements AuditEntry & Node {
@@ -68840,98 +68813,6 @@ func (ec *executionContext) fieldContext_UnleashInstanceCreatedAuditEntry_enviro
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceCreatedAuditEntry_data(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceCreatedAuditEntry_data(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*unleash.UnleashInstanceCreatedAuditEntryData)
-	fc.Result = res
-	return ec.marshalNUnleashInstanceCreatedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstanceCreatedAuditEntryData(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UnleashInstanceCreatedAuditEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceCreatedAuditEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "name":
-				return ec.fieldContext_UnleashInstanceCreatedAuditEntryData_name(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type UnleashInstanceCreatedAuditEntryData", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnleashInstanceCreatedAuditEntryData_name(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedAuditEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceCreatedAuditEntryData_name(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UnleashInstanceCreatedAuditEntryData_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceCreatedAuditEntryData",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _UnleashInstanceMetrics_toggles(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceMetrics) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UnleashInstanceMetrics_toggles(ctx, field)
 	if err != nil {
@@ -95432,50 +95313,6 @@ func (ec *executionContext) _UnleashInstanceCreatedAuditEntry(ctx context.Contex
 			}
 		case "environmentName":
 			out.Values[i] = ec._UnleashInstanceCreatedAuditEntry_environmentName(ctx, field, obj)
-		case "data":
-			out.Values[i] = ec._UnleashInstanceCreatedAuditEntry_data(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var unleashInstanceCreatedAuditEntryDataImplementors = []string{"UnleashInstanceCreatedAuditEntryData"}
-
-func (ec *executionContext) _UnleashInstanceCreatedAuditEntryData(ctx context.Context, sel ast.SelectionSet, obj *unleash.UnleashInstanceCreatedAuditEntryData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, unleashInstanceCreatedAuditEntryDataImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("UnleashInstanceCreatedAuditEntryData")
-		case "name":
-			out.Values[i] = ec._UnleashInstanceCreatedAuditEntryData_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -103941,16 +103778,6 @@ func (ec *executionContext) marshalNTriggerJobPayload2ᚖgithubᚗcomᚋnaisᚋa
 		return graphql.Null
 	}
 	return ec._TriggerJobPayload(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNUnleashInstanceCreatedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstanceCreatedAuditEntryData(ctx context.Context, sel ast.SelectionSet, v *unleash.UnleashInstanceCreatedAuditEntryData) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._UnleashInstanceCreatedAuditEntryData(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNUnleashInstanceMetrics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstanceMetrics(ctx context.Context, sel ast.SelectionSet, v *unleash.UnleashInstanceMetrics) graphql.Marshaler {

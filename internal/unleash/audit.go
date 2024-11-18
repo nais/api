@@ -15,16 +15,8 @@ func init() {
 	audit.RegisterTransformer(auditResourceTypeUnleash, func(entry audit.GenericAuditEntry) (audit.AuditEntry, error) {
 		switch entry.Action {
 		case audit.AuditActionCreated:
-			data, err := audit.TransformData(entry, func(data *UnleashInstanceCreatedAuditEntryData) *UnleashInstanceCreatedAuditEntryData {
-				return data
-			})
-			if err != nil {
-				return nil, err
-			}
-
 			return UnleashInstanceCreatedAuditEntry{
 				GenericAuditEntry: entry.WithMessage("Created Unleash instance"),
-				Data:              data,
 			}, nil
 		case audit.AuditActionUpdated:
 			data, err := audit.TransformData(entry, func(data *UnleashInstanceUpdatedAuditEntryData) *UnleashInstanceUpdatedAuditEntryData {
@@ -50,11 +42,6 @@ func init() {
 
 type UnleashInstanceCreatedAuditEntry struct {
 	audit.GenericAuditEntry
-	Data *UnleashInstanceCreatedAuditEntryData `json:"data"`
-}
-
-type UnleashInstanceCreatedAuditEntryData struct {
-	Name string `json:"name"`
 }
 
 type UnleashInstanceUpdatedAuditEntry struct {

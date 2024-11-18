@@ -72,10 +72,7 @@ func Create(ctx context.Context, input *CreateUnleashInstanceInput) (*UnleashIns
 		Actor:        authz.ActorFromContext(ctx).User,
 		ResourceType: auditResourceTypeUnleash,
 		ResourceName: input.TeamSlug.String(),
-		Data: &UnleashInstanceCreatedAuditEntryData{
-			Name: input.TeamSlug.String(),
-		},
-		TeamSlug: &input.TeamSlug,
+		TeamSlug:     &input.TeamSlug,
 	})
 	if err != nil {
 		return nil, err

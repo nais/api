@@ -111,14 +111,6 @@ type UnleashInstanceCreatedAuditEntry implements AuditEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
-
-	"Data associated with the creation."
-	data: UnleashInstanceCreatedAuditEntryData!
-}
-
-type UnleashInstanceCreatedAuditEntryData {
-	"Name of the Unleash instance."
-	name: String!
 }
 
 type UnleashInstanceUpdatedAuditEntry implements AuditEntry & Node {
