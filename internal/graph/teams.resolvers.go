@@ -314,18 +314,6 @@ func (r *teamMemberResolver) User(ctx context.Context, obj *team.TeamMember) (*u
 	return user.Get(ctx, obj.UserID)
 }
 
-func (r *teamMemberAddedAuditEntryDataResolver) User(ctx context.Context, obj *team.TeamMemberAddedAuditEntryData) (*user.User, error) {
-	return user.Get(ctx, obj.UserUUID)
-}
-
-func (r *teamMemberRemovedAuditEntryDataResolver) User(ctx context.Context, obj *team.TeamMemberRemovedAuditEntryData) (*user.User, error) {
-	return user.Get(ctx, obj.UserUUID)
-}
-
-func (r *teamMemberSetRoleAuditEntryDataResolver) User(ctx context.Context, obj *team.TeamMemberSetRoleAuditEntryData) (*user.User, error) {
-	return user.Get(ctx, obj.UserUUID)
-}
-
 func (r *Resolver) RemoveTeamMemberPayload() gengql.RemoveTeamMemberPayloadResolver {
 	return &removeTeamMemberPayloadResolver{r}
 }
@@ -344,26 +332,11 @@ func (r *Resolver) TeamInventoryCounts() gengql.TeamInventoryCountsResolver {
 
 func (r *Resolver) TeamMember() gengql.TeamMemberResolver { return &teamMemberResolver{r} }
 
-func (r *Resolver) TeamMemberAddedAuditEntryData() gengql.TeamMemberAddedAuditEntryDataResolver {
-	return &teamMemberAddedAuditEntryDataResolver{r}
-}
-
-func (r *Resolver) TeamMemberRemovedAuditEntryData() gengql.TeamMemberRemovedAuditEntryDataResolver {
-	return &teamMemberRemovedAuditEntryDataResolver{r}
-}
-
-func (r *Resolver) TeamMemberSetRoleAuditEntryData() gengql.TeamMemberSetRoleAuditEntryDataResolver {
-	return &teamMemberSetRoleAuditEntryDataResolver{r}
-}
-
 type (
-	removeTeamMemberPayloadResolver         struct{ *Resolver }
-	teamResolver                            struct{ *Resolver }
-	teamDeleteKeyResolver                   struct{ *Resolver }
-	teamEnvironmentResolver                 struct{ *Resolver }
-	teamInventoryCountsResolver             struct{ *Resolver }
-	teamMemberResolver                      struct{ *Resolver }
-	teamMemberAddedAuditEntryDataResolver   struct{ *Resolver }
-	teamMemberRemovedAuditEntryDataResolver struct{ *Resolver }
-	teamMemberSetRoleAuditEntryDataResolver struct{ *Resolver }
+	removeTeamMemberPayloadResolver struct{ *Resolver }
+	teamResolver                    struct{ *Resolver }
+	teamDeleteKeyResolver           struct{ *Resolver }
+	teamEnvironmentResolver         struct{ *Resolver }
+	teamInventoryCountsResolver     struct{ *Resolver }
+	teamMemberResolver              struct{ *Resolver }
 )

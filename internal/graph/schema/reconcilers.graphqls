@@ -232,7 +232,7 @@ type ReconcilerConfiguredAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: ReconcilerConfiguredAuditEntryData
+	data: ReconcilerConfiguredAuditEntryData!
 }
 
 type ReconcilerConfiguredAuditEntryData {

@@ -56,10 +56,6 @@ func (r *applicationResolver) Instances(ctx context.Context, obj *application.Ap
 	return application.ListInstances(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, page)
 }
 
-func (r *applicationRestartedAuditEntryDataResolver) Application(ctx context.Context, obj *application.ApplicationRestartedAuditEntryData) (*application.Application, error) {
-	return application.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ApplicationName)
-}
-
 func (r *deleteApplicationPayloadResolver) Team(ctx context.Context, obj *application.DeleteApplicationPayload) (*team.Team, error) {
 	if obj.TeamSlug == nil {
 		return nil, nil
@@ -148,10 +144,6 @@ func (r *teamInventoryCountsResolver) Applications(ctx context.Context, obj *tea
 
 func (r *Resolver) Application() gengql.ApplicationResolver { return &applicationResolver{r} }
 
-func (r *Resolver) ApplicationRestartedAuditEntryData() gengql.ApplicationRestartedAuditEntryDataResolver {
-	return &applicationRestartedAuditEntryDataResolver{r}
-}
-
 func (r *Resolver) DeleteApplicationPayload() gengql.DeleteApplicationPayloadResolver {
 	return &deleteApplicationPayloadResolver{r}
 }
@@ -163,9 +155,8 @@ func (r *Resolver) RestartApplicationPayload() gengql.RestartApplicationPayloadR
 }
 
 type (
-	applicationResolver                        struct{ *Resolver }
-	applicationRestartedAuditEntryDataResolver struct{ *Resolver }
-	deleteApplicationPayloadResolver           struct{ *Resolver }
-	ingressResolver                            struct{ *Resolver }
-	restartApplicationPayloadResolver          struct{ *Resolver }
+	applicationResolver               struct{ *Resolver }
+	deleteApplicationPayloadResolver  struct{ *Resolver }
+	ingressResolver                   struct{ *Resolver }
+	restartApplicationPayloadResolver struct{ *Resolver }
 )

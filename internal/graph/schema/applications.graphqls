@@ -519,12 +519,4 @@ type ApplicationRestartedAuditEntry implements AuditEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
-
-	"The data associated with the audit entry."
-	data: ApplicationRestartedAuditEntryData
-}
-
-type ApplicationRestartedAuditEntryData {
-	"The application that was restarted."
-	application: Application
 }

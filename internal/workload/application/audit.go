@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/audit"
-	"github.com/nais/api/internal/slug"
 )
 
 const (
@@ -24,11 +23,6 @@ func init() {
 			}
 			return ApplicationRestartedAuditEntry{
 				GenericAuditEntry: entry.WithMessage("Application restarted"),
-				Data: &ApplicationRestartedAuditEntryData{
-					ApplicationName: entry.ResourceName,
-					TeamSlug:        slug.Slug(*entry.TeamSlug),
-					EnvironmentName: *entry.EnvironmentName,
-				},
 			}, nil
 		case audit.AuditActionDeleted:
 			return ApplicationDeletedAuditEntry{
@@ -43,15 +37,8 @@ func init() {
 
 type ApplicationRestartedAuditEntry struct {
 	audit.GenericAuditEntry
-	Data *ApplicationRestartedAuditEntryData
 }
 
 type ApplicationDeletedAuditEntry struct {
 	audit.GenericAuditEntry
-}
-
-type ApplicationRestartedAuditEntryData struct {
-	ApplicationName string    `json:"-"`
-	TeamSlug        slug.Slug `json:"-"`
-	EnvironmentName string    `json:"-"`
 }

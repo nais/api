@@ -113,7 +113,7 @@ type UnleashInstanceCreatedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the creation."
-	data: UnleashInstanceCreatedAuditEntryData
+	data: UnleashInstanceCreatedAuditEntryData!
 }
 
 type UnleashInstanceCreatedAuditEntryData {
@@ -147,7 +147,7 @@ type UnleashInstanceUpdatedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: UnleashInstanceUpdatedAuditEntryData
+	data: UnleashInstanceUpdatedAuditEntryData!
 }
 
 type UnleashInstanceUpdatedAuditEntryData {
