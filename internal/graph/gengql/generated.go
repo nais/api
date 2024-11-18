@@ -14388,10 +14388,10 @@ type UnleashInstanceUpdatedAuditEntry implements AuditEntry & Node {
 }
 
 type UnleashInstanceUpdatedAuditEntryData {
-	"Revoked team slugs."
+	"Revoked team slug."
 	revokedTeamSlug: Slug
 
-	"Allowed team slugs."
+	"Allowed team slug."
 	allowedTeamSlug: Slug
 }
 `, BuiltIn: false},
