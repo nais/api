@@ -722,9 +722,6 @@ type TeamEnvironmentUpdatedAuditEntry implements AuditEntry & Node {
 }
 
 type TeamEnvironmentUpdatedAuditEntryData {
-	"The name of the environment that was updated."
-	environmentName: String!
-
 	"Fields that were updated."
 	updatedFields: [TeamEnvironmentUpdatedAuditEntryDataUpdatedField!]!
 }

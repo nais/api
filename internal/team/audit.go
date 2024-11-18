@@ -177,8 +177,7 @@ type TeamEnvironmentUpdatedAuditEntry struct {
 }
 
 type TeamEnvironmentUpdatedAuditEntryData struct {
-	EnvironmentName string                                              `json:"environmentName"`
-	UpdatedFields   []*TeamEnvironmentUpdatedAuditEntryDataUpdatedField `json:"updatedFields"`
+	UpdatedFields []*TeamEnvironmentUpdatedAuditEntryDataUpdatedField `json:"updatedFields"`
 }
 
 type TeamEnvironmentUpdatedAuditEntryDataUpdatedField struct {

@@ -500,7 +500,6 @@ func UpdateEnvironment(ctx context.Context, input *UpdateTeamEnvironmentInput, a
 			ResourceName: input.Slug.String(),
 			TeamSlug:     ptr.To(input.Slug),
 			Data: &TeamEnvironmentUpdatedAuditEntryData{
-				EnvironmentName: input.EnvironmentName,
 				UpdatedFields: []*TeamEnvironmentUpdatedAuditEntryDataUpdatedField{
 					{
 						Field:    "slackAlertsChannel",
