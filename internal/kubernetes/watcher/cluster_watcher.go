@@ -15,6 +15,7 @@ import (
 	"k8s.io/client-go/dynamic/fake"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/cache"
 )
 
 type Object interface {
@@ -108,7 +109,17 @@ func (w *clusterWatcher[T]) OnUpdate(oldObj, newObj any) {
 }
 
 func (w *clusterWatcher[T]) OnDelete(obj any) {
-	t, ok := w.convert(obj.(*unstructured.Unstructured))
+	a, ok := obj.(cache.DeletedFinalStateUnknown)
+	if ok {
+		obj = a.Obj
+	}
+
+	u, ok := obj.(*unstructured.Unstructured)
+	if !ok {
+		w.log.WithField("type", fmt.Sprintf("%T", obj)).Warn("could not convert object to unstructured")
+		return
+	}
+	t, ok := w.convert(u)
 	if !ok {
 		return
 	}
