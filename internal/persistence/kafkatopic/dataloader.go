@@ -17,16 +17,16 @@ func NewLoaderContext(ctx context.Context, watcher *watcher.Watcher[*KafkaTopic]
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*KafkaTopic] {
-	w := watcher.Watch(mgr, &KafkaTopic{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
+	w := watcher.Watch(mgr, schema.GroupVersionResource{
+		Group:    "kafka.nais.io",
+		Version:  "v1",
+		Resource: "topics",
+	}, &KafkaTopic{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
 		ret, err := toKafkaTopic(o, environmentName)
 		if err != nil {
 			return nil, false
 		}
 		return ret, true
-	}), watcher.WithGVR(schema.GroupVersionResource{
-		Group:    "kafka.nais.io",
-		Version:  "v1",
-		Resource: "topics",
 	}))
 	w.Start(ctx)
 	return w

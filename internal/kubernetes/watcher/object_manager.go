@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
@@ -30,42 +29,21 @@ func newClusterManager(scheme *runtime.Scheme, client dynamic.Interface, discove
 		config:    config,
 		client:    client,
 		informer:  informer,
-		scheme:    scheme,
 		log:       log,
 		discovery: discoveryClient,
 	}, nil
 }
 
-func (c *clusterManager) gvk(obj runtime.Object) schema.GroupVersionKind {
-	gvks, _, err := c.scheme.ObjectKinds(obj)
-	if err != nil || len(gvks) == 0 {
-		c.log.WithError(err).Info("failed to get GVKs")
-		return schema.GroupVersionKind{}
-	}
-
-	return gvks[0]
-}
-
-func (c *clusterManager) createInformer(obj runtime.Object, gvr *schema.GroupVersionResource) (informers.GenericInformer, schema.GroupVersionResource, error) {
-	if gvr == nil {
-		gvk := c.gvk(obj)
-		if gvk.Empty() {
-			return nil, schema.GroupVersionResource{}, fmt.Errorf("failed to get GVK for object")
-		}
-
-		gvrs, _ := meta.UnsafeGuessKindToResource(gvk)
-		gvr = &gvrs
-	}
-
+func (c *clusterManager) createInformer(obj runtime.Object, gvr schema.GroupVersionResource) (informers.GenericInformer, error) {
 	if c.discovery != nil {
 		// Check if the resource is available in the cluster. Will only be used when client is not a fake client
 		_, err := c.discovery.ServerResourcesForGroupVersion(gvr.GroupVersion().String())
 		if err != nil {
 			c.log.WithError(err).WithField("resource", gvr.String()).Error("resource not available in cluster")
-			return nil, *gvr, fmt.Errorf("resource not available in cluster")
+			return nil, fmt.Errorf("resource not available in cluster")
 		}
 	}
 
 	c.log.WithField("resource", gvr.String()).Info("creating informer")
-	return c.informer.ForResource(*gvr), *gvr, nil
+	return c.informer.ForResource(gvr), nil
 }

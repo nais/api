@@ -18,15 +18,8 @@ func WithConverter(fn func(o *unstructured.Unstructured, environmentName string)
 	}
 }
 
-func WithGVR(gvr schema.GroupVersionResource) WatchOption {
-	return func(m *watcherSettings) {
-		m.gvr = &gvr
-	}
-}
-
 type watcherSettings struct {
 	converter func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool)
-	gvr       *schema.GroupVersionResource
 }
 
 type Watcher[T Object] struct {
@@ -35,13 +28,13 @@ type Watcher[T Object] struct {
 	log       logrus.FieldLogger
 }
 
-func newWatcher[T Object](mgr *Manager, obj T, settings *watcherSettings, log logrus.FieldLogger) *Watcher[T] {
+func newWatcher[T Object](mgr *Manager, gvr schema.GroupVersionResource, obj T, settings *watcherSettings, log logrus.FieldLogger) *Watcher[T] {
 	w := &Watcher[T]{
 		datastore: NewDataStore[T](),
 		log:       log,
 	}
 	for cluster, client := range mgr.managers {
-		watcher := newClusterWatcher(client, cluster, w, obj, settings, log.WithField("cluster", cluster))
+		watcher := newClusterWatcher(client, cluster, w, gvr, obj, settings, log.WithField("cluster", cluster))
 		if !watcher.isRegistered {
 			continue
 		}

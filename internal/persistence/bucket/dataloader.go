@@ -17,16 +17,16 @@ func NewLoaderContext(ctx context.Context, watcher *watcher.Watcher[*Bucket]) co
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*Bucket] {
-	w := watcher.Watch(mgr, &Bucket{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
+	w := watcher.Watch(mgr, schema.GroupVersionResource{
+		Group:    "storage.cnrm.cloud.google.com",
+		Version:  "v1beta1",
+		Resource: "storagebuckets",
+	}, &Bucket{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
 		ret, err := toBucket(o, environmentName)
 		if err != nil {
 			return nil, false
 		}
 		return ret, true
-	}), watcher.WithGVR(schema.GroupVersionResource{
-		Group:    "storage.cnrm.cloud.google.com",
-		Version:  "v1beta1",
-		Resource: "storagebuckets",
 	}))
 	w.Start(ctx)
 	return w

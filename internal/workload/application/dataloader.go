@@ -17,13 +17,13 @@ func NewLoaderContext(ctx context.Context, appWatcher *watcher.Watcher[*nais_io_
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*nais_io_v1alpha1.Application] {
-	w := watcher.Watch(mgr, &nais_io_v1alpha1.Application{})
+	w := watcher.Watch(mgr, nais_io_v1alpha1.GroupVersion.WithResource("applications"), &nais_io_v1alpha1.Application{})
 	w.Start(ctx)
 	return w
 }
 
 func NewIngressWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*netv1.Ingress] {
-	w := watcher.Watch(mgr, &netv1.Ingress{})
+	w := watcher.Watch(mgr, netv1.SchemeGroupVersion.WithResource("ingresses"), &netv1.Ingress{})
 	w.Start(ctx)
 	return w
 }

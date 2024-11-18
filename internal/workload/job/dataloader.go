@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/nais/api/internal/kubernetes/watcher"
-	"github.com/nais/liberator/pkg/apis/nais.io/v1"
+	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	batchv1 "k8s.io/api/batch/v1"
 )
 
@@ -20,13 +20,13 @@ func NewLoaderContext(ctx context.Context, jobWatcher *watcher.Watcher[*nais_io_
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*nais_io_v1.Naisjob] {
-	w := watcher.Watch(mgr, &nais_io_v1.Naisjob{})
+	w := watcher.Watch(mgr, nais_io_v1.GroupVersion.WithResource("naisjobs"), &nais_io_v1.Naisjob{})
 	w.Start(ctx)
 	return w
 }
 
 func NewRunWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*batchv1.Job] {
-	w := watcher.Watch(mgr, &batchv1.Job{})
+	w := watcher.Watch(mgr, batchv1.SchemeGroupVersion.WithResource("jobs"), &batchv1.Job{})
 	w.Start(ctx)
 	return w
 }

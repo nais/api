@@ -19,16 +19,16 @@ func NewLoaderContext(ctx context.Context, bqWatcher *watcher.Watcher[*BigQueryD
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*BigQueryDataset] {
-	w := watcher.Watch(mgr, &BigQueryDataset{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
+	w := watcher.Watch(mgr, schema.GroupVersionResource{
+		Group:    "google.nais.io",
+		Version:  "v1",
+		Resource: "bigquerydatasets",
+	}, &BigQueryDataset{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
 		ret, err := toBigQueryDataset(o, environmentName)
 		if err != nil {
 			return nil, false
 		}
 		return ret, true
-	}), watcher.WithGVR(schema.GroupVersionResource{
-		Group:    "google.nais.io",
-		Version:  "v1",
-		Resource: "bigquerydatasets",
 	}))
 	w.Start(ctx)
 	return w

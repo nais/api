@@ -29,7 +29,7 @@ func NewLoaderContext(ctx context.Context, tenantName string, appWatcher *watche
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*UnleashInstance] {
-	w := watcher.Watch(mgr, &UnleashInstance{}, watcher.WithGVR(unleash_nais_io_v1.GroupVersion.WithResource("unleashes")), watcher.WithConverter(unleashInstanceFromUnstructured))
+	w := watcher.Watch(mgr, unleash_nais_io_v1.GroupVersion.WithResource("unleashes"), &UnleashInstance{}, watcher.WithConverter(unleashInstanceFromUnstructured))
 	w.Start(ctx)
 	return w
 }

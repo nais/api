@@ -165,21 +165,7 @@ func depluralized(s string) string {
 }
 
 func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
-	newScheme := runtime.NewScheme()
-	for gvk := range scheme.AllKnownTypes() {
-		if newScheme.Recognizes(gvk) {
-			continue
-		}
-		// Ensure we are always supporting unstructured objects
-		// This to prevent various problems with the fake client
-		if strings.HasSuffix(gvk.Kind, "List") {
-			newScheme.AddKnownTypeWithName(gvk, &unstructured.UnstructuredList{})
-			continue
-		}
-		newScheme.AddKnownTypeWithName(gvk, &unstructured.Unstructured{})
-	}
-
-	return dynfake.NewSimpleDynamicClientWithCustomListKinds(newScheme,
+	return dynfake.NewSimpleDynamicClientWithCustomListKinds(scheme,
 		map[schema.GroupVersionResource]string{
 			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("redis"):        "RedisList",
 			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("opensearches"): "OpenSearchList",
@@ -194,6 +180,7 @@ func AddObjectToDynamicClient(scheme *runtime.Scheme, fc *dynfake.FakeDynamicCli
 	}
 
 	for _, obj := range objs {
+		fmt.Printf("Adding type %T", obj)
 		gvks, _, err := scheme.ObjectKinds(obj)
 		if err != nil {
 			panic(err)

@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
@@ -119,10 +120,10 @@ func (m *Manager) addCacheSync(sync cache.InformerSynced) {
 	m.cacheSyncs = append(m.cacheSyncs, sync)
 }
 
-func Watch[T Object](mgr *Manager, obj T, opts ...WatchOption) *Watcher[T] {
+func Watch[T Object](mgr *Manager, gvr schema.GroupVersionResource, obj T, opts ...WatchOption) *Watcher[T] {
 	settings := &watcherSettings{}
 	for _, opt := range opts {
 		opt(settings)
 	}
-	return newWatcher(mgr, obj, settings, mgr.log)
+	return newWatcher(mgr, gvr, obj, settings, mgr.log)
 }

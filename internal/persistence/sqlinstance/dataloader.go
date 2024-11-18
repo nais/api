@@ -26,32 +26,32 @@ func NewLoaderContext(
 }
 
 func NewInstanceWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*SQLInstance] {
-	w := watcher.Watch(mgr, &SQLInstance{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
+	w := watcher.Watch(mgr, schema.GroupVersionResource{
+		Group:    "sql.cnrm.cloud.google.com",
+		Version:  "v1beta1",
+		Resource: "sqlinstances",
+	}, &SQLInstance{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
 		ret, err := toSQLInstance(o, environmentName)
 		if err != nil {
 			return nil, false
 		}
 		return ret, true
-	}), watcher.WithGVR(schema.GroupVersionResource{
-		Group:    "sql.cnrm.cloud.google.com",
-		Version:  "v1beta1",
-		Resource: "sqlinstances",
 	}))
 	w.Start(ctx)
 	return w
 }
 
 func NewDatabaseWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*SQLDatabase] {
-	w := watcher.Watch(mgr, &SQLDatabase{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
+	w := watcher.Watch(mgr, schema.GroupVersionResource{
+		Group:    "sql.cnrm.cloud.google.com",
+		Version:  "v1beta1",
+		Resource: "sqldatabases",
+	}, &SQLDatabase{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
 		ret, err := toSQLDatabase(o, environmentName)
 		if err != nil {
 			return nil, false
 		}
 		return ret, true
-	}), watcher.WithGVR(schema.GroupVersionResource{
-		Group:    "sql.cnrm.cloud.google.com",
-		Version:  "v1beta1",
-		Resource: "sqldatabases",
 	}))
 	w.Start(ctx)
 	return w

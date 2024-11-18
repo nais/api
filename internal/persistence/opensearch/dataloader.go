@@ -17,17 +17,18 @@ func NewLoaderContext(ctx context.Context, watcher *watcher.Watcher[*OpenSearch]
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*OpenSearch] {
-	w := watcher.Watch(mgr, &OpenSearch{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
-		ret, err := toOpenSearch(o, environmentName)
-		if err != nil {
-			return nil, false
-		}
-		return ret, true
-	}), watcher.WithGVR(schema.GroupVersionResource{
+	w := watcher.Watch(mgr, schema.GroupVersionResource{
 		Group:    "aiven.io",
 		Version:  "v1alpha1",
 		Resource: "opensearches",
-	}))
+	},
+		&OpenSearch{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
+			ret, err := toOpenSearch(o, environmentName)
+			if err != nil {
+				return nil, false
+			}
+			return ret, true
+		}))
 	w.Start(ctx)
 	return w
 }
