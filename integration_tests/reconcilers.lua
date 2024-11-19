@@ -90,7 +90,7 @@ end)
 Test.gql("enable reconciler as non-admin", function(t)
 	t.query [[
 		mutation {
-			enableReconciler(name: "reconciler-1") {
+			enableReconciler(input: { name: "reconciler-1" }) {
 				name
 			}
 		}
@@ -110,7 +110,7 @@ end)
 Test.gql("disable reconciler as non-admin", function(t)
 	t.query [[
 		mutation {
-			disableReconciler(name: "reconciler-1") {
+			disableReconciler(input: { name: "reconciler-1" }) {
 				name
 			}
 		}
@@ -134,7 +134,7 @@ Helper.SQLExec("INSERT INTO user_roles (role_name, user_id) VALUES ('Admin', (SE
 Test.gql("enable non-configured reconciler as admin", function(t)
 	t.query [[
 		mutation {
-			enableReconciler(name: "reconciler-1") {
+			enableReconciler(input: { name: "reconciler-1" }) {
 				name
 			}
 		}
@@ -160,7 +160,7 @@ for _, value in ipairs(valuesToSet) do
 	Test.gql(string.format("configure %s for reconciler as admin", value.key), function(t)
 		t.query(string.format([[
 		mutation {
-			configureReconciler(name: "reconciler-1", config: {key: "%s", value: "%s"}) {
+			configureReconciler(input: { name: "reconciler-1", config: {key: "%s", value: "%s"} }) {
 				name
 			}
 		}
@@ -179,7 +179,7 @@ end
 Test.gql("enable configured reconciler as admin", function(t)
 	t.query [[
 		mutation {
-			enableReconciler(name: "reconciler-1") {
+			enableReconciler(input: { name: "reconciler-1" }) {
 				name
 				enabled
 				configured
@@ -228,7 +228,7 @@ end)
 Test.gql("disable reconciler as admin", function(t)
 	t.query [[
 		mutation {
-			disableReconciler(name: "reconciler-2") {
+			disableReconciler(input: { name: "reconciler-2" }) {
 				name
 			}
 		}

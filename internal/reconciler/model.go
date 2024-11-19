@@ -92,3 +92,16 @@ func toGraphReconcilerError(row *reconcilersql.ReconcilerError) *ReconcilerError
 		TeamSlug:      row.TeamSlug,
 	}
 }
+
+type ConfigureReconcilerInput struct {
+	Name   string                   `json:"name"`
+	Config []*ReconcilerConfigInput `json:"config"`
+}
+
+type DisableReconcilerInput struct {
+	Name string `json:"name"`
+}
+
+type EnableReconcilerInput struct {
+	Name string `json:"name"`
+}

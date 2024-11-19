@@ -95,11 +95,11 @@ type AllowTeamAccessToUnleashPayload struct {
 	Unleash *UnleashInstance `json:"unleash,omitempty"`
 }
 
-type CreateUnleashInstanceInput struct {
+type CreateUnleashForTeamInput struct {
 	TeamSlug slug.Slug `json:"team"`
 }
 
-type CreateUnleashInstancePayload struct {
+type CreateUnleashForTeamPayload struct {
 	Unleash *UnleashInstance `json:"unleash,omitempty"`
 }
 

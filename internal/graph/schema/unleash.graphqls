@@ -5,7 +5,7 @@ extend type Mutation {
 	This mutation will create a new Unleash instance for the given team. The team
 	will be set as owner of the Unleash instance and will be able to manage it.
 	"""
-	createUnleashForTeam(input: CreateUnleashInstanceInput!): CreateUnleashInstancePayload!
+	createUnleashForTeam(input: CreateUnleashForTeamInput!): CreateUnleashForTeamPayload!
 
 	"""
 	Add team to the list of teams that can access the Unleash instance.
@@ -20,11 +20,11 @@ extend type Mutation {
 	): RevokeTeamAccessToUnleashPayload!
 }
 
-input CreateUnleashInstanceInput {
+input CreateUnleashForTeamInput {
 	teamSlug: Slug!
 }
 
-type CreateUnleashInstancePayload {
+type CreateUnleashForTeamPayload {
 	unleash: UnleashInstance
 }
 

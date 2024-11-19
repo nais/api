@@ -13,7 +13,7 @@ import (
 	"github.com/nais/api/internal/unleash"
 )
 
-func (r *mutationResolver) CreateUnleashForTeam(ctx context.Context, input unleash.CreateUnleashInstanceInput) (*unleash.CreateUnleashInstancePayload, error) {
+func (r *mutationResolver) CreateUnleashForTeam(ctx context.Context, input unleash.CreateUnleashForTeamInput) (*unleash.CreateUnleashForTeamPayload, error) {
 	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationUnleashCreate, input.TeamSlug); err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (r *mutationResolver) CreateUnleashForTeam(ctx context.Context, input unlea
 		return nil, err
 	}
 
-	return &unleash.CreateUnleashInstancePayload{Unleash: instance}, nil
+	return &unleash.CreateUnleashForTeamPayload{Unleash: instance}, nil
 }
 
 func (r *mutationResolver) AllowTeamAccessToUnleash(ctx context.Context, input unleash.AllowTeamAccessToUnleashInput) (*unleash.AllowTeamAccessToUnleashPayload, error) {

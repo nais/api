@@ -24,14 +24,6 @@ type WorkloadUtilizationData {
 	used: Float!
 }
 
-type TeamUtilizationEnvironmentSample {
-	"Value of the used resource at the given timestamp."
-	value: Float!
-
-	"The team environment"
-	environment: TeamEnvironment!
-}
-
 type WorkloadUtilization {
 	"Get the current usage for the requested resource type."
 	current(resourceType: UtilizationResourceType!): Float!

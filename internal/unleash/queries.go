@@ -41,7 +41,7 @@ func ForTeam(ctx context.Context, teamSlug slug.Slug) (*UnleashInstance, error) 
 	return fromContext(ctx).unleashWatcher.Get("management", ManagementClusterNamespace, teamSlug.String())
 }
 
-func Create(ctx context.Context, input *CreateUnleashInstanceInput) (*UnleashInstance, error) {
+func Create(ctx context.Context, input *CreateUnleashForTeamInput) (*UnleashInstance, error) {
 	client := fromContext(ctx).bifrostClient
 	// if !m.settings.unleashEnabled {
 	// 	return &model.Unleash{

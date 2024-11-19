@@ -11,12 +11,12 @@ import (
 	"github.com/nais/api/internal/team"
 )
 
-func (r *mutationResolver) EnableReconciler(ctx context.Context, name string) (*reconciler.Reconciler, error) {
+func (r *mutationResolver) EnableReconciler(ctx context.Context, input reconciler.EnableReconcilerInput) (*reconciler.Reconciler, error) {
 	if err := authz.RequireGlobalAdmin(ctx); err != nil {
 		return nil, err
 	}
 
-	rec, err := reconciler.Enable(ctx, name)
+	rec, err := reconciler.Enable(ctx, input.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -25,12 +25,12 @@ func (r *mutationResolver) EnableReconciler(ctx context.Context, name string) (*
 	return rec, nil
 }
 
-func (r *mutationResolver) DisableReconciler(ctx context.Context, name string) (*reconciler.Reconciler, error) {
+func (r *mutationResolver) DisableReconciler(ctx context.Context, input reconciler.DisableReconcilerInput) (*reconciler.Reconciler, error) {
 	if err := authz.RequireGlobalAdmin(ctx); err != nil {
 		return nil, err
 	}
 
-	rec, err := reconciler.Disable(ctx, name)
+	rec, err := reconciler.Disable(ctx, input.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -39,12 +39,12 @@ func (r *mutationResolver) DisableReconciler(ctx context.Context, name string) (
 	return rec, nil
 }
 
-func (r *mutationResolver) ConfigureReconciler(ctx context.Context, name string, config []*reconciler.ReconcilerConfigInput) (*reconciler.Reconciler, error) {
+func (r *mutationResolver) ConfigureReconciler(ctx context.Context, input reconciler.ConfigureReconcilerInput) (*reconciler.Reconciler, error) {
 	if err := authz.RequireGlobalAdmin(ctx); err != nil {
 		return nil, err
 	}
 
-	rec, err := reconciler.Configure(ctx, name, config)
+	rec, err := reconciler.Configure(ctx, input.Name, input.Config)
 	if err != nil {
 		return nil, err
 	}

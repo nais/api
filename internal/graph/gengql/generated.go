@@ -113,7 +113,6 @@ type ResolverRoot interface {
 	TeamServiceUtilization() TeamServiceUtilizationResolver
 	TeamServiceUtilizationSqlInstances() TeamServiceUtilizationSqlInstancesResolver
 	TeamUtilizationData() TeamUtilizationDataResolver
-	TeamUtilizationEnvironmentSample() TeamUtilizationEnvironmentSampleResolver
 	TeamVulnerabilitySummary() TeamVulnerabilitySummaryResolver
 	TriggerJobPayload() TriggerJobPayloadResolver
 	UnleashInstance() UnleashInstanceResolver
@@ -382,7 +381,7 @@ type ComplexityRoot struct {
 		Team func(childComplexity int) int
 	}
 
-	CreateUnleashInstancePayload struct {
+	CreateUnleashForTeamPayload struct {
 		Unleash func(childComplexity int) int
 	}
 
@@ -715,16 +714,16 @@ type ComplexityRoot struct {
 		AddTeamMember             func(childComplexity int, input team.AddTeamMemberInput) int
 		AllowTeamAccessToUnleash  func(childComplexity int, input unleash.AllowTeamAccessToUnleashInput) int
 		ChangeDeploymentKey       func(childComplexity int, input deployment.ChangeDeploymentKeyInput) int
-		ConfigureReconciler       func(childComplexity int, name string, config []*reconciler.ReconcilerConfigInput) int
+		ConfigureReconciler       func(childComplexity int, input reconciler.ConfigureReconcilerInput) int
 		ConfirmTeamDeletion       func(childComplexity int, input team.ConfirmTeamDeletionInput) int
 		CreateSecret              func(childComplexity int, input secret.CreateSecretInput) int
 		CreateTeam                func(childComplexity int, input team.CreateTeamInput) int
-		CreateUnleashForTeam      func(childComplexity int, input unleash.CreateUnleashInstanceInput) int
+		CreateUnleashForTeam      func(childComplexity int, input unleash.CreateUnleashForTeamInput) int
 		DeleteApplication         func(childComplexity int, input application.DeleteApplicationInput) int
 		DeleteJob                 func(childComplexity int, input job.DeleteJobInput) int
 		DeleteSecret              func(childComplexity int, input secret.DeleteSecretInput) int
-		DisableReconciler         func(childComplexity int, name string) int
-		EnableReconciler          func(childComplexity int, name string) int
+		DisableReconciler         func(childComplexity int, input reconciler.DisableReconcilerInput) int
+		EnableReconciler          func(childComplexity int, input reconciler.EnableReconcilerInput) int
 		RemoveRepositoryFromTeam  func(childComplexity int, input repository.RemoveRepositoryFromTeamInput) int
 		RemoveSecretValue         func(childComplexity int, input secret.RemoveSecretValueInput) int
 		RemoveTeamMember          func(childComplexity int, input team.RemoveTeamMemberInput) int
@@ -1627,11 +1626,6 @@ type ComplexityRoot struct {
 		Used        func(childComplexity int) int
 	}
 
-	TeamUtilizationEnvironmentSample struct {
-		Environment func(childComplexity int) int
-		Value       func(childComplexity int) int
-	}
-
 	TeamVulnerabilityStatus struct {
 		Description func(childComplexity int) int
 		State       func(childComplexity int) int
@@ -1987,9 +1981,9 @@ type MutationResolver interface {
 	ChangeDeploymentKey(ctx context.Context, input deployment.ChangeDeploymentKeyInput) (*deployment.ChangeDeploymentKeyPayload, error)
 	DeleteJob(ctx context.Context, input job.DeleteJobInput) (*job.DeleteJobPayload, error)
 	TriggerJob(ctx context.Context, input job.TriggerJobInput) (*job.TriggerJobPayload, error)
-	EnableReconciler(ctx context.Context, name string) (*reconciler.Reconciler, error)
-	DisableReconciler(ctx context.Context, name string) (*reconciler.Reconciler, error)
-	ConfigureReconciler(ctx context.Context, name string, config []*reconciler.ReconcilerConfigInput) (*reconciler.Reconciler, error)
+	EnableReconciler(ctx context.Context, input reconciler.EnableReconcilerInput) (*reconciler.Reconciler, error)
+	DisableReconciler(ctx context.Context, input reconciler.DisableReconcilerInput) (*reconciler.Reconciler, error)
+	ConfigureReconciler(ctx context.Context, input reconciler.ConfigureReconcilerInput) (*reconciler.Reconciler, error)
 	AddRepositoryToTeam(ctx context.Context, input repository.AddRepositoryToTeamInput) (*repository.AddRepositoryToTeamPayload, error)
 	RemoveRepositoryFromTeam(ctx context.Context, input repository.RemoveRepositoryFromTeamInput) (*repository.RemoveRepositoryFromTeamPayload, error)
 	CreateSecret(ctx context.Context, input secret.CreateSecretInput) (*secret.CreateSecretPayload, error)
@@ -2005,7 +1999,7 @@ type MutationResolver interface {
 	AddTeamMember(ctx context.Context, input team.AddTeamMemberInput) (*team.AddTeamMemberPayload, error)
 	RemoveTeamMember(ctx context.Context, input team.RemoveTeamMemberInput) (*team.RemoveTeamMemberPayload, error)
 	SetTeamMemberRole(ctx context.Context, input team.SetTeamMemberRoleInput) (*team.SetTeamMemberRolePayload, error)
-	CreateUnleashForTeam(ctx context.Context, input unleash.CreateUnleashInstanceInput) (*unleash.CreateUnleashInstancePayload, error)
+	CreateUnleashForTeam(ctx context.Context, input unleash.CreateUnleashForTeamInput) (*unleash.CreateUnleashForTeamPayload, error)
 	AllowTeamAccessToUnleash(ctx context.Context, input unleash.AllowTeamAccessToUnleashInput) (*unleash.AllowTeamAccessToUnleashPayload, error)
 	RevokeTeamAccessToUnleash(ctx context.Context, input unleash.RevokeTeamAccessToUnleashInput) (*unleash.RevokeTeamAccessToUnleashPayload, error)
 	UpdateImageVulnerability(ctx context.Context, input vulnerability.UpdateImageVulnerabilityInput) (*vulnerability.UpdateImageVulnerabilityPayload, error)
@@ -2183,9 +2177,6 @@ type TeamUtilizationDataResolver interface {
 	Team(ctx context.Context, obj *utilization.TeamUtilizationData) (*team.Team, error)
 
 	Environment(ctx context.Context, obj *utilization.TeamUtilizationData) (*team.TeamEnvironment, error)
-}
-type TeamUtilizationEnvironmentSampleResolver interface {
-	Environment(ctx context.Context, obj *utilization.TeamUtilizationEnvironmentSample) (*team.TeamEnvironment, error)
 }
 type TeamVulnerabilitySummaryResolver interface {
 	Ranking(ctx context.Context, obj *vulnerability.TeamVulnerabilitySummary) (vulnerability.TeamVulnerabilityRanking, error)
@@ -3225,12 +3216,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CreateTeamPayload.Team(childComplexity), true
 
-	case "CreateUnleashInstancePayload.unleash":
-		if e.complexity.CreateUnleashInstancePayload.Unleash == nil {
+	case "CreateUnleashForTeamPayload.unleash":
+		if e.complexity.CreateUnleashForTeamPayload.Unleash == nil {
 			break
 		}
 
-		return e.complexity.CreateUnleashInstancePayload.Unleash(childComplexity), true
+		return e.complexity.CreateUnleashForTeamPayload.Unleash(childComplexity), true
 
 	case "DeleteApplicationPayload.success":
 		if e.complexity.DeleteApplicationPayload.Success == nil {
@@ -4610,7 +4601,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.ConfigureReconciler(childComplexity, args["name"].(string), args["config"].([]*reconciler.ReconcilerConfigInput)), true
+		return e.complexity.Mutation.ConfigureReconciler(childComplexity, args["input"].(reconciler.ConfigureReconcilerInput)), true
 
 	case "Mutation.confirmTeamDeletion":
 		if e.complexity.Mutation.ConfirmTeamDeletion == nil {
@@ -4658,7 +4649,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateUnleashForTeam(childComplexity, args["input"].(unleash.CreateUnleashInstanceInput)), true
+		return e.complexity.Mutation.CreateUnleashForTeam(childComplexity, args["input"].(unleash.CreateUnleashForTeamInput)), true
 
 	case "Mutation.deleteApplication":
 		if e.complexity.Mutation.DeleteApplication == nil {
@@ -4706,7 +4697,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DisableReconciler(childComplexity, args["name"].(string)), true
+		return e.complexity.Mutation.DisableReconciler(childComplexity, args["input"].(reconciler.DisableReconcilerInput)), true
 
 	case "Mutation.enableReconciler":
 		if e.complexity.Mutation.EnableReconciler == nil {
@@ -4718,7 +4709,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.EnableReconciler(childComplexity, args["name"].(string)), true
+		return e.complexity.Mutation.EnableReconciler(childComplexity, args["input"].(reconciler.EnableReconcilerInput)), true
 
 	case "Mutation.removeRepositoryFromTeam":
 		if e.complexity.Mutation.RemoveRepositoryFromTeam == nil {
@@ -8700,20 +8691,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamUtilizationData.Used(childComplexity), true
 
-	case "TeamUtilizationEnvironmentSample.environment":
-		if e.complexity.TeamUtilizationEnvironmentSample.Environment == nil {
-			break
-		}
-
-		return e.complexity.TeamUtilizationEnvironmentSample.Environment(childComplexity), true
-
-	case "TeamUtilizationEnvironmentSample.value":
-		if e.complexity.TeamUtilizationEnvironmentSample.Value == nil {
-			break
-		}
-
-		return e.complexity.TeamUtilizationEnvironmentSample.Value(childComplexity), true
-
 	case "TeamVulnerabilityStatus.description":
 		if e.complexity.TeamVulnerabilityStatus.Description == nil {
 			break
@@ -9650,13 +9627,16 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputBigQueryDatasetOrder,
 		ec.unmarshalInputBucketOrder,
 		ec.unmarshalInputChangeDeploymentKeyInput,
+		ec.unmarshalInputConfigureReconcilerInput,
 		ec.unmarshalInputConfirmTeamDeletionInput,
 		ec.unmarshalInputCreateSecretInput,
 		ec.unmarshalInputCreateTeamInput,
-		ec.unmarshalInputCreateUnleashInstanceInput,
+		ec.unmarshalInputCreateUnleashForTeamInput,
 		ec.unmarshalInputDeleteApplicationInput,
 		ec.unmarshalInputDeleteJobInput,
 		ec.unmarshalInputDeleteSecretInput,
+		ec.unmarshalInputDisableReconcilerInput,
+		ec.unmarshalInputEnableReconcilerInput,
 		ec.unmarshalInputImageVulnerabilityOrder,
 		ec.unmarshalInputJobOrder,
 		ec.unmarshalInputKafkaTopicAclFilter,
@@ -11839,23 +11819,17 @@ type WorkloadLogLine {
 
 	A reconciler must be fully configured before it can be enabled.
 	"""
-	enableReconciler("The name of the reconciler to enable." name: String!): Reconciler!
+	enableReconciler(input: EnableReconcilerInput!): Reconciler!
 
 	"""
 	Disable a reconciler
 
 	The reconciler configuration will be left intact.
 	"""
-	disableReconciler("The name of the reconciler to disable." name: String!): Reconciler!
+	disableReconciler(input: DisableReconcilerInput!): Reconciler!
 
 	"Configure a reconciler."
-	configureReconciler(
-		"The name of the reconciler to configure."
-		name: String!
-
-		"List of reconciler config inputs."
-		config: [ReconcilerConfigInput!]!
-	): Reconciler!
+	configureReconciler(input: ConfigureReconcilerInput!): Reconciler!
 }
 
 extend type Query {
@@ -12073,6 +12047,24 @@ type ReconcilerConfiguredAuditEntry implements AuditEntry & Node {
 type ReconcilerConfiguredAuditEntryData {
 	"Keys that were updated."
 	updatedKeys: [String!]!
+}
+
+input EnableReconcilerInput {
+	"The name of the reconciler to enable."
+	name: String!
+}
+
+input DisableReconcilerInput {
+	"The name of the reconciler to disable."
+	name: String!
+}
+
+input ConfigureReconcilerInput {
+	"The name of the reconciler to configure."
+	name: String!
+
+	"List of reconciler config inputs."
+	config: [ReconcilerConfigInput!]!
 }
 `, BuiltIn: false},
 	{Name: "../schema/redis.graphqls", Input: `extend type Team {
@@ -14212,7 +14204,7 @@ type TeamEnvironmentUpdatedAuditEntryDataUpdatedField {
 	This mutation will create a new Unleash instance for the given team. The team
 	will be set as owner of the Unleash instance and will be able to manage it.
 	"""
-	createUnleashForTeam(input: CreateUnleashInstanceInput!): CreateUnleashInstancePayload!
+	createUnleashForTeam(input: CreateUnleashForTeamInput!): CreateUnleashForTeamPayload!
 
 	"""
 	Add team to the list of teams that can access the Unleash instance.
@@ -14227,11 +14219,11 @@ type TeamEnvironmentUpdatedAuditEntryDataUpdatedField {
 	): RevokeTeamAccessToUnleashPayload!
 }
 
-input CreateUnleashInstanceInput {
+input CreateUnleashForTeamInput {
 	teamSlug: Slug!
 }
 
-type CreateUnleashInstancePayload {
+type CreateUnleashForTeamPayload {
 	unleash: UnleashInstance
 }
 
@@ -14583,14 +14575,6 @@ type WorkloadUtilizationData {
 
 	"The current resource usage."
 	used: Float!
-}
-
-type TeamUtilizationEnvironmentSample {
-	"Value of the used resource at the given timestamp."
-	value: Float!
-
-	"The team environment"
-	environment: TeamEnvironment!
 }
 
 type WorkloadUtilization {
@@ -17132,59 +17116,32 @@ func (ec *executionContext) field_Mutation_changeDeploymentKey_argsInput(
 func (ec *executionContext) field_Mutation_configureReconciler_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_configureReconciler_argsName(ctx, rawArgs)
+	arg0, err := ec.field_Mutation_configureReconciler_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["name"] = arg0
-	arg1, err := ec.field_Mutation_configureReconciler_argsConfig(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["config"] = arg1
+	args["input"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Mutation_configureReconciler_argsName(
+func (ec *executionContext) field_Mutation_configureReconciler_argsInput(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
+) (reconciler.ConfigureReconcilerInput, error) {
 	// We won't call the directive if the argument is null.
 	// Set call_argument_directives_with_null to true to call directives
 	// even if the argument is null.
-	_, ok := rawArgs["name"]
+	_, ok := rawArgs["input"]
 	if !ok {
-		var zeroVal string
+		var zeroVal reconciler.ConfigureReconcilerInput
 		return zeroVal, nil
 	}
 
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-	if tmp, ok := rawArgs["name"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNConfigureReconcilerInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐConfigureReconcilerInput(ctx, tmp)
 	}
 
-	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_configureReconciler_argsConfig(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) ([]*reconciler.ReconcilerConfigInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["config"]
-	if !ok {
-		var zeroVal []*reconciler.ReconcilerConfigInput
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("config"))
-	if tmp, ok := rawArgs["config"]; ok {
-		return ec.unmarshalNReconcilerConfigInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerConfigInputᚄ(ctx, tmp)
-	}
-
-	var zeroVal []*reconciler.ReconcilerConfigInput
+	var zeroVal reconciler.ConfigureReconcilerInput
 	return zeroVal, nil
 }
 
@@ -17297,22 +17254,22 @@ func (ec *executionContext) field_Mutation_createUnleashForTeam_args(ctx context
 func (ec *executionContext) field_Mutation_createUnleashForTeam_argsInput(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (unleash.CreateUnleashInstanceInput, error) {
+) (unleash.CreateUnleashForTeamInput, error) {
 	// We won't call the directive if the argument is null.
 	// Set call_argument_directives_with_null to true to call directives
 	// even if the argument is null.
 	_, ok := rawArgs["input"]
 	if !ok {
-		var zeroVal unleash.CreateUnleashInstanceInput
+		var zeroVal unleash.CreateUnleashForTeamInput
 		return zeroVal, nil
 	}
 
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNCreateUnleashInstanceInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐCreateUnleashInstanceInput(ctx, tmp)
+		return ec.unmarshalNCreateUnleashForTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐCreateUnleashForTeamInput(ctx, tmp)
 	}
 
-	var zeroVal unleash.CreateUnleashInstanceInput
+	var zeroVal unleash.CreateUnleashForTeamInput
 	return zeroVal, nil
 }
 
@@ -17415,64 +17372,64 @@ func (ec *executionContext) field_Mutation_deleteSecret_argsInput(
 func (ec *executionContext) field_Mutation_disableReconciler_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_disableReconciler_argsName(ctx, rawArgs)
+	arg0, err := ec.field_Mutation_disableReconciler_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["name"] = arg0
+	args["input"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Mutation_disableReconciler_argsName(
+func (ec *executionContext) field_Mutation_disableReconciler_argsInput(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
+) (reconciler.DisableReconcilerInput, error) {
 	// We won't call the directive if the argument is null.
 	// Set call_argument_directives_with_null to true to call directives
 	// even if the argument is null.
-	_, ok := rawArgs["name"]
+	_, ok := rawArgs["input"]
 	if !ok {
-		var zeroVal string
+		var zeroVal reconciler.DisableReconcilerInput
 		return zeroVal, nil
 	}
 
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-	if tmp, ok := rawArgs["name"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNDisableReconcilerInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐDisableReconcilerInput(ctx, tmp)
 	}
 
-	var zeroVal string
+	var zeroVal reconciler.DisableReconcilerInput
 	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_enableReconciler_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_enableReconciler_argsName(ctx, rawArgs)
+	arg0, err := ec.field_Mutation_enableReconciler_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["name"] = arg0
+	args["input"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Mutation_enableReconciler_argsName(
+func (ec *executionContext) field_Mutation_enableReconciler_argsInput(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
+) (reconciler.EnableReconcilerInput, error) {
 	// We won't call the directive if the argument is null.
 	// Set call_argument_directives_with_null to true to call directives
 	// even if the argument is null.
-	_, ok := rawArgs["name"]
+	_, ok := rawArgs["input"]
 	if !ok {
-		var zeroVal string
+		var zeroVal reconciler.EnableReconcilerInput
 		return zeroVal, nil
 	}
 
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-	if tmp, ok := rawArgs["name"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNEnableReconcilerInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐEnableReconcilerInput(ctx, tmp)
 	}
 
-	var zeroVal string
+	var zeroVal reconciler.EnableReconcilerInput
 	return zeroVal, nil
 }
 
@@ -29843,8 +29800,8 @@ func (ec *executionContext) fieldContext_CreateTeamPayload_team(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _CreateUnleashInstancePayload_unleash(ctx context.Context, field graphql.CollectedField, obj *unleash.CreateUnleashInstancePayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CreateUnleashInstancePayload_unleash(ctx, field)
+func (ec *executionContext) _CreateUnleashForTeamPayload_unleash(ctx context.Context, field graphql.CollectedField, obj *unleash.CreateUnleashForTeamPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateUnleashForTeamPayload_unleash(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -29871,9 +29828,9 @@ func (ec *executionContext) _CreateUnleashInstancePayload_unleash(ctx context.Co
 	return ec.marshalOUnleashInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstance(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CreateUnleashInstancePayload_unleash(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CreateUnleashForTeamPayload_unleash(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "CreateUnleashInstancePayload",
+		Object:     "CreateUnleashForTeamPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -39439,7 +39396,7 @@ func (ec *executionContext) _Mutation_enableReconciler(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().EnableReconciler(rctx, fc.Args["name"].(string))
+		return ec.resolvers.Mutation().EnableReconciler(rctx, fc.Args["input"].(reconciler.EnableReconcilerInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -39514,7 +39471,7 @@ func (ec *executionContext) _Mutation_disableReconciler(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DisableReconciler(rctx, fc.Args["name"].(string))
+		return ec.resolvers.Mutation().DisableReconciler(rctx, fc.Args["input"].(reconciler.DisableReconcilerInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -39589,7 +39546,7 @@ func (ec *executionContext) _Mutation_configureReconciler(ctx context.Context, f
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().ConfigureReconciler(rctx, fc.Args["name"].(string), fc.Args["config"].([]*reconciler.ReconcilerConfigInput))
+		return ec.resolvers.Mutation().ConfigureReconciler(rctx, fc.Args["input"].(reconciler.ConfigureReconcilerInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -40551,7 +40508,7 @@ func (ec *executionContext) _Mutation_createUnleashForTeam(ctx context.Context, 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateUnleashForTeam(rctx, fc.Args["input"].(unleash.CreateUnleashInstanceInput))
+		return ec.resolvers.Mutation().CreateUnleashForTeam(rctx, fc.Args["input"].(unleash.CreateUnleashForTeamInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -40563,9 +40520,9 @@ func (ec *executionContext) _Mutation_createUnleashForTeam(ctx context.Context, 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*unleash.CreateUnleashInstancePayload)
+	res := resTmp.(*unleash.CreateUnleashForTeamPayload)
 	fc.Result = res
-	return ec.marshalNCreateUnleashInstancePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐCreateUnleashInstancePayload(ctx, field.Selections, res)
+	return ec.marshalNCreateUnleashForTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐCreateUnleashForTeamPayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createUnleashForTeam(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -40577,9 +40534,9 @@ func (ec *executionContext) fieldContext_Mutation_createUnleashForTeam(ctx conte
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "unleash":
-				return ec.fieldContext_CreateUnleashInstancePayload_unleash(ctx, field)
+				return ec.fieldContext_CreateUnleashForTeamPayload_unleash(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type CreateUnleashInstancePayload", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type CreateUnleashForTeamPayload", field.Name)
 		},
 	}
 	defer func() {
@@ -67088,128 +67045,6 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_environment(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUtilizationEnvironmentSample_value(ctx context.Context, field graphql.CollectedField, obj *utilization.TeamUtilizationEnvironmentSample) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUtilizationEnvironmentSample_value(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Value, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(float64)
-	fc.Result = res
-	return ec.marshalNFloat2float64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamUtilizationEnvironmentSample_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamUtilizationEnvironmentSample",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamUtilizationEnvironmentSample_environment(ctx context.Context, field graphql.CollectedField, obj *utilization.TeamUtilizationEnvironmentSample) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUtilizationEnvironmentSample_environment(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TeamUtilizationEnvironmentSample().Environment(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*team.TeamEnvironment)
-	fc.Result = res
-	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamUtilizationEnvironmentSample_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamUtilizationEnvironmentSample",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_TeamEnvironment_id(ctx, field)
-			case "name":
-				return ec.fieldContext_TeamEnvironment_name(ctx, field)
-			case "gcpProjectID":
-				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
-			case "slackAlertsChannel":
-				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
-			case "team":
-				return ec.fieldContext_TeamEnvironment_team(ctx, field)
-			case "application":
-				return ec.fieldContext_TeamEnvironment_application(ctx, field)
-			case "bigQueryDataset":
-				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
-			case "bucket":
-				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
-			case "cost":
-				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
-			case "job":
-				return ec.fieldContext_TeamEnvironment_job(ctx, field)
-			case "kafkaTopic":
-				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
-			case "openSearchInstance":
-				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
-			case "redisInstance":
-				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
-			case "secret":
-				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
-			case "sqlInstance":
-				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
-			case "workload":
-				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _TeamVulnerabilityStatus_state(ctx context.Context, field graphql.CollectedField, obj *vulnerability.TeamVulnerabilityStatus) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamVulnerabilityStatus_state(ctx, field)
 	if err != nil {
@@ -75323,6 +75158,40 @@ func (ec *executionContext) unmarshalInputChangeDeploymentKeyInput(ctx context.C
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputConfigureReconcilerInput(ctx context.Context, obj interface{}) (reconciler.ConfigureReconcilerInput, error) {
+	var it reconciler.ConfigureReconcilerInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "config"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "config":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("config"))
+			data, err := ec.unmarshalNReconcilerConfigInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerConfigInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Config = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputConfirmTeamDeletionInput(ctx context.Context, obj interface{}) (team.ConfirmTeamDeletionInput, error) {
 	var it team.ConfirmTeamDeletionInput
 	asMap := map[string]interface{}{}
@@ -75439,8 +75308,8 @@ func (ec *executionContext) unmarshalInputCreateTeamInput(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateUnleashInstanceInput(ctx context.Context, obj interface{}) (unleash.CreateUnleashInstanceInput, error) {
-	var it unleash.CreateUnleashInstanceInput
+func (ec *executionContext) unmarshalInputCreateUnleashForTeamInput(ctx context.Context, obj interface{}) (unleash.CreateUnleashForTeamInput, error) {
+	var it unleash.CreateUnleashForTeamInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -75583,6 +75452,60 @@ func (ec *executionContext) unmarshalInputDeleteSecretInput(ctx context.Context,
 				return it, err
 			}
 			it.Team = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputDisableReconcilerInput(ctx context.Context, obj interface{}) (reconciler.DisableReconcilerInput, error) {
+	var it reconciler.DisableReconcilerInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputEnableReconcilerInput(ctx context.Context, obj interface{}) (reconciler.EnableReconcilerInput, error) {
+	var it reconciler.EnableReconcilerInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
 		}
 	}
 
@@ -80966,19 +80889,19 @@ func (ec *executionContext) _CreateTeamPayload(ctx context.Context, sel ast.Sele
 	return out
 }
 
-var createUnleashInstancePayloadImplementors = []string{"CreateUnleashInstancePayload"}
+var createUnleashForTeamPayloadImplementors = []string{"CreateUnleashForTeamPayload"}
 
-func (ec *executionContext) _CreateUnleashInstancePayload(ctx context.Context, sel ast.SelectionSet, obj *unleash.CreateUnleashInstancePayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, createUnleashInstancePayloadImplementors)
+func (ec *executionContext) _CreateUnleashForTeamPayload(ctx context.Context, sel ast.SelectionSet, obj *unleash.CreateUnleashForTeamPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createUnleashForTeamPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("CreateUnleashInstancePayload")
+			out.Values[i] = graphql.MarshalString("CreateUnleashForTeamPayload")
 		case "unleash":
-			out.Values[i] = ec._CreateUnleashInstancePayload_unleash(ctx, field, obj)
+			out.Values[i] = ec._CreateUnleashForTeamPayload_unleash(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -94684,81 +94607,6 @@ func (ec *executionContext) _TeamUtilizationData(ctx context.Context, sel ast.Se
 	return out
 }
 
-var teamUtilizationEnvironmentSampleImplementors = []string{"TeamUtilizationEnvironmentSample"}
-
-func (ec *executionContext) _TeamUtilizationEnvironmentSample(ctx context.Context, sel ast.SelectionSet, obj *utilization.TeamUtilizationEnvironmentSample) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamUtilizationEnvironmentSampleImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamUtilizationEnvironmentSample")
-		case "value":
-			out.Values[i] = ec._TeamUtilizationEnvironmentSample_value(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "environment":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._TeamUtilizationEnvironmentSample_environment(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var teamVulnerabilityStatusImplementors = []string{"TeamVulnerabilityStatus"}
 
 func (ec *executionContext) _TeamVulnerabilityStatus(ctx context.Context, sel ast.SelectionSet, obj *vulnerability.TeamVulnerabilityStatus) graphql.Marshaler {
@@ -98692,6 +98540,11 @@ func (ec *executionContext) marshalNChangeDeploymentKeyPayload2ᚖgithubᚗcom�
 	return ec._ChangeDeploymentKeyPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNConfigureReconcilerInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐConfigureReconcilerInput(ctx context.Context, v interface{}) (reconciler.ConfigureReconcilerInput, error) {
+	res, err := ec.unmarshalInputConfigureReconcilerInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNConfirmTeamDeletionInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐConfirmTeamDeletionInput(ctx context.Context, v interface{}) (team.ConfirmTeamDeletionInput, error) {
 	res, err := ec.unmarshalInputConfirmTeamDeletionInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -98875,23 +98728,23 @@ func (ec *executionContext) marshalNCreateTeamPayload2ᚖgithubᚗcomᚋnaisᚋa
 	return ec._CreateTeamPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNCreateUnleashInstanceInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐCreateUnleashInstanceInput(ctx context.Context, v interface{}) (unleash.CreateUnleashInstanceInput, error) {
-	res, err := ec.unmarshalInputCreateUnleashInstanceInput(ctx, v)
+func (ec *executionContext) unmarshalNCreateUnleashForTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐCreateUnleashForTeamInput(ctx context.Context, v interface{}) (unleash.CreateUnleashForTeamInput, error) {
+	res, err := ec.unmarshalInputCreateUnleashForTeamInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNCreateUnleashInstancePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐCreateUnleashInstancePayload(ctx context.Context, sel ast.SelectionSet, v unleash.CreateUnleashInstancePayload) graphql.Marshaler {
-	return ec._CreateUnleashInstancePayload(ctx, sel, &v)
+func (ec *executionContext) marshalNCreateUnleashForTeamPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐCreateUnleashForTeamPayload(ctx context.Context, sel ast.SelectionSet, v unleash.CreateUnleashForTeamPayload) graphql.Marshaler {
+	return ec._CreateUnleashForTeamPayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNCreateUnleashInstancePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐCreateUnleashInstancePayload(ctx context.Context, sel ast.SelectionSet, v *unleash.CreateUnleashInstancePayload) graphql.Marshaler {
+func (ec *executionContext) marshalNCreateUnleashForTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐCreateUnleashForTeamPayload(ctx context.Context, sel ast.SelectionSet, v *unleash.CreateUnleashForTeamPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._CreateUnleashInstancePayload(ctx, sel, v)
+	return ec._CreateUnleashForTeamPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx context.Context, v interface{}) (pagination.Cursor, error) {
@@ -99207,6 +99060,16 @@ func (ec *executionContext) marshalNDeploymentStatus2ᚖgithubᚗcomᚋnaisᚋap
 		return graphql.Null
 	}
 	return ec._DeploymentStatus(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNDisableReconcilerInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐDisableReconcilerInput(ctx context.Context, v interface{}) (reconciler.DisableReconcilerInput, error) {
+	res, err := ec.unmarshalInputDisableReconcilerInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNEnableReconcilerInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐEnableReconcilerInput(ctx context.Context, v interface{}) (reconciler.EnableReconcilerInput, error) {
+	res, err := ec.unmarshalInputEnableReconcilerInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNExternalNetworkPolicyTarget2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐExternalNetworkPolicyTarget(ctx context.Context, sel ast.SelectionSet, v netpol.ExternalNetworkPolicyTarget) graphql.Marshaler {

@@ -41,10 +41,6 @@ func (r *teamUtilizationDataResolver) Environment(ctx context.Context, obj *util
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
-func (r *teamUtilizationEnvironmentSampleResolver) Environment(ctx context.Context, obj *utilization.TeamUtilizationEnvironmentSample) (*team.TeamEnvironment, error) {
-	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
-}
-
 func (r *workloadUtilizationResolver) Current(ctx context.Context, obj *utilization.WorkloadUtilization, resourceType utilization.UtilizationResourceType) (float64, error) {
 	return utilization.WorkloadResourceUsage(ctx, obj.EnvironmentName, obj.TeamSlug, obj.WorkloadName, resourceType)
 }
@@ -69,10 +65,6 @@ func (r *Resolver) TeamUtilizationData() gengql.TeamUtilizationDataResolver {
 	return &teamUtilizationDataResolver{r}
 }
 
-func (r *Resolver) TeamUtilizationEnvironmentSample() gengql.TeamUtilizationEnvironmentSampleResolver {
-	return &teamUtilizationEnvironmentSampleResolver{r}
-}
-
 func (r *Resolver) WorkloadUtilization() gengql.WorkloadUtilizationResolver {
 	return &workloadUtilizationResolver{r}
 }
@@ -82,9 +74,8 @@ func (r *Resolver) WorkloadUtilizationData() gengql.WorkloadUtilizationDataResol
 }
 
 type (
-	teamServiceUtilizationResolver           struct{ *Resolver }
-	teamUtilizationDataResolver              struct{ *Resolver }
-	teamUtilizationEnvironmentSampleResolver struct{ *Resolver }
-	workloadUtilizationResolver              struct{ *Resolver }
-	workloadUtilizationDataResolver          struct{ *Resolver }
+	teamServiceUtilizationResolver  struct{ *Resolver }
+	teamUtilizationDataResolver     struct{ *Resolver }
+	workloadUtilizationResolver     struct{ *Resolver }
+	workloadUtilizationDataResolver struct{ *Resolver }
 )
