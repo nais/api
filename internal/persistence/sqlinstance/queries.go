@@ -106,7 +106,7 @@ func ListSQLInstanceUsers(ctx context.Context, sqlInstance *SQLInstance, page *p
 		var googleErr *googleapi.Error
 		if errors.As(err, &googleErr) && googleErr.Code == 400 {
 			// TODO: This was handled in the legacy code, keep it for now. Log?
-			return nil, nil
+			return pagination.EmptyConnection[*SQLInstanceUser](), nil
 		}
 		return nil, fmt.Errorf("getting SQL users")
 	}
