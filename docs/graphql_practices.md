@@ -211,7 +211,7 @@ input CreateTeamInput {
 }
 
 type CreateTeamPayload {
-	team: Team!
+	team: Team
 }
 ```
 
