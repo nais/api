@@ -83,8 +83,8 @@ func (t *Server) Members(ctx context.Context, req *protoapi.ListTeamMembersReque
 	limit, offset := grpcpagination.Pagination(req)
 	users, err := t.querier.ListMembers(ctx, grpcteamsql.ListMembersParams{
 		TeamSlug: slug.Slug(req.Slug),
-		Offset:   limit,
-		Limit:    offset,
+		Offset:   offset,
+		Limit:    limit,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to list team members: %s", err)
