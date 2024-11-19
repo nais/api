@@ -7,7 +7,7 @@ export default [
 		rules: pluginJs.configs.recommended.rules,
 	},
 	{
-		files: ["**/*.graphqls"],
+		files: ["internal/v1/**/*.graphqls"],
 		languageOptions: {
 			parser: graphql.parser,
 			parserOptions: {
@@ -19,6 +19,23 @@ export default [
 		plugins: {
 			"@graphql-eslint": { rules: graphql.rules },
 		},
-		rules: graphql.configs["flat/schema-all"],
+		rules: {
+			...graphql.configs["flat/schema-recommended"],
+			"@graphql-eslint/strict-id-in-types": [
+				"error",
+				{
+					acceptedIdNames: ["id"],
+					acceptedIdTypes: ["ID"],
+					exceptions: {
+						types: [
+							"TeamInventoryCountApplications",
+							"ApplicationManifest",
+							"ApplicationResources",
+						],
+						suffixes: ["Payload", "Connection", "Edge", "Status"],
+					},
+				},
+			],
+		},
 	},
 ];
