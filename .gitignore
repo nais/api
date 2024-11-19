@@ -12,3 +12,4 @@ __debug_bin*
 node_modules
 package-lock.json
 hack/coverprofile.txt
+.eslintcache

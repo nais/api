@@ -76,6 +76,9 @@ prettier:
 helm-lint:
 	helm lint --strict ./charts
 
+graphql-lint:
+	npx eslint --cache
+
 setup-local:
 	GOOGLE_MANAGEMENT_PROJECT_ID=nais-local-dev go run ./cmd/setup_local -users 40 -teams 10 -owners 2 -members 4 -provision_pub_sub
 

@@ -1,5 +1,5 @@
 import pluginJs from "@eslint/js";
-import * as graphql from "@graphql-eslint/eslint-plugin";
+import graphql from "@graphql-eslint/eslint-plugin";
 
 export default [
 	{
@@ -7,20 +7,22 @@ export default [
 		rules: pluginJs.configs.recommended.rules,
 	},
 	{
-		files: ["internal/v1/**/*.graphqls"],
+		files: ["internal/**/*.graphqls"],
 		languageOptions: {
 			parser: graphql.parser,
 			parserOptions: {
 				graphQLConfig: {
-					schema: "./internal/v1/graphv1/schema/*.graphqls",
+					schema: "./internal/graph/schema/*.graphqls",
 				},
 			},
 		},
 		plugins: {
-			"@graphql-eslint": { rules: graphql.rules },
+			"@graphql-eslint": graphql,
 		},
 		rules: {
-			...graphql.configs["flat/schema-recommended"],
+			...graphql.configs["flat/schema-recommended"].rules,
+			"@graphql-eslint/description-style": ["off"],
+			"@graphql-eslint/require-description": ["off"],
 			"@graphql-eslint/strict-id-in-types": [
 				"error",
 				{
