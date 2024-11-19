@@ -23,6 +23,10 @@ export default [
 			...graphql.configs["flat/schema-recommended"].rules,
 			"@graphql-eslint/description-style": ["off"],
 			"@graphql-eslint/require-description": ["off"],
+			"@graphql-eslint/input-name": [
+				"error",
+				{ checkInputType: true, caseSensitiveInputType: false },
+			],
 			"@graphql-eslint/strict-id-in-types": [
 				"error",
 				{
