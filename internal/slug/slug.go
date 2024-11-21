@@ -63,10 +63,6 @@ func (s Slug) Validate() error {
 		}
 	}
 
-	if strings.HasPrefix(s.String(), "team") {
-		return invalid("The name prefix 'team' is redundant. When you create a team, it is by definition a team. Try again with a different name, perhaps just removing the prefix?")
-	}
-
 	if len(s) < 3 {
 		return invalid("A team slug must be at least 3 characters long.")
 	}
