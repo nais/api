@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
@@ -19,6 +20,10 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input team.CreateTeam
 	err := authz.RequireGlobalAuthorization(actor, role.AuthorizationTeamsCreate)
 	if err != nil {
 		return nil, err
+	}
+
+	if strings.HasPrefix(input.Slug.String(), "team") {
+		return nil, &slug.ErrInvalidSlug{Message: "The name prefix 'team' is redundant. When you create a team, it is by definition a team. Try again with a different name, perhaps just removing the prefix?"}
 	}
 
 	t, err := team.Create(ctx, &input, actor)

@@ -80,7 +80,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 
 func AllowsInboundWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string, allowsTeamSlug slug.Slug, allowsWorkloadName string) bool {
 	ap := accessPolicyForWorkload(ctx, teamSlug, environmentName, workloadName)
-	if ap == nil {
+	if ap == nil || ap.Inbound == nil {
 		return false
 	}
 
@@ -89,7 +89,7 @@ func AllowsInboundWorkload(ctx context.Context, teamSlug slug.Slug, environmentN
 
 func AllowsOutboundWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string, allowsTeamSlug slug.Slug, allowsWorkloadName string) bool {
 	ap := accessPolicyForWorkload(ctx, teamSlug, environmentName, workloadName)
-	if ap == nil {
+	if ap == nil || ap.Outbound == nil {
 		return false
 	}
 

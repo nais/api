@@ -63,12 +63,44 @@ Test.gql("Create team with invalid slug", function(t)
 		end
 	end
 
+	local testSlugWithTeamPrefix = function(slugs, errorMessageMatch)
+		for _, s in ipairs(slugs) do
+			t.query(string.format([[
+				mutation {
+					createTeam(
+						input: {
+							slug: "%s"
+							purpose: "some purpose"
+							slackChannel: "#channel"
+						}
+					) {
+						team {
+							id
+							slug
+						}
+					}
+				}
+			]], s))
+			t.check {
+				data = Null,
+				errors = {
+					{
+						message = errorMessageMatch,
+						path = {
+							"createTeam",
+						},
+					},
+				},
+			}
+		end
+	end
+
 	local invalidPrefix = {
 		"team",
 		"teamfoo",
 		"team-foo",
 	}
-	testSlug(invalidPrefix, Contains("The name prefix 'team' is redundant."))
+	testSlugWithTeamPrefix(invalidPrefix, Contains("The name prefix 'team' is redundant."))
 
 	local shortSlugs = {
 		"a",
