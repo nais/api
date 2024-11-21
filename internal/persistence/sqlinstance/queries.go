@@ -142,7 +142,6 @@ func GetState(ctx context.Context, project, instance string) (SQLInstanceState, 
 }
 
 func MetricsFor(ctx context.Context, projectID, name string) (*SQLInstanceMetrics, error) {
-	fmt.Println("Metrics for to", projectID, name)
 	return &SQLInstanceMetrics{
 		InstanceName: name,
 		ProjectID:    projectID,
@@ -150,7 +149,6 @@ func MetricsFor(ctx context.Context, projectID, name string) (*SQLInstanceMetric
 }
 
 func CPUForInstance(ctx context.Context, projectID, instance string) (*SQLInstanceCPU, error) {
-	fmt.Println("CPU for instance", projectID, instance)
 	return fromContext(ctx).sqlMetricsService.cpuForSQLInstance(ctx, projectID, instance)
 }
 
