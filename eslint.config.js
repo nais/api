@@ -27,6 +27,14 @@ export default [
 				"error",
 				{ checkInputType: true, caseSensitiveInputType: false },
 			],
+			"@graphql-eslint/naming-convention": [
+				"error",
+				{
+					types: "PascalCase",
+					FieldDefinition: "camelCase",
+					"FieldDefinition[parent.name.value=Query]": { forbiddenPrefixes: ["get"] },
+				},
+			],
 			"@graphql-eslint/strict-id-in-types": [
 				"error",
 				{
