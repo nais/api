@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes/watcher"
@@ -144,7 +143,6 @@ func (r *teamServiceUtilizationResolver) SQLInstances(ctx context.Context, obj *
 }
 
 func (r *teamServiceUtilizationSqlInstancesResolver) CPU(ctx context.Context, obj *sqlinstance.TeamServiceUtilizationSQLInstances) (*sqlinstance.TeamServiceUtilizationSQLInstancesCPU, error) {
-	spew.Dump(obj)
 	ret := &sqlinstance.TeamServiceUtilizationSQLInstancesCPU{}
 	for _, projectID := range obj.ProjectIDs {
 		r, err := sqlinstance.TeamSummaryCPU(ctx, projectID)
