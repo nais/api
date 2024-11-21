@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
-	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/role/rolesql"
@@ -22,8 +22,11 @@ func (r *queryResolver) Users(ctx context.Context, first *int, after *pagination
 	return user.List(ctx, page, orderBy)
 }
 
-func (r *queryResolver) User(ctx context.Context, id ident.Ident) (*user.User, error) {
-	return user.GetByIdent(ctx, id)
+func (r *queryResolver) User(ctx context.Context, email *string) (*user.User, error) {
+	if email == nil {
+		return nil, apierror.Errorf("email argument must be provided")
+	}
+	return user.GetByEmail(ctx, *email)
 }
 
 func (r *queryResolver) Me(ctx context.Context) (user.AuthenticatedUser, error) {

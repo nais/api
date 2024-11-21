@@ -820,7 +820,7 @@ type ComplexityRoot struct {
 		Team             func(childComplexity int, slug slug.Slug) int
 		Teams            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) int
 		TeamsUtilization func(childComplexity int, resourceType utilization.UtilizationResourceType) int
-		User             func(childComplexity int, id ident.Ident) int
+		User             func(childComplexity int, email *string) int
 		Users            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) int
 	}
 
@@ -2052,7 +2052,7 @@ type QueryResolver interface {
 	Teams(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) (*pagination.Connection[*team.Team], error)
 	Team(ctx context.Context, slug slug.Slug) (*team.Team, error)
 	Users(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) (*pagination.Connection[*user.User], error)
-	User(ctx context.Context, id ident.Ident) (*user.User, error)
+	User(ctx context.Context, email *string) (*user.User, error)
 	Me(ctx context.Context) (user.AuthenticatedUser, error)
 	TeamsUtilization(ctx context.Context, resourceType utilization.UtilizationResourceType) ([]*utilization.TeamUtilizationData, error)
 }
@@ -5239,7 +5239,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.User(childComplexity, args["id"].(ident.Ident)), true
+		return e.complexity.Query.User(childComplexity, args["email"].(*string)), true
 
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
@@ -14477,14 +14477,9 @@ type UnleashInstanceUpdatedAuditEntryData {
 	): UserConnection!
 
 	"""
-	Get a user by its ID.
+	Get a user by an identifier.
 	"""
-	user(
-		"""
-		The ID of the user to get.
-		"""
-		id: ID!
-	): User!
+	user(email: String): User!
 
 	"""
 	The currently authenticated user.
@@ -18577,32 +18572,32 @@ func (ec *executionContext) field_Query_teams_argsOrderBy(
 func (ec *executionContext) field_Query_user_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	arg0, err := ec.field_Query_user_argsID(ctx, rawArgs)
+	arg0, err := ec.field_Query_user_argsEmail(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["id"] = arg0
+	args["email"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Query_user_argsID(
+func (ec *executionContext) field_Query_user_argsEmail(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (ident.Ident, error) {
+) (*string, error) {
 	// We won't call the directive if the argument is null.
 	// Set call_argument_directives_with_null to true to call directives
 	// even if the argument is null.
-	_, ok := rawArgs["id"]
+	_, ok := rawArgs["email"]
 	if !ok {
-		var zeroVal ident.Ident
+		var zeroVal *string
 		return zeroVal, nil
 	}
 
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, tmp)
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+	if tmp, ok := rawArgs["email"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
 	}
 
-	var zeroVal ident.Ident
+	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -43161,7 +43156,7 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().User(rctx, fc.Args["id"].(ident.Ident))
+		return ec.resolvers.Query().User(rctx, fc.Args["email"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

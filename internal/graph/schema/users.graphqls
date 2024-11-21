@@ -30,14 +30,9 @@ extend type Query {
 	): UserConnection!
 
 	"""
-	Get a user by its ID.
+	Get a user by an identifier.
 	"""
-	user(
-		"""
-		The ID of the user to get.
-		"""
-		id: ID!
-	): User!
+	user(email: String): User!
 
 	"""
 	The currently authenticated user.
