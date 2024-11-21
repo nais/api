@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/http/pprof"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -74,6 +75,19 @@ func runHttpServer(
 	router := chi.NewRouter()
 	router.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
 	router.Get("/healthz", func(_ http.ResponseWriter, _ *http.Request) {})
+
+	router.HandleFunc("/pprof/*", pprof.Index)
+	router.HandleFunc("/pprof/profile", pprof.Profile)
+	router.HandleFunc("/pprof/symbol", pprof.Symbol)
+	router.HandleFunc("/pprof/trace", pprof.Trace)
+
+	router.Handle("/pprof/goroutine", pprof.Handler("goroutine"))
+	router.Handle("/pprof/threadcreate", pprof.Handler("threadcreate"))
+	router.Handle("/pprof/mutex", pprof.Handler("mutex"))
+	router.Handle("/pprof/heap", pprof.Handler("heap"))
+	router.Handle("/pprof/block", pprof.Handler("block"))
+	router.Handle("/pprof/allocs", pprof.Handler("allocs"))
+
 	router.Method("GET", "/",
 		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL playground", "/graphql"), "playground")),
 	)
