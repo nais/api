@@ -187,7 +187,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			cfg.ListenAddress,
 			cfg.WithFakeClients,
 			cfg.Tenant,
-			cfg.K8s.Clusters,
+			cfg.K8s.AllClusterNames(),
 			pool,
 			clusterConfig,
 			watcherMgr,
