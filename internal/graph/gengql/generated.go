@@ -1281,44 +1281,44 @@ type ComplexityRoot struct {
 	}
 
 	Team struct {
-		Applications           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) int
-		AuditEntries           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		BigQueryDatasets       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) int
-		Buckets                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) int
-		CdnBucket              func(childComplexity int) int
-		Cost                   func(childComplexity int) int
-		DeleteKey              func(childComplexity int, key string) int
-		DeletionInProgress     func(childComplexity int) int
-		DeploymentKey          func(childComplexity int) int
-		Deployments            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		EntraIDGroupID         func(childComplexity int) int
-		Environment            func(childComplexity int, name string) int
-		Environments           func(childComplexity int) int
-		GitHubTeamSlug         func(childComplexity int) int
-		GoogleArtifactRegistry func(childComplexity int) int
-		GoogleGroupEmail       func(childComplexity int) int
-		ID                     func(childComplexity int) int
-		InventoryCounts        func(childComplexity int) int
-		Jobs                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder, filter *job.TeamJobsFilter) int
-		KafkaTopics            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder) int
-		LastSuccessfulSync     func(childComplexity int) int
-		Member                 func(childComplexity int, email string) int
-		Members                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) int
-		OpenSearchInstances    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) int
-		Purpose                func(childComplexity int) int
-		RedisInstances         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceOrder) int
-		Repositories           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) int
-		SQLInstances           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) int
-		Secrets                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder) int
-		ServiceUtilization     func(childComplexity int) int
-		SlackChannel           func(childComplexity int) int
-		Slug                   func(childComplexity int) int
-		Unleash                func(childComplexity int) int
-		ViewerIsMember         func(childComplexity int) int
-		ViewerIsOwner          func(childComplexity int) int
-		VulnerabilitySummary   func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter) int
-		WorkloadUtilization    func(childComplexity int, resourceType utilization.UtilizationResourceType) int
-		Workloads              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) int
+		Applications         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) int
+		AuditEntries         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		BigQueryDatasets     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) int
+		Buckets              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) int
+		Cost                 func(childComplexity int) int
+		DeleteKey            func(childComplexity int, key string) int
+		DeletionInProgress   func(childComplexity int) int
+		DeploymentKey        func(childComplexity int) int
+		Deployments          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Environment          func(childComplexity int, name string) int
+		Environments         func(childComplexity int) int
+		ExternalResources    func(childComplexity int) int
+		ID                   func(childComplexity int) int
+		InventoryCounts      func(childComplexity int) int
+		Jobs                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder, filter *job.TeamJobsFilter) int
+		KafkaTopics          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder) int
+		LastSuccessfulSync   func(childComplexity int) int
+		Member               func(childComplexity int, email string) int
+		Members              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) int
+		OpenSearchInstances  func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) int
+		Purpose              func(childComplexity int) int
+		RedisInstances       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceOrder) int
+		Repositories         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) int
+		SQLInstances         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) int
+		Secrets              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder) int
+		ServiceUtilization   func(childComplexity int) int
+		SlackChannel         func(childComplexity int) int
+		Slug                 func(childComplexity int) int
+		Unleash              func(childComplexity int) int
+		ViewerIsMember       func(childComplexity int) int
+		ViewerIsOwner        func(childComplexity int) int
+		VulnerabilitySummary func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter) int
+		WorkloadUtilization  func(childComplexity int, resourceType utilization.UtilizationResourceType) int
+		Workloads            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) int
+	}
+
+	TeamCDN struct {
+		Bucket func(childComplexity int) int
 	}
 
 	TeamConfirmDeleteKeyAuditEntry struct {
@@ -1404,6 +1404,10 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	TeamEntraIDGroup struct {
+		GroupID func(childComplexity int) int
+	}
+
 	TeamEnvironment struct {
 		Application        func(childComplexity int, name string) int
 		BigQueryDataset    func(childComplexity int, name string) int
@@ -1452,6 +1456,26 @@ type ComplexityRoot struct {
 		Field    func(childComplexity int) int
 		NewValue func(childComplexity int) int
 		OldValue func(childComplexity int) int
+	}
+
+	TeamExternalResources struct {
+		CDN                    func(childComplexity int) int
+		EntraIDGroup           func(childComplexity int) int
+		GitHubTeam             func(childComplexity int) int
+		GoogleArtifactRegistry func(childComplexity int) int
+		GoogleGroup            func(childComplexity int) int
+	}
+
+	TeamGitHubTeam struct {
+		Slug func(childComplexity int) int
+	}
+
+	TeamGoogleArtifactRegistry struct {
+		Repository func(childComplexity int) int
+	}
+
+	TeamGoogleGroup struct {
+		Email func(childComplexity int) int
 	}
 
 	TeamInventoryCountApplications struct {
@@ -7107,13 +7131,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.Buckets(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*bucket.BucketOrder)), true
 
-	case "Team.cdnBucket":
-		if e.complexity.Team.CdnBucket == nil {
-			break
-		}
-
-		return e.complexity.Team.CdnBucket(childComplexity), true
-
 	case "Team.cost":
 		if e.complexity.Team.Cost == nil {
 			break
@@ -7159,13 +7176,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.Deployments(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
-	case "Team.entraIDGroupID":
-		if e.complexity.Team.EntraIDGroupID == nil {
-			break
-		}
-
-		return e.complexity.Team.EntraIDGroupID(childComplexity), true
-
 	case "Team.environment":
 		if e.complexity.Team.Environment == nil {
 			break
@@ -7185,26 +7195,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.Environments(childComplexity), true
 
-	case "Team.gitHubTeamSlug":
-		if e.complexity.Team.GitHubTeamSlug == nil {
+	case "Team.externalResources":
+		if e.complexity.Team.ExternalResources == nil {
 			break
 		}
 
-		return e.complexity.Team.GitHubTeamSlug(childComplexity), true
-
-	case "Team.googleArtifactRegistry":
-		if e.complexity.Team.GoogleArtifactRegistry == nil {
-			break
-		}
-
-		return e.complexity.Team.GoogleArtifactRegistry(childComplexity), true
-
-	case "Team.googleGroupEmail":
-		if e.complexity.Team.GoogleGroupEmail == nil {
-			break
-		}
-
-		return e.complexity.Team.GoogleGroupEmail(childComplexity), true
+		return e.complexity.Team.ExternalResources(childComplexity), true
 
 	case "Team.id":
 		if e.complexity.Team.ID == nil {
@@ -7419,6 +7415,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Team.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*workload.WorkloadOrder), args["filter"].(*workload.TeamWorkloadsFilter)), true
+
+	case "TeamCDN.bucket":
+		if e.complexity.TeamCDN.Bucket == nil {
+			break
+		}
+
+		return e.complexity.TeamCDN.Bucket(childComplexity), true
 
 	case "TeamConfirmDeleteKeyAuditEntry.actor":
 		if e.complexity.TeamConfirmDeleteKeyAuditEntry.Actor == nil {
@@ -7775,6 +7778,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamEdge.Node(childComplexity), true
 
+	case "TeamEntraIDGroup.groupID":
+		if e.complexity.TeamEntraIDGroup.GroupID == nil {
+			break
+		}
+
+		return e.complexity.TeamEntraIDGroup.GroupID(childComplexity), true
+
 	case "TeamEnvironment.application":
 		if e.complexity.TeamEnvironment.Application == nil {
 			break
@@ -8053,6 +8063,62 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamEnvironmentUpdatedAuditEntryDataUpdatedField.OldValue(childComplexity), true
+
+	case "TeamExternalResources.cdn":
+		if e.complexity.TeamExternalResources.CDN == nil {
+			break
+		}
+
+		return e.complexity.TeamExternalResources.CDN(childComplexity), true
+
+	case "TeamExternalResources.entraIDGroup":
+		if e.complexity.TeamExternalResources.EntraIDGroup == nil {
+			break
+		}
+
+		return e.complexity.TeamExternalResources.EntraIDGroup(childComplexity), true
+
+	case "TeamExternalResources.gitHubTeam":
+		if e.complexity.TeamExternalResources.GitHubTeam == nil {
+			break
+		}
+
+		return e.complexity.TeamExternalResources.GitHubTeam(childComplexity), true
+
+	case "TeamExternalResources.googleArtifactRegistry":
+		if e.complexity.TeamExternalResources.GoogleArtifactRegistry == nil {
+			break
+		}
+
+		return e.complexity.TeamExternalResources.GoogleArtifactRegistry(childComplexity), true
+
+	case "TeamExternalResources.googleGroup":
+		if e.complexity.TeamExternalResources.GoogleGroup == nil {
+			break
+		}
+
+		return e.complexity.TeamExternalResources.GoogleGroup(childComplexity), true
+
+	case "TeamGitHubTeam.slug":
+		if e.complexity.TeamGitHubTeam.Slug == nil {
+			break
+		}
+
+		return e.complexity.TeamGitHubTeam.Slug(childComplexity), true
+
+	case "TeamGoogleArtifactRegistry.repository":
+		if e.complexity.TeamGoogleArtifactRegistry.Repository == nil {
+			break
+		}
+
+		return e.complexity.TeamGoogleArtifactRegistry.Repository(childComplexity), true
+
+	case "TeamGoogleGroup.email":
+		if e.complexity.TeamGoogleGroup.Email == nil {
+			break
+		}
+
+		return e.complexity.TeamGoogleGroup.Email(childComplexity), true
 
 	case "TeamInventoryCountApplications.notNais":
 		if e.complexity.TeamInventoryCountApplications.NotNais == nil {
@@ -13575,20 +13641,8 @@ type Team implements Node {
 	"Purpose of the team."
 	purpose: String!
 
-	"The ID of the Entra ID (f.k.a. Azure AD) group for the team."
-	entraIDGroupID: String
-
-	"The slug of the GitHub team."
-	gitHubTeamSlug: String
-
-	"The email address of the Google Workspace group for the team."
-	googleGroupEmail: String
-
-	"The Google Artifact Registry for the team."
-	googleArtifactRegistry: String
-
-	"The CDN bucket for the team."
-	cdnBucket: String
+	"External resources for the team."
+	externalResources: TeamExternalResources!
 
 	"Get a specific member of the team."
 	member(email: String!): TeamMember!
@@ -14195,6 +14249,48 @@ type TeamEnvironmentUpdatedAuditEntryDataUpdatedField {
 
 	"The new value of the field."
 	newValue: String
+}
+
+type TeamExternalResources {
+	"The Entra ID (f.k.a. Azure AD) group for the team."
+	entraIDGroup: TeamEntraIDGroup
+
+	"The teams GitHub team."
+	gitHubTeam: TeamGitHubTeam
+
+	"The Google group for the team."
+	googleGroup: TeamGoogleGroup
+
+	"Google Artifact Registry."
+	googleArtifactRegistry: TeamGoogleArtifactRegistry
+
+	"CDN bucket."
+	cdn: TeamCDN
+}
+
+type TeamCDN {
+	"The CDN bucket for the team."
+	bucket: String!
+}
+
+type TeamEntraIDGroup {
+	"The ID of the Entra ID (f.k.a. Azure AD) group for the team."
+	groupID: String!
+}
+
+type TeamGitHubTeam {
+	"The slug of the GitHub team."
+	slug: String!
+}
+
+type TeamGoogleGroup {
+	"The email address of the Google Workspace group for the team."
+	email: String!
+}
+
+type TeamGoogleArtifactRegistry {
+	"The Google Artifact Registry for the team."
+	repository: String!
 }
 `, BuiltIn: false},
 	{Name: "../schema/unleash.graphqls", Input: `extend type Mutation {
@@ -23114,16 +23210,8 @@ func (ec *executionContext) fieldContext_Application_team(_ context.Context, fie
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -26660,16 +26748,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(_ context.Context,
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -27992,16 +28072,8 @@ func (ec *executionContext) fieldContext_Bucket_team(_ context.Context, field gr
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -29725,16 +29797,8 @@ func (ec *executionContext) fieldContext_CreateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -29903,16 +29967,8 @@ func (ec *executionContext) fieldContext_DeleteApplicationPayload_team(_ context
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -30063,16 +30119,8 @@ func (ec *executionContext) fieldContext_DeleteJobPayload_team(_ context.Context
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -30311,16 +30359,8 @@ func (ec *executionContext) fieldContext_Deployment_team(_ context.Context, fiel
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -33764,16 +33804,8 @@ func (ec *executionContext) fieldContext_Job_team(_ context.Context, field graph
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -37494,16 +37526,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_team(_ context.Context, fiel
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -37989,16 +38013,8 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_team(_ context.Context, f
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -41001,16 +41017,8 @@ func (ec *executionContext) fieldContext_NetworkPolicyRule_targetTeam(_ context.
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -41255,16 +41263,8 @@ func (ec *executionContext) fieldContext_OpenSearch_team(_ context.Context, fiel
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -43006,16 +43006,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -45771,16 +45763,8 @@ func (ec *executionContext) fieldContext_ReconcilerError_team(_ context.Context,
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -46243,16 +46227,8 @@ func (ec *executionContext) fieldContext_RedisInstance_team(_ context.Context, f
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -47507,16 +47483,8 @@ func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_team(_ context.
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -47717,16 +47685,8 @@ func (ec *executionContext) fieldContext_Repository_team(_ context.Context, fiel
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -49402,16 +49362,8 @@ func (ec *executionContext) fieldContext_Secret_team(_ context.Context, field gr
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -52705,16 +52657,8 @@ func (ec *executionContext) fieldContext_SqlDatabase_team(_ context.Context, fie
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -53160,16 +53104,8 @@ func (ec *executionContext) fieldContext_SqlInstance_team(_ context.Context, fie
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -56370,8 +56306,8 @@ func (ec *executionContext) fieldContext_Team_purpose(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_entraIDGroupID(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Team_entraIDGroupID(ctx, field)
+func (ec *executionContext) _Team_externalResources(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_externalResources(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -56384,192 +56320,43 @@ func (ec *executionContext) _Team_entraIDGroupID(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.EntraIDGroupID, nil
+		return obj.ExternalResources(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Team_entraIDGroupID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Team",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Team_gitHubTeamSlug(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
 		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.GitHubTeamSlug, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
 		return graphql.Null
 	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
+	res := resTmp.(*team.TeamExternalResources)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNTeamExternalResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamExternalResources(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Team_gitHubTeamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Team_externalResources(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Team_googleGroupEmail(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Team_googleGroupEmail(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.GoogleGroupEmail, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Team_googleGroupEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Team",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Team_googleArtifactRegistry(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.GoogleArtifactRegistry, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Team_googleArtifactRegistry(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Team",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Team_cdnBucket(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Team_cdnBucket(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CdnBucket, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Team_cdnBucket(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Team",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "entraIDGroup":
+				return ec.fieldContext_TeamExternalResources_entraIDGroup(ctx, field)
+			case "gitHubTeam":
+				return ec.fieldContext_TeamExternalResources_gitHubTeam(ctx, field)
+			case "googleGroup":
+				return ec.fieldContext_TeamExternalResources_googleGroup(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_TeamExternalResources_googleArtifactRegistry(ctx, field)
+			case "cdn":
+				return ec.fieldContext_TeamExternalResources_cdn(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamExternalResources", field.Name)
 		},
 	}
 	return fc, nil
@@ -58339,6 +58126,50 @@ func (ec *executionContext) fieldContext_Team_workloads(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _TeamCDN_bucket(ctx context.Context, field graphql.CollectedField, obj *team.TeamCDN) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCDN_bucket(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Bucket, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamCDN_bucket(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamCDN",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyAuditEntry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamConfirmDeleteKeyAuditEntry_id(ctx, field)
 	if err != nil {
@@ -58795,16 +58626,8 @@ func (ec *executionContext) fieldContext_TeamConnection_nodes(_ context.Context,
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -60244,16 +60067,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(_ context.Context, f
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -60759,16 +60574,8 @@ func (ec *executionContext) fieldContext_TeamEdge_node(_ context.Context, field 
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -60829,6 +60636,50 @@ func (ec *executionContext) fieldContext_TeamEdge_node(_ context.Context, field 
 				return ec.fieldContext_Team_workloads(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEntraIDGroup_groupID(ctx context.Context, field graphql.CollectedField, obj *team.TeamEntraIDGroup) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEntraIDGroup_groupID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GroupID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEntraIDGroup_groupID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEntraIDGroup",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -61054,16 +60905,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_team(_ context.Context,
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -62715,6 +62558,363 @@ func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntryDataUpd
 	return fc, nil
 }
 
+func (ec *executionContext) _TeamExternalResources_entraIDGroup(ctx context.Context, field graphql.CollectedField, obj *team.TeamExternalResources) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamExternalResources_entraIDGroup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EntraIDGroup(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamEntraIDGroup)
+	fc.Result = res
+	return ec.marshalOTeamEntraIDGroup2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEntraIDGroup(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamExternalResources_entraIDGroup(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamExternalResources",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "groupID":
+				return ec.fieldContext_TeamEntraIDGroup_groupID(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEntraIDGroup", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamExternalResources_gitHubTeam(ctx context.Context, field graphql.CollectedField, obj *team.TeamExternalResources) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamExternalResources_gitHubTeam(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GitHubTeam(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamGitHubTeam)
+	fc.Result = res
+	return ec.marshalOTeamGitHubTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamGitHubTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamExternalResources_gitHubTeam(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamExternalResources",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "slug":
+				return ec.fieldContext_TeamGitHubTeam_slug(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamGitHubTeam", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamExternalResources_googleGroup(ctx context.Context, field graphql.CollectedField, obj *team.TeamExternalResources) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamExternalResources_googleGroup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GoogleGroup(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamGoogleGroup)
+	fc.Result = res
+	return ec.marshalOTeamGoogleGroup2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamGoogleGroup(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamExternalResources_googleGroup(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamExternalResources",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "email":
+				return ec.fieldContext_TeamGoogleGroup_email(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamGoogleGroup", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamExternalResources_googleArtifactRegistry(ctx context.Context, field graphql.CollectedField, obj *team.TeamExternalResources) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamExternalResources_googleArtifactRegistry(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GoogleArtifactRegistry(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamGoogleArtifactRegistry)
+	fc.Result = res
+	return ec.marshalOTeamGoogleArtifactRegistry2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamGoogleArtifactRegistry(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamExternalResources_googleArtifactRegistry(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamExternalResources",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "repository":
+				return ec.fieldContext_TeamGoogleArtifactRegistry_repository(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamGoogleArtifactRegistry", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamExternalResources_cdn(ctx context.Context, field graphql.CollectedField, obj *team.TeamExternalResources) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamExternalResources_cdn(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CDN(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamCDN)
+	fc.Result = res
+	return ec.marshalOTeamCDN2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamCDN(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamExternalResources_cdn(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamExternalResources",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "bucket":
+				return ec.fieldContext_TeamCDN_bucket(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamCDN", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamGitHubTeam_slug(ctx context.Context, field graphql.CollectedField, obj *team.TeamGitHubTeam) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamGitHubTeam_slug(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Slug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamGitHubTeam_slug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamGitHubTeam",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamGoogleArtifactRegistry_repository(ctx context.Context, field graphql.CollectedField, obj *team.TeamGoogleArtifactRegistry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamGoogleArtifactRegistry_repository(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Repository, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamGoogleArtifactRegistry_repository(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamGoogleArtifactRegistry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamGoogleGroup_email(ctx context.Context, field graphql.CollectedField, obj *team.TeamGoogleGroup) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamGoogleGroup_email(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Email, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamGoogleGroup_email(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamGoogleGroup",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TeamInventoryCountApplications_total(ctx context.Context, field graphql.CollectedField, obj *application.TeamInventoryCountApplications) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamInventoryCountApplications_total(ctx, field)
 	if err != nil {
@@ -63590,16 +63790,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, fiel
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -66804,16 +66996,8 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_team(_ context.Cont
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -69575,16 +69759,8 @@ func (ec *executionContext) fieldContext_UpdateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
-			case "entraIDGroupID":
-				return ec.fieldContext_Team_entraIDGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
 			case "member":
 				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
@@ -90259,16 +90435,11 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "entraIDGroupID":
-			out.Values[i] = ec._Team_entraIDGroupID(ctx, field, obj)
-		case "gitHubTeamSlug":
-			out.Values[i] = ec._Team_gitHubTeamSlug(ctx, field, obj)
-		case "googleGroupEmail":
-			out.Values[i] = ec._Team_googleGroupEmail(ctx, field, obj)
-		case "googleArtifactRegistry":
-			out.Values[i] = ec._Team_googleArtifactRegistry(ctx, field, obj)
-		case "cdnBucket":
-			out.Values[i] = ec._Team_cdnBucket(ctx, field, obj)
+		case "externalResources":
+			out.Values[i] = ec._Team_externalResources(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "member":
 			field := field
 
@@ -91265,6 +91436,45 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
+var teamCDNImplementors = []string{"TeamCDN"}
+
+func (ec *executionContext) _TeamCDN(ctx context.Context, sel ast.SelectionSet, obj *team.TeamCDN) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamCDNImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamCDN")
+		case "bucket":
+			out.Values[i] = ec._TeamCDN_bucket(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var teamConfirmDeleteKeyAuditEntryImplementors = []string{"TeamConfirmDeleteKeyAuditEntry", "AuditEntry", "Node"}
 
 func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamConfirmDeleteKeyAuditEntry) graphql.Marshaler {
@@ -91975,6 +92185,45 @@ func (ec *executionContext) _TeamEdge(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "node":
 			out.Values[i] = ec._TeamEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamEntraIDGroupImplementors = []string{"TeamEntraIDGroup"}
+
+func (ec *executionContext) _TeamEntraIDGroup(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEntraIDGroup) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamEntraIDGroupImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamEntraIDGroup")
+		case "groupID":
+			out.Values[i] = ec._TeamEntraIDGroup_groupID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -92733,6 +92982,167 @@ func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntryDataUpdatedField(ct
 			out.Values[i] = ec._TeamEnvironmentUpdatedAuditEntryDataUpdatedField_oldValue(ctx, field, obj)
 		case "newValue":
 			out.Values[i] = ec._TeamEnvironmentUpdatedAuditEntryDataUpdatedField_newValue(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamExternalResourcesImplementors = []string{"TeamExternalResources"}
+
+func (ec *executionContext) _TeamExternalResources(ctx context.Context, sel ast.SelectionSet, obj *team.TeamExternalResources) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamExternalResourcesImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamExternalResources")
+		case "entraIDGroup":
+			out.Values[i] = ec._TeamExternalResources_entraIDGroup(ctx, field, obj)
+		case "gitHubTeam":
+			out.Values[i] = ec._TeamExternalResources_gitHubTeam(ctx, field, obj)
+		case "googleGroup":
+			out.Values[i] = ec._TeamExternalResources_googleGroup(ctx, field, obj)
+		case "googleArtifactRegistry":
+			out.Values[i] = ec._TeamExternalResources_googleArtifactRegistry(ctx, field, obj)
+		case "cdn":
+			out.Values[i] = ec._TeamExternalResources_cdn(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamGitHubTeamImplementors = []string{"TeamGitHubTeam"}
+
+func (ec *executionContext) _TeamGitHubTeam(ctx context.Context, sel ast.SelectionSet, obj *team.TeamGitHubTeam) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamGitHubTeamImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamGitHubTeam")
+		case "slug":
+			out.Values[i] = ec._TeamGitHubTeam_slug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamGoogleArtifactRegistryImplementors = []string{"TeamGoogleArtifactRegistry"}
+
+func (ec *executionContext) _TeamGoogleArtifactRegistry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamGoogleArtifactRegistry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamGoogleArtifactRegistryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamGoogleArtifactRegistry")
+		case "repository":
+			out.Values[i] = ec._TeamGoogleArtifactRegistry_repository(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamGoogleGroupImplementors = []string{"TeamGoogleGroup"}
+
+func (ec *executionContext) _TeamGoogleGroup(ctx context.Context, sel ast.SelectionSet, obj *team.TeamGoogleGroup) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamGoogleGroupImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamGoogleGroup")
+		case "email":
+			out.Values[i] = ec._TeamGoogleGroup_email(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -102955,6 +103365,16 @@ func (ec *executionContext) marshalNTeamEnvironmentUpdatedAuditEntryDataUpdatedF
 	return ec._TeamEnvironmentUpdatedAuditEntryDataUpdatedField(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNTeamExternalResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamExternalResources(ctx context.Context, sel ast.SelectionSet, v *team.TeamExternalResources) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamExternalResources(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNTeamInventoryCountApplications2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐTeamInventoryCountApplications(ctx context.Context, sel ast.SelectionSet, v application.TeamInventoryCountApplications) graphql.Marshaler {
 	return ec._TeamInventoryCountApplications(ctx, sel, &v)
 }
@@ -104986,6 +105406,13 @@ func (ec *executionContext) unmarshalOTeamApplicationsFilter2ᚖgithubᚗcomᚋn
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalOTeamCDN2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamCDN(ctx context.Context, sel ast.SelectionSet, v *team.TeamCDN) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TeamCDN(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOTeamCostDailyFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostDailyFilter(ctx context.Context, v interface{}) (*cost.TeamCostDailyFilter, error) {
 	if v == nil {
 		return nil, nil
@@ -105001,11 +105428,39 @@ func (ec *executionContext) marshalOTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapi�
 	return ec._TeamDeleteKey(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalOTeamEntraIDGroup2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEntraIDGroup(ctx context.Context, sel ast.SelectionSet, v *team.TeamEntraIDGroup) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TeamEntraIDGroup(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx context.Context, sel ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._TeamEnvironment(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOTeamGitHubTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamGitHubTeam(ctx context.Context, sel ast.SelectionSet, v *team.TeamGitHubTeam) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TeamGitHubTeam(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOTeamGoogleArtifactRegistry2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamGoogleArtifactRegistry(ctx context.Context, sel ast.SelectionSet, v *team.TeamGoogleArtifactRegistry) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TeamGoogleArtifactRegistry(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOTeamGoogleGroup2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamGoogleGroup(ctx context.Context, sel ast.SelectionSet, v *team.TeamGoogleGroup) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TeamGoogleGroup(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOTeamJobsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTeamJobsFilter(ctx context.Context, v interface{}) (*job.TeamJobsFilter, error) {

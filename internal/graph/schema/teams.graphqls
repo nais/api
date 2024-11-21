@@ -115,20 +115,8 @@ type Team implements Node {
 	"Purpose of the team."
 	purpose: String!
 
-	"The ID of the Entra ID (f.k.a. Azure AD) group for the team."
-	entraIDGroupID: String
-
-	"The slug of the GitHub team."
-	gitHubTeamSlug: String
-
-	"The email address of the Google Workspace group for the team."
-	googleGroupEmail: String
-
-	"The Google Artifact Registry for the team."
-	googleArtifactRegistry: String
-
-	"The CDN bucket for the team."
-	cdnBucket: String
+	"External resources for the team."
+	externalResources: TeamExternalResources!
 
 	"Get a specific member of the team."
 	member(email: String!): TeamMember!
@@ -735,4 +723,46 @@ type TeamEnvironmentUpdatedAuditEntryDataUpdatedField {
 
 	"The new value of the field."
 	newValue: String
+}
+
+type TeamExternalResources {
+	"The Entra ID (f.k.a. Azure AD) group for the team."
+	entraIDGroup: TeamEntraIDGroup
+
+	"The teams GitHub team."
+	gitHubTeam: TeamGitHubTeam
+
+	"The Google group for the team."
+	googleGroup: TeamGoogleGroup
+
+	"Google Artifact Registry."
+	googleArtifactRegistry: TeamGoogleArtifactRegistry
+
+	"CDN bucket."
+	cdn: TeamCDN
+}
+
+type TeamCDN {
+	"The CDN bucket for the team."
+	bucket: String!
+}
+
+type TeamEntraIDGroup {
+	"The ID of the Entra ID (f.k.a. Azure AD) group for the team."
+	groupID: String!
+}
+
+type TeamGitHubTeam {
+	"The slug of the GitHub team."
+	slug: String!
+}
+
+type TeamGoogleGroup {
+	"The email address of the Google Workspace group for the team."
+	email: String!
+}
+
+type TeamGoogleArtifactRegistry {
+	"The Google Artifact Registry for the team."
+	repository: String!
 }

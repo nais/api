@@ -29,13 +29,13 @@ type (
 type Team struct {
 	Slug                   slug.Slug  `json:"slug"`
 	Purpose                string     `json:"purpose"`
-	EntraIDGroupID         *string    `json:"entraIDGroupID"`
-	GitHubTeamSlug         *string    `json:"gitHubTeamSlug"`
-	GoogleGroupEmail       *string    `json:"googleGroupEmail"`
-	GoogleArtifactRegistry *string    `json:"googleArtifactRegistry"`
-	CdnBucket              *string    `json:"cdnBucket"`
 	LastSuccessfulSync     *time.Time `json:"lastSuccessfulSync"`
 	SlackChannel           string     `json:"slackChannel"`
+	EntraIDGroupID         *string    `json:"-"`
+	GitHubTeamSlug         *string    `json:"-"`
+	GoogleGroupEmail       *string    `json:"-"`
+	GoogleArtifactRegistry *string    `json:"-"`
+	CdnBucket              *string    `json:"-"`
 	DeleteKeyConfirmedAt   *time.Time `json:"-"`
 }
 
@@ -56,6 +56,12 @@ func (t Team) DeletionInProgress() bool {
 
 func (t Team) ID() ident.Ident {
 	return newTeamIdent(t.Slug)
+}
+
+func (t *Team) ExternalResources() *TeamExternalResources {
+	return &TeamExternalResources{
+		team: t,
+	}
 }
 
 type TeamOrder struct {
@@ -506,4 +512,78 @@ type UpdateTeamEnvironmentPayload struct {
 
 type TeamInventoryCounts struct {
 	TeamSlug slug.Slug `json:"-"`
+}
+
+type TeamCDN struct {
+	Bucket string `json:"bucket"`
+}
+
+type TeamEntraIDGroup struct {
+	GroupID string `json:"groupID"`
+}
+
+type TeamGoogleGroup struct {
+	Email string `json:"email"`
+}
+
+type TeamGitHubTeam struct {
+	Slug string `json:"slug"`
+}
+
+type TeamGoogleArtifactRegistry struct {
+	Repository string `json:"repository"`
+}
+
+type TeamExternalResources struct {
+	team *Team
+}
+
+func (t *TeamExternalResources) CDN() *TeamCDN {
+	if t.team.CdnBucket == nil {
+		return nil
+	}
+
+	return &TeamCDN{
+		Bucket: *t.team.CdnBucket,
+	}
+}
+
+func (t *TeamExternalResources) EntraIDGroup() *TeamEntraIDGroup {
+	if t.team.EntraIDGroupID == nil {
+		return nil
+	}
+
+	return &TeamEntraIDGroup{
+		GroupID: *t.team.EntraIDGroupID,
+	}
+}
+
+func (t *TeamExternalResources) GoogleGroup() *TeamGoogleGroup {
+	if t.team.GoogleGroupEmail == nil {
+		return nil
+	}
+
+	return &TeamGoogleGroup{
+		Email: *t.team.GoogleGroupEmail,
+	}
+}
+
+func (t *TeamExternalResources) GitHubTeam() *TeamGitHubTeam {
+	if t.team.GitHubTeamSlug == nil {
+		return nil
+	}
+
+	return &TeamGitHubTeam{
+		Slug: *t.team.GitHubTeamSlug,
+	}
+}
+
+func (t *TeamExternalResources) GoogleArtifactRegistry() *TeamGoogleArtifactRegistry {
+	if t.team.GoogleArtifactRegistry == nil {
+		return nil
+	}
+
+	return &TeamGoogleArtifactRegistry{
+		Repository: *t.team.GoogleArtifactRegistry,
+	}
 }
