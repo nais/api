@@ -111,6 +111,7 @@ func (m *Manager) WaitForReady(ctx context.Context) bool {
 func (m *Manager) GetDynamicClients() map[string]dynamic.Interface {
 	clients := map[string]dynamic.Interface{}
 	for cluster, mgr := range m.managers {
+		fmt.Println("## dynamic client for cluster", cluster)
 		clients[cluster] = mgr.client
 	}
 

@@ -39,7 +39,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 
 	all, err := client.Namespace(teamSlug.String()).List(ctx, v1.ListOptions{})
 	if err != nil {
-		return nil, fmt.Errorf("listing secretsasdfasdfsdf: %w", err)
+		return nil, fmt.Errorf("listing secret: %w", err)
 	}
 
 	secretNames := workload.GetSecrets()
@@ -68,7 +68,9 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	}
 
 	retVal := make([]*Secret, 0)
+	log := fromContext(ctx).log
 	for env, client := range clients {
+		log.WithField("env", env).Info("listing secrets")
 		secrets, err := client.Namespace(teamSlug.String()).List(ctx, v1.ListOptions{})
 		if err != nil {
 			return nil, fmt.Errorf("listing secrets for environment %q: %w", env, err)
@@ -77,6 +79,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		for _, u := range secrets.Items {
 			s, ok := toGraphSecret(&u, env)
 			if !ok {
+				log.WithField("name", u.GetName()).Warnf("failed to convert secret to graph secret")
 				continue
 			}
 			retVal = append(retVal, s)
