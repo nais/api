@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/github/repository"
 	"github.com/nais/api/internal/graph/gengql"
@@ -21,6 +22,8 @@ func (r *mutationResolver) AddRepositoryToTeam(ctx context.Context, input reposi
 		return nil, err
 	}
 
+	r.triggerTeamUpdatedEvent(ctx, input.TeamSlug, uuid.New())
+
 	return &repository.AddRepositoryToTeamPayload{
 		Repository: repo,
 	}, nil
@@ -32,6 +35,9 @@ func (r *mutationResolver) RemoveRepositoryFromTeam(ctx context.Context, input r
 	}
 
 	err := repository.RemoveFromTeam(ctx, input)
+	if err == nil {
+		r.triggerTeamUpdatedEvent(ctx, input.TeamSlug, uuid.New())
+	}
 	return &repository.RemoveRepositoryFromTeamPayload{
 		Success: err == nil,
 	}, err
