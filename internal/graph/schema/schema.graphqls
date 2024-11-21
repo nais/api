@@ -1,0 +1,86 @@
+"""
+The query root for the NAIS GraphQL API.
+"""
+type Query {
+	"""
+	Fetch an object using its globally unique ID.
+	"""
+	node(
+		"""
+		The ID of the object to fetch.
+		"""
+		id: ID!
+	): Node
+}
+
+"""
+The mutation root for the NAIS GraphQL API.
+"""
+type Mutation
+
+"""
+This interface is implemented by types that supports the [Global Object Identification specification](https://graphql.org/learn/global-object-identification/).
+"""
+interface Node {
+	"""
+	Globally unique ID of the object.
+	"""
+	id: ID!
+}
+
+"""
+This type is used for paginating the connection
+
+Learn more about how we have implemented pagination in the [GraphQL Best Practices documentation](https://graphql.org/learn/pagination/).
+"""
+type PageInfo {
+	"""
+	Whether or not there exists a next page in the connection.
+	"""
+	hasNextPage: Boolean!
+
+	"""
+	The cursor for the last item in the edges. This cursor is used when paginating forwards.
+	"""
+	endCursor: Cursor
+
+	"""
+	Whether or not there exists a previous page in the connection.
+	"""
+	hasPreviousPage: Boolean!
+
+	"""
+	The cursor for the first item in the edges. This cursor is used when paginating backwards.
+	"""
+	startCursor: Cursor
+
+	"""
+	The total amount of items in the connection.
+	"""
+	totalCount: Int!
+
+	"""
+	The offset of the first item in the connection.
+	"""
+	pageStart: Int!
+
+	"""
+	The offset of the last item in the connection.
+	"""
+	pageEnd: Int!
+}
+
+"""
+Possible directions in which to order a list of items.
+"""
+enum OrderDirection {
+	"""
+	Ascending sort order.
+	"""
+	ASC
+
+	"""
+	Descending sort order.
+	"""
+	DESC
+}

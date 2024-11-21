@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+import "pagination.proto";
+
+option go_package = "./pkg/apiclient/protoapi";
+
+message User {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  string external_id = 4;
+}
+
+service Users {
+  rpc Get(GetUserRequest) returns (GetUserResponse) {}
+  rpc List(ListUsersRequest) returns (ListUsersResponse) {}
+}
+
+message GetUserResponse {
+  User user = 1;
+}
+
+message GetUserRequest {
+  string id = 1;
+  string email = 2;
+  string external_id = 3;
+}
+
+message ListUsersRequest {
+  int64 limit = 1;
+  int64 offset = 2;
+}
+
+message ListUsersResponse {
+  repeated User nodes = 1;
+  PageInfo page_info = 2;
+}

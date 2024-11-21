@@ -1,99 +1,129 @@
+//go:build integration_test
+
 package middleware_test
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
+
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/gensql"
-	"github.com/stretchr/testify/mock"
+	"github.com/nais/api/internal/role"
+	"github.com/nais/api/internal/serviceaccount"
+	"github.com/sirupsen/logrus/hooks/test"
 )
 
 func TestApiKeyAuthentication(t *testing.T) {
+	ctx := context.Background()
+	log, _ := test.NewNullLogger()
+
+	container, dsn, err := startPostgresql(ctx, log)
+	if err != nil {
+		t.Fatalf("failed to start postgres container: %v", err)
+	}
+
+	setup := func(t *testing.T) (context.Context, *pgxpool.Pool) {
+		pool := getConnection(ctx, t, container, dsn, log)
+		ctx = database.NewLoaderContext(ctx, pool)
+		ctx = serviceaccount.NewLoaderContext(ctx, pool)
+		ctx = role.NewLoaderContext(ctx, pool)
+		return ctx, pool
+	}
+
 	t.Run("No authorization header", func(t *testing.T) {
-		db := database.NewMockDatabase(t)
+		ctx, _ := setup(t)
+
+		apiKeyAuth := middleware.ApiKeyAuthentication()
 		responseWriter := httptest.NewRecorder()
-		apiKeyAuth := middleware.ApiKeyAuthentication(db)
 		next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			actor := authz.ActorFromContext(r.Context())
-			if actor != nil {
+			if actor := authz.ActorFromContext(r.Context()); actor != nil {
 				t.Fatal("expected nil actor")
 			}
 		})
-		req := getRequest(context.Background())
+		req := getRequest(ctx)
 		apiKeyAuth(next).ServeHTTP(responseWriter, req)
 	})
 
 	t.Run("Unknown API key in header", func(t *testing.T) {
-		db := database.NewMockDatabase(t)
-		db.EXPECT().
-			GetServiceAccountByApiKey(mock.Anything, "unknown").
-			Return(nil, errors.New("user not found")).
-			Once()
+		ctx, _ := setup(t)
+
+		apiKeyAuth := middleware.ApiKeyAuthentication()
 		responseWriter := httptest.NewRecorder()
-		apiKeyAuth := middleware.ApiKeyAuthentication(db)
 		next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			actor := authz.ActorFromContext(r.Context())
-			if actor != nil {
+			if actor := authz.ActorFromContext(r.Context()); actor != nil {
 				t.Fatal("expected nil actor")
 			}
 		})
-		req := getRequest(context.Background())
+		req := getRequest(ctx)
 		req.Header.Set("Authorization", "Bearer unknown")
 		apiKeyAuth(next).ServeHTTP(responseWriter, req)
 	})
-
 	t.Run("Valid API key", func(t *testing.T) {
-		serviceAccount := &database.ServiceAccount{
-			ServiceAccount: &gensql.ServiceAccount{
-				ID:   uuid.New(),
-				Name: "service-account",
-			},
-		}
-		roles := []*authz.Role{
-			{RoleName: gensql.RoleNameAdmin},
+		ctx, pool := setup(t)
+
+		stmt := `
+			INSERT INTO service_accounts (name) VALUES 
+			('sa1'), 
+			('sa2')`
+		if _, err = pool.Exec(ctx, stmt); err != nil {
+			t.Fatalf("failed to insert service accounts: %v", err)
 		}
 
-		db := database.NewMockDatabase(t)
-		db.EXPECT().
-			GetServiceAccountByApiKey(mock.Anything, "user1-key").
-			Return(serviceAccount, nil).
-			Once()
-		db.EXPECT().
-			GetServiceAccountRoles(mock.Anything, serviceAccount.ID).
-			Return(roles, nil).
-			Once()
+		stmt = `
+			INSERT INTO api_keys (api_key, service_account_id) VALUES 
+		   ('key1', (SELECT id FROM service_accounts WHERE name = 'sa1')),
+		   ('key2', (SELECT id FROM service_accounts WHERE name = 'sa2'))`
+		if _, err = pool.Exec(ctx, stmt); err != nil {
+			t.Fatalf("failed to insert service accounts: %v", err)
+		}
+
+		stmt = `
+			INSERT INTO service_account_roles (role_name, service_account_id) VALUES 
+		   ('Admin', (SELECT id FROM service_accounts WHERE name = 'sa1')),
+		   ('Team creator', (SELECT id FROM service_accounts WHERE name = 'sa2'))`
+		if _, err = pool.Exec(ctx, stmt); err != nil {
+			t.Fatalf("failed to insert service account roles: %v", err)
+		}
 
 		responseWriter := httptest.NewRecorder()
-		apiKeyAuth := middleware.ApiKeyAuthentication(db)
-		next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			actor := authz.ActorFromContext(r.Context())
-			if actor == nil {
+		next1 := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if actor := authz.ActorFromContext(r.Context()); actor == nil {
 				t.Fatal("expected actor")
-			}
-			want := &authz.Actor{
-				User:  serviceAccount,
-				Roles: roles,
-			}
-
-			if diff := cmp.Diff(want, actor); diff != "" {
-				t.Errorf("diff: -want +got\n%s", diff)
+			} else if !actor.User.IsServiceAccount() {
+				t.Fatal("expected service account")
+			} else if expected := "sa1"; actor.User.Identity() != expected {
+				t.Fatalf("expected %q, got %q", expected, actor.User.Identity())
+			} else if len(actor.Roles) != 1 {
+				t.Fatal("expected one role")
+			} else if expected := "Admin"; string(actor.Roles[0].Name) != expected {
+				t.Fatalf("expected role to be %q, got: %#v", expected, actor.Roles[0])
 			}
 		})
-		req := getRequest(context.Background())
-		req.Header.Set("Authorization", "Bearer user1-key")
-		apiKeyAuth(next).ServeHTTP(responseWriter, req)
-	})
-}
+		next2 := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if actor := authz.ActorFromContext(r.Context()); actor == nil {
+				t.Fatal("expected actor")
+			} else if !actor.User.IsServiceAccount() {
+				t.Fatal("expected service account")
+			} else if expected := "sa2"; actor.User.Identity() != expected {
+				t.Fatalf("expected %q, got %q", expected, actor.User.Identity())
+			} else if len(actor.Roles) != 1 {
+				t.Fatal("expected one role")
+			} else if expected := "Team creator"; string(actor.Roles[0].Name) != expected {
+				t.Fatalf("expected role to be %q, got: %#v", expected, actor.Roles[0])
+			}
+		})
 
-func getRequest(ctx context.Context) *http.Request {
-	req, _ := http.NewRequest(http.MethodPost, "/query", nil)
-	return req.WithContext(ctx)
+		req := getRequest(ctx)
+		req.Header.Set("Authorization", "Bearer key1")
+		middleware.ApiKeyAuthentication()(next1).ServeHTTP(responseWriter, req)
+
+		req = getRequest(ctx)
+		req.Header.Set("Authorization", "Bearer key2")
+		middleware.ApiKeyAuthentication()(next2).ServeHTTP(responseWriter, req)
+	})
 }

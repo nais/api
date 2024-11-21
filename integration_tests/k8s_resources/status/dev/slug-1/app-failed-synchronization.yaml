@@ -1,0 +1,32 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: failed-synchronization
+spec:
+  image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+  replicas:
+    min: 2
+    max: 2
+status:
+  conditions:
+    - type: "SynchronizationState"
+      reason: "FailedSynchronization"
+      message: "Human text from the operator, received from yaml"
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: failed-synchronization-1
+  labels:
+    app: failed-synchronization
+  creationTimestamp: "2021-09-30T12:00:00Z"
+spec:
+  containers:
+    - name: failed-synchronization
+      image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+status:
+  containerStatuses:
+    - name: failed-synchronization
+      ready: true
+      restartCount: 0

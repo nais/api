@@ -1,0 +1,43 @@
+{{if .Values.unleash.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: "{{ .Release.Name }}-unleash-admin"
+  labels:
+    app: "{{ .Release.Name }}"
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - secrets/status
+      - events
+      - pods
+      - pods/status
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - unleash.nais.io
+    resources:
+      - unleashes
+    verbs:
+      - "*"
+  - apiGroups:
+      - networking.gke.io
+    resources:
+      - fqdnnetworkpolicies
+    verbs:
+      - "*"
+{{ end }}

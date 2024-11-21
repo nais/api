@@ -1,0 +1,121 @@
+extend type Team {
+	"OpenSearch instances owned by the team."
+	openSearchInstances(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Ordering options for items returned from the connection."
+		orderBy: OpenSearchOrder
+	): OpenSearchConnection!
+}
+
+extend type TeamEnvironment {
+	"OpenSearch instance in the team environment."
+	openSearchInstance(name: String!): OpenSearch!
+}
+
+extend interface Workload {
+	"OpenSearch instance referenced by the workload."
+	openSearch: OpenSearch
+}
+
+extend type Application {
+	"OpenSearch instance referenced by the workload."
+	openSearch: OpenSearch
+}
+
+extend type Job {
+	"OpenSearch instance referenced by the workload."
+	openSearch: OpenSearch
+}
+
+extend type TeamInventoryCounts {
+	openSearchInstances: TeamInventoryCountOpenSearchInstances!
+}
+
+type TeamInventoryCountOpenSearchInstances {
+	"Total number of OpenSearch instances."
+	total: Int!
+}
+
+type OpenSearch implements Persistence & Node {
+	id: ID!
+	name: String!
+	team: Team!
+	environment: TeamEnvironment!
+	status: OpenSearchStatus!
+	workload: Workload
+	access(
+		first: Int
+		after: Cursor
+		last: Int
+		before: Cursor
+		orderBy: OpenSearchAccessOrder
+	): OpenSearchAccessConnection!
+}
+
+type OpenSearchAccess {
+	workload: Workload!
+	access: String!
+}
+
+type OpenSearchStatus {
+	state: String!
+}
+
+type OpenSearchAccessConnection {
+	pageInfo: PageInfo!
+	nodes: [OpenSearchAccess!]!
+	edges: [OpenSearchAccessEdge!]!
+}
+
+type OpenSearchConnection {
+	pageInfo: PageInfo!
+	nodes: [OpenSearch!]!
+	edges: [OpenSearchEdge!]!
+}
+
+type OpenSearchAccessEdge {
+	cursor: Cursor!
+	node: OpenSearchAccess!
+}
+
+type OpenSearchEdge {
+	cursor: Cursor!
+	node: OpenSearch!
+}
+
+input OpenSearchAccessOrder {
+	field: OpenSearchAccessOrderField!
+	direction: OrderDirection!
+}
+
+input OpenSearchOrder {
+	field: OpenSearchOrderField!
+	direction: OrderDirection!
+}
+
+enum OpenSearchAccessOrderField {
+	ACCESS
+	WORKLOAD
+}
+
+enum OpenSearchOrderField {
+	NAME
+	ENVIRONMENT
+}
+
+extend union SearchNode = OpenSearch
+
+extend enum SearchType {
+	OPENSEARCH
+}

@@ -1,6 +1,6 @@
 # Where are all the schema files located? globs are supported eg  src/**/*.graphqls
 schema:
-  - internal/graph/graphqls/*.graphqls
+  - internal/graph/schema/*.graphqls
 
 # Where should the generated server code go?
 exec:
@@ -9,8 +9,8 @@ exec:
 
 # Where should any generated models go?
 model:
-  filename: internal/graph/model/models_gen.go
-  package: model
+  filename: internal/graph/model/donotuse/models_gen.go
+  package: donotuse
 
 # Where should the resolver implementations go?
 resolver:
@@ -19,11 +19,40 @@ resolver:
   package: graph
   omit_template_comment: true
 
+# Omit Query / Mutation models
+omit_root_models: true
+
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
 autobind:
-  - "github.com/nais/api/internal/graph/model"
+  - "github.com/99designs/gqlgen/graphql/introspection" # Without this line in the beginning, a `prelude.resolver.go` is generated
   - "github.com/nais/api/internal/audit"
+  - "github.com/nais/api/internal/cost"
+  - "github.com/nais/api/internal/deployment"
+  - "github.com/nais/api/internal/github/repository"
+  - "github.com/nais/api/internal/graph/model"
+  - "github.com/nais/api/internal/persistence"
+  - "github.com/nais/api/internal/persistence/bigquery"
+  - "github.com/nais/api/internal/persistence/bucket"
+  - "github.com/nais/api/internal/persistence/kafkatopic"
+  - "github.com/nais/api/internal/persistence/opensearch"
+  - "github.com/nais/api/internal/persistence/redis"
+  - "github.com/nais/api/internal/persistence/sqlinstance"
+  - "github.com/nais/api/internal/reconciler"
+  - "github.com/nais/api/internal/search"
+  - "github.com/nais/api/internal/serviceaccount"
+  - "github.com/nais/api/internal/status"
+  - "github.com/nais/api/internal/team"
+  - "github.com/nais/api/internal/unleash"
+  - "github.com/nais/api/internal/user"
+  - "github.com/nais/api/internal/utilization"
+  - "github.com/nais/api/internal/vulnerability"
+  - "github.com/nais/api/internal/workload"
+  - "github.com/nais/api/internal/workload/application"
+  - "github.com/nais/api/internal/workload/job"
+  - "github.com/nais/api/internal/workload/netpol"
+  - "github.com/nais/api/internal/workload/podlog"
+  - "github.com/nais/api/internal/workload/secret"
 
 # Don't generate Get<FieldName> functions for fields included in the GraphQL interfaces
 omit_getters: true
@@ -31,11 +60,8 @@ omit_getters: true
 # Optional: turn on to not generate any file notice comments in generated files
 omit_gqlgen_file_notice: true
 
-# Optional: turn on to exclude the gqlgen version in the generated file notice. No effect if `omit_gqlgen_file_notice` is true.
-# omit_gqlgen_version_in_file_notice: true
-
 # Setting this to false will generate type instances for required struct fields, and type pointers for optional fields
-struct_fields_always_pointers: false
+struct_fields_always_pointers: true
 
 # Because we're using gofumpt, and in general run our code often enough, we can disable building and running go mod tidy during gqlgen generate
 # This will speed up the generation process
@@ -50,8 +76,11 @@ skip_validation: true
 models:
   ID:
     model:
-      - github.com/nais/api/internal/graph/scalar.Ident
-      - github.com/nais/api/internal/graph/scalar.UUID
+      - github.com/nais/api/internal/graph/ident.Ident
+
+  UUID:
+    model:
+      - github.com/99designs/gqlgen/graphql.UUID
 
   Int:
     model:
@@ -63,6 +92,18 @@ models:
     model:
       - github.com/nais/api/internal/graph/scalar.Date
 
+  Time:
+    model:
+      - github.com/nais/api/internal/graph/scalar.Time
+
   Slug:
     model:
       - github.com/nais/api/internal/slug.Slug
+
+  Cursor:
+    model:
+      - github.com/nais/api/internal/graph/pagination.Cursor
+
+  PageInfo:
+    model:
+      - github.com/nais/api/internal/graph/pagination.PageInfo

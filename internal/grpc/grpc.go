@@ -6,16 +6,18 @@ import (
 	"net"
 	"time"
 
-	"github.com/nais/api/internal/auditlogger"
-	"github.com/nais/api/internal/database"
-	"github.com/nais/api/pkg/protoapi"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/grpc/grpcreconciler"
+	"github.com/nais/api/internal/grpc/grpcteam"
+	"github.com/nais/api/internal/grpc/grpcuser"
+	"github.com/nais/api/pkg/apiclient/protoapi"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 )
 
-func Run(ctx context.Context, listenAddress string, repo database.Database, auditlog auditlogger.AuditLogger, log logrus.FieldLogger) error {
+func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, log logrus.FieldLogger) error {
 	log.Info("GRPC serving on ", listenAddress)
 	lis, err := net.Listen("tcp", listenAddress)
 	if err != nil {
@@ -27,10 +29,9 @@ func Run(ctx context.Context, listenAddress string, repo database.Database, audi
 	}
 	s := grpc.NewServer(opts...)
 
-	protoapi.RegisterTeamsServer(s, NewTeamsServer(repo))
-	protoapi.RegisterUsersServer(s, &UsersServer{db: repo})
-	protoapi.RegisterReconcilersServer(s, &ReconcilersServer{db: repo})
-	protoapi.RegisterAuditLogsServer(s, &AuditLogsServer{db: repo, auditlog: auditlog})
+	protoapi.RegisterTeamsServer(s, grpcteam.NewServer(pool))
+	protoapi.RegisterUsersServer(s, grpcuser.NewServer(pool))
+	protoapi.RegisterReconcilersServer(s, grpcreconciler.NewServer(pool))
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error { return s.Serve(lis) })

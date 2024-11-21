@@ -151,7 +151,9 @@ func writeJson(w io.Writer, response *graphql.Response) {
 	if err != nil {
 		panic(err)
 	}
-	w.Write(b)
+	if _, err := w.Write(b); err != nil {
+		log.Println(err)
+	}
 }
 
 func jsonDecode(r io.Reader, val interface{}) error {

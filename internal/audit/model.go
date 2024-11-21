@@ -1,153 +1,87 @@
 package audit
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
 )
 
-type AuditEventList struct {
-	Nodes    []model.AuditEventNode `json:"nodes"`
-	PageInfo model.PageInfo         `json:"pageInfo"`
+type (
+	AuditResourceType string
+	AuditAction       string
+)
+
+const (
+	AuditActionAdded        AuditAction = "ADDED"
+	AuditActionCreated      AuditAction = "CREATED"
+	AuditActionDeleted      AuditAction = "DELETED"
+	AuditActionRemoved      AuditAction = "REMOVED"
+	AuditActionRestarted    AuditAction = "RESTARTED"
+	AuditActionUpdated      AuditAction = "UPDATED"
+	AuditActionSynchronized AuditAction = "SYNCHRONIZED"
+)
+
+type AuditEntry interface {
+	model.Node
+	GetUUID() uuid.UUID
+	ID() ident.Ident
 }
 
-// BaseAuditEvent is the base type for audit events.
-type BaseAuditEvent struct {
-	ID           scalar.Ident                 `json:"id"`
-	Action       model.AuditEventAction       `json:"action"`
-	Actor        string                       `json:"actor"`
-	CreatedAt    time.Time                    `json:"createdAt"`
-	Message      string                       `json:"message"`
-	ResourceType model.AuditEventResourceType `json:"resourceType"`
-	ResourceName string                       `json:"resourceName"`
+type (
+	AuditEntryConnection = pagination.Connection[AuditEntry]
+	AuditEntryEdge       = pagination.Edge[AuditEntry]
+)
 
-	GQLVars BaseAuditEventGQLVars `json:"-"`
+type GenericAuditEntry struct {
+	Actor           string            `json:"actor"`
+	CreatedAt       time.Time         `json:"createdAt"`
+	EnvironmentName *string           `json:"environmentName,omitempty"`
+	Message         string            `json:"message"`
+	ResourceType    AuditResourceType `json:"resourceType"`
+	ResourceName    string            `json:"resourceName"`
+	TeamSlug        *slug.Slug        `json:"teamSlug,omitempty"`
+	Action          AuditAction       `json:"-"`
+	UUID            uuid.UUID         `json:"-"`
+	Data            []byte            `json:"-"`
 }
 
-type BaseAuditEventGQLVars struct {
-	Team        slug.Slug `json:"team"`
-	Environment string    `json:"env"`
+func (GenericAuditEntry) IsNode() {}
+
+func (a GenericAuditEntry) ID() ident.Ident {
+	return newIdent(a.UUID)
 }
 
-func (e BaseAuditEvent) GetAction() string {
-	return e.Action.String()
+func (a GenericAuditEntry) GetUUID() uuid.UUID {
+	return a.UUID
 }
 
-func (e BaseAuditEvent) GetActor() string {
-	return e.Actor
+func (a GenericAuditEntry) WithMessage(message string) GenericAuditEntry {
+	a.Message = message
+	return a
 }
 
-func (e BaseAuditEvent) GetCreatedAt() time.Time {
-	return e.CreatedAt
-}
-
-func (e BaseAuditEvent) GetData() any {
-	return nil
-}
-
-func (e BaseAuditEvent) GetResourceType() string {
-	return e.ResourceType.String()
-}
-
-func (e BaseAuditEvent) GetResourceName() string {
-	return e.ResourceName
-}
-
-func (e BaseAuditEvent) GetTeam() *slug.Slug {
-	if e.GQLVars.Team == "" {
-		return nil
+// UnmarshalData unmarshals audit entry data. Its inverse is [MarshalData].
+func UnmarshalData[T any](entry GenericAuditEntry) (*T, error) {
+	var data T
+	if err := json.Unmarshal(entry.Data, &data); err != nil {
+		return nil, fmt.Errorf("unmarshaling audit entry data: %w", err)
 	}
 
-	return &e.GQLVars.Team
+	return &data, nil
 }
 
-func (e BaseAuditEvent) GetEnvironment() *string {
-	if e.GQLVars.Environment == "" {
-		return nil
+// TransformData unmarshals audit entry data and calls the provided transformer function with the data as argument.
+func TransformData[T any](entry GenericAuditEntry, f func(*T) *T) (*T, error) {
+	data, err := UnmarshalData[T](entry)
+	if err != nil {
+		return nil, err
 	}
 
-	return &e.GQLVars.Environment
-}
-
-func (e BaseAuditEvent) WithMessage(message string) BaseAuditEvent {
-	e.Message = message
-	return e
-}
-
-func (BaseAuditEvent) IsAuditEvent() {}
-
-func (BaseAuditEvent) IsAuditEventNode() {}
-
-type AuditEventTeamSetAlertsSlackChannel struct {
-	BaseAuditEvent
-	Data model.AuditEventTeamSetAlertsSlackChannelData
-}
-
-func (a AuditEventTeamSetAlertsSlackChannel) GetData() any {
-	return a.Data
-}
-
-type AuditEventTeamSetDefaultSlackChannel struct {
-	BaseAuditEvent
-	Data model.AuditEventTeamSetDefaultSlackChannelData
-}
-
-func (a AuditEventTeamSetDefaultSlackChannel) GetData() any {
-	return a.Data
-}
-
-type AuditEventTeamSetPurpose struct {
-	BaseAuditEvent
-	Data model.AuditEventTeamSetPurposeData
-}
-
-func (a AuditEventTeamSetPurpose) GetData() any {
-	return a.Data
-}
-
-type AuditEventMemberAdded struct {
-	BaseAuditEvent
-	Data model.AuditEventMemberAddedData
-}
-
-func (a AuditEventMemberAdded) GetData() any {
-	return a.Data
-}
-
-type AuditEventMemberRemoved struct {
-	BaseAuditEvent
-	Data model.AuditEventMemberRemovedData
-}
-
-func (a AuditEventMemberRemoved) GetData() any {
-	return a.Data
-}
-
-type AuditEventMemberSetRole struct {
-	BaseAuditEvent
-	Data model.AuditEventMemberSetRoleData
-}
-
-func (a AuditEventMemberSetRole) GetData() any {
-	return a.Data
-}
-
-type AuditEventTeamAddRepository struct {
-	BaseAuditEvent
-	Data model.AuditEventTeamAddRepositoryData
-}
-
-func (a AuditEventTeamAddRepository) GetData() any {
-	return a.Data
-}
-
-type AuditEventTeamRemoveRepository struct {
-	BaseAuditEvent
-	Data model.AuditEventTeamRemoveRepositoryData
-}
-
-func (a AuditEventTeamRemoveRepository) GetData() any {
-	return a.Data
+	return f(data), nil
 }

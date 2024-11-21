@@ -4,32 +4,23 @@ inpackage: true
 dir: "{{.InterfaceDir}}"
 filename: "mock_{{.InterfaceNameSnake}}.go"
 packages:
-  github.com/nais/api/internal/database/gensql:
-    interfaces:
-      Querier:
   github.com/nais/api/internal/thirdparty/hookd:
     interfaces:
       Client:
-  github.com/nais/api/internal/resourceusage:
-    interfaces:
-      Client:
-  github.com/nais/api/internal/vulnerabilities:
+  github.com/nais/api/internal/vulnerability:
     interfaces:
       InternalClient:
       Prometheus:
-  github.com/nais/api/internal/database:
-    interfaces:
-      Database:
   github.com/nais/api/internal/auth/authn:
     interfaces:
       Handler:
   github.com/nais/api/internal/auth/authz:
     interfaces:
       AuthenticatedUser:
-  github.com/nais/api/pkg/protoapi:
+  github.com/nais/api/pkg/apiclient/protoapi:
     config:
       include-regex: ".*Server"
       exclude-regex: "Unsafe.*"
-  github.com/nais/api/internal/search:
+  github.com/nais/api/internal/cost/costsql:
     interfaces:
-      Searchable:
+      Querier:

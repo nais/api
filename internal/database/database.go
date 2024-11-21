@@ -10,10 +10,10 @@ import (
 	"github.com/exaring/otelpgx"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	_ "github.com/jackc/pgx/v5/stdlib"
-	"github.com/nais/api/internal/database/gensql"
 	"github.com/pressly/goose/v3"
 	"github.com/sirupsen/logrus"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 //go:embed migrations/0*.sql
@@ -21,99 +21,19 @@ var embedMigrations embed.FS
 
 const databaseConnectRetries = 5
 
-type (
-	QuerierTransactionFunc  func(ctx context.Context, querier Querier) error
-	DatabaseTransactionFunc func(ctx context.Context, dbtx Database) error
-)
-
-type Page struct {
-	Limit  int
-	Offset int
-}
-
-type Database interface {
-	AuditEventsRepo
-	AuditLogsRepo
-	CostRepo
-	EnvironmentRepo
-	ReconcilerErrorRepo
-	ReconcilerRepo
-	ReconcilerStateRepo
-	RoleRepo
-	ServiceAccountRepo
-	SessionRepo
-	TeamRepo
-	TeamRepositoryRepo
-	UserRepo
-	UsersyncRepo
-	Transactioner
-}
-
-type Transactioner interface {
-	Transaction(ctx context.Context, fn DatabaseTransactionFunc) error
-}
-
-type Querier interface {
-	gensql.Querier
-	Transaction(ctx context.Context, callback QuerierTransactionFunc) error
-}
-
-type Queries struct {
-	*gensql.Queries
-	connPool *pgxpool.Pool
-}
-
-func (q *Queries) Transaction(ctx context.Context, callback QuerierTransactionFunc) error {
-	tx, err := q.connPool.Begin(ctx)
-	if err != nil {
-		return err
-	}
-
-	defer tx.Rollback(ctx)
-
-	qtx := &Queries{
-		Queries:  q.WithTx(tx),
-		connPool: q.connPool,
-	}
-
-	if err := callback(ctx, qtx); err != nil {
-		return err
-	}
-
-	return tx.Commit(ctx)
-}
-
-type database struct {
-	querier Querier
-}
-
-func (d *database) Transaction(ctx context.Context, fn DatabaseTransactionFunc) error {
-	return d.querier.Transaction(ctx, func(ctx context.Context, querier Querier) error {
-		return fn(ctx, &database{querier: querier})
-	})
-}
-
 var regParseSQLName = regexp.MustCompile(`\-\-\s*name:\s+(\S+)`)
 
-// New connects to the database, runs migrations and returns a database instance. The caller must call the
-// returned closer function when the database connection is no longer needed
-func New(ctx context.Context, dsn string, log logrus.FieldLogger) (db Database, closer func(), err error) {
+func New(ctx context.Context, dsn string, log logrus.FieldLogger) (*pgxpool.Pool, error) {
 	conn, err := NewPool(ctx, dsn, log, true)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to connect to the database: %w", err)
+		return nil, fmt.Errorf("failed to connect to the database: %w", err)
 	}
-
-	return &database{
-		querier: &Queries{
-			Queries:  gensql.New(conn),
-			connPool: conn,
-		},
-	}, conn.Close, nil
+	return conn, nil
 }
 
-func NewPool(ctx context.Context, dsn string, log logrus.FieldLogger, migrate bool) (pool *pgxpool.Pool, err error) {
+func NewPool(ctx context.Context, dsn string, log logrus.FieldLogger, migrate bool) (*pgxpool.Pool, error) {
 	if migrate {
-		if err = migrateDatabaseSchema("pgx", dsn, log); err != nil {
+		if err := migrateDatabaseSchema("pgx", dsn, log); err != nil {
 			return nil, err
 		}
 	}
@@ -123,7 +43,6 @@ func NewPool(ctx context.Context, dsn string, log logrus.FieldLogger, migrate bo
 		return nil, fmt.Errorf("failed to parse dsn config: %w", err)
 	}
 	config.MaxConns = 25
-
 	config.ConnConfig.Tracer = otelpgx.NewTracer(
 		otelpgx.WithTrimSQLInSpanName(),
 		otelpgx.WithSpanNameFunc(func(stmt string) string {
@@ -158,8 +77,7 @@ func NewPool(ctx context.Context, dsn string, log logrus.FieldLogger, migrate bo
 
 	connected := false
 	for i := 0; i < databaseConnectRetries; i++ {
-		err = conn.Ping(ctx)
-		if err == nil {
+		if err = conn.Ping(ctx); err == nil {
 			connected = true
 			break
 		}

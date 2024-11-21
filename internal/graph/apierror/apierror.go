@@ -10,6 +10,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/graph/loader"
+	"github.com/nais/api/internal/validate"
 	"github.com/sirupsen/logrus"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
@@ -29,6 +31,10 @@ var (
 	ErrGoogleCloudMonitoringMetricsApi = Errorf("Unable to fetch SQL instance metrics from the Google Cloud Monitoring API")
 	ErrUnleashEmptyAllowedTeams        = Errorf("You must specify at least one team that is allowed to access the Unleash instance.")
 )
+
+type graphError interface {
+	GraphError() string
+}
 
 // Error is an error that can be presented to end-users
 type Error struct {
@@ -54,9 +60,18 @@ func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
 		err := graphql.DefaultErrorPresenter(ctx, e)
 		unwrappedError := errors.Unwrap(e)
 
+		if unwrappedError == nil {
+			return err
+		}
+
 		switch originalError := unwrappedError.(type) {
+		case *gqlerror.Error:
+			return originalError
 		case Error:
 			// Error is already formatted for end-user consumption.
+			return err
+		case graphError:
+			err.Message = originalError.GraphError()
 			return err
 		case authz.ErrMissingRole:
 			err.Message = fmt.Sprintf("You are authenticated, but your account is not authorized to perform this action. Specifically, you need the %q role.", originalError.Role())
@@ -68,12 +83,31 @@ func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
 			err.Message = ErrDatabase.Error()
 			log.WithError(originalError).Errorf("database error %s: %s (%s)", originalError.Code, originalError.Message, originalError.Detail)
 			return err
+		case *validate.ValidationErrors:
+			var verr *gqlerror.Error
+			// Add errors in the correct order. The returned error will be the last one.
+			for i, err := range originalError.Errors {
+				if i > 0 {
+					graphql.AddError(ctx, verr)
+				}
+				verr = &gqlerror.Error{
+					Message: err.Message,
+					Path:    graphql.GetPath(ctx),
+				}
+				if err.GraphQLField != nil {
+					verr.Extensions = map[string]any{
+						"field": err.GraphQLField,
+					}
+				}
+			}
+			return verr
+
 		default:
 			break
 		}
 
 		switch unwrappedError {
-		case sql.ErrNoRows, pgx.ErrNoRows:
+		case sql.ErrNoRows, pgx.ErrNoRows, loader.ErrObjectNotFound:
 			err.Message = "Object was not found in the database. This usually means you specified a non-existing team identifier or e-mail address."
 		case authz.ErrNotAuthenticated:
 			err.Message = "Valid user required. You are not logged in."

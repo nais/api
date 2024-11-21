@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/auth/roles"
-	"github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/role"
+	"github.com/nais/api/internal/role/rolesql"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -18,31 +18,9 @@ type AuthenticatedUser interface {
 	IsServiceAccount() bool
 }
 
-type Role struct {
-	Authorizations         []roles.Authorization
-	RoleName               gensql.RoleName
-	TargetServiceAccountID *uuid.UUID
-	TargetTeamSlug         *slug.Slug
-}
-
-// IsGlobal Check if the role is globally assigned or not
-func (r Role) IsGlobal() bool {
-	return r.TargetServiceAccountID == nil && r.TargetTeamSlug == nil
-}
-
-// TargetsTeam Check if the role targets a specific team
-func (r Role) TargetsTeam(targetsTeamSlug slug.Slug) bool {
-	return r.TargetTeamSlug != nil && *r.TargetTeamSlug == targetsTeamSlug
-}
-
-// TargetsServiceAccount Check if the role targets a specific service account
-func (r Role) TargetsServiceAccount(targetServiceAccountID uuid.UUID) bool {
-	return r.TargetServiceAccountID != nil && *r.TargetServiceAccountID == targetServiceAccountID
-}
-
 type Actor struct {
 	User  AuthenticatedUser
-	Roles []*Role
+	Roles []*role.Role
 }
 
 var ErrNotAuthenticated = errors.New("not authenticated")
@@ -58,22 +36,11 @@ func (u *Actor) Authenticated() bool {
 const contextKeyUser ContextKey = "actor"
 
 // ContextWithActor Return a context with an actor attached to it.
-func ContextWithActor(ctx context.Context, user AuthenticatedUser, roles []*Role) context.Context {
+func ContextWithActor(ctx context.Context, user AuthenticatedUser, roles []*role.Role) context.Context {
 	return context.WithValue(ctx, contextKeyUser, &Actor{
 		User:  user,
 		Roles: roles,
 	})
-}
-
-// RequireRole Check if an actor has a required role
-func RequireRole(actor *Actor, requiredRoleName gensql.RoleName) error {
-	for _, role := range actor.Roles {
-		if role.RoleName == requiredRoleName {
-			return nil
-		}
-	}
-
-	return ErrMissingRole{role: string(requiredRoleName)}
 }
 
 // ActorFromContext Get the actor stored in the context. Requires that a middleware has stored an actor in the first
@@ -84,16 +51,24 @@ func ActorFromContext(ctx context.Context) *Actor {
 }
 
 // RequireGlobalAuthorization Require an actor to have a specific authorization through a globally assigned role.
-func RequireGlobalAuthorization(actor *Actor, requiredAuthzName roles.Authorization) error {
+func RequireGlobalAuthorization(actor *Actor, requiredAuthzName role.Authorization) error {
 	if !actor.Authenticated() {
 		return ErrNotAuthenticated
 	}
 
-	authorizations := make(map[roles.Authorization]struct{})
+	authorizations := make(map[role.Authorization]struct{})
 
-	for _, role := range actor.Roles {
-		if role.IsGlobal() {
-			for _, authorization := range role.Authorizations {
+	for _, r := range actor.Roles {
+		if r.Name == rolesql.RoleNameAdmin {
+			return nil
+		}
+
+		roleAuthz, err := r.Authorizations()
+		if err != nil {
+			return err
+		}
+		if r.IsGlobal() {
+			for _, authorization := range roleAuthz {
 				authorizations[authorization] = struct{}{}
 			}
 		}
@@ -104,16 +79,24 @@ func RequireGlobalAuthorization(actor *Actor, requiredAuthzName roles.Authorizat
 
 // RequireTeamAuthorization Require an actor to have a specific authorization through a globally assigned or a correctly
 // targeted role.
-func RequireTeamAuthorization(actor *Actor, requiredAuthzName roles.Authorization, targetTeamSlug slug.Slug) error {
+func RequireTeamAuthorization(actor *Actor, requiredAuthzName role.Authorization, targetTeamSlug slug.Slug) error {
 	if !actor.Authenticated() {
 		return ErrNotAuthenticated
 	}
 
-	authorizations := make(map[roles.Authorization]struct{})
+	authorizations := make(map[role.Authorization]struct{})
 
-	for _, role := range actor.Roles {
-		if role.IsGlobal() || role.TargetsTeam(targetTeamSlug) {
-			for _, authorization := range role.Authorizations {
+	for _, r := range actor.Roles {
+		if r.Name == rolesql.RoleNameAdmin {
+			return nil
+		}
+
+		roleAuthz, err := r.Authorizations()
+		if err != nil {
+			return err
+		}
+		if r.IsGlobal() || r.TargetsTeam(targetTeamSlug) {
+			for _, authorization := range roleAuthz {
 				authorizations[authorization] = struct{}{}
 			}
 		}
@@ -122,44 +105,13 @@ func RequireTeamAuthorization(actor *Actor, requiredAuthzName roles.Authorizatio
 	return authorized(authorizations, requiredAuthzName)
 }
 
-// RequireTeamRole checks that the given actor has a required role for a specific team.
-func RequireTeamRole(actor *Actor, targetTeamSlug slug.Slug, requiredRoleName gensql.RoleName) error {
-	if !actor.Authenticated() {
-		return ErrNotAuthenticated
-	}
-
-	for _, role := range actor.Roles {
-		if role.TargetsTeam(targetTeamSlug) && role.RoleName == requiredRoleName {
-			return nil
-		}
-	}
-
-	return ErrMissingRole{role: string(requiredRoleName)}
-}
-
-// RequireTeamMembership checks that the given actor is a member of a specific team.
-func RequireTeamMembership(actor *Actor, team slug.Slug) error {
-	if !actor.Authenticated() {
-		return ErrNotAuthenticated
-	}
-
-	err := RequireTeamRole(actor, team, gensql.RoleNameTeammember)
-	if err == nil {
-		return nil
-	}
-
-	// owners don't have the member role, so we need to check for that as well
-	err = RequireTeamRole(actor, team, gensql.RoleNameTeamowner)
-	if err == nil {
-		return nil
-	}
-
-	// if neither role is present, the error should reference the role with the least privileges
-	return ErrMissingRole{role: string(gensql.RoleNameTeammember)}
+// RequireTeamAuthorizationCtx fetches the actor from the context and checks if it has the required authorization.
+func RequireTeamAuthorizationCtx(ctx context.Context, requiredAuthzName role.Authorization, targetTeamSlug slug.Slug) error {
+	return RequireTeamAuthorization(ActorFromContext(ctx), requiredAuthzName, targetTeamSlug)
 }
 
 // authorized Check if one of the authorizations in the map matches the required authorization.
-func authorized(authorizations map[roles.Authorization]struct{}, requiredAuthzName roles.Authorization) error {
+func authorized(authorizations map[role.Authorization]struct{}, requiredAuthzName role.Authorization) error {
 	for authorization := range authorizations {
 		if authorization == requiredAuthzName {
 			return nil
@@ -167,4 +119,19 @@ func authorized(authorizations map[roles.Authorization]struct{}, requiredAuthzNa
 	}
 
 	return ErrMissingAuthorization{authorization: string(requiredAuthzName)}
+}
+
+func RequireGlobalAdmin(ctx context.Context) error {
+	actor := ActorFromContext(ctx)
+	if !actor.Authenticated() {
+		return ErrNotAuthenticated
+	}
+
+	for _, r := range actor.Roles {
+		if r.Name == rolesql.RoleNameAdmin {
+			return nil
+		}
+	}
+
+	return ErrMissingAuthorization{authorization: "global:admin"}
 }

@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+option go_package = "./pkg/apiclient/protoapi";
+
+import "google/protobuf/timestamp.proto";
+import "pagination.proto";
+import "users.proto";
+
+message Team {
+  string slug = 1;
+  string purpose = 2;
+  string slack_channel = 3;
+  optional string entra_id_group_id = 4;
+  optional string github_team_slug = 5;
+  optional string google_group_email = 6;
+  optional string gar_repository = 7;
+  optional string cdn_bucket = 8;
+  optional google.protobuf.Timestamp delete_key_confirmed_at = 9;
+}
+
+message ListAuthorizedRepositoriesRequest {
+  string teamSlug = 1;
+}
+
+message ListAuthorizedRepositoriesResponse {
+  repeated string github_repositories = 1;
+}
+
+service Teams {
+  rpc ListAuthorizedRepositories(ListAuthorizedRepositoriesRequest) returns (ListAuthorizedRepositoriesResponse) {}
+  rpc Get(GetTeamRequest) returns (GetTeamResponse) {}
+  rpc List(ListTeamsRequest) returns (ListTeamsResponse) {}
+  rpc Members(ListTeamMembersRequest) returns (ListTeamMembersResponse) {}
+  rpc Environments(ListTeamEnvironmentsRequest) returns (ListTeamEnvironmentsResponse) {}
+  rpc SetTeamExternalReferences(SetTeamExternalReferencesRequest) returns (SetTeamExternalReferencesResponse) {}
+  rpc SetTeamEnvironmentExternalReferences(SetTeamEnvironmentExternalReferencesRequest) returns (SetTeamEnvironmentExternalReferencesResponse) {}
+  rpc Delete(DeleteTeamRequest) returns (DeleteTeamResponse) {}
+  rpc IsRepositoryAuthorized(IsRepositoryAuthorizedRequest) returns (IsRepositoryAuthorizedResponse) {}
+}
+
+message DeleteTeamRequest {
+  string slug = 1;
+}
+
+message DeleteTeamResponse {}
+
+message SetTeamExternalReferencesRequest {
+  string slug = 1;
+  optional string entra_id_group_id = 2;
+  optional string github_team_slug = 3;
+  optional string google_group_email = 4;
+  optional string gar_repository = 5;
+  optional string cdn_bucket = 6;
+}
+
+message SetTeamExternalReferencesResponse{}
+
+message SetTeamEnvironmentExternalReferencesRequest {
+  string slug = 1;
+  string environment_name = 2;
+  // GCP project ID. If not set, no changes will be made. Set to empty string to remove the project ID.
+  optional string gcp_project_id = 3;
+}
+
+message SetTeamEnvironmentExternalReferencesResponse{}
+
+message ListTeamEnvironmentsRequest {
+  int64 limit = 1;
+  int64 offset = 2;
+  string slug = 3;
+}
+
+message ListTeamEnvironmentsResponse {
+  repeated TeamEnvironment nodes = 1;
+  PageInfo page_info = 2;
+}
+
+message TeamEnvironment {
+  string id = 1;
+  string slug = 2;
+  bool gcp = 3;
+  string environment_name = 4;
+  optional string gcp_project_id = 5;
+  string slack_alerts_channel = 6;
+}
+
+message GetTeamResponse {
+  Team team = 1;
+}
+
+message GetTeamRequest {
+  string slug = 1;
+}
+
+message ListTeamsRequest {
+  int64 limit = 1;
+  int64 offset = 2;
+}
+
+message ListTeamsResponse {
+  repeated Team nodes = 1;
+  PageInfo page_info = 2;
+}
+
+message ListTeamMembersRequest {
+  int64 limit = 1;
+  int64 offset = 2;
+  string slug = 3;
+}
+
+message ListTeamMembersResponse {
+  repeated TeamMember nodes = 1;
+  PageInfo page_info = 2;
+}
+
+message TeamMember {
+  User user = 1;
+}
+
+message IsRepositoryAuthorizedRequest {
+  string team_slug = 1;
+  string repository = 2;
+
+  reserved "authorization";
+  reserved 3;
+}
+
+message IsRepositoryAuthorizedResponse {
+  bool is_authorized = 1;
+}

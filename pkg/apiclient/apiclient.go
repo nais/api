@@ -1,7 +1,7 @@
 package apiclient
 
 import (
-	"github.com/nais/api/pkg/protoapi"
+	"github.com/nais/api/pkg/apiclient/protoapi"
 	"google.golang.org/grpc"
 )
 
@@ -30,10 +30,6 @@ func (a *APIClient) Users() protoapi.UsersClient {
 
 func (a *APIClient) Teams() protoapi.TeamsClient {
 	return protoapi.NewTeamsClient(a.conn)
-}
-
-func (a *APIClient) AuditLogs() protoapi.AuditLogsClient {
-	return protoapi.NewAuditLogsClient(a.conn)
 }
 
 func (a *APIClient) Close() error {

@@ -1,141 +1,135 @@
-package loader
+package loader_test
 
 import (
 	"context"
-	"errors"
-	"slices"
+	"net/http"
+	"net/http/httptest"
+	"strconv"
 	"testing"
 
+	"github.com/nais/api/internal/graph/loader"
+
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
-	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/gensql"
-	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/scalar"
-	"github.com/stretchr/testify/mock"
-	"github.com/vikstrous/dataloadgen"
+	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
-func TestGenericLoaders(t *testing.T) {
-	ids := make([]uuid.UUID, 5)
-	for i := range ids {
-		ids[i] = uuid.New()
+type mockDBModel struct {
+	ID int
+}
+
+type mockGraphModel struct {
+	ID string
+}
+
+func toGraphModel(dbModel *mockDBModel) *mockGraphModel {
+	return &mockGraphModel{ID: strconv.Itoa(dbModel.ID)}
+}
+
+func TestLoadModels_happy(t *testing.T) {
+	makeKey := func(m *mockGraphModel) int {
+		id, _ := strconv.Atoi(m.ID)
+		return id
 	}
 
-	tests := map[string]struct {
-		dbRet    []*database.User
-		dbErr    error
-		ids      []uuid.UUID
-		want     []*model.User
-		wantErrs []error
-	}{
-		"no users": {
-			dbRet:    []*database.User{},
-			dbErr:    nil,
-			ids:      []uuid.UUID{uuid.New()},
-			want:     []*model.User{nil},
-			wantErrs: []error{pgx.ErrNoRows},
-		},
-		"one user": {
-			dbRet: []*database.User{
-				{
-					User: &gensql.User{
-						ID: ids[0],
-					},
-				},
-			},
-			dbErr:    nil,
-			ids:      []uuid.UUID{ids[0]},
-			want:     []*model.User{{ID: scalar.UserIdent(ids[0])}},
-			wantErrs: []error{nil},
-		},
-		"five users": {
-			dbRet: func() []*database.User {
-				ret := make([]*database.User, 5)
-				for i := range ret {
-					ret[i] = &database.User{
-						User: &gensql.User{
-							ID: ids[i],
-						},
-					}
-				}
-				return ret
-			}(),
-			dbErr: nil,
-			ids:   ids,
-			want: func() []*model.User {
-				ret := make([]*model.User, 5)
-				for i := range ret {
-					ret[i] = &model.User{ID: scalar.UserIdent(ids[i])}
-				}
-				return ret
-			}(),
-		},
+	loaderFunc := func(ctx context.Context, keys []int) ([]*mockDBModel, error) {
+		ret := make([]*mockDBModel, len(keys))
+		for i, key := range keys {
+			ret[i] = &mockDBModel{ID: key}
+		}
 
-		"five users, one missing": {
-			dbRet: func() []*database.User {
-				ret := make([]*database.User, 4)
-				for i := range ret {
-					ret[i] = &database.User{
-						User: &gensql.User{
-							ID: ids[i],
-						},
-					}
-				}
-				return ret
-			}(),
-			dbErr: nil,
-			ids:   ids,
-			want: func() []*model.User {
-				ret := make([]*model.User, 5)
-				for i := range ret {
-					if i < 4 {
-						ret[i] = &model.User{ID: scalar.UserIdent(ids[i])}
-					}
-				}
-				return ret
-			}(),
-			wantErrs: []error{nil, nil, nil, nil, pgx.ErrNoRows},
-		},
-
-		"five users, all missing": {
-			dbRet:    []*database.User{},
-			dbErr:    nil,
-			ids:      ids,
-			want:     make([]*model.User, 5),
-			wantErrs: []error{pgx.ErrNoRows, pgx.ErrNoRows, pgx.ErrNoRows, pgx.ErrNoRows, pgx.ErrNoRows},
-		},
+		return ret, nil
 	}
 
-	for name, tc := range tests {
-		t.Run(name, func(t *testing.T) {
-			db := database.NewMockDatabase(t)
-			db.EXPECT().GetUsersByIDs(mock.Anything, tc.ids).Once().Return(tc.dbRet, tc.dbErr)
+	ret, errs := loader.LoadModels(context.Background(), []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, loaderFunc, toGraphModel, makeKey)
 
-			ctx := NewLoaderContext(context.Background(), db)
-			got, errs := For(ctx).UserLoader.LoadAll(ctx, tc.ids)
+	expectedErrs := make([]error, 10)
+	if diff := cmp.Diff(expectedErrs, errs, cmpopts.EquateErrors()); diff != "" {
+		t.Errorf("diff: -want +got\n%s", diff)
+	}
 
-			if diff := cmp.Diff(tc.want, got); diff != "" {
-				t.Errorf("unexpected result (-want +got):\n%s", diff)
-			}
+	expected := []*mockGraphModel{
+		{ID: "1"},
+		{ID: "2"},
+		{ID: "3"},
+		{ID: "4"},
+		{ID: "5"},
+		{ID: "6"},
+		{ID: "7"},
+		{ID: "8"},
+		{ID: "9"},
+		{ID: "10"},
+	}
 
-			if errs != nil && !emptyErrSlice(tc.wantErrs) {
-				errList := []error(errs.(dataloadgen.ErrorSlice))
-				if diff := cmp.Diff(tc.wantErrs, errList, cmp.Comparer(func(a, b error) bool {
-					return errors.Is(a, b)
-				})); diff != "" {
-					t.Errorf("unexpected errors (-want +got):\n%s", diff)
-				}
-			}
-
-			if errs == nil && !emptyErrSlice(tc.wantErrs) {
-				t.Errorf("expected errors, got nil")
-			}
-		})
+	if diff := cmp.Diff(expected, ret); diff != "" {
+		t.Errorf("diff: -want +got\n%s", diff)
 	}
 }
 
-func emptyErrSlice(errs []error) bool {
-	return len(errs) == 0 || slices.IndexFunc(errs, func(err error) bool { return err != nil }) == -1
+func TestLoadModels_some_missing(t *testing.T) {
+	makeKey := func(m *mockGraphModel) int {
+		id, _ := strconv.Atoi(m.ID)
+		return id
+	}
+
+	loaderFunc := func(ctx context.Context, keys []int) ([]*mockDBModel, error) {
+		ret := make([]*mockDBModel, len(keys))
+		for i, key := range keys {
+			if i > 5 {
+				ret[i] = &mockDBModel{ID: key}
+			}
+		}
+
+		return ret, nil
+	}
+
+	ret, errs := loader.LoadModels(context.Background(), []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, loaderFunc, toGraphModel, makeKey)
+	expectedErrs := []error{
+		loader.ErrObjectNotFound,
+		loader.ErrObjectNotFound,
+		loader.ErrObjectNotFound,
+		loader.ErrObjectNotFound,
+		loader.ErrObjectNotFound,
+		loader.ErrObjectNotFound,
+		nil,
+		nil,
+		nil,
+		nil,
+	}
+	if diff := cmp.Diff(expectedErrs, errs, cmpopts.EquateErrors()); diff != "" {
+		t.Errorf("diff: -want +got\n%s", diff)
+	}
+
+	expected := []*mockGraphModel{
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+		{ID: "7"},
+		{ID: "8"},
+		{ID: "9"},
+		{ID: "10"},
+	}
+
+	if diff := cmp.Diff(expected, ret); diff != "" {
+		t.Errorf("diff: -want +got\n%s", diff)
+	}
+}
+
+func TestMiddleware(t *testing.T) {
+	type ctxKeyType string
+	const ctxKey ctxKeyType = "key"
+
+	alterContext := func(ctx context.Context) context.Context {
+		return context.WithValue(ctx, ctxKey, "value")
+	}
+
+	h := loader.Middleware(alterContext)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Context().Value(ctxKey) != "value" {
+			t.Error("expected value in context")
+		}
+	}))
+
+	h.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil))
 }

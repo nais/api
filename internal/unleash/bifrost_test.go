@@ -7,11 +7,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/nais/api/internal/unleash"
 	bifrost "github.com/nais/bifrost/pkg/unleash"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 	"github.com/sirupsen/logrus/hooks/test"
-	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -24,11 +24,20 @@ func TestBifrostClient_Post(t *testing.T) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		assert.Equal(t, "/unleash/new", r.URL.Path)
-		assert.Equal(t, "test", u.Name)
-		assert.Equal(t, "team1,team2", u.AllowedTeams)
-		assert.Equal(t, true, u.EnableFederation)
-		assert.Equal(t, "cluster1,cluster2", u.AllowedClusters)
+
+		if r.URL.Path != "/unleash/new" {
+			t.Error("expected /unleash/new, got", r.URL.Path)
+		}
+
+		want := bifrost.UnleashConfig{
+			Name:             "test",
+			AllowedTeams:     "team1,team2",
+			EnableFederation: true,
+			AllowedClusters:  "cluster1,cluster2",
+		}
+		if !cmp.Equal(want, u) {
+			t.Errorf("diff -want +got:\n%v", cmp.Diff(want, u))
+		}
 
 		unleashInstance := unleash_nais_io_v1.Unleash{
 			ObjectMeta: v1.ObjectMeta{
@@ -68,9 +77,13 @@ func TestBifrostClient_Post(t *testing.T) {
 		AllowedClusters:  "cluster1,cluster2",
 	}
 	resp, err := bifrostClient.Post(context.Background(), "/unleash/new", cfg)
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	var unleashInstance unleash_nais_io_v1.Unleash
 	err = json.NewDecoder(resp.Body).Decode(&unleashInstance)
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 }

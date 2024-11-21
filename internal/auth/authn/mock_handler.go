@@ -5,8 +5,7 @@ package authn
 import (
 	http "net/http"
 
-	database "github.com/nais/api/internal/database"
-
+	session "github.com/nais/api/internal/session"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -159,9 +158,9 @@ func (_c *MockHandler_Logout_Call) RunAndReturn(run func(http.ResponseWriter, *h
 	return _c
 }
 
-// SetSessionCookie provides a mock function with given fields: w, session
-func (_m *MockHandler) SetSessionCookie(w http.ResponseWriter, session *database.Session) {
-	_m.Called(w, session)
+// SetSessionCookie provides a mock function with given fields: w, _a1
+func (_m *MockHandler) SetSessionCookie(w http.ResponseWriter, _a1 *session.Session) {
+	_m.Called(w, _a1)
 }
 
 // MockHandler_SetSessionCookie_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetSessionCookie'
@@ -171,14 +170,14 @@ type MockHandler_SetSessionCookie_Call struct {
 
 // SetSessionCookie is a helper method to define mock.On call
 //   - w http.ResponseWriter
-//   - session *database.Session
-func (_e *MockHandler_Expecter) SetSessionCookie(w interface{}, session interface{}) *MockHandler_SetSessionCookie_Call {
-	return &MockHandler_SetSessionCookie_Call{Call: _e.mock.On("SetSessionCookie", w, session)}
+//   - _a1 *session.Session
+func (_e *MockHandler_Expecter) SetSessionCookie(w interface{}, _a1 interface{}) *MockHandler_SetSessionCookie_Call {
+	return &MockHandler_SetSessionCookie_Call{Call: _e.mock.On("SetSessionCookie", w, _a1)}
 }
 
-func (_c *MockHandler_SetSessionCookie_Call) Run(run func(w http.ResponseWriter, session *database.Session)) *MockHandler_SetSessionCookie_Call {
+func (_c *MockHandler_SetSessionCookie_Call) Run(run func(w http.ResponseWriter, _a1 *session.Session)) *MockHandler_SetSessionCookie_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(http.ResponseWriter), args[1].(*database.Session))
+		run(args[0].(http.ResponseWriter), args[1].(*session.Session))
 	})
 	return _c
 }
@@ -188,7 +187,7 @@ func (_c *MockHandler_SetSessionCookie_Call) Return() *MockHandler_SetSessionCoo
 	return _c
 }
 
-func (_c *MockHandler_SetSessionCookie_Call) RunAndReturn(run func(http.ResponseWriter, *database.Session)) *MockHandler_SetSessionCookie_Call {
+func (_c *MockHandler_SetSessionCookie_Call) RunAndReturn(run func(http.ResponseWriter, *session.Session)) *MockHandler_SetSessionCookie_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -1,0 +1,87 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-name
+spec:
+  image: navikt/app-name:latest
+  ingresses:
+    - "https://my-app.server.com"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-name
+  labels:
+    app: app-name
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-name
+  template:
+    metadata:
+      labels:
+        app: app-name
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+        - name: app-name
+          image: navikt/app-name:latest
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 80
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-name
+  labels:
+    name: app-name
+    app: app-name
+spec:
+  ingressClassName: nais-ingress
+  rules:
+    - host: my-app.server.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: my-app
+                port:
+                  number: 80
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-name-23422-2sdf
+  labels:
+    app: app-name
+  creationTimestamp: "2022-07-06T09:45:18Z"
+spec:
+  containers:
+    - name: app-name
+      image: navikt/app-name:latest
+      resources:
+        limits:
+          memory: "128Mi"
+          cpu: "500m"
+      ports:
+        - containerPort: 80
+status:
+  containerStatuses:
+    - name: app-name
+      ready: true
+      restartCount: 0
+      state:
+        running:
+          startedAt: "2022-07-06T09:45:18Z"

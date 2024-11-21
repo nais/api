@@ -3,17 +3,46 @@ package api
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
-	"github.com/nais/api/internal/auth"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/audit"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
+	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/deployment"
+	"github.com/nais/api/internal/github/repository"
 	"github.com/nais/api/internal/graph/loader"
+	apik8s "github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/kubernetes/watcher"
+	"github.com/nais/api/internal/persistence/bigquery"
+	"github.com/nais/api/internal/persistence/bucket"
+	"github.com/nais/api/internal/persistence/kafkatopic"
+	"github.com/nais/api/internal/persistence/opensearch"
+	"github.com/nais/api/internal/persistence/redis"
+	"github.com/nais/api/internal/persistence/sqlinstance"
+	"github.com/nais/api/internal/reconciler"
+	"github.com/nais/api/internal/role"
+	"github.com/nais/api/internal/serviceaccount"
+	"github.com/nais/api/internal/session"
+	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/thirdparty/hookd"
+	"github.com/nais/api/internal/unleash"
+	"github.com/nais/api/internal/user"
+	"github.com/nais/api/internal/utilization"
+	"github.com/nais/api/internal/vulnerability"
+	"github.com/nais/api/internal/workload"
+	"github.com/nais/api/internal/workload/application"
+	"github.com/nais/api/internal/workload/job"
+	"github.com/nais/api/internal/workload/podlog"
+	fakepodlog "github.com/nais/api/internal/workload/podlog/fake"
+	"github.com/nais/api/internal/workload/secret"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
@@ -28,54 +57,74 @@ import (
 func runHttpServer(
 	ctx context.Context,
 	listenAddress string,
-	insecureAuth bool,
-	db database.Database,
+	insecureAuthAndFakes bool,
+	tenantName string,
+	clusters []string,
+	pool *pgxpool.Pool,
+	k8sClients apik8s.ClusterConfigMap,
+	watcherMgr *watcher.Manager,
+	mgmtWatcherMgr *watcher.Manager,
 	authHandler authn.Handler,
 	graphHandler *handler.Server,
 	reg prometheus.Gatherer,
+	vClient vulnerability.Client,
+	hookdClient hookd.Client,
 	log logrus.FieldLogger,
 ) error {
 	router := chi.NewRouter()
 	router.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
 	router.Get("/healthz", func(_ http.ResponseWriter, _ *http.Request) {})
 	router.Method("GET", "/",
-		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL playground", "/query"), "playground")),
+		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL playground", "/graphql"), "playground")),
 	)
 
-	middlewares := []func(http.Handler) http.Handler{}
-
-	if insecureAuth {
-		middlewares = append(middlewares, auth.InsecureUserHeader(db))
+	contextDependencies, err := ConfigureGraph(ctx, insecureAuthAndFakes, watcherMgr, mgmtWatcherMgr, pool, k8sClients, vClient, tenantName, clusters, hookdClient, log)
+	if err != nil {
+		return err
 	}
 
-	middlewares = append(middlewares,
-		cors.New(
-			cors.Options{
-				AllowedOrigins:   []string{"https://*", "http://*"},
-				AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
-				AllowCredentials: true,
-			},
-		).Handler,
+	router.Route("/graphql", func(r chi.Router) {
+		middlewares := []func(http.Handler) http.Handler{
+			contextDependencies,
+			cors.New(
+				cors.Options{
+					AllowedOrigins:   []string{"https://*", "http://*"},
+					AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+					AllowCredentials: true,
+				},
+			).Handler,
+		}
 
-		middleware.ApiKeyAuthentication(db),
-		middleware.Oauth2Authentication(db, authHandler),
-		loader.Middleware(db),
-	)
-	router.Route("/query", func(r chi.Router) {
+		if insecureAuthAndFakes {
+			middlewares = append(middlewares, middleware.InsecureUserHeader())
+		}
+
+		middlewares = append(
+			middlewares,
+			middleware.ApiKeyAuthentication(),
+			middleware.Oauth2Authentication(authHandler),
+			middleware.RequireAuthenticatedUser(),
+			otelhttp.NewMiddleware(
+				"graphql",
+				otelhttp.WithPublicEndpoint(),
+				otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http"))),
+			),
+		)
 		r.Use(middlewares...)
-		r.Use(otelhttp.NewMiddleware("graphql", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))
 		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphHandler))
 	})
 
 	router.Route("/oauth2", func(r chi.Router) {
+		r.Use(contextDependencies)
 		r.Get("/login", authHandler.Login)
 		r.Get("/logout", authHandler.Logout)
 		r.Get("/callback", authHandler.Callback)
 	})
 
 	srv := &http.Server{
-		Addr:    listenAddress,
-		Handler: router,
+		Addr:              listenAddress,
+		Handler:           router,
+		ReadHeaderTimeout: 5 * time.Second,
 	}
 
 	wg, ctx := errgroup.WithContext(ctx)
@@ -101,4 +150,97 @@ func runHttpServer(
 		return nil
 	})
 	return wg.Wait()
+}
+
+func ConfigureGraph(
+	ctx context.Context,
+	fakeClients bool,
+	watcherMgr *watcher.Manager,
+	mgmtWatcherMgr *watcher.Manager,
+	pool *pgxpool.Pool,
+	k8sClients apik8s.ClusterConfigMap,
+	vClient vulnerability.Client,
+	tenantName string,
+	clusters []string,
+	hookdClient hookd.Client,
+	log logrus.FieldLogger,
+) (func(http.Handler) http.Handler, error) {
+	appWatcher := application.NewWatcher(ctx, watcherMgr)
+	jobWatcher := job.NewWatcher(ctx, watcherMgr)
+	runWatcher := job.NewRunWatcher(ctx, watcherMgr)
+	bqWatcher := bigquery.NewWatcher(ctx, watcherMgr)
+	redisWatcher := redis.NewWatcher(ctx, watcherMgr)
+	openSearchWatcher := opensearch.NewWatcher(ctx, watcherMgr)
+	bucketWatcher := bucket.NewWatcher(ctx, watcherMgr)
+	sqlDatabaseWatcher := sqlinstance.NewDatabaseWatcher(ctx, watcherMgr)
+	sqlInstanceWatcher := sqlinstance.NewInstanceWatcher(ctx, watcherMgr)
+	kafkaTopicWatcher := kafkatopic.NewWatcher(ctx, watcherMgr)
+	podWatcher := workload.NewWatcher(ctx, watcherMgr)
+	ingressWatcher := application.NewIngressWatcher(ctx, watcherMgr)
+	unleashWatcher := unleash.NewWatcher(ctx, mgmtWatcherMgr)
+
+	sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(fakeClients), sqlinstance.WithInstanceWatcher(sqlInstanceWatcher))
+	if err != nil {
+		return nil, fmt.Errorf("create SQL Admin service: %w", err)
+	}
+
+	var utilizationClient utilization.ResourceUsageClient
+	var costOpts []cost.Option
+	var podLogStreamer podlog.Streamer
+	var secretClientCreator secret.ClientCreator
+	if fakeClients {
+		utilizationClient = utilization.NewFakeClient(clusters, nil, nil)
+		costOpts = append(costOpts, cost.WithClient(cost.NewFakeClient()))
+		podLogStreamer = fakepodlog.NewLogStreamer()
+
+		secretClientCreator = secret.CreatorFromClients(watcherMgr.GetDynamicClients())
+	} else {
+		var err error
+		utilizationClient, err = utilization.NewClient(clusters, tenantName, log)
+		if err != nil {
+			return nil, fmt.Errorf("create utilization client: %w", err)
+		}
+
+		clients, err := apik8s.NewClientSets(k8sClients)
+		if err != nil {
+			return nil, fmt.Errorf("create k8s client sets: %w", err)
+		}
+		podLogStreamer = podlog.NewLogStreamer(clients, log)
+		secretClientCreator = secret.CreatorFromConfig(ctx, k8sClients)
+	}
+
+	syncCtx, cancelSync := context.WithTimeout(ctx, 20*time.Second)
+	defer cancelSync()
+	if !watcherMgr.WaitForReady(syncCtx) {
+		return nil, errors.New("timed out waiting for watchers to be ready")
+	}
+
+	return loader.Middleware(func(ctx context.Context) context.Context {
+		ctx = podlog.NewLoaderContext(ctx, podLogStreamer)
+		ctx = application.NewLoaderContext(ctx, appWatcher, ingressWatcher)
+		ctx = bigquery.NewLoaderContext(ctx, bqWatcher)
+		ctx = bucket.NewLoaderContext(ctx, bucketWatcher)
+		ctx = job.NewLoaderContext(ctx, jobWatcher, runWatcher)
+		ctx = kafkatopic.NewLoaderContext(ctx, kafkaTopicWatcher)
+		ctx = workload.NewLoaderContext(ctx, podWatcher)
+		ctx = secret.NewLoaderContext(ctx, secretClientCreator, clusters, log)
+		ctx = opensearch.NewLoaderContext(ctx, openSearchWatcher)
+		ctx = redis.NewLoaderContext(ctx, redisWatcher)
+		ctx = utilization.NewLoaderContext(ctx, utilizationClient)
+		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, sqlDatabaseWatcher, sqlInstanceWatcher)
+		ctx = database.NewLoaderContext(ctx, pool)
+		ctx = team.NewLoaderContext(ctx, pool)
+		ctx = user.NewLoaderContext(ctx, pool)
+		ctx = cost.NewLoaderContext(ctx, pool, costOpts...)
+		ctx = repository.NewLoaderContext(ctx, pool)
+		ctx = role.NewLoaderContext(ctx, pool)
+		ctx = audit.NewLoaderContext(ctx, pool)
+		ctx = vulnerability.NewLoaderContext(ctx, vClient, tenantName, clusters, fakeClients, log)
+		ctx = reconciler.NewLoaderContext(ctx, pool)
+		ctx = deployment.NewLoaderContext(ctx, hookdClient)
+		ctx = serviceaccount.NewLoaderContext(ctx, pool)
+		ctx = session.NewLoaderContext(ctx, pool)
+		ctx = unleash.NewLoaderContext(ctx, tenantName, unleashWatcher, "*fake*", log)
+		return ctx
+	}), nil
 }

@@ -15,7 +15,9 @@ For local development you need to set the `WITH_FAKE_CLIENTS` environment variab
 and you will also need to set the `X-User-Email` header to `dev.usersen@example.com` if you want to act as a regular
 user, or `admin.usersen@example.com` if you need an admin user.
 
-## Practices
+## Development practices
+
+Check practices used in this project here: [docs/practices.md](docs/practices.md)
 
 ### Graph-API
 

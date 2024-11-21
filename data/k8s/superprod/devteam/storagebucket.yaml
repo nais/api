@@ -4,7 +4,7 @@ metadata:
   annotations:
     cnrm.cloud.google.com/deletion-policy: abandon
     cnrm.cloud.google.com/management-conflict-prevention-policy: none
-    cnrm.cloud.google.com/project-id:  nais-dev-2e7b
+    cnrm.cloud.google.com/project-id: nais-dev-2e7b
     cnrm.cloud.google.com/state-into-spec: merge
     nais.io/deploymentCorrelationID: a78ca402-6ce7-45b9-811b-23c62048cbdb
   labels:
@@ -23,3 +23,11 @@ spec:
   publicAccessPrevention: inherited
   resourceID: uniquebucketname-bucket
   storageClass: STANDARD
+
+status:
+  conditions:
+    - lastTransitionTime: "2023-03-29T09:16:41Z"
+      message: The resource is up to date
+      reason: UpToDate
+      status: "True"
+      type: Ready

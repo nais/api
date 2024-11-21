@@ -5,12 +5,13 @@ import (
 	"strings"
 
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/role"
+	"github.com/nais/api/internal/serviceaccount"
 )
 
 // ApiKeyAuthentication If the request has an authorization header, we will try to pull the service account who owns it
 // from the database and put the account into the context.
-func ApiKeyAuthentication(db database.ServiceAccountRepo) func(next http.Handler) http.Handler {
+func ApiKeyAuthentication() func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("authorization")
@@ -20,20 +21,19 @@ func ApiKeyAuthentication(db database.ServiceAccountRepo) func(next http.Handler
 			}
 
 			ctx := r.Context()
-			serviceAccount, err := db.GetServiceAccountByApiKey(ctx, authHeader[7:])
+			sa, err := serviceaccount.GetByApiKey(ctx, authHeader[7:])
 			if err != nil {
 				next.ServeHTTP(w, r)
 				return
 			}
 
-			roles, err := db.GetServiceAccountRoles(ctx, serviceAccount.ID)
+			roles, err := role.ForServiceAccount(ctx, sa.UUID)
 			if err != nil {
 				next.ServeHTTP(w, r)
 				return
 			}
 
-			ctx = authz.ContextWithActor(ctx, serviceAccount, roles)
-			next.ServeHTTP(w, r.WithContext(ctx))
+			next.ServeHTTP(w, r.WithContext(authz.ContextWithActor(ctx, sa, roles)))
 		}
 		return http.HandlerFunc(fn)
 	}

@@ -1,0 +1,141 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "pagination.proto";
+
+option go_package = "./pkg/apiclient/protoapi";
+
+service Reconcilers {
+  rpc Register(RegisterReconcilerRequest) returns (RegisterReconcilerResponse) {}
+  rpc Get(GetReconcilerRequest) returns (GetReconcilerResponse) {}
+  rpc List(ListReconcilersRequest) returns (ListReconcilersResponse) {}
+  rpc Config(ConfigReconcilerRequest) returns (ConfigReconcilerResponse) {}
+  rpc SetReconcilerErrorForTeam(SetReconcilerErrorForTeamRequest) returns (SetReconcilerErrorForTeamResponse) {}
+  rpc RemoveReconcilerErrorForTeam(RemoveReconcilerErrorForTeamRequest) returns (RemoveReconcilerErrorForTeamResponse) {}
+  rpc SuccessfulTeamSync(SuccessfulTeamSyncRequest) returns (SuccessfulTeamSyncResponse) {}
+  rpc SaveState(SaveReconcilerStateRequest) returns (SaveReconcilerStateResponse) {}
+  rpc State(GetReconcilerStateRequest) returns (GetReconcilerStateResponse) {}
+  rpc DeleteState(DeleteReconcilerStateRequest) returns (DeleteReconcilerStateResponse) {}
+}
+
+message SuccessfulTeamSyncRequest {
+  string team_slug = 1;
+}
+
+message SuccessfulTeamSyncResponse {}
+
+message SetReconcilerErrorForTeamRequest {
+  string team_slug = 1;
+  string reconciler_name = 2;
+  string correlation_id = 3;
+  string error_message = 4;
+}
+
+message SetReconcilerErrorForTeamResponse {}
+
+message RemoveReconcilerErrorForTeamRequest {
+  string team_slug = 1;
+  string reconciler_name = 2;
+}
+
+message RemoveReconcilerErrorForTeamResponse {}
+
+message Reconciler {
+  string name = 1;
+  string display_name = 2;
+  string description = 3;
+  bool enabled = 4;
+  bool member_aware = 5;
+}
+
+message ReconcilerConfig {
+  string key = 1;
+  string display_name = 2;
+  string description = 3;
+  string value = 4;
+  bool secret = 5;
+}
+
+message ReconcilerConfigSpec {
+  string key = 1;
+  string display_name = 2;
+  string description = 3;
+  bool secret = 4;
+}
+
+message NewReconciler {
+  string name = 1;
+  string display_name = 2;
+  string description = 3;
+  bool member_aware = 4;
+  repeated ReconcilerConfigSpec config = 5;
+  bool enableByDefault = 6;
+}
+
+message RegisterReconcilerRequest {
+  repeated NewReconciler reconcilers = 1;
+}
+
+message RegisterReconcilerResponse {}
+
+message GetReconcilerRequest {
+  string name = 1;
+}
+
+message GetReconcilerResponse {
+  Reconciler reconciler = 1;
+}
+
+message ListReconcilersRequest {
+  int64 limit = 1;
+  int64 offset = 2;
+}
+
+message ListReconcilersResponse {
+  repeated Reconciler nodes = 1;
+  PageInfo page_info = 2;
+}
+
+message ConfigReconcilerRequest {
+  int64 limit = 1;
+  int64 offset = 2;
+  string reconciler_name = 3;
+}
+
+message ConfigReconcilerResponse {
+  repeated ReconcilerConfig nodes = 1;
+  PageInfo page_info = 2;
+}
+
+message ReconcilerState {
+  string id = 1;
+  string reconciler_name = 2;
+  string team_slug = 3;
+  bytes value = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+message SaveReconcilerStateResponse {}
+
+message SaveReconcilerStateRequest {
+  string reconciler_name = 1;
+  string team_slug = 2;
+  bytes value = 3;
+}
+
+message DeleteReconcilerStateRequest {
+  string reconciler_name = 1;
+  string team_slug = 2;
+}
+
+message DeleteReconcilerStateResponse {}
+
+message GetReconcilerStateRequest {
+  string reconciler_name = 3;
+  string team_slug = 4;
+}
+
+message GetReconcilerStateResponse {
+  ReconcilerState state = 1;
+}

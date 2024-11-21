@@ -17,34 +17,6 @@ func TestDate_NewDate(t *testing.T) {
 	assert.Equal(t, "2020-04-20", date.String())
 }
 
-func TestDate_PgDate(t *testing.T) {
-	t.Run("valid date", func(t *testing.T) {
-		d, err := scalar.NewDate(tm).PgDate()
-		assert.NoError(t, err)
-		assert.Equal(t, "2020-04-20", d.Time.Format(scalar.DateFormatYYYYMMDD))
-	})
-
-	t.Run("invalid date", func(t *testing.T) {
-		d, err := scalar.Date("foo").PgDate()
-		assert.True(t, d.Time.IsZero())
-		assert.EqualError(t, err, "invalid date format")
-	})
-}
-
-func TestDate_Time(t *testing.T) {
-	t.Run("valid date", func(t *testing.T) {
-		ts, err := scalar.NewDate(tm).Time()
-		assert.NoError(t, err)
-		assert.Equal(t, "2020-04-20", ts.Format(scalar.DateFormatYYYYMMDD))
-	})
-
-	t.Run("invalid date", func(t *testing.T) {
-		ts, err := scalar.Date("foo").Time()
-		assert.True(t, ts.IsZero())
-		assert.ErrorContains(t, err, `cannot parse "foo"`)
-	})
-}
-
 func TestDate_MarshalGQLContext(t *testing.T) {
 	date := scalar.NewDate(tm)
 	buf := new(bytes.Buffer)
@@ -78,6 +50,6 @@ func TestDate_UnmarshalGQLContext(t *testing.T) {
 		date := scalar.NewDate(time.Now())
 		err := date.UnmarshalGQLContext(ctx, "2020-04-20")
 		assert.NoError(t, err)
-		assert.Equal(t, "2020-04-20", string(date))
+		assert.Equal(t, "2020-04-20", date.String())
 	})
 }

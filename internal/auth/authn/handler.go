@@ -10,7 +10,8 @@ import (
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/session"
+	"github.com/nais/api/internal/user"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
@@ -32,19 +33,17 @@ type Handler interface {
 	Login(w http.ResponseWriter, r *http.Request)
 	Callback(w http.ResponseWriter, r *http.Request)
 	Logout(w http.ResponseWriter, r *http.Request)
-	SetSessionCookie(w http.ResponseWriter, session *database.Session)
+	SetSessionCookie(w http.ResponseWriter, session *session.Session)
 	DeleteCookie(w http.ResponseWriter, name string)
 }
 
 type handler struct {
-	db           database.Database
 	oauth2Config OAuth2
 	log          logrus.FieldLogger
 }
 
-func New(oauth2Config OAuth2, db database.Database, log logrus.FieldLogger) Handler {
+func New(oauth2Config OAuth2, log logrus.FieldLogger) Handler {
 	return &handler{
-		db:           db,
 		oauth2Config: oauth2Config,
 		log:          log,
 	}
@@ -141,21 +140,21 @@ func (h *handler) Callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.db.GetUserByEmail(r.Context(), claims.Email)
+	u, err := user.GetByEmail(r.Context(), claims.Email)
 	if err != nil {
 		h.log.WithError(err).Errorf("get user (%s) from db", claims.Email)
 		http.Redirect(w, r, "/?error=unknown-user", http.StatusFound)
 		return
 	}
 
-	session, err := h.db.CreateSession(r.Context(), user.ID)
+	sess, err := session.Create(r.Context(), u.UUID)
 	if err != nil {
 		h.log.WithError(err).Error("create session")
 		http.Redirect(w, r, "/?error=unable-to-create-session", http.StatusFound)
 		return
 	}
 
-	h.SetSessionCookie(w, session)
+	h.SetSessionCookie(w, sess)
 	http.Redirect(w, r, frontendURL, http.StatusFound)
 }
 
@@ -175,8 +174,7 @@ func (h *handler) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.db.DeleteSession(r.Context(), sessionID)
-	if err != nil {
+	if err := session.Delete(r.Context(), sessionID); err != nil {
 		h.log.WithError(err).Error("delete session from database")
 		http.Redirect(w, r, redirectUrl, http.StatusFound)
 		return
@@ -185,12 +183,12 @@ func (h *handler) Logout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, redirectUrl, http.StatusFound)
 }
 
-func (h *handler) SetSessionCookie(w http.ResponseWriter, session *database.Session) {
+func (h *handler) SetSessionCookie(w http.ResponseWriter, session *session.Session) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     SessionCookieName,
 		Value:    session.ID.String(),
 		Path:     "/",
-		Expires:  session.Expires.Time,
+		Expires:  session.Expires,
 		Secure:   true,
 		HttpOnly: true,
 	})

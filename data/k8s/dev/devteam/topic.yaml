@@ -15,7 +15,7 @@ kind: Topic
 metadata:
   creationTimestamp: "2021-02-19T11:55:00Z"
   finalizers:
-  - kafkarator.kafka.nais.io
+    - kafkarator.kafka.nais.io
   generation: 215
   labels:
     team: devteam
@@ -25,270 +25,270 @@ metadata:
   uid: 2a42ee8c-2b77-4e82-9db8-53fc985df71c
 spec:
   acl:
-  - access: read
-    application: app-w-all-storage
-    team: devteam
-  - access: readwrite
-    application: dataprodukt-forstegangsbehandling
-    team: devteam
-  - access: readwrite
-    application: dataprodukt-iverksettelser
-    team: devteam
-  - access: readwrite
-    application: dataprodukt-annulleringer
-    team: devteam
-  - access: readwrite
-    application: dataprodukt-arbeidsgiveropplysninger
-    team: devteam
-  - access: readwrite
-    application: spre-subsumsjon
-    team: devteam
-  - access: readwrite
-    application: spennende
-    team: devteam
-  - access: readwrite
-    application: spissnok
-    team: devteam
-  - access: readwrite
-    application: behovsakkumulator
-    team: devteam
-  - access: readwrite
-    application: sporing
-    team: devteam
-  - access: readwrite
-    application: spaghet
-    team: devteam
-  - access: readwrite
-    application: spammer
-    team: devteam
-  - access: readwrite
-    application: spare
-    team: devteam
-  - access: readwrite
-    application: helse-sparker-feriepenger
-    team: devteam
-  - access: write
-    application: sparker-alt
-    team: devteam
-  - access: readwrite
-    application: sparkel-aareg
-    team: devteam
-  - access: readwrite
-    application: sparkel-arena
-    team: devteam
-  - access: readwrite
-    application: sparkel-egenansatt
-    team: devteam
-  - access: readwrite
-    application: sparkel-gosys
-    team: devteam
-  - access: readwrite
-    application: sparkel-inntekt
-    team: devteam
-  - access: readwrite
-    application: sparkel-sigrun
-    team: devteam
-  - access: readwrite
-    application: sparkel-institusjonsopphold
-    team: devteam
-  - access: readwrite
-    application: sparkel-medlemskap
-    team: devteam
-  - access: readwrite
-    application: sparkel-norg
-    team: devteam
-  - access: readwrite
-    application: sparkel-personinfo
-    team: devteam
-  - access: readwrite
-    application: sparkel-pleiepenger
-    team: devteam
-  - access: readwrite
-    application: sparkel-sykepengeperioder
-    team: devteam
-  - access: readwrite
-    application: spedisjon
-    team: devteam
-  - access: readwrite
-    application: speider
-    team: devteam
-  - access: readwrite
-    application: sprute
-    team: devteam
-  - access: readwrite
-    application: spenn
-    team: devteam
-  - access: readwrite
-    application: spenn-mq
-    team: devteam
-  - access: readwrite
-    application: spenn-simulering
-    team: devteam
-  - access: readwrite
-    application: spenn-avstemming
-    team: devteam
-  - access: readwrite
-    application: spenn-opprydding-dev
-    team: devteam
-  - access: readwrite
-    application: spesialist
-    team: devteam
-  - access: readwrite
-    application: spesialist-migrering
-    team: devteam
-  - access: readwrite
-    application: spinnvill
-    team: devteam
-  - access: readwrite
-    application: spinnvill-opprydding-dev
-    team: devteam
-  - access: readwrite
-    application: spotter
-    team: devteam
-  - access: readwrite
-    application: spetakkel
-    team: devteam
-  - access: readwrite
-    application: spill-av
-    team: devteam
-  - access: readwrite
-    application: spoler
-    team: devteam
-  - access: readwrite
-    application: helse-spleis
-    team: devteam
-  - access: readwrite
-    application: spleis-api
-    team: devteam
-  - access: readwrite
-    application: spleis-avstemming
-    team: devteam
-  - access: readwrite
-    application: spock
-    team: devteam
-  - access: readwrite
-    application: spokelse
-    team: devteam
-  - access: readwrite
-    application: sporbar
-    team: devteam
-  - access: readwrite
-    application: spre-gosys
-    team: devteam
-  - access: readwrite
-    application: spre-gosys-pdf
-    team: devteam
-  - access: readwrite
-    application: spre-oppgaver
-    team: devteam
-  - access: readwrite
-    application: spre-stonadsstatistikk
-    team: devteam
-  - access: readwrite
-    application: sparkel-sputnik
-    team: devteam
-  - access: readwrite
-    application: vedtaksfeed
-    team: devteam
-  - access: readwrite
-    application: sigmund
-    team: risk
-  - access: readwrite
-    application: helserisk-treskeverk
-    team: risk
-  - access: readwrite
-    application: sparkel-sykepengeperioder-mock
-    team: devteam
-  - access: readwrite
-    application: risk-mock
-    team: devteam
-  - access: readwrite
-    application: spleis-testdata
-    team: devteam
-  - access: readwrite
-    application: spleis-opprydding-dev
-    team: devteam
-  - access: readwrite
-    application: spesialist-opprydding-dev
-    team: devteam
-  - access: readwrite
-    application: sparkel-medlemskap-mock
-    team: devteam
-  - access: readwrite
-    application: sparkel-oppgave-endret
-    team: devteam
-  - access: readwrite
-    application: sparkel-identer
-    team: devteam
-  - access: readwrite
-    application: sparkel-skjermet-endret
-    team: devteam
-  - access: readwrite
-    application: sparkel-arbeidsgiver
-    team: devteam
-  - access: readwrite
-    application: sportsrevyen
-    team: devteam
-  - access: readwrite
-    application: sparsom
-    team: devteam
-  - access: readwrite
-    application: sparsom-opprydding
-    team: devteam
-  - access: readwrite
-    application: spane-opprydding
-    team: devteam
-  - access: readwrite
-    application: speaker-kafka
-    team: devteam
-  - access: readwrite
-    application: speaker-backend
-    team: devteam
-  - access: readwrite
-    application: speaker-endringer-formidler
-    team: devteam
-  - access: read
-    application: sondre-halvorsen
-    team: devteam
-  - access: readwrite
-    application: spre-styringsinfo
-    team: devteam
-  - access: write
-    application: spout
-    team: devteam
-  - access: readwrite
-    application: spoiler
-    team: devteam
-  - access: readwrite
-    application: spoogle
-    team: devteam
-  - access: readwrite
-    application: spoogle-opprydding-dev
-    team: devteam
-  - access: readwrite
-    application: sparkel-dokumenter
-    team: devteam
-  - access: readwrite
-    application: spedisjon-opprydding-dev
-    team: devteam
-  - access: readwrite
-    application: sparkel-tilbakedatert
-    team: devteam
-  - access: readwrite
-    application: spekemat-slakter
-    team: devteam
-  - access: readwrite
-    application: spill-av-im
-    team: devteam
-  - access: readwrite
-    application: spotlight
-    team: devteam
-  - access: readwrite
-    application: sparkel-stoppknapp
-    team: devteam
-  - access: readwrite
-    application: sparkel-representasjon
-    team: devteam
+    - access: read
+      application: app-w-all-storage
+      team: devteam
+    - access: readwrite
+      application: dataprodukt-forstegangsbehandling
+      team: devteam
+    - access: readwrite
+      application: dataprodukt-iverksettelser
+      team: devteam
+    - access: readwrite
+      application: dataprodukt-annulleringer
+      team: devteam
+    - access: readwrite
+      application: dataprodukt-arbeidsgiveropplysninger
+      team: devteam
+    - access: readwrite
+      application: spre-subsumsjon
+      team: devteam
+    - access: readwrite
+      application: spennende
+      team: devteam
+    - access: readwrite
+      application: spissnok
+      team: devteam
+    - access: readwrite
+      application: behovsakkumulator
+      team: devteam
+    - access: readwrite
+      application: sporing
+      team: devteam
+    - access: readwrite
+      application: spaghet
+      team: devteam
+    - access: readwrite
+      application: spammer
+      team: devteam
+    - access: readwrite
+      application: spare
+      team: devteam
+    - access: readwrite
+      application: helse-sparker-feriepenger
+      team: devteam
+    - access: write
+      application: sparker-alt
+      team: devteam
+    - access: readwrite
+      application: sparkel-aareg
+      team: devteam
+    - access: readwrite
+      application: sparkel-arena
+      team: devteam
+    - access: readwrite
+      application: sparkel-egenansatt
+      team: devteam
+    - access: readwrite
+      application: sparkel-gosys
+      team: devteam
+    - access: readwrite
+      application: sparkel-inntekt
+      team: devteam
+    - access: readwrite
+      application: sparkel-sigrun
+      team: devteam
+    - access: readwrite
+      application: sparkel-institusjonsopphold
+      team: devteam
+    - access: readwrite
+      application: sparkel-medlemskap
+      team: devteam
+    - access: readwrite
+      application: sparkel-norg
+      team: devteam
+    - access: readwrite
+      application: sparkel-personinfo
+      team: devteam
+    - access: readwrite
+      application: sparkel-pleiepenger
+      team: devteam
+    - access: readwrite
+      application: sparkel-sykepengeperioder
+      team: devteam
+    - access: readwrite
+      application: spedisjon
+      team: devteam
+    - access: readwrite
+      application: speider
+      team: devteam
+    - access: readwrite
+      application: sprute
+      team: devteam
+    - access: readwrite
+      application: spenn
+      team: devteam
+    - access: readwrite
+      application: spenn-mq
+      team: devteam
+    - access: readwrite
+      application: spenn-simulering
+      team: devteam
+    - access: readwrite
+      application: spenn-avstemming
+      team: devteam
+    - access: readwrite
+      application: spenn-opprydding-dev
+      team: devteam
+    - access: readwrite
+      application: spesialist
+      team: devteam
+    - access: readwrite
+      application: spesialist-migrering
+      team: devteam
+    - access: readwrite
+      application: spinnvill
+      team: devteam
+    - access: readwrite
+      application: spinnvill-opprydding-dev
+      team: devteam
+    - access: readwrite
+      application: spotter
+      team: devteam
+    - access: readwrite
+      application: spetakkel
+      team: devteam
+    - access: readwrite
+      application: spill-av
+      team: devteam
+    - access: readwrite
+      application: spoler
+      team: devteam
+    - access: readwrite
+      application: helse-spleis
+      team: devteam
+    - access: readwrite
+      application: spleis-api
+      team: devteam
+    - access: readwrite
+      application: spleis-avstemming
+      team: devteam
+    - access: readwrite
+      application: spock
+      team: devteam
+    - access: readwrite
+      application: spokelse
+      team: devteam
+    - access: readwrite
+      application: sporbar
+      team: devteam
+    - access: readwrite
+      application: spre-gosys
+      team: devteam
+    - access: readwrite
+      application: spre-gosys-pdf
+      team: devteam
+    - access: readwrite
+      application: spre-oppgaver
+      team: devteam
+    - access: readwrite
+      application: spre-stonadsstatistikk
+      team: devteam
+    - access: readwrite
+      application: sparkel-sputnik
+      team: devteam
+    - access: readwrite
+      application: vedtaksfeed
+      team: devteam
+    - access: readwrite
+      application: sigmund
+      team: risk
+    - access: readwrite
+      application: helserisk-treskeverk
+      team: risk
+    - access: readwrite
+      application: sparkel-sykepengeperioder-mock
+      team: devteam
+    - access: readwrite
+      application: risk-mock
+      team: devteam
+    - access: readwrite
+      application: spleis-testdata
+      team: devteam
+    - access: readwrite
+      application: spleis-opprydding-dev
+      team: devteam
+    - access: readwrite
+      application: spesialist-opprydding-dev
+      team: devteam
+    - access: readwrite
+      application: sparkel-medlemskap-mock
+      team: devteam
+    - access: readwrite
+      application: sparkel-oppgave-endret
+      team: devteam
+    - access: readwrite
+      application: sparkel-identer
+      team: devteam
+    - access: readwrite
+      application: sparkel-skjermet-endret
+      team: devteam
+    - access: readwrite
+      application: sparkel-arbeidsgiver
+      team: devteam
+    - access: readwrite
+      application: sportsrevyen
+      team: devteam
+    - access: readwrite
+      application: sparsom
+      team: devteam
+    - access: readwrite
+      application: sparsom-opprydding
+      team: devteam
+    - access: readwrite
+      application: spane-opprydding
+      team: devteam
+    - access: readwrite
+      application: speaker-kafka
+      team: devteam
+    - access: readwrite
+      application: speaker-backend
+      team: devteam
+    - access: readwrite
+      application: speaker-endringer-formidler
+      team: devteam
+    - access: read
+      application: sondre-halvorsen
+      team: devteam
+    - access: readwrite
+      application: spre-styringsinfo
+      team: devteam
+    - access: write
+      application: spout
+      team: devteam
+    - access: readwrite
+      application: spoiler
+      team: devteam
+    - access: readwrite
+      application: spoogle
+      team: devteam
+    - access: readwrite
+      application: spoogle-opprydding-dev
+      team: devteam
+    - access: readwrite
+      application: sparkel-dokumenter
+      team: devteam
+    - access: readwrite
+      application: spedisjon-opprydding-dev
+      team: devteam
+    - access: readwrite
+      application: sparkel-tilbakedatert
+      team: devteam
+    - access: readwrite
+      application: spekemat-slakter
+      team: devteam
+    - access: readwrite
+      application: spill-av-im
+      team: devteam
+    - access: readwrite
+      application: spotlight
+      team: devteam
+    - access: readwrite
+      application: sparkel-stoppknapp
+      team: devteam
+    - access: readwrite
+      application: sparkel-representasjon
+      team: devteam
   config:
     cleanupPolicy: delete
     maxMessageBytes: 1048588

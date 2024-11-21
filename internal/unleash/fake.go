@@ -3,23 +3,23 @@ package unleash
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 	"time"
 
-	"k8s.io/apimachinery/pkg/api/resource"
-
+	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/test"
 	bifrost "github.com/nais/bifrost/pkg/unleash"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/client-go/dynamic"
 )
 
 const (
@@ -27,7 +27,7 @@ const (
 )
 
 type FakeBifrostClient struct {
-	k8sClient dynamic.Interface
+	watcher *watcher.Watcher[*UnleashInstance]
 }
 
 type FakePrometheusClient struct{}
@@ -60,13 +60,14 @@ func (f FakePrometheusClient) Query(_ context.Context, query string, _ time.Time
 	case strings.Contains(query, "client_apps"):
 		val[0].Value = model.SampleValue(1)
 	default:
+		fmt.Println("QUERY", query)
 		val[0].Value = model.SampleValue(0)
 	}
 	return val, nil, nil
 }
 
-func NewFakeBifrostClient(k8sClient dynamic.Interface) BifrostClient {
-	return &FakeBifrostClient{k8sClient: k8sClient}
+func NewFakeBifrostClient(wtchr *watcher.Watcher[*UnleashInstance]) BifrostClient {
+	return &FakeBifrostClient{watcher: wtchr}
 }
 
 func (f FakeBifrostClient) Post(ctx context.Context, path string, v any) (*http.Response, error) {
@@ -99,27 +100,25 @@ func (f FakeBifrostClient) WithClient(_ *http.Client) {
 }
 
 func (f FakeBifrostClient) createOrUpdateUnleash(ctx context.Context, config bifrost.UnleashConfig) (*unleash_nais_io_v1.Unleash, error) {
-	client := f.k8sClient
-
 	unleashSpec := unleashSpec(config)
 	unleashObject, err := runtime.DefaultUnstructuredConverter.ToUnstructured(unleashSpec)
 	if err != nil {
 		return nil, err
 	}
 
-	resource := client.Resource(unleash_nais_io_v1.GroupVersion.WithResource("unleashes")).Namespace("bifrost-unleash")
-
-	if _, err = resource.Get(ctx, config.Name, metav1.GetOptions{}); err != nil {
-		if strings.Contains(err.Error(), "not found") {
-			_, err = resource.Create(ctx, &unstructured.Unstructured{Object: unleashObject}, metav1.CreateOptions{})
-			if err != nil {
-				return nil, err
-			}
+	defClient, err := f.watcher.SystemAuthenticatedClient(ctx, "management")
+	if err != nil {
+		return nil, err
+	}
+	client := defClient.Namespace(ManagementClusterNamespace)
+	if _, err := f.watcher.Get("management", ManagementClusterNamespace, config.Name); errors.Is(err, &watcher.ErrorNotFound{}) {
+		_, err := client.Create(ctx, &unstructured.Unstructured{Object: unleashObject}, metav1.CreateOptions{})
+		if err != nil {
 			return nil, err
 		}
+		return unleashSpec, nil
 	}
-
-	_, err = resource.Update(ctx, &unstructured.Unstructured{Object: unleashObject}, metav1.UpdateOptions{})
+	_, err = client.Update(ctx, &unstructured.Unstructured{Object: unleashObject}, metav1.UpdateOptions{})
 	if err != nil {
 		return nil, err
 	}

@@ -2,27 +2,15 @@ package api
 
 import (
 	"context"
-	"fmt"
-	"strings"
+	"slices"
 
-	"github.com/nais/api/internal/vulnerabilities"
-
-	"github.com/nais/api/internal/fixtures"
-	"github.com/nais/api/internal/graph"
-	"github.com/nais/api/internal/k8s"
-	"github.com/nais/api/internal/unleash"
+	"github.com/nais/api/internal/kubernetes"
 	"github.com/sethvargo/go-envconfig"
 )
 
-type StaticCluster struct {
-	Name  string
-	Host  string
-	Token string
-}
-
 type k8sConfig struct {
-	Clusters       []string        `env:"KUBERNETES_CLUSTERS"`
-	StaticClusters []StaticCluster `env:"KUBERNETES_CLUSTERS_STATIC"`
+	Clusters       []string                   `env:"KUBERNETES_CLUSTERS"`
+	StaticClusters []kubernetes.StaticCluster `env:"KUBERNETES_CLUSTERS_STATIC"`
 }
 
 func (k *k8sConfig) AllClusterNames() []string {
@@ -33,76 +21,58 @@ func (k *k8sConfig) AllClusterNames() []string {
 	return clusters
 }
 
-func (k *k8sConfig) GraphClusterList() graph.ClusterList {
-	clusters := make(graph.ClusterList)
+type ClusterInfo struct {
+	GCP bool
+}
+
+type ClusterList map[string]ClusterInfo
+
+func (c ClusterList) GCPClusters() []string {
+	if c == nil {
+		return nil
+	}
+
+	var ret []string
+	for cluster, info := range c {
+		if info.GCP {
+			ret = append(ret, cluster)
+		}
+	}
+
+	return ret
+}
+
+func (c ClusterList) Names() []string {
+	if c == nil {
+		return nil
+	}
+
+	var ret []string
+	for cluster := range c {
+		ret = append(ret, cluster)
+	}
+
+	slices.SortFunc(ret, func(i, j string) int {
+		if i < j {
+			return -1
+		}
+		return 1
+	})
+	return ret
+}
+
+func (k *k8sConfig) ClusterList() ClusterList {
+	clusters := make(ClusterList)
 	for _, cluster := range k.Clusters {
-		clusters[cluster] = graph.ClusterInfo{
+		clusters[cluster] = ClusterInfo{
 			GCP: true,
 		}
 	}
 	for _, staticCluster := range k.StaticClusters {
-		clusters[staticCluster.Name] = graph.ClusterInfo{}
+		clusters[staticCluster.Name] = ClusterInfo{}
 	}
 
 	return clusters
-}
-
-func (k *k8sConfig) PkgConfig() k8s.Config {
-	return k8s.Config{
-		Clusters: k.Clusters,
-		StaticClusters: func() []k8s.StaticCluster {
-			var clusters []k8s.StaticCluster
-			for _, c := range k.StaticClusters {
-				clusters = append(clusters, k8s.StaticCluster{
-					Name:  c.Name,
-					Host:  c.Host,
-					Token: c.Token,
-				})
-			}
-			return clusters
-		}(),
-	}
-}
-
-func (u *unleashConfig) PkgConfig() unleash.Config {
-	return unleash.Config{
-		Enabled:       u.Enabled,
-		Namespace:     u.Namespace,
-		BifrostApiUrl: u.BifrostApiUrl,
-	}
-}
-
-func (c *StaticCluster) EnvDecode(value string) error {
-	if value == "" {
-		return nil
-	}
-
-	parts := strings.Split(value, "|")
-	if len(parts) != 3 {
-		return fmt.Errorf(`invalid static cluster entry: %q. Must be on format "name|host|token"`, value)
-	}
-
-	name := strings.TrimSpace(parts[0])
-	if name == "" {
-		return fmt.Errorf("invalid static cluster entry: %q. Name must not be empty", value)
-	}
-
-	host := strings.TrimSpace(parts[1])
-	if host == "" {
-		return fmt.Errorf("invalid static cluster entry: %q. Host must not be empty", value)
-	}
-
-	token := strings.TrimSpace(parts[2])
-	if token == "" {
-		return fmt.Errorf("invalid static cluster entry: %q. Token must not be empty", value)
-	}
-
-	*c = StaticCluster{
-		Name:  name,
-		Host:  host,
-		Token: token,
-	}
-	return nil
 }
 
 type usersyncConfig struct {
@@ -152,11 +122,7 @@ type oAuthConfig struct {
 	RedirectURL string `env:"OAUTH_REDIRECT_URL"`
 }
 
-type slackConfig struct {
-	Token           string `env:"SLACK_API_TOKEN"`
-	FeedbackChannel string `env:"SLACK_FEEDBACK_CHANNEL"`
-}
-
+// TODO(thokra): Is this still needed?
 type unleashConfig struct {
 	// Enabled When set to true, the Unleash feature flag service will be enabled.
 	Enabled bool `env:"UNLEASH_ENABLED"`
@@ -186,10 +152,7 @@ type Config struct {
 
 	// StaticServiceAccounts A JSON-encoded value describing a set of service accounts to be created when the
 	// application starts. Refer to the README for the format.
-	StaticServiceAccounts fixtures.ServiceAccounts `env:"STATIC_SERVICE_ACCOUNTS"`
-
-	// ResourceUtilization is the configuration for the resource utilization service
-	ResourceUtilizationImportEnabled bool `env:"RESOURCE_UTILIZATION_IMPORT_ENABLED"`
+	StaticServiceAccounts StaticServiceAccounts `env:"STATIC_SERVICE_ACCOUNTS"`
 
 	// WithFakeKubernetes When set to true, the api will use a fake kubernetes client.
 	WithFakeClients bool `env:"WITH_FAKE_CLIENTS"`
@@ -200,6 +163,9 @@ type Config struct {
 	// GRPCListenAddress is host:port combination used by the GRPC server
 	GRPCListenAddress string `env:"GRPC_LISTEN_ADDRESS,default=127.0.0.1:3001"`
 
+	LeaseName      string `env:"LEASE_NAME,default=nais-api-lease"`
+	LeaseNamespace string `env:"LEASE_NAMESPACE,default=nais-system"`
+
 	K8s             k8sConfig
 	Usersync        usersyncConfig
 	Cost            costConfig
@@ -207,7 +173,6 @@ type Config struct {
 	Hookd           hookdConfig
 	OAuth           oAuthConfig
 	Unleash         unleashConfig
-	Slack           slackConfig
 }
 
 // NewConfig creates a new configuration instance from environment variables
@@ -222,21 +187,4 @@ func NewConfig(ctx context.Context, lookuper envconfig.Lookuper) (*Config, error
 	}
 
 	return cfg, nil
-}
-
-func (c *Config) ToVulnerabilitiesConfig(clusters []string) *vulnerabilities.Config {
-	return &vulnerabilities.Config{
-		DependencyTrack: vulnerabilities.DependencyTrackConfig{
-			EnableFakes: c.WithFakeClients,
-			Endpoint:    c.DependencyTrack.Endpoint,
-			FrontendUrl: c.DependencyTrack.Frontend,
-			Username:    c.DependencyTrack.Username,
-			Password:    c.DependencyTrack.Password,
-		},
-		Prometheus: vulnerabilities.PrometheusConfig{
-			Tenant:      c.Tenant,
-			Clusters:    clusters,
-			EnableFakes: c.WithFakeClients,
-		},
-	}
 }

@@ -8,7 +8,7 @@ import (
 	"net"
 	"testing"
 
-	"github.com/nais/api/pkg/protoapi"
+	"github.com/nais/api/pkg/apiclient/protoapi"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
@@ -59,7 +59,6 @@ func (t *TestingHelpers) FailNow() {
 }
 
 type MockServers struct {
-	AuditLogs   *protoapi.MockAuditLogsServer
 	Reconcilers *protoapi.MockReconcilersServer
 	Teams       *protoapi.MockTeamsServer
 	Users       *protoapi.MockUsersServer
@@ -79,13 +78,11 @@ func NewMockClient(t testing.TB) (*APIClient, *MockServers) {
 	}
 	th.Cleanup(th.printBuffer)
 	mockServers := &MockServers{
-		AuditLogs:   protoapi.NewMockAuditLogsServer(th),
 		Reconcilers: protoapi.NewMockReconcilersServer(th),
 		Teams:       protoapi.NewMockTeamsServer(th),
 		Users:       protoapi.NewMockUsersServer(th),
 	}
 
-	protoapi.RegisterAuditLogsServer(s, mockServers.AuditLogs)
 	protoapi.RegisterReconcilersServer(s, mockServers.Reconcilers)
 	protoapi.RegisterTeamsServer(s, mockServers.Teams)
 	protoapi.RegisterUsersServer(s, mockServers.Users)
@@ -95,7 +92,11 @@ func NewMockClient(t testing.TB) (*APIClient, *MockServers) {
 		return listener.DialContext(ctx)
 	}
 
-	client, err := New("bufconn", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(dialer))
+	client, err := New(
+		"passthrough://",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithContextDialer(dialer),
+	)
 	if err != nil {
 		t.Fatal(err)
 	}

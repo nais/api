@@ -1,13 +1,23 @@
 version: "2"
+rules:
+  - name: "always-order-by"
+    rule: |
+      query.cmd == "many" && !query.sql.contains("ORDER BY")
+    message: |
+      SELECT statements must have an ORDER BY clause
 sql:
-  - engine: postgresql
-    schema: ../internal/database/migrations
-    queries: ../internal/database/queries
+  - &default_domain
+    name: "Users SQL"
+    engine: "postgresql"
+    schema: "../internal/database/migrations"
+    queries: "../internal/user/queries"
+    rules:
+      - "always-order-by"
     gen:
-      go:
-        package: gensql
-        out: ../internal/database/gensql
-        sql_package: pgx/v5
+      go: &default_go
+        package: "usersql"
+        out: "../internal/user/usersql"
+        sql_package: "pgx/v5"
         emit_interface: true
         emit_result_struct_pointers: true
         emit_prepared_queries: true
@@ -24,19 +34,125 @@ sql:
             nullable: true
           - db_type: "slug"
             go_type: "github.com/nais/api/internal/slug.Slug"
-
-          - db_type: "uuid"
-            go_type: github.com/google/uuid.UUID
           - db_type: "uuid"
             go_type: "*github.com/google/uuid.UUID"
             nullable: true
+          - db_type: "uuid"
+            go_type: "github.com/google/uuid.UUID"
 
-    rules:
-      - always-order-by
+  - <<: *default_domain
+    name: "Service accounts SQL"
+    queries: "../internal/serviceaccount/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "serviceaccountsql"
+        out: "../internal/serviceaccount/serviceaccountsql"
 
-rules:
-  - name: always-order-by
-    rule: |
-      query.cmd == "many" && !query.sql.contains("ORDER BY")
-    message: |
-      SELECT statements must have an ORDER BY clause
+  - <<: *default_domain
+    name: "Teams SQL"
+    queries: "../internal/team/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "teamsql"
+        out: "../internal/team/teamsql"
+
+  - <<: *default_domain
+    name: "Roles SQL"
+    queries: "../internal/role/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "rolesql"
+        out: "../internal/role/rolesql"
+
+  - <<: *default_domain
+    name: "Audit SQL"
+    queries: "../internal/audit/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "auditsql"
+        out: "../internal/audit/auditsql"
+
+  - <<: *default_domain
+    name: "GitHub repositories SQL"
+    queries: "../internal/github/repository/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "repositorysql"
+        out: "../internal/github/repository/repositorysql"
+
+  - <<: *default_domain
+    name: "Cost SQL"
+    queries: "../internal/cost/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "costsql"
+        out: "../internal/cost/costsql"
+
+  - <<: *default_domain
+    name: "Reconciler SQL"
+    queries: "../internal/reconciler/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "reconcilersql"
+        out: "../internal/reconciler/reconcilersql"
+
+  - <<: *default_domain
+    name: "Environment SQL"
+    queries: "../internal/environment/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "environmentsql"
+        out: "../internal/environment/environmentsql"
+
+  - <<: *default_domain
+    name: "Teams SQL for gRPC"
+    queries: "../internal/grpc/grpcteam/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "grpcteamsql"
+        out: "../internal/grpc/grpcteam/grpcteamsql"
+
+  - <<: *default_domain
+    name: "Users SQL for gRPC"
+    queries: "../internal/grpc/grpcuser/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "grpcusersql"
+        out: "../internal/grpc/grpcuser/grpcusersql"
+
+  - <<: *default_domain
+    name: "Reconcilers SQL for gRPC"
+    queries: "../internal/grpc/grpcreconciler/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "grpcreconcilersql"
+        out: "../internal/grpc/grpcreconciler/grpcreconcilersql"
+
+  - <<: *default_domain
+    name: "Usersync SQL"
+    queries: "../internal/usersync/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "usersyncsql"
+        out: "../internal/usersync/usersyncsql"
+
+  - <<: *default_domain
+    name: "Session SQL"
+    queries: "../internal/session/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "sessionsql"
+        out: "../internal/session/sessionsql"

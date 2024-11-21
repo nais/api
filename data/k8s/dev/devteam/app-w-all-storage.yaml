@@ -7,20 +7,49 @@ metadata:
     team: devteam
 
 spec:
+  idporten:
+    enabled: true
+  maskinporten:
+    enabled: true
+  tokenx:
+    enabled: true
+  azure:
+    application:
+      enabled: true
   accessPolicy:
     inbound:
       rules:
-      - application: bot-rap
-        namespace: bot
-        permissions:
-          roles:
-          - rap-read
+        - application: bot-rap
+          namespace: bot
+          permissions:
+            roles:
+              - rap-read
+        - application: dataproduct-apps-topics
+        - application: nais-deploy-canary
+          namespace: nais
     outbound:
+      rules:
+        - application: some-app
+          namespace: bot
+          permissions:
+            roles:
+              - some-role
+        - application: dataproduct-apps-topics
       external:
-      - host: vg.no
-      - ipv4: 127.12.13.14
-      - ipv4: 10.11.12.13
-  image: navikt/app-w-all-storage:latest
+        - host: vg.no
+        - host: foo.bar.com
+          ports:
+            - port: 9200
+        - ipv4: 127.12.13.14
+        - ipv4: 10.11.12.13
+          ports:
+            - port: 443
+            - port: 444
+  image: ghcr.io/navikt/app-w-all-storage:latest
+  ingresses:
+    - "https://storageapp.example.com"
+    - "https://storageapp.eksternius.example.com"
+    - "https://storageapp.ansatt.dev.nav.no"
   gcp:
     sqlInstances:
       - type: POSTGRES_15
@@ -34,10 +63,13 @@ spec:
         cascadingDelete: true
       - name: donotdelete_bq
         permission: READWRITE
+      - name: contests
+        permission: READWRITE
     buckets:
       - name: deleteme_bucket
         cascadingDelete: true
       - name: donotdelete_bucket
+      - name: uniquebucketname-bucket
   kafka:
     pool: nav-dev
   redis:
@@ -55,3 +87,72 @@ spec:
     requests:
       cpu: 100m
       memory: 128Mi
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-w-all-storage-0
+  labels:
+    app: app-w-all-storage
+spec:
+  ingressClassName: nais-ingress
+  rules:
+    - host: storageapp.example.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: app-w-all-storage
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app: app-w-all-storage
+  name: app-w-all-storage-1
+spec:
+  ingressClassName: nais-ingress-external
+  rules:
+    - host: storageapp.eksternius.example.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: app-w-all-storage
+                port:
+                  number: 80
+            path: /
+            pathType: Prefix
+status:
+  loadBalancer:
+    ingress:
+      - ip: 192.169.69.69
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app: app-w-all-storage
+  name: app-w-all-storage-2
+spec:
+  ingressClassName: nais-ingress-fa
+  rules:
+    - host: storageapp.ansatt.dev.nav.no
+      http:
+        paths:
+          - backend:
+              service:
+                name: app-w-all-storage
+                port:
+                  number: 80
+            path: /
+            pathType: ImplementationSpecific
+status:
+  loadBalancer:
+    ingress:
+      - ip: 192.169.69.70

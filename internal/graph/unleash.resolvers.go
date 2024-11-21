@@ -2,111 +2,108 @@ package graph
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
-	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/kubernetes/watcher"
+	"github.com/nais/api/internal/role"
+	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/unleash"
 )
 
-func (r *mutationResolver) CreateUnleashForTeam(ctx context.Context, team slug.Slug) (*model.Unleash, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamMembership(actor, team)
+func (r *mutationResolver) CreateUnleashForTeam(ctx context.Context, input unleash.CreateUnleashForTeamInput) (*unleash.CreateUnleashForTeamPayload, error) {
+	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationUnleashCreate, input.TeamSlug); err != nil {
+		return nil, err
+	}
+
+	instance, err := unleash.Create(ctx, &input)
 	if err != nil {
 		return nil, err
 	}
 
-	unleashName := team.String()
-
-	ret, err := r.unleashMgr.NewUnleash(ctx, unleashName, []string{team.String()})
-	if err != nil {
-		return nil, err
-	}
-
-	err = r.auditor.UnleashCreated(ctx, actor.User, team, unleashName)
-	if err != nil {
-		return nil, err
-	}
-
-	return ret, nil
+	return &unleash.CreateUnleashForTeamPayload{Unleash: instance}, nil
 }
 
-func (r *mutationResolver) UpdateUnleashForTeam(ctx context.Context, team slug.Slug, name string, allowedTeams []string) (*model.Unleash, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamMembership(actor, team)
+func (r *mutationResolver) AllowTeamAccessToUnleash(ctx context.Context, input unleash.AllowTeamAccessToUnleashInput) (*unleash.AllowTeamAccessToUnleashPayload, error) {
+	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationUnleashUpdate, input.TeamSlug); err != nil {
+		return nil, err
+	}
+
+	instance, err := unleash.AllowTeamAccess(ctx, input)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(allowedTeams) == 0 {
-		return nil, apierror.ErrUnleashEmptyAllowedTeams
-	}
-
-	ret, err := r.unleashMgr.UpdateUnleash(ctx, name, allowedTeams)
-	if err != nil {
-		return nil, err
-	}
-
-	// TODO: split mutation (e.g. AddAllowedTeam, RemoveAllowedTeam) to allow for more granular auditing?
-	err = r.auditor.UnleashUpdated(ctx, actor.User, team, name)
-	if err != nil {
-		return nil, err
-	}
-
-	return ret, nil
+	return &unleash.AllowTeamAccessToUnleashPayload{Unleash: instance}, nil
 }
 
-func (r *unleashMetricsResolver) Toggles(ctx context.Context, obj *model.UnleashMetrics) (int, error) {
-	if obj.GQLVars.InstanceName == "" {
-		r.log.Debugf("InstanceName is empty, skipping toggles query")
-		return 0, nil
+func (r *mutationResolver) RevokeTeamAccessToUnleash(ctx context.Context, input unleash.RevokeTeamAccessToUnleashInput) (*unleash.RevokeTeamAccessToUnleashPayload, error) {
+	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationUnleashUpdate, input.TeamSlug); err != nil {
+		return nil, err
 	}
-	toggles, err := r.unleashMgr.PromQuery(ctx, fmt.Sprintf("sum(feature_toggles_total{job=~\"%s\", namespace=\"%s\"})", obj.GQLVars.InstanceName, obj.GQLVars.Namespace))
+
+	instance, err := unleash.RevokeTeamAccess(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return &unleash.RevokeTeamAccessToUnleashPayload{Unleash: instance}, nil
+}
+
+func (r *teamResolver) Unleash(ctx context.Context, obj *team.Team) (*unleash.UnleashInstance, error) {
+	ins, err := unleash.ForTeam(ctx, obj.Slug)
+	if err != nil && !errors.Is(err, &watcher.ErrorNotFound{}) {
+		return nil, err
+	}
+	return ins, nil
+}
+
+func (r *unleashInstanceResolver) AllowedTeams(ctx context.Context, obj *unleash.UnleashInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*team.Team], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return team.ListBySlugs(ctx, obj.AllowedTeamSlugs, page)
+}
+
+func (r *unleashInstanceMetricsResolver) Toggles(ctx context.Context, obj *unleash.UnleashInstanceMetrics) (int, error) {
+	return unleash.Toggles(ctx, obj.TeamSlug)
+}
+
+func (r *unleashInstanceMetricsResolver) APITokens(ctx context.Context, obj *unleash.UnleashInstanceMetrics) (int, error) {
+	return unleash.APITokens(ctx, obj.TeamSlug)
+}
+
+func (r *unleashInstanceMetricsResolver) CPUUtilization(ctx context.Context, obj *unleash.UnleashInstanceMetrics) (float64, error) {
+	usage, err := unleash.CPUUsage(ctx, obj.TeamSlug)
 	if err != nil {
 		return 0, err
 	}
-	return int(toggles), nil
+
+	return usage / obj.CPURequests * 100, nil
 }
 
-func (r *unleashMetricsResolver) APITokens(ctx context.Context, obj *model.UnleashMetrics) (int, error) {
-	if obj.GQLVars.InstanceName == "" {
-		r.log.Debugf("InstanceName is empty, skipping APITokens query")
-		return 0, nil
-	}
-	apiTokens, err := r.unleashMgr.PromQuery(ctx, fmt.Sprintf("sum(client_apps_total{job=~\"%s\", namespace=\"%s\", range=\"allTime\"})", obj.GQLVars.InstanceName, obj.GQLVars.Namespace))
+func (r *unleashInstanceMetricsResolver) MemoryUtilization(ctx context.Context, obj *unleash.UnleashInstanceMetrics) (float64, error) {
+	usage, err := unleash.MemoryUsage(ctx, obj.TeamSlug)
 	if err != nil {
 		return 0, err
 	}
-	return int(apiTokens), nil
+
+	return usage / obj.MemoryRequests * 100, nil
 }
 
-func (r *unleashMetricsResolver) CPUUtilization(ctx context.Context, obj *model.UnleashMetrics) (float64, error) {
-	if obj.GQLVars.InstanceName == "" {
-		r.log.Debugf("InstanceName is empty, skipping CPU utilization query")
-		return 0, nil
-	}
-
-	cpu, err := r.unleashMgr.PromQuery(ctx, fmt.Sprintf("irate(process_cpu_user_seconds_total{job=\"%s\", namespace=\"%s\"}[2m])", obj.GQLVars.InstanceName, obj.GQLVars.Namespace))
-	if err != nil || cpu == 0 || obj.CpuRequests == 0 {
-		return 0, err
-	}
-	return float64(cpu) / obj.CpuRequests * 100, nil
+func (r *Resolver) UnleashInstance() gengql.UnleashInstanceResolver {
+	return &unleashInstanceResolver{r}
 }
 
-func (r *unleashMetricsResolver) MemoryUtilization(ctx context.Context, obj *model.UnleashMetrics) (float64, error) {
-	if obj.GQLVars.InstanceName == "" {
-		r.log.Debugf("InstanceName is empty, skipping memory utilization query")
-		return 0, nil
-	}
-	memory, err := r.unleashMgr.PromQuery(ctx, fmt.Sprintf("process_resident_memory_bytes{job=\"%s\", namespace=\"%s\"}", obj.GQLVars.InstanceName, obj.GQLVars.Namespace))
-	if err != nil || memory == 0 || obj.MemoryRequests == 0 {
-		return 0, err
-	}
-	return float64(memory) / obj.MemoryRequests * 100, nil
+func (r *Resolver) UnleashInstanceMetrics() gengql.UnleashInstanceMetricsResolver {
+	return &unleashInstanceMetricsResolver{r}
 }
 
-func (r *Resolver) UnleashMetrics() gengql.UnleashMetricsResolver { return &unleashMetricsResolver{r} }
-
-type unleashMetricsResolver struct{ *Resolver }
+type (
+	unleashInstanceResolver        struct{ *Resolver }
+	unleashInstanceMetricsResolver struct{ *Resolver }
+)

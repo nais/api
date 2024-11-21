@@ -1,3 +1,5 @@
+//go:build integration_test
+
 package usersync_test
 
 import (
@@ -7,348 +9,280 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/auditlogger"
-	"github.com/nais/api/internal/auditlogger/audittype"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/role"
+	"github.com/nais/api/internal/role/rolesql"
 	"github.com/nais/api/internal/test"
+	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/usersync"
+	"github.com/sirupsen/logrus"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
-	"github.com/stretchr/testify/mock"
-	admin_directory_v1 "google.golang.org/api/admin/directory/v1"
+	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	admindirectoryv1 "google.golang.org/api/admin/directory/v1"
 	"google.golang.org/api/option"
 )
 
+const (
+	domain           = "example.com"
+	adminGroupPrefix = "nais-admins"
+)
+
 func TestSync(t *testing.T) {
-	const (
-		domain           = "example.com"
-		adminGroupPrefix = "nais-admins"
-	)
+	ctx := context.Background()
+	log, _ := logrustest.NewNullLogger()
 
-	correlationID := uuid.New()
+	container, dsn, err := startPostgresql(ctx, log)
+	if err != nil {
+		t.Fatalf("failed to start postgres container: %v", err)
+	}
 
+	setup := func(t *testing.T) (context.Context, *pgxpool.Pool) {
+		pool := getConnection(ctx, t, container, dsn, log)
+		ctx = database.NewLoaderContext(ctx, pool)
+		ctx = user.NewLoaderContext(ctx, pool)
+		ctx = role.NewLoaderContext(ctx, pool)
+		return ctx, pool
+	}
 	t.Run("No local users, no remote users", func(t *testing.T) {
-		ctx := context.Background()
-
-		log, _ := logrustest.NewNullLogger()
-		db := database.NewMockDatabase(t)
-
-		db.EXPECT().
-			Transaction(ctx, mock.Anything).
-			Return(nil).
-			Once()
-
-		auditLogger := auditlogger.New(db, log)
-		httpClient := test.NewTestHttpClient(func(req *http.Request) *http.Response {
-			return test.Response("200 OK", `{"users":[]}`)
-		})
-		svc, err := admin_directory_v1.NewService(ctx, option.WithHTTPClient(httpClient))
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		err = usersync.
-			New(db, auditLogger, adminGroupPrefix, domain, svc, log).
-			Sync(ctx, correlationID)
-		if err != nil {
-			t.Fatal(err)
-		}
-	})
-
-	t.Run("Local users, no remote users", func(t *testing.T) {
-		ctx := context.Background()
-		txCtx := context.Background()
-
-		log, _ := logrustest.NewNullLogger()
-		db := database.NewMockDatabase(t)
-		auditLogger := auditlogger.New(db, log)
-		dbtx := database.NewMockDatabase(t)
-
-		db.EXPECT().
-			Transaction(ctx, mock.Anything).
-			Run(func(ctx context.Context, fn database.DatabaseTransactionFunc) {
-				_ = fn(txCtx, dbtx)
-			}).
-			Return(nil).
-			Once()
-
-		user1 := &database.User{User: &gensql.User{ID: uuid.New(), Email: "user1@example.com", ExternalID: "123", Name: "User 1"}}
-		user2 := &database.User{User: &gensql.User{ID: uuid.New(), Email: "user2@example.com", ExternalID: "456", Name: "User 2"}}
-
-		for _, user := range []*database.User{user1, user2} {
-			var actor *string
-			db.EXPECT().
-				CreateAuditLogEntry(
-					ctx,
-					mock.Anything,
-					actor,
-					audittype.AuditLogsTargetTypeUser,
-					user.Email,
-					audittype.AuditActionUsersyncDelete,
-					fmt.Sprintf("Local user deleted: %q, external ID: %q", user.Email, user.ExternalID),
-				).
-				Return(nil).
-				Once()
-		}
-
-		p := database.Page{
-			Limit:  100,
-			Offset: 0,
-		}
-
-		dbtx.EXPECT().
-			GetUsers(txCtx, p).
-			Return([]*database.User{user1, user2}, 2, nil).
-			Once()
-		dbtx.EXPECT().
-			GetAllUserRoles(txCtx).
-			Return([]*database.UserRole{
-				{UserRole: &gensql.UserRole{UserID: user1.ID, RoleName: gensql.RoleNameTeamcreator}},
-				{UserRole: &gensql.UserRole{UserID: user2.ID, RoleName: gensql.RoleNameAdmin}},
-			}, nil).
-			Once()
-		dbtx.EXPECT().
-			DeleteUser(txCtx, user1.ID).
-			Return(nil).
-			Once()
-		dbtx.EXPECT().
-			DeleteUser(txCtx, user2.ID).
-			Return(nil).
-			Once()
+		ctx, pool := setup(t)
 
 		httpClient := test.NewTestHttpClient(
-			// users
 			func(req *http.Request) *http.Response {
 				return test.Response("200 OK", `{"users":[]}`)
 			},
-			// admin group members
 			func(req *http.Request) *http.Response {
 				return test.Response("200 OK", `{"members":[]}`)
 			},
 		)
-		svc, err := admin_directory_v1.NewService(ctx, option.WithHTTPClient(httpClient))
+
+		svc, err := admindirectoryv1.NewService(ctx, option.WithHTTPClient(httpClient))
 		if err != nil {
 			t.Fatal(err)
 		}
 
+		correlationID := uuid.New()
 		err = usersync.
-			New(db, auditLogger, adminGroupPrefix, domain, svc, log).
+			New(pool, adminGroupPrefix, domain, svc, log).
 			Sync(ctx, correlationID)
 		if err != nil {
 			t.Fatal(err)
+		}
+
+		p, _ := pagination.ParsePage(nil, nil, nil, nil)
+		if users, err := user.List(ctx, p, nil); err != nil {
+			t.Fatal(err)
+		} else if total := len(users.Nodes()); total != 0 {
+			t.Fatalf("expected 0 users, got %d", total)
+		}
+	})
+
+	t.Run("Local users, no remote users", func(t *testing.T) {
+		ctx, pool := setup(t)
+
+		user1, err := user.Create(ctx, "User 1", "user1@example.com", "123")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		user2, err := user.Create(ctx, "User 2", "user2@example.com", "456")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if err := role.AssignGlobalRoleToUser(ctx, user1.UUID, rolesql.RoleNameTeamcreator); err != nil {
+			t.Fatal(err)
+		}
+
+		if err := role.AssignGlobalRoleToUser(ctx, user2.UUID, rolesql.RoleNameAdmin); err != nil {
+			t.Fatal(err)
+		}
+
+		httpClient := test.NewTestHttpClient(
+			func(req *http.Request) *http.Response {
+				return test.Response("200 OK", `{"users":[]}`)
+			},
+			func(req *http.Request) *http.Response {
+				return test.Response("200 OK", `{"members":[]}`)
+			},
+		)
+		svc, err := admindirectoryv1.NewService(ctx, option.WithHTTPClient(httpClient))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		correlationID := uuid.New()
+		err = usersync.
+			New(pool, adminGroupPrefix, domain, svc, log).
+			Sync(ctx, correlationID)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		p, _ := pagination.ParsePage(nil, nil, nil, nil)
+		if users, err := user.List(ctx, p, nil); err != nil {
+			t.Fatal(err)
+		} else if total := len(users.Nodes()); total != 0 {
+			t.Fatalf("expected 0 users, got %d", total)
 		}
 	})
 
 	t.Run("Create, update and delete users", func(t *testing.T) {
-		ctx := context.Background()
-		txCtx := context.Background()
+		ctx, pool := setup(t)
 
-		log, _ := logrustest.NewNullLogger()
-		db := database.NewMockDatabase(t)
-		auditLogger := auditlogger.New(db, log)
-		dbtx := database.NewMockDatabase(t)
-
-		numDefaultRoleNames := len(usersync.DefaultRoleNames)
-
-		localUserID1 := uuid.New()
-		localUserID2 := uuid.New()
-		localUserID3 := uuid.New()
-		localUserID4 := uuid.New()
-
-		localUserWithIncorrectName := &database.User{User: &gensql.User{ID: localUserID1, Email: "user1@example.com", ExternalID: "123", Name: "Incorrect Name"}}
-		localUserWithCorrectName := &database.User{User: &gensql.User{ID: localUserID1, Email: "user1@example.com", ExternalID: "123", Name: "Correct Name"}}
-
-		localUserWithIncorrectEmail := &database.User{User: &gensql.User{ID: localUserID2, Email: "user-123@example.com", ExternalID: "789", Name: "Some Name"}}
-		localUserWithCorrectEmail := &database.User{User: &gensql.User{ID: localUserID2, Email: "user3@example.com", ExternalID: "789", Name: "Some Name"}}
-
-		localUserThatWillBeDeleted := &database.User{User: &gensql.User{ID: localUserID3, Email: "delete-me@example.com", ExternalID: "321", Name: "Delete Me"}}
-
-		createdLocalUser := &database.User{User: &gensql.User{ID: localUserID4, Email: "user2@example.com", ExternalID: "456", Name: "Create Me"}}
-
-		httpClient := test.NewTestHttpClient(
-			// org users
-			func(req *http.Request) *http.Response {
-				return test.Response("200 OK", `{"users":[`+
-					`{"id": "123", "primaryEmail":"user1@example.com","name":{"fullName":"Correct Name"}},`+ // Will update name of local user
-					`{"id": "456", "primaryEmail":"user2@example.com","name":{"fullName":"Create Me"}},`+ // Will be created
-					`{"id": "789", "primaryEmail":"user3@example.com","name":{"fullName":"Some Name"}}]}`) // Will update email of local user
-			},
-			// admin group members
-			func(req *http.Request) *http.Response {
-				return test.Response("200 OK", `{"members":[`+
-					`{"id": "456", "email":"user2@example.com", "status": "ACTIVE", "type": "USER"},`+ // Will be granted admin role
-					`{"Id": "666", "email":"some-group@example.com", "type": "GROUP"},`+ // Group type, will be ignored
-					`{"Id": "111", "email":"unknown-admin@example.com", "status": "ACTIVE", "type": "USER"},`+ // Unknown user, will be logged
-					`{"Id": "789", "email":"inactive-user@example.com", "status":"SUSPENDED", "type": "USER"}]}`) // Invalid status, will be ignored
-			},
-		)
-		svc, err := admin_directory_v1.NewService(ctx, option.WithHTTPClient(httpClient))
+		userWithIncorrectName, err := user.Create(ctx, "Incorrect Name", "user1@example.com", "1")
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		db.EXPECT().
-			Transaction(mock.Anything, mock.Anything).
-			Run(func(_ context.Context, fn database.DatabaseTransactionFunc) {
-				_ = fn(txCtx, dbtx)
-			}).
-			Return(nil).
-			Once()
-
-		dbtx.EXPECT().
-			GetAllUserRoles(txCtx).
-			Return([]*database.UserRole{
-				{UserRole: &gensql.UserRole{UserID: localUserID1, RoleName: gensql.RoleNameTeamcreator}},
-				{UserRole: &gensql.UserRole{UserID: localUserID1, RoleName: gensql.RoleNameAdmin}},
-				{UserRole: &gensql.UserRole{UserID: localUserID2, RoleName: gensql.RoleNameTeamviewer}},
-			}, nil).
-			Once()
-
-		p := database.Page{
-			Limit:  100,
-			Offset: 0,
+		userWithIncorrectEmail, err := user.Create(ctx, "Some Name", "incorrect@example.com", "2")
+		if err != nil {
+			t.Fatal(err)
 		}
 
-		dbtx.EXPECT().
-			GetUsers(txCtx, p).
-			Return([]*database.User{
-				localUserWithIncorrectName,
-				localUserWithIncorrectEmail,
-				localUserThatWillBeDeleted,
-			}, 3, nil).
-			Once()
+		userThatWillBeDeleted, err := user.Create(ctx, "Delete Me", "delete-me@example.com", "3")
+		if err != nil {
+			t.Fatal(err)
+		}
 
-		// user1@example.com
-		dbtx.EXPECT().
-			UpdateUser(txCtx, localUserWithIncorrectName.ID, "Correct Name", "user1@example.com", "123").
-			Return(localUserWithCorrectName, nil).
-			Once()
-		dbtx.EXPECT().
-			AssignGlobalRoleToUser(txCtx, localUserWithCorrectName.ID, mock.MatchedBy(func(roleName gensql.RoleName) bool {
-				return roleName != gensql.RoleNameTeamcreator
-			})).
-			Return(nil).
-			Times(numDefaultRoleNames - 1)
+		userThatShouldLoseAdminRole, err := user.Create(ctx, "Should Lose Admin", "should-lose-admin@example.com", "4")
+		if err != nil {
+			t.Fatal(err)
+		}
 
-		// user2@example.com
-		dbtx.EXPECT().
-			CreateUser(txCtx, "Create Me", "user2@example.com", "456").
-			Return(createdLocalUser, nil).
-			Once()
-		dbtx.EXPECT().
-			AssignGlobalRoleToUser(txCtx, createdLocalUser.ID, mock.AnythingOfType("gensql.RoleName")).
-			Return(nil).
-			Times(numDefaultRoleNames)
+		if err := role.AssignGlobalRoleToUser(ctx, userThatShouldLoseAdminRole.UUID, rolesql.RoleNameAdmin); err != nil {
+			t.Fatal(err)
+		}
 
-		// user3@example.com
-		dbtx.EXPECT().
-			UpdateUser(txCtx, localUserWithIncorrectEmail.ID, "Some Name", "user3@example.com", "789").
-			Return(localUserWithCorrectEmail, nil).
-			Once()
-		dbtx.EXPECT().
-			AssignGlobalRoleToUser(txCtx, localUserWithCorrectEmail.ID, mock.MatchedBy(func(roleName gensql.RoleName) bool {
-				return roleName != gensql.RoleNameTeamviewer
-			})).
-			Return(nil).
-			Times(numDefaultRoleNames - 1)
+		httpClient := test.NewTestHttpClient(
+			func(req *http.Request) *http.Response {
+				return test.Response("200 OK", `{"users":[`+
+					`{"id": "1", "primaryEmail":"user1@example.com","name":{"fullName":"Correct Name"}},`+ // Will update name of local user
+					`{"id": "2", "primaryEmail":"user2@example.com","name":{"fullName":"Some Name"}},`+ // Will update email of local user
+					`{"id": "4", "primaryEmail":"should-lose-admin@example.com","name":{"fullName":"Should Lose Admin"}},`+ // Will lose admin role
+					`{"id": "5", "primaryEmail":"create-me@example.com","name":{"fullName":"Create Me"}}]}`) // Will be created
+			},
+			func(req *http.Request) *http.Response {
+				return test.Response("200 OK", `{"members":[`+
+					`{"id": "2", "email":"user2@example.com", "status": "ACTIVE", "type": "USER"},`+ // Will be granted admin role
+					`{"Id": "6", "email":"some-group@example.com", "type": "GROUP"},`+ // Group type, will be ignored
+					`{"Id": "7", "email":"unknown-admin@example.com", "status": "ACTIVE", "type": "USER"},`+ // Unknown user, will be logged
+					`{"Id": "8", "email":"inactive-user@example.com", "status":"SUSPENDED", "type": "USER"}]}`) // Invalid status, will be ignored
+			},
+		)
+		svc, err := admindirectoryv1.NewService(ctx, option.WithHTTPClient(httpClient))
+		if err != nil {
+			t.Fatal(err)
+		}
 
-		dbtx.EXPECT().
-			DeleteUser(txCtx, localUserThatWillBeDeleted.ID).
-			Return(nil).
-			Once()
-
-		dbtx.EXPECT().
-			AssignGlobalRoleToUser(txCtx, createdLocalUser.ID, gensql.RoleNameAdmin).
-			Return(nil).
-			Once()
-
-		dbtx.EXPECT().
-			RevokeGlobalUserRole(txCtx, localUserID1, gensql.RoleNameAdmin).
-			Return(nil).
-			Once()
-
-		var actor *string
-		db.EXPECT().
-			CreateAuditLogEntry(
-				ctx,
-				mock.Anything,
-				actor,
-				audittype.AuditLogsTargetTypeUser,
-				"user1@example.com",
-				audittype.AuditActionUsersyncUpdate,
-				`Local user updated: "user1@example.com", external ID: "123"`,
-			).
-			Return(nil).
-			Once()
-		db.EXPECT().
-			CreateAuditLogEntry(
-				ctx,
-				mock.Anything,
-				actor,
-				audittype.AuditLogsTargetTypeUser,
-				"user2@example.com",
-				audittype.AuditActionUsersyncCreate,
-				`Local user created: "user2@example.com", external ID: "456"`,
-			).
-			Return(nil).
-			Once()
-		db.EXPECT().
-			CreateAuditLogEntry(
-				ctx,
-				mock.Anything,
-				actor,
-				audittype.AuditLogsTargetTypeUser,
-				"user3@example.com",
-				audittype.AuditActionUsersyncUpdate,
-				`Local user updated: "user3@example.com", external ID: "789"`,
-			).
-			Return(nil).
-			Once()
-
-		db.EXPECT().
-			CreateAuditLogEntry(
-				ctx,
-				mock.Anything,
-				actor,
-				audittype.AuditLogsTargetTypeUser,
-				"delete-me@example.com",
-				audittype.AuditActionUsersyncDelete,
-				`Local user deleted: "delete-me@example.com", external ID: "321"`,
-			).
-			Return(nil).
-			Once()
-
-		db.EXPECT().
-			CreateAuditLogEntry(
-				ctx,
-				mock.Anything,
-				actor,
-				audittype.AuditLogsTargetTypeUser,
-				"user2@example.com",
-				audittype.AuditActionUsersyncAssignAdminRole,
-				`Assign global admin role to user: "user2@example.com"`,
-			).
-			Return(nil).
-			Once()
-
-		db.EXPECT().
-			CreateAuditLogEntry(
-				ctx,
-				mock.Anything,
-				actor,
-				audittype.AuditLogsTargetTypeUser,
-				"user1@example.com",
-				audittype.AuditActionUsersyncRevokeAdminRole,
-				`Revoke global admin role from user: "user1@example.com"`,
-			).
-			Return(nil).
-			Once()
-
+		correlationID := uuid.New()
 		err = usersync.
-			New(db, auditLogger, adminGroupPrefix, domain, svc, log).
+			New(pool, adminGroupPrefix, domain, svc, log).
 			Sync(ctx, correlationID)
 		if err != nil {
 			t.Fatal(err)
 		}
+
+		p, _ := pagination.ParsePage(nil, nil, nil, nil)
+		if users, err := user.List(ctx, p, nil); err != nil {
+			t.Fatal(err)
+		} else if total := len(users.Nodes()); total != 4 {
+			t.Fatalf("expected 3 users, got %d", total)
+		}
+
+		if u, err := user.Get(ctx, userWithIncorrectName.UUID); err != nil {
+			t.Fatal(err)
+		} else if correctName := "Correct Name"; u.Name != correctName {
+			t.Fatalf("expected name to be %q, got %q", correctName, u.Name)
+		}
+
+		if u, err := user.Get(ctx, userWithIncorrectEmail.UUID); err != nil {
+			t.Fatal(err)
+		} else if correctEmail := "user2@example.com"; u.Email != correctEmail {
+			t.Fatalf("expected email to be %q, got %q", correctEmail, u.Email)
+		}
+
+		if u, err := user.Get(ctx, userThatWillBeDeleted.UUID); err == nil {
+			t.Fatalf("expected user to be deleted, got %v", u)
+		}
+
+		if u, err := user.GetByEmail(ctx, "create-me@example.com"); err != nil {
+			t.Fatal(err)
+		} else if correctName := "Create Me"; u.Name != correctName {
+			t.Fatalf("expected name to be %q, got %q", correctName, u.Name)
+		}
+
+		roles, err := role.ForUser(ctx, userThatShouldLoseAdminRole.UUID)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		for _, r := range roles {
+			if r.Name == rolesql.RoleNameAdmin {
+				t.Fatalf("expected user to lose admin role, but still has it")
+			}
+		}
+
+		roles, err = role.ForUser(ctx, userWithIncorrectEmail.UUID)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		foundAdminRole := false
+		for _, r := range roles {
+			if r.Name == rolesql.RoleNameAdmin {
+				foundAdminRole = true
+				break
+			}
+		}
+		if !foundAdminRole {
+			t.Fatalf("expected user to be granted admin role, but doesn't have it")
+		}
 	})
+}
+
+func startPostgresql(ctx context.Context, log logrus.FieldLogger) (container *postgres.PostgresContainer, dsn string, err error) {
+	container, err = postgres.Run(
+		ctx,
+		"docker.io/postgres:16-alpine",
+		postgres.WithDatabase("test"),
+		postgres.WithUsername("test"),
+		postgres.WithPassword("test"),
+		postgres.WithSQLDriver("pgx"),
+		postgres.BasicWaitStrategies(),
+	)
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to start container: %w", err)
+	}
+
+	dsn, err = container.ConnectionString(ctx, "sslmode=disable")
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to get connection string: %w", err)
+	}
+
+	pool, err := database.NewPool(ctx, dsn, log, true)
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to create pool: %w", err)
+	}
+	pool.Close()
+
+	if err := container.Snapshot(ctx); err != nil {
+		return nil, "", fmt.Errorf("failed to snapshot: %w", err)
+	}
+
+	return container, dsn, nil
+}
+
+func getConnection(ctx context.Context, t *testing.T, container *postgres.PostgresContainer, dsn string, log logrus.FieldLogger) *pgxpool.Pool {
+	pool, _ := database.NewPool(ctx, dsn, log, false)
+
+	t.Cleanup(func() {
+		pool.Close()
+		if err := container.Restore(ctx); err != nil {
+			t.Fatalf("failed to restore database: %v", err)
+		}
+	})
+
+	return pool
 }

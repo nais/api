@@ -18,7 +18,7 @@ spec:
                 name: "{{ .Release.Name }}"
                 port:
                   name: http
-            path: /query
+            path: /graphql
             pathType: Prefix
           - backend:
               service:
