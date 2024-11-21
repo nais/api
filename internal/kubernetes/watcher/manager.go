@@ -6,6 +6,8 @@ import (
 
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/metric"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
@@ -37,10 +39,17 @@ type Manager struct {
 	scheme   *runtime.Scheme
 	log      logrus.FieldLogger
 
-	cacheSyncs []cache.InformerSynced
+	cacheSyncs      []cache.InformerSynced
+	resourceCounter metric.Int64UpDownCounter
 }
 
 func NewManager(scheme *runtime.Scheme, clusterConfig kubernetes.ClusterConfigMap, log logrus.FieldLogger, opts ...Option) (*Manager, error) {
+	meter := otel.GetMeterProvider().Meter("nais_api_watcher")
+	udCounter, err := meter.Int64UpDownCounter("nais_api_watcher_resources", metric.WithDescription("Number of resources watched by the watcher"))
+	if err != nil {
+		return nil, fmt.Errorf("creating resources counter: %w", err)
+	}
+
 	s := &settings{
 		clientCreator: func(cluster string) (dynamic.Interface, Discovery, *rest.Config, error) {
 			config, ok := clusterConfig[cluster]
@@ -92,9 +101,10 @@ func NewManager(scheme *runtime.Scheme, clusterConfig kubernetes.ClusterConfigMa
 	}
 
 	return &Manager{
-		scheme:   scheme,
-		managers: managers,
-		log:      log,
+		scheme:          scheme,
+		managers:        managers,
+		log:             log,
+		resourceCounter: udCounter,
 	}, nil
 }
 

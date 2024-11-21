@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
@@ -30,21 +32,25 @@ type watcherSettings struct {
 }
 
 type Watcher[T Object] struct {
-	watchers  []*clusterWatcher[T]
-	datastore *DataStore[T]
-	log       logrus.FieldLogger
+	watchers        []*clusterWatcher[T]
+	datastore       *DataStore[T]
+	log             logrus.FieldLogger
+	resourceCounter metric.Int64UpDownCounter
+	watchedType     string
 }
 
 func newWatcher[T Object](mgr *Manager, obj T, settings *watcherSettings, log logrus.FieldLogger) *Watcher[T] {
 	w := &Watcher[T]{
-		datastore: NewDataStore[T](),
-		log:       log,
+		datastore:       NewDataStore[T](),
+		log:             log,
+		resourceCounter: mgr.resourceCounter,
 	}
 	for cluster, client := range mgr.managers {
-		watcher := newClusterWatcher(client, cluster, w, obj, settings, log.WithField("cluster", cluster))
+		watcher, gvr := newClusterWatcher(client, cluster, w, obj, settings, log.WithField("cluster", cluster))
 		if !watcher.isRegistered {
 			continue
 		}
+		w.watchedType = gvr.String()
 
 		w.watchers = append(w.watchers, watcher)
 		mgr.addCacheSync(watcher.informer.Informer().HasSynced)
@@ -59,9 +65,7 @@ func (w *Watcher[T]) Start(ctx context.Context) {
 }
 
 func (w *Watcher[T]) add(cluster string, obj T) {
-	if w == nil {
-		panic("watcher is nil")
-	}
+	w.resourceCounter.Add(context.TODO(), 1, metric.WithAttributes(attribute.String("type", w.watchedType), attribute.String("action", "add")))
 	w.log.WithFields(logrus.Fields{
 		"cluster":   cluster,
 		"name":      obj.GetName(),
@@ -71,6 +75,7 @@ func (w *Watcher[T]) add(cluster string, obj T) {
 }
 
 func (w *Watcher[T]) remove(cluster string, obj T) {
+	w.resourceCounter.Add(context.TODO(), 1, metric.WithAttributes(attribute.String("type", w.watchedType), attribute.String("action", "remove")))
 	w.log.WithFields(logrus.Fields{
 		"cluster":   cluster,
 		"name":      obj.GetName(),
@@ -80,6 +85,7 @@ func (w *Watcher[T]) remove(cluster string, obj T) {
 }
 
 func (w *Watcher[T]) update(cluster string, obj T) {
+	w.resourceCounter.Add(context.TODO(), 1, metric.WithAttributes(attribute.String("type", w.watchedType), attribute.String("action", "update")))
 	w.log.WithFields(logrus.Fields{
 		"cluster":   cluster,
 		"name":      obj.GetName(),

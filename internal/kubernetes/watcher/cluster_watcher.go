@@ -36,14 +36,14 @@ type clusterWatcher[T Object] struct {
 	gvr           schema.GroupVersionResource
 }
 
-func newClusterWatcher[T Object](mgr *clusterManager, cluster string, watcher *Watcher[T], obj T, settings *watcherSettings, log logrus.FieldLogger) *clusterWatcher[T] {
+func newClusterWatcher[T Object](mgr *clusterManager, cluster string, watcher *Watcher[T], obj T, settings *watcherSettings, log logrus.FieldLogger) (*clusterWatcher[T], schema.GroupVersionResource) {
 	inf, gvr, err := mgr.createInformer(obj, settings.gvr)
 	if err != nil {
 		mgr.log.WithError(err).Error("creating informer")
 		return &clusterWatcher[T]{
 			manager:      mgr,
 			isRegistered: false,
-		}
+		}, gvr
 	}
 
 	w := &clusterWatcher[T]{
@@ -61,7 +61,7 @@ func newClusterWatcher[T Object](mgr *clusterManager, cluster string, watcher *W
 		panic(err)
 	}
 
-	return w
+	return w, gvr
 }
 
 func (w *clusterWatcher[T]) Start(ctx context.Context) {
