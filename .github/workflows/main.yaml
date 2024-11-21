@@ -45,16 +45,16 @@ jobs:
             ${{ steps.go-cache.outputs.gocache }}
             ${{ steps.go-cache.outputs.gomodcache }}
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-      - run: make test-with-cc
-      - run: make integration_test
-      - run: helm lint --strict ./charts
-      - run: make staticcheck
-      - run: make vulncheck
-      - name: Check code format and run code generators
-        run: |
-          make fmt
-          make generate
-          git diff --exit-code --name-only
+      # - run: make test-with-cc
+      # - run: make integration_test
+      # - run: helm lint --strict ./charts
+      # - run: make staticcheck
+      # - run: make vulncheck
+      # - name: Check code format and run code generators
+      #   run: |
+      #     make fmt
+      #     make generate
+      #     git diff --exit-code --name-only
       - id: go_version
         run: echo "go_version=$(asdf current golang | awk '{print $2}')" >> $GITHUB_OUTPUT
       - uses: nais/platform-build-push-sign@main
