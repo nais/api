@@ -18,13 +18,11 @@ type (
 )
 
 const (
-	ActivityLogEntryActionAdded        ActivityLogEntryAction = "ADDED"
-	ActivityLogEntryActionCreated      ActivityLogEntryAction = "CREATED"
-	ActivityLogEntryActionDeleted      ActivityLogEntryAction = "DELETED"
-	ActivityLogEntryActionRemoved      ActivityLogEntryAction = "REMOVED"
-	ActivityLogEntryActionRestarted    ActivityLogEntryAction = "RESTARTED"
-	ActivityLogEntryActionUpdated      ActivityLogEntryAction = "UPDATED"
-	ActivityLogEntryActionSynchronized ActivityLogEntryAction = "SYNCHRONIZED"
+	ActivityLogEntryActionAdded   ActivityLogEntryAction = "ADDED"
+	ActivityLogEntryActionCreated ActivityLogEntryAction = "CREATED"
+	ActivityLogEntryActionDeleted ActivityLogEntryAction = "DELETED"
+	ActivityLogEntryActionRemoved ActivityLogEntryAction = "REMOVED"
+	ActivityLogEntryActionUpdated ActivityLogEntryAction = "UPDATED"
 )
 
 type ActivityLogEntry interface {
