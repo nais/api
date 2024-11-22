@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 
 	monitoring "cloud.google.com/go/monitoring/apiv3/v2"
@@ -58,10 +59,41 @@ type MetricsOptions struct {
 
 type Option func(*MetricsOptions)
 
-type (
-	teamMetricsCache    = map[metricType]map[string]float64
-	teamSumMetricsCache = map[metricType]float64
-)
+type teamSumMetricsCache struct {
+	lock sync.RWMutex
+	data map[metricType]float64
+}
+
+func (t *teamSumMetricsCache) Get(metricType metricType) (float64, bool) {
+	t.lock.RLock()
+	defer t.lock.RUnlock()
+	v, ok := t.data[metricType]
+	return v, ok
+}
+
+func (t *teamSumMetricsCache) Set(metricType metricType, data float64) {
+	t.lock.Lock()
+	defer t.lock.Unlock()
+	t.data[metricType] = data
+}
+
+type teamMetricsCache struct {
+	lock sync.RWMutex
+	data map[metricType]map[string]float64
+}
+
+func (t *teamMetricsCache) Get(metricType metricType) (map[string]float64, bool) {
+	t.lock.RLock()
+	defer t.lock.RUnlock()
+	v, ok := t.data[metricType]
+	return v, ok
+}
+
+func (t *teamMetricsCache) Set(metricType metricType, data map[string]float64) {
+	t.lock.Lock()
+	defer t.lock.Unlock()
+	t.data[metricType] = data
+}
 
 func NewMetrics(ctx context.Context, log log.FieldLogger, opts ...option.ClientOption) (*Metrics, error) {
 	client, err := monitoring.NewMetricClient(ctx, opts...)
@@ -99,10 +131,10 @@ func (m *Metrics) Close() error {
 
 func (m *Metrics) averageForTeam(ctx context.Context, projectID string, metricType metricType) (map[string]float64, error) {
 	entry, found := m.cache.Get(projectID)
-	tc := teamMetricsCache{}
+	tc := &teamMetricsCache{}
 	if found {
-		tc = entry.(teamMetricsCache)
-		if idToMetricValues, found := tc[metricType]; found {
+		tc = entry.(*teamMetricsCache)
+		if idToMetricValues, found := tc.Get(metricType); found {
 			m.log.Debugf("found metrics in cache for metricType %q", metricType)
 			return idToMetricValues, nil
 		}
@@ -114,7 +146,7 @@ func (m *Metrics) averageForTeam(ctx context.Context, projectID string, metricTy
 	}
 
 	idToMetricValues := m.average(metricType, ts)
-	tc[metricType] = idToMetricValues
+	tc.Set(metricType, idToMetricValues)
 
 	m.cache.Set(projectID, tc, cache.DefaultExpiration)
 
@@ -127,8 +159,8 @@ func (m *Metrics) averageForDatabase(ctx context.Context, projectID string, metr
 		return 0, err
 	}
 
-	teamMetrics := teamMetricsCache{}
-	teamMetrics[metricType] = averages
+	teamMetrics := &teamMetricsCache{}
+	teamMetrics.Set(metricType, averages)
 	if dbMetric, found := metricFor(teamMetrics, metricType, databaseID); found {
 		return dbMetric, nil
 	}
@@ -166,10 +198,10 @@ func (m *Metrics) average(metricType metricType, ts []*monitoringpb.TimeSeries) 
 
 func (m *Metrics) sumForTeam(ctx context.Context, projectID string, metric metricType) (float64, error) {
 	entry, found := m.sumCache.Get(projectID)
-	tc := teamSumMetricsCache{}
+	tc := &teamSumMetricsCache{}
 	if found {
-		tc = entry.(teamSumMetricsCache)
-		if idToMetricValues, found := tc[metric]; found {
+		tc = entry.(*teamSumMetricsCache)
+		if idToMetricValues, found := tc.Get(metric); found {
 			m.log.Debugf("found metrics in cache for metricType %q", metric)
 			return idToMetricValues, nil
 		}
@@ -198,7 +230,7 @@ func (m *Metrics) sumForTeam(ctx context.Context, projectID string, metric metri
 			sum = t.Points[len(t.Points)-1].Value.GetDoubleValue()
 		}
 	}
-	tc[metric] = sum
+	tc.Set(metric, sum)
 
 	m.sumCache.Set(projectID, tc, cache.DefaultExpiration)
 
@@ -368,8 +400,8 @@ func (m *Metrics) diskForSQLInstance(ctx context.Context, projectID, name string
 	}, nil
 }
 
-func metricFor(teamMetrics teamMetricsCache, metricType metricType, databaseID string) (float64, bool) {
-	idToMetricValues, found := teamMetrics[metricType]
+func metricFor(teamMetrics *teamMetricsCache, metricType metricType, databaseID string) (float64, bool) {
+	idToMetricValues, found := teamMetrics.Get(metricType)
 	if !found {
 		return 0, false
 	}
