@@ -148,7 +148,7 @@ input ReconcilerConfigInput {
 	value: String!
 }
 
-type ReconcilerEnabledAuditEntry implements AuditEntry & Node {
+type ReconcilerEnabledActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -162,7 +162,7 @@ type ReconcilerEnabledAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -174,7 +174,7 @@ type ReconcilerEnabledAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type ReconcilerDisabledAuditEntry implements AuditEntry & Node {
+type ReconcilerDisabledActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -188,7 +188,7 @@ type ReconcilerDisabledAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -200,7 +200,7 @@ type ReconcilerDisabledAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type ReconcilerConfiguredAuditEntry implements AuditEntry & Node {
+type ReconcilerConfiguredActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -214,7 +214,7 @@ type ReconcilerConfiguredAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -226,10 +226,10 @@ type ReconcilerConfiguredAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: ReconcilerConfiguredAuditEntryData!
+	data: ReconcilerConfiguredActivityLogData!
 }
 
-type ReconcilerConfiguredAuditEntryData {
+type ReconcilerConfiguredActivityLogData {
 	"Keys that were updated."
 	updatedKeys: [String!]!
 }

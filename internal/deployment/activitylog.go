@@ -7,22 +7,22 @@ import (
 )
 
 const (
-	auditResourceTypeDeployKey activitylog.AuditResourceType = "DEPLOY_KEY"
+	activityLogResourceTypeDeployKey activitylog.ActivityLogResourceType = "DEPLOY_KEY"
 )
 
 func init() {
-	activitylog.RegisterTransformer(auditResourceTypeDeployKey, func(entry activitylog.GenericAuditEntry) (activitylog.AuditEntry, error) {
+	activitylog.RegisterTransformer(activityLogResourceTypeDeployKey, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
-		case activitylog.AuditActionUpdated:
-			return TeamDeployKeyUpdatedAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Updated deployment key"),
+		case activitylog.ActivityLogActionUpdated:
+			return TeamDeployKeyUpdatedActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Updated deployment key"),
 			}, nil
 		default:
-			return nil, fmt.Errorf("unsupported deploy key audit entry action: %q", entry.Action)
+			return nil, fmt.Errorf("unsupported deploy key activity log entry action: %q", entry.Action)
 		}
 	})
 }
 
-type TeamDeployKeyUpdatedAuditEntry struct {
-	activitylog.GenericAuditEntry
+type TeamDeployKeyUpdatedActivityLog struct {
+	activitylog.GenericActivityLogEntry
 }

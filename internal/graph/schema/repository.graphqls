@@ -102,7 +102,7 @@ enum RepositoryOrderField {
 	NAME
 }
 
-type RepositoryAddedAuditEntry implements AuditEntry & Node {
+type RepositoryAddedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -116,7 +116,7 @@ type RepositoryAddedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -128,7 +128,7 @@ type RepositoryAddedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type RepositoryRemovedAuditEntry implements AuditEntry & Node {
+type RepositoryRemovedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -142,7 +142,7 @@ type RepositoryRemovedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!

@@ -17,9 +17,9 @@ import (
 )
 
 type CreateInput struct {
-	Action       AuditAction
+	Action       ActivityLogAction
 	Actor        authz.AuthenticatedUser
-	ResourceType AuditResourceType
+	ResourceType ActivityLogResourceType
 	ResourceName string
 
 	Data            any        // optional
@@ -27,7 +27,6 @@ type CreateInput struct {
 	TeamSlug        *slug.Slug // optional
 }
 
-// MarshalData marshals audit entry data. Its inverse is UnmarshalData.
 func MarshalData(input CreateInput) ([]byte, error) {
 	if input.Data == nil {
 		return nil, nil
@@ -35,7 +34,7 @@ func MarshalData(input CreateInput) ([]byte, error) {
 
 	bytes, err := json.Marshal(input.Data)
 	if err != nil {
-		return nil, fmt.Errorf("marshaling audit entry data: %w", err)
+		return nil, fmt.Errorf("marshaling data: %w", err)
 	}
 
 	return bytes, nil
@@ -60,11 +59,11 @@ func Create(ctx context.Context, input CreateInput) error {
 	})
 }
 
-func Get(ctx context.Context, uid uuid.UUID) (AuditEntry, error) {
-	return fromContext(ctx).auditLogLoader.Load(ctx, uid)
+func Get(ctx context.Context, uid uuid.UUID) (ActivityLogEntry, error) {
+	return fromContext(ctx).activityLogLoader.Load(ctx, uid)
 }
 
-func GetByIdent(ctx context.Context, id ident.Ident) (AuditEntry, error) {
+func GetByIdent(ctx context.Context, id ident.Ident) (ActivityLogEntry, error) {
 	uid, err := parseIdent(id)
 	if err != nil {
 		return nil, err
@@ -72,7 +71,7 @@ func GetByIdent(ctx context.Context, id ident.Ident) (AuditEntry, error) {
 	return Get(ctx, uid)
 }
 
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*AuditEntryConnection, error) {
+func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*ActivityLogConnection, error) {
 	q := db(ctx)
 
 	ret, err := q.ListForTeam(ctx, activitylogsql.ListForTeamParams{
@@ -88,10 +87,10 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	if err != nil {
 		return nil, err
 	}
-	return pagination.NewConvertConnectionWithError(ret, page, total, toGraphAuditLog)
+	return pagination.NewConvertConnectionWithError(ret, page, total, toGraphActivityLog)
 }
 
-func ListForResource(ctx context.Context, resourceType AuditResourceType, resourceName string, page *pagination.Pagination) (*AuditEntryConnection, error) {
+func ListForResource(ctx context.Context, resourceType ActivityLogResourceType, resourceName string, page *pagination.Pagination) (*ActivityLogConnection, error) {
 	q := db(ctx)
 
 	ret, err := q.ListForResource(ctx, activitylogsql.ListForResourceParams{
@@ -111,27 +110,27 @@ func ListForResource(ctx context.Context, resourceType AuditResourceType, resour
 	if err != nil {
 		return nil, err
 	}
-	return pagination.NewConvertConnectionWithError(ret, page, total, toGraphAuditLog)
+	return pagination.NewConvertConnectionWithError(ret, page, total, toGraphActivityLog)
 }
 
-func toGraphAuditLog(row *activitylogsql.ActivityLog) (AuditEntry, error) {
+func toGraphActivityLog(row *activitylogsql.ActivityLog) (ActivityLogEntry, error) {
 	titler := cases.Title(language.English)
-	entry := GenericAuditEntry{
-		Action:          AuditAction(row.Action),
+	entry := GenericActivityLogEntry{
+		Action:          ActivityLogAction(row.Action),
 		Actor:           row.Actor,
 		CreatedAt:       row.CreatedAt.Time,
 		EnvironmentName: row.Environment,
 		Message:         titler.String(row.Action) + " " + titler.String(row.ResourceType),
-		ResourceType:    AuditResourceType(row.ResourceType),
+		ResourceType:    ActivityLogResourceType(row.ResourceType),
 		ResourceName:    row.ResourceName,
 		TeamSlug:        row.TeamSlug,
 		UUID:            row.ID,
 		Data:            row.Data,
 	}
 
-	transformer, ok := knownTransformers[AuditResourceType(row.ResourceType)]
+	transformer, ok := knownTransformers[ActivityLogResourceType(row.ResourceType)]
 	if !ok {
-		return nil, fmt.Errorf("no transformer registered for audit resource type: %q", row.ResourceType)
+		return nil, fmt.Errorf("no transformer registered for activity log resource type: %q", row.ResourceType)
 	}
 
 	return transformer(entry)

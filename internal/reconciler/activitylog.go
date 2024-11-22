@@ -7,25 +7,25 @@ import (
 )
 
 const (
-	AuditResourceTypeReconciler    activitylog.AuditResourceType = "RECONCILER"
-	auditActionEnableReconciler    activitylog.AuditAction       = "ENABLE_RECONCILER"
-	auditActionDisableReconciler                                 = "DISABLE_RECONCILER"
-	auditActionConfigureReconciler                               = "CONFIGURE_RECONCILER"
+	ActivityLogResourceTypeReconciler    activitylog.ActivityLogResourceType = "RECONCILER"
+	activityLogActionEnableReconciler    activitylog.ActivityLogAction       = "ENABLE_RECONCILER"
+	activityLogActionDisableReconciler                                       = "DISABLE_RECONCILER"
+	activityLogActionConfigureReconciler                                     = "CONFIGURE_RECONCILER"
 )
 
 func init() {
-	activitylog.RegisterTransformer(AuditResourceTypeReconciler, func(entry activitylog.GenericAuditEntry) (activitylog.AuditEntry, error) {
+	activitylog.RegisterTransformer(ActivityLogResourceTypeReconciler, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
-		case auditActionEnableReconciler:
-			return ReconcilerEnabledAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Enable reconciler"),
+		case activityLogActionEnableReconciler:
+			return ReconcilerEnabledActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Enable reconciler"),
 			}, nil
-		case auditActionDisableReconciler:
-			return ReconcilerDisabledAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Disable reconciler"),
+		case activityLogActionDisableReconciler:
+			return ReconcilerDisabledActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Disable reconciler"),
 			}, nil
-		case auditActionConfigureReconciler:
-			data, err := activitylog.TransformData(entry, func(data *ReconcilerConfiguredAuditEntryData) *ReconcilerConfiguredAuditEntryData {
+		case activityLogActionConfigureReconciler:
+			data, err := activitylog.TransformData(entry, func(data *ReconcilerConfiguredActivityLogData) *ReconcilerConfiguredActivityLogData {
 				if len(data.UpdatedKeys) == 0 {
 					return nil
 				}
@@ -35,29 +35,29 @@ func init() {
 				return nil, err
 			}
 
-			return ReconcilerConfiguredAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Configure reconciler"),
-				Data:              data,
+			return ReconcilerConfiguredActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Configure reconciler"),
+				Data:                    data,
 			}, nil
 		default:
-			return nil, fmt.Errorf("unsupported reconciler audit entry action: %q", entry.Action)
+			return nil, fmt.Errorf("unsupported reconciler activity log entry action: %q", entry.Action)
 		}
 	})
 }
 
-type ReconcilerEnabledAuditEntry struct {
-	activitylog.GenericAuditEntry
+type ReconcilerEnabledActivityLog struct {
+	activitylog.GenericActivityLogEntry
 }
 
-type ReconcilerDisabledAuditEntry struct {
-	activitylog.GenericAuditEntry
+type ReconcilerDisabledActivityLog struct {
+	activitylog.GenericActivityLogEntry
 }
 
-type ReconcilerConfiguredAuditEntry struct {
-	activitylog.GenericAuditEntry
-	Data *ReconcilerConfiguredAuditEntryData `json:"data"`
+type ReconcilerConfiguredActivityLog struct {
+	activitylog.GenericActivityLogEntry
+	Data *ReconcilerConfiguredActivityLogData `json:"data"`
 }
 
-type ReconcilerConfiguredAuditEntryData struct {
+type ReconcilerConfiguredActivityLogData struct {
 	UpdatedKeys []string `json:"updatedKeys"`
 }

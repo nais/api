@@ -7,7 +7,7 @@ import (
 type Authorization string
 
 const (
-	AuthorizationAuditLogsRead         Authorization = "audit_logs:read"
+	AuthorizationActivityLogsRead      Authorization = "activity_logs:read"
 	AuthorizationServiceAccountsCreate Authorization = "service_accounts:create"
 	AuthorizationServiceAccountsDelete Authorization = "service_accounts:delete"
 	AuthorizationServiceAccountsRead   Authorization = "service_accounts:read"
@@ -54,7 +54,7 @@ var roles = map[rolesql.RoleName][]Authorization{
 		AuthorizationTeamsCreate,
 	},
 	rolesql.RoleNameTeammember: {
-		AuthorizationAuditLogsRead,
+		AuthorizationActivityLogsRead,
 		AuthorizationTeamsRead,
 		AuthorizationTeamsMetadataUpdate,
 		AuthorizationDeployKeyRead,
@@ -75,7 +75,7 @@ var roles = map[rolesql.RoleName][]Authorization{
 		AuthorizationRepositoriesDelete,
 	},
 	rolesql.RoleNameTeamowner: {
-		AuthorizationAuditLogsRead,
+		AuthorizationActivityLogsRead,
 		AuthorizationTeamsDelete,
 		AuthorizationTeamsRead,
 		AuthorizationTeamsMetadataUpdate,
@@ -98,7 +98,7 @@ var roles = map[rolesql.RoleName][]Authorization{
 		AuthorizationRepositoriesDelete,
 	},
 	rolesql.RoleNameTeamviewer: {
-		AuthorizationAuditLogsRead,
+		AuthorizationActivityLogsRead,
 		AuthorizationTeamsList,
 		AuthorizationTeamsRead,
 	},

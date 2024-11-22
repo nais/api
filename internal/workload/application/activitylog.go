@@ -7,38 +7,38 @@ import (
 )
 
 const (
-	auditResourceTypeApplication  activitylog.AuditResourceType = "APP"
-	auditActionRestartApplication activitylog.AuditAction       = "RESTARTED"
+	activityLogResourceTypeApplication  activitylog.ActivityLogResourceType = "APP"
+	activityLogActionRestartApplication activitylog.ActivityLogAction       = "RESTARTED"
 )
 
 func init() {
-	activitylog.RegisterTransformer(auditResourceTypeApplication, func(entry activitylog.GenericAuditEntry) (activitylog.AuditEntry, error) {
+	activitylog.RegisterTransformer(activityLogResourceTypeApplication, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
-		case auditActionRestartApplication:
+		case activityLogActionRestartApplication:
 			if entry.TeamSlug == nil {
-				return nil, fmt.Errorf("missing team slug for application delete audit entry")
+				return nil, fmt.Errorf("missing team slug for application restart activity log entry")
 			}
 			if entry.EnvironmentName == nil {
-				return nil, fmt.Errorf("missing environment name for application delete audit entry")
+				return nil, fmt.Errorf("missing environment name for application restart activity log entry")
 			}
-			return ApplicationRestartedAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Application restarted"),
+			return ApplicationRestartedActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Application restarted"),
 			}, nil
-		case activitylog.AuditActionDeleted:
-			return ApplicationDeletedAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Application deleted"),
+		case activitylog.ActivityLogActionDeleted:
+			return ApplicationDeletedActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Application deleted"),
 			}, nil
 
 		default:
-			return nil, fmt.Errorf("unsupported application audit entry action: %q", entry.Action)
+			return nil, fmt.Errorf("unsupported application activity log entry action: %q", entry.Action)
 		}
 	})
 }
 
-type ApplicationRestartedAuditEntry struct {
-	activitylog.GenericAuditEntry
+type ApplicationRestartedActivityLog struct {
+	activitylog.GenericActivityLogEntry
 }
 
-type ApplicationDeletedAuditEntry struct {
-	activitylog.GenericAuditEntry
+type ApplicationDeletedActivityLog struct {
+	activitylog.GenericActivityLogEntry
 }

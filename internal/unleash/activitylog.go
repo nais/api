@@ -8,18 +8,18 @@ import (
 )
 
 const (
-	auditResourceTypeUnleash activitylog.AuditResourceType = "UNLEASH"
+	activityLogResourceTypeUnleash activitylog.ActivityLogResourceType = "UNLEASH"
 )
 
 func init() {
-	activitylog.RegisterTransformer(auditResourceTypeUnleash, func(entry activitylog.GenericAuditEntry) (activitylog.AuditEntry, error) {
+	activitylog.RegisterTransformer(activityLogResourceTypeUnleash, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
-		case activitylog.AuditActionCreated:
-			return UnleashInstanceCreatedAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Created Unleash instance"),
+		case activitylog.ActivityLogActionCreated:
+			return UnleashInstanceCreatedActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Created Unleash instance"),
 			}, nil
-		case activitylog.AuditActionUpdated:
-			data, err := activitylog.TransformData(entry, func(data *UnleashInstanceUpdatedAuditEntryData) *UnleashInstanceUpdatedAuditEntryData {
+		case activitylog.ActivityLogActionUpdated:
+			data, err := activitylog.TransformData(entry, func(data *UnleashInstanceUpdatedActivityLogData) *UnleashInstanceUpdatedActivityLogData {
 				if data.AllowedTeamSlug == nil && data.RevokedTeamSlug == nil {
 					return nil
 				}
@@ -29,27 +29,27 @@ func init() {
 				return nil, err
 			}
 
-			return UnleashInstanceUpdatedAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Updated Unleash instance"),
-				Data:              data,
+			return UnleashInstanceUpdatedActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Updated Unleash instance"),
+				Data:                    data,
 			}, nil
 
 		default:
-			return nil, fmt.Errorf("unsupported team audit entry action: %q", entry.Action)
+			return nil, fmt.Errorf("unsupported team activity log entry action: %q", entry.Action)
 		}
 	})
 }
 
-type UnleashInstanceCreatedAuditEntry struct {
-	activitylog.GenericAuditEntry
+type UnleashInstanceCreatedActivityLog struct {
+	activitylog.GenericActivityLogEntry
 }
 
-type UnleashInstanceUpdatedAuditEntry struct {
-	activitylog.GenericAuditEntry
-	Data *UnleashInstanceUpdatedAuditEntryData `json:"data"`
+type UnleashInstanceUpdatedActivityLog struct {
+	activitylog.GenericActivityLogEntry
+	Data *UnleashInstanceUpdatedActivityLogData `json:"data"`
 }
 
-type UnleashInstanceUpdatedAuditEntryData struct {
+type UnleashInstanceUpdatedActivityLogData struct {
 	RevokedTeamSlug *slug.Slug `json:"revokedTeamSlug"`
 	AllowedTeamSlug *slug.Slug `json:"allowedTeamSlug"`
 }

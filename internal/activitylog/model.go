@@ -13,71 +13,71 @@ import (
 )
 
 type (
-	AuditResourceType string
-	AuditAction       string
+	ActivityLogResourceType string
+	ActivityLogAction       string
 )
 
 const (
-	AuditActionAdded        AuditAction = "ADDED"
-	AuditActionCreated      AuditAction = "CREATED"
-	AuditActionDeleted      AuditAction = "DELETED"
-	AuditActionRemoved      AuditAction = "REMOVED"
-	AuditActionRestarted    AuditAction = "RESTARTED"
-	AuditActionUpdated      AuditAction = "UPDATED"
-	AuditActionSynchronized AuditAction = "SYNCHRONIZED"
+	ActivityLogActionAdded        ActivityLogAction = "ADDED"
+	ActivityLogActionCreated      ActivityLogAction = "CREATED"
+	ActivityLogActionDeleted      ActivityLogAction = "DELETED"
+	ActivityLogActionRemoved      ActivityLogAction = "REMOVED"
+	ActivityLogActionRestarted    ActivityLogAction = "RESTARTED"
+	ActivityLogActionUpdated      ActivityLogAction = "UPDATED"
+	ActivityLogActionSynchronized ActivityLogAction = "SYNCHRONIZED"
 )
 
-type AuditEntry interface {
+type ActivityLogEntry interface {
 	model.Node
 	GetUUID() uuid.UUID
 	ID() ident.Ident
 }
 
 type (
-	AuditEntryConnection = pagination.Connection[AuditEntry]
-	AuditEntryEdge       = pagination.Edge[AuditEntry]
+	ActivityLogConnection = pagination.Connection[ActivityLogEntry]
+	ActivityLogEdge       = pagination.Edge[ActivityLogEntry]
 )
 
-type GenericAuditEntry struct {
-	Actor           string            `json:"actor"`
-	CreatedAt       time.Time         `json:"createdAt"`
-	EnvironmentName *string           `json:"environmentName,omitempty"`
-	Message         string            `json:"message"`
-	ResourceType    AuditResourceType `json:"resourceType"`
-	ResourceName    string            `json:"resourceName"`
-	TeamSlug        *slug.Slug        `json:"teamSlug,omitempty"`
-	Action          AuditAction       `json:"-"`
-	UUID            uuid.UUID         `json:"-"`
-	Data            []byte            `json:"-"`
+type GenericActivityLogEntry struct {
+	Actor           string                  `json:"actor"`
+	CreatedAt       time.Time               `json:"createdAt"`
+	EnvironmentName *string                 `json:"environmentName,omitempty"`
+	Message         string                  `json:"message"`
+	ResourceType    ActivityLogResourceType `json:"resourceType"`
+	ResourceName    string                  `json:"resourceName"`
+	TeamSlug        *slug.Slug              `json:"teamSlug,omitempty"`
+	Action          ActivityLogAction       `json:"-"`
+	UUID            uuid.UUID               `json:"-"`
+	Data            []byte                  `json:"-"`
 }
 
-func (GenericAuditEntry) IsNode() {}
+func (GenericActivityLogEntry) IsNode() {}
 
-func (a GenericAuditEntry) ID() ident.Ident {
+func (a GenericActivityLogEntry) ID() ident.Ident {
 	return newIdent(a.UUID)
 }
 
-func (a GenericAuditEntry) GetUUID() uuid.UUID {
+func (a GenericActivityLogEntry) GetUUID() uuid.UUID {
 	return a.UUID
 }
 
-func (a GenericAuditEntry) WithMessage(message string) GenericAuditEntry {
+func (a GenericActivityLogEntry) WithMessage(message string) GenericActivityLogEntry {
 	a.Message = message
 	return a
 }
 
-// UnmarshalData unmarshals audit entry data. Its inverse is [MarshalData].
-func UnmarshalData[T any](entry GenericAuditEntry) (*T, error) {
+// UnmarshalData unmarshals activity log entry data. Its inverse is [MarshalData].
+func UnmarshalData[T any](entry GenericActivityLogEntry) (*T, error) {
 	var data T
 	if err := json.Unmarshal(entry.Data, &data); err != nil {
-		return nil, fmt.Errorf("unmarshaling audit entry data: %w", err)
+		return nil, fmt.Errorf("unmarshaling activity log entry data: %w", err)
 	}
 
 	return &data, nil
 }
 
-// TransformData unmarshals audit entry data and calls the provided transformer function with the data as argument.
-func TransformData[T any](entry GenericAuditEntry, f func(*T) *T) (*T, error) {
+// TransformData unmarshals activity log entry data and calls the provided transformer function with the data as argument.
+func TransformData[T any](entry GenericActivityLogEntry, f func(*T) *T) (*T, error) {
 	data, err := UnmarshalData[T](entry)
 	if err != nil {
 		return nil, err

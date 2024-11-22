@@ -1,8 +1,8 @@
 extend type Team {
 	"""
-	Audit entries associated with the team.
+	Activity log associated with the team.
 	"""
-	auditEntries(
+	activityLog(
 		"""
 		Get the first n items in the connection. This can be used in combination with the after parameter.
 		"""
@@ -22,14 +22,14 @@ extend type Team {
 		Get items before this cursor.
 		"""
 		before: Cursor
-	): AuditEntryConnection!
+	): ActivityLogConnection!
 }
 
 extend type Reconciler {
 	"""
-	Audit entries associated with the reconciler.
+	Activity log associated with the reconciler.
 	"""
-	auditEntries(
+	activityLog(
 		"""
 		Get the first n items in the connection. This can be used in combination with the after parameter.
 		"""
@@ -49,13 +49,13 @@ extend type Reconciler {
 		Get items before this cursor.
 		"""
 		before: Cursor
-	): AuditEntryConnection!
+	): ActivityLogConnection!
 }
 
 """
-Interface for audit entries.
+Interface for activity log entries.
 """
-interface AuditEntry implements Node {
+interface ActivityLogEntry implements Node {
 	"""
 	ID of the entry.
 	"""
@@ -79,7 +79,7 @@ interface AuditEntry implements Node {
 	"""
 	Type of the resource that was affected by the action.
 	"""
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"""
 	Name of the resource that was affected by the action.
@@ -98,9 +98,9 @@ interface AuditEntry implements Node {
 }
 
 """
-The type of the resource that was affected by the action.
+The type of the resource that was affected by the activity.
 """
-enum AuditResourceType {
+enum ActivityLogResourceType {
 	"""
 	Unknown type.
 	"""
@@ -108,9 +108,9 @@ enum AuditResourceType {
 }
 
 """
-Audit entry connection.
+Activity log connection.
 """
-type AuditEntryConnection {
+type ActivityLogConnection {
 	"""
 	Pagination information.
 	"""
@@ -119,25 +119,25 @@ type AuditEntryConnection {
 	"""
 	List of nodes.
 	"""
-	nodes: [AuditEntry!]!
+	nodes: [ActivityLogEntry!]!
 
 	"""
 	List of edges.
 	"""
-	edges: [AuditEntryEdge!]!
+	edges: [ActivityLogEdge!]!
 }
 
 """
-Audit entry edge.
+Activity log edge.
 """
-type AuditEntryEdge {
+type ActivityLogEdge {
 	"""
 	Cursor for this edge that can be used for pagination.
 	"""
 	cursor: Cursor!
 
 	"""
-	The audit entry.
+	The log entry.
 	"""
-	node: AuditEntry!
+	node: ActivityLogEntry!
 }

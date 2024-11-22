@@ -303,7 +303,7 @@ type TriggerJobPayload {
 	jobRun: JobRun
 }
 
-type JobDeletedAuditEntry implements AuditEntry & Node {
+type JobDeletedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -317,7 +317,7 @@ type JobDeletedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -329,7 +329,7 @@ type JobDeletedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type JobTriggeredAuditEntry implements AuditEntry & Node {
+type JobTriggeredActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -343,7 +343,7 @@ type JobTriggeredAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!

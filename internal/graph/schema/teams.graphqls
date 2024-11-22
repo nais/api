@@ -435,12 +435,12 @@ enum TeamMemberRole {
 	OWNER
 }
 
-extend enum AuditResourceType {
-	"All audit entries related to teams will use this resource type."
+extend enum ActivityLogResourceType {
+	"All activity log entries related to teams will use this resource type."
 	TEAM
 }
 
-type TeamCreatedAuditEntry implements AuditEntry & Node {
+type TeamCreatedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -454,7 +454,7 @@ type TeamCreatedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -466,7 +466,7 @@ type TeamCreatedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type TeamUpdatedAuditEntry implements AuditEntry & Node {
+type TeamUpdatedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -480,7 +480,7 @@ type TeamUpdatedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -492,15 +492,15 @@ type TeamUpdatedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: TeamUpdatedAuditEntryData!
+	data: TeamUpdatedActivityLogData!
 }
 
-type TeamUpdatedAuditEntryData {
+type TeamUpdatedActivityLogData {
 	"Fields that were updated."
-	updatedFields: [TeamUpdatedAuditEntryDataUpdatedField!]!
+	updatedFields: [TeamUpdatedActivityLogDataUpdatedField!]!
 }
 
-type TeamUpdatedAuditEntryDataUpdatedField {
+type TeamUpdatedActivityLogDataUpdatedField {
 	"The name of the field."
 	field: String!
 
@@ -511,7 +511,7 @@ type TeamUpdatedAuditEntryDataUpdatedField {
 	newValue: String
 }
 
-type TeamCreateDeleteKeyAuditEntry implements AuditEntry & Node {
+type TeamCreateDeleteKeyActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -525,7 +525,7 @@ type TeamCreateDeleteKeyAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -537,7 +537,7 @@ type TeamCreateDeleteKeyAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type TeamConfirmDeleteKeyAuditEntry implements AuditEntry & Node {
+type TeamConfirmDeleteKeyActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -551,7 +551,7 @@ type TeamConfirmDeleteKeyAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -563,7 +563,7 @@ type TeamConfirmDeleteKeyAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type TeamMemberAddedAuditEntry implements AuditEntry & Node {
+type TeamMemberAddedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -577,7 +577,7 @@ type TeamMemberAddedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -589,10 +589,10 @@ type TeamMemberAddedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the action."
-	data: TeamMemberAddedAuditEntryData!
+	data: TeamMemberAddedActivityLogData!
 }
 
-type TeamMemberAddedAuditEntryData {
+type TeamMemberAddedActivityLogData {
 	"The role that the user was added with."
 	role: TeamMemberRole!
 
@@ -603,7 +603,7 @@ type TeamMemberAddedAuditEntryData {
 	userEmail: String!
 }
 
-type TeamMemberRemovedAuditEntry implements AuditEntry & Node {
+type TeamMemberRemovedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -617,7 +617,7 @@ type TeamMemberRemovedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -629,10 +629,10 @@ type TeamMemberRemovedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the action."
-	data: TeamMemberRemovedAuditEntryData!
+	data: TeamMemberRemovedActivityLogData!
 }
 
-type TeamMemberRemovedAuditEntryData {
+type TeamMemberRemovedActivityLogData {
 	"The ID of the user that was removed."
 	userID: ID!
 
@@ -640,7 +640,7 @@ type TeamMemberRemovedAuditEntryData {
 	userEmail: String!
 }
 
-type TeamMemberSetRoleAuditEntry implements AuditEntry & Node {
+type TeamMemberSetRoleActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -654,7 +654,7 @@ type TeamMemberSetRoleAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -666,10 +666,10 @@ type TeamMemberSetRoleAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the action."
-	data: TeamMemberSetRoleAuditEntryData!
+	data: TeamMemberSetRoleActivityLogData!
 }
 
-type TeamMemberSetRoleAuditEntryData {
+type TeamMemberSetRoleActivityLogData {
 	"The role that the user was assigned."
 	role: TeamMemberRole!
 
@@ -680,7 +680,7 @@ type TeamMemberSetRoleAuditEntryData {
 	userEmail: String!
 }
 
-type TeamEnvironmentUpdatedAuditEntry implements AuditEntry & Node {
+type TeamEnvironmentUpdatedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -694,7 +694,7 @@ type TeamEnvironmentUpdatedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -706,15 +706,15 @@ type TeamEnvironmentUpdatedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the action."
-	data: TeamEnvironmentUpdatedAuditEntryData!
+	data: TeamEnvironmentUpdatedActivityLogData!
 }
 
-type TeamEnvironmentUpdatedAuditEntryData {
+type TeamEnvironmentUpdatedActivityLogData {
 	"Fields that were updated."
-	updatedFields: [TeamEnvironmentUpdatedAuditEntryDataUpdatedField!]!
+	updatedFields: [TeamEnvironmentUpdatedActivityLogDataUpdatedField!]!
 }
 
-type TeamEnvironmentUpdatedAuditEntryDataUpdatedField {
+type TeamEnvironmentUpdatedActivityLogDataUpdatedField {
 	"The name of the field."
 	field: String!
 

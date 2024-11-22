@@ -117,11 +117,11 @@ Test.gql("Change deploy key as member", function(t)
 	}
 end)
 
-Test.gql("Check audit entries after deploy key change", function(t)
+Test.gql("Check activity log after deploy key change", function(t)
 	t.query [[
 		query {
 			team(slug: "newteam") {
-				auditEntries {
+				activityLog {
 					nodes {
 						message
 					}
@@ -133,7 +133,7 @@ Test.gql("Check audit entries after deploy key change", function(t)
 	t.check {
 		data = {
 			team = {
-				auditEntries = {
+				activityLog = {
 					nodes = {
 						{ message = "Updated deployment key" },
 						{ message = "Created team" },

@@ -7,96 +7,96 @@ import (
 )
 
 const (
-	auditResourceTypeSecret      activitylog.AuditResourceType = "SECRET"
-	auditActionAddSecretValue    activitylog.AuditAction       = "ADD_SECRET_VALUE"
-	auditActionUpdateSecretValue                               = "UPDATE_SECRET_VALUE"
-	auditActionRemoveSecretValue                               = "REMOVE_SECRET_VALUE"
+	activityLogResourceTypeSecret      activitylog.ActivityLogResourceType = "SECRET"
+	activityLogActionAddSecretValue    activitylog.ActivityLogAction       = "ADD_SECRET_VALUE"
+	activityLogActionUpdateSecretValue                                     = "UPDATE_SECRET_VALUE"
+	activityLogActionRemoveSecretValue                                     = "REMOVE_SECRET_VALUE"
 )
 
 func init() {
-	activitylog.RegisterTransformer(auditResourceTypeSecret, func(entry activitylog.GenericAuditEntry) (activitylog.AuditEntry, error) {
+	activitylog.RegisterTransformer(activityLogResourceTypeSecret, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
-		case activitylog.AuditActionCreated:
-			return SecretCreatedAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Created secret"),
+		case activitylog.ActivityLogActionCreated:
+			return SecretCreatedActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Created secret"),
 			}, nil
-		case activitylog.AuditActionDeleted:
-			return SecretDeletedAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Deleted secret"),
+		case activitylog.ActivityLogActionDeleted:
+			return SecretDeletedActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Deleted secret"),
 			}, nil
-		case auditActionAddSecretValue:
-			data, err := activitylog.TransformData(entry, func(data *SecretValueAddedAuditEntryData) *SecretValueAddedAuditEntryData {
+		case activityLogActionAddSecretValue:
+			data, err := activitylog.TransformData(entry, func(data *SecretValueAddedActivityLogData) *SecretValueAddedActivityLogData {
 				return data
 			})
 			if err != nil {
 				return nil, err
 			}
 
-			return SecretValueAddedAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Added secret value"),
-				Data:              data,
+			return SecretValueAddedActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Added secret value"),
+				Data:                    data,
 			}, nil
-		case auditActionUpdateSecretValue:
-			data, err := activitylog.TransformData(entry, func(data *SecretValueUpdatedAuditEntryData) *SecretValueUpdatedAuditEntryData {
+		case activityLogActionUpdateSecretValue:
+			data, err := activitylog.TransformData(entry, func(data *SecretValueUpdatedActivityLogData) *SecretValueUpdatedActivityLogData {
 				return data
 			})
 			if err != nil {
 				return nil, err
 			}
 
-			return SecretValueUpdatedAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Updated secret value"),
-				Data:              data,
+			return SecretValueUpdatedActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Updated secret value"),
+				Data:                    data,
 			}, nil
-		case auditActionRemoveSecretValue:
-			data, err := activitylog.TransformData(entry, func(data *SecretValueRemovedAuditEntryData) *SecretValueRemovedAuditEntryData {
+		case activityLogActionRemoveSecretValue:
+			data, err := activitylog.TransformData(entry, func(data *SecretValueRemovedActivityLogData) *SecretValueRemovedActivityLogData {
 				return data
 			})
 			if err != nil {
 				return nil, err
 			}
 
-			return SecretValueRemovedAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Removed secret value"),
-				Data:              data,
+			return SecretValueRemovedActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Removed secret value"),
+				Data:                    data,
 			}, nil
 		default:
-			return nil, fmt.Errorf("unsupported secret audit entry action: %q", entry.Action)
+			return nil, fmt.Errorf("unsupported secret activity log entry action: %q", entry.Action)
 		}
 	})
 }
 
-type SecretCreatedAuditEntry struct {
-	activitylog.GenericAuditEntry
+type SecretCreatedActivityLog struct {
+	activitylog.GenericActivityLogEntry
 }
 
-type SecretValueAddedAuditEntry struct {
-	activitylog.GenericAuditEntry
-	Data *SecretValueAddedAuditEntryData
+type SecretValueAddedActivityLog struct {
+	activitylog.GenericActivityLogEntry
+	Data *SecretValueAddedActivityLogData
 }
 
-type SecretValueAddedAuditEntryData struct {
+type SecretValueAddedActivityLogData struct {
 	ValueName string
 }
 
-type SecretValueUpdatedAuditEntry struct {
-	activitylog.GenericAuditEntry
-	Data *SecretValueUpdatedAuditEntryData
+type SecretValueUpdatedActivityLog struct {
+	activitylog.GenericActivityLogEntry
+	Data *SecretValueUpdatedActivityLogData
 }
 
-type SecretValueUpdatedAuditEntryData struct {
+type SecretValueUpdatedActivityLogData struct {
 	ValueName string
 }
 
-type SecretValueRemovedAuditEntry struct {
-	activitylog.GenericAuditEntry
-	Data *SecretValueRemovedAuditEntryData
+type SecretValueRemovedActivityLog struct {
+	activitylog.GenericActivityLogEntry
+	Data *SecretValueRemovedActivityLogData
 }
 
-type SecretValueRemovedAuditEntryData struct {
+type SecretValueRemovedActivityLogData struct {
 	ValueName string
 }
 
-type SecretDeletedAuditEntry struct {
-	activitylog.GenericAuditEntry
+type SecretDeletedActivityLog struct {
+	activitylog.GenericActivityLogEntry
 }

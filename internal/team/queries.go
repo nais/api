@@ -47,9 +47,9 @@ func Create(ctx context.Context, input *CreateTeamInput, actor *authz.Actor) (*T
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       activitylog.AuditActionCreated,
+			Action:       activitylog.ActivityLogActionCreated,
 			Actor:        actor.User,
-			ResourceType: auditResourceTypeTeam,
+			ResourceType: activityLogResourceTypeTeam,
 			ResourceName: input.Slug.String(),
 			TeamSlug:     ptr.To(input.Slug),
 		})
@@ -86,9 +86,9 @@ func Update(ctx context.Context, input *UpdateTeamInput, actor *authz.Actor) (*T
 			return err
 		}
 
-		updatedFields := make([]*TeamUpdatedAuditEntryDataUpdatedField, 0)
+		updatedFields := make([]*TeamUpdatedActivityLogDataUpdatedField, 0)
 		if input.Purpose != nil && *input.Purpose != existingTeam.Purpose {
-			updatedFields = append(updatedFields, &TeamUpdatedAuditEntryDataUpdatedField{
+			updatedFields = append(updatedFields, &TeamUpdatedActivityLogDataUpdatedField{
 				Field:    "purpose",
 				OldValue: &existingTeam.Purpose,
 				NewValue: input.Purpose,
@@ -96,7 +96,7 @@ func Update(ctx context.Context, input *UpdateTeamInput, actor *authz.Actor) (*T
 		}
 
 		if input.SlackChannel != nil && *input.SlackChannel != existingTeam.SlackChannel {
-			updatedFields = append(updatedFields, &TeamUpdatedAuditEntryDataUpdatedField{
+			updatedFields = append(updatedFields, &TeamUpdatedActivityLogDataUpdatedField{
 				Field:    "slackChannel",
 				OldValue: &existingTeam.SlackChannel,
 				NewValue: input.SlackChannel,
@@ -104,17 +104,17 @@ func Update(ctx context.Context, input *UpdateTeamInput, actor *authz.Actor) (*T
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       activitylog.AuditActionUpdated,
+			Action:       activitylog.ActivityLogActionUpdated,
 			Actor:        actor.User,
-			ResourceType: auditResourceTypeTeam,
+			ResourceType: activityLogResourceTypeTeam,
 			ResourceName: input.Slug.String(),
 			TeamSlug:     ptr.To(input.Slug),
-			Data: func(fields []*TeamUpdatedAuditEntryDataUpdatedField) *TeamUpdatedAuditEntryData {
+			Data: func(fields []*TeamUpdatedActivityLogDataUpdatedField) *TeamUpdatedActivityLogData {
 				if len(fields) == 0 {
 					return nil
 				}
 
-				return &TeamUpdatedAuditEntryData{
+				return &TeamUpdatedActivityLogData{
 					UpdatedFields: fields,
 				}
 			}(updatedFields),
@@ -274,9 +274,9 @@ func CreateDeleteKey(ctx context.Context, teamSlug slug.Slug, actor *authz.Actor
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       auditActionCreateDeleteKey,
+			Action:       activityLogActionCreateDeleteKey,
 			Actor:        actor.User,
-			ResourceType: auditResourceTypeTeam,
+			ResourceType: activityLogResourceTypeTeam,
 			ResourceName: teamSlug.String(),
 			TeamSlug:     ptr.To(teamSlug),
 		})
@@ -301,9 +301,9 @@ func ConfirmDeleteKey(ctx context.Context, teamSlug slug.Slug, deleteKey uuid.UU
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       auditActionConfirmDeleteKey,
+			Action:       activityLogActionConfirmDeleteKey,
 			Actor:        actor.User,
-			ResourceType: auditResourceTypeTeam,
+			ResourceType: activityLogResourceTypeTeam,
 			ResourceName: teamSlug.String(),
 			TeamSlug:     ptr.To(teamSlug),
 		})
@@ -347,12 +347,12 @@ func AddMember(ctx context.Context, input AddTeamMemberInput, actor *authz.Actor
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       activitylog.AuditActionAdded,
+			Action:       activitylog.ActivityLogActionAdded,
 			Actor:        actor.User,
-			ResourceType: auditResourceTypeTeam,
+			ResourceType: activityLogResourceTypeTeam,
 			ResourceName: input.TeamSlug.String(),
 			TeamSlug:     ptr.To(input.TeamSlug),
-			Data: &TeamMemberAddedAuditEntryData{
+			Data: &TeamMemberAddedActivityLogData{
 				Role:      input.Role,
 				UserUUID:  input.UserID,
 				UserEmail: input.UserEmail,
@@ -382,12 +382,12 @@ func RemoveMember(ctx context.Context, input RemoveTeamMemberInput, actor *authz
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       activitylog.AuditActionRemoved,
+			Action:       activitylog.ActivityLogActionRemoved,
 			Actor:        actor.User,
-			ResourceType: auditResourceTypeTeam,
+			ResourceType: activityLogResourceTypeTeam,
 			ResourceName: input.TeamSlug.String(),
 			TeamSlug:     ptr.To(input.TeamSlug),
-			Data: &TeamMemberRemovedAuditEntryData{
+			Data: &TeamMemberRemovedActivityLogData{
 				UserUUID:  input.UserID,
 				UserEmail: input.UserEmail,
 			},
@@ -430,12 +430,12 @@ func SetMemberRole(ctx context.Context, input SetTeamMemberRoleInput, actor *aut
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       auditActionSetMemberRole,
+			Action:       activityLogActionSetMemberRole,
 			Actor:        actor.User,
-			ResourceType: auditResourceTypeTeam,
+			ResourceType: activityLogResourceTypeTeam,
 			ResourceName: input.TeamSlug.String(),
 			TeamSlug:     ptr.To(input.TeamSlug),
-			Data: &TeamMemberSetRoleAuditEntryData{
+			Data: &TeamMemberSetRoleActivityLogData{
 				Role:      input.Role,
 				UserUUID:  input.UserID,
 				UserEmail: input.UserEmail,
@@ -494,13 +494,13 @@ func UpdateEnvironment(ctx context.Context, input *UpdateTeamEnvironmentInput, a
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       auditActionUpdateEnvironment,
+			Action:       activityLogActionUpdateEnvironment,
 			Actor:        actor.User,
-			ResourceType: auditResourceTypeTeam,
+			ResourceType: activityLogResourceTypeTeam,
 			ResourceName: input.Slug.String(),
 			TeamSlug:     ptr.To(input.Slug),
-			Data: &TeamEnvironmentUpdatedAuditEntryData{
-				UpdatedFields: []*TeamEnvironmentUpdatedAuditEntryDataUpdatedField{
+			Data: &TeamEnvironmentUpdatedActivityLogData{
+				UpdatedFields: []*TeamEnvironmentUpdatedActivityLogDataUpdatedField{
 					{
 						Field:    "slackAlertsChannel",
 						OldValue: &existingTeamEnvironment.SlackAlertsChannel,

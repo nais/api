@@ -7,31 +7,31 @@ import (
 )
 
 const (
-	auditResourceTypeJob  activitylog.AuditResourceType = "JOB"
-	auditActionTriggerJob activitylog.AuditAction       = "TRIGGER_JOB"
+	activityLogResourceTypeJob  activitylog.ActivityLogResourceType = "JOB"
+	activityLogActionTriggerJob activitylog.ActivityLogAction       = "TRIGGER_JOB"
 )
 
 func init() {
-	activitylog.RegisterTransformer(auditResourceTypeJob, func(entry activitylog.GenericAuditEntry) (activitylog.AuditEntry, error) {
+	activitylog.RegisterTransformer(activityLogResourceTypeJob, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
-		case auditActionTriggerJob:
-			return JobTriggeredAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Job triggered"),
+		case activityLogActionTriggerJob:
+			return JobTriggeredActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Job triggered"),
 			}, nil
-		case activitylog.AuditActionDeleted:
-			return JobDeletedAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Job deleted"),
+		case activitylog.ActivityLogActionDeleted:
+			return JobDeletedActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Job deleted"),
 			}, nil
 		default:
-			return nil, fmt.Errorf("unsupported job audit entry action: %q", entry.Action)
+			return nil, fmt.Errorf("unsupported job activity log entry action: %q", entry.Action)
 		}
 	})
 }
 
-type JobTriggeredAuditEntry struct {
-	activitylog.GenericAuditEntry
+type JobTriggeredActivityLog struct {
+	activitylog.GenericActivityLogEntry
 }
 
-type JobDeletedAuditEntry struct {
-	activitylog.GenericAuditEntry
+type JobDeletedActivityLog struct {
+	activitylog.GenericActivityLogEntry
 }

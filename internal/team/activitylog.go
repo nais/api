@@ -10,24 +10,24 @@ import (
 )
 
 const (
-	auditResourceTypeTeam        activitylog.AuditResourceType = "TEAM"
-	auditActionCreateDeleteKey   activitylog.AuditAction       = "CREATE_DELETE_KEY"
-	auditActionConfirmDeleteKey                                = "CONFIRM_DELETE_KEY"
-	auditActionSetMemberRole                                   = "SET_MEMBER_ROLE"
-	auditActionUpdateEnvironment                               = "UPDATE_ENVIRONMENT"
+	activityLogResourceTypeTeam        activitylog.ActivityLogResourceType = "TEAM"
+	activityLogActionCreateDeleteKey   activitylog.ActivityLogAction       = "CREATE_DELETE_KEY"
+	activityLogActionConfirmDeleteKey                                      = "CONFIRM_DELETE_KEY"
+	activityLogActionSetMemberRole                                         = "SET_MEMBER_ROLE"
+	activityLogActionUpdateEnvironment                                     = "UPDATE_ENVIRONMENT"
 )
 
 func init() {
-	activitylog.RegisterTransformer(auditResourceTypeTeam, func(entry activitylog.GenericAuditEntry) (activitylog.AuditEntry, error) {
+	activitylog.RegisterTransformer(activityLogResourceTypeTeam, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
-		case activitylog.AuditActionCreated:
-			return TeamCreatedAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Created team"),
+		case activitylog.ActivityLogActionCreated:
+			return TeamCreatedActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Created team"),
 			}, nil
-		case activitylog.AuditActionUpdated:
-			data, err := activitylog.TransformData(entry, func(data *TeamUpdatedAuditEntryData) *TeamUpdatedAuditEntryData {
+		case activitylog.ActivityLogActionUpdated:
+			data, err := activitylog.TransformData(entry, func(data *TeamUpdatedActivityLogData) *TeamUpdatedActivityLogData {
 				if len(data.UpdatedFields) == 0 {
-					return &TeamUpdatedAuditEntryData{}
+					return &TeamUpdatedActivityLogData{}
 				}
 				return data
 			})
@@ -35,150 +35,150 @@ func init() {
 				return nil, err
 			}
 
-			return TeamUpdatedAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Updated team"),
-				Data:              data,
+			return TeamUpdatedActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Updated team"),
+				Data:                    data,
 			}, nil
-		case auditActionCreateDeleteKey:
-			return TeamCreateDeleteKeyAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Create delete key"),
+		case activityLogActionCreateDeleteKey:
+			return TeamCreateDeleteKeyActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Create delete key"),
 			}, nil
-		case auditActionConfirmDeleteKey:
-			return TeamConfirmDeleteKeyAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Confirm delete key"),
+		case activityLogActionConfirmDeleteKey:
+			return TeamConfirmDeleteKeyActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Confirm delete key"),
 			}, nil
-		case activitylog.AuditActionAdded:
-			data, err := activitylog.TransformData(entry, func(data *TeamMemberAddedAuditEntryData) *TeamMemberAddedAuditEntryData {
+		case activitylog.ActivityLogActionAdded:
+			data, err := activitylog.TransformData(entry, func(data *TeamMemberAddedActivityLogData) *TeamMemberAddedActivityLogData {
 				return data
 			})
 			if err != nil {
 				return nil, err
 			}
-			return TeamMemberAddedAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Add member"),
-				Data:              data,
+			return TeamMemberAddedActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Add member"),
+				Data:                    data,
 			}, nil
-		case activitylog.AuditActionRemoved:
-			data, err := activitylog.TransformData(entry, func(data *TeamMemberRemovedAuditEntryData) *TeamMemberRemovedAuditEntryData {
+		case activitylog.ActivityLogActionRemoved:
+			data, err := activitylog.TransformData(entry, func(data *TeamMemberRemovedActivityLogData) *TeamMemberRemovedActivityLogData {
 				return data
 			})
 			if err != nil {
 				return nil, err
 			}
-			return TeamMemberRemovedAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Remove member"),
-				Data:              data,
+			return TeamMemberRemovedActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Remove member"),
+				Data:                    data,
 			}, nil
-		case auditActionSetMemberRole:
-			data, err := activitylog.TransformData(entry, func(data *TeamMemberSetRoleAuditEntryData) *TeamMemberSetRoleAuditEntryData {
+		case activityLogActionSetMemberRole:
+			data, err := activitylog.TransformData(entry, func(data *TeamMemberSetRoleActivityLogData) *TeamMemberSetRoleActivityLogData {
 				return data
 			})
 			if err != nil {
 				return nil, err
 			}
-			return TeamMemberSetRoleAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Set member role"),
-				Data:              data,
+			return TeamMemberSetRoleActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Set member role"),
+				Data:                    data,
 			}, nil
-		case auditActionUpdateEnvironment:
-			data, err := activitylog.TransformData(entry, func(data *TeamEnvironmentUpdatedAuditEntryData) *TeamEnvironmentUpdatedAuditEntryData {
+		case activityLogActionUpdateEnvironment:
+			data, err := activitylog.TransformData(entry, func(data *TeamEnvironmentUpdatedActivityLogData) *TeamEnvironmentUpdatedActivityLogData {
 				return data
 			})
 			if err != nil {
 				return nil, err
 			}
 
-			return TeamEnvironmentUpdatedAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Update environment"),
-				Data:              data,
+			return TeamEnvironmentUpdatedActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Update environment"),
+				Data:                    data,
 			}, nil
 		default:
-			return nil, fmt.Errorf("unsupported team audit entry action: %q", entry.Action)
+			return nil, fmt.Errorf("unsupported team activity log entry action: %q", entry.Action)
 		}
 	})
 }
 
-type TeamCreatedAuditEntry struct {
-	activitylog.GenericAuditEntry
+type TeamCreatedActivityLog struct {
+	activitylog.GenericActivityLogEntry
 }
 
-type TeamUpdatedAuditEntry struct {
-	activitylog.GenericAuditEntry
-	Data *TeamUpdatedAuditEntryData `json:"data"`
+type TeamUpdatedActivityLog struct {
+	activitylog.GenericActivityLogEntry
+	Data *TeamUpdatedActivityLogData `json:"data"`
 }
 
-type TeamUpdatedAuditEntryData struct {
-	UpdatedFields []*TeamUpdatedAuditEntryDataUpdatedField `json:"updatedFields"`
+type TeamUpdatedActivityLogData struct {
+	UpdatedFields []*TeamUpdatedActivityLogDataUpdatedField `json:"updatedFields"`
 }
 
-type TeamUpdatedAuditEntryDataUpdatedField struct {
+type TeamUpdatedActivityLogDataUpdatedField struct {
 	Field    string  `json:"field"`
 	OldValue *string `json:"oldValue"`
 	NewValue *string `json:"newValue"`
 }
 
-type TeamConfirmDeleteKeyAuditEntry struct {
-	activitylog.GenericAuditEntry
+type TeamConfirmDeleteKeyActivityLog struct {
+	activitylog.GenericActivityLogEntry
 }
 
-type TeamCreateDeleteKeyAuditEntry struct {
-	activitylog.GenericAuditEntry
+type TeamCreateDeleteKeyActivityLog struct {
+	activitylog.GenericActivityLogEntry
 }
 
-type TeamMemberAddedAuditEntry struct {
-	activitylog.GenericAuditEntry
-	Data *TeamMemberAddedAuditEntryData `json:"data"`
+type TeamMemberAddedActivityLog struct {
+	activitylog.GenericActivityLogEntry
+	Data *TeamMemberAddedActivityLogData `json:"data"`
 }
 
-type TeamMemberAddedAuditEntryData struct {
+type TeamMemberAddedActivityLogData struct {
 	Role      TeamMemberRole `json:"role"`
 	UserUUID  uuid.UUID      `json:"userID"`
 	UserEmail string         `json:"userEmail"`
 }
 
-func (t TeamMemberAddedAuditEntryData) UserID() ident.Ident {
+func (t TeamMemberAddedActivityLogData) UserID() ident.Ident {
 	return user.NewIdent(t.UserUUID)
 }
 
-type TeamMemberRemovedAuditEntry struct {
-	activitylog.GenericAuditEntry
-	Data *TeamMemberRemovedAuditEntryData `json:"data"`
+type TeamMemberRemovedActivityLog struct {
+	activitylog.GenericActivityLogEntry
+	Data *TeamMemberRemovedActivityLogData `json:"data"`
 }
 
-type TeamMemberRemovedAuditEntryData struct {
+type TeamMemberRemovedActivityLogData struct {
 	UserUUID  uuid.UUID `json:"userID"`
 	UserEmail string    `json:"userEmail"`
 }
 
-func (t TeamMemberRemovedAuditEntryData) UserID() ident.Ident {
+func (t TeamMemberRemovedActivityLogData) UserID() ident.Ident {
 	return user.NewIdent(t.UserUUID)
 }
 
-type TeamMemberSetRoleAuditEntry struct {
-	activitylog.GenericAuditEntry
-	Data *TeamMemberSetRoleAuditEntryData `json:"data"`
+type TeamMemberSetRoleActivityLog struct {
+	activitylog.GenericActivityLogEntry
+	Data *TeamMemberSetRoleActivityLogData `json:"data"`
 }
 
-type TeamMemberSetRoleAuditEntryData struct {
+type TeamMemberSetRoleActivityLogData struct {
 	Role      TeamMemberRole `json:"role"`
 	UserUUID  uuid.UUID      `json:"userID"`
 	UserEmail string         `json:"userEmail"`
 }
 
-func (t TeamMemberSetRoleAuditEntryData) UserID() ident.Ident {
+func (t TeamMemberSetRoleActivityLogData) UserID() ident.Ident {
 	return user.NewIdent(t.UserUUID)
 }
 
-type TeamEnvironmentUpdatedAuditEntry struct {
-	activitylog.GenericAuditEntry
-	Data *TeamEnvironmentUpdatedAuditEntryData `json:"data"`
+type TeamEnvironmentUpdatedActivityLog struct {
+	activitylog.GenericActivityLogEntry
+	Data *TeamEnvironmentUpdatedActivityLogData `json:"data"`
 }
 
-type TeamEnvironmentUpdatedAuditEntryData struct {
-	UpdatedFields []*TeamEnvironmentUpdatedAuditEntryDataUpdatedField `json:"updatedFields"`
+type TeamEnvironmentUpdatedActivityLogData struct {
+	UpdatedFields []*TeamEnvironmentUpdatedActivityLogDataUpdatedField `json:"updatedFields"`
 }
 
-type TeamEnvironmentUpdatedAuditEntryDataUpdatedField struct {
+type TeamEnvironmentUpdatedActivityLogDataUpdatedField struct {
 	Field    string  `json:"field"`
 	OldValue *string `json:"oldValue"`
 	NewValue *string `json:"newValue"`

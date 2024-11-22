@@ -68,9 +68,9 @@ func Create(ctx context.Context, input *CreateUnleashForTeamInput) (*UnleashInst
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:       activitylog.AuditActionCreated,
+		Action:       activitylog.ActivityLogActionCreated,
 		Actor:        authz.ActorFromContext(ctx).User,
-		ResourceType: auditResourceTypeUnleash,
+		ResourceType: activityLogResourceTypeUnleash,
 		ResourceName: input.TeamSlug.String(),
 		TeamSlug:     &input.TeamSlug,
 	})
@@ -127,11 +127,11 @@ func AllowTeamAccess(ctx context.Context, input AllowTeamAccessToUnleashInput) (
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:       activitylog.AuditActionUpdated,
+		Action:       activitylog.ActivityLogActionUpdated,
 		Actor:        authz.ActorFromContext(ctx).User,
-		ResourceType: auditResourceTypeUnleash,
+		ResourceType: activityLogResourceTypeUnleash,
 		ResourceName: input.TeamSlug.String(),
-		Data: &UnleashInstanceUpdatedAuditEntryData{
+		Data: &UnleashInstanceUpdatedActivityLogData{
 			AllowedTeamSlug: &input.AllowedTeamSlug,
 		},
 		TeamSlug: &input.TeamSlug,
@@ -162,11 +162,11 @@ func RevokeTeamAccess(ctx context.Context, input RevokeTeamAccessToUnleashInput)
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:       activitylog.AuditActionUpdated,
+		Action:       activitylog.ActivityLogActionUpdated,
 		Actor:        authz.ActorFromContext(ctx).User,
-		ResourceType: auditResourceTypeUnleash,
+		ResourceType: activityLogResourceTypeUnleash,
 		ResourceName: input.TeamSlug.String(),
-		Data: &UnleashInstanceUpdatedAuditEntryData{
+		Data: &UnleashInstanceUpdatedActivityLogData{
 			RevokedTeamSlug: &input.RevokedTeamSlug,
 		},
 		TeamSlug: &input.TeamSlug,

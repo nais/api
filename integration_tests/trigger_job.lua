@@ -112,7 +112,7 @@ Test.gql("job details after trigger", function(t)
 	t.query [[
 		{
 			team(slug: "slug-1") {
-				auditEntries {
+				activityLog {
 					nodes {
 						message
 					}
@@ -136,7 +136,7 @@ Test.gql("job details after trigger", function(t)
 	t.check {
 		data = {
 			team = {
-				auditEntries = {
+				activityLog = {
 					nodes = {
 						{
 							message = "Job triggered",

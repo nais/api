@@ -175,9 +175,9 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environmentName, name strin
 	}
 
 	if err := activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activitylog.AuditActionDeleted,
+		Action:          activitylog.ActivityLogActionDeleted,
 		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    auditResourceTypeJob,
+		ResourceType:    activityLogResourceTypeJob,
 		ResourceName:    name,
 		EnvironmentName: &environmentName,
 		TeamSlug:        &teamSlug,
@@ -227,9 +227,9 @@ func Trigger(ctx context.Context, teamSlug slug.Slug, environmentName, name, run
 	}
 
 	if err := activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          auditActionTriggerJob,
+		Action:          activityLogActionTriggerJob,
 		Actor:           authz.ActorFromContext(ctx).User,
-		ResourceType:    auditResourceTypeJob,
+		ResourceType:    activityLogResourceTypeJob,
 		ResourceName:    name,
 		EnvironmentName: &environmentName,
 		TeamSlug:        &teamSlug,

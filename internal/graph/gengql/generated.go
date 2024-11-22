@@ -128,6 +128,17 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	ActivityLogConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	ActivityLogEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
 	AddRepositoryToTeamPayload struct {
 		Repository func(childComplexity int) int
 	}
@@ -175,7 +186,7 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
-	ApplicationDeletedAuditEntry struct {
+	ApplicationDeletedActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -226,7 +237,7 @@ type ComplexityRoot struct {
 		Scaling  func(childComplexity int) int
 	}
 
-	ApplicationRestartedAuditEntry struct {
+	ApplicationRestartedActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -241,17 +252,6 @@ type ComplexityRoot struct {
 		MaxInstances func(childComplexity int) int
 		MinInstances func(childComplexity int) int
 		Strategies   func(childComplexity int) int
-	}
-
-	AuditEntryConnection struct {
-		Edges    func(childComplexity int) int
-		Nodes    func(childComplexity int) int
-		PageInfo func(childComplexity int) int
-	}
-
-	AuditEntryEdge struct {
-		Cursor func(childComplexity int) int
-		Node   func(childComplexity int) int
 	}
 
 	BigQueryDataset struct {
@@ -562,7 +562,7 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
-	JobDeletedAuditEntry struct {
+	JobDeletedActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -635,7 +635,7 @@ type ComplexityRoot struct {
 		TimeZone   func(childComplexity int) int
 	}
 
-	JobTriggeredAuditEntry struct {
+	JobTriggeredActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -825,15 +825,15 @@ type ComplexityRoot struct {
 	}
 
 	Reconciler struct {
-		AuditEntries func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Config       func(childComplexity int) int
-		Configured   func(childComplexity int) int
-		Description  func(childComplexity int) int
-		DisplayName  func(childComplexity int) int
-		Enabled      func(childComplexity int) int
-		Errors       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		ID           func(childComplexity int) int
-		Name         func(childComplexity int) int
+		ActivityLog func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Config      func(childComplexity int) int
+		Configured  func(childComplexity int) int
+		Description func(childComplexity int) int
+		DisplayName func(childComplexity int) int
+		Enabled     func(childComplexity int) int
+		Errors      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		ID          func(childComplexity int) int
+		Name        func(childComplexity int) int
 	}
 
 	ReconcilerConfig struct {
@@ -845,7 +845,7 @@ type ComplexityRoot struct {
 		Value       func(childComplexity int) int
 	}
 
-	ReconcilerConfiguredAuditEntry struct {
+	ReconcilerConfiguredActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -857,7 +857,7 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
-	ReconcilerConfiguredAuditEntryData struct {
+	ReconcilerConfiguredActivityLogData struct {
 		UpdatedKeys func(childComplexity int) int
 	}
 
@@ -867,7 +867,7 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
-	ReconcilerDisabledAuditEntry struct {
+	ReconcilerDisabledActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -883,7 +883,7 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
-	ReconcilerEnabledAuditEntry struct {
+	ReconcilerEnabledActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -977,7 +977,7 @@ type ComplexityRoot struct {
 		Team func(childComplexity int) int
 	}
 
-	RepositoryAddedAuditEntry struct {
+	RepositoryAddedActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -999,7 +999,7 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
-	RepositoryRemovedAuditEntry struct {
+	RepositoryRemovedActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -1052,7 +1052,7 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
-	SecretCreatedAuditEntry struct {
+	SecretCreatedActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -1063,7 +1063,7 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
-	SecretDeletedAuditEntry struct {
+	SecretDeletedActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -1084,7 +1084,7 @@ type ComplexityRoot struct {
 		Value func(childComplexity int) int
 	}
 
-	SecretValueAddedAuditEntry struct {
+	SecretValueAddedActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -1096,11 +1096,11 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
-	SecretValueAddedAuditEntryData struct {
+	SecretValueAddedActivityLogData struct {
 		ValueName func(childComplexity int) int
 	}
 
-	SecretValueRemovedAuditEntry struct {
+	SecretValueRemovedActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -1112,11 +1112,11 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
-	SecretValueRemovedAuditEntryData struct {
+	SecretValueRemovedActivityLogData struct {
 		ValueName func(childComplexity int) int
 	}
 
-	SecretValueUpdatedAuditEntry struct {
+	SecretValueUpdatedActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -1128,7 +1128,7 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
-	SecretValueUpdatedAuditEntryData struct {
+	SecretValueUpdatedActivityLogData struct {
 		ValueName func(childComplexity int) int
 	}
 
@@ -1281,8 +1281,8 @@ type ComplexityRoot struct {
 	}
 
 	Team struct {
+		ActivityLog          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Applications         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) int
-		AuditEntries         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		BigQueryDatasets     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) int
 		Buckets              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) int
 		Cost                 func(childComplexity int) int
@@ -1321,7 +1321,7 @@ type ComplexityRoot struct {
 		Bucket func(childComplexity int) int
 	}
 
-	TeamConfirmDeleteKeyAuditEntry struct {
+	TeamConfirmDeleteKeyActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -1358,7 +1358,7 @@ type ComplexityRoot struct {
 		Sum    func(childComplexity int) int
 	}
 
-	TeamCreateDeleteKeyAuditEntry struct {
+	TeamCreateDeleteKeyActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -1369,7 +1369,7 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
-	TeamCreatedAuditEntry struct {
+	TeamCreatedActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -1388,7 +1388,7 @@ type ComplexityRoot struct {
 		Team      func(childComplexity int) int
 	}
 
-	TeamDeployKeyUpdatedAuditEntry struct {
+	TeamDeployKeyUpdatedActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -1436,7 +1436,7 @@ type ComplexityRoot struct {
 		Sum    func(childComplexity int) int
 	}
 
-	TeamEnvironmentUpdatedAuditEntry struct {
+	TeamEnvironmentUpdatedActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -1448,11 +1448,11 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
-	TeamEnvironmentUpdatedAuditEntryData struct {
+	TeamEnvironmentUpdatedActivityLogData struct {
 		UpdatedFields func(childComplexity int) int
 	}
 
-	TeamEnvironmentUpdatedAuditEntryDataUpdatedField struct {
+	TeamEnvironmentUpdatedActivityLogDataUpdatedField struct {
 		Field    func(childComplexity int) int
 		NewValue func(childComplexity int) int
 		OldValue func(childComplexity int) int
@@ -1529,7 +1529,7 @@ type ComplexityRoot struct {
 		User func(childComplexity int) int
 	}
 
-	TeamMemberAddedAuditEntry struct {
+	TeamMemberAddedActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -1541,7 +1541,7 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
-	TeamMemberAddedAuditEntryData struct {
+	TeamMemberAddedActivityLogData struct {
 		Role      func(childComplexity int) int
 		UserEmail func(childComplexity int) int
 		UserID    func(childComplexity int) int
@@ -1558,7 +1558,7 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
-	TeamMemberRemovedAuditEntry struct {
+	TeamMemberRemovedActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -1570,12 +1570,12 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
-	TeamMemberRemovedAuditEntryData struct {
+	TeamMemberRemovedActivityLogData struct {
 		UserEmail func(childComplexity int) int
 		UserID    func(childComplexity int) int
 	}
 
-	TeamMemberSetRoleAuditEntry struct {
+	TeamMemberSetRoleActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -1587,7 +1587,7 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
-	TeamMemberSetRoleAuditEntryData struct {
+	TeamMemberSetRoleActivityLogData struct {
 		Role      func(childComplexity int) int
 		UserEmail func(childComplexity int) int
 		UserID    func(childComplexity int) int
@@ -1621,7 +1621,7 @@ type ComplexityRoot struct {
 		Utilization func(childComplexity int) int
 	}
 
-	TeamUpdatedAuditEntry struct {
+	TeamUpdatedActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -1633,11 +1633,11 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
-	TeamUpdatedAuditEntryData struct {
+	TeamUpdatedActivityLogData struct {
 		UpdatedFields func(childComplexity int) int
 	}
 
-	TeamUpdatedAuditEntryDataUpdatedField struct {
+	TeamUpdatedActivityLogDataUpdatedField struct {
 		Field    func(childComplexity int) int
 		NewValue func(childComplexity int) int
 		OldValue func(childComplexity int) int
@@ -1690,7 +1690,7 @@ type ComplexityRoot struct {
 		WebIngress   func(childComplexity int) int
 	}
 
-	UnleashInstanceCreatedAuditEntry struct {
+	UnleashInstanceCreatedActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -1710,7 +1710,7 @@ type ComplexityRoot struct {
 		Toggles           func(childComplexity int) int
 	}
 
-	UnleashInstanceUpdatedAuditEntry struct {
+	UnleashInstanceUpdatedActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -1722,7 +1722,7 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
-	UnleashInstanceUpdatedAuditEntryData struct {
+	UnleashInstanceUpdatedActivityLogData struct {
 		AllowedTeamSlug func(childComplexity int) int
 		RevokedTeamSlug func(childComplexity int) int
 	}
@@ -1768,7 +1768,7 @@ type ComplexityRoot struct {
 		Value     func(childComplexity int) int
 	}
 
-	VulnerabilityUpdatedAuditEntry struct {
+	VulnerabilityUpdatedActivityLog struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -2060,7 +2060,7 @@ type ReconcilerResolver interface {
 	Config(ctx context.Context, obj *reconciler.Reconciler) ([]*reconciler.ReconcilerConfig, error)
 	Configured(ctx context.Context, obj *reconciler.Reconciler) (bool, error)
 	Errors(ctx context.Context, obj *reconciler.Reconciler, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*reconciler.ReconcilerError], error)
-	AuditEntries(ctx context.Context, obj *reconciler.Reconciler, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[activitylog.AuditEntry], error)
+	ActivityLog(ctx context.Context, obj *reconciler.Reconciler, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[activitylog.ActivityLogEntry], error)
 }
 type ReconcilerErrorResolver interface {
 	Team(ctx context.Context, obj *reconciler.ReconcilerError) (*team.Team, error)
@@ -2130,8 +2130,8 @@ type TeamResolver interface {
 	Environment(ctx context.Context, obj *team.Team, name string) (*team.TeamEnvironment, error)
 	DeleteKey(ctx context.Context, obj *team.Team, key string) (*team.TeamDeleteKey, error)
 	InventoryCounts(ctx context.Context, obj *team.Team) (*team.TeamInventoryCounts, error)
+	ActivityLog(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[activitylog.ActivityLogEntry], error)
 	Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) (*pagination.Connection[*application.Application], error)
-	AuditEntries(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[activitylog.AuditEntry], error)
 	BigQueryDatasets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
 	Buckets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
 	Cost(ctx context.Context, obj *team.Team) (*cost.TeamCost, error)
@@ -2258,6 +2258,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "ActivityLogConnection.edges":
+		if e.complexity.ActivityLogConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.ActivityLogConnection.Edges(childComplexity), true
+
+	case "ActivityLogConnection.nodes":
+		if e.complexity.ActivityLogConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.ActivityLogConnection.Nodes(childComplexity), true
+
+	case "ActivityLogConnection.pageInfo":
+		if e.complexity.ActivityLogConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.ActivityLogConnection.PageInfo(childComplexity), true
+
+	case "ActivityLogEdge.cursor":
+		if e.complexity.ActivityLogEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.ActivityLogEdge.Cursor(childComplexity), true
+
+	case "ActivityLogEdge.node":
+		if e.complexity.ActivityLogEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.ActivityLogEdge.Node(childComplexity), true
 
 	case "AddRepositoryToTeamPayload.repository":
 		if e.complexity.AddRepositoryToTeamPayload.Repository == nil {
@@ -2497,61 +2532,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ApplicationConnection.PageInfo(childComplexity), true
 
-	case "ApplicationDeletedAuditEntry.actor":
-		if e.complexity.ApplicationDeletedAuditEntry.Actor == nil {
+	case "ApplicationDeletedActivityLog.actor":
+		if e.complexity.ApplicationDeletedActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.ApplicationDeletedAuditEntry.Actor(childComplexity), true
+		return e.complexity.ApplicationDeletedActivityLog.Actor(childComplexity), true
 
-	case "ApplicationDeletedAuditEntry.createdAt":
-		if e.complexity.ApplicationDeletedAuditEntry.CreatedAt == nil {
+	case "ApplicationDeletedActivityLog.createdAt":
+		if e.complexity.ApplicationDeletedActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.ApplicationDeletedAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.ApplicationDeletedActivityLog.CreatedAt(childComplexity), true
 
-	case "ApplicationDeletedAuditEntry.environmentName":
-		if e.complexity.ApplicationDeletedAuditEntry.EnvironmentName == nil {
+	case "ApplicationDeletedActivityLog.environmentName":
+		if e.complexity.ApplicationDeletedActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.ApplicationDeletedAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.ApplicationDeletedActivityLog.EnvironmentName(childComplexity), true
 
-	case "ApplicationDeletedAuditEntry.id":
-		if e.complexity.ApplicationDeletedAuditEntry.ID == nil {
+	case "ApplicationDeletedActivityLog.id":
+		if e.complexity.ApplicationDeletedActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.ApplicationDeletedAuditEntry.ID(childComplexity), true
+		return e.complexity.ApplicationDeletedActivityLog.ID(childComplexity), true
 
-	case "ApplicationDeletedAuditEntry.message":
-		if e.complexity.ApplicationDeletedAuditEntry.Message == nil {
+	case "ApplicationDeletedActivityLog.message":
+		if e.complexity.ApplicationDeletedActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.ApplicationDeletedAuditEntry.Message(childComplexity), true
+		return e.complexity.ApplicationDeletedActivityLog.Message(childComplexity), true
 
-	case "ApplicationDeletedAuditEntry.resourceName":
-		if e.complexity.ApplicationDeletedAuditEntry.ResourceName == nil {
+	case "ApplicationDeletedActivityLog.resourceName":
+		if e.complexity.ApplicationDeletedActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.ApplicationDeletedAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.ApplicationDeletedActivityLog.ResourceName(childComplexity), true
 
-	case "ApplicationDeletedAuditEntry.resourceType":
-		if e.complexity.ApplicationDeletedAuditEntry.ResourceType == nil {
+	case "ApplicationDeletedActivityLog.resourceType":
+		if e.complexity.ApplicationDeletedActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.ApplicationDeletedAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.ApplicationDeletedActivityLog.ResourceType(childComplexity), true
 
-	case "ApplicationDeletedAuditEntry.teamSlug":
-		if e.complexity.ApplicationDeletedAuditEntry.TeamSlug == nil {
+	case "ApplicationDeletedActivityLog.teamSlug":
+		if e.complexity.ApplicationDeletedActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.ApplicationDeletedAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.ApplicationDeletedActivityLog.TeamSlug(childComplexity), true
 
 	case "ApplicationEdge.cursor":
 		if e.complexity.ApplicationEdge.Cursor == nil {
@@ -2686,61 +2721,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ApplicationResources.Scaling(childComplexity), true
 
-	case "ApplicationRestartedAuditEntry.actor":
-		if e.complexity.ApplicationRestartedAuditEntry.Actor == nil {
+	case "ApplicationRestartedActivityLog.actor":
+		if e.complexity.ApplicationRestartedActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.ApplicationRestartedAuditEntry.Actor(childComplexity), true
+		return e.complexity.ApplicationRestartedActivityLog.Actor(childComplexity), true
 
-	case "ApplicationRestartedAuditEntry.createdAt":
-		if e.complexity.ApplicationRestartedAuditEntry.CreatedAt == nil {
+	case "ApplicationRestartedActivityLog.createdAt":
+		if e.complexity.ApplicationRestartedActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.ApplicationRestartedAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.ApplicationRestartedActivityLog.CreatedAt(childComplexity), true
 
-	case "ApplicationRestartedAuditEntry.environmentName":
-		if e.complexity.ApplicationRestartedAuditEntry.EnvironmentName == nil {
+	case "ApplicationRestartedActivityLog.environmentName":
+		if e.complexity.ApplicationRestartedActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.ApplicationRestartedAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.ApplicationRestartedActivityLog.EnvironmentName(childComplexity), true
 
-	case "ApplicationRestartedAuditEntry.id":
-		if e.complexity.ApplicationRestartedAuditEntry.ID == nil {
+	case "ApplicationRestartedActivityLog.id":
+		if e.complexity.ApplicationRestartedActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.ApplicationRestartedAuditEntry.ID(childComplexity), true
+		return e.complexity.ApplicationRestartedActivityLog.ID(childComplexity), true
 
-	case "ApplicationRestartedAuditEntry.message":
-		if e.complexity.ApplicationRestartedAuditEntry.Message == nil {
+	case "ApplicationRestartedActivityLog.message":
+		if e.complexity.ApplicationRestartedActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.ApplicationRestartedAuditEntry.Message(childComplexity), true
+		return e.complexity.ApplicationRestartedActivityLog.Message(childComplexity), true
 
-	case "ApplicationRestartedAuditEntry.resourceName":
-		if e.complexity.ApplicationRestartedAuditEntry.ResourceName == nil {
+	case "ApplicationRestartedActivityLog.resourceName":
+		if e.complexity.ApplicationRestartedActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.ApplicationRestartedAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.ApplicationRestartedActivityLog.ResourceName(childComplexity), true
 
-	case "ApplicationRestartedAuditEntry.resourceType":
-		if e.complexity.ApplicationRestartedAuditEntry.ResourceType == nil {
+	case "ApplicationRestartedActivityLog.resourceType":
+		if e.complexity.ApplicationRestartedActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.ApplicationRestartedAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.ApplicationRestartedActivityLog.ResourceType(childComplexity), true
 
-	case "ApplicationRestartedAuditEntry.teamSlug":
-		if e.complexity.ApplicationRestartedAuditEntry.TeamSlug == nil {
+	case "ApplicationRestartedActivityLog.teamSlug":
+		if e.complexity.ApplicationRestartedActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.ApplicationRestartedAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.ApplicationRestartedActivityLog.TeamSlug(childComplexity), true
 
 	case "ApplicationScaling.maxInstances":
 		if e.complexity.ApplicationScaling.MaxInstances == nil {
@@ -2762,41 +2797,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ApplicationScaling.Strategies(childComplexity), true
-
-	case "AuditEntryConnection.edges":
-		if e.complexity.AuditEntryConnection.Edges == nil {
-			break
-		}
-
-		return e.complexity.AuditEntryConnection.Edges(childComplexity), true
-
-	case "AuditEntryConnection.nodes":
-		if e.complexity.AuditEntryConnection.Nodes == nil {
-			break
-		}
-
-		return e.complexity.AuditEntryConnection.Nodes(childComplexity), true
-
-	case "AuditEntryConnection.pageInfo":
-		if e.complexity.AuditEntryConnection.PageInfo == nil {
-			break
-		}
-
-		return e.complexity.AuditEntryConnection.PageInfo(childComplexity), true
-
-	case "AuditEntryEdge.cursor":
-		if e.complexity.AuditEntryEdge.Cursor == nil {
-			break
-		}
-
-		return e.complexity.AuditEntryEdge.Cursor(childComplexity), true
-
-	case "AuditEntryEdge.node":
-		if e.complexity.AuditEntryEdge.Node == nil {
-			break
-		}
-
-		return e.complexity.AuditEntryEdge.Node(childComplexity), true
 
 	case "BigQueryDataset.access":
 		if e.complexity.BigQueryDataset.Access == nil {
@@ -3985,61 +3985,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.JobConnection.PageInfo(childComplexity), true
 
-	case "JobDeletedAuditEntry.actor":
-		if e.complexity.JobDeletedAuditEntry.Actor == nil {
+	case "JobDeletedActivityLog.actor":
+		if e.complexity.JobDeletedActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.JobDeletedAuditEntry.Actor(childComplexity), true
+		return e.complexity.JobDeletedActivityLog.Actor(childComplexity), true
 
-	case "JobDeletedAuditEntry.createdAt":
-		if e.complexity.JobDeletedAuditEntry.CreatedAt == nil {
+	case "JobDeletedActivityLog.createdAt":
+		if e.complexity.JobDeletedActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.JobDeletedAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.JobDeletedActivityLog.CreatedAt(childComplexity), true
 
-	case "JobDeletedAuditEntry.environmentName":
-		if e.complexity.JobDeletedAuditEntry.EnvironmentName == nil {
+	case "JobDeletedActivityLog.environmentName":
+		if e.complexity.JobDeletedActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.JobDeletedAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.JobDeletedActivityLog.EnvironmentName(childComplexity), true
 
-	case "JobDeletedAuditEntry.id":
-		if e.complexity.JobDeletedAuditEntry.ID == nil {
+	case "JobDeletedActivityLog.id":
+		if e.complexity.JobDeletedActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.JobDeletedAuditEntry.ID(childComplexity), true
+		return e.complexity.JobDeletedActivityLog.ID(childComplexity), true
 
-	case "JobDeletedAuditEntry.message":
-		if e.complexity.JobDeletedAuditEntry.Message == nil {
+	case "JobDeletedActivityLog.message":
+		if e.complexity.JobDeletedActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.JobDeletedAuditEntry.Message(childComplexity), true
+		return e.complexity.JobDeletedActivityLog.Message(childComplexity), true
 
-	case "JobDeletedAuditEntry.resourceName":
-		if e.complexity.JobDeletedAuditEntry.ResourceName == nil {
+	case "JobDeletedActivityLog.resourceName":
+		if e.complexity.JobDeletedActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.JobDeletedAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.JobDeletedActivityLog.ResourceName(childComplexity), true
 
-	case "JobDeletedAuditEntry.resourceType":
-		if e.complexity.JobDeletedAuditEntry.ResourceType == nil {
+	case "JobDeletedActivityLog.resourceType":
+		if e.complexity.JobDeletedActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.JobDeletedAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.JobDeletedActivityLog.ResourceType(childComplexity), true
 
-	case "JobDeletedAuditEntry.teamSlug":
-		if e.complexity.JobDeletedAuditEntry.TeamSlug == nil {
+	case "JobDeletedActivityLog.teamSlug":
+		if e.complexity.JobDeletedActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.JobDeletedAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.JobDeletedActivityLog.TeamSlug(childComplexity), true
 
 	case "JobEdge.cursor":
 		if e.complexity.JobEdge.Cursor == nil {
@@ -4249,61 +4249,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.JobSchedule.TimeZone(childComplexity), true
 
-	case "JobTriggeredAuditEntry.actor":
-		if e.complexity.JobTriggeredAuditEntry.Actor == nil {
+	case "JobTriggeredActivityLog.actor":
+		if e.complexity.JobTriggeredActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.JobTriggeredAuditEntry.Actor(childComplexity), true
+		return e.complexity.JobTriggeredActivityLog.Actor(childComplexity), true
 
-	case "JobTriggeredAuditEntry.createdAt":
-		if e.complexity.JobTriggeredAuditEntry.CreatedAt == nil {
+	case "JobTriggeredActivityLog.createdAt":
+		if e.complexity.JobTriggeredActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.JobTriggeredAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.JobTriggeredActivityLog.CreatedAt(childComplexity), true
 
-	case "JobTriggeredAuditEntry.environmentName":
-		if e.complexity.JobTriggeredAuditEntry.EnvironmentName == nil {
+	case "JobTriggeredActivityLog.environmentName":
+		if e.complexity.JobTriggeredActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.JobTriggeredAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.JobTriggeredActivityLog.EnvironmentName(childComplexity), true
 
-	case "JobTriggeredAuditEntry.id":
-		if e.complexity.JobTriggeredAuditEntry.ID == nil {
+	case "JobTriggeredActivityLog.id":
+		if e.complexity.JobTriggeredActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.JobTriggeredAuditEntry.ID(childComplexity), true
+		return e.complexity.JobTriggeredActivityLog.ID(childComplexity), true
 
-	case "JobTriggeredAuditEntry.message":
-		if e.complexity.JobTriggeredAuditEntry.Message == nil {
+	case "JobTriggeredActivityLog.message":
+		if e.complexity.JobTriggeredActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.JobTriggeredAuditEntry.Message(childComplexity), true
+		return e.complexity.JobTriggeredActivityLog.Message(childComplexity), true
 
-	case "JobTriggeredAuditEntry.resourceName":
-		if e.complexity.JobTriggeredAuditEntry.ResourceName == nil {
+	case "JobTriggeredActivityLog.resourceName":
+		if e.complexity.JobTriggeredActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.JobTriggeredAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.JobTriggeredActivityLog.ResourceName(childComplexity), true
 
-	case "JobTriggeredAuditEntry.resourceType":
-		if e.complexity.JobTriggeredAuditEntry.ResourceType == nil {
+	case "JobTriggeredActivityLog.resourceType":
+		if e.complexity.JobTriggeredActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.JobTriggeredAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.JobTriggeredActivityLog.ResourceType(childComplexity), true
 
-	case "JobTriggeredAuditEntry.teamSlug":
-		if e.complexity.JobTriggeredAuditEntry.TeamSlug == nil {
+	case "JobTriggeredActivityLog.teamSlug":
+		if e.complexity.JobTriggeredActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.JobTriggeredAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.JobTriggeredActivityLog.TeamSlug(childComplexity), true
 
 	case "KafkaLagScalingStrategy.consumerGroup":
 		if e.complexity.KafkaLagScalingStrategy.ConsumerGroup == nil {
@@ -5253,17 +5253,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Users(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*user.UserOrder)), true
 
-	case "Reconciler.auditEntries":
-		if e.complexity.Reconciler.AuditEntries == nil {
+	case "Reconciler.activityLog":
+		if e.complexity.Reconciler.ActivityLog == nil {
 			break
 		}
 
-		args, err := ec.field_Reconciler_auditEntries_args(context.TODO(), rawArgs)
+		args, err := ec.field_Reconciler_activityLog_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Reconciler.AuditEntries(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+		return e.complexity.Reconciler.ActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "Reconciler.config":
 		if e.complexity.Reconciler.Config == nil {
@@ -5368,75 +5368,75 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ReconcilerConfig.Value(childComplexity), true
 
-	case "ReconcilerConfiguredAuditEntry.actor":
-		if e.complexity.ReconcilerConfiguredAuditEntry.Actor == nil {
+	case "ReconcilerConfiguredActivityLog.actor":
+		if e.complexity.ReconcilerConfiguredActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerConfiguredAuditEntry.Actor(childComplexity), true
+		return e.complexity.ReconcilerConfiguredActivityLog.Actor(childComplexity), true
 
-	case "ReconcilerConfiguredAuditEntry.createdAt":
-		if e.complexity.ReconcilerConfiguredAuditEntry.CreatedAt == nil {
+	case "ReconcilerConfiguredActivityLog.createdAt":
+		if e.complexity.ReconcilerConfiguredActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerConfiguredAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.ReconcilerConfiguredActivityLog.CreatedAt(childComplexity), true
 
-	case "ReconcilerConfiguredAuditEntry.data":
-		if e.complexity.ReconcilerConfiguredAuditEntry.Data == nil {
+	case "ReconcilerConfiguredActivityLog.data":
+		if e.complexity.ReconcilerConfiguredActivityLog.Data == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerConfiguredAuditEntry.Data(childComplexity), true
+		return e.complexity.ReconcilerConfiguredActivityLog.Data(childComplexity), true
 
-	case "ReconcilerConfiguredAuditEntry.environmentName":
-		if e.complexity.ReconcilerConfiguredAuditEntry.EnvironmentName == nil {
+	case "ReconcilerConfiguredActivityLog.environmentName":
+		if e.complexity.ReconcilerConfiguredActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerConfiguredAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.ReconcilerConfiguredActivityLog.EnvironmentName(childComplexity), true
 
-	case "ReconcilerConfiguredAuditEntry.id":
-		if e.complexity.ReconcilerConfiguredAuditEntry.ID == nil {
+	case "ReconcilerConfiguredActivityLog.id":
+		if e.complexity.ReconcilerConfiguredActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerConfiguredAuditEntry.ID(childComplexity), true
+		return e.complexity.ReconcilerConfiguredActivityLog.ID(childComplexity), true
 
-	case "ReconcilerConfiguredAuditEntry.message":
-		if e.complexity.ReconcilerConfiguredAuditEntry.Message == nil {
+	case "ReconcilerConfiguredActivityLog.message":
+		if e.complexity.ReconcilerConfiguredActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerConfiguredAuditEntry.Message(childComplexity), true
+		return e.complexity.ReconcilerConfiguredActivityLog.Message(childComplexity), true
 
-	case "ReconcilerConfiguredAuditEntry.resourceName":
-		if e.complexity.ReconcilerConfiguredAuditEntry.ResourceName == nil {
+	case "ReconcilerConfiguredActivityLog.resourceName":
+		if e.complexity.ReconcilerConfiguredActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerConfiguredAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.ReconcilerConfiguredActivityLog.ResourceName(childComplexity), true
 
-	case "ReconcilerConfiguredAuditEntry.resourceType":
-		if e.complexity.ReconcilerConfiguredAuditEntry.ResourceType == nil {
+	case "ReconcilerConfiguredActivityLog.resourceType":
+		if e.complexity.ReconcilerConfiguredActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerConfiguredAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.ReconcilerConfiguredActivityLog.ResourceType(childComplexity), true
 
-	case "ReconcilerConfiguredAuditEntry.teamSlug":
-		if e.complexity.ReconcilerConfiguredAuditEntry.TeamSlug == nil {
+	case "ReconcilerConfiguredActivityLog.teamSlug":
+		if e.complexity.ReconcilerConfiguredActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerConfiguredAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.ReconcilerConfiguredActivityLog.TeamSlug(childComplexity), true
 
-	case "ReconcilerConfiguredAuditEntryData.updatedKeys":
-		if e.complexity.ReconcilerConfiguredAuditEntryData.UpdatedKeys == nil {
+	case "ReconcilerConfiguredActivityLogData.updatedKeys":
+		if e.complexity.ReconcilerConfiguredActivityLogData.UpdatedKeys == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerConfiguredAuditEntryData.UpdatedKeys(childComplexity), true
+		return e.complexity.ReconcilerConfiguredActivityLogData.UpdatedKeys(childComplexity), true
 
 	case "ReconcilerConnection.edges":
 		if e.complexity.ReconcilerConnection.Edges == nil {
@@ -5459,61 +5459,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ReconcilerConnection.PageInfo(childComplexity), true
 
-	case "ReconcilerDisabledAuditEntry.actor":
-		if e.complexity.ReconcilerDisabledAuditEntry.Actor == nil {
+	case "ReconcilerDisabledActivityLog.actor":
+		if e.complexity.ReconcilerDisabledActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerDisabledAuditEntry.Actor(childComplexity), true
+		return e.complexity.ReconcilerDisabledActivityLog.Actor(childComplexity), true
 
-	case "ReconcilerDisabledAuditEntry.createdAt":
-		if e.complexity.ReconcilerDisabledAuditEntry.CreatedAt == nil {
+	case "ReconcilerDisabledActivityLog.createdAt":
+		if e.complexity.ReconcilerDisabledActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerDisabledAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.ReconcilerDisabledActivityLog.CreatedAt(childComplexity), true
 
-	case "ReconcilerDisabledAuditEntry.environmentName":
-		if e.complexity.ReconcilerDisabledAuditEntry.EnvironmentName == nil {
+	case "ReconcilerDisabledActivityLog.environmentName":
+		if e.complexity.ReconcilerDisabledActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerDisabledAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.ReconcilerDisabledActivityLog.EnvironmentName(childComplexity), true
 
-	case "ReconcilerDisabledAuditEntry.id":
-		if e.complexity.ReconcilerDisabledAuditEntry.ID == nil {
+	case "ReconcilerDisabledActivityLog.id":
+		if e.complexity.ReconcilerDisabledActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerDisabledAuditEntry.ID(childComplexity), true
+		return e.complexity.ReconcilerDisabledActivityLog.ID(childComplexity), true
 
-	case "ReconcilerDisabledAuditEntry.message":
-		if e.complexity.ReconcilerDisabledAuditEntry.Message == nil {
+	case "ReconcilerDisabledActivityLog.message":
+		if e.complexity.ReconcilerDisabledActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerDisabledAuditEntry.Message(childComplexity), true
+		return e.complexity.ReconcilerDisabledActivityLog.Message(childComplexity), true
 
-	case "ReconcilerDisabledAuditEntry.resourceName":
-		if e.complexity.ReconcilerDisabledAuditEntry.ResourceName == nil {
+	case "ReconcilerDisabledActivityLog.resourceName":
+		if e.complexity.ReconcilerDisabledActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerDisabledAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.ReconcilerDisabledActivityLog.ResourceName(childComplexity), true
 
-	case "ReconcilerDisabledAuditEntry.resourceType":
-		if e.complexity.ReconcilerDisabledAuditEntry.ResourceType == nil {
+	case "ReconcilerDisabledActivityLog.resourceType":
+		if e.complexity.ReconcilerDisabledActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerDisabledAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.ReconcilerDisabledActivityLog.ResourceType(childComplexity), true
 
-	case "ReconcilerDisabledAuditEntry.teamSlug":
-		if e.complexity.ReconcilerDisabledAuditEntry.TeamSlug == nil {
+	case "ReconcilerDisabledActivityLog.teamSlug":
+		if e.complexity.ReconcilerDisabledActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerDisabledAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.ReconcilerDisabledActivityLog.TeamSlug(childComplexity), true
 
 	case "ReconcilerEdge.cursor":
 		if e.complexity.ReconcilerEdge.Cursor == nil {
@@ -5529,61 +5529,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ReconcilerEdge.Node(childComplexity), true
 
-	case "ReconcilerEnabledAuditEntry.actor":
-		if e.complexity.ReconcilerEnabledAuditEntry.Actor == nil {
+	case "ReconcilerEnabledActivityLog.actor":
+		if e.complexity.ReconcilerEnabledActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerEnabledAuditEntry.Actor(childComplexity), true
+		return e.complexity.ReconcilerEnabledActivityLog.Actor(childComplexity), true
 
-	case "ReconcilerEnabledAuditEntry.createdAt":
-		if e.complexity.ReconcilerEnabledAuditEntry.CreatedAt == nil {
+	case "ReconcilerEnabledActivityLog.createdAt":
+		if e.complexity.ReconcilerEnabledActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerEnabledAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.ReconcilerEnabledActivityLog.CreatedAt(childComplexity), true
 
-	case "ReconcilerEnabledAuditEntry.environmentName":
-		if e.complexity.ReconcilerEnabledAuditEntry.EnvironmentName == nil {
+	case "ReconcilerEnabledActivityLog.environmentName":
+		if e.complexity.ReconcilerEnabledActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerEnabledAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.ReconcilerEnabledActivityLog.EnvironmentName(childComplexity), true
 
-	case "ReconcilerEnabledAuditEntry.id":
-		if e.complexity.ReconcilerEnabledAuditEntry.ID == nil {
+	case "ReconcilerEnabledActivityLog.id":
+		if e.complexity.ReconcilerEnabledActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerEnabledAuditEntry.ID(childComplexity), true
+		return e.complexity.ReconcilerEnabledActivityLog.ID(childComplexity), true
 
-	case "ReconcilerEnabledAuditEntry.message":
-		if e.complexity.ReconcilerEnabledAuditEntry.Message == nil {
+	case "ReconcilerEnabledActivityLog.message":
+		if e.complexity.ReconcilerEnabledActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerEnabledAuditEntry.Message(childComplexity), true
+		return e.complexity.ReconcilerEnabledActivityLog.Message(childComplexity), true
 
-	case "ReconcilerEnabledAuditEntry.resourceName":
-		if e.complexity.ReconcilerEnabledAuditEntry.ResourceName == nil {
+	case "ReconcilerEnabledActivityLog.resourceName":
+		if e.complexity.ReconcilerEnabledActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerEnabledAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.ReconcilerEnabledActivityLog.ResourceName(childComplexity), true
 
-	case "ReconcilerEnabledAuditEntry.resourceType":
-		if e.complexity.ReconcilerEnabledAuditEntry.ResourceType == nil {
+	case "ReconcilerEnabledActivityLog.resourceType":
+		if e.complexity.ReconcilerEnabledActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerEnabledAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.ReconcilerEnabledActivityLog.ResourceType(childComplexity), true
 
-	case "ReconcilerEnabledAuditEntry.teamSlug":
-		if e.complexity.ReconcilerEnabledAuditEntry.TeamSlug == nil {
+	case "ReconcilerEnabledActivityLog.teamSlug":
+		if e.complexity.ReconcilerEnabledActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerEnabledAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.ReconcilerEnabledActivityLog.TeamSlug(childComplexity), true
 
 	case "ReconcilerError.correlationID":
 		if e.complexity.ReconcilerError.CorrelationID == nil {
@@ -5856,61 +5856,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Repository.Team(childComplexity), true
 
-	case "RepositoryAddedAuditEntry.actor":
-		if e.complexity.RepositoryAddedAuditEntry.Actor == nil {
+	case "RepositoryAddedActivityLog.actor":
+		if e.complexity.RepositoryAddedActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.RepositoryAddedAuditEntry.Actor(childComplexity), true
+		return e.complexity.RepositoryAddedActivityLog.Actor(childComplexity), true
 
-	case "RepositoryAddedAuditEntry.createdAt":
-		if e.complexity.RepositoryAddedAuditEntry.CreatedAt == nil {
+	case "RepositoryAddedActivityLog.createdAt":
+		if e.complexity.RepositoryAddedActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.RepositoryAddedAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.RepositoryAddedActivityLog.CreatedAt(childComplexity), true
 
-	case "RepositoryAddedAuditEntry.environmentName":
-		if e.complexity.RepositoryAddedAuditEntry.EnvironmentName == nil {
+	case "RepositoryAddedActivityLog.environmentName":
+		if e.complexity.RepositoryAddedActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.RepositoryAddedAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.RepositoryAddedActivityLog.EnvironmentName(childComplexity), true
 
-	case "RepositoryAddedAuditEntry.id":
-		if e.complexity.RepositoryAddedAuditEntry.ID == nil {
+	case "RepositoryAddedActivityLog.id":
+		if e.complexity.RepositoryAddedActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.RepositoryAddedAuditEntry.ID(childComplexity), true
+		return e.complexity.RepositoryAddedActivityLog.ID(childComplexity), true
 
-	case "RepositoryAddedAuditEntry.message":
-		if e.complexity.RepositoryAddedAuditEntry.Message == nil {
+	case "RepositoryAddedActivityLog.message":
+		if e.complexity.RepositoryAddedActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.RepositoryAddedAuditEntry.Message(childComplexity), true
+		return e.complexity.RepositoryAddedActivityLog.Message(childComplexity), true
 
-	case "RepositoryAddedAuditEntry.resourceName":
-		if e.complexity.RepositoryAddedAuditEntry.ResourceName == nil {
+	case "RepositoryAddedActivityLog.resourceName":
+		if e.complexity.RepositoryAddedActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.RepositoryAddedAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.RepositoryAddedActivityLog.ResourceName(childComplexity), true
 
-	case "RepositoryAddedAuditEntry.resourceType":
-		if e.complexity.RepositoryAddedAuditEntry.ResourceType == nil {
+	case "RepositoryAddedActivityLog.resourceType":
+		if e.complexity.RepositoryAddedActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.RepositoryAddedAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.RepositoryAddedActivityLog.ResourceType(childComplexity), true
 
-	case "RepositoryAddedAuditEntry.teamSlug":
-		if e.complexity.RepositoryAddedAuditEntry.TeamSlug == nil {
+	case "RepositoryAddedActivityLog.teamSlug":
+		if e.complexity.RepositoryAddedActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.RepositoryAddedAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.RepositoryAddedActivityLog.TeamSlug(childComplexity), true
 
 	case "RepositoryConnection.edges":
 		if e.complexity.RepositoryConnection.Edges == nil {
@@ -5947,61 +5947,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RepositoryEdge.Node(childComplexity), true
 
-	case "RepositoryRemovedAuditEntry.actor":
-		if e.complexity.RepositoryRemovedAuditEntry.Actor == nil {
+	case "RepositoryRemovedActivityLog.actor":
+		if e.complexity.RepositoryRemovedActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.RepositoryRemovedAuditEntry.Actor(childComplexity), true
+		return e.complexity.RepositoryRemovedActivityLog.Actor(childComplexity), true
 
-	case "RepositoryRemovedAuditEntry.createdAt":
-		if e.complexity.RepositoryRemovedAuditEntry.CreatedAt == nil {
+	case "RepositoryRemovedActivityLog.createdAt":
+		if e.complexity.RepositoryRemovedActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.RepositoryRemovedAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.RepositoryRemovedActivityLog.CreatedAt(childComplexity), true
 
-	case "RepositoryRemovedAuditEntry.environmentName":
-		if e.complexity.RepositoryRemovedAuditEntry.EnvironmentName == nil {
+	case "RepositoryRemovedActivityLog.environmentName":
+		if e.complexity.RepositoryRemovedActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.RepositoryRemovedAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.RepositoryRemovedActivityLog.EnvironmentName(childComplexity), true
 
-	case "RepositoryRemovedAuditEntry.id":
-		if e.complexity.RepositoryRemovedAuditEntry.ID == nil {
+	case "RepositoryRemovedActivityLog.id":
+		if e.complexity.RepositoryRemovedActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.RepositoryRemovedAuditEntry.ID(childComplexity), true
+		return e.complexity.RepositoryRemovedActivityLog.ID(childComplexity), true
 
-	case "RepositoryRemovedAuditEntry.message":
-		if e.complexity.RepositoryRemovedAuditEntry.Message == nil {
+	case "RepositoryRemovedActivityLog.message":
+		if e.complexity.RepositoryRemovedActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.RepositoryRemovedAuditEntry.Message(childComplexity), true
+		return e.complexity.RepositoryRemovedActivityLog.Message(childComplexity), true
 
-	case "RepositoryRemovedAuditEntry.resourceName":
-		if e.complexity.RepositoryRemovedAuditEntry.ResourceName == nil {
+	case "RepositoryRemovedActivityLog.resourceName":
+		if e.complexity.RepositoryRemovedActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.RepositoryRemovedAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.RepositoryRemovedActivityLog.ResourceName(childComplexity), true
 
-	case "RepositoryRemovedAuditEntry.resourceType":
-		if e.complexity.RepositoryRemovedAuditEntry.ResourceType == nil {
+	case "RepositoryRemovedActivityLog.resourceType":
+		if e.complexity.RepositoryRemovedActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.RepositoryRemovedAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.RepositoryRemovedActivityLog.ResourceType(childComplexity), true
 
-	case "RepositoryRemovedAuditEntry.teamSlug":
-		if e.complexity.RepositoryRemovedAuditEntry.TeamSlug == nil {
+	case "RepositoryRemovedActivityLog.teamSlug":
+		if e.complexity.RepositoryRemovedActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.RepositoryRemovedAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.RepositoryRemovedActivityLog.TeamSlug(childComplexity), true
 
 	case "RequestTeamDeletionPayload.key":
 		if e.complexity.RequestTeamDeletionPayload.Key == nil {
@@ -6165,117 +6165,117 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SecretConnection.PageInfo(childComplexity), true
 
-	case "SecretCreatedAuditEntry.actor":
-		if e.complexity.SecretCreatedAuditEntry.Actor == nil {
+	case "SecretCreatedActivityLog.actor":
+		if e.complexity.SecretCreatedActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.SecretCreatedAuditEntry.Actor(childComplexity), true
+		return e.complexity.SecretCreatedActivityLog.Actor(childComplexity), true
 
-	case "SecretCreatedAuditEntry.createdAt":
-		if e.complexity.SecretCreatedAuditEntry.CreatedAt == nil {
+	case "SecretCreatedActivityLog.createdAt":
+		if e.complexity.SecretCreatedActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.SecretCreatedAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.SecretCreatedActivityLog.CreatedAt(childComplexity), true
 
-	case "SecretCreatedAuditEntry.environmentName":
-		if e.complexity.SecretCreatedAuditEntry.EnvironmentName == nil {
+	case "SecretCreatedActivityLog.environmentName":
+		if e.complexity.SecretCreatedActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.SecretCreatedAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.SecretCreatedActivityLog.EnvironmentName(childComplexity), true
 
-	case "SecretCreatedAuditEntry.id":
-		if e.complexity.SecretCreatedAuditEntry.ID == nil {
+	case "SecretCreatedActivityLog.id":
+		if e.complexity.SecretCreatedActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.SecretCreatedAuditEntry.ID(childComplexity), true
+		return e.complexity.SecretCreatedActivityLog.ID(childComplexity), true
 
-	case "SecretCreatedAuditEntry.message":
-		if e.complexity.SecretCreatedAuditEntry.Message == nil {
+	case "SecretCreatedActivityLog.message":
+		if e.complexity.SecretCreatedActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.SecretCreatedAuditEntry.Message(childComplexity), true
+		return e.complexity.SecretCreatedActivityLog.Message(childComplexity), true
 
-	case "SecretCreatedAuditEntry.resourceName":
-		if e.complexity.SecretCreatedAuditEntry.ResourceName == nil {
+	case "SecretCreatedActivityLog.resourceName":
+		if e.complexity.SecretCreatedActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.SecretCreatedAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.SecretCreatedActivityLog.ResourceName(childComplexity), true
 
-	case "SecretCreatedAuditEntry.resourceType":
-		if e.complexity.SecretCreatedAuditEntry.ResourceType == nil {
+	case "SecretCreatedActivityLog.resourceType":
+		if e.complexity.SecretCreatedActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.SecretCreatedAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.SecretCreatedActivityLog.ResourceType(childComplexity), true
 
-	case "SecretCreatedAuditEntry.teamSlug":
-		if e.complexity.SecretCreatedAuditEntry.TeamSlug == nil {
+	case "SecretCreatedActivityLog.teamSlug":
+		if e.complexity.SecretCreatedActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.SecretCreatedAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.SecretCreatedActivityLog.TeamSlug(childComplexity), true
 
-	case "SecretDeletedAuditEntry.actor":
-		if e.complexity.SecretDeletedAuditEntry.Actor == nil {
+	case "SecretDeletedActivityLog.actor":
+		if e.complexity.SecretDeletedActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.SecretDeletedAuditEntry.Actor(childComplexity), true
+		return e.complexity.SecretDeletedActivityLog.Actor(childComplexity), true
 
-	case "SecretDeletedAuditEntry.createdAt":
-		if e.complexity.SecretDeletedAuditEntry.CreatedAt == nil {
+	case "SecretDeletedActivityLog.createdAt":
+		if e.complexity.SecretDeletedActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.SecretDeletedAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.SecretDeletedActivityLog.CreatedAt(childComplexity), true
 
-	case "SecretDeletedAuditEntry.environmentName":
-		if e.complexity.SecretDeletedAuditEntry.EnvironmentName == nil {
+	case "SecretDeletedActivityLog.environmentName":
+		if e.complexity.SecretDeletedActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.SecretDeletedAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.SecretDeletedActivityLog.EnvironmentName(childComplexity), true
 
-	case "SecretDeletedAuditEntry.id":
-		if e.complexity.SecretDeletedAuditEntry.ID == nil {
+	case "SecretDeletedActivityLog.id":
+		if e.complexity.SecretDeletedActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.SecretDeletedAuditEntry.ID(childComplexity), true
+		return e.complexity.SecretDeletedActivityLog.ID(childComplexity), true
 
-	case "SecretDeletedAuditEntry.message":
-		if e.complexity.SecretDeletedAuditEntry.Message == nil {
+	case "SecretDeletedActivityLog.message":
+		if e.complexity.SecretDeletedActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.SecretDeletedAuditEntry.Message(childComplexity), true
+		return e.complexity.SecretDeletedActivityLog.Message(childComplexity), true
 
-	case "SecretDeletedAuditEntry.resourceName":
-		if e.complexity.SecretDeletedAuditEntry.ResourceName == nil {
+	case "SecretDeletedActivityLog.resourceName":
+		if e.complexity.SecretDeletedActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.SecretDeletedAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.SecretDeletedActivityLog.ResourceName(childComplexity), true
 
-	case "SecretDeletedAuditEntry.resourceType":
-		if e.complexity.SecretDeletedAuditEntry.ResourceType == nil {
+	case "SecretDeletedActivityLog.resourceType":
+		if e.complexity.SecretDeletedActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.SecretDeletedAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.SecretDeletedActivityLog.ResourceType(childComplexity), true
 
-	case "SecretDeletedAuditEntry.teamSlug":
-		if e.complexity.SecretDeletedAuditEntry.TeamSlug == nil {
+	case "SecretDeletedActivityLog.teamSlug":
+		if e.complexity.SecretDeletedActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.SecretDeletedAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.SecretDeletedActivityLog.TeamSlug(childComplexity), true
 
 	case "SecretEdge.cursor":
 		if e.complexity.SecretEdge.Cursor == nil {
@@ -6305,215 +6305,215 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SecretValue.Value(childComplexity), true
 
-	case "SecretValueAddedAuditEntry.actor":
-		if e.complexity.SecretValueAddedAuditEntry.Actor == nil {
+	case "SecretValueAddedActivityLog.actor":
+		if e.complexity.SecretValueAddedActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.SecretValueAddedAuditEntry.Actor(childComplexity), true
+		return e.complexity.SecretValueAddedActivityLog.Actor(childComplexity), true
 
-	case "SecretValueAddedAuditEntry.createdAt":
-		if e.complexity.SecretValueAddedAuditEntry.CreatedAt == nil {
+	case "SecretValueAddedActivityLog.createdAt":
+		if e.complexity.SecretValueAddedActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.SecretValueAddedAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.SecretValueAddedActivityLog.CreatedAt(childComplexity), true
 
-	case "SecretValueAddedAuditEntry.data":
-		if e.complexity.SecretValueAddedAuditEntry.Data == nil {
+	case "SecretValueAddedActivityLog.data":
+		if e.complexity.SecretValueAddedActivityLog.Data == nil {
 			break
 		}
 
-		return e.complexity.SecretValueAddedAuditEntry.Data(childComplexity), true
+		return e.complexity.SecretValueAddedActivityLog.Data(childComplexity), true
 
-	case "SecretValueAddedAuditEntry.environmentName":
-		if e.complexity.SecretValueAddedAuditEntry.EnvironmentName == nil {
+	case "SecretValueAddedActivityLog.environmentName":
+		if e.complexity.SecretValueAddedActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.SecretValueAddedAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.SecretValueAddedActivityLog.EnvironmentName(childComplexity), true
 
-	case "SecretValueAddedAuditEntry.id":
-		if e.complexity.SecretValueAddedAuditEntry.ID == nil {
+	case "SecretValueAddedActivityLog.id":
+		if e.complexity.SecretValueAddedActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.SecretValueAddedAuditEntry.ID(childComplexity), true
+		return e.complexity.SecretValueAddedActivityLog.ID(childComplexity), true
 
-	case "SecretValueAddedAuditEntry.message":
-		if e.complexity.SecretValueAddedAuditEntry.Message == nil {
+	case "SecretValueAddedActivityLog.message":
+		if e.complexity.SecretValueAddedActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.SecretValueAddedAuditEntry.Message(childComplexity), true
+		return e.complexity.SecretValueAddedActivityLog.Message(childComplexity), true
 
-	case "SecretValueAddedAuditEntry.resourceName":
-		if e.complexity.SecretValueAddedAuditEntry.ResourceName == nil {
+	case "SecretValueAddedActivityLog.resourceName":
+		if e.complexity.SecretValueAddedActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.SecretValueAddedAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.SecretValueAddedActivityLog.ResourceName(childComplexity), true
 
-	case "SecretValueAddedAuditEntry.resourceType":
-		if e.complexity.SecretValueAddedAuditEntry.ResourceType == nil {
+	case "SecretValueAddedActivityLog.resourceType":
+		if e.complexity.SecretValueAddedActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.SecretValueAddedAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.SecretValueAddedActivityLog.ResourceType(childComplexity), true
 
-	case "SecretValueAddedAuditEntry.teamSlug":
-		if e.complexity.SecretValueAddedAuditEntry.TeamSlug == nil {
+	case "SecretValueAddedActivityLog.teamSlug":
+		if e.complexity.SecretValueAddedActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.SecretValueAddedAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.SecretValueAddedActivityLog.TeamSlug(childComplexity), true
 
-	case "SecretValueAddedAuditEntryData.valueName":
-		if e.complexity.SecretValueAddedAuditEntryData.ValueName == nil {
+	case "SecretValueAddedActivityLogData.valueName":
+		if e.complexity.SecretValueAddedActivityLogData.ValueName == nil {
 			break
 		}
 
-		return e.complexity.SecretValueAddedAuditEntryData.ValueName(childComplexity), true
+		return e.complexity.SecretValueAddedActivityLogData.ValueName(childComplexity), true
 
-	case "SecretValueRemovedAuditEntry.actor":
-		if e.complexity.SecretValueRemovedAuditEntry.Actor == nil {
+	case "SecretValueRemovedActivityLog.actor":
+		if e.complexity.SecretValueRemovedActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.SecretValueRemovedAuditEntry.Actor(childComplexity), true
+		return e.complexity.SecretValueRemovedActivityLog.Actor(childComplexity), true
 
-	case "SecretValueRemovedAuditEntry.createdAt":
-		if e.complexity.SecretValueRemovedAuditEntry.CreatedAt == nil {
+	case "SecretValueRemovedActivityLog.createdAt":
+		if e.complexity.SecretValueRemovedActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.SecretValueRemovedAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.SecretValueRemovedActivityLog.CreatedAt(childComplexity), true
 
-	case "SecretValueRemovedAuditEntry.data":
-		if e.complexity.SecretValueRemovedAuditEntry.Data == nil {
+	case "SecretValueRemovedActivityLog.data":
+		if e.complexity.SecretValueRemovedActivityLog.Data == nil {
 			break
 		}
 
-		return e.complexity.SecretValueRemovedAuditEntry.Data(childComplexity), true
+		return e.complexity.SecretValueRemovedActivityLog.Data(childComplexity), true
 
-	case "SecretValueRemovedAuditEntry.environmentName":
-		if e.complexity.SecretValueRemovedAuditEntry.EnvironmentName == nil {
+	case "SecretValueRemovedActivityLog.environmentName":
+		if e.complexity.SecretValueRemovedActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.SecretValueRemovedAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.SecretValueRemovedActivityLog.EnvironmentName(childComplexity), true
 
-	case "SecretValueRemovedAuditEntry.id":
-		if e.complexity.SecretValueRemovedAuditEntry.ID == nil {
+	case "SecretValueRemovedActivityLog.id":
+		if e.complexity.SecretValueRemovedActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.SecretValueRemovedAuditEntry.ID(childComplexity), true
+		return e.complexity.SecretValueRemovedActivityLog.ID(childComplexity), true
 
-	case "SecretValueRemovedAuditEntry.message":
-		if e.complexity.SecretValueRemovedAuditEntry.Message == nil {
+	case "SecretValueRemovedActivityLog.message":
+		if e.complexity.SecretValueRemovedActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.SecretValueRemovedAuditEntry.Message(childComplexity), true
+		return e.complexity.SecretValueRemovedActivityLog.Message(childComplexity), true
 
-	case "SecretValueRemovedAuditEntry.resourceName":
-		if e.complexity.SecretValueRemovedAuditEntry.ResourceName == nil {
+	case "SecretValueRemovedActivityLog.resourceName":
+		if e.complexity.SecretValueRemovedActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.SecretValueRemovedAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.SecretValueRemovedActivityLog.ResourceName(childComplexity), true
 
-	case "SecretValueRemovedAuditEntry.resourceType":
-		if e.complexity.SecretValueRemovedAuditEntry.ResourceType == nil {
+	case "SecretValueRemovedActivityLog.resourceType":
+		if e.complexity.SecretValueRemovedActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.SecretValueRemovedAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.SecretValueRemovedActivityLog.ResourceType(childComplexity), true
 
-	case "SecretValueRemovedAuditEntry.teamSlug":
-		if e.complexity.SecretValueRemovedAuditEntry.TeamSlug == nil {
+	case "SecretValueRemovedActivityLog.teamSlug":
+		if e.complexity.SecretValueRemovedActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.SecretValueRemovedAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.SecretValueRemovedActivityLog.TeamSlug(childComplexity), true
 
-	case "SecretValueRemovedAuditEntryData.valueName":
-		if e.complexity.SecretValueRemovedAuditEntryData.ValueName == nil {
+	case "SecretValueRemovedActivityLogData.valueName":
+		if e.complexity.SecretValueRemovedActivityLogData.ValueName == nil {
 			break
 		}
 
-		return e.complexity.SecretValueRemovedAuditEntryData.ValueName(childComplexity), true
+		return e.complexity.SecretValueRemovedActivityLogData.ValueName(childComplexity), true
 
-	case "SecretValueUpdatedAuditEntry.actor":
-		if e.complexity.SecretValueUpdatedAuditEntry.Actor == nil {
+	case "SecretValueUpdatedActivityLog.actor":
+		if e.complexity.SecretValueUpdatedActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.SecretValueUpdatedAuditEntry.Actor(childComplexity), true
+		return e.complexity.SecretValueUpdatedActivityLog.Actor(childComplexity), true
 
-	case "SecretValueUpdatedAuditEntry.createdAt":
-		if e.complexity.SecretValueUpdatedAuditEntry.CreatedAt == nil {
+	case "SecretValueUpdatedActivityLog.createdAt":
+		if e.complexity.SecretValueUpdatedActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.SecretValueUpdatedAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.SecretValueUpdatedActivityLog.CreatedAt(childComplexity), true
 
-	case "SecretValueUpdatedAuditEntry.data":
-		if e.complexity.SecretValueUpdatedAuditEntry.Data == nil {
+	case "SecretValueUpdatedActivityLog.data":
+		if e.complexity.SecretValueUpdatedActivityLog.Data == nil {
 			break
 		}
 
-		return e.complexity.SecretValueUpdatedAuditEntry.Data(childComplexity), true
+		return e.complexity.SecretValueUpdatedActivityLog.Data(childComplexity), true
 
-	case "SecretValueUpdatedAuditEntry.environmentName":
-		if e.complexity.SecretValueUpdatedAuditEntry.EnvironmentName == nil {
+	case "SecretValueUpdatedActivityLog.environmentName":
+		if e.complexity.SecretValueUpdatedActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.SecretValueUpdatedAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.SecretValueUpdatedActivityLog.EnvironmentName(childComplexity), true
 
-	case "SecretValueUpdatedAuditEntry.id":
-		if e.complexity.SecretValueUpdatedAuditEntry.ID == nil {
+	case "SecretValueUpdatedActivityLog.id":
+		if e.complexity.SecretValueUpdatedActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.SecretValueUpdatedAuditEntry.ID(childComplexity), true
+		return e.complexity.SecretValueUpdatedActivityLog.ID(childComplexity), true
 
-	case "SecretValueUpdatedAuditEntry.message":
-		if e.complexity.SecretValueUpdatedAuditEntry.Message == nil {
+	case "SecretValueUpdatedActivityLog.message":
+		if e.complexity.SecretValueUpdatedActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.SecretValueUpdatedAuditEntry.Message(childComplexity), true
+		return e.complexity.SecretValueUpdatedActivityLog.Message(childComplexity), true
 
-	case "SecretValueUpdatedAuditEntry.resourceName":
-		if e.complexity.SecretValueUpdatedAuditEntry.ResourceName == nil {
+	case "SecretValueUpdatedActivityLog.resourceName":
+		if e.complexity.SecretValueUpdatedActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.SecretValueUpdatedAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.SecretValueUpdatedActivityLog.ResourceName(childComplexity), true
 
-	case "SecretValueUpdatedAuditEntry.resourceType":
-		if e.complexity.SecretValueUpdatedAuditEntry.ResourceType == nil {
+	case "SecretValueUpdatedActivityLog.resourceType":
+		if e.complexity.SecretValueUpdatedActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.SecretValueUpdatedAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.SecretValueUpdatedActivityLog.ResourceType(childComplexity), true
 
-	case "SecretValueUpdatedAuditEntry.teamSlug":
-		if e.complexity.SecretValueUpdatedAuditEntry.TeamSlug == nil {
+	case "SecretValueUpdatedActivityLog.teamSlug":
+		if e.complexity.SecretValueUpdatedActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.SecretValueUpdatedAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.SecretValueUpdatedActivityLog.TeamSlug(childComplexity), true
 
-	case "SecretValueUpdatedAuditEntryData.valueName":
-		if e.complexity.SecretValueUpdatedAuditEntryData.ValueName == nil {
+	case "SecretValueUpdatedActivityLogData.valueName":
+		if e.complexity.SecretValueUpdatedActivityLogData.ValueName == nil {
 			break
 		}
 
-		return e.complexity.SecretValueUpdatedAuditEntryData.ValueName(childComplexity), true
+		return e.complexity.SecretValueUpdatedActivityLogData.ValueName(childComplexity), true
 
 	case "ServiceAccount.id":
 		if e.complexity.ServiceAccount.ID == nil {
@@ -7083,6 +7083,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Subscription.WorkloadLog(childComplexity, args["filter"].(podlog.WorkloadLogSubscriptionFilter)), true
 
+	case "Team.activityLog":
+		if e.complexity.Team.ActivityLog == nil {
+			break
+		}
+
+		args, err := ec.field_Team_activityLog_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Team.ActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
 	case "Team.applications":
 		if e.complexity.Team.Applications == nil {
 			break
@@ -7094,18 +7106,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Team.Applications(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*application.ApplicationOrder), args["filter"].(*application.TeamApplicationsFilter)), true
-
-	case "Team.auditEntries":
-		if e.complexity.Team.AuditEntries == nil {
-			break
-		}
-
-		args, err := ec.field_Team_auditEntries_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Team.AuditEntries(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "Team.bigQueryDatasets":
 		if e.complexity.Team.BigQueryDatasets == nil {
@@ -7423,61 +7423,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamCDN.Bucket(childComplexity), true
 
-	case "TeamConfirmDeleteKeyAuditEntry.actor":
-		if e.complexity.TeamConfirmDeleteKeyAuditEntry.Actor == nil {
+	case "TeamConfirmDeleteKeyActivityLog.actor":
+		if e.complexity.TeamConfirmDeleteKeyActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.TeamConfirmDeleteKeyAuditEntry.Actor(childComplexity), true
+		return e.complexity.TeamConfirmDeleteKeyActivityLog.Actor(childComplexity), true
 
-	case "TeamConfirmDeleteKeyAuditEntry.createdAt":
-		if e.complexity.TeamConfirmDeleteKeyAuditEntry.CreatedAt == nil {
+	case "TeamConfirmDeleteKeyActivityLog.createdAt":
+		if e.complexity.TeamConfirmDeleteKeyActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.TeamConfirmDeleteKeyAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.TeamConfirmDeleteKeyActivityLog.CreatedAt(childComplexity), true
 
-	case "TeamConfirmDeleteKeyAuditEntry.environmentName":
-		if e.complexity.TeamConfirmDeleteKeyAuditEntry.EnvironmentName == nil {
+	case "TeamConfirmDeleteKeyActivityLog.environmentName":
+		if e.complexity.TeamConfirmDeleteKeyActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.TeamConfirmDeleteKeyAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.TeamConfirmDeleteKeyActivityLog.EnvironmentName(childComplexity), true
 
-	case "TeamConfirmDeleteKeyAuditEntry.id":
-		if e.complexity.TeamConfirmDeleteKeyAuditEntry.ID == nil {
+	case "TeamConfirmDeleteKeyActivityLog.id":
+		if e.complexity.TeamConfirmDeleteKeyActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.TeamConfirmDeleteKeyAuditEntry.ID(childComplexity), true
+		return e.complexity.TeamConfirmDeleteKeyActivityLog.ID(childComplexity), true
 
-	case "TeamConfirmDeleteKeyAuditEntry.message":
-		if e.complexity.TeamConfirmDeleteKeyAuditEntry.Message == nil {
+	case "TeamConfirmDeleteKeyActivityLog.message":
+		if e.complexity.TeamConfirmDeleteKeyActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.TeamConfirmDeleteKeyAuditEntry.Message(childComplexity), true
+		return e.complexity.TeamConfirmDeleteKeyActivityLog.Message(childComplexity), true
 
-	case "TeamConfirmDeleteKeyAuditEntry.resourceName":
-		if e.complexity.TeamConfirmDeleteKeyAuditEntry.ResourceName == nil {
+	case "TeamConfirmDeleteKeyActivityLog.resourceName":
+		if e.complexity.TeamConfirmDeleteKeyActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.TeamConfirmDeleteKeyAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.TeamConfirmDeleteKeyActivityLog.ResourceName(childComplexity), true
 
-	case "TeamConfirmDeleteKeyAuditEntry.resourceType":
-		if e.complexity.TeamConfirmDeleteKeyAuditEntry.ResourceType == nil {
+	case "TeamConfirmDeleteKeyActivityLog.resourceType":
+		if e.complexity.TeamConfirmDeleteKeyActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.TeamConfirmDeleteKeyAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.TeamConfirmDeleteKeyActivityLog.ResourceType(childComplexity), true
 
-	case "TeamConfirmDeleteKeyAuditEntry.teamSlug":
-		if e.complexity.TeamConfirmDeleteKeyAuditEntry.TeamSlug == nil {
+	case "TeamConfirmDeleteKeyActivityLog.teamSlug":
+		if e.complexity.TeamConfirmDeleteKeyActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.TeamConfirmDeleteKeyAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.TeamConfirmDeleteKeyActivityLog.TeamSlug(childComplexity), true
 
 	case "TeamConnection.edges":
 		if e.complexity.TeamConnection.Edges == nil {
@@ -7561,117 +7561,117 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamCostPeriod.Sum(childComplexity), true
 
-	case "TeamCreateDeleteKeyAuditEntry.actor":
-		if e.complexity.TeamCreateDeleteKeyAuditEntry.Actor == nil {
+	case "TeamCreateDeleteKeyActivityLog.actor":
+		if e.complexity.TeamCreateDeleteKeyActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.TeamCreateDeleteKeyAuditEntry.Actor(childComplexity), true
+		return e.complexity.TeamCreateDeleteKeyActivityLog.Actor(childComplexity), true
 
-	case "TeamCreateDeleteKeyAuditEntry.createdAt":
-		if e.complexity.TeamCreateDeleteKeyAuditEntry.CreatedAt == nil {
+	case "TeamCreateDeleteKeyActivityLog.createdAt":
+		if e.complexity.TeamCreateDeleteKeyActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.TeamCreateDeleteKeyAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.TeamCreateDeleteKeyActivityLog.CreatedAt(childComplexity), true
 
-	case "TeamCreateDeleteKeyAuditEntry.environmentName":
-		if e.complexity.TeamCreateDeleteKeyAuditEntry.EnvironmentName == nil {
+	case "TeamCreateDeleteKeyActivityLog.environmentName":
+		if e.complexity.TeamCreateDeleteKeyActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.TeamCreateDeleteKeyAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.TeamCreateDeleteKeyActivityLog.EnvironmentName(childComplexity), true
 
-	case "TeamCreateDeleteKeyAuditEntry.id":
-		if e.complexity.TeamCreateDeleteKeyAuditEntry.ID == nil {
+	case "TeamCreateDeleteKeyActivityLog.id":
+		if e.complexity.TeamCreateDeleteKeyActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.TeamCreateDeleteKeyAuditEntry.ID(childComplexity), true
+		return e.complexity.TeamCreateDeleteKeyActivityLog.ID(childComplexity), true
 
-	case "TeamCreateDeleteKeyAuditEntry.message":
-		if e.complexity.TeamCreateDeleteKeyAuditEntry.Message == nil {
+	case "TeamCreateDeleteKeyActivityLog.message":
+		if e.complexity.TeamCreateDeleteKeyActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.TeamCreateDeleteKeyAuditEntry.Message(childComplexity), true
+		return e.complexity.TeamCreateDeleteKeyActivityLog.Message(childComplexity), true
 
-	case "TeamCreateDeleteKeyAuditEntry.resourceName":
-		if e.complexity.TeamCreateDeleteKeyAuditEntry.ResourceName == nil {
+	case "TeamCreateDeleteKeyActivityLog.resourceName":
+		if e.complexity.TeamCreateDeleteKeyActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.TeamCreateDeleteKeyAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.TeamCreateDeleteKeyActivityLog.ResourceName(childComplexity), true
 
-	case "TeamCreateDeleteKeyAuditEntry.resourceType":
-		if e.complexity.TeamCreateDeleteKeyAuditEntry.ResourceType == nil {
+	case "TeamCreateDeleteKeyActivityLog.resourceType":
+		if e.complexity.TeamCreateDeleteKeyActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.TeamCreateDeleteKeyAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.TeamCreateDeleteKeyActivityLog.ResourceType(childComplexity), true
 
-	case "TeamCreateDeleteKeyAuditEntry.teamSlug":
-		if e.complexity.TeamCreateDeleteKeyAuditEntry.TeamSlug == nil {
+	case "TeamCreateDeleteKeyActivityLog.teamSlug":
+		if e.complexity.TeamCreateDeleteKeyActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.TeamCreateDeleteKeyAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.TeamCreateDeleteKeyActivityLog.TeamSlug(childComplexity), true
 
-	case "TeamCreatedAuditEntry.actor":
-		if e.complexity.TeamCreatedAuditEntry.Actor == nil {
+	case "TeamCreatedActivityLog.actor":
+		if e.complexity.TeamCreatedActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.TeamCreatedAuditEntry.Actor(childComplexity), true
+		return e.complexity.TeamCreatedActivityLog.Actor(childComplexity), true
 
-	case "TeamCreatedAuditEntry.createdAt":
-		if e.complexity.TeamCreatedAuditEntry.CreatedAt == nil {
+	case "TeamCreatedActivityLog.createdAt":
+		if e.complexity.TeamCreatedActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.TeamCreatedAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.TeamCreatedActivityLog.CreatedAt(childComplexity), true
 
-	case "TeamCreatedAuditEntry.environmentName":
-		if e.complexity.TeamCreatedAuditEntry.EnvironmentName == nil {
+	case "TeamCreatedActivityLog.environmentName":
+		if e.complexity.TeamCreatedActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.TeamCreatedAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.TeamCreatedActivityLog.EnvironmentName(childComplexity), true
 
-	case "TeamCreatedAuditEntry.id":
-		if e.complexity.TeamCreatedAuditEntry.ID == nil {
+	case "TeamCreatedActivityLog.id":
+		if e.complexity.TeamCreatedActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.TeamCreatedAuditEntry.ID(childComplexity), true
+		return e.complexity.TeamCreatedActivityLog.ID(childComplexity), true
 
-	case "TeamCreatedAuditEntry.message":
-		if e.complexity.TeamCreatedAuditEntry.Message == nil {
+	case "TeamCreatedActivityLog.message":
+		if e.complexity.TeamCreatedActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.TeamCreatedAuditEntry.Message(childComplexity), true
+		return e.complexity.TeamCreatedActivityLog.Message(childComplexity), true
 
-	case "TeamCreatedAuditEntry.resourceName":
-		if e.complexity.TeamCreatedAuditEntry.ResourceName == nil {
+	case "TeamCreatedActivityLog.resourceName":
+		if e.complexity.TeamCreatedActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.TeamCreatedAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.TeamCreatedActivityLog.ResourceName(childComplexity), true
 
-	case "TeamCreatedAuditEntry.resourceType":
-		if e.complexity.TeamCreatedAuditEntry.ResourceType == nil {
+	case "TeamCreatedActivityLog.resourceType":
+		if e.complexity.TeamCreatedActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.TeamCreatedAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.TeamCreatedActivityLog.ResourceType(childComplexity), true
 
-	case "TeamCreatedAuditEntry.teamSlug":
-		if e.complexity.TeamCreatedAuditEntry.TeamSlug == nil {
+	case "TeamCreatedActivityLog.teamSlug":
+		if e.complexity.TeamCreatedActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.TeamCreatedAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.TeamCreatedActivityLog.TeamSlug(childComplexity), true
 
 	case "TeamDeleteKey.createdAt":
 		if e.complexity.TeamDeleteKey.CreatedAt == nil {
@@ -7708,61 +7708,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamDeleteKey.Team(childComplexity), true
 
-	case "TeamDeployKeyUpdatedAuditEntry.actor":
-		if e.complexity.TeamDeployKeyUpdatedAuditEntry.Actor == nil {
+	case "TeamDeployKeyUpdatedActivityLog.actor":
+		if e.complexity.TeamDeployKeyUpdatedActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.TeamDeployKeyUpdatedAuditEntry.Actor(childComplexity), true
+		return e.complexity.TeamDeployKeyUpdatedActivityLog.Actor(childComplexity), true
 
-	case "TeamDeployKeyUpdatedAuditEntry.createdAt":
-		if e.complexity.TeamDeployKeyUpdatedAuditEntry.CreatedAt == nil {
+	case "TeamDeployKeyUpdatedActivityLog.createdAt":
+		if e.complexity.TeamDeployKeyUpdatedActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.TeamDeployKeyUpdatedAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.TeamDeployKeyUpdatedActivityLog.CreatedAt(childComplexity), true
 
-	case "TeamDeployKeyUpdatedAuditEntry.environmentName":
-		if e.complexity.TeamDeployKeyUpdatedAuditEntry.EnvironmentName == nil {
+	case "TeamDeployKeyUpdatedActivityLog.environmentName":
+		if e.complexity.TeamDeployKeyUpdatedActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.TeamDeployKeyUpdatedAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.TeamDeployKeyUpdatedActivityLog.EnvironmentName(childComplexity), true
 
-	case "TeamDeployKeyUpdatedAuditEntry.id":
-		if e.complexity.TeamDeployKeyUpdatedAuditEntry.ID == nil {
+	case "TeamDeployKeyUpdatedActivityLog.id":
+		if e.complexity.TeamDeployKeyUpdatedActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.TeamDeployKeyUpdatedAuditEntry.ID(childComplexity), true
+		return e.complexity.TeamDeployKeyUpdatedActivityLog.ID(childComplexity), true
 
-	case "TeamDeployKeyUpdatedAuditEntry.message":
-		if e.complexity.TeamDeployKeyUpdatedAuditEntry.Message == nil {
+	case "TeamDeployKeyUpdatedActivityLog.message":
+		if e.complexity.TeamDeployKeyUpdatedActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.TeamDeployKeyUpdatedAuditEntry.Message(childComplexity), true
+		return e.complexity.TeamDeployKeyUpdatedActivityLog.Message(childComplexity), true
 
-	case "TeamDeployKeyUpdatedAuditEntry.resourceName":
-		if e.complexity.TeamDeployKeyUpdatedAuditEntry.ResourceName == nil {
+	case "TeamDeployKeyUpdatedActivityLog.resourceName":
+		if e.complexity.TeamDeployKeyUpdatedActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.TeamDeployKeyUpdatedAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.TeamDeployKeyUpdatedActivityLog.ResourceName(childComplexity), true
 
-	case "TeamDeployKeyUpdatedAuditEntry.resourceType":
-		if e.complexity.TeamDeployKeyUpdatedAuditEntry.ResourceType == nil {
+	case "TeamDeployKeyUpdatedActivityLog.resourceType":
+		if e.complexity.TeamDeployKeyUpdatedActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.TeamDeployKeyUpdatedAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.TeamDeployKeyUpdatedActivityLog.ResourceType(childComplexity), true
 
-	case "TeamDeployKeyUpdatedAuditEntry.teamSlug":
-		if e.complexity.TeamDeployKeyUpdatedAuditEntry.TeamSlug == nil {
+	case "TeamDeployKeyUpdatedActivityLog.teamSlug":
+		if e.complexity.TeamDeployKeyUpdatedActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.TeamDeployKeyUpdatedAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.TeamDeployKeyUpdatedActivityLog.TeamSlug(childComplexity), true
 
 	case "TeamEdge.cursor":
 		if e.complexity.TeamEdge.Cursor == nil {
@@ -7973,96 +7973,96 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamEnvironmentCostPeriod.Sum(childComplexity), true
 
-	case "TeamEnvironmentUpdatedAuditEntry.actor":
-		if e.complexity.TeamEnvironmentUpdatedAuditEntry.Actor == nil {
+	case "TeamEnvironmentUpdatedActivityLog.actor":
+		if e.complexity.TeamEnvironmentUpdatedActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.TeamEnvironmentUpdatedAuditEntry.Actor(childComplexity), true
+		return e.complexity.TeamEnvironmentUpdatedActivityLog.Actor(childComplexity), true
 
-	case "TeamEnvironmentUpdatedAuditEntry.createdAt":
-		if e.complexity.TeamEnvironmentUpdatedAuditEntry.CreatedAt == nil {
+	case "TeamEnvironmentUpdatedActivityLog.createdAt":
+		if e.complexity.TeamEnvironmentUpdatedActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.TeamEnvironmentUpdatedAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.TeamEnvironmentUpdatedActivityLog.CreatedAt(childComplexity), true
 
-	case "TeamEnvironmentUpdatedAuditEntry.data":
-		if e.complexity.TeamEnvironmentUpdatedAuditEntry.Data == nil {
+	case "TeamEnvironmentUpdatedActivityLog.data":
+		if e.complexity.TeamEnvironmentUpdatedActivityLog.Data == nil {
 			break
 		}
 
-		return e.complexity.TeamEnvironmentUpdatedAuditEntry.Data(childComplexity), true
+		return e.complexity.TeamEnvironmentUpdatedActivityLog.Data(childComplexity), true
 
-	case "TeamEnvironmentUpdatedAuditEntry.environmentName":
-		if e.complexity.TeamEnvironmentUpdatedAuditEntry.EnvironmentName == nil {
+	case "TeamEnvironmentUpdatedActivityLog.environmentName":
+		if e.complexity.TeamEnvironmentUpdatedActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.TeamEnvironmentUpdatedAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.TeamEnvironmentUpdatedActivityLog.EnvironmentName(childComplexity), true
 
-	case "TeamEnvironmentUpdatedAuditEntry.id":
-		if e.complexity.TeamEnvironmentUpdatedAuditEntry.ID == nil {
+	case "TeamEnvironmentUpdatedActivityLog.id":
+		if e.complexity.TeamEnvironmentUpdatedActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.TeamEnvironmentUpdatedAuditEntry.ID(childComplexity), true
+		return e.complexity.TeamEnvironmentUpdatedActivityLog.ID(childComplexity), true
 
-	case "TeamEnvironmentUpdatedAuditEntry.message":
-		if e.complexity.TeamEnvironmentUpdatedAuditEntry.Message == nil {
+	case "TeamEnvironmentUpdatedActivityLog.message":
+		if e.complexity.TeamEnvironmentUpdatedActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.TeamEnvironmentUpdatedAuditEntry.Message(childComplexity), true
+		return e.complexity.TeamEnvironmentUpdatedActivityLog.Message(childComplexity), true
 
-	case "TeamEnvironmentUpdatedAuditEntry.resourceName":
-		if e.complexity.TeamEnvironmentUpdatedAuditEntry.ResourceName == nil {
+	case "TeamEnvironmentUpdatedActivityLog.resourceName":
+		if e.complexity.TeamEnvironmentUpdatedActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.TeamEnvironmentUpdatedAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.TeamEnvironmentUpdatedActivityLog.ResourceName(childComplexity), true
 
-	case "TeamEnvironmentUpdatedAuditEntry.resourceType":
-		if e.complexity.TeamEnvironmentUpdatedAuditEntry.ResourceType == nil {
+	case "TeamEnvironmentUpdatedActivityLog.resourceType":
+		if e.complexity.TeamEnvironmentUpdatedActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.TeamEnvironmentUpdatedAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.TeamEnvironmentUpdatedActivityLog.ResourceType(childComplexity), true
 
-	case "TeamEnvironmentUpdatedAuditEntry.teamSlug":
-		if e.complexity.TeamEnvironmentUpdatedAuditEntry.TeamSlug == nil {
+	case "TeamEnvironmentUpdatedActivityLog.teamSlug":
+		if e.complexity.TeamEnvironmentUpdatedActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.TeamEnvironmentUpdatedAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.TeamEnvironmentUpdatedActivityLog.TeamSlug(childComplexity), true
 
-	case "TeamEnvironmentUpdatedAuditEntryData.updatedFields":
-		if e.complexity.TeamEnvironmentUpdatedAuditEntryData.UpdatedFields == nil {
+	case "TeamEnvironmentUpdatedActivityLogData.updatedFields":
+		if e.complexity.TeamEnvironmentUpdatedActivityLogData.UpdatedFields == nil {
 			break
 		}
 
-		return e.complexity.TeamEnvironmentUpdatedAuditEntryData.UpdatedFields(childComplexity), true
+		return e.complexity.TeamEnvironmentUpdatedActivityLogData.UpdatedFields(childComplexity), true
 
-	case "TeamEnvironmentUpdatedAuditEntryDataUpdatedField.field":
-		if e.complexity.TeamEnvironmentUpdatedAuditEntryDataUpdatedField.Field == nil {
+	case "TeamEnvironmentUpdatedActivityLogDataUpdatedField.field":
+		if e.complexity.TeamEnvironmentUpdatedActivityLogDataUpdatedField.Field == nil {
 			break
 		}
 
-		return e.complexity.TeamEnvironmentUpdatedAuditEntryDataUpdatedField.Field(childComplexity), true
+		return e.complexity.TeamEnvironmentUpdatedActivityLogDataUpdatedField.Field(childComplexity), true
 
-	case "TeamEnvironmentUpdatedAuditEntryDataUpdatedField.newValue":
-		if e.complexity.TeamEnvironmentUpdatedAuditEntryDataUpdatedField.NewValue == nil {
+	case "TeamEnvironmentUpdatedActivityLogDataUpdatedField.newValue":
+		if e.complexity.TeamEnvironmentUpdatedActivityLogDataUpdatedField.NewValue == nil {
 			break
 		}
 
-		return e.complexity.TeamEnvironmentUpdatedAuditEntryDataUpdatedField.NewValue(childComplexity), true
+		return e.complexity.TeamEnvironmentUpdatedActivityLogDataUpdatedField.NewValue(childComplexity), true
 
-	case "TeamEnvironmentUpdatedAuditEntryDataUpdatedField.oldValue":
-		if e.complexity.TeamEnvironmentUpdatedAuditEntryDataUpdatedField.OldValue == nil {
+	case "TeamEnvironmentUpdatedActivityLogDataUpdatedField.oldValue":
+		if e.complexity.TeamEnvironmentUpdatedActivityLogDataUpdatedField.OldValue == nil {
 			break
 		}
 
-		return e.complexity.TeamEnvironmentUpdatedAuditEntryDataUpdatedField.OldValue(childComplexity), true
+		return e.complexity.TeamEnvironmentUpdatedActivityLogDataUpdatedField.OldValue(childComplexity), true
 
 	case "TeamExternalResources.cdn":
 		if e.complexity.TeamExternalResources.CDN == nil {
@@ -8267,89 +8267,89 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamMember.User(childComplexity), true
 
-	case "TeamMemberAddedAuditEntry.actor":
-		if e.complexity.TeamMemberAddedAuditEntry.Actor == nil {
+	case "TeamMemberAddedActivityLog.actor":
+		if e.complexity.TeamMemberAddedActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberAddedAuditEntry.Actor(childComplexity), true
+		return e.complexity.TeamMemberAddedActivityLog.Actor(childComplexity), true
 
-	case "TeamMemberAddedAuditEntry.createdAt":
-		if e.complexity.TeamMemberAddedAuditEntry.CreatedAt == nil {
+	case "TeamMemberAddedActivityLog.createdAt":
+		if e.complexity.TeamMemberAddedActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberAddedAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.TeamMemberAddedActivityLog.CreatedAt(childComplexity), true
 
-	case "TeamMemberAddedAuditEntry.data":
-		if e.complexity.TeamMemberAddedAuditEntry.Data == nil {
+	case "TeamMemberAddedActivityLog.data":
+		if e.complexity.TeamMemberAddedActivityLog.Data == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberAddedAuditEntry.Data(childComplexity), true
+		return e.complexity.TeamMemberAddedActivityLog.Data(childComplexity), true
 
-	case "TeamMemberAddedAuditEntry.environmentName":
-		if e.complexity.TeamMemberAddedAuditEntry.EnvironmentName == nil {
+	case "TeamMemberAddedActivityLog.environmentName":
+		if e.complexity.TeamMemberAddedActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberAddedAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.TeamMemberAddedActivityLog.EnvironmentName(childComplexity), true
 
-	case "TeamMemberAddedAuditEntry.id":
-		if e.complexity.TeamMemberAddedAuditEntry.ID == nil {
+	case "TeamMemberAddedActivityLog.id":
+		if e.complexity.TeamMemberAddedActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberAddedAuditEntry.ID(childComplexity), true
+		return e.complexity.TeamMemberAddedActivityLog.ID(childComplexity), true
 
-	case "TeamMemberAddedAuditEntry.message":
-		if e.complexity.TeamMemberAddedAuditEntry.Message == nil {
+	case "TeamMemberAddedActivityLog.message":
+		if e.complexity.TeamMemberAddedActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberAddedAuditEntry.Message(childComplexity), true
+		return e.complexity.TeamMemberAddedActivityLog.Message(childComplexity), true
 
-	case "TeamMemberAddedAuditEntry.resourceName":
-		if e.complexity.TeamMemberAddedAuditEntry.ResourceName == nil {
+	case "TeamMemberAddedActivityLog.resourceName":
+		if e.complexity.TeamMemberAddedActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberAddedAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.TeamMemberAddedActivityLog.ResourceName(childComplexity), true
 
-	case "TeamMemberAddedAuditEntry.resourceType":
-		if e.complexity.TeamMemberAddedAuditEntry.ResourceType == nil {
+	case "TeamMemberAddedActivityLog.resourceType":
+		if e.complexity.TeamMemberAddedActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberAddedAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.TeamMemberAddedActivityLog.ResourceType(childComplexity), true
 
-	case "TeamMemberAddedAuditEntry.teamSlug":
-		if e.complexity.TeamMemberAddedAuditEntry.TeamSlug == nil {
+	case "TeamMemberAddedActivityLog.teamSlug":
+		if e.complexity.TeamMemberAddedActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberAddedAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.TeamMemberAddedActivityLog.TeamSlug(childComplexity), true
 
-	case "TeamMemberAddedAuditEntryData.role":
-		if e.complexity.TeamMemberAddedAuditEntryData.Role == nil {
+	case "TeamMemberAddedActivityLogData.role":
+		if e.complexity.TeamMemberAddedActivityLogData.Role == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberAddedAuditEntryData.Role(childComplexity), true
+		return e.complexity.TeamMemberAddedActivityLogData.Role(childComplexity), true
 
-	case "TeamMemberAddedAuditEntryData.userEmail":
-		if e.complexity.TeamMemberAddedAuditEntryData.UserEmail == nil {
+	case "TeamMemberAddedActivityLogData.userEmail":
+		if e.complexity.TeamMemberAddedActivityLogData.UserEmail == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberAddedAuditEntryData.UserEmail(childComplexity), true
+		return e.complexity.TeamMemberAddedActivityLogData.UserEmail(childComplexity), true
 
-	case "TeamMemberAddedAuditEntryData.userID":
-		if e.complexity.TeamMemberAddedAuditEntryData.UserID == nil {
+	case "TeamMemberAddedActivityLogData.userID":
+		if e.complexity.TeamMemberAddedActivityLogData.UserID == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberAddedAuditEntryData.UserID(childComplexity), true
+		return e.complexity.TeamMemberAddedActivityLogData.UserID(childComplexity), true
 
 	case "TeamMemberConnection.edges":
 		if e.complexity.TeamMemberConnection.Edges == nil {
@@ -8386,166 +8386,166 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamMemberEdge.Node(childComplexity), true
 
-	case "TeamMemberRemovedAuditEntry.actor":
-		if e.complexity.TeamMemberRemovedAuditEntry.Actor == nil {
+	case "TeamMemberRemovedActivityLog.actor":
+		if e.complexity.TeamMemberRemovedActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberRemovedAuditEntry.Actor(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLog.Actor(childComplexity), true
 
-	case "TeamMemberRemovedAuditEntry.createdAt":
-		if e.complexity.TeamMemberRemovedAuditEntry.CreatedAt == nil {
+	case "TeamMemberRemovedActivityLog.createdAt":
+		if e.complexity.TeamMemberRemovedActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberRemovedAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLog.CreatedAt(childComplexity), true
 
-	case "TeamMemberRemovedAuditEntry.data":
-		if e.complexity.TeamMemberRemovedAuditEntry.Data == nil {
+	case "TeamMemberRemovedActivityLog.data":
+		if e.complexity.TeamMemberRemovedActivityLog.Data == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberRemovedAuditEntry.Data(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLog.Data(childComplexity), true
 
-	case "TeamMemberRemovedAuditEntry.environmentName":
-		if e.complexity.TeamMemberRemovedAuditEntry.EnvironmentName == nil {
+	case "TeamMemberRemovedActivityLog.environmentName":
+		if e.complexity.TeamMemberRemovedActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberRemovedAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLog.EnvironmentName(childComplexity), true
 
-	case "TeamMemberRemovedAuditEntry.id":
-		if e.complexity.TeamMemberRemovedAuditEntry.ID == nil {
+	case "TeamMemberRemovedActivityLog.id":
+		if e.complexity.TeamMemberRemovedActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberRemovedAuditEntry.ID(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLog.ID(childComplexity), true
 
-	case "TeamMemberRemovedAuditEntry.message":
-		if e.complexity.TeamMemberRemovedAuditEntry.Message == nil {
+	case "TeamMemberRemovedActivityLog.message":
+		if e.complexity.TeamMemberRemovedActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberRemovedAuditEntry.Message(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLog.Message(childComplexity), true
 
-	case "TeamMemberRemovedAuditEntry.resourceName":
-		if e.complexity.TeamMemberRemovedAuditEntry.ResourceName == nil {
+	case "TeamMemberRemovedActivityLog.resourceName":
+		if e.complexity.TeamMemberRemovedActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberRemovedAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLog.ResourceName(childComplexity), true
 
-	case "TeamMemberRemovedAuditEntry.resourceType":
-		if e.complexity.TeamMemberRemovedAuditEntry.ResourceType == nil {
+	case "TeamMemberRemovedActivityLog.resourceType":
+		if e.complexity.TeamMemberRemovedActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberRemovedAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLog.ResourceType(childComplexity), true
 
-	case "TeamMemberRemovedAuditEntry.teamSlug":
-		if e.complexity.TeamMemberRemovedAuditEntry.TeamSlug == nil {
+	case "TeamMemberRemovedActivityLog.teamSlug":
+		if e.complexity.TeamMemberRemovedActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberRemovedAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLog.TeamSlug(childComplexity), true
 
-	case "TeamMemberRemovedAuditEntryData.userEmail":
-		if e.complexity.TeamMemberRemovedAuditEntryData.UserEmail == nil {
+	case "TeamMemberRemovedActivityLogData.userEmail":
+		if e.complexity.TeamMemberRemovedActivityLogData.UserEmail == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberRemovedAuditEntryData.UserEmail(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLogData.UserEmail(childComplexity), true
 
-	case "TeamMemberRemovedAuditEntryData.userID":
-		if e.complexity.TeamMemberRemovedAuditEntryData.UserID == nil {
+	case "TeamMemberRemovedActivityLogData.userID":
+		if e.complexity.TeamMemberRemovedActivityLogData.UserID == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberRemovedAuditEntryData.UserID(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLogData.UserID(childComplexity), true
 
-	case "TeamMemberSetRoleAuditEntry.actor":
-		if e.complexity.TeamMemberSetRoleAuditEntry.Actor == nil {
+	case "TeamMemberSetRoleActivityLog.actor":
+		if e.complexity.TeamMemberSetRoleActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleAuditEntry.Actor(childComplexity), true
+		return e.complexity.TeamMemberSetRoleActivityLog.Actor(childComplexity), true
 
-	case "TeamMemberSetRoleAuditEntry.createdAt":
-		if e.complexity.TeamMemberSetRoleAuditEntry.CreatedAt == nil {
+	case "TeamMemberSetRoleActivityLog.createdAt":
+		if e.complexity.TeamMemberSetRoleActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.TeamMemberSetRoleActivityLog.CreatedAt(childComplexity), true
 
-	case "TeamMemberSetRoleAuditEntry.data":
-		if e.complexity.TeamMemberSetRoleAuditEntry.Data == nil {
+	case "TeamMemberSetRoleActivityLog.data":
+		if e.complexity.TeamMemberSetRoleActivityLog.Data == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleAuditEntry.Data(childComplexity), true
+		return e.complexity.TeamMemberSetRoleActivityLog.Data(childComplexity), true
 
-	case "TeamMemberSetRoleAuditEntry.environmentName":
-		if e.complexity.TeamMemberSetRoleAuditEntry.EnvironmentName == nil {
+	case "TeamMemberSetRoleActivityLog.environmentName":
+		if e.complexity.TeamMemberSetRoleActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.TeamMemberSetRoleActivityLog.EnvironmentName(childComplexity), true
 
-	case "TeamMemberSetRoleAuditEntry.id":
-		if e.complexity.TeamMemberSetRoleAuditEntry.ID == nil {
+	case "TeamMemberSetRoleActivityLog.id":
+		if e.complexity.TeamMemberSetRoleActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleAuditEntry.ID(childComplexity), true
+		return e.complexity.TeamMemberSetRoleActivityLog.ID(childComplexity), true
 
-	case "TeamMemberSetRoleAuditEntry.message":
-		if e.complexity.TeamMemberSetRoleAuditEntry.Message == nil {
+	case "TeamMemberSetRoleActivityLog.message":
+		if e.complexity.TeamMemberSetRoleActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleAuditEntry.Message(childComplexity), true
+		return e.complexity.TeamMemberSetRoleActivityLog.Message(childComplexity), true
 
-	case "TeamMemberSetRoleAuditEntry.resourceName":
-		if e.complexity.TeamMemberSetRoleAuditEntry.ResourceName == nil {
+	case "TeamMemberSetRoleActivityLog.resourceName":
+		if e.complexity.TeamMemberSetRoleActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.TeamMemberSetRoleActivityLog.ResourceName(childComplexity), true
 
-	case "TeamMemberSetRoleAuditEntry.resourceType":
-		if e.complexity.TeamMemberSetRoleAuditEntry.ResourceType == nil {
+	case "TeamMemberSetRoleActivityLog.resourceType":
+		if e.complexity.TeamMemberSetRoleActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.TeamMemberSetRoleActivityLog.ResourceType(childComplexity), true
 
-	case "TeamMemberSetRoleAuditEntry.teamSlug":
-		if e.complexity.TeamMemberSetRoleAuditEntry.TeamSlug == nil {
+	case "TeamMemberSetRoleActivityLog.teamSlug":
+		if e.complexity.TeamMemberSetRoleActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.TeamMemberSetRoleActivityLog.TeamSlug(childComplexity), true
 
-	case "TeamMemberSetRoleAuditEntryData.role":
-		if e.complexity.TeamMemberSetRoleAuditEntryData.Role == nil {
+	case "TeamMemberSetRoleActivityLogData.role":
+		if e.complexity.TeamMemberSetRoleActivityLogData.Role == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleAuditEntryData.Role(childComplexity), true
+		return e.complexity.TeamMemberSetRoleActivityLogData.Role(childComplexity), true
 
-	case "TeamMemberSetRoleAuditEntryData.userEmail":
-		if e.complexity.TeamMemberSetRoleAuditEntryData.UserEmail == nil {
+	case "TeamMemberSetRoleActivityLogData.userEmail":
+		if e.complexity.TeamMemberSetRoleActivityLogData.UserEmail == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleAuditEntryData.UserEmail(childComplexity), true
+		return e.complexity.TeamMemberSetRoleActivityLogData.UserEmail(childComplexity), true
 
-	case "TeamMemberSetRoleAuditEntryData.userID":
-		if e.complexity.TeamMemberSetRoleAuditEntryData.UserID == nil {
+	case "TeamMemberSetRoleActivityLogData.userID":
+		if e.complexity.TeamMemberSetRoleActivityLogData.UserID == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleAuditEntryData.UserID(childComplexity), true
+		return e.complexity.TeamMemberSetRoleActivityLogData.UserID(childComplexity), true
 
 	case "TeamServiceUtilization.sqlInstances":
 		if e.complexity.TeamServiceUtilization.SQLInstances == nil {
@@ -8638,96 +8638,96 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamServiceUtilizationSqlInstancesMemory.Utilization(childComplexity), true
 
-	case "TeamUpdatedAuditEntry.actor":
-		if e.complexity.TeamUpdatedAuditEntry.Actor == nil {
+	case "TeamUpdatedActivityLog.actor":
+		if e.complexity.TeamUpdatedActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.TeamUpdatedAuditEntry.Actor(childComplexity), true
+		return e.complexity.TeamUpdatedActivityLog.Actor(childComplexity), true
 
-	case "TeamUpdatedAuditEntry.createdAt":
-		if e.complexity.TeamUpdatedAuditEntry.CreatedAt == nil {
+	case "TeamUpdatedActivityLog.createdAt":
+		if e.complexity.TeamUpdatedActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.TeamUpdatedAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.TeamUpdatedActivityLog.CreatedAt(childComplexity), true
 
-	case "TeamUpdatedAuditEntry.data":
-		if e.complexity.TeamUpdatedAuditEntry.Data == nil {
+	case "TeamUpdatedActivityLog.data":
+		if e.complexity.TeamUpdatedActivityLog.Data == nil {
 			break
 		}
 
-		return e.complexity.TeamUpdatedAuditEntry.Data(childComplexity), true
+		return e.complexity.TeamUpdatedActivityLog.Data(childComplexity), true
 
-	case "TeamUpdatedAuditEntry.environmentName":
-		if e.complexity.TeamUpdatedAuditEntry.EnvironmentName == nil {
+	case "TeamUpdatedActivityLog.environmentName":
+		if e.complexity.TeamUpdatedActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.TeamUpdatedAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.TeamUpdatedActivityLog.EnvironmentName(childComplexity), true
 
-	case "TeamUpdatedAuditEntry.id":
-		if e.complexity.TeamUpdatedAuditEntry.ID == nil {
+	case "TeamUpdatedActivityLog.id":
+		if e.complexity.TeamUpdatedActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.TeamUpdatedAuditEntry.ID(childComplexity), true
+		return e.complexity.TeamUpdatedActivityLog.ID(childComplexity), true
 
-	case "TeamUpdatedAuditEntry.message":
-		if e.complexity.TeamUpdatedAuditEntry.Message == nil {
+	case "TeamUpdatedActivityLog.message":
+		if e.complexity.TeamUpdatedActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.TeamUpdatedAuditEntry.Message(childComplexity), true
+		return e.complexity.TeamUpdatedActivityLog.Message(childComplexity), true
 
-	case "TeamUpdatedAuditEntry.resourceName":
-		if e.complexity.TeamUpdatedAuditEntry.ResourceName == nil {
+	case "TeamUpdatedActivityLog.resourceName":
+		if e.complexity.TeamUpdatedActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.TeamUpdatedAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.TeamUpdatedActivityLog.ResourceName(childComplexity), true
 
-	case "TeamUpdatedAuditEntry.resourceType":
-		if e.complexity.TeamUpdatedAuditEntry.ResourceType == nil {
+	case "TeamUpdatedActivityLog.resourceType":
+		if e.complexity.TeamUpdatedActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.TeamUpdatedAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.TeamUpdatedActivityLog.ResourceType(childComplexity), true
 
-	case "TeamUpdatedAuditEntry.teamSlug":
-		if e.complexity.TeamUpdatedAuditEntry.TeamSlug == nil {
+	case "TeamUpdatedActivityLog.teamSlug":
+		if e.complexity.TeamUpdatedActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.TeamUpdatedAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.TeamUpdatedActivityLog.TeamSlug(childComplexity), true
 
-	case "TeamUpdatedAuditEntryData.updatedFields":
-		if e.complexity.TeamUpdatedAuditEntryData.UpdatedFields == nil {
+	case "TeamUpdatedActivityLogData.updatedFields":
+		if e.complexity.TeamUpdatedActivityLogData.UpdatedFields == nil {
 			break
 		}
 
-		return e.complexity.TeamUpdatedAuditEntryData.UpdatedFields(childComplexity), true
+		return e.complexity.TeamUpdatedActivityLogData.UpdatedFields(childComplexity), true
 
-	case "TeamUpdatedAuditEntryDataUpdatedField.field":
-		if e.complexity.TeamUpdatedAuditEntryDataUpdatedField.Field == nil {
+	case "TeamUpdatedActivityLogDataUpdatedField.field":
+		if e.complexity.TeamUpdatedActivityLogDataUpdatedField.Field == nil {
 			break
 		}
 
-		return e.complexity.TeamUpdatedAuditEntryDataUpdatedField.Field(childComplexity), true
+		return e.complexity.TeamUpdatedActivityLogDataUpdatedField.Field(childComplexity), true
 
-	case "TeamUpdatedAuditEntryDataUpdatedField.newValue":
-		if e.complexity.TeamUpdatedAuditEntryDataUpdatedField.NewValue == nil {
+	case "TeamUpdatedActivityLogDataUpdatedField.newValue":
+		if e.complexity.TeamUpdatedActivityLogDataUpdatedField.NewValue == nil {
 			break
 		}
 
-		return e.complexity.TeamUpdatedAuditEntryDataUpdatedField.NewValue(childComplexity), true
+		return e.complexity.TeamUpdatedActivityLogDataUpdatedField.NewValue(childComplexity), true
 
-	case "TeamUpdatedAuditEntryDataUpdatedField.oldValue":
-		if e.complexity.TeamUpdatedAuditEntryDataUpdatedField.OldValue == nil {
+	case "TeamUpdatedActivityLogDataUpdatedField.oldValue":
+		if e.complexity.TeamUpdatedActivityLogDataUpdatedField.OldValue == nil {
 			break
 		}
 
-		return e.complexity.TeamUpdatedAuditEntryDataUpdatedField.OldValue(childComplexity), true
+		return e.complexity.TeamUpdatedActivityLogDataUpdatedField.OldValue(childComplexity), true
 
 	case "TeamUtilizationData.environment":
 		if e.complexity.TeamUtilizationData.Environment == nil {
@@ -8937,61 +8937,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UnleashInstance.WebIngress(childComplexity), true
 
-	case "UnleashInstanceCreatedAuditEntry.actor":
-		if e.complexity.UnleashInstanceCreatedAuditEntry.Actor == nil {
+	case "UnleashInstanceCreatedActivityLog.actor":
+		if e.complexity.UnleashInstanceCreatedActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceCreatedAuditEntry.Actor(childComplexity), true
+		return e.complexity.UnleashInstanceCreatedActivityLog.Actor(childComplexity), true
 
-	case "UnleashInstanceCreatedAuditEntry.createdAt":
-		if e.complexity.UnleashInstanceCreatedAuditEntry.CreatedAt == nil {
+	case "UnleashInstanceCreatedActivityLog.createdAt":
+		if e.complexity.UnleashInstanceCreatedActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceCreatedAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.UnleashInstanceCreatedActivityLog.CreatedAt(childComplexity), true
 
-	case "UnleashInstanceCreatedAuditEntry.environmentName":
-		if e.complexity.UnleashInstanceCreatedAuditEntry.EnvironmentName == nil {
+	case "UnleashInstanceCreatedActivityLog.environmentName":
+		if e.complexity.UnleashInstanceCreatedActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceCreatedAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.UnleashInstanceCreatedActivityLog.EnvironmentName(childComplexity), true
 
-	case "UnleashInstanceCreatedAuditEntry.id":
-		if e.complexity.UnleashInstanceCreatedAuditEntry.ID == nil {
+	case "UnleashInstanceCreatedActivityLog.id":
+		if e.complexity.UnleashInstanceCreatedActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceCreatedAuditEntry.ID(childComplexity), true
+		return e.complexity.UnleashInstanceCreatedActivityLog.ID(childComplexity), true
 
-	case "UnleashInstanceCreatedAuditEntry.message":
-		if e.complexity.UnleashInstanceCreatedAuditEntry.Message == nil {
+	case "UnleashInstanceCreatedActivityLog.message":
+		if e.complexity.UnleashInstanceCreatedActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceCreatedAuditEntry.Message(childComplexity), true
+		return e.complexity.UnleashInstanceCreatedActivityLog.Message(childComplexity), true
 
-	case "UnleashInstanceCreatedAuditEntry.resourceName":
-		if e.complexity.UnleashInstanceCreatedAuditEntry.ResourceName == nil {
+	case "UnleashInstanceCreatedActivityLog.resourceName":
+		if e.complexity.UnleashInstanceCreatedActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceCreatedAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.UnleashInstanceCreatedActivityLog.ResourceName(childComplexity), true
 
-	case "UnleashInstanceCreatedAuditEntry.resourceType":
-		if e.complexity.UnleashInstanceCreatedAuditEntry.ResourceType == nil {
+	case "UnleashInstanceCreatedActivityLog.resourceType":
+		if e.complexity.UnleashInstanceCreatedActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceCreatedAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.UnleashInstanceCreatedActivityLog.ResourceType(childComplexity), true
 
-	case "UnleashInstanceCreatedAuditEntry.teamSlug":
-		if e.complexity.UnleashInstanceCreatedAuditEntry.TeamSlug == nil {
+	case "UnleashInstanceCreatedActivityLog.teamSlug":
+		if e.complexity.UnleashInstanceCreatedActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceCreatedAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.UnleashInstanceCreatedActivityLog.TeamSlug(childComplexity), true
 
 	case "UnleashInstanceMetrics.apiTokens":
 		if e.complexity.UnleashInstanceMetrics.APITokens == nil {
@@ -9035,82 +9035,82 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UnleashInstanceMetrics.Toggles(childComplexity), true
 
-	case "UnleashInstanceUpdatedAuditEntry.actor":
-		if e.complexity.UnleashInstanceUpdatedAuditEntry.Actor == nil {
+	case "UnleashInstanceUpdatedActivityLog.actor":
+		if e.complexity.UnleashInstanceUpdatedActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceUpdatedAuditEntry.Actor(childComplexity), true
+		return e.complexity.UnleashInstanceUpdatedActivityLog.Actor(childComplexity), true
 
-	case "UnleashInstanceUpdatedAuditEntry.createdAt":
-		if e.complexity.UnleashInstanceUpdatedAuditEntry.CreatedAt == nil {
+	case "UnleashInstanceUpdatedActivityLog.createdAt":
+		if e.complexity.UnleashInstanceUpdatedActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceUpdatedAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.UnleashInstanceUpdatedActivityLog.CreatedAt(childComplexity), true
 
-	case "UnleashInstanceUpdatedAuditEntry.data":
-		if e.complexity.UnleashInstanceUpdatedAuditEntry.Data == nil {
+	case "UnleashInstanceUpdatedActivityLog.data":
+		if e.complexity.UnleashInstanceUpdatedActivityLog.Data == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceUpdatedAuditEntry.Data(childComplexity), true
+		return e.complexity.UnleashInstanceUpdatedActivityLog.Data(childComplexity), true
 
-	case "UnleashInstanceUpdatedAuditEntry.environmentName":
-		if e.complexity.UnleashInstanceUpdatedAuditEntry.EnvironmentName == nil {
+	case "UnleashInstanceUpdatedActivityLog.environmentName":
+		if e.complexity.UnleashInstanceUpdatedActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceUpdatedAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.UnleashInstanceUpdatedActivityLog.EnvironmentName(childComplexity), true
 
-	case "UnleashInstanceUpdatedAuditEntry.id":
-		if e.complexity.UnleashInstanceUpdatedAuditEntry.ID == nil {
+	case "UnleashInstanceUpdatedActivityLog.id":
+		if e.complexity.UnleashInstanceUpdatedActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceUpdatedAuditEntry.ID(childComplexity), true
+		return e.complexity.UnleashInstanceUpdatedActivityLog.ID(childComplexity), true
 
-	case "UnleashInstanceUpdatedAuditEntry.message":
-		if e.complexity.UnleashInstanceUpdatedAuditEntry.Message == nil {
+	case "UnleashInstanceUpdatedActivityLog.message":
+		if e.complexity.UnleashInstanceUpdatedActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceUpdatedAuditEntry.Message(childComplexity), true
+		return e.complexity.UnleashInstanceUpdatedActivityLog.Message(childComplexity), true
 
-	case "UnleashInstanceUpdatedAuditEntry.resourceName":
-		if e.complexity.UnleashInstanceUpdatedAuditEntry.ResourceName == nil {
+	case "UnleashInstanceUpdatedActivityLog.resourceName":
+		if e.complexity.UnleashInstanceUpdatedActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceUpdatedAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.UnleashInstanceUpdatedActivityLog.ResourceName(childComplexity), true
 
-	case "UnleashInstanceUpdatedAuditEntry.resourceType":
-		if e.complexity.UnleashInstanceUpdatedAuditEntry.ResourceType == nil {
+	case "UnleashInstanceUpdatedActivityLog.resourceType":
+		if e.complexity.UnleashInstanceUpdatedActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceUpdatedAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.UnleashInstanceUpdatedActivityLog.ResourceType(childComplexity), true
 
-	case "UnleashInstanceUpdatedAuditEntry.teamSlug":
-		if e.complexity.UnleashInstanceUpdatedAuditEntry.TeamSlug == nil {
+	case "UnleashInstanceUpdatedActivityLog.teamSlug":
+		if e.complexity.UnleashInstanceUpdatedActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceUpdatedAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.UnleashInstanceUpdatedActivityLog.TeamSlug(childComplexity), true
 
-	case "UnleashInstanceUpdatedAuditEntryData.allowedTeamSlug":
-		if e.complexity.UnleashInstanceUpdatedAuditEntryData.AllowedTeamSlug == nil {
+	case "UnleashInstanceUpdatedActivityLogData.allowedTeamSlug":
+		if e.complexity.UnleashInstanceUpdatedActivityLogData.AllowedTeamSlug == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceUpdatedAuditEntryData.AllowedTeamSlug(childComplexity), true
+		return e.complexity.UnleashInstanceUpdatedActivityLogData.AllowedTeamSlug(childComplexity), true
 
-	case "UnleashInstanceUpdatedAuditEntryData.revokedTeamSlug":
-		if e.complexity.UnleashInstanceUpdatedAuditEntryData.RevokedTeamSlug == nil {
+	case "UnleashInstanceUpdatedActivityLogData.revokedTeamSlug":
+		if e.complexity.UnleashInstanceUpdatedActivityLogData.RevokedTeamSlug == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceUpdatedAuditEntryData.RevokedTeamSlug(childComplexity), true
+		return e.complexity.UnleashInstanceUpdatedActivityLogData.RevokedTeamSlug(childComplexity), true
 
 	case "UpdateImageVulnerabilityPayload.vulnerability":
 		if e.complexity.UpdateImageVulnerabilityPayload.Vulnerability == nil {
@@ -9236,61 +9236,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UtilizationSample.Value(childComplexity), true
 
-	case "VulnerabilityUpdatedAuditEntry.actor":
-		if e.complexity.VulnerabilityUpdatedAuditEntry.Actor == nil {
+	case "VulnerabilityUpdatedActivityLog.actor":
+		if e.complexity.VulnerabilityUpdatedActivityLog.Actor == nil {
 			break
 		}
 
-		return e.complexity.VulnerabilityUpdatedAuditEntry.Actor(childComplexity), true
+		return e.complexity.VulnerabilityUpdatedActivityLog.Actor(childComplexity), true
 
-	case "VulnerabilityUpdatedAuditEntry.createdAt":
-		if e.complexity.VulnerabilityUpdatedAuditEntry.CreatedAt == nil {
+	case "VulnerabilityUpdatedActivityLog.createdAt":
+		if e.complexity.VulnerabilityUpdatedActivityLog.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.VulnerabilityUpdatedAuditEntry.CreatedAt(childComplexity), true
+		return e.complexity.VulnerabilityUpdatedActivityLog.CreatedAt(childComplexity), true
 
-	case "VulnerabilityUpdatedAuditEntry.environmentName":
-		if e.complexity.VulnerabilityUpdatedAuditEntry.EnvironmentName == nil {
+	case "VulnerabilityUpdatedActivityLog.environmentName":
+		if e.complexity.VulnerabilityUpdatedActivityLog.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.VulnerabilityUpdatedAuditEntry.EnvironmentName(childComplexity), true
+		return e.complexity.VulnerabilityUpdatedActivityLog.EnvironmentName(childComplexity), true
 
-	case "VulnerabilityUpdatedAuditEntry.id":
-		if e.complexity.VulnerabilityUpdatedAuditEntry.ID == nil {
+	case "VulnerabilityUpdatedActivityLog.id":
+		if e.complexity.VulnerabilityUpdatedActivityLog.ID == nil {
 			break
 		}
 
-		return e.complexity.VulnerabilityUpdatedAuditEntry.ID(childComplexity), true
+		return e.complexity.VulnerabilityUpdatedActivityLog.ID(childComplexity), true
 
-	case "VulnerabilityUpdatedAuditEntry.message":
-		if e.complexity.VulnerabilityUpdatedAuditEntry.Message == nil {
+	case "VulnerabilityUpdatedActivityLog.message":
+		if e.complexity.VulnerabilityUpdatedActivityLog.Message == nil {
 			break
 		}
 
-		return e.complexity.VulnerabilityUpdatedAuditEntry.Message(childComplexity), true
+		return e.complexity.VulnerabilityUpdatedActivityLog.Message(childComplexity), true
 
-	case "VulnerabilityUpdatedAuditEntry.resourceName":
-		if e.complexity.VulnerabilityUpdatedAuditEntry.ResourceName == nil {
+	case "VulnerabilityUpdatedActivityLog.resourceName":
+		if e.complexity.VulnerabilityUpdatedActivityLog.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.VulnerabilityUpdatedAuditEntry.ResourceName(childComplexity), true
+		return e.complexity.VulnerabilityUpdatedActivityLog.ResourceName(childComplexity), true
 
-	case "VulnerabilityUpdatedAuditEntry.resourceType":
-		if e.complexity.VulnerabilityUpdatedAuditEntry.ResourceType == nil {
+	case "VulnerabilityUpdatedActivityLog.resourceType":
+		if e.complexity.VulnerabilityUpdatedActivityLog.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.VulnerabilityUpdatedAuditEntry.ResourceType(childComplexity), true
+		return e.complexity.VulnerabilityUpdatedActivityLog.ResourceType(childComplexity), true
 
-	case "VulnerabilityUpdatedAuditEntry.teamSlug":
-		if e.complexity.VulnerabilityUpdatedAuditEntry.TeamSlug == nil {
+	case "VulnerabilityUpdatedActivityLog.teamSlug":
+		if e.complexity.VulnerabilityUpdatedActivityLog.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.VulnerabilityUpdatedAuditEntry.TeamSlug(childComplexity), true
+		return e.complexity.VulnerabilityUpdatedActivityLog.TeamSlug(childComplexity), true
 
 	case "WorkloadConnection.edges":
 		if e.complexity.WorkloadConnection.Edges == nil {
@@ -9858,6 +9858,150 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
+	{Name: "../schema/activitylog.graphqls", Input: `extend type Team {
+	"""
+	Activity log associated with the team.
+	"""
+	activityLog(
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
+		first: Int
+
+		"""
+		Get items after this cursor.
+		"""
+		after: Cursor
+
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
+		last: Int
+
+		"""
+		Get items before this cursor.
+		"""
+		before: Cursor
+	): ActivityLogConnection!
+}
+
+extend type Reconciler {
+	"""
+	Activity log associated with the reconciler.
+	"""
+	activityLog(
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
+		first: Int
+
+		"""
+		Get items after this cursor.
+		"""
+		after: Cursor
+
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
+		last: Int
+
+		"""
+		Get items before this cursor.
+		"""
+		before: Cursor
+	): ActivityLogConnection!
+}
+
+"""
+Interface for activity log entries.
+"""
+interface ActivityLogEntry implements Node {
+	"""
+	ID of the entry.
+	"""
+	id: ID!
+
+	"""
+	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
+	"""
+	actor: String!
+
+	"""
+	Creation time of the entry.
+	"""
+	createdAt: Time!
+
+	"""
+	Message that summarizes the entry.
+	"""
+	message: String!
+
+	"""
+	Type of the resource that was affected by the action.
+	"""
+	resourceType: ActivityLogResourceType!
+
+	"""
+	Name of the resource that was affected by the action.
+	"""
+	resourceName: String!
+
+	"""
+	The team slug that the entry belongs to.
+	"""
+	teamSlug: Slug
+
+	"""
+	The environment name that the entry belongs to.
+	"""
+	environmentName: String
+}
+
+"""
+The type of the resource that was affected by the activity.
+"""
+enum ActivityLogResourceType {
+	"""
+	Unknown type.
+	"""
+	UNKNOWN
+}
+
+"""
+Activity log connection.
+"""
+type ActivityLogConnection {
+	"""
+	Pagination information.
+	"""
+	pageInfo: PageInfo!
+
+	"""
+	List of nodes.
+	"""
+	nodes: [ActivityLogEntry!]!
+
+	"""
+	List of edges.
+	"""
+	edges: [ActivityLogEdge!]!
+}
+
+"""
+Activity log edge.
+"""
+type ActivityLogEdge {
+	"""
+	Cursor for this edge that can be used for pagination.
+	"""
+	cursor: Cursor!
+
+	"""
+	The log entry.
+	"""
+	node: ActivityLogEntry!
+}
+`, BuiltIn: false},
 	{Name: "../schema/applications.graphqls", Input: `extend type Team {
 	"""
 	NAIS applications owned by the team.
@@ -10324,12 +10468,12 @@ type ApplicationInstanceEdge {
 	node: ApplicationInstance!
 }
 
-extend enum AuditResourceType {
-	"All audit entries related to applications will use this resource type."
+extend enum ActivityLogResourceType {
+	"All activity log entries related to applications will use this resource type."
 	APP
 }
 
-type ApplicationDeletedAuditEntry implements AuditEntry & Node {
+type ApplicationDeletedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -10343,7 +10487,7 @@ type ApplicationDeletedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -10355,7 +10499,7 @@ type ApplicationDeletedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type ApplicationRestartedAuditEntry implements AuditEntry & Node {
+type ApplicationRestartedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -10369,7 +10513,7 @@ type ApplicationRestartedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -10379,150 +10523,6 @@ type ApplicationRestartedAuditEntry implements AuditEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
-}
-`, BuiltIn: false},
-	{Name: "../schema/auditlog.graphqls", Input: `extend type Team {
-	"""
-	Audit entries associated with the team.
-	"""
-	auditEntries(
-		"""
-		Get the first n items in the connection. This can be used in combination with the after parameter.
-		"""
-		first: Int
-
-		"""
-		Get items after this cursor.
-		"""
-		after: Cursor
-
-		"""
-		Get the last n items in the connection. This can be used in combination with the before parameter.
-		"""
-		last: Int
-
-		"""
-		Get items before this cursor.
-		"""
-		before: Cursor
-	): AuditEntryConnection!
-}
-
-extend type Reconciler {
-	"""
-	Audit entries associated with the reconciler.
-	"""
-	auditEntries(
-		"""
-		Get the first n items in the connection. This can be used in combination with the after parameter.
-		"""
-		first: Int
-
-		"""
-		Get items after this cursor.
-		"""
-		after: Cursor
-
-		"""
-		Get the last n items in the connection. This can be used in combination with the before parameter.
-		"""
-		last: Int
-
-		"""
-		Get items before this cursor.
-		"""
-		before: Cursor
-	): AuditEntryConnection!
-}
-
-"""
-Interface for audit entries.
-"""
-interface AuditEntry implements Node {
-	"""
-	ID of the entry.
-	"""
-	id: ID!
-
-	"""
-	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
-	"""
-	actor: String!
-
-	"""
-	Creation time of the entry.
-	"""
-	createdAt: Time!
-
-	"""
-	Message that summarizes the entry.
-	"""
-	message: String!
-
-	"""
-	Type of the resource that was affected by the action.
-	"""
-	resourceType: AuditResourceType!
-
-	"""
-	Name of the resource that was affected by the action.
-	"""
-	resourceName: String!
-
-	"""
-	The team slug that the entry belongs to.
-	"""
-	teamSlug: Slug
-
-	"""
-	The environment name that the entry belongs to.
-	"""
-	environmentName: String
-}
-
-"""
-The type of the resource that was affected by the action.
-"""
-enum AuditResourceType {
-	"""
-	Unknown type.
-	"""
-	UNKNOWN
-}
-
-"""
-Audit entry connection.
-"""
-type AuditEntryConnection {
-	"""
-	Pagination information.
-	"""
-	pageInfo: PageInfo!
-
-	"""
-	List of nodes.
-	"""
-	nodes: [AuditEntry!]!
-
-	"""
-	List of edges.
-	"""
-	edges: [AuditEntryEdge!]!
-}
-
-"""
-Audit entry edge.
-"""
-type AuditEntryEdge {
-	"""
-	Cursor for this edge that can be used for pagination.
-	"""
-	cursor: Cursor!
-
-	"""
-	The audit entry.
-	"""
-	node: AuditEntry!
 }
 `, BuiltIn: false},
 	{Name: "../schema/bigquery.graphqls", Input: `extend type Team {
@@ -11126,7 +11126,7 @@ extend enum JobOrderField {
 	DEPLOYMENT_TIME
 }
 
-type TeamDeployKeyUpdatedAuditEntry implements AuditEntry & Node {
+type TeamDeployKeyUpdatedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -11140,7 +11140,7 @@ type TeamDeployKeyUpdatedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -11457,7 +11457,7 @@ type TriggerJobPayload {
 	jobRun: JobRun
 }
 
-type JobDeletedAuditEntry implements AuditEntry & Node {
+type JobDeletedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -11471,7 +11471,7 @@ type JobDeletedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -11483,7 +11483,7 @@ type JobDeletedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type JobTriggeredAuditEntry implements AuditEntry & Node {
+type JobTriggeredActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -11497,7 +11497,7 @@ type JobTriggeredAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -12029,7 +12029,7 @@ input ReconcilerConfigInput {
 	value: String!
 }
 
-type ReconcilerEnabledAuditEntry implements AuditEntry & Node {
+type ReconcilerEnabledActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -12043,7 +12043,7 @@ type ReconcilerEnabledAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -12055,7 +12055,7 @@ type ReconcilerEnabledAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type ReconcilerDisabledAuditEntry implements AuditEntry & Node {
+type ReconcilerDisabledActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -12069,7 +12069,7 @@ type ReconcilerDisabledAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -12081,7 +12081,7 @@ type ReconcilerDisabledAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type ReconcilerConfiguredAuditEntry implements AuditEntry & Node {
+type ReconcilerConfiguredActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -12095,7 +12095,7 @@ type ReconcilerConfiguredAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -12107,10 +12107,10 @@ type ReconcilerConfiguredAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: ReconcilerConfiguredAuditEntryData!
+	data: ReconcilerConfiguredActivityLogData!
 }
 
-type ReconcilerConfiguredAuditEntryData {
+type ReconcilerConfiguredActivityLogData {
 	"Keys that were updated."
 	updatedKeys: [String!]!
 }
@@ -12368,7 +12368,7 @@ enum RepositoryOrderField {
 	NAME
 }
 
-type RepositoryAddedAuditEntry implements AuditEntry & Node {
+type RepositoryAddedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -12382,7 +12382,7 @@ type RepositoryAddedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -12394,7 +12394,7 @@ type RepositoryAddedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type RepositoryRemovedAuditEntry implements AuditEntry & Node {
+type RepositoryRemovedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -12408,7 +12408,7 @@ type RepositoryRemovedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -12943,12 +12943,12 @@ type SecretValue {
 	value: String!
 }
 
-extend enum AuditResourceType {
-	"All audit entries related to secrets will use this resource type."
+extend enum ActivityLogResourceType {
+	"All activity log entries related to secrets will use this resource type."
 	SECRET
 }
 
-type SecretCreatedAuditEntry implements AuditEntry & Node {
+type SecretCreatedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -12962,7 +12962,7 @@ type SecretCreatedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -12974,7 +12974,7 @@ type SecretCreatedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type SecretValueAddedAuditEntry implements AuditEntry & Node {
+type SecretValueAddedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -12988,7 +12988,7 @@ type SecretValueAddedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -13000,15 +13000,15 @@ type SecretValueAddedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the entry."
-	data: SecretValueAddedAuditEntryData!
+	data: SecretValueAddedActivityLogData!
 }
 
-type SecretValueAddedAuditEntryData {
+type SecretValueAddedActivityLogData {
 	"The name of the added value."
 	valueName: String!
 }
 
-type SecretValueUpdatedAuditEntry implements AuditEntry & Node {
+type SecretValueUpdatedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -13022,7 +13022,7 @@ type SecretValueUpdatedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -13034,15 +13034,15 @@ type SecretValueUpdatedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the entry."
-	data: SecretValueUpdatedAuditEntryData!
+	data: SecretValueUpdatedActivityLogData!
 }
 
-type SecretValueUpdatedAuditEntryData {
+type SecretValueUpdatedActivityLogData {
 	"The name of the updated value."
 	valueName: String!
 }
 
-type SecretValueRemovedAuditEntry implements AuditEntry & Node {
+type SecretValueRemovedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -13056,7 +13056,7 @@ type SecretValueRemovedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -13068,15 +13068,15 @@ type SecretValueRemovedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the entry."
-	data: SecretValueRemovedAuditEntryData!
+	data: SecretValueRemovedActivityLogData!
 }
 
-type SecretValueRemovedAuditEntryData {
+type SecretValueRemovedActivityLogData {
 	"The name of the removed value."
 	valueName: String!
 }
 
-type SecretDeletedAuditEntry implements AuditEntry & Node {
+type SecretDeletedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -13090,7 +13090,7 @@ type SecretDeletedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -13961,12 +13961,12 @@ enum TeamMemberRole {
 	OWNER
 }
 
-extend enum AuditResourceType {
-	"All audit entries related to teams will use this resource type."
+extend enum ActivityLogResourceType {
+	"All activity log entries related to teams will use this resource type."
 	TEAM
 }
 
-type TeamCreatedAuditEntry implements AuditEntry & Node {
+type TeamCreatedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -13980,7 +13980,7 @@ type TeamCreatedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -13992,7 +13992,7 @@ type TeamCreatedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type TeamUpdatedAuditEntry implements AuditEntry & Node {
+type TeamUpdatedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -14006,7 +14006,7 @@ type TeamUpdatedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -14018,15 +14018,15 @@ type TeamUpdatedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: TeamUpdatedAuditEntryData!
+	data: TeamUpdatedActivityLogData!
 }
 
-type TeamUpdatedAuditEntryData {
+type TeamUpdatedActivityLogData {
 	"Fields that were updated."
-	updatedFields: [TeamUpdatedAuditEntryDataUpdatedField!]!
+	updatedFields: [TeamUpdatedActivityLogDataUpdatedField!]!
 }
 
-type TeamUpdatedAuditEntryDataUpdatedField {
+type TeamUpdatedActivityLogDataUpdatedField {
 	"The name of the field."
 	field: String!
 
@@ -14037,7 +14037,7 @@ type TeamUpdatedAuditEntryDataUpdatedField {
 	newValue: String
 }
 
-type TeamCreateDeleteKeyAuditEntry implements AuditEntry & Node {
+type TeamCreateDeleteKeyActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -14051,7 +14051,7 @@ type TeamCreateDeleteKeyAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -14063,7 +14063,7 @@ type TeamCreateDeleteKeyAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type TeamConfirmDeleteKeyAuditEntry implements AuditEntry & Node {
+type TeamConfirmDeleteKeyActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -14077,7 +14077,7 @@ type TeamConfirmDeleteKeyAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -14089,7 +14089,7 @@ type TeamConfirmDeleteKeyAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type TeamMemberAddedAuditEntry implements AuditEntry & Node {
+type TeamMemberAddedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -14103,7 +14103,7 @@ type TeamMemberAddedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -14115,10 +14115,10 @@ type TeamMemberAddedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the action."
-	data: TeamMemberAddedAuditEntryData!
+	data: TeamMemberAddedActivityLogData!
 }
 
-type TeamMemberAddedAuditEntryData {
+type TeamMemberAddedActivityLogData {
 	"The role that the user was added with."
 	role: TeamMemberRole!
 
@@ -14129,7 +14129,7 @@ type TeamMemberAddedAuditEntryData {
 	userEmail: String!
 }
 
-type TeamMemberRemovedAuditEntry implements AuditEntry & Node {
+type TeamMemberRemovedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -14143,7 +14143,7 @@ type TeamMemberRemovedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -14155,10 +14155,10 @@ type TeamMemberRemovedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the action."
-	data: TeamMemberRemovedAuditEntryData!
+	data: TeamMemberRemovedActivityLogData!
 }
 
-type TeamMemberRemovedAuditEntryData {
+type TeamMemberRemovedActivityLogData {
 	"The ID of the user that was removed."
 	userID: ID!
 
@@ -14166,7 +14166,7 @@ type TeamMemberRemovedAuditEntryData {
 	userEmail: String!
 }
 
-type TeamMemberSetRoleAuditEntry implements AuditEntry & Node {
+type TeamMemberSetRoleActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -14180,7 +14180,7 @@ type TeamMemberSetRoleAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -14192,10 +14192,10 @@ type TeamMemberSetRoleAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the action."
-	data: TeamMemberSetRoleAuditEntryData!
+	data: TeamMemberSetRoleActivityLogData!
 }
 
-type TeamMemberSetRoleAuditEntryData {
+type TeamMemberSetRoleActivityLogData {
 	"The role that the user was assigned."
 	role: TeamMemberRole!
 
@@ -14206,7 +14206,7 @@ type TeamMemberSetRoleAuditEntryData {
 	userEmail: String!
 }
 
-type TeamEnvironmentUpdatedAuditEntry implements AuditEntry & Node {
+type TeamEnvironmentUpdatedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -14220,7 +14220,7 @@ type TeamEnvironmentUpdatedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -14232,15 +14232,15 @@ type TeamEnvironmentUpdatedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the action."
-	data: TeamEnvironmentUpdatedAuditEntryData!
+	data: TeamEnvironmentUpdatedActivityLogData!
 }
 
-type TeamEnvironmentUpdatedAuditEntryData {
+type TeamEnvironmentUpdatedActivityLogData {
 	"Fields that were updated."
-	updatedFields: [TeamEnvironmentUpdatedAuditEntryDataUpdatedField!]!
+	updatedFields: [TeamEnvironmentUpdatedActivityLogDataUpdatedField!]!
 }
 
-type TeamEnvironmentUpdatedAuditEntryDataUpdatedField {
+type TeamEnvironmentUpdatedActivityLogDataUpdatedField {
 	"The name of the field."
 	field: String!
 
@@ -14377,12 +14377,12 @@ type UnleashInstanceMetrics {
 	memoryRequests: Float!
 }
 
-extend enum AuditResourceType {
-	"All audit entries related to unleash will use this resource type."
+extend enum ActivityLogResourceType {
+	"All activity log entries related to unleash will use this resource type."
 	UNLEASH
 }
 
-type UnleashInstanceCreatedAuditEntry implements AuditEntry & Node {
+type UnleashInstanceCreatedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -14396,7 +14396,7 @@ type UnleashInstanceCreatedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -14408,7 +14408,7 @@ type UnleashInstanceCreatedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type UnleashInstanceUpdatedAuditEntry implements AuditEntry & Node {
+type UnleashInstanceUpdatedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -14422,7 +14422,7 @@ type UnleashInstanceUpdatedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -14434,10 +14434,10 @@ type UnleashInstanceUpdatedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: UnleashInstanceUpdatedAuditEntryData!
+	data: UnleashInstanceUpdatedActivityLogData!
 }
 
-type UnleashInstanceUpdatedAuditEntryData {
+type UnleashInstanceUpdatedActivityLogData {
 	"Revoked team slug."
 	revokedTeamSlug: Slug
 
@@ -15046,7 +15046,7 @@ type ImageVulnerabilityAnalysisCommentEdge {
 	node: ImageVulnerabilityAnalysisComment!
 }
 
-type VulnerabilityUpdatedAuditEntry implements AuditEntry & Node {
+type VulnerabilityUpdatedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -15060,7 +15060,7 @@ type VulnerabilityUpdatedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -18741,32 +18741,32 @@ func (ec *executionContext) field_Query_users_argsOrderBy(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Reconciler_auditEntries_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Reconciler_activityLog_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	arg0, err := ec.field_Reconciler_auditEntries_argsFirst(ctx, rawArgs)
+	arg0, err := ec.field_Reconciler_activityLog_argsFirst(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
 	args["first"] = arg0
-	arg1, err := ec.field_Reconciler_auditEntries_argsAfter(ctx, rawArgs)
+	arg1, err := ec.field_Reconciler_activityLog_argsAfter(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
 	args["after"] = arg1
-	arg2, err := ec.field_Reconciler_auditEntries_argsLast(ctx, rawArgs)
+	arg2, err := ec.field_Reconciler_activityLog_argsLast(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
 	args["last"] = arg2
-	arg3, err := ec.field_Reconciler_auditEntries_argsBefore(ctx, rawArgs)
+	arg3, err := ec.field_Reconciler_activityLog_argsBefore(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
 	args["before"] = arg3
 	return args, nil
 }
-func (ec *executionContext) field_Reconciler_auditEntries_argsFirst(
+func (ec *executionContext) field_Reconciler_activityLog_argsFirst(
 	ctx context.Context,
 	rawArgs map[string]interface{},
 ) (*int, error) {
@@ -18788,7 +18788,7 @@ func (ec *executionContext) field_Reconciler_auditEntries_argsFirst(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Reconciler_auditEntries_argsAfter(
+func (ec *executionContext) field_Reconciler_activityLog_argsAfter(
 	ctx context.Context,
 	rawArgs map[string]interface{},
 ) (*pagination.Cursor, error) {
@@ -18810,7 +18810,7 @@ func (ec *executionContext) field_Reconciler_auditEntries_argsAfter(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Reconciler_auditEntries_argsLast(
+func (ec *executionContext) field_Reconciler_activityLog_argsLast(
 	ctx context.Context,
 	rawArgs map[string]interface{},
 ) (*int, error) {
@@ -18832,7 +18832,7 @@ func (ec *executionContext) field_Reconciler_auditEntries_argsLast(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Reconciler_auditEntries_argsBefore(
+func (ec *executionContext) field_Reconciler_activityLog_argsBefore(
 	ctx context.Context,
 	rawArgs map[string]interface{},
 ) (*pagination.Cursor, error) {
@@ -20196,6 +20196,119 @@ func (ec *executionContext) field_TeamEnvironment_workload_argsName(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Team_activityLog_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Team_activityLog_argsFirst(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := ec.field_Team_activityLog_argsAfter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := ec.field_Team_activityLog_argsLast(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := ec.field_Team_activityLog_argsBefore(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	return args, nil
+}
+func (ec *executionContext) field_Team_activityLog_argsFirst(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*int, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["first"]
+	if !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+	if tmp, ok := rawArgs["first"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Team_activityLog_argsAfter(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*pagination.Cursor, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["after"]
+	if !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+	if tmp, ok := rawArgs["after"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Team_activityLog_argsLast(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*int, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["last"]
+	if !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+	if tmp, ok := rawArgs["last"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Team_activityLog_argsBefore(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*pagination.Cursor, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["before"]
+	if !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+	if tmp, ok := rawArgs["before"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Team_applications_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -20360,119 +20473,6 @@ func (ec *executionContext) field_Team_applications_argsFilter(
 	}
 
 	var zeroVal *application.TeamApplicationsFilter
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Team_auditEntries_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Team_auditEntries_argsFirst(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["first"] = arg0
-	arg1, err := ec.field_Team_auditEntries_argsAfter(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["after"] = arg1
-	arg2, err := ec.field_Team_auditEntries_argsLast(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["last"] = arg2
-	arg3, err := ec.field_Team_auditEntries_argsBefore(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["before"] = arg3
-	return args, nil
-}
-func (ec *executionContext) field_Team_auditEntries_argsFirst(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*int, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["first"]
-	if !ok {
-		var zeroVal *int
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
-	if tmp, ok := rawArgs["first"]; ok {
-		return ec.unmarshalOInt2ᚖint(ctx, tmp)
-	}
-
-	var zeroVal *int
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Team_auditEntries_argsAfter(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*pagination.Cursor, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["after"]
-	if !ok {
-		var zeroVal *pagination.Cursor
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
-	if tmp, ok := rawArgs["after"]; ok {
-		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, tmp)
-	}
-
-	var zeroVal *pagination.Cursor
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Team_auditEntries_argsLast(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*int, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["last"]
-	if !ok {
-		var zeroVal *int
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
-	if tmp, ok := rawArgs["last"]; ok {
-		return ec.unmarshalOInt2ᚖint(ctx, tmp)
-	}
-
-	var zeroVal *int
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Team_auditEntries_argsBefore(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*pagination.Cursor, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["before"]
-	if !ok {
-		var zeroVal *pagination.Cursor
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
-	if tmp, ok := rawArgs["before"]; ok {
-		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, tmp)
-	}
-
-	var zeroVal *pagination.Cursor
 	return zeroVal, nil
 }
 
@@ -22850,6 +22850,248 @@ func (ec *executionContext) field___Type_fields_argsIncludeDeprecated(
 
 // region    **************************** field.gotpl *****************************
 
+func (ec *executionContext) _ActivityLogConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[activitylog.ActivityLogEntry]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ActivityLogConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ActivityLogConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ActivityLogConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "endCursor":
+				return ec.fieldContext_PageInfo_endCursor(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			case "startCursor":
+				return ec.fieldContext_PageInfo_startCursor(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ActivityLogConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[activitylog.ActivityLogEntry]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ActivityLogConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]activitylog.ActivityLogEntry)
+	fc.Result = res
+	return ec.marshalNActivityLogEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ActivityLogConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ActivityLogConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ActivityLogConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[activitylog.ActivityLogEntry]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ActivityLogConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]pagination.Edge[activitylog.ActivityLogEntry])
+	fc.Result = res
+	return ec.marshalNActivityLogEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ActivityLogConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ActivityLogConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cursor":
+				return ec.fieldContext_ActivityLogEdge_cursor(ctx, field)
+			case "node":
+				return ec.fieldContext_ActivityLogEdge_node(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ActivityLogEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ActivityLogEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[activitylog.ActivityLogEntry]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ActivityLogEdge_cursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.Cursor)
+	fc.Result = res
+	return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ActivityLogEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ActivityLogEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Cursor does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ActivityLogEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[activitylog.ActivityLogEntry]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ActivityLogEdge_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(activitylog.ActivityLogEntry)
+	fc.Result = res
+	return ec.marshalNActivityLogEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntry(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ActivityLogEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ActivityLogEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AddRepositoryToTeamPayload_repository(ctx context.Context, field graphql.CollectedField, obj *repository.AddRepositoryToTeamPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AddRepositoryToTeamPayload_repository(ctx, field)
 	if err != nil {
@@ -23227,10 +23469,10 @@ func (ec *executionContext) fieldContext_Application_team(_ context.Context, fie
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -24562,8 +24804,8 @@ func (ec *executionContext) fieldContext_ApplicationConnection_edges(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationDeletedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationDeletedAuditEntry_id(ctx, field)
+func (ec *executionContext) _ApplicationDeletedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationDeletedActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -24593,9 +24835,9 @@ func (ec *executionContext) _ApplicationDeletedAuditEntry_id(ctx context.Context
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationDeletedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationDeletedAuditEntry",
+		Object:     "ApplicationDeletedActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -24606,8 +24848,8 @@ func (ec *executionContext) fieldContext_ApplicationDeletedAuditEntry_id(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationDeletedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationDeletedAuditEntry_actor(ctx, field)
+func (ec *executionContext) _ApplicationDeletedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationDeletedActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -24637,9 +24879,9 @@ func (ec *executionContext) _ApplicationDeletedAuditEntry_actor(ctx context.Cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationDeletedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationDeletedAuditEntry",
+		Object:     "ApplicationDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -24650,8 +24892,8 @@ func (ec *executionContext) fieldContext_ApplicationDeletedAuditEntry_actor(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationDeletedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationDeletedAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _ApplicationDeletedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationDeletedActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -24681,9 +24923,9 @@ func (ec *executionContext) _ApplicationDeletedAuditEntry_createdAt(ctx context.
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationDeletedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationDeletedAuditEntry",
+		Object:     "ApplicationDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -24694,8 +24936,8 @@ func (ec *executionContext) fieldContext_ApplicationDeletedAuditEntry_createdAt(
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationDeletedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationDeletedAuditEntry_message(ctx, field)
+func (ec *executionContext) _ApplicationDeletedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationDeletedActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -24725,9 +24967,9 @@ func (ec *executionContext) _ApplicationDeletedAuditEntry_message(ctx context.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationDeletedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationDeletedAuditEntry",
+		Object:     "ApplicationDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -24738,8 +24980,8 @@ func (ec *executionContext) fieldContext_ApplicationDeletedAuditEntry_message(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationDeletedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationDeletedAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _ApplicationDeletedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationDeletedActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -24764,26 +25006,26 @@ func (ec *executionContext) _ApplicationDeletedAuditEntry_resourceType(ctx conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationDeletedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationDeletedAuditEntry",
+		Object:     "ApplicationDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationDeletedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationDeletedAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _ApplicationDeletedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationDeletedActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -24813,9 +25055,9 @@ func (ec *executionContext) _ApplicationDeletedAuditEntry_resourceName(ctx conte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationDeletedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationDeletedAuditEntry",
+		Object:     "ApplicationDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -24826,8 +25068,8 @@ func (ec *executionContext) fieldContext_ApplicationDeletedAuditEntry_resourceNa
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationDeletedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationDeletedAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _ApplicationDeletedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationDeletedActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -24857,9 +25099,9 @@ func (ec *executionContext) _ApplicationDeletedAuditEntry_teamSlug(ctx context.C
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationDeletedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationDeletedAuditEntry",
+		Object:     "ApplicationDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -24870,8 +25112,8 @@ func (ec *executionContext) fieldContext_ApplicationDeletedAuditEntry_teamSlug(_
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationDeletedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationDeletedAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _ApplicationDeletedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationDeletedActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -24898,9 +25140,9 @@ func (ec *executionContext) _ApplicationDeletedAuditEntry_environmentName(ctx co
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationDeletedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationDeletedAuditEntry",
+		Object:     "ApplicationDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -25885,8 +26127,8 @@ func (ec *executionContext) fieldContext_ApplicationResources_scaling(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationRestartedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationRestartedAuditEntry_id(ctx, field)
+func (ec *executionContext) _ApplicationRestartedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationRestartedActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -25916,9 +26158,9 @@ func (ec *executionContext) _ApplicationRestartedAuditEntry_id(ctx context.Conte
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationRestartedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationRestartedAuditEntry",
+		Object:     "ApplicationRestartedActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -25929,8 +26171,8 @@ func (ec *executionContext) fieldContext_ApplicationRestartedAuditEntry_id(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationRestartedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationRestartedAuditEntry_actor(ctx, field)
+func (ec *executionContext) _ApplicationRestartedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationRestartedActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -25960,9 +26202,9 @@ func (ec *executionContext) _ApplicationRestartedAuditEntry_actor(ctx context.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationRestartedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationRestartedAuditEntry",
+		Object:     "ApplicationRestartedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -25973,8 +26215,8 @@ func (ec *executionContext) fieldContext_ApplicationRestartedAuditEntry_actor(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationRestartedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationRestartedAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _ApplicationRestartedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationRestartedActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -26004,9 +26246,9 @@ func (ec *executionContext) _ApplicationRestartedAuditEntry_createdAt(ctx contex
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationRestartedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationRestartedAuditEntry",
+		Object:     "ApplicationRestartedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -26017,8 +26259,8 @@ func (ec *executionContext) fieldContext_ApplicationRestartedAuditEntry_createdA
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationRestartedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationRestartedAuditEntry_message(ctx, field)
+func (ec *executionContext) _ApplicationRestartedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationRestartedActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -26048,9 +26290,9 @@ func (ec *executionContext) _ApplicationRestartedAuditEntry_message(ctx context.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationRestartedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationRestartedAuditEntry",
+		Object:     "ApplicationRestartedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -26061,8 +26303,8 @@ func (ec *executionContext) fieldContext_ApplicationRestartedAuditEntry_message(
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationRestartedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationRestartedAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _ApplicationRestartedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationRestartedActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -26087,26 +26329,26 @@ func (ec *executionContext) _ApplicationRestartedAuditEntry_resourceType(ctx con
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationRestartedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationRestartedAuditEntry",
+		Object:     "ApplicationRestartedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationRestartedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationRestartedAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _ApplicationRestartedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationRestartedActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -26136,9 +26378,9 @@ func (ec *executionContext) _ApplicationRestartedAuditEntry_resourceName(ctx con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationRestartedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationRestartedAuditEntry",
+		Object:     "ApplicationRestartedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -26149,8 +26391,8 @@ func (ec *executionContext) fieldContext_ApplicationRestartedAuditEntry_resource
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationRestartedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationRestartedAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _ApplicationRestartedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationRestartedActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -26180,9 +26422,9 @@ func (ec *executionContext) _ApplicationRestartedAuditEntry_teamSlug(ctx context
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationRestartedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationRestartedAuditEntry",
+		Object:     "ApplicationRestartedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -26193,8 +26435,8 @@ func (ec *executionContext) fieldContext_ApplicationRestartedAuditEntry_teamSlug
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationRestartedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationRestartedAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _ApplicationRestartedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationRestartedActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -26221,9 +26463,9 @@ func (ec *executionContext) _ApplicationRestartedAuditEntry_environmentName(ctx 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationRestartedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationRestartedAuditEntry",
+		Object:     "ApplicationRestartedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -26361,248 +26603,6 @@ func (ec *executionContext) fieldContext_ApplicationScaling_strategies(_ context
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ScalingStrategy does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AuditEntryConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[activitylog.AuditEntry]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuditEntryConnection_pageInfo(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PageInfo, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(pagination.PageInfo)
-	fc.Result = res
-	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AuditEntryConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AuditEntryConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "endCursor":
-				return ec.fieldContext_PageInfo_endCursor(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			case "startCursor":
-				return ec.fieldContext_PageInfo_startCursor(ctx, field)
-			case "totalCount":
-				return ec.fieldContext_PageInfo_totalCount(ctx, field)
-			case "pageStart":
-				return ec.fieldContext_PageInfo_pageStart(ctx, field)
-			case "pageEnd":
-				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AuditEntryConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[activitylog.AuditEntry]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuditEntryConnection_nodes(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Nodes(), nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]activitylog.AuditEntry)
-	fc.Result = res
-	return ec.marshalNAuditEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditEntryᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AuditEntryConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AuditEntryConnection",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AuditEntryConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[activitylog.AuditEntry]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuditEntryConnection_edges(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Edges, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]pagination.Edge[activitylog.AuditEntry])
-	fc.Result = res
-	return ec.marshalNAuditEntryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AuditEntryConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AuditEntryConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "cursor":
-				return ec.fieldContext_AuditEntryEdge_cursor(ctx, field)
-			case "node":
-				return ec.fieldContext_AuditEntryEdge_node(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type AuditEntryEdge", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AuditEntryEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[activitylog.AuditEntry]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuditEntryEdge_cursor(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Cursor, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(pagination.Cursor)
-	fc.Result = res
-	return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AuditEntryEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AuditEntryEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Cursor does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AuditEntryEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[activitylog.AuditEntry]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuditEntryEdge_node(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Node, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(activitylog.AuditEntry)
-	fc.Result = res
-	return ec.marshalNAuditEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditEntry(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AuditEntryEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AuditEntryEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
 	}
 	return fc, nil
@@ -26765,10 +26765,10 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(_ context.Context,
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -28089,10 +28089,10 @@ func (ec *executionContext) fieldContext_Bucket_team(_ context.Context, field gr
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -29814,10 +29814,10 @@ func (ec *executionContext) fieldContext_CreateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -29984,10 +29984,10 @@ func (ec *executionContext) fieldContext_DeleteApplicationPayload_team(_ context
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -30136,10 +30136,10 @@ func (ec *executionContext) fieldContext_DeleteJobPayload_team(_ context.Context
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -30376,10 +30376,10 @@ func (ec *executionContext) fieldContext_Deployment_team(_ context.Context, fiel
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -33821,10 +33821,10 @@ func (ec *executionContext) fieldContext_Job_team(_ context.Context, field graph
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -35097,8 +35097,8 @@ func (ec *executionContext) fieldContext_JobConnection_edges(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _JobDeletedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobDeletedAuditEntry_id(ctx, field)
+func (ec *executionContext) _JobDeletedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobDeletedActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -35128,9 +35128,9 @@ func (ec *executionContext) _JobDeletedAuditEntry_id(ctx context.Context, field 
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobDeletedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobDeletedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobDeletedAuditEntry",
+		Object:     "JobDeletedActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -35141,8 +35141,8 @@ func (ec *executionContext) fieldContext_JobDeletedAuditEntry_id(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _JobDeletedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobDeletedAuditEntry_actor(ctx, field)
+func (ec *executionContext) _JobDeletedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobDeletedActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -35172,9 +35172,9 @@ func (ec *executionContext) _JobDeletedAuditEntry_actor(ctx context.Context, fie
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobDeletedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobDeletedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobDeletedAuditEntry",
+		Object:     "JobDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -35185,8 +35185,8 @@ func (ec *executionContext) fieldContext_JobDeletedAuditEntry_actor(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _JobDeletedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobDeletedAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _JobDeletedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobDeletedActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -35216,9 +35216,9 @@ func (ec *executionContext) _JobDeletedAuditEntry_createdAt(ctx context.Context,
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobDeletedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobDeletedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobDeletedAuditEntry",
+		Object:     "JobDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -35229,8 +35229,8 @@ func (ec *executionContext) fieldContext_JobDeletedAuditEntry_createdAt(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _JobDeletedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobDeletedAuditEntry_message(ctx, field)
+func (ec *executionContext) _JobDeletedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobDeletedActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -35260,9 +35260,9 @@ func (ec *executionContext) _JobDeletedAuditEntry_message(ctx context.Context, f
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobDeletedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobDeletedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobDeletedAuditEntry",
+		Object:     "JobDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -35273,8 +35273,8 @@ func (ec *executionContext) fieldContext_JobDeletedAuditEntry_message(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _JobDeletedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobDeletedAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _JobDeletedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobDeletedActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -35299,26 +35299,26 @@ func (ec *executionContext) _JobDeletedAuditEntry_resourceType(ctx context.Conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobDeletedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobDeletedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobDeletedAuditEntry",
+		Object:     "JobDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobDeletedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobDeletedAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _JobDeletedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobDeletedActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -35348,9 +35348,9 @@ func (ec *executionContext) _JobDeletedAuditEntry_resourceName(ctx context.Conte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobDeletedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobDeletedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobDeletedAuditEntry",
+		Object:     "JobDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -35361,8 +35361,8 @@ func (ec *executionContext) fieldContext_JobDeletedAuditEntry_resourceName(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _JobDeletedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobDeletedAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _JobDeletedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobDeletedActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -35392,9 +35392,9 @@ func (ec *executionContext) _JobDeletedAuditEntry_teamSlug(ctx context.Context, 
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobDeletedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobDeletedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobDeletedAuditEntry",
+		Object:     "JobDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -35405,8 +35405,8 @@ func (ec *executionContext) fieldContext_JobDeletedAuditEntry_teamSlug(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _JobDeletedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobDeletedAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _JobDeletedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobDeletedActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -35433,9 +35433,9 @@ func (ec *executionContext) _JobDeletedAuditEntry_environmentName(ctx context.Co
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobDeletedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobDeletedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobDeletedAuditEntry",
+		Object:     "JobDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -36905,8 +36905,8 @@ func (ec *executionContext) fieldContext_JobSchedule_timeZone(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _JobTriggeredAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobTriggeredAuditEntry_id(ctx, field)
+func (ec *executionContext) _JobTriggeredActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobTriggeredActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -36936,9 +36936,9 @@ func (ec *executionContext) _JobTriggeredAuditEntry_id(ctx context.Context, fiel
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobTriggeredAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobTriggeredActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobTriggeredAuditEntry",
+		Object:     "JobTriggeredActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -36949,8 +36949,8 @@ func (ec *executionContext) fieldContext_JobTriggeredAuditEntry_id(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _JobTriggeredAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobTriggeredAuditEntry_actor(ctx, field)
+func (ec *executionContext) _JobTriggeredActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobTriggeredActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -36980,9 +36980,9 @@ func (ec *executionContext) _JobTriggeredAuditEntry_actor(ctx context.Context, f
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobTriggeredAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobTriggeredActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobTriggeredAuditEntry",
+		Object:     "JobTriggeredActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -36993,8 +36993,8 @@ func (ec *executionContext) fieldContext_JobTriggeredAuditEntry_actor(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _JobTriggeredAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobTriggeredAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _JobTriggeredActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobTriggeredActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -37024,9 +37024,9 @@ func (ec *executionContext) _JobTriggeredAuditEntry_createdAt(ctx context.Contex
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobTriggeredAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobTriggeredActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobTriggeredAuditEntry",
+		Object:     "JobTriggeredActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -37037,8 +37037,8 @@ func (ec *executionContext) fieldContext_JobTriggeredAuditEntry_createdAt(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _JobTriggeredAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobTriggeredAuditEntry_message(ctx, field)
+func (ec *executionContext) _JobTriggeredActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobTriggeredActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -37068,9 +37068,9 @@ func (ec *executionContext) _JobTriggeredAuditEntry_message(ctx context.Context,
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobTriggeredAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobTriggeredActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobTriggeredAuditEntry",
+		Object:     "JobTriggeredActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -37081,8 +37081,8 @@ func (ec *executionContext) fieldContext_JobTriggeredAuditEntry_message(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _JobTriggeredAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobTriggeredAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _JobTriggeredActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobTriggeredActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -37107,26 +37107,26 @@ func (ec *executionContext) _JobTriggeredAuditEntry_resourceType(ctx context.Con
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobTriggeredAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobTriggeredActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobTriggeredAuditEntry",
+		Object:     "JobTriggeredActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobTriggeredAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobTriggeredAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _JobTriggeredActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobTriggeredActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -37156,9 +37156,9 @@ func (ec *executionContext) _JobTriggeredAuditEntry_resourceName(ctx context.Con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobTriggeredAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobTriggeredActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobTriggeredAuditEntry",
+		Object:     "JobTriggeredActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -37169,8 +37169,8 @@ func (ec *executionContext) fieldContext_JobTriggeredAuditEntry_resourceName(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _JobTriggeredAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobTriggeredAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _JobTriggeredActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobTriggeredActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -37200,9 +37200,9 @@ func (ec *executionContext) _JobTriggeredAuditEntry_teamSlug(ctx context.Context
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobTriggeredAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobTriggeredActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobTriggeredAuditEntry",
+		Object:     "JobTriggeredActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -37213,8 +37213,8 @@ func (ec *executionContext) fieldContext_JobTriggeredAuditEntry_teamSlug(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _JobTriggeredAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobTriggeredAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _JobTriggeredActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobTriggeredActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -37241,9 +37241,9 @@ func (ec *executionContext) _JobTriggeredAuditEntry_environmentName(ctx context.
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobTriggeredAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobTriggeredActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobTriggeredAuditEntry",
+		Object:     "JobTriggeredActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -37543,10 +37543,10 @@ func (ec *executionContext) fieldContext_KafkaTopic_team(_ context.Context, fiel
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -38030,10 +38030,10 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_team(_ context.Context, f
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -39448,8 +39448,8 @@ func (ec *executionContext) fieldContext_Mutation_enableReconciler(ctx context.C
 				return ec.fieldContext_Reconciler_configured(ctx, field)
 			case "errors":
 				return ec.fieldContext_Reconciler_errors(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Reconciler_auditEntries(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Reconciler_activityLog(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Reconciler", field.Name)
 		},
@@ -39523,8 +39523,8 @@ func (ec *executionContext) fieldContext_Mutation_disableReconciler(ctx context.
 				return ec.fieldContext_Reconciler_configured(ctx, field)
 			case "errors":
 				return ec.fieldContext_Reconciler_errors(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Reconciler_auditEntries(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Reconciler_activityLog(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Reconciler", field.Name)
 		},
@@ -39598,8 +39598,8 @@ func (ec *executionContext) fieldContext_Mutation_configureReconciler(ctx contex
 				return ec.fieldContext_Reconciler_configured(ctx, field)
 			case "errors":
 				return ec.fieldContext_Reconciler_errors(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Reconciler_auditEntries(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Reconciler_activityLog(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Reconciler", field.Name)
 		},
@@ -41034,10 +41034,10 @@ func (ec *executionContext) fieldContext_NetworkPolicyRule_targetTeam(_ context.
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -41280,10 +41280,10 @@ func (ec *executionContext) fieldContext_OpenSearch_team(_ context.Context, fiel
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -43023,10 +43023,10 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -43834,8 +43834,8 @@ func (ec *executionContext) fieldContext_Reconciler_errors(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Reconciler_auditEntries(ctx context.Context, field graphql.CollectedField, obj *reconciler.Reconciler) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Reconciler_auditEntries(ctx, field)
+func (ec *executionContext) _Reconciler_activityLog(ctx context.Context, field graphql.CollectedField, obj *reconciler.Reconciler) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Reconciler_activityLog(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -43848,7 +43848,7 @@ func (ec *executionContext) _Reconciler_auditEntries(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Reconciler().AuditEntries(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+		return ec.resolvers.Reconciler().ActivityLog(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -43860,12 +43860,12 @@ func (ec *executionContext) _Reconciler_auditEntries(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*pagination.Connection[activitylog.AuditEntry])
+	res := resTmp.(*pagination.Connection[activitylog.ActivityLogEntry])
 	fc.Result = res
-	return ec.marshalNAuditEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
+	return ec.marshalNActivityLogConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Reconciler_auditEntries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Reconciler_activityLog(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Reconciler",
 		Field:      field,
@@ -43874,13 +43874,13 @@ func (ec *executionContext) fieldContext_Reconciler_auditEntries(ctx context.Con
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "pageInfo":
-				return ec.fieldContext_AuditEntryConnection_pageInfo(ctx, field)
+				return ec.fieldContext_ActivityLogConnection_pageInfo(ctx, field)
 			case "nodes":
-				return ec.fieldContext_AuditEntryConnection_nodes(ctx, field)
+				return ec.fieldContext_ActivityLogConnection_nodes(ctx, field)
 			case "edges":
-				return ec.fieldContext_AuditEntryConnection_edges(ctx, field)
+				return ec.fieldContext_ActivityLogConnection_edges(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type AuditEntryConnection", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ActivityLogConnection", field.Name)
 		},
 	}
 	defer func() {
@@ -43890,7 +43890,7 @@ func (ec *executionContext) fieldContext_Reconciler_auditEntries(ctx context.Con
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Reconciler_auditEntries_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Reconciler_activityLog_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -44158,8 +44158,8 @@ func (ec *executionContext) fieldContext_ReconcilerConfig_value(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerConfiguredAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerConfiguredAuditEntry_id(ctx, field)
+func (ec *executionContext) _ReconcilerConfiguredActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -44189,9 +44189,9 @@ func (ec *executionContext) _ReconcilerConfiguredAuditEntry_id(ctx context.Conte
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerConfiguredAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerConfiguredAuditEntry",
+		Object:     "ReconcilerConfiguredActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -44202,8 +44202,8 @@ func (ec *executionContext) fieldContext_ReconcilerConfiguredAuditEntry_id(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerConfiguredAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerConfiguredAuditEntry_actor(ctx, field)
+func (ec *executionContext) _ReconcilerConfiguredActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -44233,9 +44233,9 @@ func (ec *executionContext) _ReconcilerConfiguredAuditEntry_actor(ctx context.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerConfiguredAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerConfiguredAuditEntry",
+		Object:     "ReconcilerConfiguredActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -44246,8 +44246,8 @@ func (ec *executionContext) fieldContext_ReconcilerConfiguredAuditEntry_actor(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerConfiguredAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerConfiguredAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _ReconcilerConfiguredActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -44277,9 +44277,9 @@ func (ec *executionContext) _ReconcilerConfiguredAuditEntry_createdAt(ctx contex
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerConfiguredAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerConfiguredAuditEntry",
+		Object:     "ReconcilerConfiguredActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -44290,8 +44290,8 @@ func (ec *executionContext) fieldContext_ReconcilerConfiguredAuditEntry_createdA
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerConfiguredAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerConfiguredAuditEntry_message(ctx, field)
+func (ec *executionContext) _ReconcilerConfiguredActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -44321,9 +44321,9 @@ func (ec *executionContext) _ReconcilerConfiguredAuditEntry_message(ctx context.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerConfiguredAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerConfiguredAuditEntry",
+		Object:     "ReconcilerConfiguredActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -44334,8 +44334,8 @@ func (ec *executionContext) fieldContext_ReconcilerConfiguredAuditEntry_message(
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerConfiguredAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerConfiguredAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _ReconcilerConfiguredActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -44360,26 +44360,26 @@ func (ec *executionContext) _ReconcilerConfiguredAuditEntry_resourceType(ctx con
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerConfiguredAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerConfiguredAuditEntry",
+		Object:     "ReconcilerConfiguredActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerConfiguredAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerConfiguredAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _ReconcilerConfiguredActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -44409,9 +44409,9 @@ func (ec *executionContext) _ReconcilerConfiguredAuditEntry_resourceName(ctx con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerConfiguredAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerConfiguredAuditEntry",
+		Object:     "ReconcilerConfiguredActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -44422,8 +44422,8 @@ func (ec *executionContext) fieldContext_ReconcilerConfiguredAuditEntry_resource
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerConfiguredAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerConfiguredAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _ReconcilerConfiguredActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -44453,9 +44453,9 @@ func (ec *executionContext) _ReconcilerConfiguredAuditEntry_teamSlug(ctx context
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerConfiguredAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerConfiguredAuditEntry",
+		Object:     "ReconcilerConfiguredActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -44466,8 +44466,8 @@ func (ec *executionContext) fieldContext_ReconcilerConfiguredAuditEntry_teamSlug
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerConfiguredAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerConfiguredAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _ReconcilerConfiguredActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -44494,9 +44494,9 @@ func (ec *executionContext) _ReconcilerConfiguredAuditEntry_environmentName(ctx 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerConfiguredAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerConfiguredAuditEntry",
+		Object:     "ReconcilerConfiguredActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -44507,8 +44507,8 @@ func (ec *executionContext) fieldContext_ReconcilerConfiguredAuditEntry_environm
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerConfiguredAuditEntry_data(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerConfiguredAuditEntry_data(ctx, field)
+func (ec *executionContext) _ReconcilerConfiguredActivityLog_data(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLog_data(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -44533,30 +44533,30 @@ func (ec *executionContext) _ReconcilerConfiguredAuditEntry_data(ctx context.Con
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*reconciler.ReconcilerConfiguredAuditEntryData)
+	res := resTmp.(*reconciler.ReconcilerConfiguredActivityLogData)
 	fc.Result = res
-	return ec.marshalNReconcilerConfiguredAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerConfiguredAuditEntryData(ctx, field.Selections, res)
+	return ec.marshalNReconcilerConfiguredActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerConfiguredActivityLogData(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerConfiguredAuditEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLog_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerConfiguredAuditEntry",
+		Object:     "ReconcilerConfiguredActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "updatedKeys":
-				return ec.fieldContext_ReconcilerConfiguredAuditEntryData_updatedKeys(ctx, field)
+				return ec.fieldContext_ReconcilerConfiguredActivityLogData_updatedKeys(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ReconcilerConfiguredAuditEntryData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ReconcilerConfiguredActivityLogData", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerConfiguredAuditEntryData_updatedKeys(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredAuditEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerConfiguredAuditEntryData_updatedKeys(ctx, field)
+func (ec *executionContext) _ReconcilerConfiguredActivityLogData_updatedKeys(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLogData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLogData_updatedKeys(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -44586,9 +44586,9 @@ func (ec *executionContext) _ReconcilerConfiguredAuditEntryData_updatedKeys(ctx 
 	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerConfiguredAuditEntryData_updatedKeys(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLogData_updatedKeys(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerConfiguredAuditEntryData",
+		Object:     "ReconcilerConfiguredActivityLogData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -44714,8 +44714,8 @@ func (ec *executionContext) fieldContext_ReconcilerConnection_nodes(_ context.Co
 				return ec.fieldContext_Reconciler_configured(ctx, field)
 			case "errors":
 				return ec.fieldContext_Reconciler_errors(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Reconciler_auditEntries(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Reconciler_activityLog(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Reconciler", field.Name)
 		},
@@ -44773,8 +44773,8 @@ func (ec *executionContext) fieldContext_ReconcilerConnection_edges(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerDisabledAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerDisabledAuditEntry_id(ctx, field)
+func (ec *executionContext) _ReconcilerDisabledActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerDisabledActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -44804,9 +44804,9 @@ func (ec *executionContext) _ReconcilerDisabledAuditEntry_id(ctx context.Context
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerDisabledAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerDisabledAuditEntry",
+		Object:     "ReconcilerDisabledActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -44817,8 +44817,8 @@ func (ec *executionContext) fieldContext_ReconcilerDisabledAuditEntry_id(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerDisabledAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerDisabledAuditEntry_actor(ctx, field)
+func (ec *executionContext) _ReconcilerDisabledActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerDisabledActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -44848,9 +44848,9 @@ func (ec *executionContext) _ReconcilerDisabledAuditEntry_actor(ctx context.Cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerDisabledAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerDisabledAuditEntry",
+		Object:     "ReconcilerDisabledActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -44861,8 +44861,8 @@ func (ec *executionContext) fieldContext_ReconcilerDisabledAuditEntry_actor(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerDisabledAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerDisabledAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _ReconcilerDisabledActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerDisabledActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -44892,9 +44892,9 @@ func (ec *executionContext) _ReconcilerDisabledAuditEntry_createdAt(ctx context.
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerDisabledAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerDisabledAuditEntry",
+		Object:     "ReconcilerDisabledActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -44905,8 +44905,8 @@ func (ec *executionContext) fieldContext_ReconcilerDisabledAuditEntry_createdAt(
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerDisabledAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerDisabledAuditEntry_message(ctx, field)
+func (ec *executionContext) _ReconcilerDisabledActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerDisabledActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -44936,9 +44936,9 @@ func (ec *executionContext) _ReconcilerDisabledAuditEntry_message(ctx context.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerDisabledAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerDisabledAuditEntry",
+		Object:     "ReconcilerDisabledActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -44949,8 +44949,8 @@ func (ec *executionContext) fieldContext_ReconcilerDisabledAuditEntry_message(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerDisabledAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerDisabledAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _ReconcilerDisabledActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerDisabledActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -44975,26 +44975,26 @@ func (ec *executionContext) _ReconcilerDisabledAuditEntry_resourceType(ctx conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerDisabledAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerDisabledAuditEntry",
+		Object:     "ReconcilerDisabledActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerDisabledAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerDisabledAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _ReconcilerDisabledActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerDisabledActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45024,9 +45024,9 @@ func (ec *executionContext) _ReconcilerDisabledAuditEntry_resourceName(ctx conte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerDisabledAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerDisabledAuditEntry",
+		Object:     "ReconcilerDisabledActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -45037,8 +45037,8 @@ func (ec *executionContext) fieldContext_ReconcilerDisabledAuditEntry_resourceNa
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerDisabledAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerDisabledAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _ReconcilerDisabledActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerDisabledActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45068,9 +45068,9 @@ func (ec *executionContext) _ReconcilerDisabledAuditEntry_teamSlug(ctx context.C
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerDisabledAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerDisabledAuditEntry",
+		Object:     "ReconcilerDisabledActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -45081,8 +45081,8 @@ func (ec *executionContext) fieldContext_ReconcilerDisabledAuditEntry_teamSlug(_
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerDisabledAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerDisabledAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _ReconcilerDisabledActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerDisabledActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45109,9 +45109,9 @@ func (ec *executionContext) _ReconcilerDisabledAuditEntry_environmentName(ctx co
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerDisabledAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerDisabledAuditEntry",
+		Object:     "ReconcilerDisabledActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -45221,8 +45221,8 @@ func (ec *executionContext) fieldContext_ReconcilerEdge_node(_ context.Context, 
 				return ec.fieldContext_Reconciler_configured(ctx, field)
 			case "errors":
 				return ec.fieldContext_Reconciler_errors(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Reconciler_auditEntries(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Reconciler_activityLog(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Reconciler", field.Name)
 		},
@@ -45230,8 +45230,8 @@ func (ec *executionContext) fieldContext_ReconcilerEdge_node(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerEnabledAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerEnabledAuditEntry_id(ctx, field)
+func (ec *executionContext) _ReconcilerEnabledActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerEnabledActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45261,9 +45261,9 @@ func (ec *executionContext) _ReconcilerEnabledAuditEntry_id(ctx context.Context,
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerEnabledAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerEnabledAuditEntry",
+		Object:     "ReconcilerEnabledActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -45274,8 +45274,8 @@ func (ec *executionContext) fieldContext_ReconcilerEnabledAuditEntry_id(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerEnabledAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerEnabledAuditEntry_actor(ctx, field)
+func (ec *executionContext) _ReconcilerEnabledActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerEnabledActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45305,9 +45305,9 @@ func (ec *executionContext) _ReconcilerEnabledAuditEntry_actor(ctx context.Conte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerEnabledAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerEnabledAuditEntry",
+		Object:     "ReconcilerEnabledActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -45318,8 +45318,8 @@ func (ec *executionContext) fieldContext_ReconcilerEnabledAuditEntry_actor(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerEnabledAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerEnabledAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _ReconcilerEnabledActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerEnabledActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45349,9 +45349,9 @@ func (ec *executionContext) _ReconcilerEnabledAuditEntry_createdAt(ctx context.C
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerEnabledAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerEnabledAuditEntry",
+		Object:     "ReconcilerEnabledActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -45362,8 +45362,8 @@ func (ec *executionContext) fieldContext_ReconcilerEnabledAuditEntry_createdAt(_
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerEnabledAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerEnabledAuditEntry_message(ctx, field)
+func (ec *executionContext) _ReconcilerEnabledActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerEnabledActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45393,9 +45393,9 @@ func (ec *executionContext) _ReconcilerEnabledAuditEntry_message(ctx context.Con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerEnabledAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerEnabledAuditEntry",
+		Object:     "ReconcilerEnabledActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -45406,8 +45406,8 @@ func (ec *executionContext) fieldContext_ReconcilerEnabledAuditEntry_message(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerEnabledAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerEnabledAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _ReconcilerEnabledActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerEnabledActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45432,26 +45432,26 @@ func (ec *executionContext) _ReconcilerEnabledAuditEntry_resourceType(ctx contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerEnabledAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerEnabledAuditEntry",
+		Object:     "ReconcilerEnabledActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerEnabledAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerEnabledAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _ReconcilerEnabledActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerEnabledActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45481,9 +45481,9 @@ func (ec *executionContext) _ReconcilerEnabledAuditEntry_resourceName(ctx contex
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerEnabledAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerEnabledAuditEntry",
+		Object:     "ReconcilerEnabledActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -45494,8 +45494,8 @@ func (ec *executionContext) fieldContext_ReconcilerEnabledAuditEntry_resourceNam
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerEnabledAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerEnabledAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _ReconcilerEnabledActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerEnabledActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45525,9 +45525,9 @@ func (ec *executionContext) _ReconcilerEnabledAuditEntry_teamSlug(ctx context.Co
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerEnabledAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerEnabledAuditEntry",
+		Object:     "ReconcilerEnabledActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -45538,8 +45538,8 @@ func (ec *executionContext) fieldContext_ReconcilerEnabledAuditEntry_teamSlug(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerEnabledAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerEnabledAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _ReconcilerEnabledActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerEnabledActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45566,9 +45566,9 @@ func (ec *executionContext) _ReconcilerEnabledAuditEntry_environmentName(ctx con
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerEnabledAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerEnabledAuditEntry",
+		Object:     "ReconcilerEnabledActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -45780,10 +45780,10 @@ func (ec *executionContext) fieldContext_ReconcilerError_team(_ context.Context,
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -46244,10 +46244,10 @@ func (ec *executionContext) fieldContext_RedisInstance_team(_ context.Context, f
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -47500,10 +47500,10 @@ func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_team(_ context.
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -47702,10 +47702,10 @@ func (ec *executionContext) fieldContext_Repository_team(_ context.Context, fiel
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -47747,8 +47747,8 @@ func (ec *executionContext) fieldContext_Repository_team(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryAddedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryAddedAuditEntry_id(ctx, field)
+func (ec *executionContext) _RepositoryAddedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryAddedActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -47778,9 +47778,9 @@ func (ec *executionContext) _RepositoryAddedAuditEntry_id(ctx context.Context, f
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryAddedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryAddedAuditEntry",
+		Object:     "RepositoryAddedActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -47791,8 +47791,8 @@ func (ec *executionContext) fieldContext_RepositoryAddedAuditEntry_id(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryAddedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryAddedAuditEntry_actor(ctx, field)
+func (ec *executionContext) _RepositoryAddedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryAddedActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -47822,9 +47822,9 @@ func (ec *executionContext) _RepositoryAddedAuditEntry_actor(ctx context.Context
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryAddedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryAddedAuditEntry",
+		Object:     "RepositoryAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -47835,8 +47835,8 @@ func (ec *executionContext) fieldContext_RepositoryAddedAuditEntry_actor(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryAddedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryAddedAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _RepositoryAddedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryAddedActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -47866,9 +47866,9 @@ func (ec *executionContext) _RepositoryAddedAuditEntry_createdAt(ctx context.Con
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryAddedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryAddedAuditEntry",
+		Object:     "RepositoryAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -47879,8 +47879,8 @@ func (ec *executionContext) fieldContext_RepositoryAddedAuditEntry_createdAt(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryAddedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryAddedAuditEntry_message(ctx, field)
+func (ec *executionContext) _RepositoryAddedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryAddedActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -47910,9 +47910,9 @@ func (ec *executionContext) _RepositoryAddedAuditEntry_message(ctx context.Conte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryAddedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryAddedAuditEntry",
+		Object:     "RepositoryAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -47923,8 +47923,8 @@ func (ec *executionContext) fieldContext_RepositoryAddedAuditEntry_message(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryAddedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryAddedAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _RepositoryAddedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryAddedActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -47949,26 +47949,26 @@ func (ec *executionContext) _RepositoryAddedAuditEntry_resourceType(ctx context.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryAddedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryAddedAuditEntry",
+		Object:     "RepositoryAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryAddedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryAddedAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _RepositoryAddedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryAddedActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -47998,9 +47998,9 @@ func (ec *executionContext) _RepositoryAddedAuditEntry_resourceName(ctx context.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryAddedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryAddedAuditEntry",
+		Object:     "RepositoryAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -48011,8 +48011,8 @@ func (ec *executionContext) fieldContext_RepositoryAddedAuditEntry_resourceName(
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryAddedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryAddedAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _RepositoryAddedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryAddedActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48042,9 +48042,9 @@ func (ec *executionContext) _RepositoryAddedAuditEntry_teamSlug(ctx context.Cont
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryAddedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryAddedAuditEntry",
+		Object:     "RepositoryAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -48055,8 +48055,8 @@ func (ec *executionContext) fieldContext_RepositoryAddedAuditEntry_teamSlug(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryAddedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryAddedAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _RepositoryAddedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryAddedActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48083,9 +48083,9 @@ func (ec *executionContext) _RepositoryAddedAuditEntry_environmentName(ctx conte
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryAddedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryAddedAuditEntry",
+		Object:     "RepositoryAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -48354,8 +48354,8 @@ func (ec *executionContext) fieldContext_RepositoryEdge_node(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryRemovedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryRemovedAuditEntry_id(ctx, field)
+func (ec *executionContext) _RepositoryRemovedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryRemovedActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48385,9 +48385,9 @@ func (ec *executionContext) _RepositoryRemovedAuditEntry_id(ctx context.Context,
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryRemovedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryRemovedAuditEntry",
+		Object:     "RepositoryRemovedActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -48398,8 +48398,8 @@ func (ec *executionContext) fieldContext_RepositoryRemovedAuditEntry_id(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryRemovedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryRemovedAuditEntry_actor(ctx, field)
+func (ec *executionContext) _RepositoryRemovedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryRemovedActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48429,9 +48429,9 @@ func (ec *executionContext) _RepositoryRemovedAuditEntry_actor(ctx context.Conte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryRemovedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryRemovedAuditEntry",
+		Object:     "RepositoryRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -48442,8 +48442,8 @@ func (ec *executionContext) fieldContext_RepositoryRemovedAuditEntry_actor(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryRemovedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryRemovedAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _RepositoryRemovedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryRemovedActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48473,9 +48473,9 @@ func (ec *executionContext) _RepositoryRemovedAuditEntry_createdAt(ctx context.C
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryRemovedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryRemovedAuditEntry",
+		Object:     "RepositoryRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -48486,8 +48486,8 @@ func (ec *executionContext) fieldContext_RepositoryRemovedAuditEntry_createdAt(_
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryRemovedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryRemovedAuditEntry_message(ctx, field)
+func (ec *executionContext) _RepositoryRemovedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryRemovedActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48517,9 +48517,9 @@ func (ec *executionContext) _RepositoryRemovedAuditEntry_message(ctx context.Con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryRemovedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryRemovedAuditEntry",
+		Object:     "RepositoryRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -48530,8 +48530,8 @@ func (ec *executionContext) fieldContext_RepositoryRemovedAuditEntry_message(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryRemovedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryRemovedAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _RepositoryRemovedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryRemovedActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48556,26 +48556,26 @@ func (ec *executionContext) _RepositoryRemovedAuditEntry_resourceType(ctx contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryRemovedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryRemovedAuditEntry",
+		Object:     "RepositoryRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryRemovedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryRemovedAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _RepositoryRemovedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryRemovedActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48605,9 +48605,9 @@ func (ec *executionContext) _RepositoryRemovedAuditEntry_resourceName(ctx contex
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryRemovedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryRemovedAuditEntry",
+		Object:     "RepositoryRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -48618,8 +48618,8 @@ func (ec *executionContext) fieldContext_RepositoryRemovedAuditEntry_resourceNam
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryRemovedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryRemovedAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _RepositoryRemovedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryRemovedActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48649,9 +48649,9 @@ func (ec *executionContext) _RepositoryRemovedAuditEntry_teamSlug(ctx context.Co
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryRemovedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryRemovedAuditEntry",
+		Object:     "RepositoryRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -48662,8 +48662,8 @@ func (ec *executionContext) fieldContext_RepositoryRemovedAuditEntry_teamSlug(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryRemovedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryRemovedAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _RepositoryRemovedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryRemovedActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48690,9 +48690,9 @@ func (ec *executionContext) _RepositoryRemovedAuditEntry_environmentName(ctx con
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryRemovedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryRemovedAuditEntry",
+		Object:     "RepositoryRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -49379,10 +49379,10 @@ func (ec *executionContext) fieldContext_Secret_team(_ context.Context, field gr
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -49935,8 +49935,8 @@ func (ec *executionContext) fieldContext_SecretConnection_edges(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretCreatedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretCreatedAuditEntry_id(ctx, field)
+func (ec *executionContext) _SecretCreatedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -49966,9 +49966,9 @@ func (ec *executionContext) _SecretCreatedAuditEntry_id(ctx context.Context, fie
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretCreatedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretCreatedAuditEntry",
+		Object:     "SecretCreatedActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -49979,8 +49979,8 @@ func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_id(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretCreatedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretCreatedAuditEntry_actor(ctx, field)
+func (ec *executionContext) _SecretCreatedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50010,9 +50010,9 @@ func (ec *executionContext) _SecretCreatedAuditEntry_actor(ctx context.Context, 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretCreatedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretCreatedAuditEntry",
+		Object:     "SecretCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50023,8 +50023,8 @@ func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_actor(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretCreatedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretCreatedAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _SecretCreatedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50054,9 +50054,9 @@ func (ec *executionContext) _SecretCreatedAuditEntry_createdAt(ctx context.Conte
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretCreatedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretCreatedAuditEntry",
+		Object:     "SecretCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50067,8 +50067,8 @@ func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_createdAt(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretCreatedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretCreatedAuditEntry_message(ctx, field)
+func (ec *executionContext) _SecretCreatedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50098,9 +50098,9 @@ func (ec *executionContext) _SecretCreatedAuditEntry_message(ctx context.Context
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretCreatedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretCreatedAuditEntry",
+		Object:     "SecretCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50111,8 +50111,8 @@ func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_message(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretCreatedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretCreatedAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _SecretCreatedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50137,26 +50137,26 @@ func (ec *executionContext) _SecretCreatedAuditEntry_resourceType(ctx context.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretCreatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretCreatedAuditEntry",
+		Object:     "SecretCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretCreatedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretCreatedAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _SecretCreatedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50186,9 +50186,9 @@ func (ec *executionContext) _SecretCreatedAuditEntry_resourceName(ctx context.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretCreatedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretCreatedAuditEntry",
+		Object:     "SecretCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50199,8 +50199,8 @@ func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_resourceName(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretCreatedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretCreatedAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _SecretCreatedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50230,9 +50230,9 @@ func (ec *executionContext) _SecretCreatedAuditEntry_teamSlug(ctx context.Contex
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretCreatedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretCreatedAuditEntry",
+		Object:     "SecretCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50243,8 +50243,8 @@ func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_teamSlug(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretCreatedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretCreatedAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _SecretCreatedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50271,9 +50271,9 @@ func (ec *executionContext) _SecretCreatedAuditEntry_environmentName(ctx context
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretCreatedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretCreatedAuditEntry",
+		Object:     "SecretCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50284,8 +50284,8 @@ func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_environmentName
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretDeletedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretDeletedAuditEntry_id(ctx, field)
+func (ec *executionContext) _SecretDeletedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretDeletedActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50315,9 +50315,9 @@ func (ec *executionContext) _SecretDeletedAuditEntry_id(ctx context.Context, fie
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretDeletedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretDeletedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretDeletedAuditEntry",
+		Object:     "SecretDeletedActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -50328,8 +50328,8 @@ func (ec *executionContext) fieldContext_SecretDeletedAuditEntry_id(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretDeletedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretDeletedAuditEntry_actor(ctx, field)
+func (ec *executionContext) _SecretDeletedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretDeletedActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50359,9 +50359,9 @@ func (ec *executionContext) _SecretDeletedAuditEntry_actor(ctx context.Context, 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretDeletedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretDeletedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretDeletedAuditEntry",
+		Object:     "SecretDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50372,8 +50372,8 @@ func (ec *executionContext) fieldContext_SecretDeletedAuditEntry_actor(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretDeletedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretDeletedAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _SecretDeletedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretDeletedActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50403,9 +50403,9 @@ func (ec *executionContext) _SecretDeletedAuditEntry_createdAt(ctx context.Conte
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretDeletedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretDeletedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretDeletedAuditEntry",
+		Object:     "SecretDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50416,8 +50416,8 @@ func (ec *executionContext) fieldContext_SecretDeletedAuditEntry_createdAt(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretDeletedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretDeletedAuditEntry_message(ctx, field)
+func (ec *executionContext) _SecretDeletedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretDeletedActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50447,9 +50447,9 @@ func (ec *executionContext) _SecretDeletedAuditEntry_message(ctx context.Context
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretDeletedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretDeletedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretDeletedAuditEntry",
+		Object:     "SecretDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50460,8 +50460,8 @@ func (ec *executionContext) fieldContext_SecretDeletedAuditEntry_message(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretDeletedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretDeletedAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _SecretDeletedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretDeletedActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50486,26 +50486,26 @@ func (ec *executionContext) _SecretDeletedAuditEntry_resourceType(ctx context.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretDeletedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretDeletedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretDeletedAuditEntry",
+		Object:     "SecretDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretDeletedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretDeletedAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _SecretDeletedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretDeletedActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50535,9 +50535,9 @@ func (ec *executionContext) _SecretDeletedAuditEntry_resourceName(ctx context.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretDeletedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretDeletedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretDeletedAuditEntry",
+		Object:     "SecretDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50548,8 +50548,8 @@ func (ec *executionContext) fieldContext_SecretDeletedAuditEntry_resourceName(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretDeletedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretDeletedAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _SecretDeletedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretDeletedActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50579,9 +50579,9 @@ func (ec *executionContext) _SecretDeletedAuditEntry_teamSlug(ctx context.Contex
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretDeletedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretDeletedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretDeletedAuditEntry",
+		Object:     "SecretDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50592,8 +50592,8 @@ func (ec *executionContext) fieldContext_SecretDeletedAuditEntry_teamSlug(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretDeletedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretDeletedAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _SecretDeletedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretDeletedActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50620,9 +50620,9 @@ func (ec *executionContext) _SecretDeletedAuditEntry_environmentName(ctx context
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretDeletedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretDeletedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretDeletedAuditEntry",
+		Object:     "SecretDeletedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50831,8 +50831,8 @@ func (ec *executionContext) fieldContext_SecretValue_value(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueAddedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueAddedAuditEntry_id(ctx, field)
+func (ec *executionContext) _SecretValueAddedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueAddedActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50862,9 +50862,9 @@ func (ec *executionContext) _SecretValueAddedAuditEntry_id(ctx context.Context, 
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueAddedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueAddedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueAddedAuditEntry",
+		Object:     "SecretValueAddedActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -50875,8 +50875,8 @@ func (ec *executionContext) fieldContext_SecretValueAddedAuditEntry_id(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueAddedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueAddedAuditEntry_actor(ctx, field)
+func (ec *executionContext) _SecretValueAddedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueAddedActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50906,9 +50906,9 @@ func (ec *executionContext) _SecretValueAddedAuditEntry_actor(ctx context.Contex
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueAddedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueAddedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueAddedAuditEntry",
+		Object:     "SecretValueAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50919,8 +50919,8 @@ func (ec *executionContext) fieldContext_SecretValueAddedAuditEntry_actor(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueAddedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueAddedAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _SecretValueAddedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueAddedActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50950,9 +50950,9 @@ func (ec *executionContext) _SecretValueAddedAuditEntry_createdAt(ctx context.Co
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueAddedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueAddedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueAddedAuditEntry",
+		Object:     "SecretValueAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50963,8 +50963,8 @@ func (ec *executionContext) fieldContext_SecretValueAddedAuditEntry_createdAt(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueAddedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueAddedAuditEntry_message(ctx, field)
+func (ec *executionContext) _SecretValueAddedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueAddedActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50994,9 +50994,9 @@ func (ec *executionContext) _SecretValueAddedAuditEntry_message(ctx context.Cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueAddedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueAddedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueAddedAuditEntry",
+		Object:     "SecretValueAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51007,8 +51007,8 @@ func (ec *executionContext) fieldContext_SecretValueAddedAuditEntry_message(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueAddedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueAddedAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _SecretValueAddedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueAddedActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51033,26 +51033,26 @@ func (ec *executionContext) _SecretValueAddedAuditEntry_resourceType(ctx context
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueAddedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueAddedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueAddedAuditEntry",
+		Object:     "SecretValueAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueAddedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueAddedAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _SecretValueAddedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueAddedActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51082,9 +51082,9 @@ func (ec *executionContext) _SecretValueAddedAuditEntry_resourceName(ctx context
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueAddedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueAddedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueAddedAuditEntry",
+		Object:     "SecretValueAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51095,8 +51095,8 @@ func (ec *executionContext) fieldContext_SecretValueAddedAuditEntry_resourceName
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueAddedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueAddedAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _SecretValueAddedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueAddedActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51126,9 +51126,9 @@ func (ec *executionContext) _SecretValueAddedAuditEntry_teamSlug(ctx context.Con
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueAddedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueAddedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueAddedAuditEntry",
+		Object:     "SecretValueAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51139,8 +51139,8 @@ func (ec *executionContext) fieldContext_SecretValueAddedAuditEntry_teamSlug(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueAddedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueAddedAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _SecretValueAddedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueAddedActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51167,9 +51167,9 @@ func (ec *executionContext) _SecretValueAddedAuditEntry_environmentName(ctx cont
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueAddedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueAddedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueAddedAuditEntry",
+		Object:     "SecretValueAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51180,8 +51180,8 @@ func (ec *executionContext) fieldContext_SecretValueAddedAuditEntry_environmentN
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueAddedAuditEntry_data(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueAddedAuditEntry_data(ctx, field)
+func (ec *executionContext) _SecretValueAddedActivityLog_data(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueAddedActivityLog_data(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51206,30 +51206,30 @@ func (ec *executionContext) _SecretValueAddedAuditEntry_data(ctx context.Context
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*secret.SecretValueAddedAuditEntryData)
+	res := resTmp.(*secret.SecretValueAddedActivityLogData)
 	fc.Result = res
-	return ec.marshalNSecretValueAddedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueAddedAuditEntryData(ctx, field.Selections, res)
+	return ec.marshalNSecretValueAddedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueAddedActivityLogData(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueAddedAuditEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueAddedActivityLog_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueAddedAuditEntry",
+		Object:     "SecretValueAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "valueName":
-				return ec.fieldContext_SecretValueAddedAuditEntryData_valueName(ctx, field)
+				return ec.fieldContext_SecretValueAddedActivityLogData_valueName(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type SecretValueAddedAuditEntryData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type SecretValueAddedActivityLogData", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueAddedAuditEntryData_valueName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedAuditEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueAddedAuditEntryData_valueName(ctx, field)
+func (ec *executionContext) _SecretValueAddedActivityLogData_valueName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueAddedActivityLogData_valueName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51259,9 +51259,9 @@ func (ec *executionContext) _SecretValueAddedAuditEntryData_valueName(ctx contex
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueAddedAuditEntryData_valueName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueAddedActivityLogData_valueName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueAddedAuditEntryData",
+		Object:     "SecretValueAddedActivityLogData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51272,8 +51272,8 @@ func (ec *executionContext) fieldContext_SecretValueAddedAuditEntryData_valueNam
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueRemovedAuditEntry_id(ctx, field)
+func (ec *executionContext) _SecretValueRemovedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueRemovedActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51303,9 +51303,9 @@ func (ec *executionContext) _SecretValueRemovedAuditEntry_id(ctx context.Context
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueRemovedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueRemovedAuditEntry",
+		Object:     "SecretValueRemovedActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -51316,8 +51316,8 @@ func (ec *executionContext) fieldContext_SecretValueRemovedAuditEntry_id(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueRemovedAuditEntry_actor(ctx, field)
+func (ec *executionContext) _SecretValueRemovedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueRemovedActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51347,9 +51347,9 @@ func (ec *executionContext) _SecretValueRemovedAuditEntry_actor(ctx context.Cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueRemovedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueRemovedAuditEntry",
+		Object:     "SecretValueRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51360,8 +51360,8 @@ func (ec *executionContext) fieldContext_SecretValueRemovedAuditEntry_actor(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueRemovedAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _SecretValueRemovedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueRemovedActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51391,9 +51391,9 @@ func (ec *executionContext) _SecretValueRemovedAuditEntry_createdAt(ctx context.
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueRemovedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueRemovedAuditEntry",
+		Object:     "SecretValueRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51404,8 +51404,8 @@ func (ec *executionContext) fieldContext_SecretValueRemovedAuditEntry_createdAt(
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueRemovedAuditEntry_message(ctx, field)
+func (ec *executionContext) _SecretValueRemovedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueRemovedActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51435,9 +51435,9 @@ func (ec *executionContext) _SecretValueRemovedAuditEntry_message(ctx context.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueRemovedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueRemovedAuditEntry",
+		Object:     "SecretValueRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51448,8 +51448,8 @@ func (ec *executionContext) fieldContext_SecretValueRemovedAuditEntry_message(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueRemovedAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _SecretValueRemovedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueRemovedActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51474,26 +51474,26 @@ func (ec *executionContext) _SecretValueRemovedAuditEntry_resourceType(ctx conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueRemovedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueRemovedAuditEntry",
+		Object:     "SecretValueRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueRemovedAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _SecretValueRemovedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueRemovedActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51523,9 +51523,9 @@ func (ec *executionContext) _SecretValueRemovedAuditEntry_resourceName(ctx conte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueRemovedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueRemovedAuditEntry",
+		Object:     "SecretValueRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51536,8 +51536,8 @@ func (ec *executionContext) fieldContext_SecretValueRemovedAuditEntry_resourceNa
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueRemovedAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _SecretValueRemovedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueRemovedActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51567,9 +51567,9 @@ func (ec *executionContext) _SecretValueRemovedAuditEntry_teamSlug(ctx context.C
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueRemovedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueRemovedAuditEntry",
+		Object:     "SecretValueRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51580,8 +51580,8 @@ func (ec *executionContext) fieldContext_SecretValueRemovedAuditEntry_teamSlug(_
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueRemovedAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _SecretValueRemovedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueRemovedActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51608,9 +51608,9 @@ func (ec *executionContext) _SecretValueRemovedAuditEntry_environmentName(ctx co
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueRemovedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueRemovedAuditEntry",
+		Object:     "SecretValueRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51621,8 +51621,8 @@ func (ec *executionContext) fieldContext_SecretValueRemovedAuditEntry_environmen
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedAuditEntry_data(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueRemovedAuditEntry_data(ctx, field)
+func (ec *executionContext) _SecretValueRemovedActivityLog_data(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueRemovedActivityLog_data(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51647,30 +51647,30 @@ func (ec *executionContext) _SecretValueRemovedAuditEntry_data(ctx context.Conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*secret.SecretValueRemovedAuditEntryData)
+	res := resTmp.(*secret.SecretValueRemovedActivityLogData)
 	fc.Result = res
-	return ec.marshalNSecretValueRemovedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueRemovedAuditEntryData(ctx, field.Selections, res)
+	return ec.marshalNSecretValueRemovedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueRemovedActivityLogData(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueRemovedAuditEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueRemovedAuditEntry",
+		Object:     "SecretValueRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "valueName":
-				return ec.fieldContext_SecretValueRemovedAuditEntryData_valueName(ctx, field)
+				return ec.fieldContext_SecretValueRemovedActivityLogData_valueName(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type SecretValueRemovedAuditEntryData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type SecretValueRemovedActivityLogData", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedAuditEntryData_valueName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedAuditEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueRemovedAuditEntryData_valueName(ctx, field)
+func (ec *executionContext) _SecretValueRemovedActivityLogData_valueName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueRemovedActivityLogData_valueName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51700,9 +51700,9 @@ func (ec *executionContext) _SecretValueRemovedAuditEntryData_valueName(ctx cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueRemovedAuditEntryData_valueName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogData_valueName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueRemovedAuditEntryData",
+		Object:     "SecretValueRemovedActivityLogData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51713,8 +51713,8 @@ func (ec *executionContext) fieldContext_SecretValueRemovedAuditEntryData_valueN
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueUpdatedAuditEntry_id(ctx, field)
+func (ec *executionContext) _SecretValueUpdatedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueUpdatedActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51744,9 +51744,9 @@ func (ec *executionContext) _SecretValueUpdatedAuditEntry_id(ctx context.Context
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueUpdatedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueUpdatedAuditEntry",
+		Object:     "SecretValueUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -51757,8 +51757,8 @@ func (ec *executionContext) fieldContext_SecretValueUpdatedAuditEntry_id(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueUpdatedAuditEntry_actor(ctx, field)
+func (ec *executionContext) _SecretValueUpdatedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueUpdatedActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51788,9 +51788,9 @@ func (ec *executionContext) _SecretValueUpdatedAuditEntry_actor(ctx context.Cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueUpdatedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueUpdatedAuditEntry",
+		Object:     "SecretValueUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51801,8 +51801,8 @@ func (ec *executionContext) fieldContext_SecretValueUpdatedAuditEntry_actor(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueUpdatedAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _SecretValueUpdatedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueUpdatedActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51832,9 +51832,9 @@ func (ec *executionContext) _SecretValueUpdatedAuditEntry_createdAt(ctx context.
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueUpdatedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueUpdatedAuditEntry",
+		Object:     "SecretValueUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51845,8 +51845,8 @@ func (ec *executionContext) fieldContext_SecretValueUpdatedAuditEntry_createdAt(
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueUpdatedAuditEntry_message(ctx, field)
+func (ec *executionContext) _SecretValueUpdatedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueUpdatedActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51876,9 +51876,9 @@ func (ec *executionContext) _SecretValueUpdatedAuditEntry_message(ctx context.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueUpdatedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueUpdatedAuditEntry",
+		Object:     "SecretValueUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51889,8 +51889,8 @@ func (ec *executionContext) fieldContext_SecretValueUpdatedAuditEntry_message(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueUpdatedAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _SecretValueUpdatedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueUpdatedActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51915,26 +51915,26 @@ func (ec *executionContext) _SecretValueUpdatedAuditEntry_resourceType(ctx conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueUpdatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueUpdatedAuditEntry",
+		Object:     "SecretValueUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueUpdatedAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _SecretValueUpdatedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueUpdatedActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51964,9 +51964,9 @@ func (ec *executionContext) _SecretValueUpdatedAuditEntry_resourceName(ctx conte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueUpdatedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueUpdatedAuditEntry",
+		Object:     "SecretValueUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51977,8 +51977,8 @@ func (ec *executionContext) fieldContext_SecretValueUpdatedAuditEntry_resourceNa
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueUpdatedAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _SecretValueUpdatedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueUpdatedActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -52008,9 +52008,9 @@ func (ec *executionContext) _SecretValueUpdatedAuditEntry_teamSlug(ctx context.C
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueUpdatedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueUpdatedAuditEntry",
+		Object:     "SecretValueUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -52021,8 +52021,8 @@ func (ec *executionContext) fieldContext_SecretValueUpdatedAuditEntry_teamSlug(_
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueUpdatedAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _SecretValueUpdatedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueUpdatedActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -52049,9 +52049,9 @@ func (ec *executionContext) _SecretValueUpdatedAuditEntry_environmentName(ctx co
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueUpdatedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueUpdatedAuditEntry",
+		Object:     "SecretValueUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -52062,8 +52062,8 @@ func (ec *executionContext) fieldContext_SecretValueUpdatedAuditEntry_environmen
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedAuditEntry_data(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueUpdatedAuditEntry_data(ctx, field)
+func (ec *executionContext) _SecretValueUpdatedActivityLog_data(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueUpdatedActivityLog_data(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -52088,30 +52088,30 @@ func (ec *executionContext) _SecretValueUpdatedAuditEntry_data(ctx context.Conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*secret.SecretValueUpdatedAuditEntryData)
+	res := resTmp.(*secret.SecretValueUpdatedActivityLogData)
 	fc.Result = res
-	return ec.marshalNSecretValueUpdatedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueUpdatedAuditEntryData(ctx, field.Selections, res)
+	return ec.marshalNSecretValueUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueUpdatedActivityLogData(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueUpdatedAuditEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueUpdatedAuditEntry",
+		Object:     "SecretValueUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "valueName":
-				return ec.fieldContext_SecretValueUpdatedAuditEntryData_valueName(ctx, field)
+				return ec.fieldContext_SecretValueUpdatedActivityLogData_valueName(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type SecretValueUpdatedAuditEntryData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type SecretValueUpdatedActivityLogData", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedAuditEntryData_valueName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedAuditEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueUpdatedAuditEntryData_valueName(ctx, field)
+func (ec *executionContext) _SecretValueUpdatedActivityLogData_valueName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueUpdatedActivityLogData_valueName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -52141,9 +52141,9 @@ func (ec *executionContext) _SecretValueUpdatedAuditEntryData_valueName(ctx cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueUpdatedAuditEntryData_valueName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogData_valueName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueUpdatedAuditEntryData",
+		Object:     "SecretValueUpdatedActivityLogData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -52674,10 +52674,10 @@ func (ec *executionContext) fieldContext_SqlDatabase_team(_ context.Context, fie
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -53121,10 +53121,10 @@ func (ec *executionContext) fieldContext_SqlInstance_team(_ context.Context, fie
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -56952,6 +56952,69 @@ func (ec *executionContext) fieldContext_Team_inventoryCounts(_ context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_activityLog(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_activityLog(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().ActivityLog(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*pagination.Connection[activitylog.ActivityLogEntry])
+	fc.Result = res
+	return ec.marshalNActivityLogConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_activityLog(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pageInfo":
+				return ec.fieldContext_ActivityLogConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_ActivityLogConnection_nodes(ctx, field)
+			case "edges":
+				return ec.fieldContext_ActivityLogConnection_edges(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ActivityLogConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Team_activityLog_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_applications(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_applications(ctx, field)
 	if err != nil {
@@ -57009,69 +57072,6 @@ func (ec *executionContext) fieldContext_Team_applications(ctx context.Context, 
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Team_applications_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Team_auditEntries(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Team_auditEntries(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().AuditEntries(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*pagination.Connection[activitylog.AuditEntry])
-	fc.Result = res
-	return ec.marshalNAuditEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Team_auditEntries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Team",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "pageInfo":
-				return ec.fieldContext_AuditEntryConnection_pageInfo(ctx, field)
-			case "nodes":
-				return ec.fieldContext_AuditEntryConnection_nodes(ctx, field)
-			case "edges":
-				return ec.fieldContext_AuditEntryConnection_edges(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type AuditEntryConnection", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_auditEntries_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -58165,8 +58165,8 @@ func (ec *executionContext) fieldContext_TeamCDN_bucket(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamConfirmDeleteKeyAuditEntry_id(ctx, field)
+func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -58196,9 +58196,9 @@ func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_id(ctx context.Conte
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamConfirmDeleteKeyAuditEntry",
+		Object:     "TeamConfirmDeleteKeyActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -58209,8 +58209,8 @@ func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_id(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamConfirmDeleteKeyAuditEntry_actor(ctx, field)
+func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -58240,9 +58240,9 @@ func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_actor(ctx context.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamConfirmDeleteKeyAuditEntry",
+		Object:     "TeamConfirmDeleteKeyActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -58253,8 +58253,8 @@ func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_actor(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamConfirmDeleteKeyAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -58284,9 +58284,9 @@ func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_createdAt(ctx contex
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamConfirmDeleteKeyAuditEntry",
+		Object:     "TeamConfirmDeleteKeyActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -58297,8 +58297,8 @@ func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_createdA
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamConfirmDeleteKeyAuditEntry_message(ctx, field)
+func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -58328,9 +58328,9 @@ func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_message(ctx context.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamConfirmDeleteKeyAuditEntry",
+		Object:     "TeamConfirmDeleteKeyActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -58341,8 +58341,8 @@ func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_message(
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamConfirmDeleteKeyAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -58367,26 +58367,26 @@ func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_resourceType(ctx con
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamConfirmDeleteKeyAuditEntry",
+		Object:     "TeamConfirmDeleteKeyActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamConfirmDeleteKeyAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -58416,9 +58416,9 @@ func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_resourceName(ctx con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamConfirmDeleteKeyAuditEntry",
+		Object:     "TeamConfirmDeleteKeyActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -58429,8 +58429,8 @@ func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_resource
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamConfirmDeleteKeyAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -58460,9 +58460,9 @@ func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_teamSlug(ctx context
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamConfirmDeleteKeyAuditEntry",
+		Object:     "TeamConfirmDeleteKeyActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -58473,8 +58473,8 @@ func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_teamSlug
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamConfirmDeleteKeyAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -58501,9 +58501,9 @@ func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_environmentName(ctx 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamConfirmDeleteKeyAuditEntry",
+		Object:     "TeamConfirmDeleteKeyActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -58643,10 +58643,10 @@ func (ec *executionContext) fieldContext_TeamConnection_nodes(_ context.Context,
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -59127,8 +59127,8 @@ func (ec *executionContext) fieldContext_TeamCostPeriod_series(_ context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreateDeleteKeyAuditEntry_id(ctx, field)
+func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59158,9 +59158,9 @@ func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_id(ctx context.Contex
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreateDeleteKeyAuditEntry",
+		Object:     "TeamCreateDeleteKeyActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -59171,8 +59171,8 @@ func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_id(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreateDeleteKeyAuditEntry_actor(ctx, field)
+func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59202,9 +59202,9 @@ func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_actor(ctx context.Con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreateDeleteKeyAuditEntry",
+		Object:     "TeamCreateDeleteKeyActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59215,8 +59215,8 @@ func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_actor(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreateDeleteKeyAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59246,9 +59246,9 @@ func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_createdAt(ctx context
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreateDeleteKeyAuditEntry",
+		Object:     "TeamCreateDeleteKeyActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59259,8 +59259,8 @@ func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_createdAt
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreateDeleteKeyAuditEntry_message(ctx, field)
+func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59290,9 +59290,9 @@ func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_message(ctx context.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreateDeleteKeyAuditEntry",
+		Object:     "TeamCreateDeleteKeyActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59303,8 +59303,8 @@ func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_message(_
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreateDeleteKeyAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59329,26 +59329,26 @@ func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_resourceType(ctx cont
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreateDeleteKeyAuditEntry",
+		Object:     "TeamCreateDeleteKeyActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreateDeleteKeyAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59378,9 +59378,9 @@ func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_resourceName(ctx cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreateDeleteKeyAuditEntry",
+		Object:     "TeamCreateDeleteKeyActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59391,8 +59391,8 @@ func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_resourceN
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreateDeleteKeyAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59422,9 +59422,9 @@ func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_teamSlug(ctx context.
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreateDeleteKeyAuditEntry",
+		Object:     "TeamCreateDeleteKeyActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59435,8 +59435,8 @@ func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_teamSlug(
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreateDeleteKeyAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59463,9 +59463,9 @@ func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_environmentName(ctx c
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreateDeleteKeyAuditEntry",
+		Object:     "TeamCreateDeleteKeyActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59476,8 +59476,8 @@ func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_environme
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreatedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreatedAuditEntry_id(ctx, field)
+func (ec *executionContext) _TeamCreatedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreatedActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59507,9 +59507,9 @@ func (ec *executionContext) _TeamCreatedAuditEntry_id(ctx context.Context, field
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreatedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreatedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreatedAuditEntry",
+		Object:     "TeamCreatedActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -59520,8 +59520,8 @@ func (ec *executionContext) fieldContext_TeamCreatedAuditEntry_id(_ context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreatedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreatedAuditEntry_actor(ctx, field)
+func (ec *executionContext) _TeamCreatedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreatedActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59551,9 +59551,9 @@ func (ec *executionContext) _TeamCreatedAuditEntry_actor(ctx context.Context, fi
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreatedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreatedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreatedAuditEntry",
+		Object:     "TeamCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59564,8 +59564,8 @@ func (ec *executionContext) fieldContext_TeamCreatedAuditEntry_actor(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreatedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreatedAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _TeamCreatedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreatedActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59595,9 +59595,9 @@ func (ec *executionContext) _TeamCreatedAuditEntry_createdAt(ctx context.Context
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreatedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreatedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreatedAuditEntry",
+		Object:     "TeamCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59608,8 +59608,8 @@ func (ec *executionContext) fieldContext_TeamCreatedAuditEntry_createdAt(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreatedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreatedAuditEntry_message(ctx, field)
+func (ec *executionContext) _TeamCreatedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreatedActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59639,9 +59639,9 @@ func (ec *executionContext) _TeamCreatedAuditEntry_message(ctx context.Context, 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreatedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreatedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreatedAuditEntry",
+		Object:     "TeamCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59652,8 +59652,8 @@ func (ec *executionContext) fieldContext_TeamCreatedAuditEntry_message(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreatedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreatedAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _TeamCreatedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreatedActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59678,26 +59678,26 @@ func (ec *executionContext) _TeamCreatedAuditEntry_resourceType(ctx context.Cont
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreatedAuditEntry",
+		Object:     "TeamCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreatedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreatedAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _TeamCreatedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreatedActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59727,9 +59727,9 @@ func (ec *executionContext) _TeamCreatedAuditEntry_resourceName(ctx context.Cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreatedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreatedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreatedAuditEntry",
+		Object:     "TeamCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59740,8 +59740,8 @@ func (ec *executionContext) fieldContext_TeamCreatedAuditEntry_resourceName(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreatedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreatedAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _TeamCreatedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreatedActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59771,9 +59771,9 @@ func (ec *executionContext) _TeamCreatedAuditEntry_teamSlug(ctx context.Context,
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreatedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreatedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreatedAuditEntry",
+		Object:     "TeamCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59784,8 +59784,8 @@ func (ec *executionContext) fieldContext_TeamCreatedAuditEntry_teamSlug(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreatedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreatedAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _TeamCreatedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreatedActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59812,9 +59812,9 @@ func (ec *executionContext) _TeamCreatedAuditEntry_environmentName(ctx context.C
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreatedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreatedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreatedAuditEntry",
+		Object:     "TeamCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -60084,10 +60084,10 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(_ context.Context, f
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -60129,8 +60129,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeployKeyUpdatedAuditEntry_id(ctx, field)
+func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -60160,9 +60160,9 @@ func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_id(ctx context.Conte
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamDeployKeyUpdatedAuditEntry",
+		Object:     "TeamDeployKeyUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -60173,8 +60173,8 @@ func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_id(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeployKeyUpdatedAuditEntry_actor(ctx, field)
+func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -60204,9 +60204,9 @@ func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_actor(ctx context.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamDeployKeyUpdatedAuditEntry",
+		Object:     "TeamDeployKeyUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -60217,8 +60217,8 @@ func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_actor(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeployKeyUpdatedAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -60248,9 +60248,9 @@ func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_createdAt(ctx contex
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamDeployKeyUpdatedAuditEntry",
+		Object:     "TeamDeployKeyUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -60261,8 +60261,8 @@ func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_createdA
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeployKeyUpdatedAuditEntry_message(ctx, field)
+func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -60292,9 +60292,9 @@ func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_message(ctx context.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamDeployKeyUpdatedAuditEntry",
+		Object:     "TeamDeployKeyUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -60305,8 +60305,8 @@ func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_message(
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeployKeyUpdatedAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -60331,26 +60331,26 @@ func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_resourceType(ctx con
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamDeployKeyUpdatedAuditEntry",
+		Object:     "TeamDeployKeyUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeployKeyUpdatedAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -60380,9 +60380,9 @@ func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_resourceName(ctx con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamDeployKeyUpdatedAuditEntry",
+		Object:     "TeamDeployKeyUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -60393,8 +60393,8 @@ func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_resource
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeployKeyUpdatedAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -60424,9 +60424,9 @@ func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_teamSlug(ctx context
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamDeployKeyUpdatedAuditEntry",
+		Object:     "TeamDeployKeyUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -60437,8 +60437,8 @@ func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_teamSlug
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeployKeyUpdatedAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -60465,9 +60465,9 @@ func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_environmentName(ctx 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamDeployKeyUpdatedAuditEntry",
+		Object:     "TeamDeployKeyUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -60591,10 +60591,10 @@ func (ec *executionContext) fieldContext_TeamEdge_node(_ context.Context, field 
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -60922,10 +60922,10 @@ func (ec *executionContext) fieldContext_TeamEnvironment_team(_ context.Context,
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -61978,8 +61978,8 @@ func (ec *executionContext) fieldContext_TeamEnvironmentCostPeriod_series(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedAuditEntry_id(ctx, field)
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -62009,9 +62009,9 @@ func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry_id(ctx context.Con
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedAuditEntry",
+		Object:     "TeamEnvironmentUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -62022,8 +62022,8 @@ func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntry_id(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedAuditEntry_actor(ctx, field)
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -62053,9 +62053,9 @@ func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry_actor(ctx context.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedAuditEntry",
+		Object:     "TeamEnvironmentUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -62066,8 +62066,8 @@ func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntry_actor(
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -62097,9 +62097,9 @@ func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry_createdAt(ctx cont
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedAuditEntry",
+		Object:     "TeamEnvironmentUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -62110,8 +62110,8 @@ func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntry_create
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedAuditEntry_message(ctx, field)
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -62141,9 +62141,9 @@ func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry_message(ctx contex
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedAuditEntry",
+		Object:     "TeamEnvironmentUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -62154,8 +62154,8 @@ func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntry_messag
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -62180,26 +62180,26 @@ func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry_resourceType(ctx c
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedAuditEntry",
+		Object:     "TeamEnvironmentUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -62229,9 +62229,9 @@ func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry_resourceName(ctx c
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedAuditEntry",
+		Object:     "TeamEnvironmentUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -62242,8 +62242,8 @@ func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntry_resour
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -62273,9 +62273,9 @@ func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry_teamSlug(ctx conte
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedAuditEntry",
+		Object:     "TeamEnvironmentUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -62286,8 +62286,8 @@ func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntry_teamSl
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -62314,9 +62314,9 @@ func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry_environmentName(ct
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedAuditEntry",
+		Object:     "TeamEnvironmentUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -62327,8 +62327,8 @@ func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntry_enviro
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedAuditEntry_data(ctx, field)
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLog_data(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -62353,30 +62353,30 @@ func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry_data(ctx context.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*team.TeamEnvironmentUpdatedAuditEntryData)
+	res := resTmp.(*team.TeamEnvironmentUpdatedActivityLogData)
 	fc.Result = res
-	return ec.marshalNTeamEnvironmentUpdatedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedAuditEntryData(ctx, field.Selections, res)
+	return ec.marshalNTeamEnvironmentUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogData(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLog_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedAuditEntry",
+		Object:     "TeamEnvironmentUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "updatedFields":
-				return ec.fieldContext_TeamEnvironmentUpdatedAuditEntryData_updatedFields(ctx, field)
+				return ec.fieldContext_TeamEnvironmentUpdatedActivityLogData_updatedFields(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironmentUpdatedAuditEntryData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironmentUpdatedActivityLogData", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntryData_updatedFields(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedAuditEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedAuditEntryData_updatedFields(ctx, field)
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogData_updatedFields(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogData_updatedFields(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -62401,34 +62401,34 @@ func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntryData_updatedFields(
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*team.TeamEnvironmentUpdatedAuditEntryDataUpdatedField)
+	res := resTmp.([]*team.TeamEnvironmentUpdatedActivityLogDataUpdatedField)
 	fc.Result = res
-	return ec.marshalNTeamEnvironmentUpdatedAuditEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedAuditEntryDataUpdatedFieldᚄ(ctx, field.Selections, res)
+	return ec.marshalNTeamEnvironmentUpdatedActivityLogDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogDataUpdatedFieldᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntryData_updatedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogData_updatedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedAuditEntryData",
+		Object:     "TeamEnvironmentUpdatedActivityLogData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "field":
-				return ec.fieldContext_TeamEnvironmentUpdatedAuditEntryDataUpdatedField_field(ctx, field)
+				return ec.fieldContext_TeamEnvironmentUpdatedActivityLogDataUpdatedField_field(ctx, field)
 			case "oldValue":
-				return ec.fieldContext_TeamEnvironmentUpdatedAuditEntryDataUpdatedField_oldValue(ctx, field)
+				return ec.fieldContext_TeamEnvironmentUpdatedActivityLogDataUpdatedField_oldValue(ctx, field)
 			case "newValue":
-				return ec.fieldContext_TeamEnvironmentUpdatedAuditEntryDataUpdatedField_newValue(ctx, field)
+				return ec.fieldContext_TeamEnvironmentUpdatedActivityLogDataUpdatedField_newValue(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironmentUpdatedAuditEntryDataUpdatedField", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironmentUpdatedActivityLogDataUpdatedField", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntryDataUpdatedField_field(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedAuditEntryDataUpdatedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedAuditEntryDataUpdatedField_field(ctx, field)
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogDataUpdatedField_field(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogDataUpdatedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogDataUpdatedField_field(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -62458,9 +62458,9 @@ func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntryDataUpdatedField_fi
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntryDataUpdatedField_field(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogDataUpdatedField_field(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedAuditEntryDataUpdatedField",
+		Object:     "TeamEnvironmentUpdatedActivityLogDataUpdatedField",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -62471,8 +62471,8 @@ func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntryDataUpd
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntryDataUpdatedField_oldValue(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedAuditEntryDataUpdatedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedAuditEntryDataUpdatedField_oldValue(ctx, field)
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogDataUpdatedField_oldValue(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogDataUpdatedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogDataUpdatedField_oldValue(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -62499,9 +62499,9 @@ func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntryDataUpdatedField_ol
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntryDataUpdatedField_oldValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogDataUpdatedField_oldValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedAuditEntryDataUpdatedField",
+		Object:     "TeamEnvironmentUpdatedActivityLogDataUpdatedField",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -62512,8 +62512,8 @@ func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntryDataUpd
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntryDataUpdatedField_newValue(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedAuditEntryDataUpdatedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedAuditEntryDataUpdatedField_newValue(ctx, field)
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogDataUpdatedField_newValue(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogDataUpdatedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogDataUpdatedField_newValue(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -62540,9 +62540,9 @@ func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntryDataUpdatedField_ne
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntryDataUpdatedField_newValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogDataUpdatedField_newValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedAuditEntryDataUpdatedField",
+		Object:     "TeamEnvironmentUpdatedActivityLogDataUpdatedField",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -63807,10 +63807,10 @@ func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, fiel
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -63954,8 +63954,8 @@ func (ec *executionContext) fieldContext_TeamMember_role(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberAddedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedAuditEntry_id(ctx, field)
+func (ec *executionContext) _TeamMemberAddedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -63985,9 +63985,9 @@ func (ec *executionContext) _TeamMemberAddedAuditEntry_id(ctx context.Context, f
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedAuditEntry",
+		Object:     "TeamMemberAddedActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -63998,8 +63998,8 @@ func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntry_id(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberAddedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedAuditEntry_actor(ctx, field)
+func (ec *executionContext) _TeamMemberAddedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -64029,9 +64029,9 @@ func (ec *executionContext) _TeamMemberAddedAuditEntry_actor(ctx context.Context
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedAuditEntry",
+		Object:     "TeamMemberAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -64042,8 +64042,8 @@ func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntry_actor(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberAddedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _TeamMemberAddedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -64073,9 +64073,9 @@ func (ec *executionContext) _TeamMemberAddedAuditEntry_createdAt(ctx context.Con
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedAuditEntry",
+		Object:     "TeamMemberAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -64086,8 +64086,8 @@ func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntry_createdAt(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberAddedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedAuditEntry_message(ctx, field)
+func (ec *executionContext) _TeamMemberAddedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -64117,9 +64117,9 @@ func (ec *executionContext) _TeamMemberAddedAuditEntry_message(ctx context.Conte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedAuditEntry",
+		Object:     "TeamMemberAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -64130,8 +64130,8 @@ func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntry_message(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberAddedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _TeamMemberAddedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -64156,26 +64156,26 @@ func (ec *executionContext) _TeamMemberAddedAuditEntry_resourceType(ctx context.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedAuditEntry",
+		Object:     "TeamMemberAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberAddedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _TeamMemberAddedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -64205,9 +64205,9 @@ func (ec *executionContext) _TeamMemberAddedAuditEntry_resourceName(ctx context.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedAuditEntry",
+		Object:     "TeamMemberAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -64218,8 +64218,8 @@ func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntry_resourceName(
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberAddedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _TeamMemberAddedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -64249,9 +64249,9 @@ func (ec *executionContext) _TeamMemberAddedAuditEntry_teamSlug(ctx context.Cont
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedAuditEntry",
+		Object:     "TeamMemberAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -64262,8 +64262,8 @@ func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntry_teamSlug(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberAddedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _TeamMemberAddedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -64290,9 +64290,9 @@ func (ec *executionContext) _TeamMemberAddedAuditEntry_environmentName(ctx conte
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedAuditEntry",
+		Object:     "TeamMemberAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -64303,8 +64303,8 @@ func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntry_environmentNa
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberAddedAuditEntry_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedAuditEntry_data(ctx, field)
+func (ec *executionContext) _TeamMemberAddedActivityLog_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLog_data(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -64329,34 +64329,34 @@ func (ec *executionContext) _TeamMemberAddedAuditEntry_data(ctx context.Context,
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*team.TeamMemberAddedAuditEntryData)
+	res := resTmp.(*team.TeamMemberAddedActivityLogData)
 	fc.Result = res
-	return ec.marshalNTeamMemberAddedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberAddedAuditEntryData(ctx, field.Selections, res)
+	return ec.marshalNTeamMemberAddedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberAddedActivityLogData(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLog_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedAuditEntry",
+		Object:     "TeamMemberAddedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "role":
-				return ec.fieldContext_TeamMemberAddedAuditEntryData_role(ctx, field)
+				return ec.fieldContext_TeamMemberAddedActivityLogData_role(ctx, field)
 			case "userID":
-				return ec.fieldContext_TeamMemberAddedAuditEntryData_userID(ctx, field)
+				return ec.fieldContext_TeamMemberAddedActivityLogData_userID(ctx, field)
 			case "userEmail":
-				return ec.fieldContext_TeamMemberAddedAuditEntryData_userEmail(ctx, field)
+				return ec.fieldContext_TeamMemberAddedActivityLogData_userEmail(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamMemberAddedAuditEntryData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TeamMemberAddedActivityLogData", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberAddedAuditEntryData_role(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedAuditEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedAuditEntryData_role(ctx, field)
+func (ec *executionContext) _TeamMemberAddedActivityLogData_role(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLogData_role(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -64386,9 +64386,9 @@ func (ec *executionContext) _TeamMemberAddedAuditEntryData_role(ctx context.Cont
 	return ec.marshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntryData_role(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogData_role(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedAuditEntryData",
+		Object:     "TeamMemberAddedActivityLogData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -64399,8 +64399,8 @@ func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntryData_role(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberAddedAuditEntryData_userID(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedAuditEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedAuditEntryData_userID(ctx, field)
+func (ec *executionContext) _TeamMemberAddedActivityLogData_userID(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLogData_userID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -64430,9 +64430,9 @@ func (ec *executionContext) _TeamMemberAddedAuditEntryData_userID(ctx context.Co
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntryData_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogData_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedAuditEntryData",
+		Object:     "TeamMemberAddedActivityLogData",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -64443,8 +64443,8 @@ func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntryData_userID(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberAddedAuditEntryData_userEmail(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedAuditEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedAuditEntryData_userEmail(ctx, field)
+func (ec *executionContext) _TeamMemberAddedActivityLogData_userEmail(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLogData_userEmail(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -64474,9 +64474,9 @@ func (ec *executionContext) _TeamMemberAddedAuditEntryData_userEmail(ctx context
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntryData_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogData_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedAuditEntryData",
+		Object:     "TeamMemberAddedActivityLogData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -64745,8 +64745,8 @@ func (ec *executionContext) fieldContext_TeamMemberEdge_node(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberRemovedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntry_id(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -64776,9 +64776,9 @@ func (ec *executionContext) _TeamMemberRemovedAuditEntry_id(ctx context.Context,
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedAuditEntry",
+		Object:     "TeamMemberRemovedActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -64789,8 +64789,8 @@ func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_id(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberRemovedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntry_actor(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -64820,9 +64820,9 @@ func (ec *executionContext) _TeamMemberRemovedAuditEntry_actor(ctx context.Conte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedAuditEntry",
+		Object:     "TeamMemberRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -64833,8 +64833,8 @@ func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_actor(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberRemovedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -64864,9 +64864,9 @@ func (ec *executionContext) _TeamMemberRemovedAuditEntry_createdAt(ctx context.C
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedAuditEntry",
+		Object:     "TeamMemberRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -64877,8 +64877,8 @@ func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_createdAt(_
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberRemovedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntry_message(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -64908,9 +64908,9 @@ func (ec *executionContext) _TeamMemberRemovedAuditEntry_message(ctx context.Con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedAuditEntry",
+		Object:     "TeamMemberRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -64921,8 +64921,8 @@ func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_message(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberRemovedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -64947,26 +64947,26 @@ func (ec *executionContext) _TeamMemberRemovedAuditEntry_resourceType(ctx contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedAuditEntry",
+		Object:     "TeamMemberRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberRemovedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -64996,9 +64996,9 @@ func (ec *executionContext) _TeamMemberRemovedAuditEntry_resourceName(ctx contex
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedAuditEntry",
+		Object:     "TeamMemberRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -65009,8 +65009,8 @@ func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_resourceNam
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberRemovedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65040,9 +65040,9 @@ func (ec *executionContext) _TeamMemberRemovedAuditEntry_teamSlug(ctx context.Co
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedAuditEntry",
+		Object:     "TeamMemberRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -65053,8 +65053,8 @@ func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_teamSlug(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberRemovedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65081,9 +65081,9 @@ func (ec *executionContext) _TeamMemberRemovedAuditEntry_environmentName(ctx con
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedAuditEntry",
+		Object:     "TeamMemberRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -65094,8 +65094,8 @@ func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_environment
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberRemovedAuditEntry_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntry_data(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLog_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLog_data(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65120,32 +65120,32 @@ func (ec *executionContext) _TeamMemberRemovedAuditEntry_data(ctx context.Contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*team.TeamMemberRemovedAuditEntryData)
+	res := resTmp.(*team.TeamMemberRemovedActivityLogData)
 	fc.Result = res
-	return ec.marshalNTeamMemberRemovedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRemovedAuditEntryData(ctx, field.Selections, res)
+	return ec.marshalNTeamMemberRemovedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRemovedActivityLogData(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLog_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedAuditEntry",
+		Object:     "TeamMemberRemovedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "userID":
-				return ec.fieldContext_TeamMemberRemovedAuditEntryData_userID(ctx, field)
+				return ec.fieldContext_TeamMemberRemovedActivityLogData_userID(ctx, field)
 			case "userEmail":
-				return ec.fieldContext_TeamMemberRemovedAuditEntryData_userEmail(ctx, field)
+				return ec.fieldContext_TeamMemberRemovedActivityLogData_userEmail(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamMemberRemovedAuditEntryData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TeamMemberRemovedActivityLogData", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberRemovedAuditEntryData_userID(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntryData_userID(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLogData_userID(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLogData_userID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65175,9 +65175,9 @@ func (ec *executionContext) _TeamMemberRemovedAuditEntryData_userID(ctx context.
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntryData_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogData_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedAuditEntryData",
+		Object:     "TeamMemberRemovedActivityLogData",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -65188,8 +65188,8 @@ func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntryData_userID(
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberRemovedAuditEntryData_userEmail(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntryData_userEmail(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLogData_userEmail(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLogData_userEmail(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65219,9 +65219,9 @@ func (ec *executionContext) _TeamMemberRemovedAuditEntryData_userEmail(ctx conte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntryData_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogData_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedAuditEntryData",
+		Object:     "TeamMemberRemovedActivityLogData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -65232,8 +65232,8 @@ func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntryData_userEma
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleAuditEntry_id(ctx, field)
+func (ec *executionContext) _TeamMemberSetRoleActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65263,9 +65263,9 @@ func (ec *executionContext) _TeamMemberSetRoleAuditEntry_id(ctx context.Context,
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleAuditEntry",
+		Object:     "TeamMemberSetRoleActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -65276,8 +65276,8 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntry_id(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleAuditEntry_actor(ctx, field)
+func (ec *executionContext) _TeamMemberSetRoleActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65307,9 +65307,9 @@ func (ec *executionContext) _TeamMemberSetRoleAuditEntry_actor(ctx context.Conte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleAuditEntry",
+		Object:     "TeamMemberSetRoleActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -65320,8 +65320,8 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntry_actor(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _TeamMemberSetRoleActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65351,9 +65351,9 @@ func (ec *executionContext) _TeamMemberSetRoleAuditEntry_createdAt(ctx context.C
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleAuditEntry",
+		Object:     "TeamMemberSetRoleActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -65364,8 +65364,8 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntry_createdAt(_
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleAuditEntry_message(ctx, field)
+func (ec *executionContext) _TeamMemberSetRoleActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65395,9 +65395,9 @@ func (ec *executionContext) _TeamMemberSetRoleAuditEntry_message(ctx context.Con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleAuditEntry",
+		Object:     "TeamMemberSetRoleActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -65408,8 +65408,8 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntry_message(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _TeamMemberSetRoleActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65434,26 +65434,26 @@ func (ec *executionContext) _TeamMemberSetRoleAuditEntry_resourceType(ctx contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleAuditEntry",
+		Object:     "TeamMemberSetRoleActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _TeamMemberSetRoleActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65483,9 +65483,9 @@ func (ec *executionContext) _TeamMemberSetRoleAuditEntry_resourceName(ctx contex
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleAuditEntry",
+		Object:     "TeamMemberSetRoleActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -65496,8 +65496,8 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntry_resourceNam
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _TeamMemberSetRoleActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65527,9 +65527,9 @@ func (ec *executionContext) _TeamMemberSetRoleAuditEntry_teamSlug(ctx context.Co
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleAuditEntry",
+		Object:     "TeamMemberSetRoleActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -65540,8 +65540,8 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntry_teamSlug(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _TeamMemberSetRoleActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65568,9 +65568,9 @@ func (ec *executionContext) _TeamMemberSetRoleAuditEntry_environmentName(ctx con
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleAuditEntry",
+		Object:     "TeamMemberSetRoleActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -65581,8 +65581,8 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntry_environment
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleAuditEntry_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleAuditEntry_data(ctx, field)
+func (ec *executionContext) _TeamMemberSetRoleActivityLog_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLog_data(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65607,34 +65607,34 @@ func (ec *executionContext) _TeamMemberSetRoleAuditEntry_data(ctx context.Contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*team.TeamMemberSetRoleAuditEntryData)
+	res := resTmp.(*team.TeamMemberSetRoleActivityLogData)
 	fc.Result = res
-	return ec.marshalNTeamMemberSetRoleAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberSetRoleAuditEntryData(ctx, field.Selections, res)
+	return ec.marshalNTeamMemberSetRoleActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberSetRoleActivityLogData(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleAuditEntry",
+		Object:     "TeamMemberSetRoleActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "role":
-				return ec.fieldContext_TeamMemberSetRoleAuditEntryData_role(ctx, field)
+				return ec.fieldContext_TeamMemberSetRoleActivityLogData_role(ctx, field)
 			case "userID":
-				return ec.fieldContext_TeamMemberSetRoleAuditEntryData_userID(ctx, field)
+				return ec.fieldContext_TeamMemberSetRoleActivityLogData_userID(ctx, field)
 			case "userEmail":
-				return ec.fieldContext_TeamMemberSetRoleAuditEntryData_userEmail(ctx, field)
+				return ec.fieldContext_TeamMemberSetRoleActivityLogData_userEmail(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamMemberSetRoleAuditEntryData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TeamMemberSetRoleActivityLogData", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleAuditEntryData_role(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleAuditEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleAuditEntryData_role(ctx, field)
+func (ec *executionContext) _TeamMemberSetRoleActivityLogData_role(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLogData_role(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65664,9 +65664,9 @@ func (ec *executionContext) _TeamMemberSetRoleAuditEntryData_role(ctx context.Co
 	return ec.marshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntryData_role(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogData_role(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleAuditEntryData",
+		Object:     "TeamMemberSetRoleActivityLogData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -65677,8 +65677,8 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntryData_role(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleAuditEntryData_userID(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleAuditEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleAuditEntryData_userID(ctx, field)
+func (ec *executionContext) _TeamMemberSetRoleActivityLogData_userID(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLogData_userID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65708,9 +65708,9 @@ func (ec *executionContext) _TeamMemberSetRoleAuditEntryData_userID(ctx context.
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntryData_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogData_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleAuditEntryData",
+		Object:     "TeamMemberSetRoleActivityLogData",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -65721,8 +65721,8 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntryData_userID(
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleAuditEntryData_userEmail(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleAuditEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleAuditEntryData_userEmail(ctx, field)
+func (ec *executionContext) _TeamMemberSetRoleActivityLogData_userEmail(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLogData_userEmail(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65752,9 +65752,9 @@ func (ec *executionContext) _TeamMemberSetRoleAuditEntryData_userEmail(ctx conte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntryData_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogData_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleAuditEntryData",
+		Object:     "TeamMemberSetRoleActivityLogData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -66369,8 +66369,8 @@ func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesMemor
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUpdatedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedAuditEntry_id(ctx, field)
+func (ec *executionContext) _TeamUpdatedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -66400,9 +66400,9 @@ func (ec *executionContext) _TeamUpdatedAuditEntry_id(ctx context.Context, field
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamUpdatedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedAuditEntry",
+		Object:     "TeamUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -66413,8 +66413,8 @@ func (ec *executionContext) fieldContext_TeamUpdatedAuditEntry_id(_ context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUpdatedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedAuditEntry_actor(ctx, field)
+func (ec *executionContext) _TeamUpdatedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -66444,9 +66444,9 @@ func (ec *executionContext) _TeamUpdatedAuditEntry_actor(ctx context.Context, fi
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamUpdatedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedAuditEntry",
+		Object:     "TeamUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -66457,8 +66457,8 @@ func (ec *executionContext) fieldContext_TeamUpdatedAuditEntry_actor(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUpdatedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _TeamUpdatedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -66488,9 +66488,9 @@ func (ec *executionContext) _TeamUpdatedAuditEntry_createdAt(ctx context.Context
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamUpdatedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedAuditEntry",
+		Object:     "TeamUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -66501,8 +66501,8 @@ func (ec *executionContext) fieldContext_TeamUpdatedAuditEntry_createdAt(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUpdatedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedAuditEntry_message(ctx, field)
+func (ec *executionContext) _TeamUpdatedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -66532,9 +66532,9 @@ func (ec *executionContext) _TeamUpdatedAuditEntry_message(ctx context.Context, 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamUpdatedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedAuditEntry",
+		Object:     "TeamUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -66545,8 +66545,8 @@ func (ec *executionContext) fieldContext_TeamUpdatedAuditEntry_message(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUpdatedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _TeamUpdatedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -66571,26 +66571,26 @@ func (ec *executionContext) _TeamUpdatedAuditEntry_resourceType(ctx context.Cont
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamUpdatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedAuditEntry",
+		Object:     "TeamUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUpdatedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _TeamUpdatedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -66620,9 +66620,9 @@ func (ec *executionContext) _TeamUpdatedAuditEntry_resourceName(ctx context.Cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamUpdatedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedAuditEntry",
+		Object:     "TeamUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -66633,8 +66633,8 @@ func (ec *executionContext) fieldContext_TeamUpdatedAuditEntry_resourceName(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUpdatedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _TeamUpdatedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -66664,9 +66664,9 @@ func (ec *executionContext) _TeamUpdatedAuditEntry_teamSlug(ctx context.Context,
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamUpdatedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedAuditEntry",
+		Object:     "TeamUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -66677,8 +66677,8 @@ func (ec *executionContext) fieldContext_TeamUpdatedAuditEntry_teamSlug(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUpdatedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _TeamUpdatedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -66705,9 +66705,9 @@ func (ec *executionContext) _TeamUpdatedAuditEntry_environmentName(ctx context.C
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamUpdatedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedAuditEntry",
+		Object:     "TeamUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -66718,8 +66718,8 @@ func (ec *executionContext) fieldContext_TeamUpdatedAuditEntry_environmentName(_
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUpdatedAuditEntry_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedAuditEntry_data(ctx, field)
+func (ec *executionContext) _TeamUpdatedActivityLog_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLog_data(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -66744,30 +66744,30 @@ func (ec *executionContext) _TeamUpdatedAuditEntry_data(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*team.TeamUpdatedAuditEntryData)
+	res := resTmp.(*team.TeamUpdatedActivityLogData)
 	fc.Result = res
-	return ec.marshalNTeamUpdatedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedAuditEntryData(ctx, field.Selections, res)
+	return ec.marshalNTeamUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogData(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamUpdatedAuditEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLog_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedAuditEntry",
+		Object:     "TeamUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "updatedFields":
-				return ec.fieldContext_TeamUpdatedAuditEntryData_updatedFields(ctx, field)
+				return ec.fieldContext_TeamUpdatedActivityLogData_updatedFields(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamUpdatedAuditEntryData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TeamUpdatedActivityLogData", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUpdatedAuditEntryData_updatedFields(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedAuditEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedAuditEntryData_updatedFields(ctx, field)
+func (ec *executionContext) _TeamUpdatedActivityLogData_updatedFields(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLogData_updatedFields(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -66792,34 +66792,34 @@ func (ec *executionContext) _TeamUpdatedAuditEntryData_updatedFields(ctx context
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*team.TeamUpdatedAuditEntryDataUpdatedField)
+	res := resTmp.([]*team.TeamUpdatedActivityLogDataUpdatedField)
 	fc.Result = res
-	return ec.marshalNTeamUpdatedAuditEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedAuditEntryDataUpdatedFieldᚄ(ctx, field.Selections, res)
+	return ec.marshalNTeamUpdatedActivityLogDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogDataUpdatedFieldᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamUpdatedAuditEntryData_updatedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLogData_updatedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedAuditEntryData",
+		Object:     "TeamUpdatedActivityLogData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "field":
-				return ec.fieldContext_TeamUpdatedAuditEntryDataUpdatedField_field(ctx, field)
+				return ec.fieldContext_TeamUpdatedActivityLogDataUpdatedField_field(ctx, field)
 			case "oldValue":
-				return ec.fieldContext_TeamUpdatedAuditEntryDataUpdatedField_oldValue(ctx, field)
+				return ec.fieldContext_TeamUpdatedActivityLogDataUpdatedField_oldValue(ctx, field)
 			case "newValue":
-				return ec.fieldContext_TeamUpdatedAuditEntryDataUpdatedField_newValue(ctx, field)
+				return ec.fieldContext_TeamUpdatedActivityLogDataUpdatedField_newValue(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamUpdatedAuditEntryDataUpdatedField", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TeamUpdatedActivityLogDataUpdatedField", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUpdatedAuditEntryDataUpdatedField_field(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedAuditEntryDataUpdatedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedAuditEntryDataUpdatedField_field(ctx, field)
+func (ec *executionContext) _TeamUpdatedActivityLogDataUpdatedField_field(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogDataUpdatedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLogDataUpdatedField_field(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -66849,9 +66849,9 @@ func (ec *executionContext) _TeamUpdatedAuditEntryDataUpdatedField_field(ctx con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamUpdatedAuditEntryDataUpdatedField_field(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLogDataUpdatedField_field(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedAuditEntryDataUpdatedField",
+		Object:     "TeamUpdatedActivityLogDataUpdatedField",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -66862,8 +66862,8 @@ func (ec *executionContext) fieldContext_TeamUpdatedAuditEntryDataUpdatedField_f
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUpdatedAuditEntryDataUpdatedField_oldValue(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedAuditEntryDataUpdatedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedAuditEntryDataUpdatedField_oldValue(ctx, field)
+func (ec *executionContext) _TeamUpdatedActivityLogDataUpdatedField_oldValue(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogDataUpdatedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLogDataUpdatedField_oldValue(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -66890,9 +66890,9 @@ func (ec *executionContext) _TeamUpdatedAuditEntryDataUpdatedField_oldValue(ctx 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamUpdatedAuditEntryDataUpdatedField_oldValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLogDataUpdatedField_oldValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedAuditEntryDataUpdatedField",
+		Object:     "TeamUpdatedActivityLogDataUpdatedField",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -66903,8 +66903,8 @@ func (ec *executionContext) fieldContext_TeamUpdatedAuditEntryDataUpdatedField_o
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUpdatedAuditEntryDataUpdatedField_newValue(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedAuditEntryDataUpdatedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedAuditEntryDataUpdatedField_newValue(ctx, field)
+func (ec *executionContext) _TeamUpdatedActivityLogDataUpdatedField_newValue(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogDataUpdatedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLogDataUpdatedField_newValue(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -66931,9 +66931,9 @@ func (ec *executionContext) _TeamUpdatedAuditEntryDataUpdatedField_newValue(ctx 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamUpdatedAuditEntryDataUpdatedField_newValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLogDataUpdatedField_newValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedAuditEntryDataUpdatedField",
+		Object:     "TeamUpdatedActivityLogDataUpdatedField",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -67013,10 +67013,10 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_team(_ context.Cont
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -68421,8 +68421,8 @@ func (ec *executionContext) fieldContext_UnleashInstance_ready(_ context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceCreatedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceCreatedAuditEntry_id(ctx, field)
+func (ec *executionContext) _UnleashInstanceCreatedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -68452,9 +68452,9 @@ func (ec *executionContext) _UnleashInstanceCreatedAuditEntry_id(ctx context.Con
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceCreatedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceCreatedAuditEntry",
+		Object:     "UnleashInstanceCreatedActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -68465,8 +68465,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceCreatedAuditEntry_id(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceCreatedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceCreatedAuditEntry_actor(ctx, field)
+func (ec *executionContext) _UnleashInstanceCreatedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -68496,9 +68496,9 @@ func (ec *executionContext) _UnleashInstanceCreatedAuditEntry_actor(ctx context.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceCreatedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceCreatedAuditEntry",
+		Object:     "UnleashInstanceCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -68509,8 +68509,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceCreatedAuditEntry_actor(
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceCreatedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceCreatedAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _UnleashInstanceCreatedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -68540,9 +68540,9 @@ func (ec *executionContext) _UnleashInstanceCreatedAuditEntry_createdAt(ctx cont
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceCreatedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceCreatedAuditEntry",
+		Object:     "UnleashInstanceCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -68553,8 +68553,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceCreatedAuditEntry_create
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceCreatedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceCreatedAuditEntry_message(ctx, field)
+func (ec *executionContext) _UnleashInstanceCreatedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -68584,9 +68584,9 @@ func (ec *executionContext) _UnleashInstanceCreatedAuditEntry_message(ctx contex
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceCreatedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceCreatedAuditEntry",
+		Object:     "UnleashInstanceCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -68597,8 +68597,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceCreatedAuditEntry_messag
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceCreatedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceCreatedAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _UnleashInstanceCreatedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -68623,26 +68623,26 @@ func (ec *executionContext) _UnleashInstanceCreatedAuditEntry_resourceType(ctx c
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceCreatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceCreatedAuditEntry",
+		Object:     "UnleashInstanceCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceCreatedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceCreatedAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _UnleashInstanceCreatedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -68672,9 +68672,9 @@ func (ec *executionContext) _UnleashInstanceCreatedAuditEntry_resourceName(ctx c
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceCreatedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceCreatedAuditEntry",
+		Object:     "UnleashInstanceCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -68685,8 +68685,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceCreatedAuditEntry_resour
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceCreatedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceCreatedAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _UnleashInstanceCreatedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -68716,9 +68716,9 @@ func (ec *executionContext) _UnleashInstanceCreatedAuditEntry_teamSlug(ctx conte
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceCreatedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceCreatedAuditEntry",
+		Object:     "UnleashInstanceCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -68729,8 +68729,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceCreatedAuditEntry_teamSl
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceCreatedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceCreatedAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _UnleashInstanceCreatedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -68757,9 +68757,9 @@ func (ec *executionContext) _UnleashInstanceCreatedAuditEntry_environmentName(ct
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceCreatedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceCreatedAuditEntry",
+		Object:     "UnleashInstanceCreatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -69034,8 +69034,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceMetrics_memoryRequests(_
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedAuditEntry_id(ctx, field)
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -69065,9 +69065,9 @@ func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry_id(ctx context.Con
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedAuditEntry",
+		Object:     "UnleashInstanceUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -69078,8 +69078,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceUpdatedAuditEntry_id(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedAuditEntry_actor(ctx, field)
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -69109,9 +69109,9 @@ func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry_actor(ctx context.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedAuditEntry",
+		Object:     "UnleashInstanceUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -69122,8 +69122,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceUpdatedAuditEntry_actor(
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -69153,9 +69153,9 @@ func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry_createdAt(ctx cont
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedAuditEntry",
+		Object:     "UnleashInstanceUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -69166,8 +69166,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceUpdatedAuditEntry_create
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedAuditEntry_message(ctx, field)
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -69197,9 +69197,9 @@ func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry_message(ctx contex
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedAuditEntry",
+		Object:     "UnleashInstanceUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -69210,8 +69210,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceUpdatedAuditEntry_messag
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -69236,26 +69236,26 @@ func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry_resourceType(ctx c
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedAuditEntry",
+		Object:     "UnleashInstanceUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -69285,9 +69285,9 @@ func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry_resourceName(ctx c
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedAuditEntry",
+		Object:     "UnleashInstanceUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -69298,8 +69298,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceUpdatedAuditEntry_resour
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -69329,9 +69329,9 @@ func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry_teamSlug(ctx conte
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedAuditEntry",
+		Object:     "UnleashInstanceUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -69342,8 +69342,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceUpdatedAuditEntry_teamSl
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -69370,9 +69370,9 @@ func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry_environmentName(ct
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedAuditEntry",
+		Object:     "UnleashInstanceUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -69383,8 +69383,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceUpdatedAuditEntry_enviro
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry_data(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedAuditEntry_data(ctx, field)
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLog_data(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLog_data(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -69409,32 +69409,32 @@ func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry_data(ctx context.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*unleash.UnleashInstanceUpdatedAuditEntryData)
+	res := resTmp.(*unleash.UnleashInstanceUpdatedActivityLogData)
 	fc.Result = res
-	return ec.marshalNUnleashInstanceUpdatedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstanceUpdatedAuditEntryData(ctx, field.Selections, res)
+	return ec.marshalNUnleashInstanceUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstanceUpdatedActivityLogData(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedAuditEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLog_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedAuditEntry",
+		Object:     "UnleashInstanceUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "revokedTeamSlug":
-				return ec.fieldContext_UnleashInstanceUpdatedAuditEntryData_revokedTeamSlug(ctx, field)
+				return ec.fieldContext_UnleashInstanceUpdatedActivityLogData_revokedTeamSlug(ctx, field)
 			case "allowedTeamSlug":
-				return ec.fieldContext_UnleashInstanceUpdatedAuditEntryData_allowedTeamSlug(ctx, field)
+				return ec.fieldContext_UnleashInstanceUpdatedActivityLogData_allowedTeamSlug(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type UnleashInstanceUpdatedAuditEntryData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type UnleashInstanceUpdatedActivityLogData", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceUpdatedAuditEntryData_revokedTeamSlug(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedAuditEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedAuditEntryData_revokedTeamSlug(ctx, field)
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLogData_revokedTeamSlug(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLogData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLogData_revokedTeamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -69461,9 +69461,9 @@ func (ec *executionContext) _UnleashInstanceUpdatedAuditEntryData_revokedTeamSlu
 	return ec.marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedAuditEntryData_revokedTeamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogData_revokedTeamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedAuditEntryData",
+		Object:     "UnleashInstanceUpdatedActivityLogData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -69474,8 +69474,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceUpdatedAuditEntryData_re
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceUpdatedAuditEntryData_allowedTeamSlug(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedAuditEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedAuditEntryData_allowedTeamSlug(ctx, field)
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLogData_allowedTeamSlug(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLogData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLogData_allowedTeamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -69502,9 +69502,9 @@ func (ec *executionContext) _UnleashInstanceUpdatedAuditEntryData_allowedTeamSlu
 	return ec.marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedAuditEntryData_allowedTeamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogData_allowedTeamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedAuditEntryData",
+		Object:     "UnleashInstanceUpdatedActivityLogData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -69776,10 +69776,10 @@ func (ec *executionContext) fieldContext_UpdateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "inventoryCounts":
 				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -70462,8 +70462,8 @@ func (ec *executionContext) fieldContext_UtilizationSample_value(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityUpdatedAuditEntry_id(ctx, field)
+func (ec *executionContext) _VulnerabilityUpdatedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLog_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -70493,9 +70493,9 @@ func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_id(ctx context.Conte
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityUpdatedAuditEntry",
+		Object:     "VulnerabilityUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -70506,8 +70506,8 @@ func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_id(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityUpdatedAuditEntry_actor(ctx, field)
+func (ec *executionContext) _VulnerabilityUpdatedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLog_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -70537,9 +70537,9 @@ func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_actor(ctx context.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityUpdatedAuditEntry",
+		Object:     "VulnerabilityUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -70550,8 +70550,8 @@ func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_actor(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityUpdatedAuditEntry_createdAt(ctx, field)
+func (ec *executionContext) _VulnerabilityUpdatedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLog_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -70581,9 +70581,9 @@ func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_createdAt(ctx contex
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityUpdatedAuditEntry",
+		Object:     "VulnerabilityUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -70594,8 +70594,8 @@ func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_createdA
 	return fc, nil
 }
 
-func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityUpdatedAuditEntry_message(ctx, field)
+func (ec *executionContext) _VulnerabilityUpdatedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLog_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -70625,9 +70625,9 @@ func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_message(ctx context.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityUpdatedAuditEntry",
+		Object:     "VulnerabilityUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -70638,8 +70638,8 @@ func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_message(
 	return fc, nil
 }
 
-func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityUpdatedAuditEntry_resourceType(ctx, field)
+func (ec *executionContext) _VulnerabilityUpdatedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLog_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -70664,26 +70664,26 @@ func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_resourceType(ctx con
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.AuditResourceType)
+	res := resTmp.(activitylog.ActivityLogResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityUpdatedAuditEntry",
+		Object:     "VulnerabilityUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityUpdatedAuditEntry_resourceName(ctx, field)
+func (ec *executionContext) _VulnerabilityUpdatedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLog_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -70713,9 +70713,9 @@ func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_resourceName(ctx con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityUpdatedAuditEntry",
+		Object:     "VulnerabilityUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -70726,8 +70726,8 @@ func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_resource
 	return fc, nil
 }
 
-func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityUpdatedAuditEntry_teamSlug(ctx, field)
+func (ec *executionContext) _VulnerabilityUpdatedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLog_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -70757,9 +70757,9 @@ func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_teamSlug(ctx context
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityUpdatedAuditEntry",
+		Object:     "VulnerabilityUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -70770,8 +70770,8 @@ func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_teamSlug
 	return fc, nil
 }
 
-func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityUpdatedAuditEntry_environmentName(ctx, field)
+func (ec *executionContext) _VulnerabilityUpdatedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLog_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -70798,9 +70798,9 @@ func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_environmentName(ctx 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityUpdatedAuditEntry",
+		Object:     "VulnerabilityUpdatedActivityLog",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -77144,6 +77144,197 @@ func (ec *executionContext) unmarshalInputWorkloadUtilizationSeriesInput(ctx con
 
 // region    ************************** interface.gotpl ***************************
 
+func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj activitylog.ActivityLogEntry) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case application.ApplicationDeletedActivityLog:
+		return ec._ApplicationDeletedActivityLog(ctx, sel, &obj)
+	case *application.ApplicationDeletedActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationDeletedActivityLog(ctx, sel, obj)
+	case application.ApplicationRestartedActivityLog:
+		return ec._ApplicationRestartedActivityLog(ctx, sel, &obj)
+	case *application.ApplicationRestartedActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationRestartedActivityLog(ctx, sel, obj)
+	case deployment.TeamDeployKeyUpdatedActivityLog:
+		return ec._TeamDeployKeyUpdatedActivityLog(ctx, sel, &obj)
+	case *deployment.TeamDeployKeyUpdatedActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamDeployKeyUpdatedActivityLog(ctx, sel, obj)
+	case job.JobDeletedActivityLog:
+		return ec._JobDeletedActivityLog(ctx, sel, &obj)
+	case *job.JobDeletedActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._JobDeletedActivityLog(ctx, sel, obj)
+	case job.JobTriggeredActivityLog:
+		return ec._JobTriggeredActivityLog(ctx, sel, &obj)
+	case *job.JobTriggeredActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._JobTriggeredActivityLog(ctx, sel, obj)
+	case reconciler.ReconcilerEnabledActivityLog:
+		return ec._ReconcilerEnabledActivityLog(ctx, sel, &obj)
+	case *reconciler.ReconcilerEnabledActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ReconcilerEnabledActivityLog(ctx, sel, obj)
+	case reconciler.ReconcilerDisabledActivityLog:
+		return ec._ReconcilerDisabledActivityLog(ctx, sel, &obj)
+	case *reconciler.ReconcilerDisabledActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ReconcilerDisabledActivityLog(ctx, sel, obj)
+	case reconciler.ReconcilerConfiguredActivityLog:
+		return ec._ReconcilerConfiguredActivityLog(ctx, sel, &obj)
+	case *reconciler.ReconcilerConfiguredActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ReconcilerConfiguredActivityLog(ctx, sel, obj)
+	case repository.RepositoryAddedActivityLog:
+		return ec._RepositoryAddedActivityLog(ctx, sel, &obj)
+	case *repository.RepositoryAddedActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RepositoryAddedActivityLog(ctx, sel, obj)
+	case repository.RepositoryRemovedActivityLog:
+		return ec._RepositoryRemovedActivityLog(ctx, sel, &obj)
+	case *repository.RepositoryRemovedActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RepositoryRemovedActivityLog(ctx, sel, obj)
+	case secret.SecretCreatedActivityLog:
+		return ec._SecretCreatedActivityLog(ctx, sel, &obj)
+	case *secret.SecretCreatedActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretCreatedActivityLog(ctx, sel, obj)
+	case secret.SecretValueAddedActivityLog:
+		return ec._SecretValueAddedActivityLog(ctx, sel, &obj)
+	case *secret.SecretValueAddedActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretValueAddedActivityLog(ctx, sel, obj)
+	case secret.SecretValueUpdatedActivityLog:
+		return ec._SecretValueUpdatedActivityLog(ctx, sel, &obj)
+	case *secret.SecretValueUpdatedActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretValueUpdatedActivityLog(ctx, sel, obj)
+	case secret.SecretValueRemovedActivityLog:
+		return ec._SecretValueRemovedActivityLog(ctx, sel, &obj)
+	case *secret.SecretValueRemovedActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretValueRemovedActivityLog(ctx, sel, obj)
+	case secret.SecretDeletedActivityLog:
+		return ec._SecretDeletedActivityLog(ctx, sel, &obj)
+	case *secret.SecretDeletedActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretDeletedActivityLog(ctx, sel, obj)
+	case team.TeamCreatedActivityLog:
+		return ec._TeamCreatedActivityLog(ctx, sel, &obj)
+	case *team.TeamCreatedActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamCreatedActivityLog(ctx, sel, obj)
+	case team.TeamUpdatedActivityLog:
+		return ec._TeamUpdatedActivityLog(ctx, sel, &obj)
+	case *team.TeamUpdatedActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamUpdatedActivityLog(ctx, sel, obj)
+	case team.TeamCreateDeleteKeyActivityLog:
+		return ec._TeamCreateDeleteKeyActivityLog(ctx, sel, &obj)
+	case *team.TeamCreateDeleteKeyActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamCreateDeleteKeyActivityLog(ctx, sel, obj)
+	case team.TeamConfirmDeleteKeyActivityLog:
+		return ec._TeamConfirmDeleteKeyActivityLog(ctx, sel, &obj)
+	case *team.TeamConfirmDeleteKeyActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamConfirmDeleteKeyActivityLog(ctx, sel, obj)
+	case team.TeamMemberAddedActivityLog:
+		return ec._TeamMemberAddedActivityLog(ctx, sel, &obj)
+	case *team.TeamMemberAddedActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamMemberAddedActivityLog(ctx, sel, obj)
+	case team.TeamMemberRemovedActivityLog:
+		return ec._TeamMemberRemovedActivityLog(ctx, sel, &obj)
+	case *team.TeamMemberRemovedActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamMemberRemovedActivityLog(ctx, sel, obj)
+	case team.TeamMemberSetRoleActivityLog:
+		return ec._TeamMemberSetRoleActivityLog(ctx, sel, &obj)
+	case *team.TeamMemberSetRoleActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamMemberSetRoleActivityLog(ctx, sel, obj)
+	case team.TeamEnvironmentUpdatedActivityLog:
+		return ec._TeamEnvironmentUpdatedActivityLog(ctx, sel, &obj)
+	case *team.TeamEnvironmentUpdatedActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamEnvironmentUpdatedActivityLog(ctx, sel, obj)
+	case unleash.UnleashInstanceCreatedActivityLog:
+		return ec._UnleashInstanceCreatedActivityLog(ctx, sel, &obj)
+	case *unleash.UnleashInstanceCreatedActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._UnleashInstanceCreatedActivityLog(ctx, sel, obj)
+	case unleash.UnleashInstanceUpdatedActivityLog:
+		return ec._UnleashInstanceUpdatedActivityLog(ctx, sel, &obj)
+	case *unleash.UnleashInstanceUpdatedActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._UnleashInstanceUpdatedActivityLog(ctx, sel, obj)
+	case vulnerability.VulnerabilityUpdatedActivityLog:
+		return ec._VulnerabilityUpdatedActivityLog(ctx, sel, &obj)
+	case *vulnerability.VulnerabilityUpdatedActivityLog:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._VulnerabilityUpdatedActivityLog(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _ApplicationAuthIntegrations(ctx context.Context, sel ast.SelectionSet, obj workload.ApplicationAuthIntegrations) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -77176,197 +77367,6 @@ func (ec *executionContext) _ApplicationAuthIntegrations(ctx context.Context, se
 			return graphql.Null
 		}
 		return ec._TokenXAuthIntegration(ctx, sel, obj)
-	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
-	}
-}
-
-func (ec *executionContext) _AuditEntry(ctx context.Context, sel ast.SelectionSet, obj activitylog.AuditEntry) graphql.Marshaler {
-	switch obj := (obj).(type) {
-	case nil:
-		return graphql.Null
-	case application.ApplicationDeletedAuditEntry:
-		return ec._ApplicationDeletedAuditEntry(ctx, sel, &obj)
-	case *application.ApplicationDeletedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ApplicationDeletedAuditEntry(ctx, sel, obj)
-	case application.ApplicationRestartedAuditEntry:
-		return ec._ApplicationRestartedAuditEntry(ctx, sel, &obj)
-	case *application.ApplicationRestartedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ApplicationRestartedAuditEntry(ctx, sel, obj)
-	case deployment.TeamDeployKeyUpdatedAuditEntry:
-		return ec._TeamDeployKeyUpdatedAuditEntry(ctx, sel, &obj)
-	case *deployment.TeamDeployKeyUpdatedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamDeployKeyUpdatedAuditEntry(ctx, sel, obj)
-	case job.JobDeletedAuditEntry:
-		return ec._JobDeletedAuditEntry(ctx, sel, &obj)
-	case *job.JobDeletedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._JobDeletedAuditEntry(ctx, sel, obj)
-	case job.JobTriggeredAuditEntry:
-		return ec._JobTriggeredAuditEntry(ctx, sel, &obj)
-	case *job.JobTriggeredAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._JobTriggeredAuditEntry(ctx, sel, obj)
-	case reconciler.ReconcilerEnabledAuditEntry:
-		return ec._ReconcilerEnabledAuditEntry(ctx, sel, &obj)
-	case *reconciler.ReconcilerEnabledAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ReconcilerEnabledAuditEntry(ctx, sel, obj)
-	case reconciler.ReconcilerDisabledAuditEntry:
-		return ec._ReconcilerDisabledAuditEntry(ctx, sel, &obj)
-	case *reconciler.ReconcilerDisabledAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ReconcilerDisabledAuditEntry(ctx, sel, obj)
-	case reconciler.ReconcilerConfiguredAuditEntry:
-		return ec._ReconcilerConfiguredAuditEntry(ctx, sel, &obj)
-	case *reconciler.ReconcilerConfiguredAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ReconcilerConfiguredAuditEntry(ctx, sel, obj)
-	case repository.RepositoryAddedAuditEntry:
-		return ec._RepositoryAddedAuditEntry(ctx, sel, &obj)
-	case *repository.RepositoryAddedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._RepositoryAddedAuditEntry(ctx, sel, obj)
-	case repository.RepositoryRemovedAuditEntry:
-		return ec._RepositoryRemovedAuditEntry(ctx, sel, &obj)
-	case *repository.RepositoryRemovedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._RepositoryRemovedAuditEntry(ctx, sel, obj)
-	case secret.SecretCreatedAuditEntry:
-		return ec._SecretCreatedAuditEntry(ctx, sel, &obj)
-	case *secret.SecretCreatedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SecretCreatedAuditEntry(ctx, sel, obj)
-	case secret.SecretValueAddedAuditEntry:
-		return ec._SecretValueAddedAuditEntry(ctx, sel, &obj)
-	case *secret.SecretValueAddedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SecretValueAddedAuditEntry(ctx, sel, obj)
-	case secret.SecretValueUpdatedAuditEntry:
-		return ec._SecretValueUpdatedAuditEntry(ctx, sel, &obj)
-	case *secret.SecretValueUpdatedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SecretValueUpdatedAuditEntry(ctx, sel, obj)
-	case secret.SecretValueRemovedAuditEntry:
-		return ec._SecretValueRemovedAuditEntry(ctx, sel, &obj)
-	case *secret.SecretValueRemovedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SecretValueRemovedAuditEntry(ctx, sel, obj)
-	case secret.SecretDeletedAuditEntry:
-		return ec._SecretDeletedAuditEntry(ctx, sel, &obj)
-	case *secret.SecretDeletedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SecretDeletedAuditEntry(ctx, sel, obj)
-	case team.TeamCreatedAuditEntry:
-		return ec._TeamCreatedAuditEntry(ctx, sel, &obj)
-	case *team.TeamCreatedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamCreatedAuditEntry(ctx, sel, obj)
-	case team.TeamUpdatedAuditEntry:
-		return ec._TeamUpdatedAuditEntry(ctx, sel, &obj)
-	case *team.TeamUpdatedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamUpdatedAuditEntry(ctx, sel, obj)
-	case team.TeamCreateDeleteKeyAuditEntry:
-		return ec._TeamCreateDeleteKeyAuditEntry(ctx, sel, &obj)
-	case *team.TeamCreateDeleteKeyAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamCreateDeleteKeyAuditEntry(ctx, sel, obj)
-	case team.TeamConfirmDeleteKeyAuditEntry:
-		return ec._TeamConfirmDeleteKeyAuditEntry(ctx, sel, &obj)
-	case *team.TeamConfirmDeleteKeyAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamConfirmDeleteKeyAuditEntry(ctx, sel, obj)
-	case team.TeamMemberAddedAuditEntry:
-		return ec._TeamMemberAddedAuditEntry(ctx, sel, &obj)
-	case *team.TeamMemberAddedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamMemberAddedAuditEntry(ctx, sel, obj)
-	case team.TeamMemberRemovedAuditEntry:
-		return ec._TeamMemberRemovedAuditEntry(ctx, sel, &obj)
-	case *team.TeamMemberRemovedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamMemberRemovedAuditEntry(ctx, sel, obj)
-	case team.TeamMemberSetRoleAuditEntry:
-		return ec._TeamMemberSetRoleAuditEntry(ctx, sel, &obj)
-	case *team.TeamMemberSetRoleAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamMemberSetRoleAuditEntry(ctx, sel, obj)
-	case team.TeamEnvironmentUpdatedAuditEntry:
-		return ec._TeamEnvironmentUpdatedAuditEntry(ctx, sel, &obj)
-	case *team.TeamEnvironmentUpdatedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamEnvironmentUpdatedAuditEntry(ctx, sel, obj)
-	case unleash.UnleashInstanceCreatedAuditEntry:
-		return ec._UnleashInstanceCreatedAuditEntry(ctx, sel, &obj)
-	case *unleash.UnleashInstanceCreatedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._UnleashInstanceCreatedAuditEntry(ctx, sel, obj)
-	case unleash.UnleashInstanceUpdatedAuditEntry:
-		return ec._UnleashInstanceUpdatedAuditEntry(ctx, sel, &obj)
-	case *unleash.UnleashInstanceUpdatedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._UnleashInstanceUpdatedAuditEntry(ctx, sel, obj)
-	case vulnerability.VulnerabilityUpdatedAuditEntry:
-		return ec._VulnerabilityUpdatedAuditEntry(ctx, sel, &obj)
-	case *vulnerability.VulnerabilityUpdatedAuditEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._VulnerabilityUpdatedAuditEntry(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -77478,41 +77478,41 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case secret.SecretCreatedAuditEntry:
-		return ec._SecretCreatedAuditEntry(ctx, sel, &obj)
-	case *secret.SecretCreatedAuditEntry:
+	case secret.SecretCreatedActivityLog:
+		return ec._SecretCreatedActivityLog(ctx, sel, &obj)
+	case *secret.SecretCreatedActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretCreatedAuditEntry(ctx, sel, obj)
-	case vulnerability.VulnerabilityUpdatedAuditEntry:
-		return ec._VulnerabilityUpdatedAuditEntry(ctx, sel, &obj)
-	case *vulnerability.VulnerabilityUpdatedAuditEntry:
+		return ec._SecretCreatedActivityLog(ctx, sel, obj)
+	case vulnerability.VulnerabilityUpdatedActivityLog:
+		return ec._VulnerabilityUpdatedActivityLog(ctx, sel, &obj)
+	case *vulnerability.VulnerabilityUpdatedActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._VulnerabilityUpdatedAuditEntry(ctx, sel, obj)
-	case application.ApplicationDeletedAuditEntry:
-		return ec._ApplicationDeletedAuditEntry(ctx, sel, &obj)
-	case *application.ApplicationDeletedAuditEntry:
+		return ec._VulnerabilityUpdatedActivityLog(ctx, sel, obj)
+	case secret.SecretValueAddedActivityLog:
+		return ec._SecretValueAddedActivityLog(ctx, sel, &obj)
+	case *secret.SecretValueAddedActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ApplicationDeletedAuditEntry(ctx, sel, obj)
-	case application.ApplicationRestartedAuditEntry:
-		return ec._ApplicationRestartedAuditEntry(ctx, sel, &obj)
-	case *application.ApplicationRestartedAuditEntry:
+		return ec._SecretValueAddedActivityLog(ctx, sel, obj)
+	case application.ApplicationDeletedActivityLog:
+		return ec._ApplicationDeletedActivityLog(ctx, sel, &obj)
+	case *application.ApplicationDeletedActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ApplicationRestartedAuditEntry(ctx, sel, obj)
-	case application.Application:
-		return ec._Application(ctx, sel, &obj)
-	case *application.Application:
+		return ec._ApplicationDeletedActivityLog(ctx, sel, obj)
+	case application.ApplicationRestartedActivityLog:
+		return ec._ApplicationRestartedActivityLog(ctx, sel, &obj)
+	case *application.ApplicationRestartedActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Application(ctx, sel, obj)
+		return ec._ApplicationRestartedActivityLog(ctx, sel, obj)
 	case bigquery.BigQueryDataset:
 		return ec._BigQueryDataset(ctx, sel, &obj)
 	case *bigquery.BigQueryDataset:
@@ -77527,27 +77527,27 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Bucket(ctx, sel, obj)
-	case secret.SecretValueAddedAuditEntry:
-		return ec._SecretValueAddedAuditEntry(ctx, sel, &obj)
-	case *secret.SecretValueAddedAuditEntry:
+	case unleash.UnleashInstanceCreatedActivityLog:
+		return ec._UnleashInstanceCreatedActivityLog(ctx, sel, &obj)
+	case *unleash.UnleashInstanceCreatedActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueAddedAuditEntry(ctx, sel, obj)
-	case unleash.UnleashInstanceCreatedAuditEntry:
-		return ec._UnleashInstanceCreatedAuditEntry(ctx, sel, &obj)
-	case *unleash.UnleashInstanceCreatedAuditEntry:
+		return ec._UnleashInstanceCreatedActivityLog(ctx, sel, obj)
+	case team.TeamEnvironmentUpdatedActivityLog:
+		return ec._TeamEnvironmentUpdatedActivityLog(ctx, sel, &obj)
+	case *team.TeamEnvironmentUpdatedActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._UnleashInstanceCreatedAuditEntry(ctx, sel, obj)
-	case deployment.TeamDeployKeyUpdatedAuditEntry:
-		return ec._TeamDeployKeyUpdatedAuditEntry(ctx, sel, &obj)
-	case *deployment.TeamDeployKeyUpdatedAuditEntry:
+		return ec._TeamEnvironmentUpdatedActivityLog(ctx, sel, obj)
+	case deployment.TeamDeployKeyUpdatedActivityLog:
+		return ec._TeamDeployKeyUpdatedActivityLog(ctx, sel, &obj)
+	case *deployment.TeamDeployKeyUpdatedActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamDeployKeyUpdatedAuditEntry(ctx, sel, obj)
+		return ec._TeamDeployKeyUpdatedActivityLog(ctx, sel, obj)
 	case job.Job:
 		return ec._Job(ctx, sel, &obj)
 	case *job.Job:
@@ -77555,34 +77555,34 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Job(ctx, sel, obj)
-	case team.TeamEnvironmentUpdatedAuditEntry:
-		return ec._TeamEnvironmentUpdatedAuditEntry(ctx, sel, &obj)
-	case *team.TeamEnvironmentUpdatedAuditEntry:
+	case team.TeamMemberSetRoleActivityLog:
+		return ec._TeamMemberSetRoleActivityLog(ctx, sel, &obj)
+	case *team.TeamMemberSetRoleActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamEnvironmentUpdatedAuditEntry(ctx, sel, obj)
-	case team.TeamMemberSetRoleAuditEntry:
-		return ec._TeamMemberSetRoleAuditEntry(ctx, sel, &obj)
-	case *team.TeamMemberSetRoleAuditEntry:
+		return ec._TeamMemberSetRoleActivityLog(ctx, sel, obj)
+	case team.TeamMemberRemovedActivityLog:
+		return ec._TeamMemberRemovedActivityLog(ctx, sel, &obj)
+	case *team.TeamMemberRemovedActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamMemberSetRoleAuditEntry(ctx, sel, obj)
-	case job.JobDeletedAuditEntry:
-		return ec._JobDeletedAuditEntry(ctx, sel, &obj)
-	case *job.JobDeletedAuditEntry:
+		return ec._TeamMemberRemovedActivityLog(ctx, sel, obj)
+	case job.JobDeletedActivityLog:
+		return ec._JobDeletedActivityLog(ctx, sel, &obj)
+	case *job.JobDeletedActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._JobDeletedAuditEntry(ctx, sel, obj)
-	case job.JobTriggeredAuditEntry:
-		return ec._JobTriggeredAuditEntry(ctx, sel, &obj)
-	case *job.JobTriggeredAuditEntry:
+		return ec._JobDeletedActivityLog(ctx, sel, obj)
+	case job.JobTriggeredActivityLog:
+		return ec._JobTriggeredActivityLog(ctx, sel, &obj)
+	case *job.JobTriggeredActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._JobTriggeredAuditEntry(ctx, sel, obj)
+		return ec._JobTriggeredActivityLog(ctx, sel, obj)
 	case kafkatopic.KafkaTopic:
 		return ec._KafkaTopic(ctx, sel, &obj)
 	case *kafkatopic.KafkaTopic:
@@ -77597,41 +77597,41 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._OpenSearch(ctx, sel, obj)
-	case team.TeamMemberRemovedAuditEntry:
-		return ec._TeamMemberRemovedAuditEntry(ctx, sel, &obj)
-	case *team.TeamMemberRemovedAuditEntry:
+	case team.TeamMemberAddedActivityLog:
+		return ec._TeamMemberAddedActivityLog(ctx, sel, &obj)
+	case *team.TeamMemberAddedActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamMemberRemovedAuditEntry(ctx, sel, obj)
-	case team.TeamMemberAddedAuditEntry:
-		return ec._TeamMemberAddedAuditEntry(ctx, sel, &obj)
-	case *team.TeamMemberAddedAuditEntry:
+		return ec._TeamMemberAddedActivityLog(ctx, sel, obj)
+	case team.TeamConfirmDeleteKeyActivityLog:
+		return ec._TeamConfirmDeleteKeyActivityLog(ctx, sel, &obj)
+	case *team.TeamConfirmDeleteKeyActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamMemberAddedAuditEntry(ctx, sel, obj)
-	case reconciler.ReconcilerEnabledAuditEntry:
-		return ec._ReconcilerEnabledAuditEntry(ctx, sel, &obj)
-	case *reconciler.ReconcilerEnabledAuditEntry:
+		return ec._TeamConfirmDeleteKeyActivityLog(ctx, sel, obj)
+	case reconciler.ReconcilerEnabledActivityLog:
+		return ec._ReconcilerEnabledActivityLog(ctx, sel, &obj)
+	case *reconciler.ReconcilerEnabledActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ReconcilerEnabledAuditEntry(ctx, sel, obj)
-	case reconciler.ReconcilerDisabledAuditEntry:
-		return ec._ReconcilerDisabledAuditEntry(ctx, sel, &obj)
-	case *reconciler.ReconcilerDisabledAuditEntry:
+		return ec._ReconcilerEnabledActivityLog(ctx, sel, obj)
+	case reconciler.ReconcilerDisabledActivityLog:
+		return ec._ReconcilerDisabledActivityLog(ctx, sel, &obj)
+	case *reconciler.ReconcilerDisabledActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ReconcilerDisabledAuditEntry(ctx, sel, obj)
-	case reconciler.ReconcilerConfiguredAuditEntry:
-		return ec._ReconcilerConfiguredAuditEntry(ctx, sel, &obj)
-	case *reconciler.ReconcilerConfiguredAuditEntry:
+		return ec._ReconcilerDisabledActivityLog(ctx, sel, obj)
+	case reconciler.ReconcilerConfiguredActivityLog:
+		return ec._ReconcilerConfiguredActivityLog(ctx, sel, &obj)
+	case *reconciler.ReconcilerConfiguredActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ReconcilerConfiguredAuditEntry(ctx, sel, obj)
+		return ec._ReconcilerConfiguredActivityLog(ctx, sel, obj)
 	case redis.RedisInstance:
 		return ec._RedisInstance(ctx, sel, &obj)
 	case *redis.RedisInstance:
@@ -77639,76 +77639,76 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._RedisInstance(ctx, sel, obj)
-	case team.TeamConfirmDeleteKeyAuditEntry:
-		return ec._TeamConfirmDeleteKeyAuditEntry(ctx, sel, &obj)
-	case *team.TeamConfirmDeleteKeyAuditEntry:
+	case team.TeamCreateDeleteKeyActivityLog:
+		return ec._TeamCreateDeleteKeyActivityLog(ctx, sel, &obj)
+	case *team.TeamCreateDeleteKeyActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamConfirmDeleteKeyAuditEntry(ctx, sel, obj)
-	case team.TeamCreateDeleteKeyAuditEntry:
-		return ec._TeamCreateDeleteKeyAuditEntry(ctx, sel, &obj)
-	case *team.TeamCreateDeleteKeyAuditEntry:
+		return ec._TeamCreateDeleteKeyActivityLog(ctx, sel, obj)
+	case team.TeamUpdatedActivityLog:
+		return ec._TeamUpdatedActivityLog(ctx, sel, &obj)
+	case *team.TeamUpdatedActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamCreateDeleteKeyAuditEntry(ctx, sel, obj)
-	case repository.RepositoryRemovedAuditEntry:
-		return ec._RepositoryRemovedAuditEntry(ctx, sel, &obj)
-	case *repository.RepositoryRemovedAuditEntry:
+		return ec._TeamUpdatedActivityLog(ctx, sel, obj)
+	case repository.RepositoryRemovedActivityLog:
+		return ec._RepositoryRemovedActivityLog(ctx, sel, &obj)
+	case *repository.RepositoryRemovedActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RepositoryRemovedAuditEntry(ctx, sel, obj)
-	case repository.RepositoryAddedAuditEntry:
-		return ec._RepositoryAddedAuditEntry(ctx, sel, &obj)
-	case *repository.RepositoryAddedAuditEntry:
+		return ec._RepositoryRemovedActivityLog(ctx, sel, obj)
+	case repository.RepositoryAddedActivityLog:
+		return ec._RepositoryAddedActivityLog(ctx, sel, &obj)
+	case *repository.RepositoryAddedActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RepositoryAddedAuditEntry(ctx, sel, obj)
-	case team.TeamUpdatedAuditEntry:
-		return ec._TeamUpdatedAuditEntry(ctx, sel, &obj)
-	case *team.TeamUpdatedAuditEntry:
+		return ec._RepositoryAddedActivityLog(ctx, sel, obj)
+	case application.Application:
+		return ec._Application(ctx, sel, &obj)
+	case *application.Application:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamUpdatedAuditEntry(ctx, sel, obj)
-	case unleash.UnleashInstanceUpdatedAuditEntry:
-		return ec._UnleashInstanceUpdatedAuditEntry(ctx, sel, &obj)
-	case *unleash.UnleashInstanceUpdatedAuditEntry:
+		return ec._Application(ctx, sel, obj)
+	case unleash.UnleashInstanceUpdatedActivityLog:
+		return ec._UnleashInstanceUpdatedActivityLog(ctx, sel, &obj)
+	case *unleash.UnleashInstanceUpdatedActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._UnleashInstanceUpdatedAuditEntry(ctx, sel, obj)
-	case secret.SecretValueUpdatedAuditEntry:
-		return ec._SecretValueUpdatedAuditEntry(ctx, sel, &obj)
-	case *secret.SecretValueUpdatedAuditEntry:
+		return ec._UnleashInstanceUpdatedActivityLog(ctx, sel, obj)
+	case secret.SecretValueUpdatedActivityLog:
+		return ec._SecretValueUpdatedActivityLog(ctx, sel, &obj)
+	case *secret.SecretValueUpdatedActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueUpdatedAuditEntry(ctx, sel, obj)
-	case secret.SecretValueRemovedAuditEntry:
-		return ec._SecretValueRemovedAuditEntry(ctx, sel, &obj)
-	case *secret.SecretValueRemovedAuditEntry:
+		return ec._SecretValueUpdatedActivityLog(ctx, sel, obj)
+	case secret.SecretValueRemovedActivityLog:
+		return ec._SecretValueRemovedActivityLog(ctx, sel, &obj)
+	case *secret.SecretValueRemovedActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueRemovedAuditEntry(ctx, sel, obj)
-	case secret.SecretDeletedAuditEntry:
-		return ec._SecretDeletedAuditEntry(ctx, sel, &obj)
-	case *secret.SecretDeletedAuditEntry:
+		return ec._SecretValueRemovedActivityLog(ctx, sel, obj)
+	case secret.SecretDeletedActivityLog:
+		return ec._SecretDeletedActivityLog(ctx, sel, &obj)
+	case *secret.SecretDeletedActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretDeletedAuditEntry(ctx, sel, obj)
-	case team.TeamCreatedAuditEntry:
-		return ec._TeamCreatedAuditEntry(ctx, sel, &obj)
-	case *team.TeamCreatedAuditEntry:
+		return ec._SecretDeletedActivityLog(ctx, sel, obj)
+	case team.TeamCreatedActivityLog:
+		return ec._TeamCreatedActivityLog(ctx, sel, &obj)
+	case *team.TeamCreatedActivityLog:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamCreatedAuditEntry(ctx, sel, obj)
+		return ec._TeamCreatedActivityLog(ctx, sel, obj)
 	case sqlinstance.SQLDatabase:
 		return ec._SqlDatabase(ctx, sel, &obj)
 	case *sqlinstance.SQLDatabase:
@@ -77744,20 +77744,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UnleashInstance(ctx, sel, obj)
-	case job.JobRun:
-		return ec._JobRun(ctx, sel, &obj)
-	case *job.JobRun:
+	case deployment.Deployment:
+		return ec._Deployment(ctx, sel, &obj)
+	case *deployment.Deployment:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._JobRun(ctx, sel, obj)
-	case secret.Secret:
-		return ec._Secret(ctx, sel, &obj)
-	case *secret.Secret:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Secret(ctx, sel, obj)
+		return ec._Deployment(ctx, sel, obj)
 	case repository.Repository:
 		return ec._Repository(ctx, sel, &obj)
 	case *repository.Repository:
@@ -77772,6 +77765,11 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Reconciler(ctx, sel, obj)
+	case persistence.Persistence:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Persistence(ctx, sel, obj)
 	case team.TeamEnvironment:
 		return ec._TeamEnvironment(ctx, sel, &obj)
 	case *team.TeamEnvironment:
@@ -77779,6 +77777,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamEnvironment(ctx, sel, obj)
+	case job.JobRun:
+		return ec._JobRun(ctx, sel, &obj)
+	case *job.JobRun:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._JobRun(ctx, sel, obj)
 	case job.JobRunInstance:
 		return ec._JobRunInstance(ctx, sel, &obj)
 	case *job.JobRunInstance:
@@ -77786,25 +77791,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._JobRunInstance(ctx, sel, obj)
-	case persistence.Persistence:
+	case secret.Secret:
+		return ec._Secret(ctx, sel, &obj)
+	case *secret.Secret:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Persistence(ctx, sel, obj)
-	case application.ApplicationInstance:
-		return ec._ApplicationInstance(ctx, sel, &obj)
-	case *application.ApplicationInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ApplicationInstance(ctx, sel, obj)
-	case deployment.Deployment:
-		return ec._Deployment(ctx, sel, &obj)
-	case *deployment.Deployment:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Deployment(ctx, sel, obj)
+		return ec._Secret(ctx, sel, obj)
 	case deployment.DeploymentKey:
 		return ec._DeploymentKey(ctx, sel, &obj)
 	case *deployment.DeploymentKey:
@@ -77812,6 +77805,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._DeploymentKey(ctx, sel, obj)
+	case application.ApplicationInstance:
+		return ec._ApplicationInstance(ctx, sel, &obj)
+	case *application.ApplicationInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationInstance(ctx, sel, obj)
 	case user.User:
 		return ec._User(ctx, sel, &obj)
 	case *user.User:
@@ -77826,11 +77826,11 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ImageVulnerability(ctx, sel, obj)
-	case activitylog.AuditEntry:
+	case activitylog.ActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._AuditEntry(ctx, sel, obj)
+		return ec._ActivityLogEntry(ctx, sel, obj)
 	case workload.Workload:
 		if obj == nil {
 			return graphql.Null
@@ -78155,6 +78155,99 @@ func (ec *executionContext) _WorkloadStatusError(ctx context.Context, sel ast.Se
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var activityLogConnectionImplementors = []string{"ActivityLogConnection"}
+
+func (ec *executionContext) _ActivityLogConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[activitylog.ActivityLogEntry]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, activityLogConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ActivityLogConnection")
+		case "pageInfo":
+			out.Values[i] = ec._ActivityLogConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._ActivityLogConnection_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._ActivityLogConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var activityLogEdgeImplementors = []string{"ActivityLogEdge"}
+
+func (ec *executionContext) _ActivityLogEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[activitylog.ActivityLogEntry]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, activityLogEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ActivityLogEdge")
+		case "cursor":
+			out.Values[i] = ec._ActivityLogEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "node":
+			out.Values[i] = ec._ActivityLogEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
 
 var addRepositoryToTeamPayloadImplementors = []string{"AddRepositoryToTeamPayload"}
 
@@ -79017,54 +79110,54 @@ func (ec *executionContext) _ApplicationConnection(ctx context.Context, sel ast.
 	return out
 }
 
-var applicationDeletedAuditEntryImplementors = []string{"ApplicationDeletedAuditEntry", "AuditEntry", "Node"}
+var applicationDeletedActivityLogImplementors = []string{"ApplicationDeletedActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _ApplicationDeletedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *application.ApplicationDeletedAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, applicationDeletedAuditEntryImplementors)
+func (ec *executionContext) _ApplicationDeletedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *application.ApplicationDeletedActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, applicationDeletedActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ApplicationDeletedAuditEntry")
+			out.Values[i] = graphql.MarshalString("ApplicationDeletedActivityLog")
 		case "id":
-			out.Values[i] = ec._ApplicationDeletedAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._ApplicationDeletedActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._ApplicationDeletedAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._ApplicationDeletedActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._ApplicationDeletedAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._ApplicationDeletedActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._ApplicationDeletedAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._ApplicationDeletedActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._ApplicationDeletedAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._ApplicationDeletedActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._ApplicationDeletedAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._ApplicationDeletedActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._ApplicationDeletedAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._ApplicationDeletedActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._ApplicationDeletedAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._ApplicationDeletedActivityLog_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -79421,54 +79514,54 @@ func (ec *executionContext) _ApplicationResources(ctx context.Context, sel ast.S
 	return out
 }
 
-var applicationRestartedAuditEntryImplementors = []string{"ApplicationRestartedAuditEntry", "AuditEntry", "Node"}
+var applicationRestartedActivityLogImplementors = []string{"ApplicationRestartedActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _ApplicationRestartedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *application.ApplicationRestartedAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, applicationRestartedAuditEntryImplementors)
+func (ec *executionContext) _ApplicationRestartedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *application.ApplicationRestartedActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, applicationRestartedActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ApplicationRestartedAuditEntry")
+			out.Values[i] = graphql.MarshalString("ApplicationRestartedActivityLog")
 		case "id":
-			out.Values[i] = ec._ApplicationRestartedAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._ApplicationRestartedActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._ApplicationRestartedAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._ApplicationRestartedActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._ApplicationRestartedAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._ApplicationRestartedActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._ApplicationRestartedAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._ApplicationRestartedActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._ApplicationRestartedAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._ApplicationRestartedActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._ApplicationRestartedAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._ApplicationRestartedActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._ApplicationRestartedAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._ApplicationRestartedActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._ApplicationRestartedAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._ApplicationRestartedActivityLog_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -79515,99 +79608,6 @@ func (ec *executionContext) _ApplicationScaling(ctx context.Context, sel ast.Sel
 			}
 		case "strategies":
 			out.Values[i] = ec._ApplicationScaling_strategies(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var auditEntryConnectionImplementors = []string{"AuditEntryConnection"}
-
-func (ec *executionContext) _AuditEntryConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[activitylog.AuditEntry]) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, auditEntryConnectionImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("AuditEntryConnection")
-		case "pageInfo":
-			out.Values[i] = ec._AuditEntryConnection_pageInfo(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "nodes":
-			out.Values[i] = ec._AuditEntryConnection_nodes(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "edges":
-			out.Values[i] = ec._AuditEntryConnection_edges(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var auditEntryEdgeImplementors = []string{"AuditEntryEdge"}
-
-func (ec *executionContext) _AuditEntryEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[activitylog.AuditEntry]) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, auditEntryEdgeImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("AuditEntryEdge")
-		case "cursor":
-			out.Values[i] = ec._AuditEntryEdge_cursor(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "node":
-			out.Values[i] = ec._AuditEntryEdge_node(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -83183,54 +83183,54 @@ func (ec *executionContext) _JobConnection(ctx context.Context, sel ast.Selectio
 	return out
 }
 
-var jobDeletedAuditEntryImplementors = []string{"JobDeletedAuditEntry", "AuditEntry", "Node"}
+var jobDeletedActivityLogImplementors = []string{"JobDeletedActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _JobDeletedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *job.JobDeletedAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, jobDeletedAuditEntryImplementors)
+func (ec *executionContext) _JobDeletedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *job.JobDeletedActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jobDeletedActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("JobDeletedAuditEntry")
+			out.Values[i] = graphql.MarshalString("JobDeletedActivityLog")
 		case "id":
-			out.Values[i] = ec._JobDeletedAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._JobDeletedActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._JobDeletedAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._JobDeletedActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._JobDeletedAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._JobDeletedActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._JobDeletedAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._JobDeletedActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._JobDeletedAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._JobDeletedActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._JobDeletedAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._JobDeletedActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._JobDeletedAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._JobDeletedActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._JobDeletedAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._JobDeletedActivityLog_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -83829,54 +83829,54 @@ func (ec *executionContext) _JobSchedule(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
-var jobTriggeredAuditEntryImplementors = []string{"JobTriggeredAuditEntry", "AuditEntry", "Node"}
+var jobTriggeredActivityLogImplementors = []string{"JobTriggeredActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _JobTriggeredAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *job.JobTriggeredAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, jobTriggeredAuditEntryImplementors)
+func (ec *executionContext) _JobTriggeredActivityLog(ctx context.Context, sel ast.SelectionSet, obj *job.JobTriggeredActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jobTriggeredActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("JobTriggeredAuditEntry")
+			out.Values[i] = graphql.MarshalString("JobTriggeredActivityLog")
 		case "id":
-			out.Values[i] = ec._JobTriggeredAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._JobTriggeredActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._JobTriggeredAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._JobTriggeredActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._JobTriggeredAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._JobTriggeredActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._JobTriggeredAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._JobTriggeredActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._JobTriggeredAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._JobTriggeredActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._JobTriggeredAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._JobTriggeredActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._JobTriggeredAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._JobTriggeredActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._JobTriggeredAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._JobTriggeredActivityLog_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -86016,7 +86016,7 @@ func (ec *executionContext) _Reconciler(ctx context.Context, sel ast.SelectionSe
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "auditEntries":
+		case "activityLog":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -86025,7 +86025,7 @@ func (ec *executionContext) _Reconciler(ctx context.Context, sel ast.SelectionSe
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Reconciler_auditEntries(ctx, field, obj)
+				res = ec._Reconciler_activityLog(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -86136,56 +86136,56 @@ func (ec *executionContext) _ReconcilerConfig(ctx context.Context, sel ast.Selec
 	return out
 }
 
-var reconcilerConfiguredAuditEntryImplementors = []string{"ReconcilerConfiguredAuditEntry", "AuditEntry", "Node"}
+var reconcilerConfiguredActivityLogImplementors = []string{"ReconcilerConfiguredActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _ReconcilerConfiguredAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *reconciler.ReconcilerConfiguredAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerConfiguredAuditEntryImplementors)
+func (ec *executionContext) _ReconcilerConfiguredActivityLog(ctx context.Context, sel ast.SelectionSet, obj *reconciler.ReconcilerConfiguredActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerConfiguredActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ReconcilerConfiguredAuditEntry")
+			out.Values[i] = graphql.MarshalString("ReconcilerConfiguredActivityLog")
 		case "id":
-			out.Values[i] = ec._ReconcilerConfiguredAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerConfiguredActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._ReconcilerConfiguredAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerConfiguredActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._ReconcilerConfiguredAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerConfiguredActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._ReconcilerConfiguredAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerConfiguredActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._ReconcilerConfiguredAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerConfiguredActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._ReconcilerConfiguredAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerConfiguredActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._ReconcilerConfiguredAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerConfiguredActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._ReconcilerConfiguredAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerConfiguredActivityLog_environmentName(ctx, field, obj)
 		case "data":
-			out.Values[i] = ec._ReconcilerConfiguredAuditEntry_data(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerConfiguredActivityLog_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -86212,19 +86212,19 @@ func (ec *executionContext) _ReconcilerConfiguredAuditEntry(ctx context.Context,
 	return out
 }
 
-var reconcilerConfiguredAuditEntryDataImplementors = []string{"ReconcilerConfiguredAuditEntryData"}
+var reconcilerConfiguredActivityLogDataImplementors = []string{"ReconcilerConfiguredActivityLogData"}
 
-func (ec *executionContext) _ReconcilerConfiguredAuditEntryData(ctx context.Context, sel ast.SelectionSet, obj *reconciler.ReconcilerConfiguredAuditEntryData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerConfiguredAuditEntryDataImplementors)
+func (ec *executionContext) _ReconcilerConfiguredActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *reconciler.ReconcilerConfiguredActivityLogData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerConfiguredActivityLogDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ReconcilerConfiguredAuditEntryData")
+			out.Values[i] = graphql.MarshalString("ReconcilerConfiguredActivityLogData")
 		case "updatedKeys":
-			out.Values[i] = ec._ReconcilerConfiguredAuditEntryData_updatedKeys(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerConfiguredActivityLogData_updatedKeys(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -86300,54 +86300,54 @@ func (ec *executionContext) _ReconcilerConnection(ctx context.Context, sel ast.S
 	return out
 }
 
-var reconcilerDisabledAuditEntryImplementors = []string{"ReconcilerDisabledAuditEntry", "AuditEntry", "Node"}
+var reconcilerDisabledActivityLogImplementors = []string{"ReconcilerDisabledActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _ReconcilerDisabledAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *reconciler.ReconcilerDisabledAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerDisabledAuditEntryImplementors)
+func (ec *executionContext) _ReconcilerDisabledActivityLog(ctx context.Context, sel ast.SelectionSet, obj *reconciler.ReconcilerDisabledActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerDisabledActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ReconcilerDisabledAuditEntry")
+			out.Values[i] = graphql.MarshalString("ReconcilerDisabledActivityLog")
 		case "id":
-			out.Values[i] = ec._ReconcilerDisabledAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerDisabledActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._ReconcilerDisabledAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerDisabledActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._ReconcilerDisabledAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerDisabledActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._ReconcilerDisabledAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerDisabledActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._ReconcilerDisabledAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerDisabledActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._ReconcilerDisabledAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerDisabledActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._ReconcilerDisabledAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerDisabledActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._ReconcilerDisabledAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerDisabledActivityLog_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -86415,54 +86415,54 @@ func (ec *executionContext) _ReconcilerEdge(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var reconcilerEnabledAuditEntryImplementors = []string{"ReconcilerEnabledAuditEntry", "AuditEntry", "Node"}
+var reconcilerEnabledActivityLogImplementors = []string{"ReconcilerEnabledActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _ReconcilerEnabledAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *reconciler.ReconcilerEnabledAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerEnabledAuditEntryImplementors)
+func (ec *executionContext) _ReconcilerEnabledActivityLog(ctx context.Context, sel ast.SelectionSet, obj *reconciler.ReconcilerEnabledActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerEnabledActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ReconcilerEnabledAuditEntry")
+			out.Values[i] = graphql.MarshalString("ReconcilerEnabledActivityLog")
 		case "id":
-			out.Values[i] = ec._ReconcilerEnabledAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerEnabledActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._ReconcilerEnabledAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerEnabledActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._ReconcilerEnabledAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerEnabledActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._ReconcilerEnabledAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerEnabledActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._ReconcilerEnabledAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerEnabledActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._ReconcilerEnabledAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerEnabledActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._ReconcilerEnabledAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerEnabledActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._ReconcilerEnabledAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerEnabledActivityLog_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -87481,54 +87481,54 @@ func (ec *executionContext) _Repository(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
-var repositoryAddedAuditEntryImplementors = []string{"RepositoryAddedAuditEntry", "AuditEntry", "Node"}
+var repositoryAddedActivityLogImplementors = []string{"RepositoryAddedActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _RepositoryAddedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *repository.RepositoryAddedAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, repositoryAddedAuditEntryImplementors)
+func (ec *executionContext) _RepositoryAddedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *repository.RepositoryAddedActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, repositoryAddedActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("RepositoryAddedAuditEntry")
+			out.Values[i] = graphql.MarshalString("RepositoryAddedActivityLog")
 		case "id":
-			out.Values[i] = ec._RepositoryAddedAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._RepositoryAddedActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._RepositoryAddedAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._RepositoryAddedActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._RepositoryAddedAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._RepositoryAddedActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._RepositoryAddedAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._RepositoryAddedActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._RepositoryAddedAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._RepositoryAddedActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._RepositoryAddedAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._RepositoryAddedActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._RepositoryAddedAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._RepositoryAddedActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._RepositoryAddedAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._RepositoryAddedActivityLog_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -87645,54 +87645,54 @@ func (ec *executionContext) _RepositoryEdge(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var repositoryRemovedAuditEntryImplementors = []string{"RepositoryRemovedAuditEntry", "AuditEntry", "Node"}
+var repositoryRemovedActivityLogImplementors = []string{"RepositoryRemovedActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _RepositoryRemovedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *repository.RepositoryRemovedAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, repositoryRemovedAuditEntryImplementors)
+func (ec *executionContext) _RepositoryRemovedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *repository.RepositoryRemovedActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, repositoryRemovedActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("RepositoryRemovedAuditEntry")
+			out.Values[i] = graphql.MarshalString("RepositoryRemovedActivityLog")
 		case "id":
-			out.Values[i] = ec._RepositoryRemovedAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._RepositoryRemovedActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._RepositoryRemovedAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._RepositoryRemovedActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._RepositoryRemovedAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._RepositoryRemovedActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._RepositoryRemovedAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._RepositoryRemovedActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._RepositoryRemovedAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._RepositoryRemovedActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._RepositoryRemovedAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._RepositoryRemovedActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._RepositoryRemovedAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._RepositoryRemovedActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._RepositoryRemovedAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._RepositoryRemovedActivityLog_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -88292,54 +88292,54 @@ func (ec *executionContext) _SecretConnection(ctx context.Context, sel ast.Selec
 	return out
 }
 
-var secretCreatedAuditEntryImplementors = []string{"SecretCreatedAuditEntry", "AuditEntry", "Node"}
+var secretCreatedActivityLogImplementors = []string{"SecretCreatedActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _SecretCreatedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretCreatedAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, secretCreatedAuditEntryImplementors)
+func (ec *executionContext) _SecretCreatedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretCreatedActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, secretCreatedActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("SecretCreatedAuditEntry")
+			out.Values[i] = graphql.MarshalString("SecretCreatedActivityLog")
 		case "id":
-			out.Values[i] = ec._SecretCreatedAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._SecretCreatedActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._SecretCreatedAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._SecretCreatedActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._SecretCreatedAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._SecretCreatedActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._SecretCreatedAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._SecretCreatedActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._SecretCreatedAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._SecretCreatedActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._SecretCreatedAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._SecretCreatedActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._SecretCreatedAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._SecretCreatedActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._SecretCreatedAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._SecretCreatedActivityLog_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -88363,54 +88363,54 @@ func (ec *executionContext) _SecretCreatedAuditEntry(ctx context.Context, sel as
 	return out
 }
 
-var secretDeletedAuditEntryImplementors = []string{"SecretDeletedAuditEntry", "AuditEntry", "Node"}
+var secretDeletedActivityLogImplementors = []string{"SecretDeletedActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _SecretDeletedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretDeletedAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, secretDeletedAuditEntryImplementors)
+func (ec *executionContext) _SecretDeletedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretDeletedActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, secretDeletedActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("SecretDeletedAuditEntry")
+			out.Values[i] = graphql.MarshalString("SecretDeletedActivityLog")
 		case "id":
-			out.Values[i] = ec._SecretDeletedAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._SecretDeletedActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._SecretDeletedAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._SecretDeletedActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._SecretDeletedAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._SecretDeletedActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._SecretDeletedAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._SecretDeletedActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._SecretDeletedAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._SecretDeletedActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._SecretDeletedAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._SecretDeletedActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._SecretDeletedAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._SecretDeletedActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._SecretDeletedAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._SecretDeletedActivityLog_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -88522,56 +88522,56 @@ func (ec *executionContext) _SecretValue(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
-var secretValueAddedAuditEntryImplementors = []string{"SecretValueAddedAuditEntry", "AuditEntry", "Node"}
+var secretValueAddedActivityLogImplementors = []string{"SecretValueAddedActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _SecretValueAddedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueAddedAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueAddedAuditEntryImplementors)
+func (ec *executionContext) _SecretValueAddedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueAddedActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueAddedActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("SecretValueAddedAuditEntry")
+			out.Values[i] = graphql.MarshalString("SecretValueAddedActivityLog")
 		case "id":
-			out.Values[i] = ec._SecretValueAddedAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._SecretValueAddedActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._SecretValueAddedAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._SecretValueAddedActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._SecretValueAddedAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._SecretValueAddedActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._SecretValueAddedAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._SecretValueAddedActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._SecretValueAddedAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._SecretValueAddedActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._SecretValueAddedAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._SecretValueAddedActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._SecretValueAddedAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._SecretValueAddedActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._SecretValueAddedAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._SecretValueAddedActivityLog_environmentName(ctx, field, obj)
 		case "data":
-			out.Values[i] = ec._SecretValueAddedAuditEntry_data(ctx, field, obj)
+			out.Values[i] = ec._SecretValueAddedActivityLog_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -88598,19 +88598,19 @@ func (ec *executionContext) _SecretValueAddedAuditEntry(ctx context.Context, sel
 	return out
 }
 
-var secretValueAddedAuditEntryDataImplementors = []string{"SecretValueAddedAuditEntryData"}
+var secretValueAddedActivityLogDataImplementors = []string{"SecretValueAddedActivityLogData"}
 
-func (ec *executionContext) _SecretValueAddedAuditEntryData(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueAddedAuditEntryData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueAddedAuditEntryDataImplementors)
+func (ec *executionContext) _SecretValueAddedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueAddedActivityLogData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueAddedActivityLogDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("SecretValueAddedAuditEntryData")
+			out.Values[i] = graphql.MarshalString("SecretValueAddedActivityLogData")
 		case "valueName":
-			out.Values[i] = ec._SecretValueAddedAuditEntryData_valueName(ctx, field, obj)
+			out.Values[i] = ec._SecretValueAddedActivityLogData_valueName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -88637,56 +88637,56 @@ func (ec *executionContext) _SecretValueAddedAuditEntryData(ctx context.Context,
 	return out
 }
 
-var secretValueRemovedAuditEntryImplementors = []string{"SecretValueRemovedAuditEntry", "AuditEntry", "Node"}
+var secretValueRemovedActivityLogImplementors = []string{"SecretValueRemovedActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _SecretValueRemovedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueRemovedAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueRemovedAuditEntryImplementors)
+func (ec *executionContext) _SecretValueRemovedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueRemovedActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueRemovedActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("SecretValueRemovedAuditEntry")
+			out.Values[i] = graphql.MarshalString("SecretValueRemovedActivityLog")
 		case "id":
-			out.Values[i] = ec._SecretValueRemovedAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._SecretValueRemovedActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._SecretValueRemovedAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._SecretValueRemovedActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._SecretValueRemovedAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._SecretValueRemovedActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._SecretValueRemovedAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._SecretValueRemovedActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._SecretValueRemovedAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._SecretValueRemovedActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._SecretValueRemovedAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._SecretValueRemovedActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._SecretValueRemovedAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._SecretValueRemovedActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._SecretValueRemovedAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._SecretValueRemovedActivityLog_environmentName(ctx, field, obj)
 		case "data":
-			out.Values[i] = ec._SecretValueRemovedAuditEntry_data(ctx, field, obj)
+			out.Values[i] = ec._SecretValueRemovedActivityLog_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -88713,19 +88713,19 @@ func (ec *executionContext) _SecretValueRemovedAuditEntry(ctx context.Context, s
 	return out
 }
 
-var secretValueRemovedAuditEntryDataImplementors = []string{"SecretValueRemovedAuditEntryData"}
+var secretValueRemovedActivityLogDataImplementors = []string{"SecretValueRemovedActivityLogData"}
 
-func (ec *executionContext) _SecretValueRemovedAuditEntryData(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueRemovedAuditEntryData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueRemovedAuditEntryDataImplementors)
+func (ec *executionContext) _SecretValueRemovedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueRemovedActivityLogData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueRemovedActivityLogDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("SecretValueRemovedAuditEntryData")
+			out.Values[i] = graphql.MarshalString("SecretValueRemovedActivityLogData")
 		case "valueName":
-			out.Values[i] = ec._SecretValueRemovedAuditEntryData_valueName(ctx, field, obj)
+			out.Values[i] = ec._SecretValueRemovedActivityLogData_valueName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -88752,56 +88752,56 @@ func (ec *executionContext) _SecretValueRemovedAuditEntryData(ctx context.Contex
 	return out
 }
 
-var secretValueUpdatedAuditEntryImplementors = []string{"SecretValueUpdatedAuditEntry", "AuditEntry", "Node"}
+var secretValueUpdatedActivityLogImplementors = []string{"SecretValueUpdatedActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _SecretValueUpdatedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueUpdatedAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueUpdatedAuditEntryImplementors)
+func (ec *executionContext) _SecretValueUpdatedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueUpdatedActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueUpdatedActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("SecretValueUpdatedAuditEntry")
+			out.Values[i] = graphql.MarshalString("SecretValueUpdatedActivityLog")
 		case "id":
-			out.Values[i] = ec._SecretValueUpdatedAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._SecretValueUpdatedActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._SecretValueUpdatedAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._SecretValueUpdatedActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._SecretValueUpdatedAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._SecretValueUpdatedActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._SecretValueUpdatedAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._SecretValueUpdatedActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._SecretValueUpdatedAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._SecretValueUpdatedActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._SecretValueUpdatedAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._SecretValueUpdatedActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._SecretValueUpdatedAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._SecretValueUpdatedActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._SecretValueUpdatedAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._SecretValueUpdatedActivityLog_environmentName(ctx, field, obj)
 		case "data":
-			out.Values[i] = ec._SecretValueUpdatedAuditEntry_data(ctx, field, obj)
+			out.Values[i] = ec._SecretValueUpdatedActivityLog_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -88828,19 +88828,19 @@ func (ec *executionContext) _SecretValueUpdatedAuditEntry(ctx context.Context, s
 	return out
 }
 
-var secretValueUpdatedAuditEntryDataImplementors = []string{"SecretValueUpdatedAuditEntryData"}
+var secretValueUpdatedActivityLogDataImplementors = []string{"SecretValueUpdatedActivityLogData"}
 
-func (ec *executionContext) _SecretValueUpdatedAuditEntryData(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueUpdatedAuditEntryData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueUpdatedAuditEntryDataImplementors)
+func (ec *executionContext) _SecretValueUpdatedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueUpdatedActivityLogData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueUpdatedActivityLogDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("SecretValueUpdatedAuditEntryData")
+			out.Values[i] = graphql.MarshalString("SecretValueUpdatedActivityLogData")
 		case "valueName":
-			out.Values[i] = ec._SecretValueUpdatedAuditEntryData_valueName(ctx, field, obj)
+			out.Values[i] = ec._SecretValueUpdatedActivityLogData_valueName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -90730,7 +90730,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "applications":
+		case "activityLog":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -90739,7 +90739,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_applications(ctx, field, obj)
+				res = ec._Team_activityLog(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -90766,7 +90766,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "auditEntries":
+		case "applications":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -90775,7 +90775,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_auditEntries(ctx, field, obj)
+				res = ec._Team_applications(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -91470,54 +91470,54 @@ func (ec *executionContext) _TeamCDN(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
-var teamConfirmDeleteKeyAuditEntryImplementors = []string{"TeamConfirmDeleteKeyAuditEntry", "AuditEntry", "Node"}
+var teamConfirmDeleteKeyActivityLogImplementors = []string{"TeamConfirmDeleteKeyActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamConfirmDeleteKeyAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamConfirmDeleteKeyAuditEntryImplementors)
+func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog(ctx context.Context, sel ast.SelectionSet, obj *team.TeamConfirmDeleteKeyActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamConfirmDeleteKeyActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamConfirmDeleteKeyAuditEntry")
+			out.Values[i] = graphql.MarshalString("TeamConfirmDeleteKeyActivityLog")
 		case "id":
-			out.Values[i] = ec._TeamConfirmDeleteKeyAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamConfirmDeleteKeyAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._TeamConfirmDeleteKeyAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamConfirmDeleteKeyAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamConfirmDeleteKeyAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamConfirmDeleteKeyAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamConfirmDeleteKeyAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamConfirmDeleteKeyAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLog_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -91828,54 +91828,54 @@ func (ec *executionContext) _TeamCostPeriod(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var teamCreateDeleteKeyAuditEntryImplementors = []string{"TeamCreateDeleteKeyAuditEntry", "AuditEntry", "Node"}
+var teamCreateDeleteKeyActivityLogImplementors = []string{"TeamCreateDeleteKeyActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamCreateDeleteKeyAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamCreateDeleteKeyAuditEntryImplementors)
+func (ec *executionContext) _TeamCreateDeleteKeyActivityLog(ctx context.Context, sel ast.SelectionSet, obj *team.TeamCreateDeleteKeyActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamCreateDeleteKeyActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamCreateDeleteKeyAuditEntry")
+			out.Values[i] = graphql.MarshalString("TeamCreateDeleteKeyActivityLog")
 		case "id":
-			out.Values[i] = ec._TeamCreateDeleteKeyAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._TeamCreateDeleteKeyActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamCreateDeleteKeyAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._TeamCreateDeleteKeyActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._TeamCreateDeleteKeyAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._TeamCreateDeleteKeyActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamCreateDeleteKeyAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._TeamCreateDeleteKeyActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamCreateDeleteKeyAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._TeamCreateDeleteKeyActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamCreateDeleteKeyAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._TeamCreateDeleteKeyActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamCreateDeleteKeyAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._TeamCreateDeleteKeyActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamCreateDeleteKeyAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._TeamCreateDeleteKeyActivityLog_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -91899,54 +91899,54 @@ func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry(ctx context.Context, 
 	return out
 }
 
-var teamCreatedAuditEntryImplementors = []string{"TeamCreatedAuditEntry", "AuditEntry", "Node"}
+var teamCreatedActivityLogImplementors = []string{"TeamCreatedActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamCreatedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamCreatedAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamCreatedAuditEntryImplementors)
+func (ec *executionContext) _TeamCreatedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *team.TeamCreatedActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamCreatedActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamCreatedAuditEntry")
+			out.Values[i] = graphql.MarshalString("TeamCreatedActivityLog")
 		case "id":
-			out.Values[i] = ec._TeamCreatedAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._TeamCreatedActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamCreatedAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._TeamCreatedActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._TeamCreatedAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._TeamCreatedActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamCreatedAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._TeamCreatedActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamCreatedAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._TeamCreatedActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamCreatedAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._TeamCreatedActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamCreatedAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._TeamCreatedActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamCreatedAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._TeamCreatedActivityLog_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -92091,54 +92091,54 @@ func (ec *executionContext) _TeamDeleteKey(ctx context.Context, sel ast.Selectio
 	return out
 }
 
-var teamDeployKeyUpdatedAuditEntryImplementors = []string{"TeamDeployKeyUpdatedAuditEntry", "AuditEntry", "Node"}
+var teamDeployKeyUpdatedActivityLogImplementors = []string{"TeamDeployKeyUpdatedActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *deployment.TeamDeployKeyUpdatedAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamDeployKeyUpdatedAuditEntryImplementors)
+func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *deployment.TeamDeployKeyUpdatedActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamDeployKeyUpdatedActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamDeployKeyUpdatedAuditEntry")
+			out.Values[i] = graphql.MarshalString("TeamDeployKeyUpdatedActivityLog")
 		case "id":
-			out.Values[i] = ec._TeamDeployKeyUpdatedAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamDeployKeyUpdatedAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._TeamDeployKeyUpdatedAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamDeployKeyUpdatedAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamDeployKeyUpdatedAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamDeployKeyUpdatedAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamDeployKeyUpdatedAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamDeployKeyUpdatedAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLog_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -92842,56 +92842,56 @@ func (ec *executionContext) _TeamEnvironmentCostPeriod(ctx context.Context, sel 
 	return out
 }
 
-var teamEnvironmentUpdatedAuditEntryImplementors = []string{"TeamEnvironmentUpdatedAuditEntry", "AuditEntry", "Node"}
+var teamEnvironmentUpdatedActivityLogImplementors = []string{"TeamEnvironmentUpdatedActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEnvironmentUpdatedAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentUpdatedAuditEntryImplementors)
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEnvironmentUpdatedActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentUpdatedActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamEnvironmentUpdatedAuditEntry")
+			out.Values[i] = graphql.MarshalString("TeamEnvironmentUpdatedActivityLog")
 		case "id":
-			out.Values[i] = ec._TeamEnvironmentUpdatedAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamEnvironmentUpdatedAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._TeamEnvironmentUpdatedAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamEnvironmentUpdatedAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamEnvironmentUpdatedAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamEnvironmentUpdatedAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamEnvironmentUpdatedAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamEnvironmentUpdatedAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLog_environmentName(ctx, field, obj)
 		case "data":
-			out.Values[i] = ec._TeamEnvironmentUpdatedAuditEntry_data(ctx, field, obj)
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLog_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -92918,19 +92918,19 @@ func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry(ctx context.Contex
 	return out
 }
 
-var teamEnvironmentUpdatedAuditEntryDataImplementors = []string{"TeamEnvironmentUpdatedAuditEntryData"}
+var teamEnvironmentUpdatedActivityLogDataImplementors = []string{"TeamEnvironmentUpdatedActivityLogData"}
 
-func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntryData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEnvironmentUpdatedAuditEntryData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentUpdatedAuditEntryDataImplementors)
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEnvironmentUpdatedActivityLogData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentUpdatedActivityLogDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamEnvironmentUpdatedAuditEntryData")
+			out.Values[i] = graphql.MarshalString("TeamEnvironmentUpdatedActivityLogData")
 		case "updatedFields":
-			out.Values[i] = ec._TeamEnvironmentUpdatedAuditEntryData_updatedFields(ctx, field, obj)
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogData_updatedFields(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -92957,26 +92957,26 @@ func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntryData(ctx context.Co
 	return out
 }
 
-var teamEnvironmentUpdatedAuditEntryDataUpdatedFieldImplementors = []string{"TeamEnvironmentUpdatedAuditEntryDataUpdatedField"}
+var teamEnvironmentUpdatedActivityLogDataUpdatedFieldImplementors = []string{"TeamEnvironmentUpdatedActivityLogDataUpdatedField"}
 
-func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEnvironmentUpdatedAuditEntryDataUpdatedField) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentUpdatedAuditEntryDataUpdatedFieldImplementors)
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogDataUpdatedField(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEnvironmentUpdatedActivityLogDataUpdatedField) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentUpdatedActivityLogDataUpdatedFieldImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamEnvironmentUpdatedAuditEntryDataUpdatedField")
+			out.Values[i] = graphql.MarshalString("TeamEnvironmentUpdatedActivityLogDataUpdatedField")
 		case "field":
-			out.Values[i] = ec._TeamEnvironmentUpdatedAuditEntryDataUpdatedField_field(ctx, field, obj)
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogDataUpdatedField_field(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "oldValue":
-			out.Values[i] = ec._TeamEnvironmentUpdatedAuditEntryDataUpdatedField_oldValue(ctx, field, obj)
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogDataUpdatedField_oldValue(ctx, field, obj)
 		case "newValue":
-			out.Values[i] = ec._TeamEnvironmentUpdatedAuditEntryDataUpdatedField_newValue(ctx, field, obj)
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogDataUpdatedField_newValue(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -93916,56 +93916,56 @@ func (ec *executionContext) _TeamMember(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
-var teamMemberAddedAuditEntryImplementors = []string{"TeamMemberAddedAuditEntry", "AuditEntry", "Node"}
+var teamMemberAddedActivityLogImplementors = []string{"TeamMemberAddedActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamMemberAddedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberAddedAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberAddedAuditEntryImplementors)
+func (ec *executionContext) _TeamMemberAddedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberAddedActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberAddedActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamMemberAddedAuditEntry")
+			out.Values[i] = graphql.MarshalString("TeamMemberAddedActivityLog")
 		case "id":
-			out.Values[i] = ec._TeamMemberAddedAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberAddedActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamMemberAddedAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberAddedActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._TeamMemberAddedAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberAddedActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamMemberAddedAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberAddedActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamMemberAddedAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberAddedActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamMemberAddedAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberAddedActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamMemberAddedAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberAddedActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamMemberAddedAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberAddedActivityLog_environmentName(ctx, field, obj)
 		case "data":
-			out.Values[i] = ec._TeamMemberAddedAuditEntry_data(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberAddedActivityLog_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -93992,29 +93992,29 @@ func (ec *executionContext) _TeamMemberAddedAuditEntry(ctx context.Context, sel 
 	return out
 }
 
-var teamMemberAddedAuditEntryDataImplementors = []string{"TeamMemberAddedAuditEntryData"}
+var teamMemberAddedActivityLogDataImplementors = []string{"TeamMemberAddedActivityLogData"}
 
-func (ec *executionContext) _TeamMemberAddedAuditEntryData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberAddedAuditEntryData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberAddedAuditEntryDataImplementors)
+func (ec *executionContext) _TeamMemberAddedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberAddedActivityLogData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberAddedActivityLogDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamMemberAddedAuditEntryData")
+			out.Values[i] = graphql.MarshalString("TeamMemberAddedActivityLogData")
 		case "role":
-			out.Values[i] = ec._TeamMemberAddedAuditEntryData_role(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberAddedActivityLogData_role(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "userID":
-			out.Values[i] = ec._TeamMemberAddedAuditEntryData_userID(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberAddedActivityLogData_userID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "userEmail":
-			out.Values[i] = ec._TeamMemberAddedAuditEntryData_userEmail(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberAddedActivityLogData_userEmail(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -94134,56 +94134,56 @@ func (ec *executionContext) _TeamMemberEdge(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var teamMemberRemovedAuditEntryImplementors = []string{"TeamMemberRemovedAuditEntry", "AuditEntry", "Node"}
+var teamMemberRemovedActivityLogImplementors = []string{"TeamMemberRemovedActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamMemberRemovedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberRemovedAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberRemovedAuditEntryImplementors)
+func (ec *executionContext) _TeamMemberRemovedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberRemovedActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberRemovedActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamMemberRemovedAuditEntry")
+			out.Values[i] = graphql.MarshalString("TeamMemberRemovedActivityLog")
 		case "id":
-			out.Values[i] = ec._TeamMemberRemovedAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamMemberRemovedAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._TeamMemberRemovedAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamMemberRemovedAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamMemberRemovedAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamMemberRemovedAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamMemberRemovedAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamMemberRemovedAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLog_environmentName(ctx, field, obj)
 		case "data":
-			out.Values[i] = ec._TeamMemberRemovedAuditEntry_data(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLog_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -94210,24 +94210,24 @@ func (ec *executionContext) _TeamMemberRemovedAuditEntry(ctx context.Context, se
 	return out
 }
 
-var teamMemberRemovedAuditEntryDataImplementors = []string{"TeamMemberRemovedAuditEntryData"}
+var teamMemberRemovedActivityLogDataImplementors = []string{"TeamMemberRemovedActivityLogData"}
 
-func (ec *executionContext) _TeamMemberRemovedAuditEntryData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberRemovedAuditEntryData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberRemovedAuditEntryDataImplementors)
+func (ec *executionContext) _TeamMemberRemovedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberRemovedActivityLogData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberRemovedActivityLogDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamMemberRemovedAuditEntryData")
+			out.Values[i] = graphql.MarshalString("TeamMemberRemovedActivityLogData")
 		case "userID":
-			out.Values[i] = ec._TeamMemberRemovedAuditEntryData_userID(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLogData_userID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "userEmail":
-			out.Values[i] = ec._TeamMemberRemovedAuditEntryData_userEmail(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLogData_userEmail(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -94254,56 +94254,56 @@ func (ec *executionContext) _TeamMemberRemovedAuditEntryData(ctx context.Context
 	return out
 }
 
-var teamMemberSetRoleAuditEntryImplementors = []string{"TeamMemberSetRoleAuditEntry", "AuditEntry", "Node"}
+var teamMemberSetRoleActivityLogImplementors = []string{"TeamMemberSetRoleActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamMemberSetRoleAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberSetRoleAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberSetRoleAuditEntryImplementors)
+func (ec *executionContext) _TeamMemberSetRoleActivityLog(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberSetRoleActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberSetRoleActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamMemberSetRoleAuditEntry")
+			out.Values[i] = graphql.MarshalString("TeamMemberSetRoleActivityLog")
 		case "id":
-			out.Values[i] = ec._TeamMemberSetRoleAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberSetRoleActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamMemberSetRoleAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberSetRoleActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._TeamMemberSetRoleAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberSetRoleActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamMemberSetRoleAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberSetRoleActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamMemberSetRoleAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberSetRoleActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamMemberSetRoleAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberSetRoleActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamMemberSetRoleAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberSetRoleActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamMemberSetRoleAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberSetRoleActivityLog_environmentName(ctx, field, obj)
 		case "data":
-			out.Values[i] = ec._TeamMemberSetRoleAuditEntry_data(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberSetRoleActivityLog_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -94330,29 +94330,29 @@ func (ec *executionContext) _TeamMemberSetRoleAuditEntry(ctx context.Context, se
 	return out
 }
 
-var teamMemberSetRoleAuditEntryDataImplementors = []string{"TeamMemberSetRoleAuditEntryData"}
+var teamMemberSetRoleActivityLogDataImplementors = []string{"TeamMemberSetRoleActivityLogData"}
 
-func (ec *executionContext) _TeamMemberSetRoleAuditEntryData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberSetRoleAuditEntryData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberSetRoleAuditEntryDataImplementors)
+func (ec *executionContext) _TeamMemberSetRoleActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberSetRoleActivityLogData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberSetRoleActivityLogDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamMemberSetRoleAuditEntryData")
+			out.Values[i] = graphql.MarshalString("TeamMemberSetRoleActivityLogData")
 		case "role":
-			out.Values[i] = ec._TeamMemberSetRoleAuditEntryData_role(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberSetRoleActivityLogData_role(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "userID":
-			out.Values[i] = ec._TeamMemberSetRoleAuditEntryData_userID(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberSetRoleActivityLogData_userID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "userEmail":
-			out.Values[i] = ec._TeamMemberSetRoleAuditEntryData_userEmail(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberSetRoleActivityLogData_userEmail(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -94738,56 +94738,56 @@ func (ec *executionContext) _TeamServiceUtilizationSqlInstancesMemory(ctx contex
 	return out
 }
 
-var teamUpdatedAuditEntryImplementors = []string{"TeamUpdatedAuditEntry", "AuditEntry", "Node"}
+var teamUpdatedActivityLogImplementors = []string{"TeamUpdatedActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamUpdatedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamUpdatedAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamUpdatedAuditEntryImplementors)
+func (ec *executionContext) _TeamUpdatedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *team.TeamUpdatedActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamUpdatedActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamUpdatedAuditEntry")
+			out.Values[i] = graphql.MarshalString("TeamUpdatedActivityLog")
 		case "id":
-			out.Values[i] = ec._TeamUpdatedAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._TeamUpdatedActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamUpdatedAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._TeamUpdatedActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._TeamUpdatedAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._TeamUpdatedActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamUpdatedAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._TeamUpdatedActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamUpdatedAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._TeamUpdatedActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamUpdatedAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._TeamUpdatedActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamUpdatedAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._TeamUpdatedActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamUpdatedAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._TeamUpdatedActivityLog_environmentName(ctx, field, obj)
 		case "data":
-			out.Values[i] = ec._TeamUpdatedAuditEntry_data(ctx, field, obj)
+			out.Values[i] = ec._TeamUpdatedActivityLog_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -94814,19 +94814,19 @@ func (ec *executionContext) _TeamUpdatedAuditEntry(ctx context.Context, sel ast.
 	return out
 }
 
-var teamUpdatedAuditEntryDataImplementors = []string{"TeamUpdatedAuditEntryData"}
+var teamUpdatedActivityLogDataImplementors = []string{"TeamUpdatedActivityLogData"}
 
-func (ec *executionContext) _TeamUpdatedAuditEntryData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamUpdatedAuditEntryData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamUpdatedAuditEntryDataImplementors)
+func (ec *executionContext) _TeamUpdatedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamUpdatedActivityLogData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamUpdatedActivityLogDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamUpdatedAuditEntryData")
+			out.Values[i] = graphql.MarshalString("TeamUpdatedActivityLogData")
 		case "updatedFields":
-			out.Values[i] = ec._TeamUpdatedAuditEntryData_updatedFields(ctx, field, obj)
+			out.Values[i] = ec._TeamUpdatedActivityLogData_updatedFields(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -94853,26 +94853,26 @@ func (ec *executionContext) _TeamUpdatedAuditEntryData(ctx context.Context, sel 
 	return out
 }
 
-var teamUpdatedAuditEntryDataUpdatedFieldImplementors = []string{"TeamUpdatedAuditEntryDataUpdatedField"}
+var teamUpdatedActivityLogDataUpdatedFieldImplementors = []string{"TeamUpdatedActivityLogDataUpdatedField"}
 
-func (ec *executionContext) _TeamUpdatedAuditEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, obj *team.TeamUpdatedAuditEntryDataUpdatedField) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamUpdatedAuditEntryDataUpdatedFieldImplementors)
+func (ec *executionContext) _TeamUpdatedActivityLogDataUpdatedField(ctx context.Context, sel ast.SelectionSet, obj *team.TeamUpdatedActivityLogDataUpdatedField) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamUpdatedActivityLogDataUpdatedFieldImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamUpdatedAuditEntryDataUpdatedField")
+			out.Values[i] = graphql.MarshalString("TeamUpdatedActivityLogDataUpdatedField")
 		case "field":
-			out.Values[i] = ec._TeamUpdatedAuditEntryDataUpdatedField_field(ctx, field, obj)
+			out.Values[i] = ec._TeamUpdatedActivityLogDataUpdatedField_field(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "oldValue":
-			out.Values[i] = ec._TeamUpdatedAuditEntryDataUpdatedField_oldValue(ctx, field, obj)
+			out.Values[i] = ec._TeamUpdatedActivityLogDataUpdatedField_oldValue(ctx, field, obj)
 		case "newValue":
-			out.Values[i] = ec._TeamUpdatedAuditEntryDataUpdatedField_newValue(ctx, field, obj)
+			out.Values[i] = ec._TeamUpdatedActivityLogDataUpdatedField_newValue(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -95456,54 +95456,54 @@ func (ec *executionContext) _UnleashInstance(ctx context.Context, sel ast.Select
 	return out
 }
 
-var unleashInstanceCreatedAuditEntryImplementors = []string{"UnleashInstanceCreatedAuditEntry", "AuditEntry", "Node"}
+var unleashInstanceCreatedActivityLogImplementors = []string{"UnleashInstanceCreatedActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _UnleashInstanceCreatedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *unleash.UnleashInstanceCreatedAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, unleashInstanceCreatedAuditEntryImplementors)
+func (ec *executionContext) _UnleashInstanceCreatedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *unleash.UnleashInstanceCreatedActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, unleashInstanceCreatedActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("UnleashInstanceCreatedAuditEntry")
+			out.Values[i] = graphql.MarshalString("UnleashInstanceCreatedActivityLog")
 		case "id":
-			out.Values[i] = ec._UnleashInstanceCreatedAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceCreatedActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._UnleashInstanceCreatedAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceCreatedActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._UnleashInstanceCreatedAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceCreatedActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._UnleashInstanceCreatedAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceCreatedActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._UnleashInstanceCreatedAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceCreatedActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._UnleashInstanceCreatedAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceCreatedActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._UnleashInstanceCreatedAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceCreatedActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._UnleashInstanceCreatedAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceCreatedActivityLog_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -95715,56 +95715,56 @@ func (ec *executionContext) _UnleashInstanceMetrics(ctx context.Context, sel ast
 	return out
 }
 
-var unleashInstanceUpdatedAuditEntryImplementors = []string{"UnleashInstanceUpdatedAuditEntry", "AuditEntry", "Node"}
+var unleashInstanceUpdatedActivityLogImplementors = []string{"UnleashInstanceUpdatedActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *unleash.UnleashInstanceUpdatedAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, unleashInstanceUpdatedAuditEntryImplementors)
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *unleash.UnleashInstanceUpdatedActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, unleashInstanceUpdatedActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("UnleashInstanceUpdatedAuditEntry")
+			out.Values[i] = graphql.MarshalString("UnleashInstanceUpdatedActivityLog")
 		case "id":
-			out.Values[i] = ec._UnleashInstanceUpdatedAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._UnleashInstanceUpdatedAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._UnleashInstanceUpdatedAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._UnleashInstanceUpdatedAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._UnleashInstanceUpdatedAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._UnleashInstanceUpdatedAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._UnleashInstanceUpdatedAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._UnleashInstanceUpdatedAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLog_environmentName(ctx, field, obj)
 		case "data":
-			out.Values[i] = ec._UnleashInstanceUpdatedAuditEntry_data(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLog_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -95791,21 +95791,21 @@ func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry(ctx context.Contex
 	return out
 }
 
-var unleashInstanceUpdatedAuditEntryDataImplementors = []string{"UnleashInstanceUpdatedAuditEntryData"}
+var unleashInstanceUpdatedActivityLogDataImplementors = []string{"UnleashInstanceUpdatedActivityLogData"}
 
-func (ec *executionContext) _UnleashInstanceUpdatedAuditEntryData(ctx context.Context, sel ast.SelectionSet, obj *unleash.UnleashInstanceUpdatedAuditEntryData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, unleashInstanceUpdatedAuditEntryDataImplementors)
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *unleash.UnleashInstanceUpdatedActivityLogData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, unleashInstanceUpdatedActivityLogDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("UnleashInstanceUpdatedAuditEntryData")
+			out.Values[i] = graphql.MarshalString("UnleashInstanceUpdatedActivityLogData")
 		case "revokedTeamSlug":
-			out.Values[i] = ec._UnleashInstanceUpdatedAuditEntryData_revokedTeamSlug(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogData_revokedTeamSlug(ctx, field, obj)
 		case "allowedTeamSlug":
-			out.Values[i] = ec._UnleashInstanceUpdatedAuditEntryData_allowedTeamSlug(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogData_allowedTeamSlug(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -96236,54 +96236,54 @@ func (ec *executionContext) _UtilizationSample(ctx context.Context, sel ast.Sele
 	return out
 }
 
-var vulnerabilityUpdatedAuditEntryImplementors = []string{"VulnerabilityUpdatedAuditEntry", "AuditEntry", "Node"}
+var vulnerabilityUpdatedActivityLogImplementors = []string{"VulnerabilityUpdatedActivityLog", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _VulnerabilityUpdatedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *vulnerability.VulnerabilityUpdatedAuditEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, vulnerabilityUpdatedAuditEntryImplementors)
+func (ec *executionContext) _VulnerabilityUpdatedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *vulnerability.VulnerabilityUpdatedActivityLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, vulnerabilityUpdatedActivityLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("VulnerabilityUpdatedAuditEntry")
+			out.Values[i] = graphql.MarshalString("VulnerabilityUpdatedActivityLog")
 		case "id":
-			out.Values[i] = ec._VulnerabilityUpdatedAuditEntry_id(ctx, field, obj)
+			out.Values[i] = ec._VulnerabilityUpdatedActivityLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._VulnerabilityUpdatedAuditEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._VulnerabilityUpdatedActivityLog_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._VulnerabilityUpdatedAuditEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._VulnerabilityUpdatedActivityLog_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._VulnerabilityUpdatedAuditEntry_message(ctx, field, obj)
+			out.Values[i] = ec._VulnerabilityUpdatedActivityLog_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._VulnerabilityUpdatedAuditEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._VulnerabilityUpdatedActivityLog_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._VulnerabilityUpdatedAuditEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._VulnerabilityUpdatedActivityLog_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._VulnerabilityUpdatedAuditEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._VulnerabilityUpdatedActivityLog_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._VulnerabilityUpdatedAuditEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._VulnerabilityUpdatedActivityLog_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -97855,6 +97855,138 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
+func (ec *executionContext) marshalNActivityLogConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[activitylog.ActivityLogEntry]) graphql.Marshaler {
+	return ec._ActivityLogConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNActivityLogConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[activitylog.ActivityLogEntry]) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ActivityLogConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNActivityLogEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[activitylog.ActivityLogEntry]) graphql.Marshaler {
+	return ec._ActivityLogEdge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNActivityLogEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[activitylog.ActivityLogEntry]) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNActivityLogEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNActivityLogEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntry(ctx context.Context, sel ast.SelectionSet, v activitylog.ActivityLogEntry) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ActivityLogEntry(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNActivityLogEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryᚄ(ctx context.Context, sel ast.SelectionSet, v []activitylog.ActivityLogEntry) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNActivityLogEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntry(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx context.Context, v interface{}) (activitylog.ActivityLogResourceType, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := activitylog.ActivityLogResourceType(tmp)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx context.Context, sel ast.SelectionSet, v activitylog.ActivityLogResourceType) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) unmarshalNAddRepositoryToTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgithubᚋrepositoryᚐAddRepositoryToTeamInput(ctx context.Context, v interface{}) (repository.AddRepositoryToTeamInput, error) {
 	res, err := ec.unmarshalInputAddRepositoryToTeamInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -98283,138 +98415,6 @@ func (ec *executionContext) marshalNApplicationScaling2ᚖgithubᚗcomᚋnaisᚋ
 		return graphql.Null
 	}
 	return ec._ApplicationScaling(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNAuditEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditEntry(ctx context.Context, sel ast.SelectionSet, v activitylog.AuditEntry) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._AuditEntry(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNAuditEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditEntryᚄ(ctx context.Context, sel ast.SelectionSet, v []activitylog.AuditEntry) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNAuditEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditEntry(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNAuditEntryConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[activitylog.AuditEntry]) graphql.Marshaler {
-	return ec._AuditEntryConnection(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNAuditEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[activitylog.AuditEntry]) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._AuditEntryConnection(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNAuditEntryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[activitylog.AuditEntry]) graphql.Marshaler {
-	return ec._AuditEntryEdge(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNAuditEntryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[activitylog.AuditEntry]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNAuditEntryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) unmarshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx context.Context, v interface{}) (activitylog.AuditResourceType, error) {
-	tmp, err := graphql.UnmarshalString(v)
-	res := activitylog.AuditResourceType(tmp)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx context.Context, sel ast.SelectionSet, v activitylog.AuditResourceType) graphql.Marshaler {
-	res := graphql.MarshalString(string(v))
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
 }
 
 func (ec *executionContext) marshalNAuthenticatedUser2githubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐAuthenticatedUser(ctx context.Context, sel ast.SelectionSet, v user.AuthenticatedUser) graphql.Marshaler {
@@ -101210,14 +101210,14 @@ func (ec *executionContext) unmarshalNReconcilerConfigInput2ᚖgithubᚗcomᚋna
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNReconcilerConfiguredAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerConfiguredAuditEntryData(ctx context.Context, sel ast.SelectionSet, v *reconciler.ReconcilerConfiguredAuditEntryData) graphql.Marshaler {
+func (ec *executionContext) marshalNReconcilerConfiguredActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerConfiguredActivityLogData(ctx context.Context, sel ast.SelectionSet, v *reconciler.ReconcilerConfiguredActivityLogData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ReconcilerConfiguredAuditEntryData(ctx, sel, v)
+	return ec._ReconcilerConfiguredActivityLogData(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNReconcilerConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*reconciler.Reconciler]) graphql.Marshaler {
@@ -102277,14 +102277,14 @@ func (ec *executionContext) marshalNSecretValue2ᚖgithubᚗcomᚋnaisᚋapiᚋi
 	return ec._SecretValue(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSecretValueAddedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueAddedAuditEntryData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValueAddedAuditEntryData) graphql.Marshaler {
+func (ec *executionContext) marshalNSecretValueAddedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueAddedActivityLogData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValueAddedActivityLogData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SecretValueAddedAuditEntryData(ctx, sel, v)
+	return ec._SecretValueAddedActivityLogData(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNSecretValueInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueInput(ctx context.Context, v interface{}) (*secret.SecretValueInput, error) {
@@ -102292,24 +102292,24 @@ func (ec *executionContext) unmarshalNSecretValueInput2ᚖgithubᚗcomᚋnaisᚋ
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNSecretValueRemovedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueRemovedAuditEntryData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValueRemovedAuditEntryData) graphql.Marshaler {
+func (ec *executionContext) marshalNSecretValueRemovedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueRemovedActivityLogData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValueRemovedActivityLogData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SecretValueRemovedAuditEntryData(ctx, sel, v)
+	return ec._SecretValueRemovedActivityLogData(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSecretValueUpdatedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueUpdatedAuditEntryData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValueUpdatedAuditEntryData) graphql.Marshaler {
+func (ec *executionContext) marshalNSecretValueUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueUpdatedActivityLogData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValueUpdatedActivityLogData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SecretValueUpdatedAuditEntryData(ctx, sel, v)
+	return ec._SecretValueUpdatedActivityLogData(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNServiceCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSampleᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.ServiceCostSample) graphql.Marshaler {
@@ -103296,17 +103296,17 @@ func (ec *executionContext) marshalNTeamEnvironmentCostPeriod2ᚖgithubᚗcomᚋ
 	return ec._TeamEnvironmentCostPeriod(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamEnvironmentUpdatedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedAuditEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamEnvironmentUpdatedAuditEntryData) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogData(ctx context.Context, sel ast.SelectionSet, v *team.TeamEnvironmentUpdatedActivityLogData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamEnvironmentUpdatedAuditEntryData(ctx, sel, v)
+	return ec._TeamEnvironmentUpdatedActivityLogData(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamEnvironmentUpdatedAuditEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedAuditEntryDataUpdatedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamEnvironmentUpdatedAuditEntryDataUpdatedField) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogDataUpdatedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamEnvironmentUpdatedActivityLogDataUpdatedField) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -103330,7 +103330,7 @@ func (ec *executionContext) marshalNTeamEnvironmentUpdatedAuditEntryDataUpdatedF
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNTeamEnvironmentUpdatedAuditEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedAuditEntryDataUpdatedField(ctx, sel, v[i])
+			ret[i] = ec.marshalNTeamEnvironmentUpdatedActivityLogDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogDataUpdatedField(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -103350,14 +103350,14 @@ func (ec *executionContext) marshalNTeamEnvironmentUpdatedAuditEntryDataUpdatedF
 	return ret
 }
 
-func (ec *executionContext) marshalNTeamEnvironmentUpdatedAuditEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedAuditEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, v *team.TeamEnvironmentUpdatedAuditEntryDataUpdatedField) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogDataUpdatedField(ctx context.Context, sel ast.SelectionSet, v *team.TeamEnvironmentUpdatedActivityLogDataUpdatedField) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamEnvironmentUpdatedAuditEntryDataUpdatedField(ctx, sel, v)
+	return ec._TeamEnvironmentUpdatedActivityLogDataUpdatedField(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNTeamExternalResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamExternalResources(ctx context.Context, sel ast.SelectionSet, v *team.TeamExternalResources) graphql.Marshaler {
@@ -103554,14 +103554,14 @@ func (ec *executionContext) marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋin
 	return ec._TeamMember(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamMemberAddedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberAddedAuditEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberAddedAuditEntryData) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamMemberAddedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberAddedActivityLogData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberAddedActivityLogData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamMemberAddedAuditEntryData(ctx, sel, v)
+	return ec._TeamMemberAddedActivityLogData(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNTeamMemberConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*team.TeamMember]) graphql.Marshaler {
@@ -103636,14 +103636,14 @@ func (ec *executionContext) marshalNTeamMemberOrderField2githubᚗcomᚋnaisᚋa
 	return v
 }
 
-func (ec *executionContext) marshalNTeamMemberRemovedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRemovedAuditEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberRemovedAuditEntryData) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamMemberRemovedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRemovedActivityLogData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberRemovedActivityLogData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamMemberRemovedAuditEntryData(ctx, sel, v)
+	return ec._TeamMemberRemovedActivityLogData(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx context.Context, v interface{}) (team.TeamMemberRole, error) {
@@ -103656,14 +103656,14 @@ func (ec *executionContext) marshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋi
 	return v
 }
 
-func (ec *executionContext) marshalNTeamMemberSetRoleAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberSetRoleAuditEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberSetRoleAuditEntryData) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamMemberSetRoleActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberSetRoleActivityLogData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberSetRoleActivityLogData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamMemberSetRoleAuditEntryData(ctx, sel, v)
+	return ec._TeamMemberSetRoleActivityLogData(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNTeamOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamOrderField(ctx context.Context, v interface{}) (team.TeamOrderField, error) {
@@ -103746,17 +103746,17 @@ func (ec *executionContext) marshalNTeamServiceUtilizationSqlInstancesMemory2ᚖ
 	return ec._TeamServiceUtilizationSqlInstancesMemory(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamUpdatedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedAuditEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamUpdatedAuditEntryData) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogData(ctx context.Context, sel ast.SelectionSet, v *team.TeamUpdatedActivityLogData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamUpdatedAuditEntryData(ctx, sel, v)
+	return ec._TeamUpdatedActivityLogData(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamUpdatedAuditEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedAuditEntryDataUpdatedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamUpdatedAuditEntryDataUpdatedField) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamUpdatedActivityLogDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogDataUpdatedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamUpdatedActivityLogDataUpdatedField) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -103780,7 +103780,7 @@ func (ec *executionContext) marshalNTeamUpdatedAuditEntryDataUpdatedField2ᚕᚖ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNTeamUpdatedAuditEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedAuditEntryDataUpdatedField(ctx, sel, v[i])
+			ret[i] = ec.marshalNTeamUpdatedActivityLogDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogDataUpdatedField(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -103800,14 +103800,14 @@ func (ec *executionContext) marshalNTeamUpdatedAuditEntryDataUpdatedField2ᚕᚖ
 	return ret
 }
 
-func (ec *executionContext) marshalNTeamUpdatedAuditEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedAuditEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, v *team.TeamUpdatedAuditEntryDataUpdatedField) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamUpdatedActivityLogDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogDataUpdatedField(ctx context.Context, sel ast.SelectionSet, v *team.TeamUpdatedActivityLogDataUpdatedField) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamUpdatedAuditEntryDataUpdatedField(ctx, sel, v)
+	return ec._TeamUpdatedActivityLogDataUpdatedField(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNTeamUtilizationData2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamUtilizationDataᚄ(ctx context.Context, sel ast.SelectionSet, v []*utilization.TeamUtilizationData) graphql.Marshaler {
@@ -104006,14 +104006,14 @@ func (ec *executionContext) marshalNUnleashInstanceMetrics2ᚖgithubᚗcomᚋnai
 	return ec._UnleashInstanceMetrics(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUnleashInstanceUpdatedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstanceUpdatedAuditEntryData(ctx context.Context, sel ast.SelectionSet, v *unleash.UnleashInstanceUpdatedAuditEntryData) graphql.Marshaler {
+func (ec *executionContext) marshalNUnleashInstanceUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstanceUpdatedActivityLogData(ctx context.Context, sel ast.SelectionSet, v *unleash.UnleashInstanceUpdatedActivityLogData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._UnleashInstanceUpdatedAuditEntryData(ctx, sel, v)
+	return ec._UnleashInstanceUpdatedActivityLogData(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNUpdateImageVulnerabilityInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐUpdateImageVulnerabilityInput(ctx context.Context, v interface{}) (vulnerability.UpdateImageVulnerabilityInput, error) {

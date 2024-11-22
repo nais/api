@@ -24,18 +24,18 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	internalQuerier *activitylogsql.Queries
-	auditLogLoader  *dataloadgen.Loader[uuid.UUID, AuditEntry]
+	internalQuerier   *activitylogsql.Queries
+	activityLogLoader *dataloadgen.Loader[uuid.UUID, ActivityLogEntry]
 }
 
 func newLoaders(dbConn *pgxpool.Pool) *loaders {
 	db := activitylogsql.New(dbConn)
 
-	auditLoader := &dataloader{db: db}
+	activityLogLoader := &dataloader{db: db}
 
 	return &loaders{
-		internalQuerier: db,
-		auditLogLoader:  dataloadgen.NewLoader(auditLoader.get, loader.DefaultDataLoaderOptions...),
+		internalQuerier:   db,
+		activityLogLoader: dataloadgen.NewLoader(activityLogLoader.get, loader.DefaultDataLoaderOptions...),
 	}
 }
 
@@ -43,9 +43,9 @@ type dataloader struct {
 	db activitylogsql.Querier
 }
 
-func (l dataloader) get(ctx context.Context, ids []uuid.UUID) ([]AuditEntry, []error) {
-	makeKey := func(obj AuditEntry) uuid.UUID { return obj.GetUUID() }
-	return loader.LoadModelsWithError(ctx, ids, l.db.ListByIDs, toGraphAuditLog, makeKey)
+func (l dataloader) get(ctx context.Context, ids []uuid.UUID) ([]ActivityLogEntry, []error) {
+	makeKey := func(obj ActivityLogEntry) uuid.UUID { return obj.GetUUID() }
+	return loader.LoadModelsWithError(ctx, ids, l.db.ListByIDs, toGraphActivityLog, makeKey)
 }
 
 func db(ctx context.Context) *activitylogsql.Queries {

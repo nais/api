@@ -82,12 +82,12 @@ type UnleashInstanceMetrics {
 	memoryRequests: Float!
 }
 
-extend enum AuditResourceType {
-	"All audit entries related to unleash will use this resource type."
+extend enum ActivityLogResourceType {
+	"All activity log entries related to unleash will use this resource type."
 	UNLEASH
 }
 
-type UnleashInstanceCreatedAuditEntry implements AuditEntry & Node {
+type UnleashInstanceCreatedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -101,7 +101,7 @@ type UnleashInstanceCreatedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -113,7 +113,7 @@ type UnleashInstanceCreatedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type UnleashInstanceUpdatedAuditEntry implements AuditEntry & Node {
+type UnleashInstanceUpdatedActivityLog implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -127,7 +127,7 @@ type UnleashInstanceUpdatedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -139,10 +139,10 @@ type UnleashInstanceUpdatedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: UnleashInstanceUpdatedAuditEntryData!
+	data: UnleashInstanceUpdatedActivityLogData!
 }
 
-type UnleashInstanceUpdatedAuditEntryData {
+type UnleashInstanceUpdatedActivityLogData {
 	"Revoked team slug."
 	revokedTeamSlug: Slug
 

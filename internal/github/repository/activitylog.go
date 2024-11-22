@@ -7,31 +7,31 @@ import (
 )
 
 const (
-	auditResourceTypeRepository activitylog.AuditResourceType = "REPOSITORY"
+	activityLogResourceTypeRepository activitylog.ActivityLogResourceType = "REPOSITORY"
 )
 
 func init() {
-	activitylog.RegisterTransformer(auditResourceTypeRepository, func(entry activitylog.GenericAuditEntry) (activitylog.AuditEntry, error) {
+	activitylog.RegisterTransformer(activityLogResourceTypeRepository, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
-		case activitylog.AuditActionAdded:
-			return RepositoryAddedAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Added repository to team"),
+		case activitylog.ActivityLogActionAdded:
+			return RepositoryAddedActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Added repository to team"),
 			}, nil
-		case activitylog.AuditActionRemoved:
-			return RepositoryRemovedAuditEntry{
-				GenericAuditEntry: entry.WithMessage("Removed repository from team"),
+		case activitylog.ActivityLogActionRemoved:
+			return RepositoryRemovedActivityLog{
+				GenericActivityLogEntry: entry.WithMessage("Removed repository from team"),
 			}, nil
 
 		default:
-			return nil, fmt.Errorf("unsupported repository audit entry action: %q", entry.Action)
+			return nil, fmt.Errorf("unsupported repository activity log entry action: %q", entry.Action)
 		}
 	})
 }
 
-type RepositoryAddedAuditEntry struct {
-	activitylog.GenericAuditEntry
+type RepositoryAddedActivityLog struct {
+	activitylog.GenericActivityLogEntry
 }
 
-type RepositoryRemovedAuditEntry struct {
-	activitylog.GenericAuditEntry
+type RepositoryRemovedActivityLog struct {
+	activitylog.GenericActivityLogEntry
 }

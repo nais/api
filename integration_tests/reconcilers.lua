@@ -248,10 +248,10 @@ Test.gql("list reconcilers after modifications", function(t)
 		query {
 			reconcilers {
 				nodes {
-					auditEntries {
+					activityLog {
 						nodes {
 							message
-							... on ReconcilerConfiguredAuditEntry {
+							... on ReconcilerConfiguredActivityLog {
 								data {
 									updatedKeys
 								}
@@ -273,7 +273,7 @@ Test.gql("list reconcilers after modifications", function(t)
 			reconcilers = {
 				nodes = {
 					{
-						auditEntries = {
+						activityLog = {
 							nodes = {
 								{ message = "Enable reconciler" },
 								{
@@ -294,7 +294,7 @@ Test.gql("list reconcilers after modifications", function(t)
 						enabled = true,
 					},
 					{
-						auditEntries = {
+						activityLog = {
 							nodes = {
 								{ message = "Disable reconciler" },
 							},

@@ -198,15 +198,15 @@ func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activitylog.AuditActionCreated,
+		Action:          activitylog.ActivityLogActionCreated,
 		Actor:           actor.User,
 		EnvironmentName: ptr.To(environment),
-		ResourceType:    auditResourceTypeSecret,
+		ResourceType:    activityLogResourceTypeSecret,
 		ResourceName:    name,
 		TeamSlug:        ptr.To(teamSlug),
 	})
 	if err != nil {
-		fromContext(ctx).log.WithError(err).Errorf("unable to create audit log entry")
+		fromContext(ctx).log.WithError(err).Errorf("unable to create activity log entry")
 	}
 
 	retVal, ok := toGraphSecret(s, environment)
@@ -272,18 +272,18 @@ func AddSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secret
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          auditActionAddSecretValue,
+		Action:          activityLogActionAddSecretValue,
 		Actor:           actor.User,
 		EnvironmentName: ptr.To(environment),
-		ResourceType:    auditResourceTypeSecret,
+		ResourceType:    activityLogResourceTypeSecret,
 		ResourceName:    secretName,
 		TeamSlug:        ptr.To(teamSlug),
-		Data: &SecretValueAddedAuditEntryData{
+		Data: &SecretValueAddedActivityLogData{
 			ValueName: valueToAdd.Name,
 		},
 	})
 	if err != nil {
-		fromContext(ctx).log.WithError(err).Errorf("unable to create audit log entry")
+		fromContext(ctx).log.WithError(err).Errorf("unable to create activity log entry")
 	}
 
 	return Get(ctx, teamSlug, environment, secretName)
@@ -346,18 +346,18 @@ func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          auditActionUpdateSecretValue,
+		Action:          activityLogActionUpdateSecretValue,
 		Actor:           actor.User,
 		EnvironmentName: ptr.To(environment),
-		ResourceType:    auditResourceTypeSecret,
+		ResourceType:    activityLogResourceTypeSecret,
 		ResourceName:    secretName,
 		TeamSlug:        ptr.To(teamSlug),
-		Data: &SecretValueUpdatedAuditEntryData{
+		Data: &SecretValueUpdatedActivityLogData{
 			ValueName: valueToUpdate.Name,
 		},
 	})
 	if err != nil {
-		fromContext(ctx).log.WithError(err).Errorf("unable to create audit log entry")
+		fromContext(ctx).log.WithError(err).Errorf("unable to create activity log entry")
 	}
 
 	return Get(ctx, teamSlug, environment, secretName)
@@ -411,18 +411,18 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          auditActionRemoveSecretValue,
+		Action:          activityLogActionRemoveSecretValue,
 		Actor:           actor.User,
 		EnvironmentName: ptr.To(environment),
-		ResourceType:    auditResourceTypeSecret,
+		ResourceType:    activityLogResourceTypeSecret,
 		ResourceName:    secretName,
 		TeamSlug:        ptr.To(teamSlug),
-		Data: &SecretValueRemovedAuditEntryData{
+		Data: &SecretValueRemovedActivityLogData{
 			ValueName: valueName,
 		},
 	})
 	if err != nil {
-		fromContext(ctx).log.WithError(err).Errorf("unable to create audit log entry")
+		fromContext(ctx).log.WithError(err).Errorf("unable to create activity log entry")
 	}
 
 	return Get(ctx, teamSlug, environment, secretName)
@@ -446,15 +446,15 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) e
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activitylog.AuditActionDeleted,
+		Action:          activitylog.ActivityLogActionDeleted,
 		Actor:           authz.ActorFromContext(ctx).User,
 		EnvironmentName: ptr.To(environment),
-		ResourceType:    auditResourceTypeSecret,
+		ResourceType:    activityLogResourceTypeSecret,
 		ResourceName:    name,
 		TeamSlug:        ptr.To(teamSlug),
 	})
 	if err != nil {
-		fromContext(ctx).log.WithError(err).Errorf("unable to create audit log entry")
+		fromContext(ctx).log.WithError(err).Errorf("unable to create activity log entry")
 	}
 
 	return nil
