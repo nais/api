@@ -440,7 +440,7 @@ extend enum ActivityLogEntryResourceType {
 	TEAM
 }
 
-type TeamCreatedActivityLog implements ActivityLogEntry & Node {
+type TeamCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -466,7 +466,7 @@ type TeamCreatedActivityLog implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type TeamUpdatedActivityLog implements ActivityLogEntry & Node {
+type TeamUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -511,7 +511,7 @@ type TeamUpdatedActivityLogDataUpdatedField {
 	newValue: String
 }
 
-type TeamCreateDeleteKeyActivityLog implements ActivityLogEntry & Node {
+type TeamCreateDeleteKeyActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -537,7 +537,7 @@ type TeamCreateDeleteKeyActivityLog implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type TeamConfirmDeleteKeyActivityLog implements ActivityLogEntry & Node {
+type TeamConfirmDeleteKeyActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -563,7 +563,7 @@ type TeamConfirmDeleteKeyActivityLog implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type TeamMemberAddedActivityLog implements ActivityLogEntry & Node {
+type TeamMemberAddedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -603,7 +603,7 @@ type TeamMemberAddedActivityLogData {
 	userEmail: String!
 }
 
-type TeamMemberRemovedActivityLog implements ActivityLogEntry & Node {
+type TeamMemberRemovedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -640,7 +640,7 @@ type TeamMemberRemovedActivityLogData {
 	userEmail: String!
 }
 
-type TeamMemberSetRoleActivityLog implements ActivityLogEntry & Node {
+type TeamMemberSetRoleActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -680,7 +680,7 @@ type TeamMemberSetRoleActivityLogData {
 	userEmail: String!
 }
 
-type TeamEnvironmentUpdatedActivityLog implements ActivityLogEntry & Node {
+type TeamEnvironmentUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 

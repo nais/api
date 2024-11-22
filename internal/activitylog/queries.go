@@ -87,7 +87,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	if err != nil {
 		return nil, err
 	}
-	return pagination.NewConvertConnectionWithError(ret, page, total, toGraphActivityLog)
+	return pagination.NewConvertConnectionWithError(ret, page, total, toGraphActivityLogEntry)
 }
 
 func ListForResource(ctx context.Context, resourceType ActivityLogEntryResourceType, resourceName string, page *pagination.Pagination) (*ActivityLogEntryConnection, error) {
@@ -110,10 +110,10 @@ func ListForResource(ctx context.Context, resourceType ActivityLogEntryResourceT
 	if err != nil {
 		return nil, err
 	}
-	return pagination.NewConvertConnectionWithError(ret, page, total, toGraphActivityLog)
+	return pagination.NewConvertConnectionWithError(ret, page, total, toGraphActivityLogEntry)
 }
 
-func toGraphActivityLog(row *activitylogsql.ActivityLog) (ActivityLogEntry, error) {
+func toGraphActivityLogEntry(row *activitylogsql.ActivityLogEntry) (ActivityLogEntry, error) {
 	titler := cases.Title(language.English)
 	entry := GenericActivityLogEntry{
 		Action:          ActivityLogEntryAction(row.Action),

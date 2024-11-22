@@ -102,7 +102,7 @@ enum RepositoryOrderField {
 	NAME
 }
 
-type RepositoryAddedActivityLog implements ActivityLogEntry & Node {
+type RepositoryAddedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -128,7 +128,7 @@ type RepositoryAddedActivityLog implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type RepositoryRemovedActivityLog implements ActivityLogEntry & Node {
+type RepositoryRemovedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 

@@ -87,7 +87,7 @@ extend enum ActivityLogEntryResourceType {
 	UNLEASH
 }
 
-type UnleashInstanceCreatedActivityLog implements ActivityLogEntry & Node {
+type UnleashInstanceCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -113,7 +113,7 @@ type UnleashInstanceCreatedActivityLog implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type UnleashInstanceUpdatedActivityLog implements ActivityLogEntry & Node {
+type UnleashInstanceUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 

@@ -14,11 +14,11 @@ func init() {
 	activitylog.RegisterTransformer(activityLogEntryResourceTypeRepository, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
 		case activitylog.ActivityLogEntryActionAdded:
-			return RepositoryAddedActivityLog{
+			return RepositoryAddedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Added repository to team"),
 			}, nil
 		case activitylog.ActivityLogEntryActionRemoved:
-			return RepositoryRemovedActivityLog{
+			return RepositoryRemovedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Removed repository from team"),
 			}, nil
 
@@ -28,10 +28,10 @@ func init() {
 	})
 }
 
-type RepositoryAddedActivityLog struct {
+type RepositoryAddedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }
 
-type RepositoryRemovedActivityLog struct {
+type RepositoryRemovedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }

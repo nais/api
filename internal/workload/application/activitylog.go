@@ -21,11 +21,11 @@ func init() {
 			if entry.EnvironmentName == nil {
 				return nil, fmt.Errorf("missing environment name for application restart activity log entry")
 			}
-			return ApplicationRestartedActivityLog{
+			return ApplicationRestartedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Application restarted"),
 			}, nil
 		case activitylog.ActivityLogEntryActionDeleted:
-			return ApplicationDeletedActivityLog{
+			return ApplicationDeletedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Application deleted"),
 			}, nil
 
@@ -35,10 +35,10 @@ func init() {
 	})
 }
 
-type ApplicationRestartedActivityLog struct {
+type ApplicationRestartedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }
 
-type ApplicationDeletedActivityLog struct {
+type ApplicationDeletedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }

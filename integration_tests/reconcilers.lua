@@ -251,7 +251,7 @@ Test.gql("list reconcilers after modifications", function(t)
 					activityLog {
 						nodes {
 							message
-							... on ReconcilerConfiguredActivityLog {
+							... on ReconcilerConfiguredActivityLogEntry {
 								data {
 									updatedKeys
 								}

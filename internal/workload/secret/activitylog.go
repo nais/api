@@ -17,11 +17,11 @@ func init() {
 	activitylog.RegisterTransformer(activityLogEntryResourceTypeSecret, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
 		case activitylog.ActivityLogEntryActionCreated:
-			return SecretCreatedActivityLog{
+			return SecretCreatedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Created secret"),
 			}, nil
 		case activitylog.ActivityLogEntryActionDeleted:
-			return SecretDeletedActivityLog{
+			return SecretDeletedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Deleted secret"),
 			}, nil
 		case activityLogEntryActionAddSecretValue:
@@ -32,7 +32,7 @@ func init() {
 				return nil, err
 			}
 
-			return SecretValueAddedActivityLog{
+			return SecretValueAddedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Added secret value"),
 				Data:                    data,
 			}, nil
@@ -44,7 +44,7 @@ func init() {
 				return nil, err
 			}
 
-			return SecretValueUpdatedActivityLog{
+			return SecretValueUpdatedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Updated secret value"),
 				Data:                    data,
 			}, nil
@@ -56,7 +56,7 @@ func init() {
 				return nil, err
 			}
 
-			return SecretValueRemovedActivityLog{
+			return SecretValueRemovedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Removed secret value"),
 				Data:                    data,
 			}, nil
@@ -66,11 +66,11 @@ func init() {
 	})
 }
 
-type SecretCreatedActivityLog struct {
+type SecretCreatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }
 
-type SecretValueAddedActivityLog struct {
+type SecretValueAddedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 	Data *SecretValueAddedActivityLogData
 }
@@ -79,7 +79,7 @@ type SecretValueAddedActivityLogData struct {
 	ValueName string
 }
 
-type SecretValueUpdatedActivityLog struct {
+type SecretValueUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 	Data *SecretValueUpdatedActivityLogData
 }
@@ -88,7 +88,7 @@ type SecretValueUpdatedActivityLogData struct {
 	ValueName string
 }
 
-type SecretValueRemovedActivityLog struct {
+type SecretValueRemovedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 	Data *SecretValueRemovedActivityLogData
 }
@@ -97,6 +97,6 @@ type SecretValueRemovedActivityLogData struct {
 	ValueName string
 }
 
-type SecretDeletedActivityLog struct {
+type SecretDeletedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }

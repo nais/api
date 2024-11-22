@@ -21,7 +21,7 @@ func init() {
 	activitylog.RegisterTransformer(activityLogEntryResourceTypeTeam, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
 		case activitylog.ActivityLogEntryActionCreated:
-			return TeamCreatedActivityLog{
+			return TeamCreatedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Created team"),
 			}, nil
 		case activitylog.ActivityLogEntryActionUpdated:
@@ -35,16 +35,16 @@ func init() {
 				return nil, err
 			}
 
-			return TeamUpdatedActivityLog{
+			return TeamUpdatedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Updated team"),
 				Data:                    data,
 			}, nil
 		case activityLogEntryActionCreateDeleteKey:
-			return TeamCreateDeleteKeyActivityLog{
+			return TeamCreateDeleteKeyActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Create delete key"),
 			}, nil
 		case activityLogEntryActionConfirmDeleteKey:
-			return TeamConfirmDeleteKeyActivityLog{
+			return TeamConfirmDeleteKeyActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Confirm delete key"),
 			}, nil
 		case activitylog.ActivityLogEntryActionAdded:
@@ -54,7 +54,7 @@ func init() {
 			if err != nil {
 				return nil, err
 			}
-			return TeamMemberAddedActivityLog{
+			return TeamMemberAddedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Add member"),
 				Data:                    data,
 			}, nil
@@ -65,7 +65,7 @@ func init() {
 			if err != nil {
 				return nil, err
 			}
-			return TeamMemberRemovedActivityLog{
+			return TeamMemberRemovedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Remove member"),
 				Data:                    data,
 			}, nil
@@ -76,7 +76,7 @@ func init() {
 			if err != nil {
 				return nil, err
 			}
-			return TeamMemberSetRoleActivityLog{
+			return TeamMemberSetRoleActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Set member role"),
 				Data:                    data,
 			}, nil
@@ -88,7 +88,7 @@ func init() {
 				return nil, err
 			}
 
-			return TeamEnvironmentUpdatedActivityLog{
+			return TeamEnvironmentUpdatedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Update environment"),
 				Data:                    data,
 			}, nil
@@ -98,11 +98,11 @@ func init() {
 	})
 }
 
-type TeamCreatedActivityLog struct {
+type TeamCreatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }
 
-type TeamUpdatedActivityLog struct {
+type TeamUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 	Data *TeamUpdatedActivityLogData `json:"data"`
 }
@@ -117,15 +117,15 @@ type TeamUpdatedActivityLogDataUpdatedField struct {
 	NewValue *string `json:"newValue"`
 }
 
-type TeamConfirmDeleteKeyActivityLog struct {
+type TeamConfirmDeleteKeyActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }
 
-type TeamCreateDeleteKeyActivityLog struct {
+type TeamCreateDeleteKeyActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }
 
-type TeamMemberAddedActivityLog struct {
+type TeamMemberAddedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 	Data *TeamMemberAddedActivityLogData `json:"data"`
 }
@@ -140,7 +140,7 @@ func (t TeamMemberAddedActivityLogData) UserID() ident.Ident {
 	return user.NewIdent(t.UserUUID)
 }
 
-type TeamMemberRemovedActivityLog struct {
+type TeamMemberRemovedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 	Data *TeamMemberRemovedActivityLogData `json:"data"`
 }
@@ -154,7 +154,7 @@ func (t TeamMemberRemovedActivityLogData) UserID() ident.Ident {
 	return user.NewIdent(t.UserUUID)
 }
 
-type TeamMemberSetRoleActivityLog struct {
+type TeamMemberSetRoleActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 	Data *TeamMemberSetRoleActivityLogData `json:"data"`
 }
@@ -169,7 +169,7 @@ func (t TeamMemberSetRoleActivityLogData) UserID() ident.Ident {
 	return user.NewIdent(t.UserUUID)
 }
 
-type TeamEnvironmentUpdatedActivityLog struct {
+type TeamEnvironmentUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 	Data *TeamEnvironmentUpdatedActivityLogData `json:"data"`
 }

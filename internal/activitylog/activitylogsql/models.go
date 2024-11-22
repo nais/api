@@ -8,7 +8,7 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-type ActivityLog struct {
+type ActivityLogEntry struct {
 	ID           uuid.UUID
 	CreatedAt    pgtype.Timestamptz
 	Actor        string

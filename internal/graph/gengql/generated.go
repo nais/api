@@ -186,7 +186,7 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
-	ApplicationDeletedActivityLog struct {
+	ApplicationDeletedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -237,7 +237,7 @@ type ComplexityRoot struct {
 		Scaling  func(childComplexity int) int
 	}
 
-	ApplicationRestartedActivityLog struct {
+	ApplicationRestartedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -562,7 +562,7 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
-	JobDeletedActivityLog struct {
+	JobDeletedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -635,7 +635,7 @@ type ComplexityRoot struct {
 		TimeZone   func(childComplexity int) int
 	}
 
-	JobTriggeredActivityLog struct {
+	JobTriggeredActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -845,7 +845,11 @@ type ComplexityRoot struct {
 		Value       func(childComplexity int) int
 	}
 
-	ReconcilerConfiguredActivityLog struct {
+	ReconcilerConfiguredActivityLogData struct {
+		UpdatedKeys func(childComplexity int) int
+	}
+
+	ReconcilerConfiguredActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -857,17 +861,13 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
-	ReconcilerConfiguredActivityLogData struct {
-		UpdatedKeys func(childComplexity int) int
-	}
-
 	ReconcilerConnection struct {
 		Edges    func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
-	ReconcilerDisabledActivityLog struct {
+	ReconcilerDisabledActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -883,7 +883,7 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
-	ReconcilerEnabledActivityLog struct {
+	ReconcilerEnabledActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -977,7 +977,7 @@ type ComplexityRoot struct {
 		Team func(childComplexity int) int
 	}
 
-	RepositoryAddedActivityLog struct {
+	RepositoryAddedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -999,7 +999,7 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
-	RepositoryRemovedActivityLog struct {
+	RepositoryRemovedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -1052,7 +1052,7 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
-	SecretCreatedActivityLog struct {
+	SecretCreatedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -1063,7 +1063,7 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
-	SecretDeletedActivityLog struct {
+	SecretDeletedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -1084,23 +1084,11 @@ type ComplexityRoot struct {
 		Value func(childComplexity int) int
 	}
 
-	SecretValueAddedActivityLog struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
-	}
-
 	SecretValueAddedActivityLogData struct {
 		ValueName func(childComplexity int) int
 	}
 
-	SecretValueRemovedActivityLog struct {
+	SecretValueAddedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -1116,7 +1104,7 @@ type ComplexityRoot struct {
 		ValueName func(childComplexity int) int
 	}
 
-	SecretValueUpdatedActivityLog struct {
+	SecretValueRemovedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -1130,6 +1118,18 @@ type ComplexityRoot struct {
 
 	SecretValueUpdatedActivityLogData struct {
 		ValueName func(childComplexity int) int
+	}
+
+	SecretValueUpdatedActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
 	}
 
 	ServiceAccount struct {
@@ -1321,7 +1321,7 @@ type ComplexityRoot struct {
 		Bucket func(childComplexity int) int
 	}
 
-	TeamConfirmDeleteKeyActivityLog struct {
+	TeamConfirmDeleteKeyActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -1358,7 +1358,7 @@ type ComplexityRoot struct {
 		Sum    func(childComplexity int) int
 	}
 
-	TeamCreateDeleteKeyActivityLog struct {
+	TeamCreateDeleteKeyActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -1369,7 +1369,7 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
-	TeamCreatedActivityLog struct {
+	TeamCreatedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -1388,7 +1388,7 @@ type ComplexityRoot struct {
 		Team      func(childComplexity int) int
 	}
 
-	TeamDeployKeyUpdatedActivityLog struct {
+	TeamDeployKeyUpdatedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -1436,7 +1436,17 @@ type ComplexityRoot struct {
 		Sum    func(childComplexity int) int
 	}
 
-	TeamEnvironmentUpdatedActivityLog struct {
+	TeamEnvironmentUpdatedActivityLogData struct {
+		UpdatedFields func(childComplexity int) int
+	}
+
+	TeamEnvironmentUpdatedActivityLogDataUpdatedField struct {
+		Field    func(childComplexity int) int
+		NewValue func(childComplexity int) int
+		OldValue func(childComplexity int) int
+	}
+
+	TeamEnvironmentUpdatedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -1446,16 +1456,6 @@ type ComplexityRoot struct {
 		ResourceName    func(childComplexity int) int
 		ResourceType    func(childComplexity int) int
 		TeamSlug        func(childComplexity int) int
-	}
-
-	TeamEnvironmentUpdatedActivityLogData struct {
-		UpdatedFields func(childComplexity int) int
-	}
-
-	TeamEnvironmentUpdatedActivityLogDataUpdatedField struct {
-		Field    func(childComplexity int) int
-		NewValue func(childComplexity int) int
-		OldValue func(childComplexity int) int
 	}
 
 	TeamExternalResources struct {
@@ -1529,7 +1529,13 @@ type ComplexityRoot struct {
 		User func(childComplexity int) int
 	}
 
-	TeamMemberAddedActivityLog struct {
+	TeamMemberAddedActivityLogData struct {
+		Role      func(childComplexity int) int
+		UserEmail func(childComplexity int) int
+		UserID    func(childComplexity int) int
+	}
+
+	TeamMemberAddedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -1539,12 +1545,6 @@ type ComplexityRoot struct {
 		ResourceName    func(childComplexity int) int
 		ResourceType    func(childComplexity int) int
 		TeamSlug        func(childComplexity int) int
-	}
-
-	TeamMemberAddedActivityLogData struct {
-		Role      func(childComplexity int) int
-		UserEmail func(childComplexity int) int
-		UserID    func(childComplexity int) int
 	}
 
 	TeamMemberConnection struct {
@@ -1558,24 +1558,12 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
-	TeamMemberRemovedActivityLog struct {
-		Actor           func(childComplexity int) int
-		CreatedAt       func(childComplexity int) int
-		Data            func(childComplexity int) int
-		EnvironmentName func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		ResourceName    func(childComplexity int) int
-		ResourceType    func(childComplexity int) int
-		TeamSlug        func(childComplexity int) int
-	}
-
 	TeamMemberRemovedActivityLogData struct {
 		UserEmail func(childComplexity int) int
 		UserID    func(childComplexity int) int
 	}
 
-	TeamMemberSetRoleActivityLog struct {
+	TeamMemberRemovedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -1591,6 +1579,18 @@ type ComplexityRoot struct {
 		Role      func(childComplexity int) int
 		UserEmail func(childComplexity int) int
 		UserID    func(childComplexity int) int
+	}
+
+	TeamMemberSetRoleActivityLogEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
 	}
 
 	TeamServiceUtilization struct {
@@ -1621,7 +1621,17 @@ type ComplexityRoot struct {
 		Utilization func(childComplexity int) int
 	}
 
-	TeamUpdatedActivityLog struct {
+	TeamUpdatedActivityLogData struct {
+		UpdatedFields func(childComplexity int) int
+	}
+
+	TeamUpdatedActivityLogDataUpdatedField struct {
+		Field    func(childComplexity int) int
+		NewValue func(childComplexity int) int
+		OldValue func(childComplexity int) int
+	}
+
+	TeamUpdatedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -1631,16 +1641,6 @@ type ComplexityRoot struct {
 		ResourceName    func(childComplexity int) int
 		ResourceType    func(childComplexity int) int
 		TeamSlug        func(childComplexity int) int
-	}
-
-	TeamUpdatedActivityLogData struct {
-		UpdatedFields func(childComplexity int) int
-	}
-
-	TeamUpdatedActivityLogDataUpdatedField struct {
-		Field    func(childComplexity int) int
-		NewValue func(childComplexity int) int
-		OldValue func(childComplexity int) int
 	}
 
 	TeamUtilizationData struct {
@@ -1690,7 +1690,7 @@ type ComplexityRoot struct {
 		WebIngress   func(childComplexity int) int
 	}
 
-	UnleashInstanceCreatedActivityLog struct {
+	UnleashInstanceCreatedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -1710,7 +1710,12 @@ type ComplexityRoot struct {
 		Toggles           func(childComplexity int) int
 	}
 
-	UnleashInstanceUpdatedActivityLog struct {
+	UnleashInstanceUpdatedActivityLogData struct {
+		AllowedTeamSlug func(childComplexity int) int
+		RevokedTeamSlug func(childComplexity int) int
+	}
+
+	UnleashInstanceUpdatedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -1720,11 +1725,6 @@ type ComplexityRoot struct {
 		ResourceName    func(childComplexity int) int
 		ResourceType    func(childComplexity int) int
 		TeamSlug        func(childComplexity int) int
-	}
-
-	UnleashInstanceUpdatedActivityLogData struct {
-		AllowedTeamSlug func(childComplexity int) int
-		RevokedTeamSlug func(childComplexity int) int
 	}
 
 	UpdateImageVulnerabilityPayload struct {
@@ -1768,7 +1768,7 @@ type ComplexityRoot struct {
 		Value     func(childComplexity int) int
 	}
 
-	VulnerabilityUpdatedActivityLog struct {
+	VulnerabilityUpdatedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -2532,61 +2532,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ApplicationConnection.PageInfo(childComplexity), true
 
-	case "ApplicationDeletedActivityLog.actor":
-		if e.complexity.ApplicationDeletedActivityLog.Actor == nil {
+	case "ApplicationDeletedActivityLogEntry.actor":
+		if e.complexity.ApplicationDeletedActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.ApplicationDeletedActivityLog.Actor(childComplexity), true
+		return e.complexity.ApplicationDeletedActivityLogEntry.Actor(childComplexity), true
 
-	case "ApplicationDeletedActivityLog.createdAt":
-		if e.complexity.ApplicationDeletedActivityLog.CreatedAt == nil {
+	case "ApplicationDeletedActivityLogEntry.createdAt":
+		if e.complexity.ApplicationDeletedActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.ApplicationDeletedActivityLog.CreatedAt(childComplexity), true
+		return e.complexity.ApplicationDeletedActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "ApplicationDeletedActivityLog.environmentName":
-		if e.complexity.ApplicationDeletedActivityLog.EnvironmentName == nil {
+	case "ApplicationDeletedActivityLogEntry.environmentName":
+		if e.complexity.ApplicationDeletedActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.ApplicationDeletedActivityLog.EnvironmentName(childComplexity), true
+		return e.complexity.ApplicationDeletedActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "ApplicationDeletedActivityLog.id":
-		if e.complexity.ApplicationDeletedActivityLog.ID == nil {
+	case "ApplicationDeletedActivityLogEntry.id":
+		if e.complexity.ApplicationDeletedActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.ApplicationDeletedActivityLog.ID(childComplexity), true
+		return e.complexity.ApplicationDeletedActivityLogEntry.ID(childComplexity), true
 
-	case "ApplicationDeletedActivityLog.message":
-		if e.complexity.ApplicationDeletedActivityLog.Message == nil {
+	case "ApplicationDeletedActivityLogEntry.message":
+		if e.complexity.ApplicationDeletedActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.ApplicationDeletedActivityLog.Message(childComplexity), true
+		return e.complexity.ApplicationDeletedActivityLogEntry.Message(childComplexity), true
 
-	case "ApplicationDeletedActivityLog.resourceName":
-		if e.complexity.ApplicationDeletedActivityLog.ResourceName == nil {
+	case "ApplicationDeletedActivityLogEntry.resourceName":
+		if e.complexity.ApplicationDeletedActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.ApplicationDeletedActivityLog.ResourceName(childComplexity), true
+		return e.complexity.ApplicationDeletedActivityLogEntry.ResourceName(childComplexity), true
 
-	case "ApplicationDeletedActivityLog.resourceType":
-		if e.complexity.ApplicationDeletedActivityLog.ResourceType == nil {
+	case "ApplicationDeletedActivityLogEntry.resourceType":
+		if e.complexity.ApplicationDeletedActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.ApplicationDeletedActivityLog.ResourceType(childComplexity), true
+		return e.complexity.ApplicationDeletedActivityLogEntry.ResourceType(childComplexity), true
 
-	case "ApplicationDeletedActivityLog.teamSlug":
-		if e.complexity.ApplicationDeletedActivityLog.TeamSlug == nil {
+	case "ApplicationDeletedActivityLogEntry.teamSlug":
+		if e.complexity.ApplicationDeletedActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.ApplicationDeletedActivityLog.TeamSlug(childComplexity), true
+		return e.complexity.ApplicationDeletedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "ApplicationEdge.cursor":
 		if e.complexity.ApplicationEdge.Cursor == nil {
@@ -2721,61 +2721,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ApplicationResources.Scaling(childComplexity), true
 
-	case "ApplicationRestartedActivityLog.actor":
-		if e.complexity.ApplicationRestartedActivityLog.Actor == nil {
+	case "ApplicationRestartedActivityLogEntry.actor":
+		if e.complexity.ApplicationRestartedActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.ApplicationRestartedActivityLog.Actor(childComplexity), true
+		return e.complexity.ApplicationRestartedActivityLogEntry.Actor(childComplexity), true
 
-	case "ApplicationRestartedActivityLog.createdAt":
-		if e.complexity.ApplicationRestartedActivityLog.CreatedAt == nil {
+	case "ApplicationRestartedActivityLogEntry.createdAt":
+		if e.complexity.ApplicationRestartedActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.ApplicationRestartedActivityLog.CreatedAt(childComplexity), true
+		return e.complexity.ApplicationRestartedActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "ApplicationRestartedActivityLog.environmentName":
-		if e.complexity.ApplicationRestartedActivityLog.EnvironmentName == nil {
+	case "ApplicationRestartedActivityLogEntry.environmentName":
+		if e.complexity.ApplicationRestartedActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.ApplicationRestartedActivityLog.EnvironmentName(childComplexity), true
+		return e.complexity.ApplicationRestartedActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "ApplicationRestartedActivityLog.id":
-		if e.complexity.ApplicationRestartedActivityLog.ID == nil {
+	case "ApplicationRestartedActivityLogEntry.id":
+		if e.complexity.ApplicationRestartedActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.ApplicationRestartedActivityLog.ID(childComplexity), true
+		return e.complexity.ApplicationRestartedActivityLogEntry.ID(childComplexity), true
 
-	case "ApplicationRestartedActivityLog.message":
-		if e.complexity.ApplicationRestartedActivityLog.Message == nil {
+	case "ApplicationRestartedActivityLogEntry.message":
+		if e.complexity.ApplicationRestartedActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.ApplicationRestartedActivityLog.Message(childComplexity), true
+		return e.complexity.ApplicationRestartedActivityLogEntry.Message(childComplexity), true
 
-	case "ApplicationRestartedActivityLog.resourceName":
-		if e.complexity.ApplicationRestartedActivityLog.ResourceName == nil {
+	case "ApplicationRestartedActivityLogEntry.resourceName":
+		if e.complexity.ApplicationRestartedActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.ApplicationRestartedActivityLog.ResourceName(childComplexity), true
+		return e.complexity.ApplicationRestartedActivityLogEntry.ResourceName(childComplexity), true
 
-	case "ApplicationRestartedActivityLog.resourceType":
-		if e.complexity.ApplicationRestartedActivityLog.ResourceType == nil {
+	case "ApplicationRestartedActivityLogEntry.resourceType":
+		if e.complexity.ApplicationRestartedActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.ApplicationRestartedActivityLog.ResourceType(childComplexity), true
+		return e.complexity.ApplicationRestartedActivityLogEntry.ResourceType(childComplexity), true
 
-	case "ApplicationRestartedActivityLog.teamSlug":
-		if e.complexity.ApplicationRestartedActivityLog.TeamSlug == nil {
+	case "ApplicationRestartedActivityLogEntry.teamSlug":
+		if e.complexity.ApplicationRestartedActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.ApplicationRestartedActivityLog.TeamSlug(childComplexity), true
+		return e.complexity.ApplicationRestartedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "ApplicationScaling.maxInstances":
 		if e.complexity.ApplicationScaling.MaxInstances == nil {
@@ -3985,61 +3985,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.JobConnection.PageInfo(childComplexity), true
 
-	case "JobDeletedActivityLog.actor":
-		if e.complexity.JobDeletedActivityLog.Actor == nil {
+	case "JobDeletedActivityLogEntry.actor":
+		if e.complexity.JobDeletedActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.JobDeletedActivityLog.Actor(childComplexity), true
+		return e.complexity.JobDeletedActivityLogEntry.Actor(childComplexity), true
 
-	case "JobDeletedActivityLog.createdAt":
-		if e.complexity.JobDeletedActivityLog.CreatedAt == nil {
+	case "JobDeletedActivityLogEntry.createdAt":
+		if e.complexity.JobDeletedActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.JobDeletedActivityLog.CreatedAt(childComplexity), true
+		return e.complexity.JobDeletedActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "JobDeletedActivityLog.environmentName":
-		if e.complexity.JobDeletedActivityLog.EnvironmentName == nil {
+	case "JobDeletedActivityLogEntry.environmentName":
+		if e.complexity.JobDeletedActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.JobDeletedActivityLog.EnvironmentName(childComplexity), true
+		return e.complexity.JobDeletedActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "JobDeletedActivityLog.id":
-		if e.complexity.JobDeletedActivityLog.ID == nil {
+	case "JobDeletedActivityLogEntry.id":
+		if e.complexity.JobDeletedActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.JobDeletedActivityLog.ID(childComplexity), true
+		return e.complexity.JobDeletedActivityLogEntry.ID(childComplexity), true
 
-	case "JobDeletedActivityLog.message":
-		if e.complexity.JobDeletedActivityLog.Message == nil {
+	case "JobDeletedActivityLogEntry.message":
+		if e.complexity.JobDeletedActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.JobDeletedActivityLog.Message(childComplexity), true
+		return e.complexity.JobDeletedActivityLogEntry.Message(childComplexity), true
 
-	case "JobDeletedActivityLog.resourceName":
-		if e.complexity.JobDeletedActivityLog.ResourceName == nil {
+	case "JobDeletedActivityLogEntry.resourceName":
+		if e.complexity.JobDeletedActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.JobDeletedActivityLog.ResourceName(childComplexity), true
+		return e.complexity.JobDeletedActivityLogEntry.ResourceName(childComplexity), true
 
-	case "JobDeletedActivityLog.resourceType":
-		if e.complexity.JobDeletedActivityLog.ResourceType == nil {
+	case "JobDeletedActivityLogEntry.resourceType":
+		if e.complexity.JobDeletedActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.JobDeletedActivityLog.ResourceType(childComplexity), true
+		return e.complexity.JobDeletedActivityLogEntry.ResourceType(childComplexity), true
 
-	case "JobDeletedActivityLog.teamSlug":
-		if e.complexity.JobDeletedActivityLog.TeamSlug == nil {
+	case "JobDeletedActivityLogEntry.teamSlug":
+		if e.complexity.JobDeletedActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.JobDeletedActivityLog.TeamSlug(childComplexity), true
+		return e.complexity.JobDeletedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "JobEdge.cursor":
 		if e.complexity.JobEdge.Cursor == nil {
@@ -4249,61 +4249,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.JobSchedule.TimeZone(childComplexity), true
 
-	case "JobTriggeredActivityLog.actor":
-		if e.complexity.JobTriggeredActivityLog.Actor == nil {
+	case "JobTriggeredActivityLogEntry.actor":
+		if e.complexity.JobTriggeredActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.JobTriggeredActivityLog.Actor(childComplexity), true
+		return e.complexity.JobTriggeredActivityLogEntry.Actor(childComplexity), true
 
-	case "JobTriggeredActivityLog.createdAt":
-		if e.complexity.JobTriggeredActivityLog.CreatedAt == nil {
+	case "JobTriggeredActivityLogEntry.createdAt":
+		if e.complexity.JobTriggeredActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.JobTriggeredActivityLog.CreatedAt(childComplexity), true
+		return e.complexity.JobTriggeredActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "JobTriggeredActivityLog.environmentName":
-		if e.complexity.JobTriggeredActivityLog.EnvironmentName == nil {
+	case "JobTriggeredActivityLogEntry.environmentName":
+		if e.complexity.JobTriggeredActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.JobTriggeredActivityLog.EnvironmentName(childComplexity), true
+		return e.complexity.JobTriggeredActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "JobTriggeredActivityLog.id":
-		if e.complexity.JobTriggeredActivityLog.ID == nil {
+	case "JobTriggeredActivityLogEntry.id":
+		if e.complexity.JobTriggeredActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.JobTriggeredActivityLog.ID(childComplexity), true
+		return e.complexity.JobTriggeredActivityLogEntry.ID(childComplexity), true
 
-	case "JobTriggeredActivityLog.message":
-		if e.complexity.JobTriggeredActivityLog.Message == nil {
+	case "JobTriggeredActivityLogEntry.message":
+		if e.complexity.JobTriggeredActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.JobTriggeredActivityLog.Message(childComplexity), true
+		return e.complexity.JobTriggeredActivityLogEntry.Message(childComplexity), true
 
-	case "JobTriggeredActivityLog.resourceName":
-		if e.complexity.JobTriggeredActivityLog.ResourceName == nil {
+	case "JobTriggeredActivityLogEntry.resourceName":
+		if e.complexity.JobTriggeredActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.JobTriggeredActivityLog.ResourceName(childComplexity), true
+		return e.complexity.JobTriggeredActivityLogEntry.ResourceName(childComplexity), true
 
-	case "JobTriggeredActivityLog.resourceType":
-		if e.complexity.JobTriggeredActivityLog.ResourceType == nil {
+	case "JobTriggeredActivityLogEntry.resourceType":
+		if e.complexity.JobTriggeredActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.JobTriggeredActivityLog.ResourceType(childComplexity), true
+		return e.complexity.JobTriggeredActivityLogEntry.ResourceType(childComplexity), true
 
-	case "JobTriggeredActivityLog.teamSlug":
-		if e.complexity.JobTriggeredActivityLog.TeamSlug == nil {
+	case "JobTriggeredActivityLogEntry.teamSlug":
+		if e.complexity.JobTriggeredActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.JobTriggeredActivityLog.TeamSlug(childComplexity), true
+		return e.complexity.JobTriggeredActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "KafkaLagScalingStrategy.consumerGroup":
 		if e.complexity.KafkaLagScalingStrategy.ConsumerGroup == nil {
@@ -5368,75 +5368,75 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ReconcilerConfig.Value(childComplexity), true
 
-	case "ReconcilerConfiguredActivityLog.actor":
-		if e.complexity.ReconcilerConfiguredActivityLog.Actor == nil {
-			break
-		}
-
-		return e.complexity.ReconcilerConfiguredActivityLog.Actor(childComplexity), true
-
-	case "ReconcilerConfiguredActivityLog.createdAt":
-		if e.complexity.ReconcilerConfiguredActivityLog.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.ReconcilerConfiguredActivityLog.CreatedAt(childComplexity), true
-
-	case "ReconcilerConfiguredActivityLog.data":
-		if e.complexity.ReconcilerConfiguredActivityLog.Data == nil {
-			break
-		}
-
-		return e.complexity.ReconcilerConfiguredActivityLog.Data(childComplexity), true
-
-	case "ReconcilerConfiguredActivityLog.environmentName":
-		if e.complexity.ReconcilerConfiguredActivityLog.EnvironmentName == nil {
-			break
-		}
-
-		return e.complexity.ReconcilerConfiguredActivityLog.EnvironmentName(childComplexity), true
-
-	case "ReconcilerConfiguredActivityLog.id":
-		if e.complexity.ReconcilerConfiguredActivityLog.ID == nil {
-			break
-		}
-
-		return e.complexity.ReconcilerConfiguredActivityLog.ID(childComplexity), true
-
-	case "ReconcilerConfiguredActivityLog.message":
-		if e.complexity.ReconcilerConfiguredActivityLog.Message == nil {
-			break
-		}
-
-		return e.complexity.ReconcilerConfiguredActivityLog.Message(childComplexity), true
-
-	case "ReconcilerConfiguredActivityLog.resourceName":
-		if e.complexity.ReconcilerConfiguredActivityLog.ResourceName == nil {
-			break
-		}
-
-		return e.complexity.ReconcilerConfiguredActivityLog.ResourceName(childComplexity), true
-
-	case "ReconcilerConfiguredActivityLog.resourceType":
-		if e.complexity.ReconcilerConfiguredActivityLog.ResourceType == nil {
-			break
-		}
-
-		return e.complexity.ReconcilerConfiguredActivityLog.ResourceType(childComplexity), true
-
-	case "ReconcilerConfiguredActivityLog.teamSlug":
-		if e.complexity.ReconcilerConfiguredActivityLog.TeamSlug == nil {
-			break
-		}
-
-		return e.complexity.ReconcilerConfiguredActivityLog.TeamSlug(childComplexity), true
-
 	case "ReconcilerConfiguredActivityLogData.updatedKeys":
 		if e.complexity.ReconcilerConfiguredActivityLogData.UpdatedKeys == nil {
 			break
 		}
 
 		return e.complexity.ReconcilerConfiguredActivityLogData.UpdatedKeys(childComplexity), true
+
+	case "ReconcilerConfiguredActivityLogEntry.actor":
+		if e.complexity.ReconcilerConfiguredActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerConfiguredActivityLogEntry.Actor(childComplexity), true
+
+	case "ReconcilerConfiguredActivityLogEntry.createdAt":
+		if e.complexity.ReconcilerConfiguredActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerConfiguredActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "ReconcilerConfiguredActivityLogEntry.data":
+		if e.complexity.ReconcilerConfiguredActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerConfiguredActivityLogEntry.Data(childComplexity), true
+
+	case "ReconcilerConfiguredActivityLogEntry.environmentName":
+		if e.complexity.ReconcilerConfiguredActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerConfiguredActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "ReconcilerConfiguredActivityLogEntry.id":
+		if e.complexity.ReconcilerConfiguredActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerConfiguredActivityLogEntry.ID(childComplexity), true
+
+	case "ReconcilerConfiguredActivityLogEntry.message":
+		if e.complexity.ReconcilerConfiguredActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerConfiguredActivityLogEntry.Message(childComplexity), true
+
+	case "ReconcilerConfiguredActivityLogEntry.resourceName":
+		if e.complexity.ReconcilerConfiguredActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerConfiguredActivityLogEntry.ResourceName(childComplexity), true
+
+	case "ReconcilerConfiguredActivityLogEntry.resourceType":
+		if e.complexity.ReconcilerConfiguredActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerConfiguredActivityLogEntry.ResourceType(childComplexity), true
+
+	case "ReconcilerConfiguredActivityLogEntry.teamSlug":
+		if e.complexity.ReconcilerConfiguredActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerConfiguredActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "ReconcilerConnection.edges":
 		if e.complexity.ReconcilerConnection.Edges == nil {
@@ -5459,61 +5459,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ReconcilerConnection.PageInfo(childComplexity), true
 
-	case "ReconcilerDisabledActivityLog.actor":
-		if e.complexity.ReconcilerDisabledActivityLog.Actor == nil {
+	case "ReconcilerDisabledActivityLogEntry.actor":
+		if e.complexity.ReconcilerDisabledActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerDisabledActivityLog.Actor(childComplexity), true
+		return e.complexity.ReconcilerDisabledActivityLogEntry.Actor(childComplexity), true
 
-	case "ReconcilerDisabledActivityLog.createdAt":
-		if e.complexity.ReconcilerDisabledActivityLog.CreatedAt == nil {
+	case "ReconcilerDisabledActivityLogEntry.createdAt":
+		if e.complexity.ReconcilerDisabledActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerDisabledActivityLog.CreatedAt(childComplexity), true
+		return e.complexity.ReconcilerDisabledActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "ReconcilerDisabledActivityLog.environmentName":
-		if e.complexity.ReconcilerDisabledActivityLog.EnvironmentName == nil {
+	case "ReconcilerDisabledActivityLogEntry.environmentName":
+		if e.complexity.ReconcilerDisabledActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerDisabledActivityLog.EnvironmentName(childComplexity), true
+		return e.complexity.ReconcilerDisabledActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "ReconcilerDisabledActivityLog.id":
-		if e.complexity.ReconcilerDisabledActivityLog.ID == nil {
+	case "ReconcilerDisabledActivityLogEntry.id":
+		if e.complexity.ReconcilerDisabledActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerDisabledActivityLog.ID(childComplexity), true
+		return e.complexity.ReconcilerDisabledActivityLogEntry.ID(childComplexity), true
 
-	case "ReconcilerDisabledActivityLog.message":
-		if e.complexity.ReconcilerDisabledActivityLog.Message == nil {
+	case "ReconcilerDisabledActivityLogEntry.message":
+		if e.complexity.ReconcilerDisabledActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerDisabledActivityLog.Message(childComplexity), true
+		return e.complexity.ReconcilerDisabledActivityLogEntry.Message(childComplexity), true
 
-	case "ReconcilerDisabledActivityLog.resourceName":
-		if e.complexity.ReconcilerDisabledActivityLog.ResourceName == nil {
+	case "ReconcilerDisabledActivityLogEntry.resourceName":
+		if e.complexity.ReconcilerDisabledActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerDisabledActivityLog.ResourceName(childComplexity), true
+		return e.complexity.ReconcilerDisabledActivityLogEntry.ResourceName(childComplexity), true
 
-	case "ReconcilerDisabledActivityLog.resourceType":
-		if e.complexity.ReconcilerDisabledActivityLog.ResourceType == nil {
+	case "ReconcilerDisabledActivityLogEntry.resourceType":
+		if e.complexity.ReconcilerDisabledActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerDisabledActivityLog.ResourceType(childComplexity), true
+		return e.complexity.ReconcilerDisabledActivityLogEntry.ResourceType(childComplexity), true
 
-	case "ReconcilerDisabledActivityLog.teamSlug":
-		if e.complexity.ReconcilerDisabledActivityLog.TeamSlug == nil {
+	case "ReconcilerDisabledActivityLogEntry.teamSlug":
+		if e.complexity.ReconcilerDisabledActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerDisabledActivityLog.TeamSlug(childComplexity), true
+		return e.complexity.ReconcilerDisabledActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "ReconcilerEdge.cursor":
 		if e.complexity.ReconcilerEdge.Cursor == nil {
@@ -5529,61 +5529,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ReconcilerEdge.Node(childComplexity), true
 
-	case "ReconcilerEnabledActivityLog.actor":
-		if e.complexity.ReconcilerEnabledActivityLog.Actor == nil {
+	case "ReconcilerEnabledActivityLogEntry.actor":
+		if e.complexity.ReconcilerEnabledActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerEnabledActivityLog.Actor(childComplexity), true
+		return e.complexity.ReconcilerEnabledActivityLogEntry.Actor(childComplexity), true
 
-	case "ReconcilerEnabledActivityLog.createdAt":
-		if e.complexity.ReconcilerEnabledActivityLog.CreatedAt == nil {
+	case "ReconcilerEnabledActivityLogEntry.createdAt":
+		if e.complexity.ReconcilerEnabledActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerEnabledActivityLog.CreatedAt(childComplexity), true
+		return e.complexity.ReconcilerEnabledActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "ReconcilerEnabledActivityLog.environmentName":
-		if e.complexity.ReconcilerEnabledActivityLog.EnvironmentName == nil {
+	case "ReconcilerEnabledActivityLogEntry.environmentName":
+		if e.complexity.ReconcilerEnabledActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerEnabledActivityLog.EnvironmentName(childComplexity), true
+		return e.complexity.ReconcilerEnabledActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "ReconcilerEnabledActivityLog.id":
-		if e.complexity.ReconcilerEnabledActivityLog.ID == nil {
+	case "ReconcilerEnabledActivityLogEntry.id":
+		if e.complexity.ReconcilerEnabledActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerEnabledActivityLog.ID(childComplexity), true
+		return e.complexity.ReconcilerEnabledActivityLogEntry.ID(childComplexity), true
 
-	case "ReconcilerEnabledActivityLog.message":
-		if e.complexity.ReconcilerEnabledActivityLog.Message == nil {
+	case "ReconcilerEnabledActivityLogEntry.message":
+		if e.complexity.ReconcilerEnabledActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerEnabledActivityLog.Message(childComplexity), true
+		return e.complexity.ReconcilerEnabledActivityLogEntry.Message(childComplexity), true
 
-	case "ReconcilerEnabledActivityLog.resourceName":
-		if e.complexity.ReconcilerEnabledActivityLog.ResourceName == nil {
+	case "ReconcilerEnabledActivityLogEntry.resourceName":
+		if e.complexity.ReconcilerEnabledActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerEnabledActivityLog.ResourceName(childComplexity), true
+		return e.complexity.ReconcilerEnabledActivityLogEntry.ResourceName(childComplexity), true
 
-	case "ReconcilerEnabledActivityLog.resourceType":
-		if e.complexity.ReconcilerEnabledActivityLog.ResourceType == nil {
+	case "ReconcilerEnabledActivityLogEntry.resourceType":
+		if e.complexity.ReconcilerEnabledActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerEnabledActivityLog.ResourceType(childComplexity), true
+		return e.complexity.ReconcilerEnabledActivityLogEntry.ResourceType(childComplexity), true
 
-	case "ReconcilerEnabledActivityLog.teamSlug":
-		if e.complexity.ReconcilerEnabledActivityLog.TeamSlug == nil {
+	case "ReconcilerEnabledActivityLogEntry.teamSlug":
+		if e.complexity.ReconcilerEnabledActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.ReconcilerEnabledActivityLog.TeamSlug(childComplexity), true
+		return e.complexity.ReconcilerEnabledActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "ReconcilerError.correlationID":
 		if e.complexity.ReconcilerError.CorrelationID == nil {
@@ -5856,61 +5856,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Repository.Team(childComplexity), true
 
-	case "RepositoryAddedActivityLog.actor":
-		if e.complexity.RepositoryAddedActivityLog.Actor == nil {
+	case "RepositoryAddedActivityLogEntry.actor":
+		if e.complexity.RepositoryAddedActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.RepositoryAddedActivityLog.Actor(childComplexity), true
+		return e.complexity.RepositoryAddedActivityLogEntry.Actor(childComplexity), true
 
-	case "RepositoryAddedActivityLog.createdAt":
-		if e.complexity.RepositoryAddedActivityLog.CreatedAt == nil {
+	case "RepositoryAddedActivityLogEntry.createdAt":
+		if e.complexity.RepositoryAddedActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.RepositoryAddedActivityLog.CreatedAt(childComplexity), true
+		return e.complexity.RepositoryAddedActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "RepositoryAddedActivityLog.environmentName":
-		if e.complexity.RepositoryAddedActivityLog.EnvironmentName == nil {
+	case "RepositoryAddedActivityLogEntry.environmentName":
+		if e.complexity.RepositoryAddedActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.RepositoryAddedActivityLog.EnvironmentName(childComplexity), true
+		return e.complexity.RepositoryAddedActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "RepositoryAddedActivityLog.id":
-		if e.complexity.RepositoryAddedActivityLog.ID == nil {
+	case "RepositoryAddedActivityLogEntry.id":
+		if e.complexity.RepositoryAddedActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.RepositoryAddedActivityLog.ID(childComplexity), true
+		return e.complexity.RepositoryAddedActivityLogEntry.ID(childComplexity), true
 
-	case "RepositoryAddedActivityLog.message":
-		if e.complexity.RepositoryAddedActivityLog.Message == nil {
+	case "RepositoryAddedActivityLogEntry.message":
+		if e.complexity.RepositoryAddedActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.RepositoryAddedActivityLog.Message(childComplexity), true
+		return e.complexity.RepositoryAddedActivityLogEntry.Message(childComplexity), true
 
-	case "RepositoryAddedActivityLog.resourceName":
-		if e.complexity.RepositoryAddedActivityLog.ResourceName == nil {
+	case "RepositoryAddedActivityLogEntry.resourceName":
+		if e.complexity.RepositoryAddedActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.RepositoryAddedActivityLog.ResourceName(childComplexity), true
+		return e.complexity.RepositoryAddedActivityLogEntry.ResourceName(childComplexity), true
 
-	case "RepositoryAddedActivityLog.resourceType":
-		if e.complexity.RepositoryAddedActivityLog.ResourceType == nil {
+	case "RepositoryAddedActivityLogEntry.resourceType":
+		if e.complexity.RepositoryAddedActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.RepositoryAddedActivityLog.ResourceType(childComplexity), true
+		return e.complexity.RepositoryAddedActivityLogEntry.ResourceType(childComplexity), true
 
-	case "RepositoryAddedActivityLog.teamSlug":
-		if e.complexity.RepositoryAddedActivityLog.TeamSlug == nil {
+	case "RepositoryAddedActivityLogEntry.teamSlug":
+		if e.complexity.RepositoryAddedActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.RepositoryAddedActivityLog.TeamSlug(childComplexity), true
+		return e.complexity.RepositoryAddedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "RepositoryConnection.edges":
 		if e.complexity.RepositoryConnection.Edges == nil {
@@ -5947,61 +5947,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RepositoryEdge.Node(childComplexity), true
 
-	case "RepositoryRemovedActivityLog.actor":
-		if e.complexity.RepositoryRemovedActivityLog.Actor == nil {
+	case "RepositoryRemovedActivityLogEntry.actor":
+		if e.complexity.RepositoryRemovedActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.RepositoryRemovedActivityLog.Actor(childComplexity), true
+		return e.complexity.RepositoryRemovedActivityLogEntry.Actor(childComplexity), true
 
-	case "RepositoryRemovedActivityLog.createdAt":
-		if e.complexity.RepositoryRemovedActivityLog.CreatedAt == nil {
+	case "RepositoryRemovedActivityLogEntry.createdAt":
+		if e.complexity.RepositoryRemovedActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.RepositoryRemovedActivityLog.CreatedAt(childComplexity), true
+		return e.complexity.RepositoryRemovedActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "RepositoryRemovedActivityLog.environmentName":
-		if e.complexity.RepositoryRemovedActivityLog.EnvironmentName == nil {
+	case "RepositoryRemovedActivityLogEntry.environmentName":
+		if e.complexity.RepositoryRemovedActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.RepositoryRemovedActivityLog.EnvironmentName(childComplexity), true
+		return e.complexity.RepositoryRemovedActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "RepositoryRemovedActivityLog.id":
-		if e.complexity.RepositoryRemovedActivityLog.ID == nil {
+	case "RepositoryRemovedActivityLogEntry.id":
+		if e.complexity.RepositoryRemovedActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.RepositoryRemovedActivityLog.ID(childComplexity), true
+		return e.complexity.RepositoryRemovedActivityLogEntry.ID(childComplexity), true
 
-	case "RepositoryRemovedActivityLog.message":
-		if e.complexity.RepositoryRemovedActivityLog.Message == nil {
+	case "RepositoryRemovedActivityLogEntry.message":
+		if e.complexity.RepositoryRemovedActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.RepositoryRemovedActivityLog.Message(childComplexity), true
+		return e.complexity.RepositoryRemovedActivityLogEntry.Message(childComplexity), true
 
-	case "RepositoryRemovedActivityLog.resourceName":
-		if e.complexity.RepositoryRemovedActivityLog.ResourceName == nil {
+	case "RepositoryRemovedActivityLogEntry.resourceName":
+		if e.complexity.RepositoryRemovedActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.RepositoryRemovedActivityLog.ResourceName(childComplexity), true
+		return e.complexity.RepositoryRemovedActivityLogEntry.ResourceName(childComplexity), true
 
-	case "RepositoryRemovedActivityLog.resourceType":
-		if e.complexity.RepositoryRemovedActivityLog.ResourceType == nil {
+	case "RepositoryRemovedActivityLogEntry.resourceType":
+		if e.complexity.RepositoryRemovedActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.RepositoryRemovedActivityLog.ResourceType(childComplexity), true
+		return e.complexity.RepositoryRemovedActivityLogEntry.ResourceType(childComplexity), true
 
-	case "RepositoryRemovedActivityLog.teamSlug":
-		if e.complexity.RepositoryRemovedActivityLog.TeamSlug == nil {
+	case "RepositoryRemovedActivityLogEntry.teamSlug":
+		if e.complexity.RepositoryRemovedActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.RepositoryRemovedActivityLog.TeamSlug(childComplexity), true
+		return e.complexity.RepositoryRemovedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "RequestTeamDeletionPayload.key":
 		if e.complexity.RequestTeamDeletionPayload.Key == nil {
@@ -6165,117 +6165,117 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SecretConnection.PageInfo(childComplexity), true
 
-	case "SecretCreatedActivityLog.actor":
-		if e.complexity.SecretCreatedActivityLog.Actor == nil {
+	case "SecretCreatedActivityLogEntry.actor":
+		if e.complexity.SecretCreatedActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.SecretCreatedActivityLog.Actor(childComplexity), true
+		return e.complexity.SecretCreatedActivityLogEntry.Actor(childComplexity), true
 
-	case "SecretCreatedActivityLog.createdAt":
-		if e.complexity.SecretCreatedActivityLog.CreatedAt == nil {
+	case "SecretCreatedActivityLogEntry.createdAt":
+		if e.complexity.SecretCreatedActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.SecretCreatedActivityLog.CreatedAt(childComplexity), true
+		return e.complexity.SecretCreatedActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "SecretCreatedActivityLog.environmentName":
-		if e.complexity.SecretCreatedActivityLog.EnvironmentName == nil {
+	case "SecretCreatedActivityLogEntry.environmentName":
+		if e.complexity.SecretCreatedActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.SecretCreatedActivityLog.EnvironmentName(childComplexity), true
+		return e.complexity.SecretCreatedActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "SecretCreatedActivityLog.id":
-		if e.complexity.SecretCreatedActivityLog.ID == nil {
+	case "SecretCreatedActivityLogEntry.id":
+		if e.complexity.SecretCreatedActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.SecretCreatedActivityLog.ID(childComplexity), true
+		return e.complexity.SecretCreatedActivityLogEntry.ID(childComplexity), true
 
-	case "SecretCreatedActivityLog.message":
-		if e.complexity.SecretCreatedActivityLog.Message == nil {
+	case "SecretCreatedActivityLogEntry.message":
+		if e.complexity.SecretCreatedActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.SecretCreatedActivityLog.Message(childComplexity), true
+		return e.complexity.SecretCreatedActivityLogEntry.Message(childComplexity), true
 
-	case "SecretCreatedActivityLog.resourceName":
-		if e.complexity.SecretCreatedActivityLog.ResourceName == nil {
+	case "SecretCreatedActivityLogEntry.resourceName":
+		if e.complexity.SecretCreatedActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.SecretCreatedActivityLog.ResourceName(childComplexity), true
+		return e.complexity.SecretCreatedActivityLogEntry.ResourceName(childComplexity), true
 
-	case "SecretCreatedActivityLog.resourceType":
-		if e.complexity.SecretCreatedActivityLog.ResourceType == nil {
+	case "SecretCreatedActivityLogEntry.resourceType":
+		if e.complexity.SecretCreatedActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.SecretCreatedActivityLog.ResourceType(childComplexity), true
+		return e.complexity.SecretCreatedActivityLogEntry.ResourceType(childComplexity), true
 
-	case "SecretCreatedActivityLog.teamSlug":
-		if e.complexity.SecretCreatedActivityLog.TeamSlug == nil {
+	case "SecretCreatedActivityLogEntry.teamSlug":
+		if e.complexity.SecretCreatedActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.SecretCreatedActivityLog.TeamSlug(childComplexity), true
+		return e.complexity.SecretCreatedActivityLogEntry.TeamSlug(childComplexity), true
 
-	case "SecretDeletedActivityLog.actor":
-		if e.complexity.SecretDeletedActivityLog.Actor == nil {
+	case "SecretDeletedActivityLogEntry.actor":
+		if e.complexity.SecretDeletedActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.SecretDeletedActivityLog.Actor(childComplexity), true
+		return e.complexity.SecretDeletedActivityLogEntry.Actor(childComplexity), true
 
-	case "SecretDeletedActivityLog.createdAt":
-		if e.complexity.SecretDeletedActivityLog.CreatedAt == nil {
+	case "SecretDeletedActivityLogEntry.createdAt":
+		if e.complexity.SecretDeletedActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.SecretDeletedActivityLog.CreatedAt(childComplexity), true
+		return e.complexity.SecretDeletedActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "SecretDeletedActivityLog.environmentName":
-		if e.complexity.SecretDeletedActivityLog.EnvironmentName == nil {
+	case "SecretDeletedActivityLogEntry.environmentName":
+		if e.complexity.SecretDeletedActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.SecretDeletedActivityLog.EnvironmentName(childComplexity), true
+		return e.complexity.SecretDeletedActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "SecretDeletedActivityLog.id":
-		if e.complexity.SecretDeletedActivityLog.ID == nil {
+	case "SecretDeletedActivityLogEntry.id":
+		if e.complexity.SecretDeletedActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.SecretDeletedActivityLog.ID(childComplexity), true
+		return e.complexity.SecretDeletedActivityLogEntry.ID(childComplexity), true
 
-	case "SecretDeletedActivityLog.message":
-		if e.complexity.SecretDeletedActivityLog.Message == nil {
+	case "SecretDeletedActivityLogEntry.message":
+		if e.complexity.SecretDeletedActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.SecretDeletedActivityLog.Message(childComplexity), true
+		return e.complexity.SecretDeletedActivityLogEntry.Message(childComplexity), true
 
-	case "SecretDeletedActivityLog.resourceName":
-		if e.complexity.SecretDeletedActivityLog.ResourceName == nil {
+	case "SecretDeletedActivityLogEntry.resourceName":
+		if e.complexity.SecretDeletedActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.SecretDeletedActivityLog.ResourceName(childComplexity), true
+		return e.complexity.SecretDeletedActivityLogEntry.ResourceName(childComplexity), true
 
-	case "SecretDeletedActivityLog.resourceType":
-		if e.complexity.SecretDeletedActivityLog.ResourceType == nil {
+	case "SecretDeletedActivityLogEntry.resourceType":
+		if e.complexity.SecretDeletedActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.SecretDeletedActivityLog.ResourceType(childComplexity), true
+		return e.complexity.SecretDeletedActivityLogEntry.ResourceType(childComplexity), true
 
-	case "SecretDeletedActivityLog.teamSlug":
-		if e.complexity.SecretDeletedActivityLog.TeamSlug == nil {
+	case "SecretDeletedActivityLogEntry.teamSlug":
+		if e.complexity.SecretDeletedActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.SecretDeletedActivityLog.TeamSlug(childComplexity), true
+		return e.complexity.SecretDeletedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "SecretEdge.cursor":
 		if e.complexity.SecretEdge.Cursor == nil {
@@ -6305,69 +6305,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SecretValue.Value(childComplexity), true
 
-	case "SecretValueAddedActivityLog.actor":
-		if e.complexity.SecretValueAddedActivityLog.Actor == nil {
-			break
-		}
-
-		return e.complexity.SecretValueAddedActivityLog.Actor(childComplexity), true
-
-	case "SecretValueAddedActivityLog.createdAt":
-		if e.complexity.SecretValueAddedActivityLog.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.SecretValueAddedActivityLog.CreatedAt(childComplexity), true
-
-	case "SecretValueAddedActivityLog.data":
-		if e.complexity.SecretValueAddedActivityLog.Data == nil {
-			break
-		}
-
-		return e.complexity.SecretValueAddedActivityLog.Data(childComplexity), true
-
-	case "SecretValueAddedActivityLog.environmentName":
-		if e.complexity.SecretValueAddedActivityLog.EnvironmentName == nil {
-			break
-		}
-
-		return e.complexity.SecretValueAddedActivityLog.EnvironmentName(childComplexity), true
-
-	case "SecretValueAddedActivityLog.id":
-		if e.complexity.SecretValueAddedActivityLog.ID == nil {
-			break
-		}
-
-		return e.complexity.SecretValueAddedActivityLog.ID(childComplexity), true
-
-	case "SecretValueAddedActivityLog.message":
-		if e.complexity.SecretValueAddedActivityLog.Message == nil {
-			break
-		}
-
-		return e.complexity.SecretValueAddedActivityLog.Message(childComplexity), true
-
-	case "SecretValueAddedActivityLog.resourceName":
-		if e.complexity.SecretValueAddedActivityLog.ResourceName == nil {
-			break
-		}
-
-		return e.complexity.SecretValueAddedActivityLog.ResourceName(childComplexity), true
-
-	case "SecretValueAddedActivityLog.resourceType":
-		if e.complexity.SecretValueAddedActivityLog.ResourceType == nil {
-			break
-		}
-
-		return e.complexity.SecretValueAddedActivityLog.ResourceType(childComplexity), true
-
-	case "SecretValueAddedActivityLog.teamSlug":
-		if e.complexity.SecretValueAddedActivityLog.TeamSlug == nil {
-			break
-		}
-
-		return e.complexity.SecretValueAddedActivityLog.TeamSlug(childComplexity), true
-
 	case "SecretValueAddedActivityLogData.valueName":
 		if e.complexity.SecretValueAddedActivityLogData.ValueName == nil {
 			break
@@ -6375,68 +6312,68 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SecretValueAddedActivityLogData.ValueName(childComplexity), true
 
-	case "SecretValueRemovedActivityLog.actor":
-		if e.complexity.SecretValueRemovedActivityLog.Actor == nil {
+	case "SecretValueAddedActivityLogEntry.actor":
+		if e.complexity.SecretValueAddedActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.SecretValueRemovedActivityLog.Actor(childComplexity), true
+		return e.complexity.SecretValueAddedActivityLogEntry.Actor(childComplexity), true
 
-	case "SecretValueRemovedActivityLog.createdAt":
-		if e.complexity.SecretValueRemovedActivityLog.CreatedAt == nil {
+	case "SecretValueAddedActivityLogEntry.createdAt":
+		if e.complexity.SecretValueAddedActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.SecretValueRemovedActivityLog.CreatedAt(childComplexity), true
+		return e.complexity.SecretValueAddedActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "SecretValueRemovedActivityLog.data":
-		if e.complexity.SecretValueRemovedActivityLog.Data == nil {
+	case "SecretValueAddedActivityLogEntry.data":
+		if e.complexity.SecretValueAddedActivityLogEntry.Data == nil {
 			break
 		}
 
-		return e.complexity.SecretValueRemovedActivityLog.Data(childComplexity), true
+		return e.complexity.SecretValueAddedActivityLogEntry.Data(childComplexity), true
 
-	case "SecretValueRemovedActivityLog.environmentName":
-		if e.complexity.SecretValueRemovedActivityLog.EnvironmentName == nil {
+	case "SecretValueAddedActivityLogEntry.environmentName":
+		if e.complexity.SecretValueAddedActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.SecretValueRemovedActivityLog.EnvironmentName(childComplexity), true
+		return e.complexity.SecretValueAddedActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "SecretValueRemovedActivityLog.id":
-		if e.complexity.SecretValueRemovedActivityLog.ID == nil {
+	case "SecretValueAddedActivityLogEntry.id":
+		if e.complexity.SecretValueAddedActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.SecretValueRemovedActivityLog.ID(childComplexity), true
+		return e.complexity.SecretValueAddedActivityLogEntry.ID(childComplexity), true
 
-	case "SecretValueRemovedActivityLog.message":
-		if e.complexity.SecretValueRemovedActivityLog.Message == nil {
+	case "SecretValueAddedActivityLogEntry.message":
+		if e.complexity.SecretValueAddedActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.SecretValueRemovedActivityLog.Message(childComplexity), true
+		return e.complexity.SecretValueAddedActivityLogEntry.Message(childComplexity), true
 
-	case "SecretValueRemovedActivityLog.resourceName":
-		if e.complexity.SecretValueRemovedActivityLog.ResourceName == nil {
+	case "SecretValueAddedActivityLogEntry.resourceName":
+		if e.complexity.SecretValueAddedActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.SecretValueRemovedActivityLog.ResourceName(childComplexity), true
+		return e.complexity.SecretValueAddedActivityLogEntry.ResourceName(childComplexity), true
 
-	case "SecretValueRemovedActivityLog.resourceType":
-		if e.complexity.SecretValueRemovedActivityLog.ResourceType == nil {
+	case "SecretValueAddedActivityLogEntry.resourceType":
+		if e.complexity.SecretValueAddedActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.SecretValueRemovedActivityLog.ResourceType(childComplexity), true
+		return e.complexity.SecretValueAddedActivityLogEntry.ResourceType(childComplexity), true
 
-	case "SecretValueRemovedActivityLog.teamSlug":
-		if e.complexity.SecretValueRemovedActivityLog.TeamSlug == nil {
+	case "SecretValueAddedActivityLogEntry.teamSlug":
+		if e.complexity.SecretValueAddedActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.SecretValueRemovedActivityLog.TeamSlug(childComplexity), true
+		return e.complexity.SecretValueAddedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "SecretValueRemovedActivityLogData.valueName":
 		if e.complexity.SecretValueRemovedActivityLogData.ValueName == nil {
@@ -6445,68 +6382,68 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SecretValueRemovedActivityLogData.ValueName(childComplexity), true
 
-	case "SecretValueUpdatedActivityLog.actor":
-		if e.complexity.SecretValueUpdatedActivityLog.Actor == nil {
+	case "SecretValueRemovedActivityLogEntry.actor":
+		if e.complexity.SecretValueRemovedActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.SecretValueUpdatedActivityLog.Actor(childComplexity), true
+		return e.complexity.SecretValueRemovedActivityLogEntry.Actor(childComplexity), true
 
-	case "SecretValueUpdatedActivityLog.createdAt":
-		if e.complexity.SecretValueUpdatedActivityLog.CreatedAt == nil {
+	case "SecretValueRemovedActivityLogEntry.createdAt":
+		if e.complexity.SecretValueRemovedActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.SecretValueUpdatedActivityLog.CreatedAt(childComplexity), true
+		return e.complexity.SecretValueRemovedActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "SecretValueUpdatedActivityLog.data":
-		if e.complexity.SecretValueUpdatedActivityLog.Data == nil {
+	case "SecretValueRemovedActivityLogEntry.data":
+		if e.complexity.SecretValueRemovedActivityLogEntry.Data == nil {
 			break
 		}
 
-		return e.complexity.SecretValueUpdatedActivityLog.Data(childComplexity), true
+		return e.complexity.SecretValueRemovedActivityLogEntry.Data(childComplexity), true
 
-	case "SecretValueUpdatedActivityLog.environmentName":
-		if e.complexity.SecretValueUpdatedActivityLog.EnvironmentName == nil {
+	case "SecretValueRemovedActivityLogEntry.environmentName":
+		if e.complexity.SecretValueRemovedActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.SecretValueUpdatedActivityLog.EnvironmentName(childComplexity), true
+		return e.complexity.SecretValueRemovedActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "SecretValueUpdatedActivityLog.id":
-		if e.complexity.SecretValueUpdatedActivityLog.ID == nil {
+	case "SecretValueRemovedActivityLogEntry.id":
+		if e.complexity.SecretValueRemovedActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.SecretValueUpdatedActivityLog.ID(childComplexity), true
+		return e.complexity.SecretValueRemovedActivityLogEntry.ID(childComplexity), true
 
-	case "SecretValueUpdatedActivityLog.message":
-		if e.complexity.SecretValueUpdatedActivityLog.Message == nil {
+	case "SecretValueRemovedActivityLogEntry.message":
+		if e.complexity.SecretValueRemovedActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.SecretValueUpdatedActivityLog.Message(childComplexity), true
+		return e.complexity.SecretValueRemovedActivityLogEntry.Message(childComplexity), true
 
-	case "SecretValueUpdatedActivityLog.resourceName":
-		if e.complexity.SecretValueUpdatedActivityLog.ResourceName == nil {
+	case "SecretValueRemovedActivityLogEntry.resourceName":
+		if e.complexity.SecretValueRemovedActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.SecretValueUpdatedActivityLog.ResourceName(childComplexity), true
+		return e.complexity.SecretValueRemovedActivityLogEntry.ResourceName(childComplexity), true
 
-	case "SecretValueUpdatedActivityLog.resourceType":
-		if e.complexity.SecretValueUpdatedActivityLog.ResourceType == nil {
+	case "SecretValueRemovedActivityLogEntry.resourceType":
+		if e.complexity.SecretValueRemovedActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.SecretValueUpdatedActivityLog.ResourceType(childComplexity), true
+		return e.complexity.SecretValueRemovedActivityLogEntry.ResourceType(childComplexity), true
 
-	case "SecretValueUpdatedActivityLog.teamSlug":
-		if e.complexity.SecretValueUpdatedActivityLog.TeamSlug == nil {
+	case "SecretValueRemovedActivityLogEntry.teamSlug":
+		if e.complexity.SecretValueRemovedActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.SecretValueUpdatedActivityLog.TeamSlug(childComplexity), true
+		return e.complexity.SecretValueRemovedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "SecretValueUpdatedActivityLogData.valueName":
 		if e.complexity.SecretValueUpdatedActivityLogData.ValueName == nil {
@@ -6514,6 +6451,69 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SecretValueUpdatedActivityLogData.ValueName(childComplexity), true
+
+	case "SecretValueUpdatedActivityLogEntry.actor":
+		if e.complexity.SecretValueUpdatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.complexity.SecretValueUpdatedActivityLogEntry.Actor(childComplexity), true
+
+	case "SecretValueUpdatedActivityLogEntry.createdAt":
+		if e.complexity.SecretValueUpdatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.SecretValueUpdatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "SecretValueUpdatedActivityLogEntry.data":
+		if e.complexity.SecretValueUpdatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.complexity.SecretValueUpdatedActivityLogEntry.Data(childComplexity), true
+
+	case "SecretValueUpdatedActivityLogEntry.environmentName":
+		if e.complexity.SecretValueUpdatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.complexity.SecretValueUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "SecretValueUpdatedActivityLogEntry.id":
+		if e.complexity.SecretValueUpdatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.SecretValueUpdatedActivityLogEntry.ID(childComplexity), true
+
+	case "SecretValueUpdatedActivityLogEntry.message":
+		if e.complexity.SecretValueUpdatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.SecretValueUpdatedActivityLogEntry.Message(childComplexity), true
+
+	case "SecretValueUpdatedActivityLogEntry.resourceName":
+		if e.complexity.SecretValueUpdatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.SecretValueUpdatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "SecretValueUpdatedActivityLogEntry.resourceType":
+		if e.complexity.SecretValueUpdatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.SecretValueUpdatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "SecretValueUpdatedActivityLogEntry.teamSlug":
+		if e.complexity.SecretValueUpdatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.complexity.SecretValueUpdatedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "ServiceAccount.id":
 		if e.complexity.ServiceAccount.ID == nil {
@@ -7423,61 +7423,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamCDN.Bucket(childComplexity), true
 
-	case "TeamConfirmDeleteKeyActivityLog.actor":
-		if e.complexity.TeamConfirmDeleteKeyActivityLog.Actor == nil {
+	case "TeamConfirmDeleteKeyActivityLogEntry.actor":
+		if e.complexity.TeamConfirmDeleteKeyActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.TeamConfirmDeleteKeyActivityLog.Actor(childComplexity), true
+		return e.complexity.TeamConfirmDeleteKeyActivityLogEntry.Actor(childComplexity), true
 
-	case "TeamConfirmDeleteKeyActivityLog.createdAt":
-		if e.complexity.TeamConfirmDeleteKeyActivityLog.CreatedAt == nil {
+	case "TeamConfirmDeleteKeyActivityLogEntry.createdAt":
+		if e.complexity.TeamConfirmDeleteKeyActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.TeamConfirmDeleteKeyActivityLog.CreatedAt(childComplexity), true
+		return e.complexity.TeamConfirmDeleteKeyActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "TeamConfirmDeleteKeyActivityLog.environmentName":
-		if e.complexity.TeamConfirmDeleteKeyActivityLog.EnvironmentName == nil {
+	case "TeamConfirmDeleteKeyActivityLogEntry.environmentName":
+		if e.complexity.TeamConfirmDeleteKeyActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.TeamConfirmDeleteKeyActivityLog.EnvironmentName(childComplexity), true
+		return e.complexity.TeamConfirmDeleteKeyActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "TeamConfirmDeleteKeyActivityLog.id":
-		if e.complexity.TeamConfirmDeleteKeyActivityLog.ID == nil {
+	case "TeamConfirmDeleteKeyActivityLogEntry.id":
+		if e.complexity.TeamConfirmDeleteKeyActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.TeamConfirmDeleteKeyActivityLog.ID(childComplexity), true
+		return e.complexity.TeamConfirmDeleteKeyActivityLogEntry.ID(childComplexity), true
 
-	case "TeamConfirmDeleteKeyActivityLog.message":
-		if e.complexity.TeamConfirmDeleteKeyActivityLog.Message == nil {
+	case "TeamConfirmDeleteKeyActivityLogEntry.message":
+		if e.complexity.TeamConfirmDeleteKeyActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.TeamConfirmDeleteKeyActivityLog.Message(childComplexity), true
+		return e.complexity.TeamConfirmDeleteKeyActivityLogEntry.Message(childComplexity), true
 
-	case "TeamConfirmDeleteKeyActivityLog.resourceName":
-		if e.complexity.TeamConfirmDeleteKeyActivityLog.ResourceName == nil {
+	case "TeamConfirmDeleteKeyActivityLogEntry.resourceName":
+		if e.complexity.TeamConfirmDeleteKeyActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.TeamConfirmDeleteKeyActivityLog.ResourceName(childComplexity), true
+		return e.complexity.TeamConfirmDeleteKeyActivityLogEntry.ResourceName(childComplexity), true
 
-	case "TeamConfirmDeleteKeyActivityLog.resourceType":
-		if e.complexity.TeamConfirmDeleteKeyActivityLog.ResourceType == nil {
+	case "TeamConfirmDeleteKeyActivityLogEntry.resourceType":
+		if e.complexity.TeamConfirmDeleteKeyActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.TeamConfirmDeleteKeyActivityLog.ResourceType(childComplexity), true
+		return e.complexity.TeamConfirmDeleteKeyActivityLogEntry.ResourceType(childComplexity), true
 
-	case "TeamConfirmDeleteKeyActivityLog.teamSlug":
-		if e.complexity.TeamConfirmDeleteKeyActivityLog.TeamSlug == nil {
+	case "TeamConfirmDeleteKeyActivityLogEntry.teamSlug":
+		if e.complexity.TeamConfirmDeleteKeyActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.TeamConfirmDeleteKeyActivityLog.TeamSlug(childComplexity), true
+		return e.complexity.TeamConfirmDeleteKeyActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "TeamConnection.edges":
 		if e.complexity.TeamConnection.Edges == nil {
@@ -7561,117 +7561,117 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamCostPeriod.Sum(childComplexity), true
 
-	case "TeamCreateDeleteKeyActivityLog.actor":
-		if e.complexity.TeamCreateDeleteKeyActivityLog.Actor == nil {
+	case "TeamCreateDeleteKeyActivityLogEntry.actor":
+		if e.complexity.TeamCreateDeleteKeyActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.TeamCreateDeleteKeyActivityLog.Actor(childComplexity), true
+		return e.complexity.TeamCreateDeleteKeyActivityLogEntry.Actor(childComplexity), true
 
-	case "TeamCreateDeleteKeyActivityLog.createdAt":
-		if e.complexity.TeamCreateDeleteKeyActivityLog.CreatedAt == nil {
+	case "TeamCreateDeleteKeyActivityLogEntry.createdAt":
+		if e.complexity.TeamCreateDeleteKeyActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.TeamCreateDeleteKeyActivityLog.CreatedAt(childComplexity), true
+		return e.complexity.TeamCreateDeleteKeyActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "TeamCreateDeleteKeyActivityLog.environmentName":
-		if e.complexity.TeamCreateDeleteKeyActivityLog.EnvironmentName == nil {
+	case "TeamCreateDeleteKeyActivityLogEntry.environmentName":
+		if e.complexity.TeamCreateDeleteKeyActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.TeamCreateDeleteKeyActivityLog.EnvironmentName(childComplexity), true
+		return e.complexity.TeamCreateDeleteKeyActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "TeamCreateDeleteKeyActivityLog.id":
-		if e.complexity.TeamCreateDeleteKeyActivityLog.ID == nil {
+	case "TeamCreateDeleteKeyActivityLogEntry.id":
+		if e.complexity.TeamCreateDeleteKeyActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.TeamCreateDeleteKeyActivityLog.ID(childComplexity), true
+		return e.complexity.TeamCreateDeleteKeyActivityLogEntry.ID(childComplexity), true
 
-	case "TeamCreateDeleteKeyActivityLog.message":
-		if e.complexity.TeamCreateDeleteKeyActivityLog.Message == nil {
+	case "TeamCreateDeleteKeyActivityLogEntry.message":
+		if e.complexity.TeamCreateDeleteKeyActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.TeamCreateDeleteKeyActivityLog.Message(childComplexity), true
+		return e.complexity.TeamCreateDeleteKeyActivityLogEntry.Message(childComplexity), true
 
-	case "TeamCreateDeleteKeyActivityLog.resourceName":
-		if e.complexity.TeamCreateDeleteKeyActivityLog.ResourceName == nil {
+	case "TeamCreateDeleteKeyActivityLogEntry.resourceName":
+		if e.complexity.TeamCreateDeleteKeyActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.TeamCreateDeleteKeyActivityLog.ResourceName(childComplexity), true
+		return e.complexity.TeamCreateDeleteKeyActivityLogEntry.ResourceName(childComplexity), true
 
-	case "TeamCreateDeleteKeyActivityLog.resourceType":
-		if e.complexity.TeamCreateDeleteKeyActivityLog.ResourceType == nil {
+	case "TeamCreateDeleteKeyActivityLogEntry.resourceType":
+		if e.complexity.TeamCreateDeleteKeyActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.TeamCreateDeleteKeyActivityLog.ResourceType(childComplexity), true
+		return e.complexity.TeamCreateDeleteKeyActivityLogEntry.ResourceType(childComplexity), true
 
-	case "TeamCreateDeleteKeyActivityLog.teamSlug":
-		if e.complexity.TeamCreateDeleteKeyActivityLog.TeamSlug == nil {
+	case "TeamCreateDeleteKeyActivityLogEntry.teamSlug":
+		if e.complexity.TeamCreateDeleteKeyActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.TeamCreateDeleteKeyActivityLog.TeamSlug(childComplexity), true
+		return e.complexity.TeamCreateDeleteKeyActivityLogEntry.TeamSlug(childComplexity), true
 
-	case "TeamCreatedActivityLog.actor":
-		if e.complexity.TeamCreatedActivityLog.Actor == nil {
+	case "TeamCreatedActivityLogEntry.actor":
+		if e.complexity.TeamCreatedActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.TeamCreatedActivityLog.Actor(childComplexity), true
+		return e.complexity.TeamCreatedActivityLogEntry.Actor(childComplexity), true
 
-	case "TeamCreatedActivityLog.createdAt":
-		if e.complexity.TeamCreatedActivityLog.CreatedAt == nil {
+	case "TeamCreatedActivityLogEntry.createdAt":
+		if e.complexity.TeamCreatedActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.TeamCreatedActivityLog.CreatedAt(childComplexity), true
+		return e.complexity.TeamCreatedActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "TeamCreatedActivityLog.environmentName":
-		if e.complexity.TeamCreatedActivityLog.EnvironmentName == nil {
+	case "TeamCreatedActivityLogEntry.environmentName":
+		if e.complexity.TeamCreatedActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.TeamCreatedActivityLog.EnvironmentName(childComplexity), true
+		return e.complexity.TeamCreatedActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "TeamCreatedActivityLog.id":
-		if e.complexity.TeamCreatedActivityLog.ID == nil {
+	case "TeamCreatedActivityLogEntry.id":
+		if e.complexity.TeamCreatedActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.TeamCreatedActivityLog.ID(childComplexity), true
+		return e.complexity.TeamCreatedActivityLogEntry.ID(childComplexity), true
 
-	case "TeamCreatedActivityLog.message":
-		if e.complexity.TeamCreatedActivityLog.Message == nil {
+	case "TeamCreatedActivityLogEntry.message":
+		if e.complexity.TeamCreatedActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.TeamCreatedActivityLog.Message(childComplexity), true
+		return e.complexity.TeamCreatedActivityLogEntry.Message(childComplexity), true
 
-	case "TeamCreatedActivityLog.resourceName":
-		if e.complexity.TeamCreatedActivityLog.ResourceName == nil {
+	case "TeamCreatedActivityLogEntry.resourceName":
+		if e.complexity.TeamCreatedActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.TeamCreatedActivityLog.ResourceName(childComplexity), true
+		return e.complexity.TeamCreatedActivityLogEntry.ResourceName(childComplexity), true
 
-	case "TeamCreatedActivityLog.resourceType":
-		if e.complexity.TeamCreatedActivityLog.ResourceType == nil {
+	case "TeamCreatedActivityLogEntry.resourceType":
+		if e.complexity.TeamCreatedActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.TeamCreatedActivityLog.ResourceType(childComplexity), true
+		return e.complexity.TeamCreatedActivityLogEntry.ResourceType(childComplexity), true
 
-	case "TeamCreatedActivityLog.teamSlug":
-		if e.complexity.TeamCreatedActivityLog.TeamSlug == nil {
+	case "TeamCreatedActivityLogEntry.teamSlug":
+		if e.complexity.TeamCreatedActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.TeamCreatedActivityLog.TeamSlug(childComplexity), true
+		return e.complexity.TeamCreatedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "TeamDeleteKey.createdAt":
 		if e.complexity.TeamDeleteKey.CreatedAt == nil {
@@ -7708,61 +7708,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamDeleteKey.Team(childComplexity), true
 
-	case "TeamDeployKeyUpdatedActivityLog.actor":
-		if e.complexity.TeamDeployKeyUpdatedActivityLog.Actor == nil {
+	case "TeamDeployKeyUpdatedActivityLogEntry.actor":
+		if e.complexity.TeamDeployKeyUpdatedActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.TeamDeployKeyUpdatedActivityLog.Actor(childComplexity), true
+		return e.complexity.TeamDeployKeyUpdatedActivityLogEntry.Actor(childComplexity), true
 
-	case "TeamDeployKeyUpdatedActivityLog.createdAt":
-		if e.complexity.TeamDeployKeyUpdatedActivityLog.CreatedAt == nil {
+	case "TeamDeployKeyUpdatedActivityLogEntry.createdAt":
+		if e.complexity.TeamDeployKeyUpdatedActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.TeamDeployKeyUpdatedActivityLog.CreatedAt(childComplexity), true
+		return e.complexity.TeamDeployKeyUpdatedActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "TeamDeployKeyUpdatedActivityLog.environmentName":
-		if e.complexity.TeamDeployKeyUpdatedActivityLog.EnvironmentName == nil {
+	case "TeamDeployKeyUpdatedActivityLogEntry.environmentName":
+		if e.complexity.TeamDeployKeyUpdatedActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.TeamDeployKeyUpdatedActivityLog.EnvironmentName(childComplexity), true
+		return e.complexity.TeamDeployKeyUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "TeamDeployKeyUpdatedActivityLog.id":
-		if e.complexity.TeamDeployKeyUpdatedActivityLog.ID == nil {
+	case "TeamDeployKeyUpdatedActivityLogEntry.id":
+		if e.complexity.TeamDeployKeyUpdatedActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.TeamDeployKeyUpdatedActivityLog.ID(childComplexity), true
+		return e.complexity.TeamDeployKeyUpdatedActivityLogEntry.ID(childComplexity), true
 
-	case "TeamDeployKeyUpdatedActivityLog.message":
-		if e.complexity.TeamDeployKeyUpdatedActivityLog.Message == nil {
+	case "TeamDeployKeyUpdatedActivityLogEntry.message":
+		if e.complexity.TeamDeployKeyUpdatedActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.TeamDeployKeyUpdatedActivityLog.Message(childComplexity), true
+		return e.complexity.TeamDeployKeyUpdatedActivityLogEntry.Message(childComplexity), true
 
-	case "TeamDeployKeyUpdatedActivityLog.resourceName":
-		if e.complexity.TeamDeployKeyUpdatedActivityLog.ResourceName == nil {
+	case "TeamDeployKeyUpdatedActivityLogEntry.resourceName":
+		if e.complexity.TeamDeployKeyUpdatedActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.TeamDeployKeyUpdatedActivityLog.ResourceName(childComplexity), true
+		return e.complexity.TeamDeployKeyUpdatedActivityLogEntry.ResourceName(childComplexity), true
 
-	case "TeamDeployKeyUpdatedActivityLog.resourceType":
-		if e.complexity.TeamDeployKeyUpdatedActivityLog.ResourceType == nil {
+	case "TeamDeployKeyUpdatedActivityLogEntry.resourceType":
+		if e.complexity.TeamDeployKeyUpdatedActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.TeamDeployKeyUpdatedActivityLog.ResourceType(childComplexity), true
+		return e.complexity.TeamDeployKeyUpdatedActivityLogEntry.ResourceType(childComplexity), true
 
-	case "TeamDeployKeyUpdatedActivityLog.teamSlug":
-		if e.complexity.TeamDeployKeyUpdatedActivityLog.TeamSlug == nil {
+	case "TeamDeployKeyUpdatedActivityLogEntry.teamSlug":
+		if e.complexity.TeamDeployKeyUpdatedActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.TeamDeployKeyUpdatedActivityLog.TeamSlug(childComplexity), true
+		return e.complexity.TeamDeployKeyUpdatedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "TeamEdge.cursor":
 		if e.complexity.TeamEdge.Cursor == nil {
@@ -7973,69 +7973,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamEnvironmentCostPeriod.Sum(childComplexity), true
 
-	case "TeamEnvironmentUpdatedActivityLog.actor":
-		if e.complexity.TeamEnvironmentUpdatedActivityLog.Actor == nil {
-			break
-		}
-
-		return e.complexity.TeamEnvironmentUpdatedActivityLog.Actor(childComplexity), true
-
-	case "TeamEnvironmentUpdatedActivityLog.createdAt":
-		if e.complexity.TeamEnvironmentUpdatedActivityLog.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.TeamEnvironmentUpdatedActivityLog.CreatedAt(childComplexity), true
-
-	case "TeamEnvironmentUpdatedActivityLog.data":
-		if e.complexity.TeamEnvironmentUpdatedActivityLog.Data == nil {
-			break
-		}
-
-		return e.complexity.TeamEnvironmentUpdatedActivityLog.Data(childComplexity), true
-
-	case "TeamEnvironmentUpdatedActivityLog.environmentName":
-		if e.complexity.TeamEnvironmentUpdatedActivityLog.EnvironmentName == nil {
-			break
-		}
-
-		return e.complexity.TeamEnvironmentUpdatedActivityLog.EnvironmentName(childComplexity), true
-
-	case "TeamEnvironmentUpdatedActivityLog.id":
-		if e.complexity.TeamEnvironmentUpdatedActivityLog.ID == nil {
-			break
-		}
-
-		return e.complexity.TeamEnvironmentUpdatedActivityLog.ID(childComplexity), true
-
-	case "TeamEnvironmentUpdatedActivityLog.message":
-		if e.complexity.TeamEnvironmentUpdatedActivityLog.Message == nil {
-			break
-		}
-
-		return e.complexity.TeamEnvironmentUpdatedActivityLog.Message(childComplexity), true
-
-	case "TeamEnvironmentUpdatedActivityLog.resourceName":
-		if e.complexity.TeamEnvironmentUpdatedActivityLog.ResourceName == nil {
-			break
-		}
-
-		return e.complexity.TeamEnvironmentUpdatedActivityLog.ResourceName(childComplexity), true
-
-	case "TeamEnvironmentUpdatedActivityLog.resourceType":
-		if e.complexity.TeamEnvironmentUpdatedActivityLog.ResourceType == nil {
-			break
-		}
-
-		return e.complexity.TeamEnvironmentUpdatedActivityLog.ResourceType(childComplexity), true
-
-	case "TeamEnvironmentUpdatedActivityLog.teamSlug":
-		if e.complexity.TeamEnvironmentUpdatedActivityLog.TeamSlug == nil {
-			break
-		}
-
-		return e.complexity.TeamEnvironmentUpdatedActivityLog.TeamSlug(childComplexity), true
-
 	case "TeamEnvironmentUpdatedActivityLogData.updatedFields":
 		if e.complexity.TeamEnvironmentUpdatedActivityLogData.UpdatedFields == nil {
 			break
@@ -8063,6 +8000,69 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamEnvironmentUpdatedActivityLogDataUpdatedField.OldValue(childComplexity), true
+
+	case "TeamEnvironmentUpdatedActivityLogEntry.actor":
+		if e.complexity.TeamEnvironmentUpdatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.complexity.TeamEnvironmentUpdatedActivityLogEntry.Actor(childComplexity), true
+
+	case "TeamEnvironmentUpdatedActivityLogEntry.createdAt":
+		if e.complexity.TeamEnvironmentUpdatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.TeamEnvironmentUpdatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "TeamEnvironmentUpdatedActivityLogEntry.data":
+		if e.complexity.TeamEnvironmentUpdatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.complexity.TeamEnvironmentUpdatedActivityLogEntry.Data(childComplexity), true
+
+	case "TeamEnvironmentUpdatedActivityLogEntry.environmentName":
+		if e.complexity.TeamEnvironmentUpdatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.complexity.TeamEnvironmentUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "TeamEnvironmentUpdatedActivityLogEntry.id":
+		if e.complexity.TeamEnvironmentUpdatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.TeamEnvironmentUpdatedActivityLogEntry.ID(childComplexity), true
+
+	case "TeamEnvironmentUpdatedActivityLogEntry.message":
+		if e.complexity.TeamEnvironmentUpdatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.TeamEnvironmentUpdatedActivityLogEntry.Message(childComplexity), true
+
+	case "TeamEnvironmentUpdatedActivityLogEntry.resourceName":
+		if e.complexity.TeamEnvironmentUpdatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.TeamEnvironmentUpdatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "TeamEnvironmentUpdatedActivityLogEntry.resourceType":
+		if e.complexity.TeamEnvironmentUpdatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.TeamEnvironmentUpdatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "TeamEnvironmentUpdatedActivityLogEntry.teamSlug":
+		if e.complexity.TeamEnvironmentUpdatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.complexity.TeamEnvironmentUpdatedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "TeamExternalResources.cdn":
 		if e.complexity.TeamExternalResources.CDN == nil {
@@ -8267,69 +8267,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamMember.User(childComplexity), true
 
-	case "TeamMemberAddedActivityLog.actor":
-		if e.complexity.TeamMemberAddedActivityLog.Actor == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberAddedActivityLog.Actor(childComplexity), true
-
-	case "TeamMemberAddedActivityLog.createdAt":
-		if e.complexity.TeamMemberAddedActivityLog.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberAddedActivityLog.CreatedAt(childComplexity), true
-
-	case "TeamMemberAddedActivityLog.data":
-		if e.complexity.TeamMemberAddedActivityLog.Data == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberAddedActivityLog.Data(childComplexity), true
-
-	case "TeamMemberAddedActivityLog.environmentName":
-		if e.complexity.TeamMemberAddedActivityLog.EnvironmentName == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberAddedActivityLog.EnvironmentName(childComplexity), true
-
-	case "TeamMemberAddedActivityLog.id":
-		if e.complexity.TeamMemberAddedActivityLog.ID == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberAddedActivityLog.ID(childComplexity), true
-
-	case "TeamMemberAddedActivityLog.message":
-		if e.complexity.TeamMemberAddedActivityLog.Message == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberAddedActivityLog.Message(childComplexity), true
-
-	case "TeamMemberAddedActivityLog.resourceName":
-		if e.complexity.TeamMemberAddedActivityLog.ResourceName == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberAddedActivityLog.ResourceName(childComplexity), true
-
-	case "TeamMemberAddedActivityLog.resourceType":
-		if e.complexity.TeamMemberAddedActivityLog.ResourceType == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberAddedActivityLog.ResourceType(childComplexity), true
-
-	case "TeamMemberAddedActivityLog.teamSlug":
-		if e.complexity.TeamMemberAddedActivityLog.TeamSlug == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberAddedActivityLog.TeamSlug(childComplexity), true
-
 	case "TeamMemberAddedActivityLogData.role":
 		if e.complexity.TeamMemberAddedActivityLogData.Role == nil {
 			break
@@ -8350,6 +8287,69 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamMemberAddedActivityLogData.UserID(childComplexity), true
+
+	case "TeamMemberAddedActivityLogEntry.actor":
+		if e.complexity.TeamMemberAddedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberAddedActivityLogEntry.Actor(childComplexity), true
+
+	case "TeamMemberAddedActivityLogEntry.createdAt":
+		if e.complexity.TeamMemberAddedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberAddedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "TeamMemberAddedActivityLogEntry.data":
+		if e.complexity.TeamMemberAddedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberAddedActivityLogEntry.Data(childComplexity), true
+
+	case "TeamMemberAddedActivityLogEntry.environmentName":
+		if e.complexity.TeamMemberAddedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberAddedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "TeamMemberAddedActivityLogEntry.id":
+		if e.complexity.TeamMemberAddedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberAddedActivityLogEntry.ID(childComplexity), true
+
+	case "TeamMemberAddedActivityLogEntry.message":
+		if e.complexity.TeamMemberAddedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberAddedActivityLogEntry.Message(childComplexity), true
+
+	case "TeamMemberAddedActivityLogEntry.resourceName":
+		if e.complexity.TeamMemberAddedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberAddedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "TeamMemberAddedActivityLogEntry.resourceType":
+		if e.complexity.TeamMemberAddedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberAddedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "TeamMemberAddedActivityLogEntry.teamSlug":
+		if e.complexity.TeamMemberAddedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberAddedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "TeamMemberConnection.edges":
 		if e.complexity.TeamMemberConnection.Edges == nil {
@@ -8386,69 +8386,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamMemberEdge.Node(childComplexity), true
 
-	case "TeamMemberRemovedActivityLog.actor":
-		if e.complexity.TeamMemberRemovedActivityLog.Actor == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberRemovedActivityLog.Actor(childComplexity), true
-
-	case "TeamMemberRemovedActivityLog.createdAt":
-		if e.complexity.TeamMemberRemovedActivityLog.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberRemovedActivityLog.CreatedAt(childComplexity), true
-
-	case "TeamMemberRemovedActivityLog.data":
-		if e.complexity.TeamMemberRemovedActivityLog.Data == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberRemovedActivityLog.Data(childComplexity), true
-
-	case "TeamMemberRemovedActivityLog.environmentName":
-		if e.complexity.TeamMemberRemovedActivityLog.EnvironmentName == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberRemovedActivityLog.EnvironmentName(childComplexity), true
-
-	case "TeamMemberRemovedActivityLog.id":
-		if e.complexity.TeamMemberRemovedActivityLog.ID == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberRemovedActivityLog.ID(childComplexity), true
-
-	case "TeamMemberRemovedActivityLog.message":
-		if e.complexity.TeamMemberRemovedActivityLog.Message == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberRemovedActivityLog.Message(childComplexity), true
-
-	case "TeamMemberRemovedActivityLog.resourceName":
-		if e.complexity.TeamMemberRemovedActivityLog.ResourceName == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberRemovedActivityLog.ResourceName(childComplexity), true
-
-	case "TeamMemberRemovedActivityLog.resourceType":
-		if e.complexity.TeamMemberRemovedActivityLog.ResourceType == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberRemovedActivityLog.ResourceType(childComplexity), true
-
-	case "TeamMemberRemovedActivityLog.teamSlug":
-		if e.complexity.TeamMemberRemovedActivityLog.TeamSlug == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberRemovedActivityLog.TeamSlug(childComplexity), true
-
 	case "TeamMemberRemovedActivityLogData.userEmail":
 		if e.complexity.TeamMemberRemovedActivityLogData.UserEmail == nil {
 			break
@@ -8463,68 +8400,68 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamMemberRemovedActivityLogData.UserID(childComplexity), true
 
-	case "TeamMemberSetRoleActivityLog.actor":
-		if e.complexity.TeamMemberSetRoleActivityLog.Actor == nil {
+	case "TeamMemberRemovedActivityLogEntry.actor":
+		if e.complexity.TeamMemberRemovedActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleActivityLog.Actor(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLogEntry.Actor(childComplexity), true
 
-	case "TeamMemberSetRoleActivityLog.createdAt":
-		if e.complexity.TeamMemberSetRoleActivityLog.CreatedAt == nil {
+	case "TeamMemberRemovedActivityLogEntry.createdAt":
+		if e.complexity.TeamMemberRemovedActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleActivityLog.CreatedAt(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "TeamMemberSetRoleActivityLog.data":
-		if e.complexity.TeamMemberSetRoleActivityLog.Data == nil {
+	case "TeamMemberRemovedActivityLogEntry.data":
+		if e.complexity.TeamMemberRemovedActivityLogEntry.Data == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleActivityLog.Data(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLogEntry.Data(childComplexity), true
 
-	case "TeamMemberSetRoleActivityLog.environmentName":
-		if e.complexity.TeamMemberSetRoleActivityLog.EnvironmentName == nil {
+	case "TeamMemberRemovedActivityLogEntry.environmentName":
+		if e.complexity.TeamMemberRemovedActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleActivityLog.EnvironmentName(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "TeamMemberSetRoleActivityLog.id":
-		if e.complexity.TeamMemberSetRoleActivityLog.ID == nil {
+	case "TeamMemberRemovedActivityLogEntry.id":
+		if e.complexity.TeamMemberRemovedActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleActivityLog.ID(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLogEntry.ID(childComplexity), true
 
-	case "TeamMemberSetRoleActivityLog.message":
-		if e.complexity.TeamMemberSetRoleActivityLog.Message == nil {
+	case "TeamMemberRemovedActivityLogEntry.message":
+		if e.complexity.TeamMemberRemovedActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleActivityLog.Message(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLogEntry.Message(childComplexity), true
 
-	case "TeamMemberSetRoleActivityLog.resourceName":
-		if e.complexity.TeamMemberSetRoleActivityLog.ResourceName == nil {
+	case "TeamMemberRemovedActivityLogEntry.resourceName":
+		if e.complexity.TeamMemberRemovedActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleActivityLog.ResourceName(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLogEntry.ResourceName(childComplexity), true
 
-	case "TeamMemberSetRoleActivityLog.resourceType":
-		if e.complexity.TeamMemberSetRoleActivityLog.ResourceType == nil {
+	case "TeamMemberRemovedActivityLogEntry.resourceType":
+		if e.complexity.TeamMemberRemovedActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleActivityLog.ResourceType(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLogEntry.ResourceType(childComplexity), true
 
-	case "TeamMemberSetRoleActivityLog.teamSlug":
-		if e.complexity.TeamMemberSetRoleActivityLog.TeamSlug == nil {
+	case "TeamMemberRemovedActivityLogEntry.teamSlug":
+		if e.complexity.TeamMemberRemovedActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleActivityLog.TeamSlug(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "TeamMemberSetRoleActivityLogData.role":
 		if e.complexity.TeamMemberSetRoleActivityLogData.Role == nil {
@@ -8546,6 +8483,69 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamMemberSetRoleActivityLogData.UserID(childComplexity), true
+
+	case "TeamMemberSetRoleActivityLogEntry.actor":
+		if e.complexity.TeamMemberSetRoleActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberSetRoleActivityLogEntry.Actor(childComplexity), true
+
+	case "TeamMemberSetRoleActivityLogEntry.createdAt":
+		if e.complexity.TeamMemberSetRoleActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberSetRoleActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "TeamMemberSetRoleActivityLogEntry.data":
+		if e.complexity.TeamMemberSetRoleActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberSetRoleActivityLogEntry.Data(childComplexity), true
+
+	case "TeamMemberSetRoleActivityLogEntry.environmentName":
+		if e.complexity.TeamMemberSetRoleActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberSetRoleActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "TeamMemberSetRoleActivityLogEntry.id":
+		if e.complexity.TeamMemberSetRoleActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberSetRoleActivityLogEntry.ID(childComplexity), true
+
+	case "TeamMemberSetRoleActivityLogEntry.message":
+		if e.complexity.TeamMemberSetRoleActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberSetRoleActivityLogEntry.Message(childComplexity), true
+
+	case "TeamMemberSetRoleActivityLogEntry.resourceName":
+		if e.complexity.TeamMemberSetRoleActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberSetRoleActivityLogEntry.ResourceName(childComplexity), true
+
+	case "TeamMemberSetRoleActivityLogEntry.resourceType":
+		if e.complexity.TeamMemberSetRoleActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberSetRoleActivityLogEntry.ResourceType(childComplexity), true
+
+	case "TeamMemberSetRoleActivityLogEntry.teamSlug":
+		if e.complexity.TeamMemberSetRoleActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberSetRoleActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "TeamServiceUtilization.sqlInstances":
 		if e.complexity.TeamServiceUtilization.SQLInstances == nil {
@@ -8638,69 +8638,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamServiceUtilizationSqlInstancesMemory.Utilization(childComplexity), true
 
-	case "TeamUpdatedActivityLog.actor":
-		if e.complexity.TeamUpdatedActivityLog.Actor == nil {
-			break
-		}
-
-		return e.complexity.TeamUpdatedActivityLog.Actor(childComplexity), true
-
-	case "TeamUpdatedActivityLog.createdAt":
-		if e.complexity.TeamUpdatedActivityLog.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.TeamUpdatedActivityLog.CreatedAt(childComplexity), true
-
-	case "TeamUpdatedActivityLog.data":
-		if e.complexity.TeamUpdatedActivityLog.Data == nil {
-			break
-		}
-
-		return e.complexity.TeamUpdatedActivityLog.Data(childComplexity), true
-
-	case "TeamUpdatedActivityLog.environmentName":
-		if e.complexity.TeamUpdatedActivityLog.EnvironmentName == nil {
-			break
-		}
-
-		return e.complexity.TeamUpdatedActivityLog.EnvironmentName(childComplexity), true
-
-	case "TeamUpdatedActivityLog.id":
-		if e.complexity.TeamUpdatedActivityLog.ID == nil {
-			break
-		}
-
-		return e.complexity.TeamUpdatedActivityLog.ID(childComplexity), true
-
-	case "TeamUpdatedActivityLog.message":
-		if e.complexity.TeamUpdatedActivityLog.Message == nil {
-			break
-		}
-
-		return e.complexity.TeamUpdatedActivityLog.Message(childComplexity), true
-
-	case "TeamUpdatedActivityLog.resourceName":
-		if e.complexity.TeamUpdatedActivityLog.ResourceName == nil {
-			break
-		}
-
-		return e.complexity.TeamUpdatedActivityLog.ResourceName(childComplexity), true
-
-	case "TeamUpdatedActivityLog.resourceType":
-		if e.complexity.TeamUpdatedActivityLog.ResourceType == nil {
-			break
-		}
-
-		return e.complexity.TeamUpdatedActivityLog.ResourceType(childComplexity), true
-
-	case "TeamUpdatedActivityLog.teamSlug":
-		if e.complexity.TeamUpdatedActivityLog.TeamSlug == nil {
-			break
-		}
-
-		return e.complexity.TeamUpdatedActivityLog.TeamSlug(childComplexity), true
-
 	case "TeamUpdatedActivityLogData.updatedFields":
 		if e.complexity.TeamUpdatedActivityLogData.UpdatedFields == nil {
 			break
@@ -8728,6 +8665,69 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamUpdatedActivityLogDataUpdatedField.OldValue(childComplexity), true
+
+	case "TeamUpdatedActivityLogEntry.actor":
+		if e.complexity.TeamUpdatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.complexity.TeamUpdatedActivityLogEntry.Actor(childComplexity), true
+
+	case "TeamUpdatedActivityLogEntry.createdAt":
+		if e.complexity.TeamUpdatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.TeamUpdatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "TeamUpdatedActivityLogEntry.data":
+		if e.complexity.TeamUpdatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.complexity.TeamUpdatedActivityLogEntry.Data(childComplexity), true
+
+	case "TeamUpdatedActivityLogEntry.environmentName":
+		if e.complexity.TeamUpdatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.complexity.TeamUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "TeamUpdatedActivityLogEntry.id":
+		if e.complexity.TeamUpdatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.TeamUpdatedActivityLogEntry.ID(childComplexity), true
+
+	case "TeamUpdatedActivityLogEntry.message":
+		if e.complexity.TeamUpdatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.TeamUpdatedActivityLogEntry.Message(childComplexity), true
+
+	case "TeamUpdatedActivityLogEntry.resourceName":
+		if e.complexity.TeamUpdatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.TeamUpdatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "TeamUpdatedActivityLogEntry.resourceType":
+		if e.complexity.TeamUpdatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.TeamUpdatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "TeamUpdatedActivityLogEntry.teamSlug":
+		if e.complexity.TeamUpdatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.complexity.TeamUpdatedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "TeamUtilizationData.environment":
 		if e.complexity.TeamUtilizationData.Environment == nil {
@@ -8937,61 +8937,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UnleashInstance.WebIngress(childComplexity), true
 
-	case "UnleashInstanceCreatedActivityLog.actor":
-		if e.complexity.UnleashInstanceCreatedActivityLog.Actor == nil {
+	case "UnleashInstanceCreatedActivityLogEntry.actor":
+		if e.complexity.UnleashInstanceCreatedActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceCreatedActivityLog.Actor(childComplexity), true
+		return e.complexity.UnleashInstanceCreatedActivityLogEntry.Actor(childComplexity), true
 
-	case "UnleashInstanceCreatedActivityLog.createdAt":
-		if e.complexity.UnleashInstanceCreatedActivityLog.CreatedAt == nil {
+	case "UnleashInstanceCreatedActivityLogEntry.createdAt":
+		if e.complexity.UnleashInstanceCreatedActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceCreatedActivityLog.CreatedAt(childComplexity), true
+		return e.complexity.UnleashInstanceCreatedActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "UnleashInstanceCreatedActivityLog.environmentName":
-		if e.complexity.UnleashInstanceCreatedActivityLog.EnvironmentName == nil {
+	case "UnleashInstanceCreatedActivityLogEntry.environmentName":
+		if e.complexity.UnleashInstanceCreatedActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceCreatedActivityLog.EnvironmentName(childComplexity), true
+		return e.complexity.UnleashInstanceCreatedActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "UnleashInstanceCreatedActivityLog.id":
-		if e.complexity.UnleashInstanceCreatedActivityLog.ID == nil {
+	case "UnleashInstanceCreatedActivityLogEntry.id":
+		if e.complexity.UnleashInstanceCreatedActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceCreatedActivityLog.ID(childComplexity), true
+		return e.complexity.UnleashInstanceCreatedActivityLogEntry.ID(childComplexity), true
 
-	case "UnleashInstanceCreatedActivityLog.message":
-		if e.complexity.UnleashInstanceCreatedActivityLog.Message == nil {
+	case "UnleashInstanceCreatedActivityLogEntry.message":
+		if e.complexity.UnleashInstanceCreatedActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceCreatedActivityLog.Message(childComplexity), true
+		return e.complexity.UnleashInstanceCreatedActivityLogEntry.Message(childComplexity), true
 
-	case "UnleashInstanceCreatedActivityLog.resourceName":
-		if e.complexity.UnleashInstanceCreatedActivityLog.ResourceName == nil {
+	case "UnleashInstanceCreatedActivityLogEntry.resourceName":
+		if e.complexity.UnleashInstanceCreatedActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceCreatedActivityLog.ResourceName(childComplexity), true
+		return e.complexity.UnleashInstanceCreatedActivityLogEntry.ResourceName(childComplexity), true
 
-	case "UnleashInstanceCreatedActivityLog.resourceType":
-		if e.complexity.UnleashInstanceCreatedActivityLog.ResourceType == nil {
+	case "UnleashInstanceCreatedActivityLogEntry.resourceType":
+		if e.complexity.UnleashInstanceCreatedActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceCreatedActivityLog.ResourceType(childComplexity), true
+		return e.complexity.UnleashInstanceCreatedActivityLogEntry.ResourceType(childComplexity), true
 
-	case "UnleashInstanceCreatedActivityLog.teamSlug":
-		if e.complexity.UnleashInstanceCreatedActivityLog.TeamSlug == nil {
+	case "UnleashInstanceCreatedActivityLogEntry.teamSlug":
+		if e.complexity.UnleashInstanceCreatedActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.UnleashInstanceCreatedActivityLog.TeamSlug(childComplexity), true
+		return e.complexity.UnleashInstanceCreatedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "UnleashInstanceMetrics.apiTokens":
 		if e.complexity.UnleashInstanceMetrics.APITokens == nil {
@@ -9035,69 +9035,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UnleashInstanceMetrics.Toggles(childComplexity), true
 
-	case "UnleashInstanceUpdatedActivityLog.actor":
-		if e.complexity.UnleashInstanceUpdatedActivityLog.Actor == nil {
-			break
-		}
-
-		return e.complexity.UnleashInstanceUpdatedActivityLog.Actor(childComplexity), true
-
-	case "UnleashInstanceUpdatedActivityLog.createdAt":
-		if e.complexity.UnleashInstanceUpdatedActivityLog.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.UnleashInstanceUpdatedActivityLog.CreatedAt(childComplexity), true
-
-	case "UnleashInstanceUpdatedActivityLog.data":
-		if e.complexity.UnleashInstanceUpdatedActivityLog.Data == nil {
-			break
-		}
-
-		return e.complexity.UnleashInstanceUpdatedActivityLog.Data(childComplexity), true
-
-	case "UnleashInstanceUpdatedActivityLog.environmentName":
-		if e.complexity.UnleashInstanceUpdatedActivityLog.EnvironmentName == nil {
-			break
-		}
-
-		return e.complexity.UnleashInstanceUpdatedActivityLog.EnvironmentName(childComplexity), true
-
-	case "UnleashInstanceUpdatedActivityLog.id":
-		if e.complexity.UnleashInstanceUpdatedActivityLog.ID == nil {
-			break
-		}
-
-		return e.complexity.UnleashInstanceUpdatedActivityLog.ID(childComplexity), true
-
-	case "UnleashInstanceUpdatedActivityLog.message":
-		if e.complexity.UnleashInstanceUpdatedActivityLog.Message == nil {
-			break
-		}
-
-		return e.complexity.UnleashInstanceUpdatedActivityLog.Message(childComplexity), true
-
-	case "UnleashInstanceUpdatedActivityLog.resourceName":
-		if e.complexity.UnleashInstanceUpdatedActivityLog.ResourceName == nil {
-			break
-		}
-
-		return e.complexity.UnleashInstanceUpdatedActivityLog.ResourceName(childComplexity), true
-
-	case "UnleashInstanceUpdatedActivityLog.resourceType":
-		if e.complexity.UnleashInstanceUpdatedActivityLog.ResourceType == nil {
-			break
-		}
-
-		return e.complexity.UnleashInstanceUpdatedActivityLog.ResourceType(childComplexity), true
-
-	case "UnleashInstanceUpdatedActivityLog.teamSlug":
-		if e.complexity.UnleashInstanceUpdatedActivityLog.TeamSlug == nil {
-			break
-		}
-
-		return e.complexity.UnleashInstanceUpdatedActivityLog.TeamSlug(childComplexity), true
-
 	case "UnleashInstanceUpdatedActivityLogData.allowedTeamSlug":
 		if e.complexity.UnleashInstanceUpdatedActivityLogData.AllowedTeamSlug == nil {
 			break
@@ -9111,6 +9048,69 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.UnleashInstanceUpdatedActivityLogData.RevokedTeamSlug(childComplexity), true
+
+	case "UnleashInstanceUpdatedActivityLogEntry.actor":
+		if e.complexity.UnleashInstanceUpdatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceUpdatedActivityLogEntry.Actor(childComplexity), true
+
+	case "UnleashInstanceUpdatedActivityLogEntry.createdAt":
+		if e.complexity.UnleashInstanceUpdatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceUpdatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "UnleashInstanceUpdatedActivityLogEntry.data":
+		if e.complexity.UnleashInstanceUpdatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceUpdatedActivityLogEntry.Data(childComplexity), true
+
+	case "UnleashInstanceUpdatedActivityLogEntry.environmentName":
+		if e.complexity.UnleashInstanceUpdatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "UnleashInstanceUpdatedActivityLogEntry.id":
+		if e.complexity.UnleashInstanceUpdatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceUpdatedActivityLogEntry.ID(childComplexity), true
+
+	case "UnleashInstanceUpdatedActivityLogEntry.message":
+		if e.complexity.UnleashInstanceUpdatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceUpdatedActivityLogEntry.Message(childComplexity), true
+
+	case "UnleashInstanceUpdatedActivityLogEntry.resourceName":
+		if e.complexity.UnleashInstanceUpdatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceUpdatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "UnleashInstanceUpdatedActivityLogEntry.resourceType":
+		if e.complexity.UnleashInstanceUpdatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceUpdatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "UnleashInstanceUpdatedActivityLogEntry.teamSlug":
+		if e.complexity.UnleashInstanceUpdatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceUpdatedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "UpdateImageVulnerabilityPayload.vulnerability":
 		if e.complexity.UpdateImageVulnerabilityPayload.Vulnerability == nil {
@@ -9236,61 +9236,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UtilizationSample.Value(childComplexity), true
 
-	case "VulnerabilityUpdatedActivityLog.actor":
-		if e.complexity.VulnerabilityUpdatedActivityLog.Actor == nil {
+	case "VulnerabilityUpdatedActivityLogEntry.actor":
+		if e.complexity.VulnerabilityUpdatedActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.VulnerabilityUpdatedActivityLog.Actor(childComplexity), true
+		return e.complexity.VulnerabilityUpdatedActivityLogEntry.Actor(childComplexity), true
 
-	case "VulnerabilityUpdatedActivityLog.createdAt":
-		if e.complexity.VulnerabilityUpdatedActivityLog.CreatedAt == nil {
+	case "VulnerabilityUpdatedActivityLogEntry.createdAt":
+		if e.complexity.VulnerabilityUpdatedActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.VulnerabilityUpdatedActivityLog.CreatedAt(childComplexity), true
+		return e.complexity.VulnerabilityUpdatedActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "VulnerabilityUpdatedActivityLog.environmentName":
-		if e.complexity.VulnerabilityUpdatedActivityLog.EnvironmentName == nil {
+	case "VulnerabilityUpdatedActivityLogEntry.environmentName":
+		if e.complexity.VulnerabilityUpdatedActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.VulnerabilityUpdatedActivityLog.EnvironmentName(childComplexity), true
+		return e.complexity.VulnerabilityUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "VulnerabilityUpdatedActivityLog.id":
-		if e.complexity.VulnerabilityUpdatedActivityLog.ID == nil {
+	case "VulnerabilityUpdatedActivityLogEntry.id":
+		if e.complexity.VulnerabilityUpdatedActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.VulnerabilityUpdatedActivityLog.ID(childComplexity), true
+		return e.complexity.VulnerabilityUpdatedActivityLogEntry.ID(childComplexity), true
 
-	case "VulnerabilityUpdatedActivityLog.message":
-		if e.complexity.VulnerabilityUpdatedActivityLog.Message == nil {
+	case "VulnerabilityUpdatedActivityLogEntry.message":
+		if e.complexity.VulnerabilityUpdatedActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.VulnerabilityUpdatedActivityLog.Message(childComplexity), true
+		return e.complexity.VulnerabilityUpdatedActivityLogEntry.Message(childComplexity), true
 
-	case "VulnerabilityUpdatedActivityLog.resourceName":
-		if e.complexity.VulnerabilityUpdatedActivityLog.ResourceName == nil {
+	case "VulnerabilityUpdatedActivityLogEntry.resourceName":
+		if e.complexity.VulnerabilityUpdatedActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.VulnerabilityUpdatedActivityLog.ResourceName(childComplexity), true
+		return e.complexity.VulnerabilityUpdatedActivityLogEntry.ResourceName(childComplexity), true
 
-	case "VulnerabilityUpdatedActivityLog.resourceType":
-		if e.complexity.VulnerabilityUpdatedActivityLog.ResourceType == nil {
+	case "VulnerabilityUpdatedActivityLogEntry.resourceType":
+		if e.complexity.VulnerabilityUpdatedActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.VulnerabilityUpdatedActivityLog.ResourceType(childComplexity), true
+		return e.complexity.VulnerabilityUpdatedActivityLogEntry.ResourceType(childComplexity), true
 
-	case "VulnerabilityUpdatedActivityLog.teamSlug":
-		if e.complexity.VulnerabilityUpdatedActivityLog.TeamSlug == nil {
+	case "VulnerabilityUpdatedActivityLogEntry.teamSlug":
+		if e.complexity.VulnerabilityUpdatedActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.VulnerabilityUpdatedActivityLog.TeamSlug(childComplexity), true
+		return e.complexity.VulnerabilityUpdatedActivityLogEntry.TeamSlug(childComplexity), true
 
 	case "WorkloadConnection.edges":
 		if e.complexity.WorkloadConnection.Edges == nil {
@@ -10473,7 +10473,7 @@ extend enum ActivityLogEntryResourceType {
 	APP
 }
 
-type ApplicationDeletedActivityLog implements ActivityLogEntry & Node {
+type ApplicationDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -10499,7 +10499,7 @@ type ApplicationDeletedActivityLog implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type ApplicationRestartedActivityLog implements ActivityLogEntry & Node {
+type ApplicationRestartedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -11126,7 +11126,7 @@ extend enum JobOrderField {
 	DEPLOYMENT_TIME
 }
 
-type TeamDeployKeyUpdatedActivityLog implements ActivityLogEntry & Node {
+type TeamDeployKeyUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -11457,7 +11457,7 @@ type TriggerJobPayload {
 	jobRun: JobRun
 }
 
-type JobDeletedActivityLog implements ActivityLogEntry & Node {
+type JobDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -11483,7 +11483,7 @@ type JobDeletedActivityLog implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type JobTriggeredActivityLog implements ActivityLogEntry & Node {
+type JobTriggeredActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -12029,7 +12029,7 @@ input ReconcilerConfigInput {
 	value: String!
 }
 
-type ReconcilerEnabledActivityLog implements ActivityLogEntry & Node {
+type ReconcilerEnabledActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -12055,7 +12055,7 @@ type ReconcilerEnabledActivityLog implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type ReconcilerDisabledActivityLog implements ActivityLogEntry & Node {
+type ReconcilerDisabledActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -12081,7 +12081,7 @@ type ReconcilerDisabledActivityLog implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type ReconcilerConfiguredActivityLog implements ActivityLogEntry & Node {
+type ReconcilerConfiguredActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -12368,7 +12368,7 @@ enum RepositoryOrderField {
 	NAME
 }
 
-type RepositoryAddedActivityLog implements ActivityLogEntry & Node {
+type RepositoryAddedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -12394,7 +12394,7 @@ type RepositoryAddedActivityLog implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type RepositoryRemovedActivityLog implements ActivityLogEntry & Node {
+type RepositoryRemovedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -12948,7 +12948,7 @@ extend enum ActivityLogEntryResourceType {
 	SECRET
 }
 
-type SecretCreatedActivityLog implements ActivityLogEntry & Node {
+type SecretCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -12974,7 +12974,7 @@ type SecretCreatedActivityLog implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type SecretValueAddedActivityLog implements ActivityLogEntry & Node {
+type SecretValueAddedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -13008,7 +13008,7 @@ type SecretValueAddedActivityLogData {
 	valueName: String!
 }
 
-type SecretValueUpdatedActivityLog implements ActivityLogEntry & Node {
+type SecretValueUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -13042,7 +13042,7 @@ type SecretValueUpdatedActivityLogData {
 	valueName: String!
 }
 
-type SecretValueRemovedActivityLog implements ActivityLogEntry & Node {
+type SecretValueRemovedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -13076,7 +13076,7 @@ type SecretValueRemovedActivityLogData {
 	valueName: String!
 }
 
-type SecretDeletedActivityLog implements ActivityLogEntry & Node {
+type SecretDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -13966,7 +13966,7 @@ extend enum ActivityLogEntryResourceType {
 	TEAM
 }
 
-type TeamCreatedActivityLog implements ActivityLogEntry & Node {
+type TeamCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -13992,7 +13992,7 @@ type TeamCreatedActivityLog implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type TeamUpdatedActivityLog implements ActivityLogEntry & Node {
+type TeamUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -14037,7 +14037,7 @@ type TeamUpdatedActivityLogDataUpdatedField {
 	newValue: String
 }
 
-type TeamCreateDeleteKeyActivityLog implements ActivityLogEntry & Node {
+type TeamCreateDeleteKeyActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -14063,7 +14063,7 @@ type TeamCreateDeleteKeyActivityLog implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type TeamConfirmDeleteKeyActivityLog implements ActivityLogEntry & Node {
+type TeamConfirmDeleteKeyActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -14089,7 +14089,7 @@ type TeamConfirmDeleteKeyActivityLog implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type TeamMemberAddedActivityLog implements ActivityLogEntry & Node {
+type TeamMemberAddedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -14129,7 +14129,7 @@ type TeamMemberAddedActivityLogData {
 	userEmail: String!
 }
 
-type TeamMemberRemovedActivityLog implements ActivityLogEntry & Node {
+type TeamMemberRemovedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -14166,7 +14166,7 @@ type TeamMemberRemovedActivityLogData {
 	userEmail: String!
 }
 
-type TeamMemberSetRoleActivityLog implements ActivityLogEntry & Node {
+type TeamMemberSetRoleActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -14206,7 +14206,7 @@ type TeamMemberSetRoleActivityLogData {
 	userEmail: String!
 }
 
-type TeamEnvironmentUpdatedActivityLog implements ActivityLogEntry & Node {
+type TeamEnvironmentUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -14382,7 +14382,7 @@ extend enum ActivityLogEntryResourceType {
 	UNLEASH
 }
 
-type UnleashInstanceCreatedActivityLog implements ActivityLogEntry & Node {
+type UnleashInstanceCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -14408,7 +14408,7 @@ type UnleashInstanceCreatedActivityLog implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type UnleashInstanceUpdatedActivityLog implements ActivityLogEntry & Node {
+type UnleashInstanceUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -15046,7 +15046,7 @@ type ImageVulnerabilityAnalysisCommentEdge {
 	node: ImageVulnerabilityAnalysisComment!
 }
 
-type VulnerabilityUpdatedActivityLog implements ActivityLogEntry & Node {
+type VulnerabilityUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -24804,8 +24804,8 @@ func (ec *executionContext) fieldContext_ApplicationConnection_edges(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationDeletedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationDeletedActivityLog_id(ctx, field)
+func (ec *executionContext) _ApplicationDeletedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationDeletedActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -24835,9 +24835,9 @@ func (ec *executionContext) _ApplicationDeletedActivityLog_id(ctx context.Contex
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationDeletedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationDeletedActivityLog",
+		Object:     "ApplicationDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -24848,8 +24848,8 @@ func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_id(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationDeletedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationDeletedActivityLog_actor(ctx, field)
+func (ec *executionContext) _ApplicationDeletedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationDeletedActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -24879,9 +24879,9 @@ func (ec *executionContext) _ApplicationDeletedActivityLog_actor(ctx context.Con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationDeletedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationDeletedActivityLog",
+		Object:     "ApplicationDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -24892,8 +24892,8 @@ func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_actor(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationDeletedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationDeletedActivityLog_createdAt(ctx, field)
+func (ec *executionContext) _ApplicationDeletedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationDeletedActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -24923,9 +24923,9 @@ func (ec *executionContext) _ApplicationDeletedActivityLog_createdAt(ctx context
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationDeletedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationDeletedActivityLog",
+		Object:     "ApplicationDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -24936,8 +24936,8 @@ func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_createdAt
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationDeletedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationDeletedActivityLog_message(ctx, field)
+func (ec *executionContext) _ApplicationDeletedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationDeletedActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -24967,9 +24967,9 @@ func (ec *executionContext) _ApplicationDeletedActivityLog_message(ctx context.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationDeletedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationDeletedActivityLog",
+		Object:     "ApplicationDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -24980,8 +24980,8 @@ func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_message(_
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationDeletedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationDeletedActivityLog_resourceType(ctx, field)
+func (ec *executionContext) _ApplicationDeletedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationDeletedActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -25011,9 +25011,9 @@ func (ec *executionContext) _ApplicationDeletedActivityLog_resourceType(ctx cont
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationDeletedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationDeletedActivityLog",
+		Object:     "ApplicationDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -25024,8 +25024,8 @@ func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_resourceT
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationDeletedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationDeletedActivityLog_resourceName(ctx, field)
+func (ec *executionContext) _ApplicationDeletedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationDeletedActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -25055,9 +25055,9 @@ func (ec *executionContext) _ApplicationDeletedActivityLog_resourceName(ctx cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationDeletedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationDeletedActivityLog",
+		Object:     "ApplicationDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -25068,8 +25068,8 @@ func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_resourceN
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationDeletedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationDeletedActivityLog_teamSlug(ctx, field)
+func (ec *executionContext) _ApplicationDeletedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationDeletedActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -25099,9 +25099,9 @@ func (ec *executionContext) _ApplicationDeletedActivityLog_teamSlug(ctx context.
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationDeletedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationDeletedActivityLog",
+		Object:     "ApplicationDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -25112,8 +25112,8 @@ func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_teamSlug(
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationDeletedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationDeletedActivityLog_environmentName(ctx, field)
+func (ec *executionContext) _ApplicationDeletedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationDeletedActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -25140,9 +25140,9 @@ func (ec *executionContext) _ApplicationDeletedActivityLog_environmentName(ctx c
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationDeletedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationDeletedActivityLog",
+		Object:     "ApplicationDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -26127,8 +26127,8 @@ func (ec *executionContext) fieldContext_ApplicationResources_scaling(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationRestartedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationRestartedActivityLog_id(ctx, field)
+func (ec *executionContext) _ApplicationRestartedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationRestartedActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -26158,9 +26158,9 @@ func (ec *executionContext) _ApplicationRestartedActivityLog_id(ctx context.Cont
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationRestartedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationRestartedActivityLog",
+		Object:     "ApplicationRestartedActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -26171,8 +26171,8 @@ func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_id(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationRestartedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationRestartedActivityLog_actor(ctx, field)
+func (ec *executionContext) _ApplicationRestartedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationRestartedActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -26202,9 +26202,9 @@ func (ec *executionContext) _ApplicationRestartedActivityLog_actor(ctx context.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationRestartedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationRestartedActivityLog",
+		Object:     "ApplicationRestartedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -26215,8 +26215,8 @@ func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_actor(_
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationRestartedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationRestartedActivityLog_createdAt(ctx, field)
+func (ec *executionContext) _ApplicationRestartedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationRestartedActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -26246,9 +26246,9 @@ func (ec *executionContext) _ApplicationRestartedActivityLog_createdAt(ctx conte
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationRestartedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationRestartedActivityLog",
+		Object:     "ApplicationRestartedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -26259,8 +26259,8 @@ func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_created
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationRestartedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationRestartedActivityLog_message(ctx, field)
+func (ec *executionContext) _ApplicationRestartedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationRestartedActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -26290,9 +26290,9 @@ func (ec *executionContext) _ApplicationRestartedActivityLog_message(ctx context
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationRestartedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationRestartedActivityLog",
+		Object:     "ApplicationRestartedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -26303,8 +26303,8 @@ func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_message
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationRestartedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationRestartedActivityLog_resourceType(ctx, field)
+func (ec *executionContext) _ApplicationRestartedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationRestartedActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -26334,9 +26334,9 @@ func (ec *executionContext) _ApplicationRestartedActivityLog_resourceType(ctx co
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationRestartedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationRestartedActivityLog",
+		Object:     "ApplicationRestartedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -26347,8 +26347,8 @@ func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_resourc
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationRestartedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationRestartedActivityLog_resourceName(ctx, field)
+func (ec *executionContext) _ApplicationRestartedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationRestartedActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -26378,9 +26378,9 @@ func (ec *executionContext) _ApplicationRestartedActivityLog_resourceName(ctx co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationRestartedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationRestartedActivityLog",
+		Object:     "ApplicationRestartedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -26391,8 +26391,8 @@ func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_resourc
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationRestartedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationRestartedActivityLog_teamSlug(ctx, field)
+func (ec *executionContext) _ApplicationRestartedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationRestartedActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -26422,9 +26422,9 @@ func (ec *executionContext) _ApplicationRestartedActivityLog_teamSlug(ctx contex
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationRestartedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationRestartedActivityLog",
+		Object:     "ApplicationRestartedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -26435,8 +26435,8 @@ func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_teamSlu
 	return fc, nil
 }
 
-func (ec *executionContext) _ApplicationRestartedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ApplicationRestartedActivityLog_environmentName(ctx, field)
+func (ec *executionContext) _ApplicationRestartedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationRestartedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationRestartedActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -26463,9 +26463,9 @@ func (ec *executionContext) _ApplicationRestartedActivityLog_environmentName(ctx
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ApplicationRestartedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ApplicationRestartedActivityLog",
+		Object:     "ApplicationRestartedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -35097,8 +35097,8 @@ func (ec *executionContext) fieldContext_JobConnection_edges(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _JobDeletedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobDeletedActivityLog_id(ctx, field)
+func (ec *executionContext) _JobDeletedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobDeletedActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -35128,9 +35128,9 @@ func (ec *executionContext) _JobDeletedActivityLog_id(ctx context.Context, field
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobDeletedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobDeletedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobDeletedActivityLog",
+		Object:     "JobDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -35141,8 +35141,8 @@ func (ec *executionContext) fieldContext_JobDeletedActivityLog_id(_ context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _JobDeletedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobDeletedActivityLog_actor(ctx, field)
+func (ec *executionContext) _JobDeletedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobDeletedActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -35172,9 +35172,9 @@ func (ec *executionContext) _JobDeletedActivityLog_actor(ctx context.Context, fi
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobDeletedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobDeletedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobDeletedActivityLog",
+		Object:     "JobDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -35185,8 +35185,8 @@ func (ec *executionContext) fieldContext_JobDeletedActivityLog_actor(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _JobDeletedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobDeletedActivityLog_createdAt(ctx, field)
+func (ec *executionContext) _JobDeletedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobDeletedActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -35216,9 +35216,9 @@ func (ec *executionContext) _JobDeletedActivityLog_createdAt(ctx context.Context
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobDeletedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobDeletedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobDeletedActivityLog",
+		Object:     "JobDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -35229,8 +35229,8 @@ func (ec *executionContext) fieldContext_JobDeletedActivityLog_createdAt(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _JobDeletedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobDeletedActivityLog_message(ctx, field)
+func (ec *executionContext) _JobDeletedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobDeletedActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -35260,9 +35260,9 @@ func (ec *executionContext) _JobDeletedActivityLog_message(ctx context.Context, 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobDeletedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobDeletedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobDeletedActivityLog",
+		Object:     "JobDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -35273,8 +35273,8 @@ func (ec *executionContext) fieldContext_JobDeletedActivityLog_message(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _JobDeletedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobDeletedActivityLog_resourceType(ctx, field)
+func (ec *executionContext) _JobDeletedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobDeletedActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -35304,9 +35304,9 @@ func (ec *executionContext) _JobDeletedActivityLog_resourceType(ctx context.Cont
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobDeletedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobDeletedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobDeletedActivityLog",
+		Object:     "JobDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -35317,8 +35317,8 @@ func (ec *executionContext) fieldContext_JobDeletedActivityLog_resourceType(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _JobDeletedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobDeletedActivityLog_resourceName(ctx, field)
+func (ec *executionContext) _JobDeletedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobDeletedActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -35348,9 +35348,9 @@ func (ec *executionContext) _JobDeletedActivityLog_resourceName(ctx context.Cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobDeletedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobDeletedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobDeletedActivityLog",
+		Object:     "JobDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -35361,8 +35361,8 @@ func (ec *executionContext) fieldContext_JobDeletedActivityLog_resourceName(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _JobDeletedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobDeletedActivityLog_teamSlug(ctx, field)
+func (ec *executionContext) _JobDeletedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobDeletedActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -35392,9 +35392,9 @@ func (ec *executionContext) _JobDeletedActivityLog_teamSlug(ctx context.Context,
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobDeletedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobDeletedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobDeletedActivityLog",
+		Object:     "JobDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -35405,8 +35405,8 @@ func (ec *executionContext) fieldContext_JobDeletedActivityLog_teamSlug(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _JobDeletedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobDeletedActivityLog_environmentName(ctx, field)
+func (ec *executionContext) _JobDeletedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobDeletedActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -35433,9 +35433,9 @@ func (ec *executionContext) _JobDeletedActivityLog_environmentName(ctx context.C
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobDeletedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobDeletedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobDeletedActivityLog",
+		Object:     "JobDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -36905,8 +36905,8 @@ func (ec *executionContext) fieldContext_JobSchedule_timeZone(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _JobTriggeredActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobTriggeredActivityLog_id(ctx, field)
+func (ec *executionContext) _JobTriggeredActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobTriggeredActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -36936,9 +36936,9 @@ func (ec *executionContext) _JobTriggeredActivityLog_id(ctx context.Context, fie
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobTriggeredActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobTriggeredActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobTriggeredActivityLog",
+		Object:     "JobTriggeredActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -36949,8 +36949,8 @@ func (ec *executionContext) fieldContext_JobTriggeredActivityLog_id(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _JobTriggeredActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobTriggeredActivityLog_actor(ctx, field)
+func (ec *executionContext) _JobTriggeredActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobTriggeredActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -36980,9 +36980,9 @@ func (ec *executionContext) _JobTriggeredActivityLog_actor(ctx context.Context, 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobTriggeredActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobTriggeredActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobTriggeredActivityLog",
+		Object:     "JobTriggeredActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -36993,8 +36993,8 @@ func (ec *executionContext) fieldContext_JobTriggeredActivityLog_actor(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _JobTriggeredActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobTriggeredActivityLog_createdAt(ctx, field)
+func (ec *executionContext) _JobTriggeredActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobTriggeredActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -37024,9 +37024,9 @@ func (ec *executionContext) _JobTriggeredActivityLog_createdAt(ctx context.Conte
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobTriggeredActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobTriggeredActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobTriggeredActivityLog",
+		Object:     "JobTriggeredActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -37037,8 +37037,8 @@ func (ec *executionContext) fieldContext_JobTriggeredActivityLog_createdAt(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _JobTriggeredActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobTriggeredActivityLog_message(ctx, field)
+func (ec *executionContext) _JobTriggeredActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobTriggeredActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -37068,9 +37068,9 @@ func (ec *executionContext) _JobTriggeredActivityLog_message(ctx context.Context
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobTriggeredActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobTriggeredActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobTriggeredActivityLog",
+		Object:     "JobTriggeredActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -37081,8 +37081,8 @@ func (ec *executionContext) fieldContext_JobTriggeredActivityLog_message(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _JobTriggeredActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobTriggeredActivityLog_resourceType(ctx, field)
+func (ec *executionContext) _JobTriggeredActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobTriggeredActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -37112,9 +37112,9 @@ func (ec *executionContext) _JobTriggeredActivityLog_resourceType(ctx context.Co
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobTriggeredActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobTriggeredActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobTriggeredActivityLog",
+		Object:     "JobTriggeredActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -37125,8 +37125,8 @@ func (ec *executionContext) fieldContext_JobTriggeredActivityLog_resourceType(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _JobTriggeredActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobTriggeredActivityLog_resourceName(ctx, field)
+func (ec *executionContext) _JobTriggeredActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobTriggeredActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -37156,9 +37156,9 @@ func (ec *executionContext) _JobTriggeredActivityLog_resourceName(ctx context.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobTriggeredActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobTriggeredActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobTriggeredActivityLog",
+		Object:     "JobTriggeredActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -37169,8 +37169,8 @@ func (ec *executionContext) fieldContext_JobTriggeredActivityLog_resourceName(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _JobTriggeredActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobTriggeredActivityLog_teamSlug(ctx, field)
+func (ec *executionContext) _JobTriggeredActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobTriggeredActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -37200,9 +37200,9 @@ func (ec *executionContext) _JobTriggeredActivityLog_teamSlug(ctx context.Contex
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobTriggeredActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobTriggeredActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobTriggeredActivityLog",
+		Object:     "JobTriggeredActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -37213,8 +37213,8 @@ func (ec *executionContext) fieldContext_JobTriggeredActivityLog_teamSlug(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _JobTriggeredActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobTriggeredActivityLog_environmentName(ctx, field)
+func (ec *executionContext) _JobTriggeredActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobTriggeredActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -37241,9 +37241,9 @@ func (ec *executionContext) _JobTriggeredActivityLog_environmentName(ctx context
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_JobTriggeredActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_JobTriggeredActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "JobTriggeredActivityLog",
+		Object:     "JobTriggeredActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -44158,403 +44158,6 @@ func (ec *executionContext) fieldContext_ReconcilerConfig_value(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerConfiguredActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLog_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID(), nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(ident.Ident)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ReconcilerConfiguredActivityLog",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ReconcilerConfiguredActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLog_actor(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Actor, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ReconcilerConfiguredActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ReconcilerConfiguredActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLog_createdAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ReconcilerConfiguredActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ReconcilerConfiguredActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLog_message(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Message, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ReconcilerConfiguredActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ReconcilerConfiguredActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLog_resourceType(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ResourceType, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(activitylog.ActivityLogEntryResourceType)
-	fc.Result = res
-	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ReconcilerConfiguredActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ReconcilerConfiguredActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLog_resourceName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ResourceName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ReconcilerConfiguredActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ReconcilerConfiguredActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLog_teamSlug(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TeamSlug, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*slug.Slug)
-	fc.Result = res
-	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ReconcilerConfiguredActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Slug does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ReconcilerConfiguredActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLog_environmentName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EnvironmentName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ReconcilerConfiguredActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ReconcilerConfiguredActivityLog_data(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLog_data(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*reconciler.ReconcilerConfiguredActivityLogData)
-	fc.Result = res
-	return ec.marshalNReconcilerConfiguredActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerConfiguredActivityLogData(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLog_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ReconcilerConfiguredActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "updatedKeys":
-				return ec.fieldContext_ReconcilerConfiguredActivityLogData_updatedKeys(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ReconcilerConfiguredActivityLogData", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _ReconcilerConfiguredActivityLogData_updatedKeys(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLogData) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLogData_updatedKeys(ctx, field)
 	if err != nil {
@@ -44594,6 +44197,403 @@ func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLogData_upd
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerConfiguredActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLogEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerConfiguredActivityLogEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerConfiguredActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLogEntry_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerConfiguredActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerConfiguredActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLogEntry_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerConfiguredActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerConfiguredActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLogEntry_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerConfiguredActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerConfiguredActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLogEntry_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
+	fc.Result = res
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerConfiguredActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerConfiguredActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLogEntry_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerConfiguredActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerConfiguredActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLogEntry_teamSlug(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TeamSlug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*slug.Slug)
+	fc.Result = res
+	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerConfiguredActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerConfiguredActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLogEntry_environmentName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnvironmentName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerConfiguredActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerConfiguredActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLogEntry_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*reconciler.ReconcilerConfiguredActivityLogData)
+	fc.Result = res
+	return ec.marshalNReconcilerConfiguredActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerConfiguredActivityLogData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerConfiguredActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "updatedKeys":
+				return ec.fieldContext_ReconcilerConfiguredActivityLogData_updatedKeys(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ReconcilerConfiguredActivityLogData", field.Name)
 		},
 	}
 	return fc, nil
@@ -44773,8 +44773,8 @@ func (ec *executionContext) fieldContext_ReconcilerConnection_edges(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerDisabledActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerDisabledActivityLog_id(ctx, field)
+func (ec *executionContext) _ReconcilerDisabledActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerDisabledActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -44804,9 +44804,9 @@ func (ec *executionContext) _ReconcilerDisabledActivityLog_id(ctx context.Contex
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerDisabledActivityLog",
+		Object:     "ReconcilerDisabledActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -44817,8 +44817,8 @@ func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_id(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerDisabledActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerDisabledActivityLog_actor(ctx, field)
+func (ec *executionContext) _ReconcilerDisabledActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerDisabledActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -44848,9 +44848,9 @@ func (ec *executionContext) _ReconcilerDisabledActivityLog_actor(ctx context.Con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerDisabledActivityLog",
+		Object:     "ReconcilerDisabledActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -44861,8 +44861,8 @@ func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_actor(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerDisabledActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerDisabledActivityLog_createdAt(ctx, field)
+func (ec *executionContext) _ReconcilerDisabledActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerDisabledActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -44892,9 +44892,9 @@ func (ec *executionContext) _ReconcilerDisabledActivityLog_createdAt(ctx context
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerDisabledActivityLog",
+		Object:     "ReconcilerDisabledActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -44905,8 +44905,8 @@ func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_createdAt
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerDisabledActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerDisabledActivityLog_message(ctx, field)
+func (ec *executionContext) _ReconcilerDisabledActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerDisabledActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -44936,9 +44936,9 @@ func (ec *executionContext) _ReconcilerDisabledActivityLog_message(ctx context.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerDisabledActivityLog",
+		Object:     "ReconcilerDisabledActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -44949,8 +44949,8 @@ func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_message(_
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerDisabledActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerDisabledActivityLog_resourceType(ctx, field)
+func (ec *executionContext) _ReconcilerDisabledActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerDisabledActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -44980,9 +44980,9 @@ func (ec *executionContext) _ReconcilerDisabledActivityLog_resourceType(ctx cont
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerDisabledActivityLog",
+		Object:     "ReconcilerDisabledActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -44993,8 +44993,8 @@ func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_resourceT
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerDisabledActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerDisabledActivityLog_resourceName(ctx, field)
+func (ec *executionContext) _ReconcilerDisabledActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerDisabledActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45024,9 +45024,9 @@ func (ec *executionContext) _ReconcilerDisabledActivityLog_resourceName(ctx cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerDisabledActivityLog",
+		Object:     "ReconcilerDisabledActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -45037,8 +45037,8 @@ func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_resourceN
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerDisabledActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerDisabledActivityLog_teamSlug(ctx, field)
+func (ec *executionContext) _ReconcilerDisabledActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerDisabledActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45068,9 +45068,9 @@ func (ec *executionContext) _ReconcilerDisabledActivityLog_teamSlug(ctx context.
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerDisabledActivityLog",
+		Object:     "ReconcilerDisabledActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -45081,8 +45081,8 @@ func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_teamSlug(
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerDisabledActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerDisabledActivityLog_environmentName(ctx, field)
+func (ec *executionContext) _ReconcilerDisabledActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerDisabledActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerDisabledActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45109,9 +45109,9 @@ func (ec *executionContext) _ReconcilerDisabledActivityLog_environmentName(ctx c
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerDisabledActivityLog",
+		Object:     "ReconcilerDisabledActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -45230,8 +45230,8 @@ func (ec *executionContext) fieldContext_ReconcilerEdge_node(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerEnabledActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerEnabledActivityLog_id(ctx, field)
+func (ec *executionContext) _ReconcilerEnabledActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerEnabledActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45261,9 +45261,9 @@ func (ec *executionContext) _ReconcilerEnabledActivityLog_id(ctx context.Context
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerEnabledActivityLog",
+		Object:     "ReconcilerEnabledActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -45274,8 +45274,8 @@ func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_id(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerEnabledActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerEnabledActivityLog_actor(ctx, field)
+func (ec *executionContext) _ReconcilerEnabledActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerEnabledActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45305,9 +45305,9 @@ func (ec *executionContext) _ReconcilerEnabledActivityLog_actor(ctx context.Cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerEnabledActivityLog",
+		Object:     "ReconcilerEnabledActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -45318,8 +45318,8 @@ func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_actor(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerEnabledActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerEnabledActivityLog_createdAt(ctx, field)
+func (ec *executionContext) _ReconcilerEnabledActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerEnabledActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45349,9 +45349,9 @@ func (ec *executionContext) _ReconcilerEnabledActivityLog_createdAt(ctx context.
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerEnabledActivityLog",
+		Object:     "ReconcilerEnabledActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -45362,8 +45362,8 @@ func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_createdAt(
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerEnabledActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerEnabledActivityLog_message(ctx, field)
+func (ec *executionContext) _ReconcilerEnabledActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerEnabledActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45393,9 +45393,9 @@ func (ec *executionContext) _ReconcilerEnabledActivityLog_message(ctx context.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerEnabledActivityLog",
+		Object:     "ReconcilerEnabledActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -45406,8 +45406,8 @@ func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_message(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerEnabledActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerEnabledActivityLog_resourceType(ctx, field)
+func (ec *executionContext) _ReconcilerEnabledActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerEnabledActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45437,9 +45437,9 @@ func (ec *executionContext) _ReconcilerEnabledActivityLog_resourceType(ctx conte
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerEnabledActivityLog",
+		Object:     "ReconcilerEnabledActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -45450,8 +45450,8 @@ func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_resourceTy
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerEnabledActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerEnabledActivityLog_resourceName(ctx, field)
+func (ec *executionContext) _ReconcilerEnabledActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerEnabledActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45481,9 +45481,9 @@ func (ec *executionContext) _ReconcilerEnabledActivityLog_resourceName(ctx conte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerEnabledActivityLog",
+		Object:     "ReconcilerEnabledActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -45494,8 +45494,8 @@ func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_resourceNa
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerEnabledActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerEnabledActivityLog_teamSlug(ctx, field)
+func (ec *executionContext) _ReconcilerEnabledActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerEnabledActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45525,9 +45525,9 @@ func (ec *executionContext) _ReconcilerEnabledActivityLog_teamSlug(ctx context.C
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerEnabledActivityLog",
+		Object:     "ReconcilerEnabledActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -45538,8 +45538,8 @@ func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_teamSlug(_
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerEnabledActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerEnabledActivityLog_environmentName(ctx, field)
+func (ec *executionContext) _ReconcilerEnabledActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerEnabledActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerEnabledActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -45566,9 +45566,9 @@ func (ec *executionContext) _ReconcilerEnabledActivityLog_environmentName(ctx co
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ReconcilerEnabledActivityLog",
+		Object:     "ReconcilerEnabledActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -47747,8 +47747,8 @@ func (ec *executionContext) fieldContext_Repository_team(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryAddedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryAddedActivityLog_id(ctx, field)
+func (ec *executionContext) _RepositoryAddedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryAddedActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -47778,9 +47778,9 @@ func (ec *executionContext) _RepositoryAddedActivityLog_id(ctx context.Context, 
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryAddedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryAddedActivityLog",
+		Object:     "RepositoryAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -47791,8 +47791,8 @@ func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_id(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryAddedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryAddedActivityLog_actor(ctx, field)
+func (ec *executionContext) _RepositoryAddedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryAddedActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -47822,9 +47822,9 @@ func (ec *executionContext) _RepositoryAddedActivityLog_actor(ctx context.Contex
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryAddedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryAddedActivityLog",
+		Object:     "RepositoryAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -47835,8 +47835,8 @@ func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_actor(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryAddedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryAddedActivityLog_createdAt(ctx, field)
+func (ec *executionContext) _RepositoryAddedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryAddedActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -47866,9 +47866,9 @@ func (ec *executionContext) _RepositoryAddedActivityLog_createdAt(ctx context.Co
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryAddedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryAddedActivityLog",
+		Object:     "RepositoryAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -47879,8 +47879,8 @@ func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_createdAt(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryAddedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryAddedActivityLog_message(ctx, field)
+func (ec *executionContext) _RepositoryAddedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryAddedActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -47910,9 +47910,9 @@ func (ec *executionContext) _RepositoryAddedActivityLog_message(ctx context.Cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryAddedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryAddedActivityLog",
+		Object:     "RepositoryAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -47923,8 +47923,8 @@ func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_message(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryAddedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryAddedActivityLog_resourceType(ctx, field)
+func (ec *executionContext) _RepositoryAddedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryAddedActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -47954,9 +47954,9 @@ func (ec *executionContext) _RepositoryAddedActivityLog_resourceType(ctx context
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryAddedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryAddedActivityLog",
+		Object:     "RepositoryAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -47967,8 +47967,8 @@ func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_resourceType
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryAddedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryAddedActivityLog_resourceName(ctx, field)
+func (ec *executionContext) _RepositoryAddedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryAddedActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -47998,9 +47998,9 @@ func (ec *executionContext) _RepositoryAddedActivityLog_resourceName(ctx context
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryAddedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryAddedActivityLog",
+		Object:     "RepositoryAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -48011,8 +48011,8 @@ func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_resourceName
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryAddedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryAddedActivityLog_teamSlug(ctx, field)
+func (ec *executionContext) _RepositoryAddedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryAddedActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48042,9 +48042,9 @@ func (ec *executionContext) _RepositoryAddedActivityLog_teamSlug(ctx context.Con
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryAddedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryAddedActivityLog",
+		Object:     "RepositoryAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -48055,8 +48055,8 @@ func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_teamSlug(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryAddedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryAddedActivityLog_environmentName(ctx, field)
+func (ec *executionContext) _RepositoryAddedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryAddedActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48083,9 +48083,9 @@ func (ec *executionContext) _RepositoryAddedActivityLog_environmentName(ctx cont
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryAddedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryAddedActivityLog",
+		Object:     "RepositoryAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -48354,8 +48354,8 @@ func (ec *executionContext) fieldContext_RepositoryEdge_node(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryRemovedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryRemovedActivityLog_id(ctx, field)
+func (ec *executionContext) _RepositoryRemovedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryRemovedActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48385,9 +48385,9 @@ func (ec *executionContext) _RepositoryRemovedActivityLog_id(ctx context.Context
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryRemovedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryRemovedActivityLog",
+		Object:     "RepositoryRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -48398,8 +48398,8 @@ func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_id(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryRemovedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryRemovedActivityLog_actor(ctx, field)
+func (ec *executionContext) _RepositoryRemovedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryRemovedActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48429,9 +48429,9 @@ func (ec *executionContext) _RepositoryRemovedActivityLog_actor(ctx context.Cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryRemovedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryRemovedActivityLog",
+		Object:     "RepositoryRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -48442,8 +48442,8 @@ func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_actor(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryRemovedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryRemovedActivityLog_createdAt(ctx, field)
+func (ec *executionContext) _RepositoryRemovedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryRemovedActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48473,9 +48473,9 @@ func (ec *executionContext) _RepositoryRemovedActivityLog_createdAt(ctx context.
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryRemovedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryRemovedActivityLog",
+		Object:     "RepositoryRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -48486,8 +48486,8 @@ func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_createdAt(
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryRemovedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryRemovedActivityLog_message(ctx, field)
+func (ec *executionContext) _RepositoryRemovedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryRemovedActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48517,9 +48517,9 @@ func (ec *executionContext) _RepositoryRemovedActivityLog_message(ctx context.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryRemovedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryRemovedActivityLog",
+		Object:     "RepositoryRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -48530,8 +48530,8 @@ func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_message(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryRemovedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryRemovedActivityLog_resourceType(ctx, field)
+func (ec *executionContext) _RepositoryRemovedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryRemovedActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48561,9 +48561,9 @@ func (ec *executionContext) _RepositoryRemovedActivityLog_resourceType(ctx conte
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryRemovedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryRemovedActivityLog",
+		Object:     "RepositoryRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -48574,8 +48574,8 @@ func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_resourceTy
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryRemovedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryRemovedActivityLog_resourceName(ctx, field)
+func (ec *executionContext) _RepositoryRemovedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryRemovedActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48605,9 +48605,9 @@ func (ec *executionContext) _RepositoryRemovedActivityLog_resourceName(ctx conte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryRemovedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryRemovedActivityLog",
+		Object:     "RepositoryRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -48618,8 +48618,8 @@ func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_resourceNa
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryRemovedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryRemovedActivityLog_teamSlug(ctx, field)
+func (ec *executionContext) _RepositoryRemovedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryRemovedActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48649,9 +48649,9 @@ func (ec *executionContext) _RepositoryRemovedActivityLog_teamSlug(ctx context.C
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryRemovedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryRemovedActivityLog",
+		Object:     "RepositoryRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -48662,8 +48662,8 @@ func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_teamSlug(_
 	return fc, nil
 }
 
-func (ec *executionContext) _RepositoryRemovedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RepositoryRemovedActivityLog_environmentName(ctx, field)
+func (ec *executionContext) _RepositoryRemovedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *repository.RepositoryRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryRemovedActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48690,9 +48690,9 @@ func (ec *executionContext) _RepositoryRemovedActivityLog_environmentName(ctx co
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RepositoryRemovedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RepositoryRemovedActivityLog",
+		Object:     "RepositoryRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -49935,8 +49935,8 @@ func (ec *executionContext) fieldContext_SecretConnection_edges(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretCreatedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretCreatedActivityLog_id(ctx, field)
+func (ec *executionContext) _SecretCreatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -49966,9 +49966,9 @@ func (ec *executionContext) _SecretCreatedActivityLog_id(ctx context.Context, fi
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretCreatedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretCreatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretCreatedActivityLog",
+		Object:     "SecretCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -49979,8 +49979,8 @@ func (ec *executionContext) fieldContext_SecretCreatedActivityLog_id(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretCreatedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretCreatedActivityLog_actor(ctx, field)
+func (ec *executionContext) _SecretCreatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50010,9 +50010,9 @@ func (ec *executionContext) _SecretCreatedActivityLog_actor(ctx context.Context,
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretCreatedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretCreatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretCreatedActivityLog",
+		Object:     "SecretCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50023,8 +50023,8 @@ func (ec *executionContext) fieldContext_SecretCreatedActivityLog_actor(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretCreatedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretCreatedActivityLog_createdAt(ctx, field)
+func (ec *executionContext) _SecretCreatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50054,9 +50054,9 @@ func (ec *executionContext) _SecretCreatedActivityLog_createdAt(ctx context.Cont
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretCreatedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretCreatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretCreatedActivityLog",
+		Object:     "SecretCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50067,8 +50067,8 @@ func (ec *executionContext) fieldContext_SecretCreatedActivityLog_createdAt(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretCreatedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretCreatedActivityLog_message(ctx, field)
+func (ec *executionContext) _SecretCreatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50098,9 +50098,9 @@ func (ec *executionContext) _SecretCreatedActivityLog_message(ctx context.Contex
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretCreatedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretCreatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretCreatedActivityLog",
+		Object:     "SecretCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50111,8 +50111,8 @@ func (ec *executionContext) fieldContext_SecretCreatedActivityLog_message(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretCreatedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretCreatedActivityLog_resourceType(ctx, field)
+func (ec *executionContext) _SecretCreatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50142,9 +50142,9 @@ func (ec *executionContext) _SecretCreatedActivityLog_resourceType(ctx context.C
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretCreatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretCreatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretCreatedActivityLog",
+		Object:     "SecretCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50155,8 +50155,8 @@ func (ec *executionContext) fieldContext_SecretCreatedActivityLog_resourceType(_
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretCreatedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretCreatedActivityLog_resourceName(ctx, field)
+func (ec *executionContext) _SecretCreatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50186,9 +50186,9 @@ func (ec *executionContext) _SecretCreatedActivityLog_resourceName(ctx context.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretCreatedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretCreatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretCreatedActivityLog",
+		Object:     "SecretCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50199,8 +50199,8 @@ func (ec *executionContext) fieldContext_SecretCreatedActivityLog_resourceName(_
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretCreatedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretCreatedActivityLog_teamSlug(ctx, field)
+func (ec *executionContext) _SecretCreatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50230,9 +50230,9 @@ func (ec *executionContext) _SecretCreatedActivityLog_teamSlug(ctx context.Conte
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretCreatedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretCreatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretCreatedActivityLog",
+		Object:     "SecretCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50243,8 +50243,8 @@ func (ec *executionContext) fieldContext_SecretCreatedActivityLog_teamSlug(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretCreatedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretCreatedActivityLog_environmentName(ctx, field)
+func (ec *executionContext) _SecretCreatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretCreatedActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50271,9 +50271,9 @@ func (ec *executionContext) _SecretCreatedActivityLog_environmentName(ctx contex
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretCreatedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretCreatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretCreatedActivityLog",
+		Object:     "SecretCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50284,8 +50284,8 @@ func (ec *executionContext) fieldContext_SecretCreatedActivityLog_environmentNam
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretDeletedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretDeletedActivityLog_id(ctx, field)
+func (ec *executionContext) _SecretDeletedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretDeletedActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50315,9 +50315,9 @@ func (ec *executionContext) _SecretDeletedActivityLog_id(ctx context.Context, fi
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretDeletedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretDeletedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretDeletedActivityLog",
+		Object:     "SecretDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -50328,8 +50328,8 @@ func (ec *executionContext) fieldContext_SecretDeletedActivityLog_id(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretDeletedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretDeletedActivityLog_actor(ctx, field)
+func (ec *executionContext) _SecretDeletedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretDeletedActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50359,9 +50359,9 @@ func (ec *executionContext) _SecretDeletedActivityLog_actor(ctx context.Context,
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretDeletedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretDeletedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretDeletedActivityLog",
+		Object:     "SecretDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50372,8 +50372,8 @@ func (ec *executionContext) fieldContext_SecretDeletedActivityLog_actor(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretDeletedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretDeletedActivityLog_createdAt(ctx, field)
+func (ec *executionContext) _SecretDeletedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretDeletedActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50403,9 +50403,9 @@ func (ec *executionContext) _SecretDeletedActivityLog_createdAt(ctx context.Cont
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretDeletedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretDeletedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretDeletedActivityLog",
+		Object:     "SecretDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50416,8 +50416,8 @@ func (ec *executionContext) fieldContext_SecretDeletedActivityLog_createdAt(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretDeletedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretDeletedActivityLog_message(ctx, field)
+func (ec *executionContext) _SecretDeletedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretDeletedActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50447,9 +50447,9 @@ func (ec *executionContext) _SecretDeletedActivityLog_message(ctx context.Contex
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretDeletedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretDeletedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretDeletedActivityLog",
+		Object:     "SecretDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50460,8 +50460,8 @@ func (ec *executionContext) fieldContext_SecretDeletedActivityLog_message(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretDeletedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretDeletedActivityLog_resourceType(ctx, field)
+func (ec *executionContext) _SecretDeletedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretDeletedActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50491,9 +50491,9 @@ func (ec *executionContext) _SecretDeletedActivityLog_resourceType(ctx context.C
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretDeletedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretDeletedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretDeletedActivityLog",
+		Object:     "SecretDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50504,8 +50504,8 @@ func (ec *executionContext) fieldContext_SecretDeletedActivityLog_resourceType(_
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretDeletedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretDeletedActivityLog_resourceName(ctx, field)
+func (ec *executionContext) _SecretDeletedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretDeletedActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50535,9 +50535,9 @@ func (ec *executionContext) _SecretDeletedActivityLog_resourceName(ctx context.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretDeletedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretDeletedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretDeletedActivityLog",
+		Object:     "SecretDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50548,8 +50548,8 @@ func (ec *executionContext) fieldContext_SecretDeletedActivityLog_resourceName(_
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretDeletedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretDeletedActivityLog_teamSlug(ctx, field)
+func (ec *executionContext) _SecretDeletedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretDeletedActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50579,9 +50579,9 @@ func (ec *executionContext) _SecretDeletedActivityLog_teamSlug(ctx context.Conte
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretDeletedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretDeletedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretDeletedActivityLog",
+		Object:     "SecretDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50592,8 +50592,8 @@ func (ec *executionContext) fieldContext_SecretDeletedActivityLog_teamSlug(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretDeletedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretDeletedActivityLog_environmentName(ctx, field)
+func (ec *executionContext) _SecretDeletedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretDeletedActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -50620,9 +50620,9 @@ func (ec *executionContext) _SecretDeletedActivityLog_environmentName(ctx contex
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretDeletedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretDeletedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretDeletedActivityLog",
+		Object:     "SecretDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -50831,403 +50831,6 @@ func (ec *executionContext) fieldContext_SecretValue_value(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueAddedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueAddedActivityLog_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID(), nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(ident.Ident)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SecretValueAddedActivityLog",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SecretValueAddedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueAddedActivityLog_actor(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Actor, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SecretValueAddedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SecretValueAddedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueAddedActivityLog_createdAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SecretValueAddedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SecretValueAddedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueAddedActivityLog_message(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Message, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SecretValueAddedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SecretValueAddedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueAddedActivityLog_resourceType(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ResourceType, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(activitylog.ActivityLogEntryResourceType)
-	fc.Result = res
-	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SecretValueAddedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SecretValueAddedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueAddedActivityLog_resourceName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ResourceName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SecretValueAddedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SecretValueAddedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueAddedActivityLog_teamSlug(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TeamSlug, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*slug.Slug)
-	fc.Result = res
-	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SecretValueAddedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Slug does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SecretValueAddedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueAddedActivityLog_environmentName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EnvironmentName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SecretValueAddedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SecretValueAddedActivityLog_data(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueAddedActivityLog_data(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*secret.SecretValueAddedActivityLogData)
-	fc.Result = res
-	return ec.marshalNSecretValueAddedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueAddedActivityLogData(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLog_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SecretValueAddedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "valueName":
-				return ec.fieldContext_SecretValueAddedActivityLogData_valueName(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type SecretValueAddedActivityLogData", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _SecretValueAddedActivityLogData_valueName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogData) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SecretValueAddedActivityLogData_valueName(ctx, field)
 	if err != nil {
@@ -51272,8 +50875,8 @@ func (ec *executionContext) fieldContext_SecretValueAddedActivityLogData_valueNa
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueRemovedActivityLog_id(ctx, field)
+func (ec *executionContext) _SecretValueAddedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueAddedActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51303,9 +50906,9 @@ func (ec *executionContext) _SecretValueRemovedActivityLog_id(ctx context.Contex
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueRemovedActivityLog",
+		Object:     "SecretValueAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -51316,8 +50919,8 @@ func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_id(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueRemovedActivityLog_actor(ctx, field)
+func (ec *executionContext) _SecretValueAddedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueAddedActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51347,9 +50950,9 @@ func (ec *executionContext) _SecretValueRemovedActivityLog_actor(ctx context.Con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueRemovedActivityLog",
+		Object:     "SecretValueAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51360,8 +50963,8 @@ func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_actor(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueRemovedActivityLog_createdAt(ctx, field)
+func (ec *executionContext) _SecretValueAddedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueAddedActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51391,9 +50994,9 @@ func (ec *executionContext) _SecretValueRemovedActivityLog_createdAt(ctx context
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueRemovedActivityLog",
+		Object:     "SecretValueAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51404,8 +51007,8 @@ func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_createdAt
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueRemovedActivityLog_message(ctx, field)
+func (ec *executionContext) _SecretValueAddedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueAddedActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51435,9 +51038,9 @@ func (ec *executionContext) _SecretValueRemovedActivityLog_message(ctx context.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueRemovedActivityLog",
+		Object:     "SecretValueAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51448,8 +51051,8 @@ func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_message(_
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueRemovedActivityLog_resourceType(ctx, field)
+func (ec *executionContext) _SecretValueAddedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueAddedActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51479,9 +51082,9 @@ func (ec *executionContext) _SecretValueRemovedActivityLog_resourceType(ctx cont
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueRemovedActivityLog",
+		Object:     "SecretValueAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51492,8 +51095,8 @@ func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_resourceT
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueRemovedActivityLog_resourceName(ctx, field)
+func (ec *executionContext) _SecretValueAddedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueAddedActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51523,9 +51126,9 @@ func (ec *executionContext) _SecretValueRemovedActivityLog_resourceName(ctx cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueRemovedActivityLog",
+		Object:     "SecretValueAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51536,8 +51139,8 @@ func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_resourceN
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueRemovedActivityLog_teamSlug(ctx, field)
+func (ec *executionContext) _SecretValueAddedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueAddedActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51567,9 +51170,9 @@ func (ec *executionContext) _SecretValueRemovedActivityLog_teamSlug(ctx context.
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueRemovedActivityLog",
+		Object:     "SecretValueAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51580,8 +51183,8 @@ func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_teamSlug(
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueRemovedActivityLog_environmentName(ctx, field)
+func (ec *executionContext) _SecretValueAddedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueAddedActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51608,9 +51211,9 @@ func (ec *executionContext) _SecretValueRemovedActivityLog_environmentName(ctx c
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueRemovedActivityLog",
+		Object:     "SecretValueAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51621,8 +51224,8 @@ func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_environme
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLog_data(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueRemovedActivityLog_data(ctx, field)
+func (ec *executionContext) _SecretValueAddedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueAddedActivityLogEntry_data(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51647,23 +51250,23 @@ func (ec *executionContext) _SecretValueRemovedActivityLog_data(ctx context.Cont
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*secret.SecretValueRemovedActivityLogData)
+	res := resTmp.(*secret.SecretValueAddedActivityLogData)
 	fc.Result = res
-	return ec.marshalNSecretValueRemovedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueRemovedActivityLogData(ctx, field.Selections, res)
+	return ec.marshalNSecretValueAddedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueAddedActivityLogData(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueRemovedActivityLog",
+		Object:     "SecretValueAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "valueName":
-				return ec.fieldContext_SecretValueRemovedActivityLogData_valueName(ctx, field)
+				return ec.fieldContext_SecretValueAddedActivityLogData_valueName(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type SecretValueRemovedActivityLogData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type SecretValueAddedActivityLogData", field.Name)
 		},
 	}
 	return fc, nil
@@ -51713,8 +51316,8 @@ func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogData_value
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueUpdatedActivityLog_id(ctx, field)
+func (ec *executionContext) _SecretValueRemovedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueRemovedActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51744,9 +51347,9 @@ func (ec *executionContext) _SecretValueUpdatedActivityLog_id(ctx context.Contex
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueUpdatedActivityLog",
+		Object:     "SecretValueRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -51757,8 +51360,8 @@ func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_id(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueUpdatedActivityLog_actor(ctx, field)
+func (ec *executionContext) _SecretValueRemovedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueRemovedActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51788,9 +51391,9 @@ func (ec *executionContext) _SecretValueUpdatedActivityLog_actor(ctx context.Con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueUpdatedActivityLog",
+		Object:     "SecretValueRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51801,8 +51404,8 @@ func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_actor(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueUpdatedActivityLog_createdAt(ctx, field)
+func (ec *executionContext) _SecretValueRemovedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueRemovedActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51832,9 +51435,9 @@ func (ec *executionContext) _SecretValueUpdatedActivityLog_createdAt(ctx context
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueUpdatedActivityLog",
+		Object:     "SecretValueRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51845,8 +51448,8 @@ func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_createdAt
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueUpdatedActivityLog_message(ctx, field)
+func (ec *executionContext) _SecretValueRemovedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueRemovedActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51876,9 +51479,9 @@ func (ec *executionContext) _SecretValueUpdatedActivityLog_message(ctx context.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueUpdatedActivityLog",
+		Object:     "SecretValueRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51889,8 +51492,8 @@ func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_message(_
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueUpdatedActivityLog_resourceType(ctx, field)
+func (ec *executionContext) _SecretValueRemovedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueRemovedActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51920,9 +51523,9 @@ func (ec *executionContext) _SecretValueUpdatedActivityLog_resourceType(ctx cont
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueUpdatedActivityLog",
+		Object:     "SecretValueRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51933,8 +51536,8 @@ func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_resourceT
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueUpdatedActivityLog_resourceName(ctx, field)
+func (ec *executionContext) _SecretValueRemovedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueRemovedActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51964,9 +51567,9 @@ func (ec *executionContext) _SecretValueUpdatedActivityLog_resourceName(ctx cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueUpdatedActivityLog",
+		Object:     "SecretValueRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51977,8 +51580,8 @@ func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_resourceN
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueUpdatedActivityLog_teamSlug(ctx, field)
+func (ec *executionContext) _SecretValueRemovedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueRemovedActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -52008,9 +51611,9 @@ func (ec *executionContext) _SecretValueUpdatedActivityLog_teamSlug(ctx context.
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueUpdatedActivityLog",
+		Object:     "SecretValueRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -52021,8 +51624,8 @@ func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_teamSlug(
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueUpdatedActivityLog_environmentName(ctx, field)
+func (ec *executionContext) _SecretValueRemovedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueRemovedActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -52049,9 +51652,9 @@ func (ec *executionContext) _SecretValueUpdatedActivityLog_environmentName(ctx c
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueUpdatedActivityLog",
+		Object:     "SecretValueRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -52062,8 +51665,8 @@ func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_environme
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLog_data(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueUpdatedActivityLog_data(ctx, field)
+func (ec *executionContext) _SecretValueRemovedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueRemovedActivityLogEntry_data(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -52088,23 +51691,23 @@ func (ec *executionContext) _SecretValueUpdatedActivityLog_data(ctx context.Cont
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*secret.SecretValueUpdatedActivityLogData)
+	res := resTmp.(*secret.SecretValueRemovedActivityLogData)
 	fc.Result = res
-	return ec.marshalNSecretValueUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueUpdatedActivityLogData(ctx, field.Selections, res)
+	return ec.marshalNSecretValueRemovedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueRemovedActivityLogData(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueUpdatedActivityLog",
+		Object:     "SecretValueRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "valueName":
-				return ec.fieldContext_SecretValueUpdatedActivityLogData_valueName(ctx, field)
+				return ec.fieldContext_SecretValueRemovedActivityLogData_valueName(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type SecretValueUpdatedActivityLogData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type SecretValueRemovedActivityLogData", field.Name)
 		},
 	}
 	return fc, nil
@@ -52149,6 +51752,403 @@ func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogData_value
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretValueUpdatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueUpdatedActivityLogEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretValueUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretValueUpdatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueUpdatedActivityLogEntry_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretValueUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretValueUpdatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueUpdatedActivityLogEntry_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretValueUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretValueUpdatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueUpdatedActivityLogEntry_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretValueUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretValueUpdatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueUpdatedActivityLogEntry_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
+	fc.Result = res
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretValueUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretValueUpdatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueUpdatedActivityLogEntry_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretValueUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretValueUpdatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueUpdatedActivityLogEntry_teamSlug(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TeamSlug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*slug.Slug)
+	fc.Result = res
+	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretValueUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretValueUpdatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueUpdatedActivityLogEntry_environmentName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnvironmentName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretValueUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretValueUpdatedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueUpdatedActivityLogEntry_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*secret.SecretValueUpdatedActivityLogData)
+	fc.Result = res
+	return ec.marshalNSecretValueUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueUpdatedActivityLogData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretValueUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "valueName":
+				return ec.fieldContext_SecretValueUpdatedActivityLogData_valueName(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SecretValueUpdatedActivityLogData", field.Name)
 		},
 	}
 	return fc, nil
@@ -58165,8 +58165,8 @@ func (ec *executionContext) fieldContext_TeamCDN_bucket(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLog_id(ctx, field)
+func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -58196,9 +58196,9 @@ func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_id(ctx context.Cont
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamConfirmDeleteKeyActivityLog",
+		Object:     "TeamConfirmDeleteKeyActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -58209,8 +58209,8 @@ func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_id(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLog_actor(ctx, field)
+func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -58240,9 +58240,9 @@ func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_actor(ctx context.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamConfirmDeleteKeyActivityLog",
+		Object:     "TeamConfirmDeleteKeyActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -58253,8 +58253,8 @@ func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_actor(_
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLog_createdAt(ctx, field)
+func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -58284,9 +58284,9 @@ func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_createdAt(ctx conte
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamConfirmDeleteKeyActivityLog",
+		Object:     "TeamConfirmDeleteKeyActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -58297,8 +58297,8 @@ func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_created
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLog_message(ctx, field)
+func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -58328,9 +58328,9 @@ func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_message(ctx context
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamConfirmDeleteKeyActivityLog",
+		Object:     "TeamConfirmDeleteKeyActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -58341,8 +58341,8 @@ func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_message
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLog_resourceType(ctx, field)
+func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -58372,9 +58372,9 @@ func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_resourceType(ctx co
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamConfirmDeleteKeyActivityLog",
+		Object:     "TeamConfirmDeleteKeyActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -58385,8 +58385,8 @@ func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_resourc
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLog_resourceName(ctx, field)
+func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -58416,9 +58416,9 @@ func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_resourceName(ctx co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamConfirmDeleteKeyActivityLog",
+		Object:     "TeamConfirmDeleteKeyActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -58429,8 +58429,8 @@ func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_resourc
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLog_teamSlug(ctx, field)
+func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -58460,9 +58460,9 @@ func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_teamSlug(ctx contex
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamConfirmDeleteKeyActivityLog",
+		Object:     "TeamConfirmDeleteKeyActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -58473,8 +58473,8 @@ func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_teamSlu
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLog_environmentName(ctx, field)
+func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -58501,9 +58501,9 @@ func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_environmentName(ctx
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamConfirmDeleteKeyActivityLog",
+		Object:     "TeamConfirmDeleteKeyActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59127,8 +59127,8 @@ func (ec *executionContext) fieldContext_TeamCostPeriod_series(_ context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLog_id(ctx, field)
+func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59158,9 +59158,9 @@ func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_id(ctx context.Conte
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreateDeleteKeyActivityLog",
+		Object:     "TeamCreateDeleteKeyActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -59171,8 +59171,8 @@ func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_id(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLog_actor(ctx, field)
+func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59202,9 +59202,9 @@ func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_actor(ctx context.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreateDeleteKeyActivityLog",
+		Object:     "TeamCreateDeleteKeyActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59215,8 +59215,8 @@ func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_actor(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLog_createdAt(ctx, field)
+func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59246,9 +59246,9 @@ func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_createdAt(ctx contex
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreateDeleteKeyActivityLog",
+		Object:     "TeamCreateDeleteKeyActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59259,8 +59259,8 @@ func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_createdA
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLog_message(ctx, field)
+func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59290,9 +59290,9 @@ func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_message(ctx context.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreateDeleteKeyActivityLog",
+		Object:     "TeamCreateDeleteKeyActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59303,8 +59303,8 @@ func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_message(
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLog_resourceType(ctx, field)
+func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59334,9 +59334,9 @@ func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_resourceType(ctx con
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreateDeleteKeyActivityLog",
+		Object:     "TeamCreateDeleteKeyActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59347,8 +59347,8 @@ func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_resource
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLog_resourceName(ctx, field)
+func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59378,9 +59378,9 @@ func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_resourceName(ctx con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreateDeleteKeyActivityLog",
+		Object:     "TeamCreateDeleteKeyActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59391,8 +59391,8 @@ func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_resource
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLog_teamSlug(ctx, field)
+func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59422,9 +59422,9 @@ func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_teamSlug(ctx context
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreateDeleteKeyActivityLog",
+		Object:     "TeamCreateDeleteKeyActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59435,8 +59435,8 @@ func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_teamSlug
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLog_environmentName(ctx, field)
+func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59463,9 +59463,9 @@ func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_environmentName(ctx 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreateDeleteKeyActivityLog",
+		Object:     "TeamCreateDeleteKeyActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59476,8 +59476,8 @@ func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_environm
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreatedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreatedActivityLog_id(ctx, field)
+func (ec *executionContext) _TeamCreatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreatedActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59507,9 +59507,9 @@ func (ec *executionContext) _TeamCreatedActivityLog_id(ctx context.Context, fiel
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreatedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreatedActivityLog",
+		Object:     "TeamCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -59520,8 +59520,8 @@ func (ec *executionContext) fieldContext_TeamCreatedActivityLog_id(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreatedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreatedActivityLog_actor(ctx, field)
+func (ec *executionContext) _TeamCreatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreatedActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59551,9 +59551,9 @@ func (ec *executionContext) _TeamCreatedActivityLog_actor(ctx context.Context, f
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreatedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreatedActivityLog",
+		Object:     "TeamCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59564,8 +59564,8 @@ func (ec *executionContext) fieldContext_TeamCreatedActivityLog_actor(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreatedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreatedActivityLog_createdAt(ctx, field)
+func (ec *executionContext) _TeamCreatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreatedActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59595,9 +59595,9 @@ func (ec *executionContext) _TeamCreatedActivityLog_createdAt(ctx context.Contex
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreatedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreatedActivityLog",
+		Object:     "TeamCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59608,8 +59608,8 @@ func (ec *executionContext) fieldContext_TeamCreatedActivityLog_createdAt(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreatedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreatedActivityLog_message(ctx, field)
+func (ec *executionContext) _TeamCreatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreatedActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59639,9 +59639,9 @@ func (ec *executionContext) _TeamCreatedActivityLog_message(ctx context.Context,
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreatedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreatedActivityLog",
+		Object:     "TeamCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59652,8 +59652,8 @@ func (ec *executionContext) fieldContext_TeamCreatedActivityLog_message(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreatedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreatedActivityLog_resourceType(ctx, field)
+func (ec *executionContext) _TeamCreatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreatedActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59683,9 +59683,9 @@ func (ec *executionContext) _TeamCreatedActivityLog_resourceType(ctx context.Con
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreatedActivityLog",
+		Object:     "TeamCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59696,8 +59696,8 @@ func (ec *executionContext) fieldContext_TeamCreatedActivityLog_resourceType(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreatedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreatedActivityLog_resourceName(ctx, field)
+func (ec *executionContext) _TeamCreatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreatedActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59727,9 +59727,9 @@ func (ec *executionContext) _TeamCreatedActivityLog_resourceName(ctx context.Con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreatedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreatedActivityLog",
+		Object:     "TeamCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59740,8 +59740,8 @@ func (ec *executionContext) fieldContext_TeamCreatedActivityLog_resourceName(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreatedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreatedActivityLog_teamSlug(ctx, field)
+func (ec *executionContext) _TeamCreatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreatedActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59771,9 +59771,9 @@ func (ec *executionContext) _TeamCreatedActivityLog_teamSlug(ctx context.Context
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreatedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreatedActivityLog",
+		Object:     "TeamCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -59784,8 +59784,8 @@ func (ec *executionContext) fieldContext_TeamCreatedActivityLog_teamSlug(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreatedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreatedActivityLog_environmentName(ctx, field)
+func (ec *executionContext) _TeamCreatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreatedActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -59812,9 +59812,9 @@ func (ec *executionContext) _TeamCreatedActivityLog_environmentName(ctx context.
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamCreatedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamCreatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamCreatedActivityLog",
+		Object:     "TeamCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -60129,8 +60129,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLog_id(ctx, field)
+func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -60160,9 +60160,9 @@ func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_id(ctx context.Cont
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamDeployKeyUpdatedActivityLog",
+		Object:     "TeamDeployKeyUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -60173,8 +60173,8 @@ func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_id(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLog_actor(ctx, field)
+func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -60204,9 +60204,9 @@ func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_actor(ctx context.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamDeployKeyUpdatedActivityLog",
+		Object:     "TeamDeployKeyUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -60217,8 +60217,8 @@ func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_actor(_
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLog_createdAt(ctx, field)
+func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -60248,9 +60248,9 @@ func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_createdAt(ctx conte
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamDeployKeyUpdatedActivityLog",
+		Object:     "TeamDeployKeyUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -60261,8 +60261,8 @@ func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_created
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLog_message(ctx, field)
+func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -60292,9 +60292,9 @@ func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_message(ctx context
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamDeployKeyUpdatedActivityLog",
+		Object:     "TeamDeployKeyUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -60305,8 +60305,8 @@ func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_message
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLog_resourceType(ctx, field)
+func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -60336,9 +60336,9 @@ func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_resourceType(ctx co
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamDeployKeyUpdatedActivityLog",
+		Object:     "TeamDeployKeyUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -60349,8 +60349,8 @@ func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_resourc
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLog_resourceName(ctx, field)
+func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -60380,9 +60380,9 @@ func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_resourceName(ctx co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamDeployKeyUpdatedActivityLog",
+		Object:     "TeamDeployKeyUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -60393,8 +60393,8 @@ func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_resourc
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLog_teamSlug(ctx, field)
+func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -60424,9 +60424,9 @@ func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_teamSlug(ctx contex
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamDeployKeyUpdatedActivityLog",
+		Object:     "TeamDeployKeyUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -60437,8 +60437,8 @@ func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_teamSlu
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLog_environmentName(ctx, field)
+func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *deployment.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamDeployKeyUpdatedActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -60465,9 +60465,9 @@ func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_environmentName(ctx
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamDeployKeyUpdatedActivityLog",
+		Object:     "TeamDeployKeyUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -61978,403 +61978,6 @@ func (ec *executionContext) fieldContext_TeamEnvironmentCostPeriod_series(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLog_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID(), nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(ident.Ident)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLog_actor(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Actor, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLog_createdAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLog_message(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Message, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLog_resourceType(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ResourceType, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(activitylog.ActivityLogEntryResourceType)
-	fc.Result = res
-	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLog_resourceName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ResourceName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLog_teamSlug(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TeamSlug, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*slug.Slug)
-	fc.Result = res
-	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Slug does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLog_environmentName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EnvironmentName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLog_data(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*team.TeamEnvironmentUpdatedActivityLogData)
-	fc.Result = res
-	return ec.marshalNTeamEnvironmentUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogData(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLog_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "updatedFields":
-				return ec.fieldContext_TeamEnvironmentUpdatedActivityLogData_updatedFields(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironmentUpdatedActivityLogData", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogData_updatedFields(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogData) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogData_updatedFields(ctx, field)
 	if err != nil {
@@ -62548,6 +62151,403 @@ func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogDataUp
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironmentUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntry_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironmentUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntry_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironmentUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntry_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironmentUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntry_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
+	fc.Result = res
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironmentUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntry_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironmentUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntry_teamSlug(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TeamSlug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*slug.Slug)
+	fc.Result = res
+	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironmentUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntry_environmentName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnvironmentName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironmentUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntry_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamEnvironmentUpdatedActivityLogData)
+	fc.Result = res
+	return ec.marshalNTeamEnvironmentUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironmentUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "updatedFields":
+				return ec.fieldContext_TeamEnvironmentUpdatedActivityLogData_updatedFields(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironmentUpdatedActivityLogData", field.Name)
 		},
 	}
 	return fc, nil
@@ -63954,407 +63954,6 @@ func (ec *executionContext) fieldContext_TeamMember_role(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberAddedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedActivityLog_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID(), nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(ident.Ident)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedActivityLog",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberAddedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedActivityLog_actor(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Actor, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberAddedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedActivityLog_createdAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberAddedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedActivityLog_message(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Message, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberAddedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedActivityLog_resourceType(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ResourceType, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(activitylog.ActivityLogEntryResourceType)
-	fc.Result = res
-	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberAddedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedActivityLog_resourceName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ResourceName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberAddedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedActivityLog_teamSlug(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TeamSlug, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*slug.Slug)
-	fc.Result = res
-	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Slug does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberAddedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedActivityLog_environmentName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EnvironmentName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberAddedActivityLog_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedActivityLog_data(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*team.TeamMemberAddedActivityLogData)
-	fc.Result = res
-	return ec.marshalNTeamMemberAddedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberAddedActivityLogData(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLog_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "role":
-				return ec.fieldContext_TeamMemberAddedActivityLogData_role(ctx, field)
-			case "userID":
-				return ec.fieldContext_TeamMemberAddedActivityLogData_userID(ctx, field)
-			case "userEmail":
-				return ec.fieldContext_TeamMemberAddedActivityLogData_userEmail(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamMemberAddedActivityLogData", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _TeamMemberAddedActivityLogData_role(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogData) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamMemberAddedActivityLogData_role(ctx, field)
 	if err != nil {
@@ -64482,6 +64081,407 @@ func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogData_userEmai
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberAddedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLogEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberAddedActivityLogEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberAddedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLogEntry_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberAddedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberAddedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLogEntry_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberAddedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberAddedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLogEntry_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberAddedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberAddedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLogEntry_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
+	fc.Result = res
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberAddedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberAddedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLogEntry_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberAddedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberAddedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLogEntry_teamSlug(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TeamSlug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*slug.Slug)
+	fc.Result = res
+	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberAddedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberAddedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLogEntry_environmentName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnvironmentName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberAddedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberAddedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLogEntry_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamMemberAddedActivityLogData)
+	fc.Result = res
+	return ec.marshalNTeamMemberAddedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberAddedActivityLogData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberAddedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "role":
+				return ec.fieldContext_TeamMemberAddedActivityLogData_role(ctx, field)
+			case "userID":
+				return ec.fieldContext_TeamMemberAddedActivityLogData_userID(ctx, field)
+			case "userEmail":
+				return ec.fieldContext_TeamMemberAddedActivityLogData_userEmail(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamMemberAddedActivityLogData", field.Name)
 		},
 	}
 	return fc, nil
@@ -64745,405 +64745,6 @@ func (ec *executionContext) fieldContext_TeamMemberEdge_node(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberRemovedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedActivityLog_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID(), nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(ident.Ident)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedActivityLog",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberRemovedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedActivityLog_actor(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Actor, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberRemovedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedActivityLog_createdAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberRemovedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedActivityLog_message(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Message, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberRemovedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedActivityLog_resourceType(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ResourceType, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(activitylog.ActivityLogEntryResourceType)
-	fc.Result = res
-	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberRemovedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedActivityLog_resourceName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ResourceName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberRemovedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedActivityLog_teamSlug(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TeamSlug, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*slug.Slug)
-	fc.Result = res
-	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Slug does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberRemovedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedActivityLog_environmentName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EnvironmentName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberRemovedActivityLog_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedActivityLog_data(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*team.TeamMemberRemovedActivityLogData)
-	fc.Result = res
-	return ec.marshalNTeamMemberRemovedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRemovedActivityLogData(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLog_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "userID":
-				return ec.fieldContext_TeamMemberRemovedActivityLogData_userID(ctx, field)
-			case "userEmail":
-				return ec.fieldContext_TeamMemberRemovedActivityLogData_userEmail(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamMemberRemovedActivityLogData", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _TeamMemberRemovedActivityLogData_userID(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogData) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamMemberRemovedActivityLogData_userID(ctx, field)
 	if err != nil {
@@ -65232,8 +64833,8 @@ func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogData_userEm
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLog_id(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65263,9 +64864,9 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLog_id(ctx context.Context
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleActivityLog",
+		Object:     "TeamMemberRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -65276,8 +64877,8 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_id(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLog_actor(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65307,9 +64908,9 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLog_actor(ctx context.Cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleActivityLog",
+		Object:     "TeamMemberRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -65320,8 +64921,8 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_actor(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLog_createdAt(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65351,9 +64952,9 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLog_createdAt(ctx context.
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleActivityLog",
+		Object:     "TeamMemberRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -65364,8 +64965,8 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_createdAt(
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLog_message(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65395,9 +64996,9 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLog_message(ctx context.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleActivityLog",
+		Object:     "TeamMemberRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -65408,8 +65009,8 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_message(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLog_resourceType(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65439,9 +65040,9 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLog_resourceType(ctx conte
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleActivityLog",
+		Object:     "TeamMemberRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -65452,8 +65053,8 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_resourceTy
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLog_resourceName(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65483,9 +65084,9 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLog_resourceName(ctx conte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleActivityLog",
+		Object:     "TeamMemberRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -65496,8 +65097,8 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_resourceNa
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLog_teamSlug(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65527,9 +65128,9 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLog_teamSlug(ctx context.C
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleActivityLog",
+		Object:     "TeamMemberRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -65540,8 +65141,8 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_teamSlug(_
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLog_environmentName(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65568,9 +65169,9 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLog_environmentName(ctx co
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleActivityLog",
+		Object:     "TeamMemberRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -65581,8 +65182,8 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_environmen
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLog_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLog_data(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLogEntry_data(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65607,27 +65208,25 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLog_data(ctx context.Conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*team.TeamMemberSetRoleActivityLogData)
+	res := resTmp.(*team.TeamMemberRemovedActivityLogData)
 	fc.Result = res
-	return ec.marshalNTeamMemberSetRoleActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberSetRoleActivityLogData(ctx, field.Selections, res)
+	return ec.marshalNTeamMemberRemovedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRemovedActivityLogData(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleActivityLog",
+		Object:     "TeamMemberRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "role":
-				return ec.fieldContext_TeamMemberSetRoleActivityLogData_role(ctx, field)
 			case "userID":
-				return ec.fieldContext_TeamMemberSetRoleActivityLogData_userID(ctx, field)
+				return ec.fieldContext_TeamMemberRemovedActivityLogData_userID(ctx, field)
 			case "userEmail":
-				return ec.fieldContext_TeamMemberSetRoleActivityLogData_userEmail(ctx, field)
+				return ec.fieldContext_TeamMemberRemovedActivityLogData_userEmail(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamMemberSetRoleActivityLogData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TeamMemberRemovedActivityLogData", field.Name)
 		},
 	}
 	return fc, nil
@@ -65760,6 +65359,407 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogData_userEm
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLogEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberSetRoleActivityLogEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLogEntry_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberSetRoleActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLogEntry_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberSetRoleActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLogEntry_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberSetRoleActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLogEntry_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
+	fc.Result = res
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberSetRoleActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLogEntry_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberSetRoleActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLogEntry_teamSlug(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TeamSlug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*slug.Slug)
+	fc.Result = res
+	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberSetRoleActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLogEntry_environmentName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnvironmentName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberSetRoleActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLogEntry_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamMemberSetRoleActivityLogData)
+	fc.Result = res
+	return ec.marshalNTeamMemberSetRoleActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberSetRoleActivityLogData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberSetRoleActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "role":
+				return ec.fieldContext_TeamMemberSetRoleActivityLogData_role(ctx, field)
+			case "userID":
+				return ec.fieldContext_TeamMemberSetRoleActivityLogData_userID(ctx, field)
+			case "userEmail":
+				return ec.fieldContext_TeamMemberSetRoleActivityLogData_userEmail(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamMemberSetRoleActivityLogData", field.Name)
 		},
 	}
 	return fc, nil
@@ -66369,403 +66369,6 @@ func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesMemor
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUpdatedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedActivityLog_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID(), nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(ident.Ident)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamUpdatedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedActivityLog_actor(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Actor, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamUpdatedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedActivityLog_createdAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamUpdatedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedActivityLog_message(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Message, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamUpdatedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedActivityLog_resourceType(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ResourceType, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(activitylog.ActivityLogEntryResourceType)
-	fc.Result = res
-	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamUpdatedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedActivityLog_resourceName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ResourceName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamUpdatedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedActivityLog_teamSlug(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TeamSlug, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*slug.Slug)
-	fc.Result = res
-	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Slug does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamUpdatedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedActivityLog_environmentName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EnvironmentName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamUpdatedActivityLog_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedActivityLog_data(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*team.TeamUpdatedActivityLogData)
-	fc.Result = res
-	return ec.marshalNTeamUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogData(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLog_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "updatedFields":
-				return ec.fieldContext_TeamUpdatedActivityLogData_updatedFields(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamUpdatedActivityLogData", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _TeamUpdatedActivityLogData_updatedFields(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogData) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamUpdatedActivityLogData_updatedFields(ctx, field)
 	if err != nil {
@@ -66939,6 +66542,403 @@ func (ec *executionContext) fieldContext_TeamUpdatedActivityLogDataUpdatedField_
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamUpdatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLogEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamUpdatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLogEntry_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamUpdatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLogEntry_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamUpdatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLogEntry_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamUpdatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLogEntry_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
+	fc.Result = res
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamUpdatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLogEntry_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamUpdatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLogEntry_teamSlug(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TeamSlug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*slug.Slug)
+	fc.Result = res
+	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamUpdatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLogEntry_environmentName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnvironmentName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamUpdatedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLogEntry_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamUpdatedActivityLogData)
+	fc.Result = res
+	return ec.marshalNTeamUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "updatedFields":
+				return ec.fieldContext_TeamUpdatedActivityLogData_updatedFields(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamUpdatedActivityLogData", field.Name)
 		},
 	}
 	return fc, nil
@@ -68421,8 +68421,8 @@ func (ec *executionContext) fieldContext_UnleashInstance_ready(_ context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceCreatedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLog_id(ctx, field)
+func (ec *executionContext) _UnleashInstanceCreatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -68452,9 +68452,9 @@ func (ec *executionContext) _UnleashInstanceCreatedActivityLog_id(ctx context.Co
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceCreatedActivityLog",
+		Object:     "UnleashInstanceCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -68465,8 +68465,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_id(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceCreatedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLog_actor(ctx, field)
+func (ec *executionContext) _UnleashInstanceCreatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -68496,9 +68496,9 @@ func (ec *executionContext) _UnleashInstanceCreatedActivityLog_actor(ctx context
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceCreatedActivityLog",
+		Object:     "UnleashInstanceCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -68509,8 +68509,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_actor
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceCreatedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLog_createdAt(ctx, field)
+func (ec *executionContext) _UnleashInstanceCreatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -68540,9 +68540,9 @@ func (ec *executionContext) _UnleashInstanceCreatedActivityLog_createdAt(ctx con
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceCreatedActivityLog",
+		Object:     "UnleashInstanceCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -68553,8 +68553,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_creat
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceCreatedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLog_message(ctx, field)
+func (ec *executionContext) _UnleashInstanceCreatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -68584,9 +68584,9 @@ func (ec *executionContext) _UnleashInstanceCreatedActivityLog_message(ctx conte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceCreatedActivityLog",
+		Object:     "UnleashInstanceCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -68597,8 +68597,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_messa
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceCreatedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLog_resourceType(ctx, field)
+func (ec *executionContext) _UnleashInstanceCreatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -68628,9 +68628,9 @@ func (ec *executionContext) _UnleashInstanceCreatedActivityLog_resourceType(ctx 
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceCreatedActivityLog",
+		Object:     "UnleashInstanceCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -68641,8 +68641,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_resou
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceCreatedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLog_resourceName(ctx, field)
+func (ec *executionContext) _UnleashInstanceCreatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -68672,9 +68672,9 @@ func (ec *executionContext) _UnleashInstanceCreatedActivityLog_resourceName(ctx 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceCreatedActivityLog",
+		Object:     "UnleashInstanceCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -68685,8 +68685,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_resou
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceCreatedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLog_teamSlug(ctx, field)
+func (ec *executionContext) _UnleashInstanceCreatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -68716,9 +68716,9 @@ func (ec *executionContext) _UnleashInstanceCreatedActivityLog_teamSlug(ctx cont
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceCreatedActivityLog",
+		Object:     "UnleashInstanceCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -68729,8 +68729,8 @@ func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_teamS
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceCreatedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLog_environmentName(ctx, field)
+func (ec *executionContext) _UnleashInstanceCreatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceCreatedActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -68757,9 +68757,9 @@ func (ec *executionContext) _UnleashInstanceCreatedActivityLog_environmentName(c
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceCreatedActivityLog",
+		Object:     "UnleashInstanceCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -69034,405 +69034,6 @@ func (ec *executionContext) fieldContext_UnleashInstanceMetrics_memoryRequests(_
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceUpdatedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLog_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID(), nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(ident.Ident)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnleashInstanceUpdatedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLog_actor(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Actor, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnleashInstanceUpdatedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLog_createdAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnleashInstanceUpdatedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLog_message(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Message, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnleashInstanceUpdatedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLog_resourceType(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ResourceType, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(activitylog.ActivityLogEntryResourceType)
-	fc.Result = res
-	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnleashInstanceUpdatedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLog_resourceName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ResourceName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnleashInstanceUpdatedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLog_teamSlug(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TeamSlug, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*slug.Slug)
-	fc.Result = res
-	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Slug does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnleashInstanceUpdatedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLog_environmentName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EnvironmentName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnleashInstanceUpdatedActivityLog_data(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLog_data(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*unleash.UnleashInstanceUpdatedActivityLogData)
-	fc.Result = res
-	return ec.marshalNUnleashInstanceUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstanceUpdatedActivityLogData(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLog_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedActivityLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "revokedTeamSlug":
-				return ec.fieldContext_UnleashInstanceUpdatedActivityLogData_revokedTeamSlug(ctx, field)
-			case "allowedTeamSlug":
-				return ec.fieldContext_UnleashInstanceUpdatedActivityLogData_allowedTeamSlug(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type UnleashInstanceUpdatedActivityLogData", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _UnleashInstanceUpdatedActivityLogData_revokedTeamSlug(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLogData) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLogData_revokedTeamSlug(ctx, field)
 	if err != nil {
@@ -69510,6 +69111,405 @@ func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogData_a
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLogEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstanceUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLogEntry_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstanceUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLogEntry_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstanceUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLogEntry_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstanceUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLogEntry_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
+	fc.Result = res
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstanceUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLogEntry_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstanceUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLogEntry_teamSlug(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TeamSlug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*slug.Slug)
+	fc.Result = res
+	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstanceUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLogEntry_environmentName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnvironmentName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstanceUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLogEntry_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*unleash.UnleashInstanceUpdatedActivityLogData)
+	fc.Result = res
+	return ec.marshalNUnleashInstanceUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstanceUpdatedActivityLogData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstanceUpdatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "revokedTeamSlug":
+				return ec.fieldContext_UnleashInstanceUpdatedActivityLogData_revokedTeamSlug(ctx, field)
+			case "allowedTeamSlug":
+				return ec.fieldContext_UnleashInstanceUpdatedActivityLogData_allowedTeamSlug(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UnleashInstanceUpdatedActivityLogData", field.Name)
 		},
 	}
 	return fc, nil
@@ -70462,8 +70462,8 @@ func (ec *executionContext) fieldContext_UtilizationSample_value(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _VulnerabilityUpdatedActivityLog_id(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLog_id(ctx, field)
+func (ec *executionContext) _VulnerabilityUpdatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -70493,9 +70493,9 @@ func (ec *executionContext) _VulnerabilityUpdatedActivityLog_id(ctx context.Cont
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityUpdatedActivityLog",
+		Object:     "VulnerabilityUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -70506,8 +70506,8 @@ func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_id(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _VulnerabilityUpdatedActivityLog_actor(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLog_actor(ctx, field)
+func (ec *executionContext) _VulnerabilityUpdatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -70537,9 +70537,9 @@ func (ec *executionContext) _VulnerabilityUpdatedActivityLog_actor(ctx context.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityUpdatedActivityLog",
+		Object:     "VulnerabilityUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -70550,8 +70550,8 @@ func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_actor(_
 	return fc, nil
 }
 
-func (ec *executionContext) _VulnerabilityUpdatedActivityLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLog_createdAt(ctx, field)
+func (ec *executionContext) _VulnerabilityUpdatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -70581,9 +70581,9 @@ func (ec *executionContext) _VulnerabilityUpdatedActivityLog_createdAt(ctx conte
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityUpdatedActivityLog",
+		Object:     "VulnerabilityUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -70594,8 +70594,8 @@ func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_created
 	return fc, nil
 }
 
-func (ec *executionContext) _VulnerabilityUpdatedActivityLog_message(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLog_message(ctx, field)
+func (ec *executionContext) _VulnerabilityUpdatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -70625,9 +70625,9 @@ func (ec *executionContext) _VulnerabilityUpdatedActivityLog_message(ctx context
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityUpdatedActivityLog",
+		Object:     "VulnerabilityUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -70638,8 +70638,8 @@ func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_message
 	return fc, nil
 }
 
-func (ec *executionContext) _VulnerabilityUpdatedActivityLog_resourceType(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLog_resourceType(ctx, field)
+func (ec *executionContext) _VulnerabilityUpdatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -70669,9 +70669,9 @@ func (ec *executionContext) _VulnerabilityUpdatedActivityLog_resourceType(ctx co
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityUpdatedActivityLog",
+		Object:     "VulnerabilityUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -70682,8 +70682,8 @@ func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_resourc
 	return fc, nil
 }
 
-func (ec *executionContext) _VulnerabilityUpdatedActivityLog_resourceName(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLog_resourceName(ctx, field)
+func (ec *executionContext) _VulnerabilityUpdatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -70713,9 +70713,9 @@ func (ec *executionContext) _VulnerabilityUpdatedActivityLog_resourceName(ctx co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityUpdatedActivityLog",
+		Object:     "VulnerabilityUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -70726,8 +70726,8 @@ func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_resourc
 	return fc, nil
 }
 
-func (ec *executionContext) _VulnerabilityUpdatedActivityLog_teamSlug(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLog_teamSlug(ctx, field)
+func (ec *executionContext) _VulnerabilityUpdatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -70757,9 +70757,9 @@ func (ec *executionContext) _VulnerabilityUpdatedActivityLog_teamSlug(ctx contex
 	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityUpdatedActivityLog",
+		Object:     "VulnerabilityUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -70770,8 +70770,8 @@ func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_teamSlu
 	return fc, nil
 }
 
-func (ec *executionContext) _VulnerabilityUpdatedActivityLog_environmentName(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLog_environmentName(ctx, field)
+func (ec *executionContext) _VulnerabilityUpdatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *vulnerability.VulnerabilityUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityUpdatedActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -70798,9 +70798,9 @@ func (ec *executionContext) _VulnerabilityUpdatedActivityLog_environmentName(ctx
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityUpdatedActivityLog",
+		Object:     "VulnerabilityUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -77148,188 +77148,188 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case application.ApplicationDeletedActivityLog:
-		return ec._ApplicationDeletedActivityLog(ctx, sel, &obj)
-	case *application.ApplicationDeletedActivityLog:
+	case application.ApplicationDeletedActivityLogEntry:
+		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, &obj)
+	case *application.ApplicationDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ApplicationDeletedActivityLog(ctx, sel, obj)
-	case application.ApplicationRestartedActivityLog:
-		return ec._ApplicationRestartedActivityLog(ctx, sel, &obj)
-	case *application.ApplicationRestartedActivityLog:
+		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, obj)
+	case application.ApplicationRestartedActivityLogEntry:
+		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, &obj)
+	case *application.ApplicationRestartedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ApplicationRestartedActivityLog(ctx, sel, obj)
-	case deployment.TeamDeployKeyUpdatedActivityLog:
-		return ec._TeamDeployKeyUpdatedActivityLog(ctx, sel, &obj)
-	case *deployment.TeamDeployKeyUpdatedActivityLog:
+		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, obj)
+	case deployment.TeamDeployKeyUpdatedActivityLogEntry:
+		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *deployment.TeamDeployKeyUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamDeployKeyUpdatedActivityLog(ctx, sel, obj)
-	case job.JobDeletedActivityLog:
-		return ec._JobDeletedActivityLog(ctx, sel, &obj)
-	case *job.JobDeletedActivityLog:
+		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, obj)
+	case job.JobDeletedActivityLogEntry:
+		return ec._JobDeletedActivityLogEntry(ctx, sel, &obj)
+	case *job.JobDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._JobDeletedActivityLog(ctx, sel, obj)
-	case job.JobTriggeredActivityLog:
-		return ec._JobTriggeredActivityLog(ctx, sel, &obj)
-	case *job.JobTriggeredActivityLog:
+		return ec._JobDeletedActivityLogEntry(ctx, sel, obj)
+	case job.JobTriggeredActivityLogEntry:
+		return ec._JobTriggeredActivityLogEntry(ctx, sel, &obj)
+	case *job.JobTriggeredActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._JobTriggeredActivityLog(ctx, sel, obj)
-	case reconciler.ReconcilerEnabledActivityLog:
-		return ec._ReconcilerEnabledActivityLog(ctx, sel, &obj)
-	case *reconciler.ReconcilerEnabledActivityLog:
+		return ec._JobTriggeredActivityLogEntry(ctx, sel, obj)
+	case reconciler.ReconcilerEnabledActivityLogEntry:
+		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, &obj)
+	case *reconciler.ReconcilerEnabledActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ReconcilerEnabledActivityLog(ctx, sel, obj)
-	case reconciler.ReconcilerDisabledActivityLog:
-		return ec._ReconcilerDisabledActivityLog(ctx, sel, &obj)
-	case *reconciler.ReconcilerDisabledActivityLog:
+		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, obj)
+	case reconciler.ReconcilerDisabledActivityLogEntry:
+		return ec._ReconcilerDisabledActivityLogEntry(ctx, sel, &obj)
+	case *reconciler.ReconcilerDisabledActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ReconcilerDisabledActivityLog(ctx, sel, obj)
-	case reconciler.ReconcilerConfiguredActivityLog:
-		return ec._ReconcilerConfiguredActivityLog(ctx, sel, &obj)
-	case *reconciler.ReconcilerConfiguredActivityLog:
+		return ec._ReconcilerDisabledActivityLogEntry(ctx, sel, obj)
+	case reconciler.ReconcilerConfiguredActivityLogEntry:
+		return ec._ReconcilerConfiguredActivityLogEntry(ctx, sel, &obj)
+	case *reconciler.ReconcilerConfiguredActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ReconcilerConfiguredActivityLog(ctx, sel, obj)
-	case repository.RepositoryAddedActivityLog:
-		return ec._RepositoryAddedActivityLog(ctx, sel, &obj)
-	case *repository.RepositoryAddedActivityLog:
+		return ec._ReconcilerConfiguredActivityLogEntry(ctx, sel, obj)
+	case repository.RepositoryAddedActivityLogEntry:
+		return ec._RepositoryAddedActivityLogEntry(ctx, sel, &obj)
+	case *repository.RepositoryAddedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RepositoryAddedActivityLog(ctx, sel, obj)
-	case repository.RepositoryRemovedActivityLog:
-		return ec._RepositoryRemovedActivityLog(ctx, sel, &obj)
-	case *repository.RepositoryRemovedActivityLog:
+		return ec._RepositoryAddedActivityLogEntry(ctx, sel, obj)
+	case repository.RepositoryRemovedActivityLogEntry:
+		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, &obj)
+	case *repository.RepositoryRemovedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RepositoryRemovedActivityLog(ctx, sel, obj)
-	case secret.SecretCreatedActivityLog:
-		return ec._SecretCreatedActivityLog(ctx, sel, &obj)
-	case *secret.SecretCreatedActivityLog:
+		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretCreatedActivityLogEntry:
+		return ec._SecretCreatedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretCreatedActivityLog(ctx, sel, obj)
-	case secret.SecretValueAddedActivityLog:
-		return ec._SecretValueAddedActivityLog(ctx, sel, &obj)
-	case *secret.SecretValueAddedActivityLog:
+		return ec._SecretCreatedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretValueAddedActivityLogEntry:
+		return ec._SecretValueAddedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueAddedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueAddedActivityLog(ctx, sel, obj)
-	case secret.SecretValueUpdatedActivityLog:
-		return ec._SecretValueUpdatedActivityLog(ctx, sel, &obj)
-	case *secret.SecretValueUpdatedActivityLog:
+		return ec._SecretValueAddedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretValueUpdatedActivityLogEntry:
+		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueUpdatedActivityLog(ctx, sel, obj)
-	case secret.SecretValueRemovedActivityLog:
-		return ec._SecretValueRemovedActivityLog(ctx, sel, &obj)
-	case *secret.SecretValueRemovedActivityLog:
+		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretValueRemovedActivityLogEntry:
+		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueRemovedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueRemovedActivityLog(ctx, sel, obj)
-	case secret.SecretDeletedActivityLog:
-		return ec._SecretDeletedActivityLog(ctx, sel, &obj)
-	case *secret.SecretDeletedActivityLog:
+		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretDeletedActivityLogEntry:
+		return ec._SecretDeletedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretDeletedActivityLog(ctx, sel, obj)
-	case team.TeamCreatedActivityLog:
-		return ec._TeamCreatedActivityLog(ctx, sel, &obj)
-	case *team.TeamCreatedActivityLog:
+		return ec._SecretDeletedActivityLogEntry(ctx, sel, obj)
+	case team.TeamCreatedActivityLogEntry:
+		return ec._TeamCreatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamCreatedActivityLog(ctx, sel, obj)
-	case team.TeamUpdatedActivityLog:
-		return ec._TeamUpdatedActivityLog(ctx, sel, &obj)
-	case *team.TeamUpdatedActivityLog:
+		return ec._TeamCreatedActivityLogEntry(ctx, sel, obj)
+	case team.TeamUpdatedActivityLogEntry:
+		return ec._TeamUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamUpdatedActivityLog(ctx, sel, obj)
-	case team.TeamCreateDeleteKeyActivityLog:
-		return ec._TeamCreateDeleteKeyActivityLog(ctx, sel, &obj)
-	case *team.TeamCreateDeleteKeyActivityLog:
+		return ec._TeamUpdatedActivityLogEntry(ctx, sel, obj)
+	case team.TeamCreateDeleteKeyActivityLogEntry:
+		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamCreateDeleteKeyActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamCreateDeleteKeyActivityLog(ctx, sel, obj)
-	case team.TeamConfirmDeleteKeyActivityLog:
-		return ec._TeamConfirmDeleteKeyActivityLog(ctx, sel, &obj)
-	case *team.TeamConfirmDeleteKeyActivityLog:
+		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, obj)
+	case team.TeamConfirmDeleteKeyActivityLogEntry:
+		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamConfirmDeleteKeyActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamConfirmDeleteKeyActivityLog(ctx, sel, obj)
-	case team.TeamMemberAddedActivityLog:
-		return ec._TeamMemberAddedActivityLog(ctx, sel, &obj)
-	case *team.TeamMemberAddedActivityLog:
+		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, obj)
+	case team.TeamMemberAddedActivityLogEntry:
+		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamMemberAddedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamMemberAddedActivityLog(ctx, sel, obj)
-	case team.TeamMemberRemovedActivityLog:
-		return ec._TeamMemberRemovedActivityLog(ctx, sel, &obj)
-	case *team.TeamMemberRemovedActivityLog:
+		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, obj)
+	case team.TeamMemberRemovedActivityLogEntry:
+		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamMemberRemovedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamMemberRemovedActivityLog(ctx, sel, obj)
-	case team.TeamMemberSetRoleActivityLog:
-		return ec._TeamMemberSetRoleActivityLog(ctx, sel, &obj)
-	case *team.TeamMemberSetRoleActivityLog:
+		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, obj)
+	case team.TeamMemberSetRoleActivityLogEntry:
+		return ec._TeamMemberSetRoleActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamMemberSetRoleActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamMemberSetRoleActivityLog(ctx, sel, obj)
-	case team.TeamEnvironmentUpdatedActivityLog:
-		return ec._TeamEnvironmentUpdatedActivityLog(ctx, sel, &obj)
-	case *team.TeamEnvironmentUpdatedActivityLog:
+		return ec._TeamMemberSetRoleActivityLogEntry(ctx, sel, obj)
+	case team.TeamEnvironmentUpdatedActivityLogEntry:
+		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamEnvironmentUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamEnvironmentUpdatedActivityLog(ctx, sel, obj)
-	case unleash.UnleashInstanceCreatedActivityLog:
-		return ec._UnleashInstanceCreatedActivityLog(ctx, sel, &obj)
-	case *unleash.UnleashInstanceCreatedActivityLog:
+		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, obj)
+	case unleash.UnleashInstanceCreatedActivityLogEntry:
+		return ec._UnleashInstanceCreatedActivityLogEntry(ctx, sel, &obj)
+	case *unleash.UnleashInstanceCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._UnleashInstanceCreatedActivityLog(ctx, sel, obj)
-	case unleash.UnleashInstanceUpdatedActivityLog:
-		return ec._UnleashInstanceUpdatedActivityLog(ctx, sel, &obj)
-	case *unleash.UnleashInstanceUpdatedActivityLog:
+		return ec._UnleashInstanceCreatedActivityLogEntry(ctx, sel, obj)
+	case unleash.UnleashInstanceUpdatedActivityLogEntry:
+		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *unleash.UnleashInstanceUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._UnleashInstanceUpdatedActivityLog(ctx, sel, obj)
-	case vulnerability.VulnerabilityUpdatedActivityLog:
-		return ec._VulnerabilityUpdatedActivityLog(ctx, sel, &obj)
-	case *vulnerability.VulnerabilityUpdatedActivityLog:
+		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, obj)
+	case vulnerability.VulnerabilityUpdatedActivityLogEntry:
+		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *vulnerability.VulnerabilityUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._VulnerabilityUpdatedActivityLog(ctx, sel, obj)
+		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -77478,41 +77478,41 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case secret.SecretCreatedActivityLog:
-		return ec._SecretCreatedActivityLog(ctx, sel, &obj)
-	case *secret.SecretCreatedActivityLog:
+	case secret.SecretCreatedActivityLogEntry:
+		return ec._SecretCreatedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretCreatedActivityLog(ctx, sel, obj)
-	case vulnerability.VulnerabilityUpdatedActivityLog:
-		return ec._VulnerabilityUpdatedActivityLog(ctx, sel, &obj)
-	case *vulnerability.VulnerabilityUpdatedActivityLog:
+		return ec._SecretCreatedActivityLogEntry(ctx, sel, obj)
+	case vulnerability.VulnerabilityUpdatedActivityLogEntry:
+		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *vulnerability.VulnerabilityUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._VulnerabilityUpdatedActivityLog(ctx, sel, obj)
-	case secret.SecretValueAddedActivityLog:
-		return ec._SecretValueAddedActivityLog(ctx, sel, &obj)
-	case *secret.SecretValueAddedActivityLog:
+		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretValueAddedActivityLogEntry:
+		return ec._SecretValueAddedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueAddedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueAddedActivityLog(ctx, sel, obj)
-	case application.ApplicationDeletedActivityLog:
-		return ec._ApplicationDeletedActivityLog(ctx, sel, &obj)
-	case *application.ApplicationDeletedActivityLog:
+		return ec._SecretValueAddedActivityLogEntry(ctx, sel, obj)
+	case application.ApplicationDeletedActivityLogEntry:
+		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, &obj)
+	case *application.ApplicationDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ApplicationDeletedActivityLog(ctx, sel, obj)
-	case application.ApplicationRestartedActivityLog:
-		return ec._ApplicationRestartedActivityLog(ctx, sel, &obj)
-	case *application.ApplicationRestartedActivityLog:
+		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, obj)
+	case application.ApplicationRestartedActivityLogEntry:
+		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, &obj)
+	case *application.ApplicationRestartedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ApplicationRestartedActivityLog(ctx, sel, obj)
+		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, obj)
 	case bigquery.BigQueryDataset:
 		return ec._BigQueryDataset(ctx, sel, &obj)
 	case *bigquery.BigQueryDataset:
@@ -77527,27 +77527,27 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Bucket(ctx, sel, obj)
-	case unleash.UnleashInstanceCreatedActivityLog:
-		return ec._UnleashInstanceCreatedActivityLog(ctx, sel, &obj)
-	case *unleash.UnleashInstanceCreatedActivityLog:
+	case unleash.UnleashInstanceCreatedActivityLogEntry:
+		return ec._UnleashInstanceCreatedActivityLogEntry(ctx, sel, &obj)
+	case *unleash.UnleashInstanceCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._UnleashInstanceCreatedActivityLog(ctx, sel, obj)
-	case team.TeamEnvironmentUpdatedActivityLog:
-		return ec._TeamEnvironmentUpdatedActivityLog(ctx, sel, &obj)
-	case *team.TeamEnvironmentUpdatedActivityLog:
+		return ec._UnleashInstanceCreatedActivityLogEntry(ctx, sel, obj)
+	case team.TeamEnvironmentUpdatedActivityLogEntry:
+		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamEnvironmentUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamEnvironmentUpdatedActivityLog(ctx, sel, obj)
-	case deployment.TeamDeployKeyUpdatedActivityLog:
-		return ec._TeamDeployKeyUpdatedActivityLog(ctx, sel, &obj)
-	case *deployment.TeamDeployKeyUpdatedActivityLog:
+		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, obj)
+	case deployment.TeamDeployKeyUpdatedActivityLogEntry:
+		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *deployment.TeamDeployKeyUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamDeployKeyUpdatedActivityLog(ctx, sel, obj)
+		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, obj)
 	case job.Job:
 		return ec._Job(ctx, sel, &obj)
 	case *job.Job:
@@ -77555,34 +77555,34 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Job(ctx, sel, obj)
-	case team.TeamMemberSetRoleActivityLog:
-		return ec._TeamMemberSetRoleActivityLog(ctx, sel, &obj)
-	case *team.TeamMemberSetRoleActivityLog:
+	case team.TeamMemberSetRoleActivityLogEntry:
+		return ec._TeamMemberSetRoleActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamMemberSetRoleActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamMemberSetRoleActivityLog(ctx, sel, obj)
-	case team.TeamMemberRemovedActivityLog:
-		return ec._TeamMemberRemovedActivityLog(ctx, sel, &obj)
-	case *team.TeamMemberRemovedActivityLog:
+		return ec._TeamMemberSetRoleActivityLogEntry(ctx, sel, obj)
+	case team.TeamMemberRemovedActivityLogEntry:
+		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamMemberRemovedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamMemberRemovedActivityLog(ctx, sel, obj)
-	case job.JobDeletedActivityLog:
-		return ec._JobDeletedActivityLog(ctx, sel, &obj)
-	case *job.JobDeletedActivityLog:
+		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, obj)
+	case job.JobDeletedActivityLogEntry:
+		return ec._JobDeletedActivityLogEntry(ctx, sel, &obj)
+	case *job.JobDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._JobDeletedActivityLog(ctx, sel, obj)
-	case job.JobTriggeredActivityLog:
-		return ec._JobTriggeredActivityLog(ctx, sel, &obj)
-	case *job.JobTriggeredActivityLog:
+		return ec._JobDeletedActivityLogEntry(ctx, sel, obj)
+	case job.JobTriggeredActivityLogEntry:
+		return ec._JobTriggeredActivityLogEntry(ctx, sel, &obj)
+	case *job.JobTriggeredActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._JobTriggeredActivityLog(ctx, sel, obj)
+		return ec._JobTriggeredActivityLogEntry(ctx, sel, obj)
 	case kafkatopic.KafkaTopic:
 		return ec._KafkaTopic(ctx, sel, &obj)
 	case *kafkatopic.KafkaTopic:
@@ -77597,41 +77597,41 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._OpenSearch(ctx, sel, obj)
-	case team.TeamMemberAddedActivityLog:
-		return ec._TeamMemberAddedActivityLog(ctx, sel, &obj)
-	case *team.TeamMemberAddedActivityLog:
+	case team.TeamMemberAddedActivityLogEntry:
+		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamMemberAddedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamMemberAddedActivityLog(ctx, sel, obj)
-	case team.TeamConfirmDeleteKeyActivityLog:
-		return ec._TeamConfirmDeleteKeyActivityLog(ctx, sel, &obj)
-	case *team.TeamConfirmDeleteKeyActivityLog:
+		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, obj)
+	case team.TeamConfirmDeleteKeyActivityLogEntry:
+		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamConfirmDeleteKeyActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamConfirmDeleteKeyActivityLog(ctx, sel, obj)
-	case reconciler.ReconcilerEnabledActivityLog:
-		return ec._ReconcilerEnabledActivityLog(ctx, sel, &obj)
-	case *reconciler.ReconcilerEnabledActivityLog:
+		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, obj)
+	case reconciler.ReconcilerEnabledActivityLogEntry:
+		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, &obj)
+	case *reconciler.ReconcilerEnabledActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ReconcilerEnabledActivityLog(ctx, sel, obj)
-	case reconciler.ReconcilerDisabledActivityLog:
-		return ec._ReconcilerDisabledActivityLog(ctx, sel, &obj)
-	case *reconciler.ReconcilerDisabledActivityLog:
+		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, obj)
+	case reconciler.ReconcilerDisabledActivityLogEntry:
+		return ec._ReconcilerDisabledActivityLogEntry(ctx, sel, &obj)
+	case *reconciler.ReconcilerDisabledActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ReconcilerDisabledActivityLog(ctx, sel, obj)
-	case reconciler.ReconcilerConfiguredActivityLog:
-		return ec._ReconcilerConfiguredActivityLog(ctx, sel, &obj)
-	case *reconciler.ReconcilerConfiguredActivityLog:
+		return ec._ReconcilerDisabledActivityLogEntry(ctx, sel, obj)
+	case reconciler.ReconcilerConfiguredActivityLogEntry:
+		return ec._ReconcilerConfiguredActivityLogEntry(ctx, sel, &obj)
+	case *reconciler.ReconcilerConfiguredActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ReconcilerConfiguredActivityLog(ctx, sel, obj)
+		return ec._ReconcilerConfiguredActivityLogEntry(ctx, sel, obj)
 	case redis.RedisInstance:
 		return ec._RedisInstance(ctx, sel, &obj)
 	case *redis.RedisInstance:
@@ -77639,34 +77639,34 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._RedisInstance(ctx, sel, obj)
-	case team.TeamCreateDeleteKeyActivityLog:
-		return ec._TeamCreateDeleteKeyActivityLog(ctx, sel, &obj)
-	case *team.TeamCreateDeleteKeyActivityLog:
+	case team.TeamCreateDeleteKeyActivityLogEntry:
+		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamCreateDeleteKeyActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamCreateDeleteKeyActivityLog(ctx, sel, obj)
-	case team.TeamUpdatedActivityLog:
-		return ec._TeamUpdatedActivityLog(ctx, sel, &obj)
-	case *team.TeamUpdatedActivityLog:
+		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, obj)
+	case team.TeamUpdatedActivityLogEntry:
+		return ec._TeamUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamUpdatedActivityLog(ctx, sel, obj)
-	case repository.RepositoryRemovedActivityLog:
-		return ec._RepositoryRemovedActivityLog(ctx, sel, &obj)
-	case *repository.RepositoryRemovedActivityLog:
+		return ec._TeamUpdatedActivityLogEntry(ctx, sel, obj)
+	case repository.RepositoryRemovedActivityLogEntry:
+		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, &obj)
+	case *repository.RepositoryRemovedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RepositoryRemovedActivityLog(ctx, sel, obj)
-	case repository.RepositoryAddedActivityLog:
-		return ec._RepositoryAddedActivityLog(ctx, sel, &obj)
-	case *repository.RepositoryAddedActivityLog:
+		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, obj)
+	case repository.RepositoryAddedActivityLogEntry:
+		return ec._RepositoryAddedActivityLogEntry(ctx, sel, &obj)
+	case *repository.RepositoryAddedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RepositoryAddedActivityLog(ctx, sel, obj)
+		return ec._RepositoryAddedActivityLogEntry(ctx, sel, obj)
 	case application.Application:
 		return ec._Application(ctx, sel, &obj)
 	case *application.Application:
@@ -77674,41 +77674,41 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Application(ctx, sel, obj)
-	case unleash.UnleashInstanceUpdatedActivityLog:
-		return ec._UnleashInstanceUpdatedActivityLog(ctx, sel, &obj)
-	case *unleash.UnleashInstanceUpdatedActivityLog:
+	case unleash.UnleashInstanceUpdatedActivityLogEntry:
+		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *unleash.UnleashInstanceUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._UnleashInstanceUpdatedActivityLog(ctx, sel, obj)
-	case secret.SecretValueUpdatedActivityLog:
-		return ec._SecretValueUpdatedActivityLog(ctx, sel, &obj)
-	case *secret.SecretValueUpdatedActivityLog:
+		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretValueUpdatedActivityLogEntry:
+		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueUpdatedActivityLog(ctx, sel, obj)
-	case secret.SecretValueRemovedActivityLog:
-		return ec._SecretValueRemovedActivityLog(ctx, sel, &obj)
-	case *secret.SecretValueRemovedActivityLog:
+		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretValueRemovedActivityLogEntry:
+		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueRemovedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueRemovedActivityLog(ctx, sel, obj)
-	case secret.SecretDeletedActivityLog:
-		return ec._SecretDeletedActivityLog(ctx, sel, &obj)
-	case *secret.SecretDeletedActivityLog:
+		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretDeletedActivityLogEntry:
+		return ec._SecretDeletedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretDeletedActivityLog(ctx, sel, obj)
-	case team.TeamCreatedActivityLog:
-		return ec._TeamCreatedActivityLog(ctx, sel, &obj)
-	case *team.TeamCreatedActivityLog:
+		return ec._SecretDeletedActivityLogEntry(ctx, sel, obj)
+	case team.TeamCreatedActivityLogEntry:
+		return ec._TeamCreatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamCreatedActivityLog(ctx, sel, obj)
+		return ec._TeamCreatedActivityLogEntry(ctx, sel, obj)
 	case sqlinstance.SQLDatabase:
 		return ec._SqlDatabase(ctx, sel, &obj)
 	case *sqlinstance.SQLDatabase:
@@ -79110,54 +79110,54 @@ func (ec *executionContext) _ApplicationConnection(ctx context.Context, sel ast.
 	return out
 }
 
-var applicationDeletedActivityLogImplementors = []string{"ApplicationDeletedActivityLog", "ActivityLogEntry", "Node"}
+var applicationDeletedActivityLogEntryImplementors = []string{"ApplicationDeletedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _ApplicationDeletedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *application.ApplicationDeletedActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, applicationDeletedActivityLogImplementors)
+func (ec *executionContext) _ApplicationDeletedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *application.ApplicationDeletedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, applicationDeletedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ApplicationDeletedActivityLog")
+			out.Values[i] = graphql.MarshalString("ApplicationDeletedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._ApplicationDeletedActivityLog_id(ctx, field, obj)
+			out.Values[i] = ec._ApplicationDeletedActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._ApplicationDeletedActivityLog_actor(ctx, field, obj)
+			out.Values[i] = ec._ApplicationDeletedActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._ApplicationDeletedActivityLog_createdAt(ctx, field, obj)
+			out.Values[i] = ec._ApplicationDeletedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._ApplicationDeletedActivityLog_message(ctx, field, obj)
+			out.Values[i] = ec._ApplicationDeletedActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._ApplicationDeletedActivityLog_resourceType(ctx, field, obj)
+			out.Values[i] = ec._ApplicationDeletedActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._ApplicationDeletedActivityLog_resourceName(ctx, field, obj)
+			out.Values[i] = ec._ApplicationDeletedActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._ApplicationDeletedActivityLog_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._ApplicationDeletedActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._ApplicationDeletedActivityLog_environmentName(ctx, field, obj)
+			out.Values[i] = ec._ApplicationDeletedActivityLogEntry_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -79514,54 +79514,54 @@ func (ec *executionContext) _ApplicationResources(ctx context.Context, sel ast.S
 	return out
 }
 
-var applicationRestartedActivityLogImplementors = []string{"ApplicationRestartedActivityLog", "ActivityLogEntry", "Node"}
+var applicationRestartedActivityLogEntryImplementors = []string{"ApplicationRestartedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _ApplicationRestartedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *application.ApplicationRestartedActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, applicationRestartedActivityLogImplementors)
+func (ec *executionContext) _ApplicationRestartedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *application.ApplicationRestartedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, applicationRestartedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ApplicationRestartedActivityLog")
+			out.Values[i] = graphql.MarshalString("ApplicationRestartedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._ApplicationRestartedActivityLog_id(ctx, field, obj)
+			out.Values[i] = ec._ApplicationRestartedActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._ApplicationRestartedActivityLog_actor(ctx, field, obj)
+			out.Values[i] = ec._ApplicationRestartedActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._ApplicationRestartedActivityLog_createdAt(ctx, field, obj)
+			out.Values[i] = ec._ApplicationRestartedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._ApplicationRestartedActivityLog_message(ctx, field, obj)
+			out.Values[i] = ec._ApplicationRestartedActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._ApplicationRestartedActivityLog_resourceType(ctx, field, obj)
+			out.Values[i] = ec._ApplicationRestartedActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._ApplicationRestartedActivityLog_resourceName(ctx, field, obj)
+			out.Values[i] = ec._ApplicationRestartedActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._ApplicationRestartedActivityLog_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._ApplicationRestartedActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._ApplicationRestartedActivityLog_environmentName(ctx, field, obj)
+			out.Values[i] = ec._ApplicationRestartedActivityLogEntry_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -83183,54 +83183,54 @@ func (ec *executionContext) _JobConnection(ctx context.Context, sel ast.Selectio
 	return out
 }
 
-var jobDeletedActivityLogImplementors = []string{"JobDeletedActivityLog", "ActivityLogEntry", "Node"}
+var jobDeletedActivityLogEntryImplementors = []string{"JobDeletedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _JobDeletedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *job.JobDeletedActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, jobDeletedActivityLogImplementors)
+func (ec *executionContext) _JobDeletedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *job.JobDeletedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jobDeletedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("JobDeletedActivityLog")
+			out.Values[i] = graphql.MarshalString("JobDeletedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._JobDeletedActivityLog_id(ctx, field, obj)
+			out.Values[i] = ec._JobDeletedActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._JobDeletedActivityLog_actor(ctx, field, obj)
+			out.Values[i] = ec._JobDeletedActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._JobDeletedActivityLog_createdAt(ctx, field, obj)
+			out.Values[i] = ec._JobDeletedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._JobDeletedActivityLog_message(ctx, field, obj)
+			out.Values[i] = ec._JobDeletedActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._JobDeletedActivityLog_resourceType(ctx, field, obj)
+			out.Values[i] = ec._JobDeletedActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._JobDeletedActivityLog_resourceName(ctx, field, obj)
+			out.Values[i] = ec._JobDeletedActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._JobDeletedActivityLog_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._JobDeletedActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._JobDeletedActivityLog_environmentName(ctx, field, obj)
+			out.Values[i] = ec._JobDeletedActivityLogEntry_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -83829,54 +83829,54 @@ func (ec *executionContext) _JobSchedule(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
-var jobTriggeredActivityLogImplementors = []string{"JobTriggeredActivityLog", "ActivityLogEntry", "Node"}
+var jobTriggeredActivityLogEntryImplementors = []string{"JobTriggeredActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _JobTriggeredActivityLog(ctx context.Context, sel ast.SelectionSet, obj *job.JobTriggeredActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, jobTriggeredActivityLogImplementors)
+func (ec *executionContext) _JobTriggeredActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *job.JobTriggeredActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jobTriggeredActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("JobTriggeredActivityLog")
+			out.Values[i] = graphql.MarshalString("JobTriggeredActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._JobTriggeredActivityLog_id(ctx, field, obj)
+			out.Values[i] = ec._JobTriggeredActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._JobTriggeredActivityLog_actor(ctx, field, obj)
+			out.Values[i] = ec._JobTriggeredActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._JobTriggeredActivityLog_createdAt(ctx, field, obj)
+			out.Values[i] = ec._JobTriggeredActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._JobTriggeredActivityLog_message(ctx, field, obj)
+			out.Values[i] = ec._JobTriggeredActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._JobTriggeredActivityLog_resourceType(ctx, field, obj)
+			out.Values[i] = ec._JobTriggeredActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._JobTriggeredActivityLog_resourceName(ctx, field, obj)
+			out.Values[i] = ec._JobTriggeredActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._JobTriggeredActivityLog_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._JobTriggeredActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._JobTriggeredActivityLog_environmentName(ctx, field, obj)
+			out.Values[i] = ec._JobTriggeredActivityLogEntry_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -86136,56 +86136,19 @@ func (ec *executionContext) _ReconcilerConfig(ctx context.Context, sel ast.Selec
 	return out
 }
 
-var reconcilerConfiguredActivityLogImplementors = []string{"ReconcilerConfiguredActivityLog", "ActivityLogEntry", "Node"}
+var reconcilerConfiguredActivityLogDataImplementors = []string{"ReconcilerConfiguredActivityLogData"}
 
-func (ec *executionContext) _ReconcilerConfiguredActivityLog(ctx context.Context, sel ast.SelectionSet, obj *reconciler.ReconcilerConfiguredActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerConfiguredActivityLogImplementors)
+func (ec *executionContext) _ReconcilerConfiguredActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *reconciler.ReconcilerConfiguredActivityLogData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerConfiguredActivityLogDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ReconcilerConfiguredActivityLog")
-		case "id":
-			out.Values[i] = ec._ReconcilerConfiguredActivityLog_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "actor":
-			out.Values[i] = ec._ReconcilerConfiguredActivityLog_actor(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "createdAt":
-			out.Values[i] = ec._ReconcilerConfiguredActivityLog_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "message":
-			out.Values[i] = ec._ReconcilerConfiguredActivityLog_message(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "resourceType":
-			out.Values[i] = ec._ReconcilerConfiguredActivityLog_resourceType(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "resourceName":
-			out.Values[i] = ec._ReconcilerConfiguredActivityLog_resourceName(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "teamSlug":
-			out.Values[i] = ec._ReconcilerConfiguredActivityLog_teamSlug(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "environmentName":
-			out.Values[i] = ec._ReconcilerConfiguredActivityLog_environmentName(ctx, field, obj)
-		case "data":
-			out.Values[i] = ec._ReconcilerConfiguredActivityLog_data(ctx, field, obj)
+			out.Values[i] = graphql.MarshalString("ReconcilerConfiguredActivityLogData")
+		case "updatedKeys":
+			out.Values[i] = ec._ReconcilerConfiguredActivityLogData_updatedKeys(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -86212,19 +86175,56 @@ func (ec *executionContext) _ReconcilerConfiguredActivityLog(ctx context.Context
 	return out
 }
 
-var reconcilerConfiguredActivityLogDataImplementors = []string{"ReconcilerConfiguredActivityLogData"}
+var reconcilerConfiguredActivityLogEntryImplementors = []string{"ReconcilerConfiguredActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _ReconcilerConfiguredActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *reconciler.ReconcilerConfiguredActivityLogData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerConfiguredActivityLogDataImplementors)
+func (ec *executionContext) _ReconcilerConfiguredActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *reconciler.ReconcilerConfiguredActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerConfiguredActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ReconcilerConfiguredActivityLogData")
-		case "updatedKeys":
-			out.Values[i] = ec._ReconcilerConfiguredActivityLogData_updatedKeys(ctx, field, obj)
+			out.Values[i] = graphql.MarshalString("ReconcilerConfiguredActivityLogEntry")
+		case "id":
+			out.Values[i] = ec._ReconcilerConfiguredActivityLogEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			out.Values[i] = ec._ReconcilerConfiguredActivityLogEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._ReconcilerConfiguredActivityLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._ReconcilerConfiguredActivityLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			out.Values[i] = ec._ReconcilerConfiguredActivityLogEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			out.Values[i] = ec._ReconcilerConfiguredActivityLogEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			out.Values[i] = ec._ReconcilerConfiguredActivityLogEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			out.Values[i] = ec._ReconcilerConfiguredActivityLogEntry_environmentName(ctx, field, obj)
+		case "data":
+			out.Values[i] = ec._ReconcilerConfiguredActivityLogEntry_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -86300,54 +86300,54 @@ func (ec *executionContext) _ReconcilerConnection(ctx context.Context, sel ast.S
 	return out
 }
 
-var reconcilerDisabledActivityLogImplementors = []string{"ReconcilerDisabledActivityLog", "ActivityLogEntry", "Node"}
+var reconcilerDisabledActivityLogEntryImplementors = []string{"ReconcilerDisabledActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _ReconcilerDisabledActivityLog(ctx context.Context, sel ast.SelectionSet, obj *reconciler.ReconcilerDisabledActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerDisabledActivityLogImplementors)
+func (ec *executionContext) _ReconcilerDisabledActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *reconciler.ReconcilerDisabledActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerDisabledActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ReconcilerDisabledActivityLog")
+			out.Values[i] = graphql.MarshalString("ReconcilerDisabledActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._ReconcilerDisabledActivityLog_id(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerDisabledActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._ReconcilerDisabledActivityLog_actor(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerDisabledActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._ReconcilerDisabledActivityLog_createdAt(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerDisabledActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._ReconcilerDisabledActivityLog_message(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerDisabledActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._ReconcilerDisabledActivityLog_resourceType(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerDisabledActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._ReconcilerDisabledActivityLog_resourceName(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerDisabledActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._ReconcilerDisabledActivityLog_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerDisabledActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._ReconcilerDisabledActivityLog_environmentName(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerDisabledActivityLogEntry_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -86415,54 +86415,54 @@ func (ec *executionContext) _ReconcilerEdge(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var reconcilerEnabledActivityLogImplementors = []string{"ReconcilerEnabledActivityLog", "ActivityLogEntry", "Node"}
+var reconcilerEnabledActivityLogEntryImplementors = []string{"ReconcilerEnabledActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _ReconcilerEnabledActivityLog(ctx context.Context, sel ast.SelectionSet, obj *reconciler.ReconcilerEnabledActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerEnabledActivityLogImplementors)
+func (ec *executionContext) _ReconcilerEnabledActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *reconciler.ReconcilerEnabledActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerEnabledActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ReconcilerEnabledActivityLog")
+			out.Values[i] = graphql.MarshalString("ReconcilerEnabledActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._ReconcilerEnabledActivityLog_id(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerEnabledActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._ReconcilerEnabledActivityLog_actor(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerEnabledActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._ReconcilerEnabledActivityLog_createdAt(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerEnabledActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._ReconcilerEnabledActivityLog_message(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerEnabledActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._ReconcilerEnabledActivityLog_resourceType(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerEnabledActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._ReconcilerEnabledActivityLog_resourceName(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerEnabledActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._ReconcilerEnabledActivityLog_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerEnabledActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._ReconcilerEnabledActivityLog_environmentName(ctx, field, obj)
+			out.Values[i] = ec._ReconcilerEnabledActivityLogEntry_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -87481,54 +87481,54 @@ func (ec *executionContext) _Repository(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
-var repositoryAddedActivityLogImplementors = []string{"RepositoryAddedActivityLog", "ActivityLogEntry", "Node"}
+var repositoryAddedActivityLogEntryImplementors = []string{"RepositoryAddedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _RepositoryAddedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *repository.RepositoryAddedActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, repositoryAddedActivityLogImplementors)
+func (ec *executionContext) _RepositoryAddedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *repository.RepositoryAddedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, repositoryAddedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("RepositoryAddedActivityLog")
+			out.Values[i] = graphql.MarshalString("RepositoryAddedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._RepositoryAddedActivityLog_id(ctx, field, obj)
+			out.Values[i] = ec._RepositoryAddedActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._RepositoryAddedActivityLog_actor(ctx, field, obj)
+			out.Values[i] = ec._RepositoryAddedActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._RepositoryAddedActivityLog_createdAt(ctx, field, obj)
+			out.Values[i] = ec._RepositoryAddedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._RepositoryAddedActivityLog_message(ctx, field, obj)
+			out.Values[i] = ec._RepositoryAddedActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._RepositoryAddedActivityLog_resourceType(ctx, field, obj)
+			out.Values[i] = ec._RepositoryAddedActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._RepositoryAddedActivityLog_resourceName(ctx, field, obj)
+			out.Values[i] = ec._RepositoryAddedActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._RepositoryAddedActivityLog_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._RepositoryAddedActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._RepositoryAddedActivityLog_environmentName(ctx, field, obj)
+			out.Values[i] = ec._RepositoryAddedActivityLogEntry_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -87645,54 +87645,54 @@ func (ec *executionContext) _RepositoryEdge(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var repositoryRemovedActivityLogImplementors = []string{"RepositoryRemovedActivityLog", "ActivityLogEntry", "Node"}
+var repositoryRemovedActivityLogEntryImplementors = []string{"RepositoryRemovedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _RepositoryRemovedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *repository.RepositoryRemovedActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, repositoryRemovedActivityLogImplementors)
+func (ec *executionContext) _RepositoryRemovedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *repository.RepositoryRemovedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, repositoryRemovedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("RepositoryRemovedActivityLog")
+			out.Values[i] = graphql.MarshalString("RepositoryRemovedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._RepositoryRemovedActivityLog_id(ctx, field, obj)
+			out.Values[i] = ec._RepositoryRemovedActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._RepositoryRemovedActivityLog_actor(ctx, field, obj)
+			out.Values[i] = ec._RepositoryRemovedActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._RepositoryRemovedActivityLog_createdAt(ctx, field, obj)
+			out.Values[i] = ec._RepositoryRemovedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._RepositoryRemovedActivityLog_message(ctx, field, obj)
+			out.Values[i] = ec._RepositoryRemovedActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._RepositoryRemovedActivityLog_resourceType(ctx, field, obj)
+			out.Values[i] = ec._RepositoryRemovedActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._RepositoryRemovedActivityLog_resourceName(ctx, field, obj)
+			out.Values[i] = ec._RepositoryRemovedActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._RepositoryRemovedActivityLog_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._RepositoryRemovedActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._RepositoryRemovedActivityLog_environmentName(ctx, field, obj)
+			out.Values[i] = ec._RepositoryRemovedActivityLogEntry_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -88292,54 +88292,54 @@ func (ec *executionContext) _SecretConnection(ctx context.Context, sel ast.Selec
 	return out
 }
 
-var secretCreatedActivityLogImplementors = []string{"SecretCreatedActivityLog", "ActivityLogEntry", "Node"}
+var secretCreatedActivityLogEntryImplementors = []string{"SecretCreatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _SecretCreatedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretCreatedActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, secretCreatedActivityLogImplementors)
+func (ec *executionContext) _SecretCreatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretCreatedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, secretCreatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("SecretCreatedActivityLog")
+			out.Values[i] = graphql.MarshalString("SecretCreatedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._SecretCreatedActivityLog_id(ctx, field, obj)
+			out.Values[i] = ec._SecretCreatedActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._SecretCreatedActivityLog_actor(ctx, field, obj)
+			out.Values[i] = ec._SecretCreatedActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._SecretCreatedActivityLog_createdAt(ctx, field, obj)
+			out.Values[i] = ec._SecretCreatedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._SecretCreatedActivityLog_message(ctx, field, obj)
+			out.Values[i] = ec._SecretCreatedActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._SecretCreatedActivityLog_resourceType(ctx, field, obj)
+			out.Values[i] = ec._SecretCreatedActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._SecretCreatedActivityLog_resourceName(ctx, field, obj)
+			out.Values[i] = ec._SecretCreatedActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._SecretCreatedActivityLog_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._SecretCreatedActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._SecretCreatedActivityLog_environmentName(ctx, field, obj)
+			out.Values[i] = ec._SecretCreatedActivityLogEntry_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -88363,54 +88363,54 @@ func (ec *executionContext) _SecretCreatedActivityLog(ctx context.Context, sel a
 	return out
 }
 
-var secretDeletedActivityLogImplementors = []string{"SecretDeletedActivityLog", "ActivityLogEntry", "Node"}
+var secretDeletedActivityLogEntryImplementors = []string{"SecretDeletedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _SecretDeletedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretDeletedActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, secretDeletedActivityLogImplementors)
+func (ec *executionContext) _SecretDeletedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretDeletedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, secretDeletedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("SecretDeletedActivityLog")
+			out.Values[i] = graphql.MarshalString("SecretDeletedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._SecretDeletedActivityLog_id(ctx, field, obj)
+			out.Values[i] = ec._SecretDeletedActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._SecretDeletedActivityLog_actor(ctx, field, obj)
+			out.Values[i] = ec._SecretDeletedActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._SecretDeletedActivityLog_createdAt(ctx, field, obj)
+			out.Values[i] = ec._SecretDeletedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._SecretDeletedActivityLog_message(ctx, field, obj)
+			out.Values[i] = ec._SecretDeletedActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._SecretDeletedActivityLog_resourceType(ctx, field, obj)
+			out.Values[i] = ec._SecretDeletedActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._SecretDeletedActivityLog_resourceName(ctx, field, obj)
+			out.Values[i] = ec._SecretDeletedActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._SecretDeletedActivityLog_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._SecretDeletedActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._SecretDeletedActivityLog_environmentName(ctx, field, obj)
+			out.Values[i] = ec._SecretDeletedActivityLogEntry_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -88522,82 +88522,6 @@ func (ec *executionContext) _SecretValue(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
-var secretValueAddedActivityLogImplementors = []string{"SecretValueAddedActivityLog", "ActivityLogEntry", "Node"}
-
-func (ec *executionContext) _SecretValueAddedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueAddedActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueAddedActivityLogImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("SecretValueAddedActivityLog")
-		case "id":
-			out.Values[i] = ec._SecretValueAddedActivityLog_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "actor":
-			out.Values[i] = ec._SecretValueAddedActivityLog_actor(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "createdAt":
-			out.Values[i] = ec._SecretValueAddedActivityLog_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "message":
-			out.Values[i] = ec._SecretValueAddedActivityLog_message(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "resourceType":
-			out.Values[i] = ec._SecretValueAddedActivityLog_resourceType(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "resourceName":
-			out.Values[i] = ec._SecretValueAddedActivityLog_resourceName(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "teamSlug":
-			out.Values[i] = ec._SecretValueAddedActivityLog_teamSlug(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "environmentName":
-			out.Values[i] = ec._SecretValueAddedActivityLog_environmentName(ctx, field, obj)
-		case "data":
-			out.Values[i] = ec._SecretValueAddedActivityLog_data(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var secretValueAddedActivityLogDataImplementors = []string{"SecretValueAddedActivityLogData"}
 
 func (ec *executionContext) _SecretValueAddedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueAddedActivityLogData) graphql.Marshaler {
@@ -88637,56 +88561,56 @@ func (ec *executionContext) _SecretValueAddedActivityLogData(ctx context.Context
 	return out
 }
 
-var secretValueRemovedActivityLogImplementors = []string{"SecretValueRemovedActivityLog", "ActivityLogEntry", "Node"}
+var secretValueAddedActivityLogEntryImplementors = []string{"SecretValueAddedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _SecretValueRemovedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueRemovedActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueRemovedActivityLogImplementors)
+func (ec *executionContext) _SecretValueAddedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueAddedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueAddedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("SecretValueRemovedActivityLog")
+			out.Values[i] = graphql.MarshalString("SecretValueAddedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._SecretValueRemovedActivityLog_id(ctx, field, obj)
+			out.Values[i] = ec._SecretValueAddedActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._SecretValueRemovedActivityLog_actor(ctx, field, obj)
+			out.Values[i] = ec._SecretValueAddedActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._SecretValueRemovedActivityLog_createdAt(ctx, field, obj)
+			out.Values[i] = ec._SecretValueAddedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._SecretValueRemovedActivityLog_message(ctx, field, obj)
+			out.Values[i] = ec._SecretValueAddedActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._SecretValueRemovedActivityLog_resourceType(ctx, field, obj)
+			out.Values[i] = ec._SecretValueAddedActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._SecretValueRemovedActivityLog_resourceName(ctx, field, obj)
+			out.Values[i] = ec._SecretValueAddedActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._SecretValueRemovedActivityLog_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._SecretValueAddedActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._SecretValueRemovedActivityLog_environmentName(ctx, field, obj)
+			out.Values[i] = ec._SecretValueAddedActivityLogEntry_environmentName(ctx, field, obj)
 		case "data":
-			out.Values[i] = ec._SecretValueRemovedActivityLog_data(ctx, field, obj)
+			out.Values[i] = ec._SecretValueAddedActivityLogEntry_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -88752,56 +88676,56 @@ func (ec *executionContext) _SecretValueRemovedActivityLogData(ctx context.Conte
 	return out
 }
 
-var secretValueUpdatedActivityLogImplementors = []string{"SecretValueUpdatedActivityLog", "ActivityLogEntry", "Node"}
+var secretValueRemovedActivityLogEntryImplementors = []string{"SecretValueRemovedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _SecretValueUpdatedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueUpdatedActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueUpdatedActivityLogImplementors)
+func (ec *executionContext) _SecretValueRemovedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueRemovedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueRemovedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("SecretValueUpdatedActivityLog")
+			out.Values[i] = graphql.MarshalString("SecretValueRemovedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._SecretValueUpdatedActivityLog_id(ctx, field, obj)
+			out.Values[i] = ec._SecretValueRemovedActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._SecretValueUpdatedActivityLog_actor(ctx, field, obj)
+			out.Values[i] = ec._SecretValueRemovedActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._SecretValueUpdatedActivityLog_createdAt(ctx, field, obj)
+			out.Values[i] = ec._SecretValueRemovedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._SecretValueUpdatedActivityLog_message(ctx, field, obj)
+			out.Values[i] = ec._SecretValueRemovedActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._SecretValueUpdatedActivityLog_resourceType(ctx, field, obj)
+			out.Values[i] = ec._SecretValueRemovedActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._SecretValueUpdatedActivityLog_resourceName(ctx, field, obj)
+			out.Values[i] = ec._SecretValueRemovedActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._SecretValueUpdatedActivityLog_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._SecretValueRemovedActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._SecretValueUpdatedActivityLog_environmentName(ctx, field, obj)
+			out.Values[i] = ec._SecretValueRemovedActivityLogEntry_environmentName(ctx, field, obj)
 		case "data":
-			out.Values[i] = ec._SecretValueUpdatedActivityLog_data(ctx, field, obj)
+			out.Values[i] = ec._SecretValueRemovedActivityLogEntry_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -88841,6 +88765,82 @@ func (ec *executionContext) _SecretValueUpdatedActivityLogData(ctx context.Conte
 			out.Values[i] = graphql.MarshalString("SecretValueUpdatedActivityLogData")
 		case "valueName":
 			out.Values[i] = ec._SecretValueUpdatedActivityLogData_valueName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var secretValueUpdatedActivityLogEntryImplementors = []string{"SecretValueUpdatedActivityLogEntry", "ActivityLogEntry", "Node"}
+
+func (ec *executionContext) _SecretValueUpdatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueUpdatedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueUpdatedActivityLogEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SecretValueUpdatedActivityLogEntry")
+		case "id":
+			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_environmentName(ctx, field, obj)
+		case "data":
+			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -91470,54 +91470,54 @@ func (ec *executionContext) _TeamCDN(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
-var teamConfirmDeleteKeyActivityLogImplementors = []string{"TeamConfirmDeleteKeyActivityLog", "ActivityLogEntry", "Node"}
+var teamConfirmDeleteKeyActivityLogEntryImplementors = []string{"TeamConfirmDeleteKeyActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog(ctx context.Context, sel ast.SelectionSet, obj *team.TeamConfirmDeleteKeyActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamConfirmDeleteKeyActivityLogImplementors)
+func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamConfirmDeleteKeyActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamConfirmDeleteKeyActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamConfirmDeleteKeyActivityLog")
+			out.Values[i] = graphql.MarshalString("TeamConfirmDeleteKeyActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLog_id(ctx, field, obj)
+			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLog_actor(ctx, field, obj)
+			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLog_createdAt(ctx, field, obj)
+			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLog_message(ctx, field, obj)
+			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLog_resourceType(ctx, field, obj)
+			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLog_resourceName(ctx, field, obj)
+			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLog_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLog_environmentName(ctx, field, obj)
+			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLogEntry_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -91828,54 +91828,54 @@ func (ec *executionContext) _TeamCostPeriod(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var teamCreateDeleteKeyActivityLogImplementors = []string{"TeamCreateDeleteKeyActivityLog", "ActivityLogEntry", "Node"}
+var teamCreateDeleteKeyActivityLogEntryImplementors = []string{"TeamCreateDeleteKeyActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamCreateDeleteKeyActivityLog(ctx context.Context, sel ast.SelectionSet, obj *team.TeamCreateDeleteKeyActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamCreateDeleteKeyActivityLogImplementors)
+func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamCreateDeleteKeyActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamCreateDeleteKeyActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamCreateDeleteKeyActivityLog")
+			out.Values[i] = graphql.MarshalString("TeamCreateDeleteKeyActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._TeamCreateDeleteKeyActivityLog_id(ctx, field, obj)
+			out.Values[i] = ec._TeamCreateDeleteKeyActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamCreateDeleteKeyActivityLog_actor(ctx, field, obj)
+			out.Values[i] = ec._TeamCreateDeleteKeyActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._TeamCreateDeleteKeyActivityLog_createdAt(ctx, field, obj)
+			out.Values[i] = ec._TeamCreateDeleteKeyActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamCreateDeleteKeyActivityLog_message(ctx, field, obj)
+			out.Values[i] = ec._TeamCreateDeleteKeyActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamCreateDeleteKeyActivityLog_resourceType(ctx, field, obj)
+			out.Values[i] = ec._TeamCreateDeleteKeyActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamCreateDeleteKeyActivityLog_resourceName(ctx, field, obj)
+			out.Values[i] = ec._TeamCreateDeleteKeyActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamCreateDeleteKeyActivityLog_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._TeamCreateDeleteKeyActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamCreateDeleteKeyActivityLog_environmentName(ctx, field, obj)
+			out.Values[i] = ec._TeamCreateDeleteKeyActivityLogEntry_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -91899,54 +91899,54 @@ func (ec *executionContext) _TeamCreateDeleteKeyActivityLog(ctx context.Context,
 	return out
 }
 
-var teamCreatedActivityLogImplementors = []string{"TeamCreatedActivityLog", "ActivityLogEntry", "Node"}
+var teamCreatedActivityLogEntryImplementors = []string{"TeamCreatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamCreatedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *team.TeamCreatedActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamCreatedActivityLogImplementors)
+func (ec *executionContext) _TeamCreatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamCreatedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamCreatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamCreatedActivityLog")
+			out.Values[i] = graphql.MarshalString("TeamCreatedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._TeamCreatedActivityLog_id(ctx, field, obj)
+			out.Values[i] = ec._TeamCreatedActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamCreatedActivityLog_actor(ctx, field, obj)
+			out.Values[i] = ec._TeamCreatedActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._TeamCreatedActivityLog_createdAt(ctx, field, obj)
+			out.Values[i] = ec._TeamCreatedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamCreatedActivityLog_message(ctx, field, obj)
+			out.Values[i] = ec._TeamCreatedActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamCreatedActivityLog_resourceType(ctx, field, obj)
+			out.Values[i] = ec._TeamCreatedActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamCreatedActivityLog_resourceName(ctx, field, obj)
+			out.Values[i] = ec._TeamCreatedActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamCreatedActivityLog_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._TeamCreatedActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamCreatedActivityLog_environmentName(ctx, field, obj)
+			out.Values[i] = ec._TeamCreatedActivityLogEntry_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -92091,54 +92091,54 @@ func (ec *executionContext) _TeamDeleteKey(ctx context.Context, sel ast.Selectio
 	return out
 }
 
-var teamDeployKeyUpdatedActivityLogImplementors = []string{"TeamDeployKeyUpdatedActivityLog", "ActivityLogEntry", "Node"}
+var teamDeployKeyUpdatedActivityLogEntryImplementors = []string{"TeamDeployKeyUpdatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *deployment.TeamDeployKeyUpdatedActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamDeployKeyUpdatedActivityLogImplementors)
+func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *deployment.TeamDeployKeyUpdatedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamDeployKeyUpdatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamDeployKeyUpdatedActivityLog")
+			out.Values[i] = graphql.MarshalString("TeamDeployKeyUpdatedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLog_id(ctx, field, obj)
+			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLog_actor(ctx, field, obj)
+			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLog_createdAt(ctx, field, obj)
+			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLog_message(ctx, field, obj)
+			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLog_resourceType(ctx, field, obj)
+			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLog_resourceName(ctx, field, obj)
+			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLog_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLog_environmentName(ctx, field, obj)
+			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLogEntry_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -92842,82 +92842,6 @@ func (ec *executionContext) _TeamEnvironmentCostPeriod(ctx context.Context, sel 
 	return out
 }
 
-var teamEnvironmentUpdatedActivityLogImplementors = []string{"TeamEnvironmentUpdatedActivityLog", "ActivityLogEntry", "Node"}
-
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEnvironmentUpdatedActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentUpdatedActivityLogImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamEnvironmentUpdatedActivityLog")
-		case "id":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLog_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "actor":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLog_actor(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "createdAt":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLog_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "message":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLog_message(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "resourceType":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLog_resourceType(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "resourceName":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLog_resourceName(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "teamSlug":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLog_teamSlug(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "environmentName":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLog_environmentName(ctx, field, obj)
-		case "data":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLog_data(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var teamEnvironmentUpdatedActivityLogDataImplementors = []string{"TeamEnvironmentUpdatedActivityLogData"}
 
 func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEnvironmentUpdatedActivityLogData) graphql.Marshaler {
@@ -92977,6 +92901,82 @@ func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogDataUpdatedField(c
 			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogDataUpdatedField_oldValue(ctx, field, obj)
 		case "newValue":
 			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogDataUpdatedField_newValue(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamEnvironmentUpdatedActivityLogEntryImplementors = []string{"TeamEnvironmentUpdatedActivityLogEntry", "ActivityLogEntry", "Node"}
+
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEnvironmentUpdatedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentUpdatedActivityLogEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamEnvironmentUpdatedActivityLogEntry")
+		case "id":
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntry_environmentName(ctx, field, obj)
+		case "data":
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntry_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -93916,56 +93916,29 @@ func (ec *executionContext) _TeamMember(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
-var teamMemberAddedActivityLogImplementors = []string{"TeamMemberAddedActivityLog", "ActivityLogEntry", "Node"}
+var teamMemberAddedActivityLogDataImplementors = []string{"TeamMemberAddedActivityLogData"}
 
-func (ec *executionContext) _TeamMemberAddedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberAddedActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberAddedActivityLogImplementors)
+func (ec *executionContext) _TeamMemberAddedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberAddedActivityLogData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberAddedActivityLogDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamMemberAddedActivityLog")
-		case "id":
-			out.Values[i] = ec._TeamMemberAddedActivityLog_id(ctx, field, obj)
+			out.Values[i] = graphql.MarshalString("TeamMemberAddedActivityLogData")
+		case "role":
+			out.Values[i] = ec._TeamMemberAddedActivityLogData_role(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "actor":
-			out.Values[i] = ec._TeamMemberAddedActivityLog_actor(ctx, field, obj)
+		case "userID":
+			out.Values[i] = ec._TeamMemberAddedActivityLogData_userID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "createdAt":
-			out.Values[i] = ec._TeamMemberAddedActivityLog_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "message":
-			out.Values[i] = ec._TeamMemberAddedActivityLog_message(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "resourceType":
-			out.Values[i] = ec._TeamMemberAddedActivityLog_resourceType(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "resourceName":
-			out.Values[i] = ec._TeamMemberAddedActivityLog_resourceName(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "teamSlug":
-			out.Values[i] = ec._TeamMemberAddedActivityLog_teamSlug(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "environmentName":
-			out.Values[i] = ec._TeamMemberAddedActivityLog_environmentName(ctx, field, obj)
-		case "data":
-			out.Values[i] = ec._TeamMemberAddedActivityLog_data(ctx, field, obj)
+		case "userEmail":
+			out.Values[i] = ec._TeamMemberAddedActivityLogData_userEmail(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -93992,29 +93965,56 @@ func (ec *executionContext) _TeamMemberAddedActivityLog(ctx context.Context, sel
 	return out
 }
 
-var teamMemberAddedActivityLogDataImplementors = []string{"TeamMemberAddedActivityLogData"}
+var teamMemberAddedActivityLogEntryImplementors = []string{"TeamMemberAddedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamMemberAddedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberAddedActivityLogData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberAddedActivityLogDataImplementors)
+func (ec *executionContext) _TeamMemberAddedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberAddedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberAddedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamMemberAddedActivityLogData")
-		case "role":
-			out.Values[i] = ec._TeamMemberAddedActivityLogData_role(ctx, field, obj)
+			out.Values[i] = graphql.MarshalString("TeamMemberAddedActivityLogEntry")
+		case "id":
+			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "userID":
-			out.Values[i] = ec._TeamMemberAddedActivityLogData_userID(ctx, field, obj)
+		case "actor":
+			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "userEmail":
-			out.Values[i] = ec._TeamMemberAddedActivityLogData_userEmail(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_environmentName(ctx, field, obj)
+		case "data":
+			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -94134,82 +94134,6 @@ func (ec *executionContext) _TeamMemberEdge(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var teamMemberRemovedActivityLogImplementors = []string{"TeamMemberRemovedActivityLog", "ActivityLogEntry", "Node"}
-
-func (ec *executionContext) _TeamMemberRemovedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberRemovedActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberRemovedActivityLogImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamMemberRemovedActivityLog")
-		case "id":
-			out.Values[i] = ec._TeamMemberRemovedActivityLog_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "actor":
-			out.Values[i] = ec._TeamMemberRemovedActivityLog_actor(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "createdAt":
-			out.Values[i] = ec._TeamMemberRemovedActivityLog_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "message":
-			out.Values[i] = ec._TeamMemberRemovedActivityLog_message(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "resourceType":
-			out.Values[i] = ec._TeamMemberRemovedActivityLog_resourceType(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "resourceName":
-			out.Values[i] = ec._TeamMemberRemovedActivityLog_resourceName(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "teamSlug":
-			out.Values[i] = ec._TeamMemberRemovedActivityLog_teamSlug(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "environmentName":
-			out.Values[i] = ec._TeamMemberRemovedActivityLog_environmentName(ctx, field, obj)
-		case "data":
-			out.Values[i] = ec._TeamMemberRemovedActivityLog_data(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var teamMemberRemovedActivityLogDataImplementors = []string{"TeamMemberRemovedActivityLogData"}
 
 func (ec *executionContext) _TeamMemberRemovedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberRemovedActivityLogData) graphql.Marshaler {
@@ -94254,56 +94178,56 @@ func (ec *executionContext) _TeamMemberRemovedActivityLogData(ctx context.Contex
 	return out
 }
 
-var teamMemberSetRoleActivityLogImplementors = []string{"TeamMemberSetRoleActivityLog", "ActivityLogEntry", "Node"}
+var teamMemberRemovedActivityLogEntryImplementors = []string{"TeamMemberRemovedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLog(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberSetRoleActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberSetRoleActivityLogImplementors)
+func (ec *executionContext) _TeamMemberRemovedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberRemovedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberRemovedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamMemberSetRoleActivityLog")
+			out.Values[i] = graphql.MarshalString("TeamMemberRemovedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLog_id(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLog_actor(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLog_createdAt(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLog_message(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLog_resourceType(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLog_resourceName(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLog_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLog_environmentName(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLogEntry_environmentName(ctx, field, obj)
 		case "data":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLog_data(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLogEntry_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -94353,6 +94277,82 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLogData(ctx context.Contex
 			}
 		case "userEmail":
 			out.Values[i] = ec._TeamMemberSetRoleActivityLogData_userEmail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamMemberSetRoleActivityLogEntryImplementors = []string{"TeamMemberSetRoleActivityLogEntry", "ActivityLogEntry", "Node"}
+
+func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberSetRoleActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberSetRoleActivityLogEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamMemberSetRoleActivityLogEntry")
+		case "id":
+			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_environmentName(ctx, field, obj)
+		case "data":
+			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -94738,82 +94738,6 @@ func (ec *executionContext) _TeamServiceUtilizationSqlInstancesMemory(ctx contex
 	return out
 }
 
-var teamUpdatedActivityLogImplementors = []string{"TeamUpdatedActivityLog", "ActivityLogEntry", "Node"}
-
-func (ec *executionContext) _TeamUpdatedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *team.TeamUpdatedActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamUpdatedActivityLogImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamUpdatedActivityLog")
-		case "id":
-			out.Values[i] = ec._TeamUpdatedActivityLog_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "actor":
-			out.Values[i] = ec._TeamUpdatedActivityLog_actor(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "createdAt":
-			out.Values[i] = ec._TeamUpdatedActivityLog_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "message":
-			out.Values[i] = ec._TeamUpdatedActivityLog_message(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "resourceType":
-			out.Values[i] = ec._TeamUpdatedActivityLog_resourceType(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "resourceName":
-			out.Values[i] = ec._TeamUpdatedActivityLog_resourceName(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "teamSlug":
-			out.Values[i] = ec._TeamUpdatedActivityLog_teamSlug(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "environmentName":
-			out.Values[i] = ec._TeamUpdatedActivityLog_environmentName(ctx, field, obj)
-		case "data":
-			out.Values[i] = ec._TeamUpdatedActivityLog_data(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var teamUpdatedActivityLogDataImplementors = []string{"TeamUpdatedActivityLogData"}
 
 func (ec *executionContext) _TeamUpdatedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamUpdatedActivityLogData) graphql.Marshaler {
@@ -94873,6 +94797,82 @@ func (ec *executionContext) _TeamUpdatedActivityLogDataUpdatedField(ctx context.
 			out.Values[i] = ec._TeamUpdatedActivityLogDataUpdatedField_oldValue(ctx, field, obj)
 		case "newValue":
 			out.Values[i] = ec._TeamUpdatedActivityLogDataUpdatedField_newValue(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamUpdatedActivityLogEntryImplementors = []string{"TeamUpdatedActivityLogEntry", "ActivityLogEntry", "Node"}
+
+func (ec *executionContext) _TeamUpdatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamUpdatedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamUpdatedActivityLogEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamUpdatedActivityLogEntry")
+		case "id":
+			out.Values[i] = ec._TeamUpdatedActivityLogEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			out.Values[i] = ec._TeamUpdatedActivityLogEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._TeamUpdatedActivityLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._TeamUpdatedActivityLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			out.Values[i] = ec._TeamUpdatedActivityLogEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			out.Values[i] = ec._TeamUpdatedActivityLogEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			out.Values[i] = ec._TeamUpdatedActivityLogEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			out.Values[i] = ec._TeamUpdatedActivityLogEntry_environmentName(ctx, field, obj)
+		case "data":
+			out.Values[i] = ec._TeamUpdatedActivityLogEntry_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -95456,54 +95456,54 @@ func (ec *executionContext) _UnleashInstance(ctx context.Context, sel ast.Select
 	return out
 }
 
-var unleashInstanceCreatedActivityLogImplementors = []string{"UnleashInstanceCreatedActivityLog", "ActivityLogEntry", "Node"}
+var unleashInstanceCreatedActivityLogEntryImplementors = []string{"UnleashInstanceCreatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _UnleashInstanceCreatedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *unleash.UnleashInstanceCreatedActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, unleashInstanceCreatedActivityLogImplementors)
+func (ec *executionContext) _UnleashInstanceCreatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *unleash.UnleashInstanceCreatedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, unleashInstanceCreatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("UnleashInstanceCreatedActivityLog")
+			out.Values[i] = graphql.MarshalString("UnleashInstanceCreatedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._UnleashInstanceCreatedActivityLog_id(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceCreatedActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._UnleashInstanceCreatedActivityLog_actor(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceCreatedActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._UnleashInstanceCreatedActivityLog_createdAt(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceCreatedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._UnleashInstanceCreatedActivityLog_message(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceCreatedActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._UnleashInstanceCreatedActivityLog_resourceType(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceCreatedActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._UnleashInstanceCreatedActivityLog_resourceName(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceCreatedActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._UnleashInstanceCreatedActivityLog_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceCreatedActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._UnleashInstanceCreatedActivityLog_environmentName(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstanceCreatedActivityLogEntry_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -95715,59 +95715,21 @@ func (ec *executionContext) _UnleashInstanceMetrics(ctx context.Context, sel ast
 	return out
 }
 
-var unleashInstanceUpdatedActivityLogImplementors = []string{"UnleashInstanceUpdatedActivityLog", "ActivityLogEntry", "Node"}
+var unleashInstanceUpdatedActivityLogDataImplementors = []string{"UnleashInstanceUpdatedActivityLogData"}
 
-func (ec *executionContext) _UnleashInstanceUpdatedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *unleash.UnleashInstanceUpdatedActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, unleashInstanceUpdatedActivityLogImplementors)
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *unleash.UnleashInstanceUpdatedActivityLogData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, unleashInstanceUpdatedActivityLogDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("UnleashInstanceUpdatedActivityLog")
-		case "id":
-			out.Values[i] = ec._UnleashInstanceUpdatedActivityLog_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "actor":
-			out.Values[i] = ec._UnleashInstanceUpdatedActivityLog_actor(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "createdAt":
-			out.Values[i] = ec._UnleashInstanceUpdatedActivityLog_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "message":
-			out.Values[i] = ec._UnleashInstanceUpdatedActivityLog_message(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "resourceType":
-			out.Values[i] = ec._UnleashInstanceUpdatedActivityLog_resourceType(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "resourceName":
-			out.Values[i] = ec._UnleashInstanceUpdatedActivityLog_resourceName(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "teamSlug":
-			out.Values[i] = ec._UnleashInstanceUpdatedActivityLog_teamSlug(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "environmentName":
-			out.Values[i] = ec._UnleashInstanceUpdatedActivityLog_environmentName(ctx, field, obj)
-		case "data":
-			out.Values[i] = ec._UnleashInstanceUpdatedActivityLog_data(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
+			out.Values[i] = graphql.MarshalString("UnleashInstanceUpdatedActivityLogData")
+		case "revokedTeamSlug":
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogData_revokedTeamSlug(ctx, field, obj)
+		case "allowedTeamSlug":
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogData_allowedTeamSlug(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -95791,21 +95753,59 @@ func (ec *executionContext) _UnleashInstanceUpdatedActivityLog(ctx context.Conte
 	return out
 }
 
-var unleashInstanceUpdatedActivityLogDataImplementors = []string{"UnleashInstanceUpdatedActivityLogData"}
+var unleashInstanceUpdatedActivityLogEntryImplementors = []string{"UnleashInstanceUpdatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _UnleashInstanceUpdatedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *unleash.UnleashInstanceUpdatedActivityLogData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, unleashInstanceUpdatedActivityLogDataImplementors)
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *unleash.UnleashInstanceUpdatedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, unleashInstanceUpdatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("UnleashInstanceUpdatedActivityLogData")
-		case "revokedTeamSlug":
-			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogData_revokedTeamSlug(ctx, field, obj)
-		case "allowedTeamSlug":
-			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogData_allowedTeamSlug(ctx, field, obj)
+			out.Values[i] = graphql.MarshalString("UnleashInstanceUpdatedActivityLogEntry")
+		case "id":
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogEntry_environmentName(ctx, field, obj)
+		case "data":
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogEntry_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -96236,54 +96236,54 @@ func (ec *executionContext) _UtilizationSample(ctx context.Context, sel ast.Sele
 	return out
 }
 
-var vulnerabilityUpdatedActivityLogImplementors = []string{"VulnerabilityUpdatedActivityLog", "ActivityLogEntry", "Node"}
+var vulnerabilityUpdatedActivityLogEntryImplementors = []string{"VulnerabilityUpdatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _VulnerabilityUpdatedActivityLog(ctx context.Context, sel ast.SelectionSet, obj *vulnerability.VulnerabilityUpdatedActivityLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, vulnerabilityUpdatedActivityLogImplementors)
+func (ec *executionContext) _VulnerabilityUpdatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *vulnerability.VulnerabilityUpdatedActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, vulnerabilityUpdatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("VulnerabilityUpdatedActivityLog")
+			out.Values[i] = graphql.MarshalString("VulnerabilityUpdatedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._VulnerabilityUpdatedActivityLog_id(ctx, field, obj)
+			out.Values[i] = ec._VulnerabilityUpdatedActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._VulnerabilityUpdatedActivityLog_actor(ctx, field, obj)
+			out.Values[i] = ec._VulnerabilityUpdatedActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._VulnerabilityUpdatedActivityLog_createdAt(ctx, field, obj)
+			out.Values[i] = ec._VulnerabilityUpdatedActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._VulnerabilityUpdatedActivityLog_message(ctx, field, obj)
+			out.Values[i] = ec._VulnerabilityUpdatedActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._VulnerabilityUpdatedActivityLog_resourceType(ctx, field, obj)
+			out.Values[i] = ec._VulnerabilityUpdatedActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._VulnerabilityUpdatedActivityLog_resourceName(ctx, field, obj)
+			out.Values[i] = ec._VulnerabilityUpdatedActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._VulnerabilityUpdatedActivityLog_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._VulnerabilityUpdatedActivityLogEntry_teamSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._VulnerabilityUpdatedActivityLog_environmentName(ctx, field, obj)
+			out.Values[i] = ec._VulnerabilityUpdatedActivityLogEntry_environmentName(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

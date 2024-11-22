@@ -45,7 +45,7 @@ type dataloader struct {
 
 func (l dataloader) get(ctx context.Context, ids []uuid.UUID) ([]ActivityLogEntry, []error) {
 	makeKey := func(obj ActivityLogEntry) uuid.UUID { return obj.GetUUID() }
-	return loader.LoadModelsWithError(ctx, ids, l.db.ListByIDs, toGraphActivityLog, makeKey)
+	return loader.LoadModelsWithError(ctx, ids, l.db.ListByIDs, toGraphActivityLogEntry, makeKey)
 }
 
 func db(ctx context.Context) *activitylogsql.Queries {

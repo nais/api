@@ -15,7 +15,7 @@ func init() {
 	activitylog.RegisterTransformer(activityLogEntryResourceTypeUnleash, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
 		case activitylog.ActivityLogEntryActionCreated:
-			return UnleashInstanceCreatedActivityLog{
+			return UnleashInstanceCreatedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Created Unleash instance"),
 			}, nil
 		case activitylog.ActivityLogEntryActionUpdated:
@@ -29,7 +29,7 @@ func init() {
 				return nil, err
 			}
 
-			return UnleashInstanceUpdatedActivityLog{
+			return UnleashInstanceUpdatedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Updated Unleash instance"),
 				Data:                    data,
 			}, nil
@@ -40,11 +40,11 @@ func init() {
 	})
 }
 
-type UnleashInstanceCreatedActivityLog struct {
+type UnleashInstanceCreatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }
 
-type UnleashInstanceUpdatedActivityLog struct {
+type UnleashInstanceUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 	Data *UnleashInstanceUpdatedActivityLogData `json:"data"`
 }

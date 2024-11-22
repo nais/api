@@ -303,7 +303,7 @@ type TriggerJobPayload {
 	jobRun: JobRun
 }
 
-type JobDeletedActivityLog implements ActivityLogEntry & Node {
+type JobDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -329,7 +329,7 @@ type JobDeletedActivityLog implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type JobTriggeredActivityLog implements ActivityLogEntry & Node {
+type JobTriggeredActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 

@@ -148,7 +148,7 @@ input ReconcilerConfigInput {
 	value: String!
 }
 
-type ReconcilerEnabledActivityLog implements ActivityLogEntry & Node {
+type ReconcilerEnabledActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -174,7 +174,7 @@ type ReconcilerEnabledActivityLog implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type ReconcilerDisabledActivityLog implements ActivityLogEntry & Node {
+type ReconcilerDisabledActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -200,7 +200,7 @@ type ReconcilerDisabledActivityLog implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type ReconcilerConfiguredActivityLog implements ActivityLogEntry & Node {
+type ReconcilerConfiguredActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 

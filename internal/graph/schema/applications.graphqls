@@ -469,7 +469,7 @@ extend enum ActivityLogEntryResourceType {
 	APP
 }
 
-type ApplicationDeletedActivityLog implements ActivityLogEntry & Node {
+type ApplicationDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -495,7 +495,7 @@ type ApplicationDeletedActivityLog implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type ApplicationRestartedActivityLog implements ActivityLogEntry & Node {
+type ApplicationRestartedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 

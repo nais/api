@@ -17,11 +17,11 @@ func init() {
 	activitylog.RegisterTransformer(ActivityLogEntryResourceTypeReconciler, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
 		case activityLogEntryActionEnableReconciler:
-			return ReconcilerEnabledActivityLog{
+			return ReconcilerEnabledActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Enable reconciler"),
 			}, nil
 		case activityLogEntryActionDisableReconciler:
-			return ReconcilerDisabledActivityLog{
+			return ReconcilerDisabledActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Disable reconciler"),
 			}, nil
 		case activityLogEntryActionConfigureReconciler:
@@ -35,7 +35,7 @@ func init() {
 				return nil, err
 			}
 
-			return ReconcilerConfiguredActivityLog{
+			return ReconcilerConfiguredActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Configure reconciler"),
 				Data:                    data,
 			}, nil
@@ -45,15 +45,15 @@ func init() {
 	})
 }
 
-type ReconcilerEnabledActivityLog struct {
+type ReconcilerEnabledActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }
 
-type ReconcilerDisabledActivityLog struct {
+type ReconcilerDisabledActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }
 
-type ReconcilerConfiguredActivityLog struct {
+type ReconcilerConfiguredActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 	Data *ReconcilerConfiguredActivityLogData `json:"data"`
 }

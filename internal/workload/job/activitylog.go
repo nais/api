@@ -15,11 +15,11 @@ func init() {
 	activitylog.RegisterTransformer(activityLogEntryResourceTypeJob, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
 		case activityLogEntryActionTriggerJob:
-			return JobTriggeredActivityLog{
+			return JobTriggeredActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Job triggered"),
 			}, nil
 		case activitylog.ActivityLogEntryActionDeleted:
-			return JobDeletedActivityLog{
+			return JobDeletedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Job deleted"),
 			}, nil
 		default:
@@ -28,10 +28,10 @@ func init() {
 	})
 }
 
-type JobTriggeredActivityLog struct {
+type JobTriggeredActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }
 
-type JobDeletedActivityLog struct {
+type JobDeletedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }

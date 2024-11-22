@@ -14,7 +14,7 @@ func init() {
 	activitylog.RegisterTransformer(activityLogEntryResourceTypeDeployKey, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
 		case activitylog.ActivityLogEntryActionUpdated:
-			return TeamDeployKeyUpdatedActivityLog{
+			return TeamDeployKeyUpdatedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Updated deployment key"),
 			}, nil
 		default:
@@ -23,6 +23,6 @@ func init() {
 	})
 }
 
-type TeamDeployKeyUpdatedActivityLog struct {
+type TeamDeployKeyUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }

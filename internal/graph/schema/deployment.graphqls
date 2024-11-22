@@ -170,7 +170,7 @@ extend enum JobOrderField {
 	DEPLOYMENT_TIME
 }
 
-type TeamDeployKeyUpdatedActivityLog implements ActivityLogEntry & Node {
+type TeamDeployKeyUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
