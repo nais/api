@@ -8,11 +8,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nais/api/internal/cost/costsql"
-
 	"cloud.google.com/go/bigquery"
 	"github.com/google/go-cmp/cmp"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/nais/api/internal/cost/costsql"
 	"github.com/nais/api/internal/cost/costupdater"
 	"github.com/nais/api/internal/slug"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
@@ -131,7 +130,7 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 
 		want1 := costsql.CostUpsertParams{
 			Environment: ptr.To("dev"),
-			App:         "team-1-app-1",
+			AppLabel:    "team-1-app-1",
 			TeamSlug:    slug.Slug("team-1"),
 			Service:     "Cloud SQL",
 			Date:        pgtype.Date{Time: time.Date(2023, 8, 31, 0, 0, 0, 0, time.UTC), Valid: true},
@@ -155,7 +154,7 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 		}
 		want2 := costsql.CostUpsertParams{
 			Environment: ptr.To("dev"),
-			App:         "team-2-app-1",
+			AppLabel:    "team-2-app-1",
 			TeamSlug:    slug.Slug("team-2"),
 			Service:     "Cloud SQL",
 			Date:        pgtype.Date{Time: time.Date(2023, 9, 1, 0, 0, 0, 0, time.UTC), Valid: true},

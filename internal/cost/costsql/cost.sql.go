@@ -18,7 +18,7 @@ FROM
 WHERE
 	team_slug = $1
 	AND service = $2
-	AND app = $3
+	AND app_label = $3
 	AND date >= $4
 	AND date <= $5
 	AND environment = $6::TEXT
@@ -27,7 +27,7 @@ WHERE
 type CostForServiceParams struct {
 	TeamSlug    slug.Slug
 	Service     string
-	Workload    string
+	AppLabel    string
 	FromDate    pgtype.Date
 	ToDate      pgtype.Date
 	Environment string
@@ -37,7 +37,7 @@ func (q *Queries) CostForService(ctx context.Context, arg CostForServiceParams) 
 	row := q.db.QueryRow(ctx, costForService,
 		arg.TeamSlug,
 		arg.Service,
-		arg.Workload,
+		arg.AppLabel,
 		arg.FromDate,
 		arg.ToDate,
 		arg.Environment,
@@ -168,7 +168,7 @@ SELECT
 	date_range.date::date AS date,
 	cost.environment,
 	cost.team_slug,
-	cost.app AS workload,
+	cost.app_label,
 	cost.daily_cost
 FROM
 	date_range
@@ -181,7 +181,7 @@ WHERE
 	)
 ORDER BY
 	date_range.date,
-	workload ASC
+	cost.app_label ASC
 `
 
 type DailyCostForTeamEnvironmentParams struct {
@@ -195,7 +195,7 @@ type DailyCostForTeamEnvironmentRow struct {
 	Date        pgtype.Date
 	Environment *string
 	TeamSlug    *slug.Slug
-	Workload    *string
+	AppLabel    *string
 	DailyCost   *float32
 }
 
@@ -217,7 +217,7 @@ func (q *Queries) DailyCostForTeamEnvironment(ctx context.Context, arg DailyCost
 			&i.Date,
 			&i.Environment,
 			&i.TeamSlug,
-			&i.Workload,
+			&i.AppLabel,
 			&i.DailyCost,
 		); err != nil {
 			return nil, err
@@ -256,7 +256,7 @@ WHERE
 	OR (
 		environment = $1::TEXT
 		AND team_slug = $2::slug
-		AND app = $3
+		AND app_label = $3
 	)
 ORDER BY
 	date_range.date,
@@ -266,7 +266,7 @@ ORDER BY
 type DailyCostForWorkloadParams struct {
 	Environment string
 	TeamSlug    slug.Slug
-	Workload    string
+	AppLabel    string
 	FromDate    pgtype.Date
 	ToDate      pgtype.Date
 }
@@ -283,7 +283,7 @@ func (q *Queries) DailyCostForWorkload(ctx context.Context, arg DailyCostForWork
 	rows, err := q.db.Query(ctx, dailyCostForWorkload,
 		arg.Environment,
 		arg.TeamSlug,
-		arg.Workload,
+		arg.AppLabel,
 		arg.FromDate,
 		arg.ToDate,
 	)
@@ -314,7 +314,7 @@ func (q *Queries) DailyCostForWorkload(ctx context.Context, arg DailyCostForWork
 const dailyEnvCostForTeam = `-- name: DailyEnvCostForTeam :many
 SELECT
 	team_slug,
-	app AS workload,
+	app_label,
 	date,
 	SUM(daily_cost)::REAL AS daily_cost
 FROM
@@ -326,11 +326,11 @@ WHERE
 	AND team_slug = $4::slug
 GROUP BY
 	team_slug,
-	app,
+	app_label,
 	date
 ORDER BY
 	date,
-	app ASC
+	app_label ASC
 `
 
 type DailyEnvCostForTeamParams struct {
@@ -342,7 +342,7 @@ type DailyEnvCostForTeamParams struct {
 
 type DailyEnvCostForTeamRow struct {
 	TeamSlug  slug.Slug
-	Workload  string
+	AppLabel  string
 	Date      pgtype.Date
 	DailyCost float32
 }
@@ -363,7 +363,7 @@ func (q *Queries) DailyEnvCostForTeam(ctx context.Context, arg DailyEnvCostForTe
 		var i DailyEnvCostForTeamRow
 		if err := rows.Scan(
 			&i.TeamSlug,
-			&i.Workload,
+			&i.AppLabel,
 			&i.Date,
 			&i.DailyCost,
 		); err != nil {
@@ -468,7 +468,7 @@ WITH
 	)
 SELECT
 	team_slug,
-	app AS workload,
+	app_label,
 	environment,
 	DATE_TRUNC('month', date)::date AS MONTH,
 	service,
@@ -486,11 +486,11 @@ FROM
 	LEFT JOIN last_run ON TRUE
 WHERE
 	c.team_slug = $1::slug
-	AND c.app = $2
+	AND c.app_label = $2
 	AND c.environment = $3::TEXT
 GROUP BY
 	team_slug,
-	app,
+	app_label,
 	environment,
 	service,
 	MONTH
@@ -502,13 +502,13 @@ LIMIT
 
 type MonthlyCostForWorkloadParams struct {
 	TeamSlug    slug.Slug
-	Workload    string
+	AppLabel    string
 	Environment string
 }
 
 type MonthlyCostForWorkloadRow struct {
 	TeamSlug         slug.Slug
-	Workload         string
+	AppLabel         string
 	Environment      *string
 	Month            pgtype.Date
 	Service          string
@@ -517,7 +517,7 @@ type MonthlyCostForWorkloadRow struct {
 }
 
 func (q *Queries) MonthlyCostForWorkload(ctx context.Context, arg MonthlyCostForWorkloadParams) ([]*MonthlyCostForWorkloadRow, error) {
-	rows, err := q.db.Query(ctx, monthlyCostForWorkload, arg.TeamSlug, arg.Workload, arg.Environment)
+	rows, err := q.db.Query(ctx, monthlyCostForWorkload, arg.TeamSlug, arg.AppLabel, arg.Environment)
 	if err != nil {
 		return nil, err
 	}
@@ -527,7 +527,7 @@ func (q *Queries) MonthlyCostForWorkload(ctx context.Context, arg MonthlyCostFor
 		var i MonthlyCostForWorkloadRow
 		if err := rows.Scan(
 			&i.TeamSlug,
-			&i.Workload,
+			&i.AppLabel,
 			&i.Environment,
 			&i.Month,
 			&i.Service,

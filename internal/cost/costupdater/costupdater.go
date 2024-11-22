@@ -135,7 +135,7 @@ func (u *Updater) FetchBigQueryData(ctx context.Context, ch chan<- costsql.CostU
 		case ch <- costsql.CostUpsertParams{
 			Environment: nullToStringPointer(row.Env),
 			TeamSlug:    slug.Slug(row.Team.StringVal),
-			App:         row.App.StringVal,
+			AppLabel:    row.App.StringVal,
 			Service:     row.CostType,
 			Date:        pgtype.Date{Time: row.Date.In(time.UTC), Valid: true},
 			DailyCost:   row.Cost,

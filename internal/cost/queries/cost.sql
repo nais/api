@@ -15,7 +15,7 @@ WITH
 	)
 SELECT
 	team_slug,
-	app AS workload,
+	app_label,
 	environment,
 	DATE_TRUNC('month', date)::date AS MONTH,
 	service,
@@ -33,11 +33,11 @@ FROM
 	LEFT JOIN last_run ON TRUE
 WHERE
 	c.team_slug = @team_slug::slug
-	AND c.app = @workload
+	AND c.app_label = @app_label
 	AND c.environment = @environment::TEXT
 GROUP BY
 	team_slug,
-	app,
+	app_label,
 	environment,
 	service,
 	MONTH
@@ -65,7 +65,7 @@ INSERT INTO
 	cost (
 		environment,
 		team_slug,
-		app,
+		app_label,
 		service,
 		date,
 		daily_cost
@@ -74,7 +74,7 @@ VALUES
 	(
 		@environment,
 		@team_slug,
-		@app,
+		@app_label,
 		@service,
 		@date,
 		@daily_cost
@@ -111,7 +111,7 @@ WHERE
 	OR (
 		environment = @environment::TEXT
 		AND team_slug = @team_slug::slug
-		AND app = @workload
+		AND app_label = @app_label
 	)
 ORDER BY
 	date_range.date,
@@ -157,7 +157,7 @@ ORDER BY
 -- name: DailyEnvCostForTeam :many
 SELECT
 	team_slug,
-	app AS workload,
+	app_label,
 	date,
 	SUM(daily_cost)::REAL AS daily_cost
 FROM
@@ -169,11 +169,11 @@ WHERE
 	AND team_slug = @team_slug::slug
 GROUP BY
 	team_slug,
-	app,
+	app_label,
 	date
 ORDER BY
 	date,
-	app ASC
+	app_label ASC
 ;
 
 -- name: CostForService :one
@@ -184,7 +184,7 @@ FROM
 WHERE
 	team_slug = @team_slug
 	AND service = @service
-	AND app = @workload
+	AND app_label = @app_label
 	AND date >= @from_date
 	AND date <= @to_date
 	AND environment = @environment::TEXT
@@ -222,7 +222,7 @@ SELECT
 	date_range.date::date AS date,
 	cost.environment,
 	cost.team_slug,
-	cost.app AS workload,
+	cost.app_label,
 	cost.daily_cost
 FROM
 	date_range
@@ -235,7 +235,7 @@ WHERE
 	)
 ORDER BY
 	date_range.date,
-	workload ASC
+	cost.app_label ASC
 ;
 
 -- name: ListTeamSlugsForCostUpdater :many

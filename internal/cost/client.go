@@ -30,7 +30,7 @@ func (client) DailyForWorkload(ctx context.Context, teamSlug slug.Slug, environm
 		ToDate:      pgtype.Date{Time: toDate, Valid: true},
 		TeamSlug:    teamSlug,
 		Environment: environmentName,
-		Workload:    workloadName,
+		AppLabel:    workloadName,
 	})
 	if err != nil {
 		return nil, err
@@ -65,7 +65,7 @@ func (client) DailyForWorkload(ctx context.Context, teamSlug slug.Slug, environm
 func (client) MonthlyForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string) (*WorkloadCostPeriod, error) {
 	rows, err := db(ctx).MonthlyCostForWorkload(ctx, costsql.MonthlyCostForWorkloadParams{
 		TeamSlug:    teamSlug,
-		Workload:    workloadName,
+		AppLabel:    workloadName,
 		Environment: environmentName,
 	})
 	if err != nil {
@@ -115,12 +115,12 @@ func (client) DailyForTeamEnvironment(ctx context.Context, teamSlug slug.Slug, e
 			}
 		}
 
-		if row.Workload != nil {
+		if row.AppLabel != nil {
 			daily[row.Date].Workloads = append(daily[row.Date].Workloads, &WorkloadCostSample{
 				Cost:            float64(ptr.Deref(row.DailyCost, 0)),
 				TeamSlug:        teamSlug,
 				EnvironmentName: environmentName,
-				WorkloadName:    *row.Workload,
+				WorkloadName:    *row.AppLabel,
 			})
 		}
 	}
@@ -206,7 +206,7 @@ func (client) MonthlyForService(ctx context.Context, teamSlug slug.Slug, environ
 		ToDate:      to,
 		TeamSlug:    teamSlug,
 		Service:     service,
-		Workload:    workloadName,
+		AppLabel:    workloadName,
 		Environment: environmentName,
 	})
 }
