@@ -131,7 +131,9 @@ func (m *Metrics) Close() error {
 
 func (m *Metrics) averageForTeam(ctx context.Context, projectID string, metricType metricType) (map[string]float64, error) {
 	entry, found := m.cache.Get(projectID)
-	tc := &teamMetricsCache{}
+	tc := &teamMetricsCache{
+		data: map[string]map[string]float64{},
+	}
 	if found {
 		tc = entry.(*teamMetricsCache)
 		if idToMetricValues, found := tc.Get(metricType); found {
@@ -159,7 +161,9 @@ func (m *Metrics) averageForDatabase(ctx context.Context, projectID string, metr
 		return 0, err
 	}
 
-	teamMetrics := &teamMetricsCache{}
+	teamMetrics := &teamMetricsCache{
+		data: map[string]map[string]float64{},
+	}
 	teamMetrics.Set(metricType, averages)
 	if dbMetric, found := metricFor(teamMetrics, metricType, databaseID); found {
 		return dbMetric, nil
@@ -198,7 +202,9 @@ func (m *Metrics) average(metricType metricType, ts []*monitoringpb.TimeSeries) 
 
 func (m *Metrics) sumForTeam(ctx context.Context, projectID string, metric metricType) (float64, error) {
 	entry, found := m.sumCache.Get(projectID)
-	tc := &teamSumMetricsCache{}
+	tc := &teamSumMetricsCache{
+		data: map[metricType]float64{},
+	}
 	if found {
 		tc = entry.(*teamSumMetricsCache)
 		if idToMetricValues, found := tc.Get(metric); found {
