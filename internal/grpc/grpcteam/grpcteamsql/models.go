@@ -14,7 +14,7 @@ type Team struct {
 	LastSuccessfulSync   pgtype.Timestamp
 	SlackChannel         string
 	GoogleGroupEmail     *string
-	AzureGroupID         *uuid.UUID
+	EntraIDGroupID       *uuid.UUID
 	GithubTeamSlug       *string
 	GarRepository        *string
 	CdnBucket            *string

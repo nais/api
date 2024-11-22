@@ -72,7 +72,7 @@ func (q *Queries) Delete(ctx context.Context, argSlug slug.Slug) error {
 
 const get = `-- name: Get :one
 SELECT
-	slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
+	slug, purpose, last_successful_sync, slack_channel, google_group_email, entra_id_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
 FROM
 	teams
 WHERE
@@ -88,7 +88,7 @@ func (q *Queries) Get(ctx context.Context, argSlug slug.Slug) (*Team, error) {
 		&i.LastSuccessfulSync,
 		&i.SlackChannel,
 		&i.GoogleGroupEmail,
-		&i.AzureGroupID,
+		&i.EntraIDGroupID,
 		&i.GithubTeamSlug,
 		&i.GarRepository,
 		&i.CdnBucket,
@@ -99,7 +99,7 @@ func (q *Queries) Get(ctx context.Context, argSlug slug.Slug) (*Team, error) {
 
 const list = `-- name: List :many
 SELECT
-	slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
+	slug, purpose, last_successful_sync, slack_channel, google_group_email, entra_id_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
 FROM
 	teams
 ORDER BY
@@ -130,7 +130,7 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]*Team, error) {
 			&i.LastSuccessfulSync,
 			&i.SlackChannel,
 			&i.GoogleGroupEmail,
-			&i.AzureGroupID,
+			&i.EntraIDGroupID,
 			&i.GithubTeamSlug,
 			&i.GarRepository,
 			&i.CdnBucket,
@@ -260,7 +260,7 @@ const updateExternalReferences = `-- name: UpdateExternalReferences :exec
 UPDATE teams
 SET
 	google_group_email = COALESCE($1, google_group_email),
-	azure_group_id = COALESCE($2, azure_group_id),
+	entra_id_group_id = COALESCE($2, entra_id_group_id),
 	github_team_slug = COALESCE($3, github_team_slug),
 	gar_repository = COALESCE($4, gar_repository),
 	cdn_bucket = COALESCE($5, cdn_bucket)

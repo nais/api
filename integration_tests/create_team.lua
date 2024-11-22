@@ -194,7 +194,7 @@ Test.sql("Check database", function(t)
 	t.queryRow("SELECT * FROM teams WHERE slug = $1", "newteam")
 
 	t.check {
-		azure_group_id = Null,
+		entra_id_group_id = Null,
 		gar_repository = Null,
 		github_team_slug = Null,
 		google_group_email = Null,

@@ -237,7 +237,7 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]*User, error) {
 
 const listMemberships = `-- name: ListMemberships :many
 SELECT
-	teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.delete_key_confirmed_at,
+	teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.entra_id_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.delete_key_confirmed_at,
 	user_roles.role_name
 FROM
 	user_roles
@@ -278,7 +278,7 @@ func (q *Queries) ListMemberships(ctx context.Context, arg ListMembershipsParams
 			&i.Team.LastSuccessfulSync,
 			&i.Team.SlackChannel,
 			&i.Team.GoogleGroupEmail,
-			&i.Team.AzureGroupID,
+			&i.Team.EntraIDGroupID,
 			&i.Team.GithubTeamSlug,
 			&i.Team.GarRepository,
 			&i.Team.CdnBucket,

@@ -115,7 +115,7 @@ func (t *Server) SetTeamExternalReferences(ctx context.Context, req *protoapi.Se
 	if req.EntraIdGroupId != nil {
 		id, err := uuid.Parse(*req.EntraIdGroupId)
 		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "azure group ID must be a valid UUID: %s", err)
+			return nil, status.Errorf(codes.InvalidArgument, "entra ID group ID must be a valid UUID: %s", err)
 		}
 		aID = &id
 	}
@@ -205,8 +205,8 @@ func (t *Server) IsRepositoryAuthorized(ctx context.Context, req *protoapi.IsRep
 
 func toProtoTeam(team *grpcteamsql.Team) *protoapi.Team {
 	var aID *string
-	if team.AzureGroupID != nil {
-		aID = ptr.To(team.AzureGroupID.String())
+	if team.EntraIDGroupID != nil {
+		aID = ptr.To(team.EntraIDGroupID.String())
 	}
 
 	t := &protoapi.Team{

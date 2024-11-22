@@ -123,9 +123,9 @@ func toGraphTeam(m *teamsql.Team) *Team {
 		GoogleArtifactRegistry: m.GarRepository,
 	}
 
-	if m.AzureGroupID != nil {
-		azureGroupID := m.AzureGroupID.String()
-		ret.EntraIDGroupID = &azureGroupID
+	if m.EntraIDGroupID != nil {
+		entraIDGroupID := m.EntraIDGroupID.String()
+		ret.EntraIDGroupID = &entraIDGroupID
 	}
 
 	if m.LastSuccessfulSync.Valid {

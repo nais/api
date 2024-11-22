@@ -43,7 +43,7 @@ INSERT INTO
 VALUES
 	($1, $2, $3)
 RETURNING
-	slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
+	slug, purpose, last_successful_sync, slack_channel, google_group_email, entra_id_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
 `
 
 type CreateParams struct {
@@ -61,7 +61,7 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) (*Team, error) {
 		&i.LastSuccessfulSync,
 		&i.SlackChannel,
 		&i.GoogleGroupEmail,
-		&i.AzureGroupID,
+		&i.EntraIDGroupID,
 		&i.GithubTeamSlug,
 		&i.GarRepository,
 		&i.CdnBucket,
@@ -118,7 +118,7 @@ func (q *Queries) Exists(ctx context.Context, argSlug slug.Slug) (bool, error) {
 
 const get = `-- name: Get :one
 SELECT
-	slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
+	slug, purpose, last_successful_sync, slack_channel, google_group_email, entra_id_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
 FROM
 	teams
 WHERE
@@ -134,7 +134,7 @@ func (q *Queries) Get(ctx context.Context, argSlug slug.Slug) (*Team, error) {
 		&i.LastSuccessfulSync,
 		&i.SlackChannel,
 		&i.GoogleGroupEmail,
-		&i.AzureGroupID,
+		&i.EntraIDGroupID,
 		&i.GithubTeamSlug,
 		&i.GarRepository,
 		&i.CdnBucket,
@@ -202,7 +202,7 @@ func (q *Queries) GetEnvironment(ctx context.Context, arg GetEnvironmentParams) 
 
 const list = `-- name: List :many
 SELECT
-	slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
+	slug, purpose, last_successful_sync, slack_channel, google_group_email, entra_id_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
 FROM
 	teams
 ORDER BY
@@ -240,7 +240,7 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]*Team, error) {
 			&i.LastSuccessfulSync,
 			&i.SlackChannel,
 			&i.GoogleGroupEmail,
-			&i.AzureGroupID,
+			&i.EntraIDGroupID,
 			&i.GithubTeamSlug,
 			&i.GarRepository,
 			&i.CdnBucket,
@@ -272,7 +272,7 @@ func (q *Queries) ListAllSlugs(ctx context.Context) ([]slug.Slug, error) {
 
 const listBySlugs = `-- name: ListBySlugs :many
 SELECT
-	slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
+	slug, purpose, last_successful_sync, slack_channel, google_group_email, entra_id_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
 FROM
 	teams
 WHERE
@@ -296,7 +296,7 @@ func (q *Queries) ListBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, 
 			&i.LastSuccessfulSync,
 			&i.SlackChannel,
 			&i.GoogleGroupEmail,
-			&i.AzureGroupID,
+			&i.EntraIDGroupID,
 			&i.GithubTeamSlug,
 			&i.GarRepository,
 			&i.CdnBucket,
@@ -437,7 +437,7 @@ WITH
 			10
 	)
 SELECT
-	teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.delete_key_confirmed_at,
+	teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.entra_id_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.delete_key_confirmed_at,
 	RANK
 FROM
 	teams
@@ -466,7 +466,7 @@ func (q *Queries) Search(ctx context.Context, query string) ([]*SearchRow, error
 			&i.Team.LastSuccessfulSync,
 			&i.Team.SlackChannel,
 			&i.Team.GoogleGroupEmail,
-			&i.Team.AzureGroupID,
+			&i.Team.EntraIDGroupID,
 			&i.Team.GithubTeamSlug,
 			&i.Team.GarRepository,
 			&i.Team.CdnBucket,
@@ -523,7 +523,7 @@ SET
 WHERE
 	teams.slug = $3
 RETURNING
-	slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
+	slug, purpose, last_successful_sync, slack_channel, google_group_email, entra_id_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
 `
 
 type UpdateParams struct {
@@ -541,7 +541,7 @@ func (q *Queries) Update(ctx context.Context, arg UpdateParams) (*Team, error) {
 		&i.LastSuccessfulSync,
 		&i.SlackChannel,
 		&i.GoogleGroupEmail,
-		&i.AzureGroupID,
+		&i.EntraIDGroupID,
 		&i.GithubTeamSlug,
 		&i.GarRepository,
 		&i.CdnBucket,
@@ -554,7 +554,7 @@ const updateExternalReferences = `-- name: UpdateExternalReferences :exec
 UPDATE teams
 SET
 	google_group_email = COALESCE($1, google_group_email),
-	azure_group_id = COALESCE($2, azure_group_id),
+	entra_id_group_id = COALESCE($2, entra_id_group_id),
 	github_team_slug = COALESCE($3, github_team_slug),
 	gar_repository = COALESCE($4, gar_repository),
 	cdn_bucket = COALESCE($5, cdn_bucket)
