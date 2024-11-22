@@ -42,7 +42,6 @@ func transformPod(in any) (any, error) {
 	fieldsToRemove := [][]string{
 		{"spec"},
 		{"status"},
-		{"metadata", "creationTimestamp"},
 		{"metadata", "generateName"},
 		{"metadata", "ownerReferences"},
 		{"metadata", "annotations"},
@@ -62,8 +61,6 @@ func transformPod(in any) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	created, _, _ := unstructured.NestedString(pod.Object, "metadata", "creationTimestamp")
 
 	newContainers := []any{}
 	for _, container := range containers {
@@ -102,7 +99,6 @@ func transformPod(in any) (any, error) {
 	// Adding data back
 	unstructured.SetNestedSlice(pod.Object, newContainers, "spec", "containers")
 	unstructured.SetNestedSlice(pod.Object, containerStatuses, "status", "containerStatuses")
-	unstructured.SetNestedField(pod.Object, created, "metadata", "creationTimestamp")
 
 	return pod, nil
 }
