@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"time"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
@@ -129,12 +130,26 @@ func (r *teamInventoryCountsResolver) Applications(ctx context.Context, obj *tea
 	apps := application.ListAllForTeam(ctx, obj.TeamSlug)
 	notNais := 0
 
+	start := time.Now()
+	slowest := struct {
+		duration time.Duration
+		name     string
+	}{}
 	for _, app := range apps {
+		start := time.Now()
 		s := status.ForWorkload(ctx, app)
 		if s.State == status.WorkloadStateNotNais {
 			notNais++
 		}
+		dur := time.Since(start)
+		if dur > slowest.duration {
+			slowest.duration = dur
+			slowest.name = app.Name
+		}
 	}
+	tl := r.log.WithField("team", obj.TeamSlug.String())
+	tl.WithField("duration", time.Since(start).String()).Info("team inventory count applications not nais")
+	tl.WithField("slowest", slowest.name).WithField("duration", slowest.duration.String()).Info("team inventory count applications slowest")
 
 	return &application.TeamInventoryCountApplications{
 		Total:   len(apps),
