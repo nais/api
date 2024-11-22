@@ -8,17 +8,17 @@ import (
 )
 
 const (
-	activityLogResourceTypeUnleash activitylog.ActivityLogResourceType = "UNLEASH"
+	activityLogEntryResourceTypeUnleash activitylog.ActivityLogEntryResourceType = "UNLEASH"
 )
 
 func init() {
-	activitylog.RegisterTransformer(activityLogResourceTypeUnleash, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
+	activitylog.RegisterTransformer(activityLogEntryResourceTypeUnleash, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
-		case activitylog.ActivityLogActionCreated:
+		case activitylog.ActivityLogEntryActionCreated:
 			return UnleashInstanceCreatedActivityLog{
 				GenericActivityLogEntry: entry.WithMessage("Created Unleash instance"),
 			}, nil
-		case activitylog.ActivityLogActionUpdated:
+		case activitylog.ActivityLogEntryActionUpdated:
 			data, err := activitylog.TransformData(entry, func(data *UnleashInstanceUpdatedActivityLogData) *UnleashInstanceUpdatedActivityLogData {
 				if data.AllowedTeamSlug == nil && data.RevokedTeamSlug == nil {
 					return nil

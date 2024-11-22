@@ -435,7 +435,7 @@ enum TeamMemberRole {
 	OWNER
 }
 
-extend enum ActivityLogResourceType {
+extend enum ActivityLogEntryResourceType {
 	"All activity log entries related to teams will use this resource type."
 	TEAM
 }
@@ -454,7 +454,7 @@ type TeamCreatedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -480,7 +480,7 @@ type TeamUpdatedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -525,7 +525,7 @@ type TeamCreateDeleteKeyActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -551,7 +551,7 @@ type TeamConfirmDeleteKeyActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -577,7 +577,7 @@ type TeamMemberAddedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -617,7 +617,7 @@ type TeamMemberRemovedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -654,7 +654,7 @@ type TeamMemberSetRoleActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -694,7 +694,7 @@ type TeamEnvironmentUpdatedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!

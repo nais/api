@@ -111,8 +111,8 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environmentName, name strin
 	}
 
 	if err := activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activitylog.ActivityLogActionDeleted,
-		ResourceType:    activityLogResourceTypeApplication,
+		Action:          activitylog.ActivityLogEntryActionDeleted,
+		ResourceType:    activityLogEntryResourceTypeApplication,
 		TeamSlug:        &teamSlug,
 		EnvironmentName: &environmentName,
 		ResourceName:    name,
@@ -146,8 +146,8 @@ func Restart(ctx context.Context, teamSlug slug.Slug, environmentName, name stri
 	}
 
 	return activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activityLogActionRestartApplication,
-		ResourceType:    activityLogResourceTypeApplication,
+		Action:          activityLogEntryActionRestartApplication,
+		ResourceType:    activityLogEntryResourceTypeApplication,
 		TeamSlug:        &teamSlug,
 		EnvironmentName: &environmentName,
 		ResourceName:    name,

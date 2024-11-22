@@ -198,10 +198,10 @@ func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activitylog.ActivityLogActionCreated,
+		Action:          activitylog.ActivityLogEntryActionCreated,
 		Actor:           actor.User,
 		EnvironmentName: ptr.To(environment),
-		ResourceType:    activityLogResourceTypeSecret,
+		ResourceType:    activityLogEntryResourceTypeSecret,
 		ResourceName:    name,
 		TeamSlug:        ptr.To(teamSlug),
 	})
@@ -272,10 +272,10 @@ func AddSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secret
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activityLogActionAddSecretValue,
+		Action:          activityLogEntryActionAddSecretValue,
 		Actor:           actor.User,
 		EnvironmentName: ptr.To(environment),
-		ResourceType:    activityLogResourceTypeSecret,
+		ResourceType:    activityLogEntryResourceTypeSecret,
 		ResourceName:    secretName,
 		TeamSlug:        ptr.To(teamSlug),
 		Data: &SecretValueAddedActivityLogData{
@@ -346,10 +346,10 @@ func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activityLogActionUpdateSecretValue,
+		Action:          activityLogEntryActionUpdateSecretValue,
 		Actor:           actor.User,
 		EnvironmentName: ptr.To(environment),
-		ResourceType:    activityLogResourceTypeSecret,
+		ResourceType:    activityLogEntryResourceTypeSecret,
 		ResourceName:    secretName,
 		TeamSlug:        ptr.To(teamSlug),
 		Data: &SecretValueUpdatedActivityLogData{
@@ -411,10 +411,10 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activityLogActionRemoveSecretValue,
+		Action:          activityLogEntryActionRemoveSecretValue,
 		Actor:           actor.User,
 		EnvironmentName: ptr.To(environment),
-		ResourceType:    activityLogResourceTypeSecret,
+		ResourceType:    activityLogEntryResourceTypeSecret,
 		ResourceName:    secretName,
 		TeamSlug:        ptr.To(teamSlug),
 		Data: &SecretValueRemovedActivityLogData{
@@ -446,10 +446,10 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) e
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activitylog.ActivityLogActionDeleted,
+		Action:          activitylog.ActivityLogEntryActionDeleted,
 		Actor:           authz.ActorFromContext(ctx).User,
 		EnvironmentName: ptr.To(environment),
-		ResourceType:    activityLogResourceTypeSecret,
+		ResourceType:    activityLogEntryResourceTypeSecret,
 		ResourceName:    name,
 		TeamSlug:        ptr.To(teamSlug),
 	})

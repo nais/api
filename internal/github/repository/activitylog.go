@@ -7,17 +7,17 @@ import (
 )
 
 const (
-	activityLogResourceTypeRepository activitylog.ActivityLogResourceType = "REPOSITORY"
+	activityLogEntryResourceTypeRepository activitylog.ActivityLogEntryResourceType = "REPOSITORY"
 )
 
 func init() {
-	activitylog.RegisterTransformer(activityLogResourceTypeRepository, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
+	activitylog.RegisterTransformer(activityLogEntryResourceTypeRepository, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
-		case activitylog.ActivityLogActionAdded:
+		case activitylog.ActivityLogEntryActionAdded:
 			return RepositoryAddedActivityLog{
 				GenericActivityLogEntry: entry.WithMessage("Added repository to team"),
 			}, nil
-		case activitylog.ActivityLogActionRemoved:
+		case activitylog.ActivityLogEntryActionRemoved:
 			return RepositoryRemovedActivityLog{
 				GenericActivityLogEntry: entry.WithMessage("Removed repository from team"),
 			}, nil

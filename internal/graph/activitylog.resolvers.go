@@ -15,7 +15,7 @@ func (r *reconcilerResolver) ActivityLog(ctx context.Context, obj *reconciler.Re
 		return nil, err
 	}
 
-	return activitylog.ListForResource(ctx, reconciler.ActivityLogResourceTypeReconciler, obj.Name, page)
+	return activitylog.ListForResource(ctx, reconciler.ActivityLogEntryResourceTypeReconciler, obj.Name, page)
 }
 
 func (r *teamResolver) ActivityLog(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[activitylog.ActivityLogEntry], error) {

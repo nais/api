@@ -95,9 +95,9 @@ func Enable(ctx context.Context, name string) (*Reconciler, error) {
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       activityLogActionEnableReconciler,
+			Action:       activityLogEntryActionEnableReconciler,
 			Actor:        authz.ActorFromContext(ctx).User,
-			ResourceType: ActivityLogResourceTypeReconciler,
+			ResourceType: ActivityLogEntryResourceTypeReconciler,
 			ResourceName: name,
 		})
 	})
@@ -122,9 +122,9 @@ func Disable(ctx context.Context, name string) (*Reconciler, error) {
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       activityLogActionDisableReconciler,
+			Action:       activityLogEntryActionDisableReconciler,
 			Actor:        authz.ActorFromContext(ctx).User,
-			ResourceType: ActivityLogResourceTypeReconciler,
+			ResourceType: ActivityLogEntryResourceTypeReconciler,
 			ResourceName: name,
 		})
 	})
@@ -172,9 +172,9 @@ func Configure(ctx context.Context, name string, config []*ReconcilerConfigInput
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       activityLogActionConfigureReconciler,
+			Action:       activityLogEntryActionConfigureReconciler,
 			Actor:        authz.ActorFromContext(ctx).User,
-			ResourceType: ActivityLogResourceTypeReconciler,
+			ResourceType: ActivityLogEntryResourceTypeReconciler,
 			ResourceName: name,
 			Data: &ReconcilerConfiguredActivityLogData{
 				UpdatedKeys: slices.Sorted(maps.Keys(reconcilerConfig)),

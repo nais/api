@@ -22,7 +22,7 @@ extend type Team {
 		Get items before this cursor.
 		"""
 		before: Cursor
-	): ActivityLogConnection!
+	): ActivityLogEntryConnection!
 }
 
 extend type Reconciler {
@@ -49,7 +49,7 @@ extend type Reconciler {
 		Get items before this cursor.
 		"""
 		before: Cursor
-	): ActivityLogConnection!
+	): ActivityLogEntryConnection!
 }
 
 """
@@ -79,7 +79,7 @@ interface ActivityLogEntry implements Node {
 	"""
 	Type of the resource that was affected by the action.
 	"""
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"""
 	Name of the resource that was affected by the action.
@@ -100,7 +100,7 @@ interface ActivityLogEntry implements Node {
 """
 The type of the resource that was affected by the activity.
 """
-enum ActivityLogResourceType {
+enum ActivityLogEntryResourceType {
 	"""
 	Unknown type.
 	"""
@@ -110,7 +110,7 @@ enum ActivityLogResourceType {
 """
 Activity log connection.
 """
-type ActivityLogConnection {
+type ActivityLogEntryConnection {
 	"""
 	Pagination information.
 	"""
@@ -124,13 +124,13 @@ type ActivityLogConnection {
 	"""
 	List of edges.
 	"""
-	edges: [ActivityLogEdge!]!
+	edges: [ActivityLogEntryEdge!]!
 }
 
 """
 Activity log edge.
 """
-type ActivityLogEdge {
+type ActivityLogEntryEdge {
 	"""
 	Cursor for this edge that can be used for pagination.
 	"""

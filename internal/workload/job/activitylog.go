@@ -7,18 +7,18 @@ import (
 )
 
 const (
-	activityLogResourceTypeJob  activitylog.ActivityLogResourceType = "JOB"
-	activityLogActionTriggerJob activitylog.ActivityLogAction       = "TRIGGER_JOB"
+	activityLogEntryResourceTypeJob  activitylog.ActivityLogEntryResourceType = "JOB"
+	activityLogEntryActionTriggerJob activitylog.ActivityLogEntryAction       = "TRIGGER_JOB"
 )
 
 func init() {
-	activitylog.RegisterTransformer(activityLogResourceTypeJob, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
+	activitylog.RegisterTransformer(activityLogEntryResourceTypeJob, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
-		case activityLogActionTriggerJob:
+		case activityLogEntryActionTriggerJob:
 			return JobTriggeredActivityLog{
 				GenericActivityLogEntry: entry.WithMessage("Job triggered"),
 			}, nil
-		case activitylog.ActivityLogActionDeleted:
+		case activitylog.ActivityLogEntryActionDeleted:
 			return JobDeletedActivityLog{
 				GenericActivityLogEntry: entry.WithMessage("Job deleted"),
 			}, nil

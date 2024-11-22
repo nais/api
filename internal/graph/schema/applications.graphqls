@@ -464,7 +464,7 @@ type ApplicationInstanceEdge {
 	node: ApplicationInstance!
 }
 
-extend enum ActivityLogResourceType {
+extend enum ActivityLogEntryResourceType {
 	"All activity log entries related to applications will use this resource type."
 	APP
 }
@@ -483,7 +483,7 @@ type ApplicationDeletedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -509,7 +509,7 @@ type ApplicationRestartedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!

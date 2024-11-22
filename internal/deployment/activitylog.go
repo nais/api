@@ -7,13 +7,13 @@ import (
 )
 
 const (
-	activityLogResourceTypeDeployKey activitylog.ActivityLogResourceType = "DEPLOY_KEY"
+	activityLogEntryResourceTypeDeployKey activitylog.ActivityLogEntryResourceType = "DEPLOY_KEY"
 )
 
 func init() {
-	activitylog.RegisterTransformer(activityLogResourceTypeDeployKey, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
+	activitylog.RegisterTransformer(activityLogEntryResourceTypeDeployKey, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
-		case activitylog.ActivityLogActionUpdated:
+		case activitylog.ActivityLogEntryActionUpdated:
 			return TeamDeployKeyUpdatedActivityLog{
 				GenericActivityLogEntry: entry.WithMessage("Updated deployment key"),
 			}, nil

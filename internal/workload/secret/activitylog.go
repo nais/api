@@ -7,24 +7,24 @@ import (
 )
 
 const (
-	activityLogResourceTypeSecret      activitylog.ActivityLogResourceType = "SECRET"
-	activityLogActionAddSecretValue    activitylog.ActivityLogAction       = "ADD_SECRET_VALUE"
-	activityLogActionUpdateSecretValue                                     = "UPDATE_SECRET_VALUE"
-	activityLogActionRemoveSecretValue                                     = "REMOVE_SECRET_VALUE"
+	activityLogEntryResourceTypeSecret      activitylog.ActivityLogEntryResourceType = "SECRET"
+	activityLogEntryActionAddSecretValue    activitylog.ActivityLogEntryAction       = "ADD_SECRET_VALUE"
+	activityLogEntryActionUpdateSecretValue                                          = "UPDATE_SECRET_VALUE"
+	activityLogEntryActionRemoveSecretValue                                          = "REMOVE_SECRET_VALUE"
 )
 
 func init() {
-	activitylog.RegisterTransformer(activityLogResourceTypeSecret, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
+	activitylog.RegisterTransformer(activityLogEntryResourceTypeSecret, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
-		case activitylog.ActivityLogActionCreated:
+		case activitylog.ActivityLogEntryActionCreated:
 			return SecretCreatedActivityLog{
 				GenericActivityLogEntry: entry.WithMessage("Created secret"),
 			}, nil
-		case activitylog.ActivityLogActionDeleted:
+		case activitylog.ActivityLogEntryActionDeleted:
 			return SecretDeletedActivityLog{
 				GenericActivityLogEntry: entry.WithMessage("Deleted secret"),
 			}, nil
-		case activityLogActionAddSecretValue:
+		case activityLogEntryActionAddSecretValue:
 			data, err := activitylog.TransformData(entry, func(data *SecretValueAddedActivityLogData) *SecretValueAddedActivityLogData {
 				return data
 			})
@@ -36,7 +36,7 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Added secret value"),
 				Data:                    data,
 			}, nil
-		case activityLogActionUpdateSecretValue:
+		case activityLogEntryActionUpdateSecretValue:
 			data, err := activitylog.TransformData(entry, func(data *SecretValueUpdatedActivityLogData) *SecretValueUpdatedActivityLogData {
 				return data
 			})
@@ -48,7 +48,7 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Updated secret value"),
 				Data:                    data,
 			}, nil
-		case activityLogActionRemoveSecretValue:
+		case activityLogEntryActionRemoveSecretValue:
 			data, err := activitylog.TransformData(entry, func(data *SecretValueRemovedActivityLogData) *SecretValueRemovedActivityLogData {
 				return data
 			})

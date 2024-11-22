@@ -86,9 +86,9 @@ func ChangeDeploymentKey(ctx context.Context, teamSlug slug.Slug) (*DeploymentKe
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
-		Action:       activitylog.ActivityLogActionUpdated,
+		Action:       activitylog.ActivityLogEntryActionUpdated,
 		Actor:        authz.ActorFromContext(ctx).User,
-		ResourceType: activityLogResourceTypeDeployKey,
+		ResourceType: activityLogEntryResourceTypeDeployKey,
 		ResourceName: "deploy-key",
 		TeamSlug:     ptr.To(teamSlug),
 	})

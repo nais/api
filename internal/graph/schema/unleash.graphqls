@@ -82,7 +82,7 @@ type UnleashInstanceMetrics {
 	memoryRequests: Float!
 }
 
-extend enum ActivityLogResourceType {
+extend enum ActivityLogEntryResourceType {
 	"All activity log entries related to unleash will use this resource type."
 	UNLEASH
 }
@@ -101,7 +101,7 @@ type UnleashInstanceCreatedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -127,7 +127,7 @@ type UnleashInstanceUpdatedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!

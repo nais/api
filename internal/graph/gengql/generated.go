@@ -128,13 +128,13 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	ActivityLogConnection struct {
+	ActivityLogEntryConnection struct {
 		Edges    func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
-	ActivityLogEdge struct {
+	ActivityLogEntryEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
 	}
@@ -2259,40 +2259,40 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "ActivityLogConnection.edges":
-		if e.complexity.ActivityLogConnection.Edges == nil {
+	case "ActivityLogEntryConnection.edges":
+		if e.complexity.ActivityLogEntryConnection.Edges == nil {
 			break
 		}
 
-		return e.complexity.ActivityLogConnection.Edges(childComplexity), true
+		return e.complexity.ActivityLogEntryConnection.Edges(childComplexity), true
 
-	case "ActivityLogConnection.nodes":
-		if e.complexity.ActivityLogConnection.Nodes == nil {
+	case "ActivityLogEntryConnection.nodes":
+		if e.complexity.ActivityLogEntryConnection.Nodes == nil {
 			break
 		}
 
-		return e.complexity.ActivityLogConnection.Nodes(childComplexity), true
+		return e.complexity.ActivityLogEntryConnection.Nodes(childComplexity), true
 
-	case "ActivityLogConnection.pageInfo":
-		if e.complexity.ActivityLogConnection.PageInfo == nil {
+	case "ActivityLogEntryConnection.pageInfo":
+		if e.complexity.ActivityLogEntryConnection.PageInfo == nil {
 			break
 		}
 
-		return e.complexity.ActivityLogConnection.PageInfo(childComplexity), true
+		return e.complexity.ActivityLogEntryConnection.PageInfo(childComplexity), true
 
-	case "ActivityLogEdge.cursor":
-		if e.complexity.ActivityLogEdge.Cursor == nil {
+	case "ActivityLogEntryEdge.cursor":
+		if e.complexity.ActivityLogEntryEdge.Cursor == nil {
 			break
 		}
 
-		return e.complexity.ActivityLogEdge.Cursor(childComplexity), true
+		return e.complexity.ActivityLogEntryEdge.Cursor(childComplexity), true
 
-	case "ActivityLogEdge.node":
-		if e.complexity.ActivityLogEdge.Node == nil {
+	case "ActivityLogEntryEdge.node":
+		if e.complexity.ActivityLogEntryEdge.Node == nil {
 			break
 		}
 
-		return e.complexity.ActivityLogEdge.Node(childComplexity), true
+		return e.complexity.ActivityLogEntryEdge.Node(childComplexity), true
 
 	case "AddRepositoryToTeamPayload.repository":
 		if e.complexity.AddRepositoryToTeamPayload.Repository == nil {
@@ -9882,7 +9882,7 @@ var sources = []*ast.Source{
 		Get items before this cursor.
 		"""
 		before: Cursor
-	): ActivityLogConnection!
+	): ActivityLogEntryConnection!
 }
 
 extend type Reconciler {
@@ -9909,7 +9909,7 @@ extend type Reconciler {
 		Get items before this cursor.
 		"""
 		before: Cursor
-	): ActivityLogConnection!
+	): ActivityLogEntryConnection!
 }
 
 """
@@ -9939,7 +9939,7 @@ interface ActivityLogEntry implements Node {
 	"""
 	Type of the resource that was affected by the action.
 	"""
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"""
 	Name of the resource that was affected by the action.
@@ -9960,7 +9960,7 @@ interface ActivityLogEntry implements Node {
 """
 The type of the resource that was affected by the activity.
 """
-enum ActivityLogResourceType {
+enum ActivityLogEntryResourceType {
 	"""
 	Unknown type.
 	"""
@@ -9970,7 +9970,7 @@ enum ActivityLogResourceType {
 """
 Activity log connection.
 """
-type ActivityLogConnection {
+type ActivityLogEntryConnection {
 	"""
 	Pagination information.
 	"""
@@ -9984,13 +9984,13 @@ type ActivityLogConnection {
 	"""
 	List of edges.
 	"""
-	edges: [ActivityLogEdge!]!
+	edges: [ActivityLogEntryEdge!]!
 }
 
 """
 Activity log edge.
 """
-type ActivityLogEdge {
+type ActivityLogEntryEdge {
 	"""
 	Cursor for this edge that can be used for pagination.
 	"""
@@ -10468,7 +10468,7 @@ type ApplicationInstanceEdge {
 	node: ApplicationInstance!
 }
 
-extend enum ActivityLogResourceType {
+extend enum ActivityLogEntryResourceType {
 	"All activity log entries related to applications will use this resource type."
 	APP
 }
@@ -10487,7 +10487,7 @@ type ApplicationDeletedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -10513,7 +10513,7 @@ type ApplicationRestartedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -11140,7 +11140,7 @@ type TeamDeployKeyUpdatedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -11471,7 +11471,7 @@ type JobDeletedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -11497,7 +11497,7 @@ type JobTriggeredActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -12043,7 +12043,7 @@ type ReconcilerEnabledActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -12069,7 +12069,7 @@ type ReconcilerDisabledActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -12095,7 +12095,7 @@ type ReconcilerConfiguredActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -12382,7 +12382,7 @@ type RepositoryAddedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -12408,7 +12408,7 @@ type RepositoryRemovedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -12943,7 +12943,7 @@ type SecretValue {
 	value: String!
 }
 
-extend enum ActivityLogResourceType {
+extend enum ActivityLogEntryResourceType {
 	"All activity log entries related to secrets will use this resource type."
 	SECRET
 }
@@ -12962,7 +12962,7 @@ type SecretCreatedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -12988,7 +12988,7 @@ type SecretValueAddedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -13022,7 +13022,7 @@ type SecretValueUpdatedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -13056,7 +13056,7 @@ type SecretValueRemovedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -13090,7 +13090,7 @@ type SecretDeletedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -13961,7 +13961,7 @@ enum TeamMemberRole {
 	OWNER
 }
 
-extend enum ActivityLogResourceType {
+extend enum ActivityLogEntryResourceType {
 	"All activity log entries related to teams will use this resource type."
 	TEAM
 }
@@ -13980,7 +13980,7 @@ type TeamCreatedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -14006,7 +14006,7 @@ type TeamUpdatedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -14051,7 +14051,7 @@ type TeamCreateDeleteKeyActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -14077,7 +14077,7 @@ type TeamConfirmDeleteKeyActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -14103,7 +14103,7 @@ type TeamMemberAddedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -14143,7 +14143,7 @@ type TeamMemberRemovedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -14180,7 +14180,7 @@ type TeamMemberSetRoleActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -14220,7 +14220,7 @@ type TeamEnvironmentUpdatedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -14377,7 +14377,7 @@ type UnleashInstanceMetrics {
 	memoryRequests: Float!
 }
 
-extend enum ActivityLogResourceType {
+extend enum ActivityLogEntryResourceType {
 	"All activity log entries related to unleash will use this resource type."
 	UNLEASH
 }
@@ -14396,7 +14396,7 @@ type UnleashInstanceCreatedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -14422,7 +14422,7 @@ type UnleashInstanceUpdatedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -15060,7 +15060,7 @@ type VulnerabilityUpdatedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -22850,8 +22850,8 @@ func (ec *executionContext) field___Type_fields_argsIncludeDeprecated(
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _ActivityLogConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[activitylog.ActivityLogEntry]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ActivityLogConnection_pageInfo(ctx, field)
+func (ec *executionContext) _ActivityLogEntryConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[activitylog.ActivityLogEntry]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ActivityLogEntryConnection_pageInfo(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -22881,9 +22881,9 @@ func (ec *executionContext) _ActivityLogConnection_pageInfo(ctx context.Context,
 	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ActivityLogConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ActivityLogEntryConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ActivityLogConnection",
+		Object:     "ActivityLogEntryConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -22910,8 +22910,8 @@ func (ec *executionContext) fieldContext_ActivityLogConnection_pageInfo(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ActivityLogConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[activitylog.ActivityLogEntry]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ActivityLogConnection_nodes(ctx, field)
+func (ec *executionContext) _ActivityLogEntryConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[activitylog.ActivityLogEntry]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ActivityLogEntryConnection_nodes(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -22941,9 +22941,9 @@ func (ec *executionContext) _ActivityLogConnection_nodes(ctx context.Context, fi
 	return ec.marshalNActivityLogEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ActivityLogConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ActivityLogEntryConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ActivityLogConnection",
+		Object:     "ActivityLogEntryConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -22954,8 +22954,8 @@ func (ec *executionContext) fieldContext_ActivityLogConnection_nodes(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _ActivityLogConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[activitylog.ActivityLogEntry]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ActivityLogConnection_edges(ctx, field)
+func (ec *executionContext) _ActivityLogEntryConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[activitylog.ActivityLogEntry]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ActivityLogEntryConnection_edges(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -22982,30 +22982,30 @@ func (ec *executionContext) _ActivityLogConnection_edges(ctx context.Context, fi
 	}
 	res := resTmp.([]pagination.Edge[activitylog.ActivityLogEntry])
 	fc.Result = res
-	return ec.marshalNActivityLogEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ActivityLogConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ActivityLogEntryConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ActivityLogConnection",
+		Object:     "ActivityLogEntryConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "cursor":
-				return ec.fieldContext_ActivityLogEdge_cursor(ctx, field)
+				return ec.fieldContext_ActivityLogEntryEdge_cursor(ctx, field)
 			case "node":
-				return ec.fieldContext_ActivityLogEdge_node(ctx, field)
+				return ec.fieldContext_ActivityLogEntryEdge_node(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ActivityLogEdge", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ActivityLogEntryEdge", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ActivityLogEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[activitylog.ActivityLogEntry]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ActivityLogEdge_cursor(ctx, field)
+func (ec *executionContext) _ActivityLogEntryEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[activitylog.ActivityLogEntry]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ActivityLogEntryEdge_cursor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -23035,9 +23035,9 @@ func (ec *executionContext) _ActivityLogEdge_cursor(ctx context.Context, field g
 	return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ActivityLogEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ActivityLogEntryEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ActivityLogEdge",
+		Object:     "ActivityLogEntryEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -23048,8 +23048,8 @@ func (ec *executionContext) fieldContext_ActivityLogEdge_cursor(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ActivityLogEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[activitylog.ActivityLogEntry]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ActivityLogEdge_node(ctx, field)
+func (ec *executionContext) _ActivityLogEntryEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[activitylog.ActivityLogEntry]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ActivityLogEntryEdge_node(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -23079,9 +23079,9 @@ func (ec *executionContext) _ActivityLogEdge_node(ctx context.Context, field gra
 	return ec.marshalNActivityLogEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntry(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ActivityLogEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ActivityLogEntryEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ActivityLogEdge",
+		Object:     "ActivityLogEntryEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -25006,9 +25006,9 @@ func (ec *executionContext) _ApplicationDeletedActivityLog_resourceType(ctx cont
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -25018,7 +25018,7 @@ func (ec *executionContext) fieldContext_ApplicationDeletedActivityLog_resourceT
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -26329,9 +26329,9 @@ func (ec *executionContext) _ApplicationRestartedActivityLog_resourceType(ctx co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -26341,7 +26341,7 @@ func (ec *executionContext) fieldContext_ApplicationRestartedActivityLog_resourc
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -35299,9 +35299,9 @@ func (ec *executionContext) _JobDeletedActivityLog_resourceType(ctx context.Cont
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_JobDeletedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -35311,7 +35311,7 @@ func (ec *executionContext) fieldContext_JobDeletedActivityLog_resourceType(_ co
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -37107,9 +37107,9 @@ func (ec *executionContext) _JobTriggeredActivityLog_resourceType(ctx context.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_JobTriggeredActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -37119,7 +37119,7 @@ func (ec *executionContext) fieldContext_JobTriggeredActivityLog_resourceType(_ 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -43862,7 +43862,7 @@ func (ec *executionContext) _Reconciler_activityLog(ctx context.Context, field g
 	}
 	res := resTmp.(*pagination.Connection[activitylog.ActivityLogEntry])
 	fc.Result = res
-	return ec.marshalNActivityLogConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Reconciler_activityLog(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -43874,13 +43874,13 @@ func (ec *executionContext) fieldContext_Reconciler_activityLog(ctx context.Cont
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "pageInfo":
-				return ec.fieldContext_ActivityLogConnection_pageInfo(ctx, field)
+				return ec.fieldContext_ActivityLogEntryConnection_pageInfo(ctx, field)
 			case "nodes":
-				return ec.fieldContext_ActivityLogConnection_nodes(ctx, field)
+				return ec.fieldContext_ActivityLogEntryConnection_nodes(ctx, field)
 			case "edges":
-				return ec.fieldContext_ActivityLogConnection_edges(ctx, field)
+				return ec.fieldContext_ActivityLogEntryConnection_edges(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ActivityLogConnection", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ActivityLogEntryConnection", field.Name)
 		},
 	}
 	defer func() {
@@ -44360,9 +44360,9 @@ func (ec *executionContext) _ReconcilerConfiguredActivityLog_resourceType(ctx co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -44372,7 +44372,7 @@ func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLog_resourc
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -44975,9 +44975,9 @@ func (ec *executionContext) _ReconcilerDisabledActivityLog_resourceType(ctx cont
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -44987,7 +44987,7 @@ func (ec *executionContext) fieldContext_ReconcilerDisabledActivityLog_resourceT
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -45432,9 +45432,9 @@ func (ec *executionContext) _ReconcilerEnabledActivityLog_resourceType(ctx conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -45444,7 +45444,7 @@ func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLog_resourceTy
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -47949,9 +47949,9 @@ func (ec *executionContext) _RepositoryAddedActivityLog_resourceType(ctx context
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -47961,7 +47961,7 @@ func (ec *executionContext) fieldContext_RepositoryAddedActivityLog_resourceType
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -48556,9 +48556,9 @@ func (ec *executionContext) _RepositoryRemovedActivityLog_resourceType(ctx conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -48568,7 +48568,7 @@ func (ec *executionContext) fieldContext_RepositoryRemovedActivityLog_resourceTy
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -50137,9 +50137,9 @@ func (ec *executionContext) _SecretCreatedActivityLog_resourceType(ctx context.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SecretCreatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -50149,7 +50149,7 @@ func (ec *executionContext) fieldContext_SecretCreatedActivityLog_resourceType(_
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -50486,9 +50486,9 @@ func (ec *executionContext) _SecretDeletedActivityLog_resourceType(ctx context.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SecretDeletedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -50498,7 +50498,7 @@ func (ec *executionContext) fieldContext_SecretDeletedActivityLog_resourceType(_
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -51033,9 +51033,9 @@ func (ec *executionContext) _SecretValueAddedActivityLog_resourceType(ctx contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SecretValueAddedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -51045,7 +51045,7 @@ func (ec *executionContext) fieldContext_SecretValueAddedActivityLog_resourceTyp
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -51474,9 +51474,9 @@ func (ec *executionContext) _SecretValueRemovedActivityLog_resourceType(ctx cont
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -51486,7 +51486,7 @@ func (ec *executionContext) fieldContext_SecretValueRemovedActivityLog_resourceT
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -51915,9 +51915,9 @@ func (ec *executionContext) _SecretValueUpdatedActivityLog_resourceType(ctx cont
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -51927,7 +51927,7 @@ func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLog_resourceT
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -56980,7 +56980,7 @@ func (ec *executionContext) _Team_activityLog(ctx context.Context, field graphql
 	}
 	res := resTmp.(*pagination.Connection[activitylog.ActivityLogEntry])
 	fc.Result = res
-	return ec.marshalNActivityLogConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Team_activityLog(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -56992,13 +56992,13 @@ func (ec *executionContext) fieldContext_Team_activityLog(ctx context.Context, f
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "pageInfo":
-				return ec.fieldContext_ActivityLogConnection_pageInfo(ctx, field)
+				return ec.fieldContext_ActivityLogEntryConnection_pageInfo(ctx, field)
 			case "nodes":
-				return ec.fieldContext_ActivityLogConnection_nodes(ctx, field)
+				return ec.fieldContext_ActivityLogEntryConnection_nodes(ctx, field)
 			case "edges":
-				return ec.fieldContext_ActivityLogConnection_edges(ctx, field)
+				return ec.fieldContext_ActivityLogEntryConnection_edges(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ActivityLogConnection", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ActivityLogEntryConnection", field.Name)
 		},
 	}
 	defer func() {
@@ -58367,9 +58367,9 @@ func (ec *executionContext) _TeamConfirmDeleteKeyActivityLog_resourceType(ctx co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -58379,7 +58379,7 @@ func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLog_resourc
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -59329,9 +59329,9 @@ func (ec *executionContext) _TeamCreateDeleteKeyActivityLog_resourceType(ctx con
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -59341,7 +59341,7 @@ func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLog_resource
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -59678,9 +59678,9 @@ func (ec *executionContext) _TeamCreatedActivityLog_resourceType(ctx context.Con
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamCreatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -59690,7 +59690,7 @@ func (ec *executionContext) fieldContext_TeamCreatedActivityLog_resourceType(_ c
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -60331,9 +60331,9 @@ func (ec *executionContext) _TeamDeployKeyUpdatedActivityLog_resourceType(ctx co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -60343,7 +60343,7 @@ func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLog_resourc
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -62180,9 +62180,9 @@ func (ec *executionContext) _TeamEnvironmentUpdatedActivityLog_resourceType(ctx 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -62192,7 +62192,7 @@ func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLog_resou
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -64156,9 +64156,9 @@ func (ec *executionContext) _TeamMemberAddedActivityLog_resourceType(ctx context
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamMemberAddedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -64168,7 +64168,7 @@ func (ec *executionContext) fieldContext_TeamMemberAddedActivityLog_resourceType
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -64947,9 +64947,9 @@ func (ec *executionContext) _TeamMemberRemovedActivityLog_resourceType(ctx conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -64959,7 +64959,7 @@ func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLog_resourceTy
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -65434,9 +65434,9 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLog_resourceType(ctx conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -65446,7 +65446,7 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLog_resourceTy
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -66571,9 +66571,9 @@ func (ec *executionContext) _TeamUpdatedActivityLog_resourceType(ctx context.Con
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamUpdatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -66583,7 +66583,7 @@ func (ec *executionContext) fieldContext_TeamUpdatedActivityLog_resourceType(_ c
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -68623,9 +68623,9 @@ func (ec *executionContext) _UnleashInstanceCreatedActivityLog_resourceType(ctx 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -68635,7 +68635,7 @@ func (ec *executionContext) fieldContext_UnleashInstanceCreatedActivityLog_resou
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -69236,9 +69236,9 @@ func (ec *executionContext) _UnleashInstanceUpdatedActivityLog_resourceType(ctx 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -69248,7 +69248,7 @@ func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLog_resou
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -70664,9 +70664,9 @@ func (ec *executionContext) _VulnerabilityUpdatedActivityLog_resourceType(ctx co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(activitylog.ActivityLogResourceType)
+	res := resTmp.(activitylog.ActivityLogEntryResourceType)
 	fc.Result = res
-	return ec.marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -70676,7 +70676,7 @@ func (ec *executionContext) fieldContext_VulnerabilityUpdatedActivityLog_resourc
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ActivityLogResourceType does not have child fields")
+			return nil, errors.New("field of type ActivityLogEntryResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -78156,29 +78156,29 @@ func (ec *executionContext) _WorkloadStatusError(ctx context.Context, sel ast.Se
 
 // region    **************************** object.gotpl ****************************
 
-var activityLogConnectionImplementors = []string{"ActivityLogConnection"}
+var activityLogEntryConnectionImplementors = []string{"ActivityLogEntryConnection"}
 
-func (ec *executionContext) _ActivityLogConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[activitylog.ActivityLogEntry]) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, activityLogConnectionImplementors)
+func (ec *executionContext) _ActivityLogEntryConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[activitylog.ActivityLogEntry]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, activityLogEntryConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ActivityLogConnection")
+			out.Values[i] = graphql.MarshalString("ActivityLogEntryConnection")
 		case "pageInfo":
-			out.Values[i] = ec._ActivityLogConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = ec._ActivityLogEntryConnection_pageInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "nodes":
-			out.Values[i] = ec._ActivityLogConnection_nodes(ctx, field, obj)
+			out.Values[i] = ec._ActivityLogEntryConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "edges":
-			out.Values[i] = ec._ActivityLogConnection_edges(ctx, field, obj)
+			out.Values[i] = ec._ActivityLogEntryConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -78205,24 +78205,24 @@ func (ec *executionContext) _ActivityLogConnection(ctx context.Context, sel ast.
 	return out
 }
 
-var activityLogEdgeImplementors = []string{"ActivityLogEdge"}
+var activityLogEntryEdgeImplementors = []string{"ActivityLogEntryEdge"}
 
-func (ec *executionContext) _ActivityLogEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[activitylog.ActivityLogEntry]) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, activityLogEdgeImplementors)
+func (ec *executionContext) _ActivityLogEntryEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[activitylog.ActivityLogEntry]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, activityLogEntryEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ActivityLogEdge")
+			out.Values[i] = graphql.MarshalString("ActivityLogEntryEdge")
 		case "cursor":
-			out.Values[i] = ec._ActivityLogEdge_cursor(ctx, field, obj)
+			out.Values[i] = ec._ActivityLogEntryEdge_cursor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._ActivityLogEdge_node(ctx, field, obj)
+			out.Values[i] = ec._ActivityLogEntryEdge_node(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -97855,68 +97855,6 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNActivityLogConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[activitylog.ActivityLogEntry]) graphql.Marshaler {
-	return ec._ActivityLogConnection(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNActivityLogConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[activitylog.ActivityLogEntry]) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._ActivityLogConnection(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNActivityLogEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[activitylog.ActivityLogEntry]) graphql.Marshaler {
-	return ec._ActivityLogEdge(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNActivityLogEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[activitylog.ActivityLogEntry]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNActivityLogEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
 func (ec *executionContext) marshalNActivityLogEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntry(ctx context.Context, sel ast.SelectionSet, v activitylog.ActivityLogEntry) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -97971,13 +97909,75 @@ func (ec *executionContext) marshalNActivityLogEntry2ᚕgithubᚗcomᚋnaisᚋap
 	return ret
 }
 
-func (ec *executionContext) unmarshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx context.Context, v interface{}) (activitylog.ActivityLogResourceType, error) {
+func (ec *executionContext) marshalNActivityLogEntryConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[activitylog.ActivityLogEntry]) graphql.Marshaler {
+	return ec._ActivityLogEntryConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[activitylog.ActivityLogEntry]) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ActivityLogEntryConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNActivityLogEntryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[activitylog.ActivityLogEntry]) graphql.Marshaler {
+	return ec._ActivityLogEntryEdge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNActivityLogEntryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[activitylog.ActivityLogEntry]) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNActivityLogEntryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx context.Context, v interface{}) (activitylog.ActivityLogEntryResourceType, error) {
 	tmp, err := graphql.UnmarshalString(v)
-	res := activitylog.ActivityLogResourceType(tmp)
+	res := activitylog.ActivityLogEntryResourceType(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNActivityLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceType(ctx context.Context, sel ast.SelectionSet, v activitylog.ActivityLogResourceType) graphql.Marshaler {
+func (ec *executionContext) marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx context.Context, sel ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
 	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {

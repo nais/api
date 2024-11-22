@@ -13,18 +13,18 @@ import (
 )
 
 type (
-	ActivityLogResourceType string
-	ActivityLogAction       string
+	ActivityLogEntryResourceType string
+	ActivityLogEntryAction       string
 )
 
 const (
-	ActivityLogActionAdded        ActivityLogAction = "ADDED"
-	ActivityLogActionCreated      ActivityLogAction = "CREATED"
-	ActivityLogActionDeleted      ActivityLogAction = "DELETED"
-	ActivityLogActionRemoved      ActivityLogAction = "REMOVED"
-	ActivityLogActionRestarted    ActivityLogAction = "RESTARTED"
-	ActivityLogActionUpdated      ActivityLogAction = "UPDATED"
-	ActivityLogActionSynchronized ActivityLogAction = "SYNCHRONIZED"
+	ActivityLogEntryActionAdded        ActivityLogEntryAction = "ADDED"
+	ActivityLogEntryActionCreated      ActivityLogEntryAction = "CREATED"
+	ActivityLogEntryActionDeleted      ActivityLogEntryAction = "DELETED"
+	ActivityLogEntryActionRemoved      ActivityLogEntryAction = "REMOVED"
+	ActivityLogEntryActionRestarted    ActivityLogEntryAction = "RESTARTED"
+	ActivityLogEntryActionUpdated      ActivityLogEntryAction = "UPDATED"
+	ActivityLogEntryActionSynchronized ActivityLogEntryAction = "SYNCHRONIZED"
 )
 
 type ActivityLogEntry interface {
@@ -34,21 +34,21 @@ type ActivityLogEntry interface {
 }
 
 type (
-	ActivityLogConnection = pagination.Connection[ActivityLogEntry]
-	ActivityLogEdge       = pagination.Edge[ActivityLogEntry]
+	ActivityLogEntryConnection = pagination.Connection[ActivityLogEntry]
+	ActivityLogEntryEdge       = pagination.Edge[ActivityLogEntry]
 )
 
 type GenericActivityLogEntry struct {
-	Actor           string                  `json:"actor"`
-	CreatedAt       time.Time               `json:"createdAt"`
-	EnvironmentName *string                 `json:"environmentName,omitempty"`
-	Message         string                  `json:"message"`
-	ResourceType    ActivityLogResourceType `json:"resourceType"`
-	ResourceName    string                  `json:"resourceName"`
-	TeamSlug        *slug.Slug              `json:"teamSlug,omitempty"`
-	Action          ActivityLogAction       `json:"-"`
-	UUID            uuid.UUID               `json:"-"`
-	Data            []byte                  `json:"-"`
+	Actor           string                       `json:"actor"`
+	CreatedAt       time.Time                    `json:"createdAt"`
+	EnvironmentName *string                      `json:"environmentName,omitempty"`
+	Message         string                       `json:"message"`
+	ResourceType    ActivityLogEntryResourceType `json:"resourceType"`
+	ResourceName    string                       `json:"resourceName"`
+	TeamSlug        *slug.Slug                   `json:"teamSlug,omitempty"`
+	Action          ActivityLogEntryAction       `json:"-"`
+	UUID            uuid.UUID                    `json:"-"`
+	Data            []byte                       `json:"-"`
 }
 
 func (GenericActivityLogEntry) IsNode() {}

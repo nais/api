@@ -10,21 +10,21 @@ import (
 )
 
 const (
-	activityLogResourceTypeTeam        activitylog.ActivityLogResourceType = "TEAM"
-	activityLogActionCreateDeleteKey   activitylog.ActivityLogAction       = "CREATE_DELETE_KEY"
-	activityLogActionConfirmDeleteKey                                      = "CONFIRM_DELETE_KEY"
-	activityLogActionSetMemberRole                                         = "SET_MEMBER_ROLE"
-	activityLogActionUpdateEnvironment                                     = "UPDATE_ENVIRONMENT"
+	activityLogEntryResourceTypeTeam        activitylog.ActivityLogEntryResourceType = "TEAM"
+	activityLogEntryActionCreateDeleteKey   activitylog.ActivityLogEntryAction       = "CREATE_DELETE_KEY"
+	activityLogEntryActionConfirmDeleteKey                                           = "CONFIRM_DELETE_KEY"
+	activityLogEntryActionSetMemberRole                                              = "SET_MEMBER_ROLE"
+	activityLogEntryActionUpdateEnvironment                                          = "UPDATE_ENVIRONMENT"
 )
 
 func init() {
-	activitylog.RegisterTransformer(activityLogResourceTypeTeam, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
+	activitylog.RegisterTransformer(activityLogEntryResourceTypeTeam, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
-		case activitylog.ActivityLogActionCreated:
+		case activitylog.ActivityLogEntryActionCreated:
 			return TeamCreatedActivityLog{
 				GenericActivityLogEntry: entry.WithMessage("Created team"),
 			}, nil
-		case activitylog.ActivityLogActionUpdated:
+		case activitylog.ActivityLogEntryActionUpdated:
 			data, err := activitylog.TransformData(entry, func(data *TeamUpdatedActivityLogData) *TeamUpdatedActivityLogData {
 				if len(data.UpdatedFields) == 0 {
 					return &TeamUpdatedActivityLogData{}
@@ -39,15 +39,15 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Updated team"),
 				Data:                    data,
 			}, nil
-		case activityLogActionCreateDeleteKey:
+		case activityLogEntryActionCreateDeleteKey:
 			return TeamCreateDeleteKeyActivityLog{
 				GenericActivityLogEntry: entry.WithMessage("Create delete key"),
 			}, nil
-		case activityLogActionConfirmDeleteKey:
+		case activityLogEntryActionConfirmDeleteKey:
 			return TeamConfirmDeleteKeyActivityLog{
 				GenericActivityLogEntry: entry.WithMessage("Confirm delete key"),
 			}, nil
-		case activitylog.ActivityLogActionAdded:
+		case activitylog.ActivityLogEntryActionAdded:
 			data, err := activitylog.TransformData(entry, func(data *TeamMemberAddedActivityLogData) *TeamMemberAddedActivityLogData {
 				return data
 			})
@@ -58,7 +58,7 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Add member"),
 				Data:                    data,
 			}, nil
-		case activitylog.ActivityLogActionRemoved:
+		case activitylog.ActivityLogEntryActionRemoved:
 			data, err := activitylog.TransformData(entry, func(data *TeamMemberRemovedActivityLogData) *TeamMemberRemovedActivityLogData {
 				return data
 			})
@@ -69,7 +69,7 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Remove member"),
 				Data:                    data,
 			}, nil
-		case activityLogActionSetMemberRole:
+		case activityLogEntryActionSetMemberRole:
 			data, err := activitylog.TransformData(entry, func(data *TeamMemberSetRoleActivityLogData) *TeamMemberSetRoleActivityLogData {
 				return data
 			})
@@ -80,7 +80,7 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Set member role"),
 				Data:                    data,
 			}, nil
-		case activityLogActionUpdateEnvironment:
+		case activityLogEntryActionUpdateEnvironment:
 			data, err := activitylog.TransformData(entry, func(data *TeamEnvironmentUpdatedActivityLogData) *TeamEnvironmentUpdatedActivityLogData {
 				return data
 			})

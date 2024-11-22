@@ -7,14 +7,14 @@ import (
 )
 
 const (
-	activityLogResourceTypeApplication  activitylog.ActivityLogResourceType = "APP"
-	activityLogActionRestartApplication activitylog.ActivityLogAction       = "RESTARTED"
+	activityLogEntryResourceTypeApplication  activitylog.ActivityLogEntryResourceType = "APP"
+	activityLogEntryActionRestartApplication activitylog.ActivityLogEntryAction       = "RESTARTED"
 )
 
 func init() {
-	activitylog.RegisterTransformer(activityLogResourceTypeApplication, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
+	activitylog.RegisterTransformer(activityLogEntryResourceTypeApplication, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
-		case activityLogActionRestartApplication:
+		case activityLogEntryActionRestartApplication:
 			if entry.TeamSlug == nil {
 				return nil, fmt.Errorf("missing team slug for application restart activity log entry")
 			}
@@ -24,7 +24,7 @@ func init() {
 			return ApplicationRestartedActivityLog{
 				GenericActivityLogEntry: entry.WithMessage("Application restarted"),
 			}, nil
-		case activitylog.ActivityLogActionDeleted:
+		case activitylog.ActivityLogEntryActionDeleted:
 			return ApplicationDeletedActivityLog{
 				GenericActivityLogEntry: entry.WithMessage("Application deleted"),
 			}, nil

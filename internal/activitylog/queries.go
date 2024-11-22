@@ -17,9 +17,9 @@ import (
 )
 
 type CreateInput struct {
-	Action       ActivityLogAction
+	Action       ActivityLogEntryAction
 	Actor        authz.AuthenticatedUser
-	ResourceType ActivityLogResourceType
+	ResourceType ActivityLogEntryResourceType
 	ResourceName string
 
 	Data            any        // optional
@@ -71,7 +71,7 @@ func GetByIdent(ctx context.Context, id ident.Ident) (ActivityLogEntry, error) {
 	return Get(ctx, uid)
 }
 
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*ActivityLogConnection, error) {
+func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*ActivityLogEntryConnection, error) {
 	q := db(ctx)
 
 	ret, err := q.ListForTeam(ctx, activitylogsql.ListForTeamParams{
@@ -90,7 +90,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	return pagination.NewConvertConnectionWithError(ret, page, total, toGraphActivityLog)
 }
 
-func ListForResource(ctx context.Context, resourceType ActivityLogResourceType, resourceName string, page *pagination.Pagination) (*ActivityLogConnection, error) {
+func ListForResource(ctx context.Context, resourceType ActivityLogEntryResourceType, resourceName string, page *pagination.Pagination) (*ActivityLogEntryConnection, error) {
 	q := db(ctx)
 
 	ret, err := q.ListForResource(ctx, activitylogsql.ListForResourceParams{
@@ -116,19 +116,19 @@ func ListForResource(ctx context.Context, resourceType ActivityLogResourceType, 
 func toGraphActivityLog(row *activitylogsql.ActivityLog) (ActivityLogEntry, error) {
 	titler := cases.Title(language.English)
 	entry := GenericActivityLogEntry{
-		Action:          ActivityLogAction(row.Action),
+		Action:          ActivityLogEntryAction(row.Action),
 		Actor:           row.Actor,
 		CreatedAt:       row.CreatedAt.Time,
 		EnvironmentName: row.Environment,
 		Message:         titler.String(row.Action) + " " + titler.String(row.ResourceType),
-		ResourceType:    ActivityLogResourceType(row.ResourceType),
+		ResourceType:    ActivityLogEntryResourceType(row.ResourceType),
 		ResourceName:    row.ResourceName,
 		TeamSlug:        row.TeamSlug,
 		UUID:            row.ID,
 		Data:            row.Data,
 	}
 
-	transformer, ok := knownTransformers[ActivityLogResourceType(row.ResourceType)]
+	transformer, ok := knownTransformers[ActivityLogEntryResourceType(row.ResourceType)]
 	if !ok {
 		return nil, fmt.Errorf("no transformer registered for activity log resource type: %q", row.ResourceType)
 	}

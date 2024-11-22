@@ -66,9 +66,9 @@ func AddToTeam(ctx context.Context, input AddRepositoryToTeamInput) (*Repository
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       activitylog.ActivityLogActionAdded,
+			Action:       activitylog.ActivityLogEntryActionAdded,
 			Actor:        authz.ActorFromContext(ctx).User,
-			ResourceType: activityLogResourceTypeRepository,
+			ResourceType: activityLogEntryResourceTypeRepository,
 			ResourceName: input.RepositoryName,
 			TeamSlug:     ptr.To(input.TeamSlug),
 		})
@@ -91,9 +91,9 @@ func RemoveFromTeam(ctx context.Context, input RemoveRepositoryFromTeamInput) er
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       activitylog.ActivityLogActionRemoved,
+			Action:       activitylog.ActivityLogEntryActionRemoved,
 			Actor:        authz.ActorFromContext(ctx).User,
-			ResourceType: activityLogResourceTypeRepository,
+			ResourceType: activityLogEntryResourceTypeRepository,
 			ResourceName: input.RepositoryName,
 			TeamSlug:     ptr.To(input.TeamSlug),
 		})

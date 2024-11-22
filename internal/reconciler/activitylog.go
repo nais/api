@@ -7,24 +7,24 @@ import (
 )
 
 const (
-	ActivityLogResourceTypeReconciler    activitylog.ActivityLogResourceType = "RECONCILER"
-	activityLogActionEnableReconciler    activitylog.ActivityLogAction       = "ENABLE_RECONCILER"
-	activityLogActionDisableReconciler                                       = "DISABLE_RECONCILER"
-	activityLogActionConfigureReconciler                                     = "CONFIGURE_RECONCILER"
+	ActivityLogEntryResourceTypeReconciler    activitylog.ActivityLogEntryResourceType = "RECONCILER"
+	activityLogEntryActionEnableReconciler    activitylog.ActivityLogEntryAction       = "ENABLE_RECONCILER"
+	activityLogEntryActionDisableReconciler                                            = "DISABLE_RECONCILER"
+	activityLogEntryActionConfigureReconciler                                          = "CONFIGURE_RECONCILER"
 )
 
 func init() {
-	activitylog.RegisterTransformer(ActivityLogResourceTypeReconciler, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
+	activitylog.RegisterTransformer(ActivityLogEntryResourceTypeReconciler, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
-		case activityLogActionEnableReconciler:
+		case activityLogEntryActionEnableReconciler:
 			return ReconcilerEnabledActivityLog{
 				GenericActivityLogEntry: entry.WithMessage("Enable reconciler"),
 			}, nil
-		case activityLogActionDisableReconciler:
+		case activityLogEntryActionDisableReconciler:
 			return ReconcilerDisabledActivityLog{
 				GenericActivityLogEntry: entry.WithMessage("Disable reconciler"),
 			}, nil
-		case activityLogActionConfigureReconciler:
+		case activityLogEntryActionConfigureReconciler:
 			data, err := activitylog.TransformData(entry, func(data *ReconcilerConfiguredActivityLogData) *ReconcilerConfiguredActivityLogData {
 				if len(data.UpdatedKeys) == 0 {
 					return nil

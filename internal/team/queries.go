@@ -47,9 +47,9 @@ func Create(ctx context.Context, input *CreateTeamInput, actor *authz.Actor) (*T
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       activitylog.ActivityLogActionCreated,
+			Action:       activitylog.ActivityLogEntryActionCreated,
 			Actor:        actor.User,
-			ResourceType: activityLogResourceTypeTeam,
+			ResourceType: activityLogEntryResourceTypeTeam,
 			ResourceName: input.Slug.String(),
 			TeamSlug:     ptr.To(input.Slug),
 		})
@@ -104,9 +104,9 @@ func Update(ctx context.Context, input *UpdateTeamInput, actor *authz.Actor) (*T
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       activitylog.ActivityLogActionUpdated,
+			Action:       activitylog.ActivityLogEntryActionUpdated,
 			Actor:        actor.User,
-			ResourceType: activityLogResourceTypeTeam,
+			ResourceType: activityLogEntryResourceTypeTeam,
 			ResourceName: input.Slug.String(),
 			TeamSlug:     ptr.To(input.Slug),
 			Data: func(fields []*TeamUpdatedActivityLogDataUpdatedField) *TeamUpdatedActivityLogData {
@@ -274,9 +274,9 @@ func CreateDeleteKey(ctx context.Context, teamSlug slug.Slug, actor *authz.Actor
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       activityLogActionCreateDeleteKey,
+			Action:       activityLogEntryActionCreateDeleteKey,
 			Actor:        actor.User,
-			ResourceType: activityLogResourceTypeTeam,
+			ResourceType: activityLogEntryResourceTypeTeam,
 			ResourceName: teamSlug.String(),
 			TeamSlug:     ptr.To(teamSlug),
 		})
@@ -301,9 +301,9 @@ func ConfirmDeleteKey(ctx context.Context, teamSlug slug.Slug, deleteKey uuid.UU
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       activityLogActionConfirmDeleteKey,
+			Action:       activityLogEntryActionConfirmDeleteKey,
 			Actor:        actor.User,
-			ResourceType: activityLogResourceTypeTeam,
+			ResourceType: activityLogEntryResourceTypeTeam,
 			ResourceName: teamSlug.String(),
 			TeamSlug:     ptr.To(teamSlug),
 		})
@@ -347,9 +347,9 @@ func AddMember(ctx context.Context, input AddTeamMemberInput, actor *authz.Actor
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       activitylog.ActivityLogActionAdded,
+			Action:       activitylog.ActivityLogEntryActionAdded,
 			Actor:        actor.User,
-			ResourceType: activityLogResourceTypeTeam,
+			ResourceType: activityLogEntryResourceTypeTeam,
 			ResourceName: input.TeamSlug.String(),
 			TeamSlug:     ptr.To(input.TeamSlug),
 			Data: &TeamMemberAddedActivityLogData{
@@ -382,9 +382,9 @@ func RemoveMember(ctx context.Context, input RemoveTeamMemberInput, actor *authz
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       activitylog.ActivityLogActionRemoved,
+			Action:       activitylog.ActivityLogEntryActionRemoved,
 			Actor:        actor.User,
-			ResourceType: activityLogResourceTypeTeam,
+			ResourceType: activityLogEntryResourceTypeTeam,
 			ResourceName: input.TeamSlug.String(),
 			TeamSlug:     ptr.To(input.TeamSlug),
 			Data: &TeamMemberRemovedActivityLogData{
@@ -430,9 +430,9 @@ func SetMemberRole(ctx context.Context, input SetTeamMemberRoleInput, actor *aut
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       activityLogActionSetMemberRole,
+			Action:       activityLogEntryActionSetMemberRole,
 			Actor:        actor.User,
-			ResourceType: activityLogResourceTypeTeam,
+			ResourceType: activityLogEntryResourceTypeTeam,
 			ResourceName: input.TeamSlug.String(),
 			TeamSlug:     ptr.To(input.TeamSlug),
 			Data: &TeamMemberSetRoleActivityLogData{
@@ -494,9 +494,9 @@ func UpdateEnvironment(ctx context.Context, input *UpdateTeamEnvironmentInput, a
 		}
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			Action:       activityLogActionUpdateEnvironment,
+			Action:       activityLogEntryActionUpdateEnvironment,
 			Actor:        actor.User,
-			ResourceType: activityLogResourceTypeTeam,
+			ResourceType: activityLogEntryResourceTypeTeam,
 			ResourceName: input.Slug.String(),
 			TeamSlug:     ptr.To(input.Slug),
 			Data: &TeamEnvironmentUpdatedActivityLogData{

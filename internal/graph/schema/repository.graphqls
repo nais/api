@@ -116,7 +116,7 @@ type RepositoryAddedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -142,7 +142,7 @@ type RepositoryRemovedActivityLog implements ActivityLogEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: ActivityLogResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
