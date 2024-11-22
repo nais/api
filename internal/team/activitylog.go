@@ -12,9 +12,9 @@ import (
 const (
 	activityLogEntryResourceTypeTeam        activitylog.ActivityLogEntryResourceType = "TEAM"
 	activityLogEntryActionCreateDeleteKey   activitylog.ActivityLogEntryAction       = "CREATE_DELETE_KEY"
-	activityLogEntryActionConfirmDeleteKey                                           = "CONFIRM_DELETE_KEY"
-	activityLogEntryActionSetMemberRole                                              = "SET_MEMBER_ROLE"
-	activityLogEntryActionUpdateEnvironment                                          = "UPDATE_ENVIRONMENT"
+	activityLogEntryActionConfirmDeleteKey  activitylog.ActivityLogEntryAction       = "CONFIRM_DELETE_KEY"
+	activityLogEntryActionSetMemberRole     activitylog.ActivityLogEntryAction       = "SET_MEMBER_ROLE"
+	activityLogEntryActionUpdateEnvironment activitylog.ActivityLogEntryAction       = "UPDATE_ENVIRONMENT"
 )
 
 func init() {

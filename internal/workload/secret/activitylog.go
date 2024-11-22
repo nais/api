@@ -9,8 +9,8 @@ import (
 const (
 	activityLogEntryResourceTypeSecret      activitylog.ActivityLogEntryResourceType = "SECRET"
 	activityLogEntryActionAddSecretValue    activitylog.ActivityLogEntryAction       = "ADD_SECRET_VALUE"
-	activityLogEntryActionUpdateSecretValue                                          = "UPDATE_SECRET_VALUE"
-	activityLogEntryActionRemoveSecretValue                                          = "REMOVE_SECRET_VALUE"
+	activityLogEntryActionUpdateSecretValue activitylog.ActivityLogEntryAction       = "UPDATE_SECRET_VALUE"
+	activityLogEntryActionRemoveSecretValue activitylog.ActivityLogEntryAction       = "REMOVE_SECRET_VALUE"
 )
 
 func init() {

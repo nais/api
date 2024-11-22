@@ -9,8 +9,8 @@ import (
 const (
 	ActivityLogEntryResourceTypeReconciler    activitylog.ActivityLogEntryResourceType = "RECONCILER"
 	activityLogEntryActionEnableReconciler    activitylog.ActivityLogEntryAction       = "ENABLE_RECONCILER"
-	activityLogEntryActionDisableReconciler                                            = "DISABLE_RECONCILER"
-	activityLogEntryActionConfigureReconciler                                          = "CONFIGURE_RECONCILER"
+	activityLogEntryActionDisableReconciler   activitylog.ActivityLogEntryAction       = "DISABLE_RECONCILER"
+	activityLogEntryActionConfigureReconciler activitylog.ActivityLogEntryAction       = "CONFIGURE_RECONCILER"
 )
 
 func init() {
