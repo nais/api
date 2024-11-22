@@ -11126,6 +11126,11 @@ extend enum JobOrderField {
 	DEPLOYMENT_TIME
 }
 
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to deploy keys will use this resource type."
+	DEPLOY_KEY
+}
+
 type TeamDeployKeyUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -11190,6 +11195,11 @@ extend type TeamEnvironment {
 
 extend type TeamInventoryCounts {
 	jobs: TeamInventoryCountJobs!
+}
+
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to jobs will use this resource type."
+	JOB
 }
 
 input TeamJobsFilter {
@@ -11915,6 +11925,11 @@ extend type Query {
 	): ReconcilerConnection!
 }
 
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to reconcilers will use this resource type."
+	RECONCILER
+}
+
 type ReconcilerConnection {
 	"Pagination information."
 	pageInfo: PageInfo!
@@ -12291,6 +12306,11 @@ extend type Mutation {
 
 	"Remove a team repository."
 	removeRepositoryFromTeam(input: RemoveRepositoryFromTeamInput!): RemoveRepositoryFromTeamPayload!
+}
+
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to repositories will use this resource type."
+	REPOSITORY
 }
 
 input AddRepositoryToTeamInput {
@@ -14770,6 +14790,11 @@ extend type ContainerImage {
 
 extend type Team {
 	vulnerabilitySummary(filter: TeamVulnerabilitySummaryFilter): TeamVulnerabilitySummary!
+}
+
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to vulnerabilities will use this resource type."
+	VULNERABILITY
 }
 
 """

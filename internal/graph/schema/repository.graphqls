@@ -27,6 +27,11 @@ extend type Mutation {
 	removeRepositoryFromTeam(input: RemoveRepositoryFromTeamInput!): RemoveRepositoryFromTeamPayload!
 }
 
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to repositories will use this resource type."
+	REPOSITORY
+}
+
 input AddRepositoryToTeamInput {
 	"Slug of the team to add the repository to."
 	teamSlug: Slug!

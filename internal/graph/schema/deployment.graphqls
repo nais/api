@@ -170,6 +170,11 @@ extend enum JobOrderField {
 	DEPLOYMENT_TIME
 }
 
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to deploy keys will use this resource type."
+	DEPLOY_KEY
+}
+
 type TeamDeployKeyUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!

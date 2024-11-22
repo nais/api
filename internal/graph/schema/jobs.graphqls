@@ -38,6 +38,11 @@ extend type TeamInventoryCounts {
 	jobs: TeamInventoryCountJobs!
 }
 
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to jobs will use this resource type."
+	JOB
+}
+
 input TeamJobsFilter {
 	name: String!
 }
