@@ -110,7 +110,12 @@ func NewManager(scheme *runtime.Scheme, clusterConfig kubernetes.ClusterConfigMa
 
 func (m *Manager) Stop() {
 	for _, mgr := range m.managers {
-		mgr.informer.Shutdown()
+		if mgr.createdInformer != nil {
+			mgr.createdInformer.Shutdown()
+		}
+		for _, inf := range mgr.createdFilteredInformers {
+			inf.Shutdown()
+		}
 	}
 }
 

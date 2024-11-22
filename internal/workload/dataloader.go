@@ -19,7 +19,7 @@ func NewLoaderContext(ctx context.Context, podWatcher *watcher.Watcher[*corev1.P
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*corev1.Pod] {
-	w := watcher.Watch(mgr, &corev1.Pod{}, watcher.WithTransformer(transformPod))
+	w := watcher.Watch(mgr, &corev1.Pod{}, watcher.WithTransformer(transformPod), watcher.WithInformerFilter("app"))
 	w.Start(ctx)
 	return w
 }

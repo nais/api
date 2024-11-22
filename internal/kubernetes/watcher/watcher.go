@@ -37,10 +37,17 @@ func WithGVR(gvr schema.GroupVersionResource) WatchOption {
 	}
 }
 
+func WithInformerFilter(labelSelector string) WatchOption {
+	return func(m *watcherSettings) {
+		m.filterLabelSelector = labelSelector
+	}
+}
+
 type watcherSettings struct {
-	converter   func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool)
-	transformer cache.TransformFunc
-	gvr         *schema.GroupVersionResource
+	converter           func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool)
+	transformer         cache.TransformFunc
+	gvr                 *schema.GroupVersionResource
+	filterLabelSelector string
 }
 
 type Watcher[T Object] struct {
