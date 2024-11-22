@@ -40,10 +40,10 @@ debug:
 	env bash -c 'source local.env; dlv debug --headless --listen=:2345 --api-version=2 ./cmd/api'
 
 test:
-	go test ./... github.com/nais/api/pkg/apiclient/...
+	go test -cover -tags integration_test --race ./... github.com/nais/api/pkg/apiclient/...
 
-test-with-cc:
-	go test -cover --race ./... github.com/nais/api/pkg/apiclient/...
+unit-test:
+	go test --race ./... github.com/nais/api/pkg/apiclient/...
 
 check: staticcheck vulncheck deadcode gosec
 
