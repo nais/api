@@ -22,7 +22,7 @@ INSERT INTO
 		environment,
 		team_slug,
 		app,
-		cost_type,
+		service,
 		date,
 		daily_cost
 	)
@@ -51,7 +51,7 @@ type CostUpsertParams struct {
 	Environment *string
 	TeamSlug    slug.Slug
 	App         string
-	CostType    string
+	Service     string
 	Date        pgtype.Date
 	DailyCost   float32
 }
@@ -63,7 +63,7 @@ func (q *Queries) CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostU
 			a.Environment,
 			a.TeamSlug,
 			a.App,
-			a.CostType,
+			a.Service,
 			a.Date,
 			a.DailyCost,
 		}

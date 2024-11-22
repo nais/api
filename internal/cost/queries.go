@@ -27,6 +27,6 @@ func MonthlySummaryForTeam(ctx context.Context, teamSlug slug.Slug) (*TeamCostMo
 	return fromContext(ctx).client.MonthlySummaryForTeam(ctx, teamSlug)
 }
 
-func MonthlyForService(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName, costType string) (float32, error) {
-	return fromContext(ctx).client.MonthlyForService(ctx, teamSlug, environmentName, workloadName, costType)
+func MonthlyForService(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName, service string) (float32, error) {
+	return fromContext(ctx).client.MonthlyForService(ctx, teamSlug, environmentName, workloadName, service)
 }

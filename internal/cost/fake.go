@@ -152,11 +152,11 @@ func (c *FakeClient) MonthlySummaryForTeam(_ context.Context, teamSlug slug.Slug
 	return c.monthlySummaryCache[teamSlug], nil
 }
 
-func (c *FakeClient) MonthlyForService(_ context.Context, teamSlug slug.Slug, environmentName, workloadName, costType string) (float32, error) {
+func (c *FakeClient) MonthlyForService(_ context.Context, teamSlug slug.Slug, environmentName, workloadName, service string) (float32, error) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	cc := teamSlug.String() + environmentName + workloadName + costType
+	cc := teamSlug.String() + environmentName + workloadName + service
 	if cached, exists := c.monthlyForServiceCache[cc]; exists {
 		return cached, nil
 	}

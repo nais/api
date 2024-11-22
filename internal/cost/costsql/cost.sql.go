@@ -17,7 +17,7 @@ FROM
 	cost
 WHERE
 	team_slug = $1
-	AND cost_type = $2
+	AND service = $2
 	AND app = $3
 	AND date >= $4
 	AND date <= $5
@@ -26,7 +26,7 @@ WHERE
 
 type CostForServiceParams struct {
 	TeamSlug    slug.Slug
-	CostType    string
+	Service     string
 	Workload    string
 	FromDate    pgtype.Date
 	ToDate      pgtype.Date
@@ -36,7 +36,7 @@ type CostForServiceParams struct {
 func (q *Queries) CostForService(ctx context.Context, arg CostForServiceParams) (float32, error) {
 	row := q.db.QueryRow(ctx, costForService,
 		arg.TeamSlug,
-		arg.CostType,
+		arg.Service,
 		arg.Workload,
 		arg.FromDate,
 		arg.ToDate,
@@ -54,14 +54,14 @@ FROM
 	cost
 WHERE
 	team_slug = $1
-	AND cost_type = $2
+	AND service = $2
 	AND date >= $3
 	AND date <= $4
 `
 
 type CostForTeamParams struct {
 	TeamSlug slug.Slug
-	CostType string
+	Service  string
 	FromDate pgtype.Date
 	ToDate   pgtype.Date
 }
@@ -69,7 +69,7 @@ type CostForTeamParams struct {
 func (q *Queries) CostForTeam(ctx context.Context, arg CostForTeamParams) (float32, error) {
 	row := q.db.QueryRow(ctx, costForTeam,
 		arg.TeamSlug,
-		arg.CostType,
+		arg.Service,
 		arg.FromDate,
 		arg.ToDate,
 	)
@@ -92,7 +92,7 @@ WITH
 	)
 SELECT
 	date_range.date::date AS date,
-	cost.cost_type AS service,
+	cost.service,
 	COALESCE(SUM(cost.daily_cost), 0)::REAL AS cost
 FROM
 	date_range
@@ -103,15 +103,15 @@ WHERE
 		OR team_slug = $1::slug
 	)
 	AND CASE
-		WHEN $2::TEXT[] IS NOT NULL THEN cost.cost_type = ANY ($2)
+		WHEN $2::TEXT[] IS NOT NULL THEN cost.service = ANY ($2)
 		ELSE TRUE
 	END
 GROUP BY
 	date_range.date,
-	cost.cost_type
+	cost.service
 ORDER BY
 	date_range.date,
-	cost.cost_type ASC
+	cost.service ASC
 `
 
 type DailyCostForTeamParams struct {
@@ -246,7 +246,7 @@ SELECT
 	date_range.date::date AS date,
 	cost.environment,
 	cost.team_slug,
-	cost.cost_type AS service,
+	cost.service,
 	cost.daily_cost
 FROM
 	date_range
@@ -260,7 +260,7 @@ WHERE
 	)
 ORDER BY
 	date_range.date,
-	cost.cost_type ASC
+	cost.service ASC
 `
 
 type DailyCostForWorkloadParams struct {
@@ -471,7 +471,7 @@ SELECT
 	app AS workload,
 	environment,
 	DATE_TRUNC('month', date)::date AS MONTH,
-	cost_type AS service,
+	service,
 	-- Extract last day of known cost samples for the month, or the last recorded date
 	-- This helps with estimation etc
 	MAX(
@@ -492,7 +492,7 @@ GROUP BY
 	team_slug,
 	app,
 	environment,
-	cost_type,
+	service,
 	MONTH
 ORDER BY
 	MONTH DESC

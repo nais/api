@@ -19,7 +19,7 @@ type Client interface {
 	DailyForTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environmentName string, fromDate, toDate time.Time) (*TeamEnvironmentCostPeriod, error)
 	DailyForTeam(ctx context.Context, teamSlug slug.Slug, fromDate, toDate time.Time, filter *TeamCostDailyFilter) (*TeamCostPeriod, error)
 	MonthlySummaryForTeam(ctx context.Context, teamSlug slug.Slug) (*TeamCostMonthlySummary, error)
-	MonthlyForService(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName, costType string) (float32, error)
+	MonthlyForService(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName, service string) (float32, error)
 }
 
 type client struct{}
@@ -195,7 +195,7 @@ func (client) MonthlySummaryForTeam(ctx context.Context, teamSlug slug.Slug) (*T
 	return ret, nil
 }
 
-func (client) MonthlyForService(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName, costType string) (float32, error) {
+func (client) MonthlyForService(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName, service string) (float32, error) {
 	now := time.Now()
 
 	to := pgtype.Date{Time: now, Valid: true}
@@ -205,7 +205,7 @@ func (client) MonthlyForService(ctx context.Context, teamSlug slug.Slug, environ
 		FromDate:    from,
 		ToDate:      to,
 		TeamSlug:    teamSlug,
-		CostType:    costType,
+		Service:     service,
 		Workload:    workloadName,
 		Environment: environmentName,
 	})

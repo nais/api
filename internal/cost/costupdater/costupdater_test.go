@@ -133,7 +133,7 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 			Environment: ptr.To("dev"),
 			App:         "team-1-app-1",
 			TeamSlug:    slug.Slug("team-1"),
-			CostType:    "Cloud SQL",
+			Service:     "Cloud SQL",
 			Date:        pgtype.Date{Time: time.Date(2023, 8, 31, 0, 0, 0, 0, time.UTC), Valid: true},
 			DailyCost:   0.204017,
 		}
@@ -157,7 +157,7 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 			Environment: ptr.To("dev"),
 			App:         "team-2-app-1",
 			TeamSlug:    slug.Slug("team-2"),
-			CostType:    "Cloud SQL",
+			Service:     "Cloud SQL",
 			Date:        pgtype.Date{Time: time.Date(2023, 9, 1, 0, 0, 0, 0, time.UTC), Valid: true},
 			DailyCost:   0.288296,
 		}

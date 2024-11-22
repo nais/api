@@ -18,7 +18,7 @@ SELECT
 	app AS workload,
 	environment,
 	DATE_TRUNC('month', date)::date AS MONTH,
-	cost_type AS service,
+	service,
 	-- Extract last day of known cost samples for the month, or the last recorded date
 	-- This helps with estimation etc
 	MAX(
@@ -39,7 +39,7 @@ GROUP BY
 	team_slug,
 	app,
 	environment,
-	cost_type,
+	service,
 	MONTH
 ORDER BY
 	MONTH DESC
@@ -66,7 +66,7 @@ INSERT INTO
 		environment,
 		team_slug,
 		app,
-		cost_type,
+		service,
 		date,
 		daily_cost
 	)
@@ -75,7 +75,7 @@ VALUES
 		@environment,
 		@team_slug,
 		@app,
-		@cost_type,
+		@service,
 		@date,
 		@daily_cost
 	)
@@ -101,7 +101,7 @@ SELECT
 	date_range.date::date AS date,
 	cost.environment,
 	cost.team_slug,
-	cost.cost_type AS service,
+	cost.service,
 	cost.daily_cost
 FROM
 	date_range
@@ -115,7 +115,7 @@ WHERE
 	)
 ORDER BY
 	date_range.date,
-	cost.cost_type ASC
+	cost.service ASC
 ;
 
 -- name: DailyCostForTeam :many
@@ -132,7 +132,7 @@ WITH
 	)
 SELECT
 	date_range.date::date AS date,
-	cost.cost_type AS service,
+	cost.service,
 	COALESCE(SUM(cost.daily_cost), 0)::REAL AS cost
 FROM
 	date_range
@@ -143,15 +143,15 @@ WHERE
 		OR team_slug = @team_slug::slug
 	)
 	AND CASE
-		WHEN sqlc.narg(services)::TEXT[] IS NOT NULL THEN cost.cost_type = ANY (@services)
+		WHEN sqlc.narg(services)::TEXT[] IS NOT NULL THEN cost.service = ANY (@services)
 		ELSE TRUE
 	END
 GROUP BY
 	date_range.date,
-	cost.cost_type
+	cost.service
 ORDER BY
 	date_range.date,
-	cost.cost_type ASC
+	cost.service ASC
 ;
 
 -- name: DailyEnvCostForTeam :many
@@ -183,7 +183,7 @@ FROM
 	cost
 WHERE
 	team_slug = @team_slug
-	AND cost_type = @cost_type
+	AND service = @service
 	AND app = @workload
 	AND date >= @from_date
 	AND date <= @to_date
@@ -197,7 +197,7 @@ FROM
 	cost
 WHERE
 	team_slug = @team_slug
-	AND cost_type = @cost_type
+	AND service = @service
 	AND date >= @from_date
 	AND date <= @to_date
 ;
