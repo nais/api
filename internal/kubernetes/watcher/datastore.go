@@ -1,255 +1,259 @@
 package watcher
 
-import (
-	"slices"
-	"strings"
-	"sync"
+// import (
+// 	"slices"
+// 	"strings"
+// 	"sync"
 
-	"k8s.io/apimachinery/pkg/labels"
-)
+// 	"k8s.io/apimachinery/pkg/labels"
+// )
 
-type ErrorNotFound struct {
-	Cluster   string
-	Namespace string
-	Name      string
-}
+// type ErrorNotFound struct {
+// 	Cluster   string
+// 	Namespace string
+// 	Name      string
+// }
 
-func (e *ErrorNotFound) Error() string {
-	return "not found: " + e.Cluster + "/" + e.Namespace + "/" + e.Name
-}
+// func (e *ErrorNotFound) Error() string {
+// 	return "not found: " + e.Cluster + "/" + e.Namespace + "/" + e.Name
+// }
 
-func (e *ErrorNotFound) GraphError() string {
-	return "Resource not found: " + e.Cluster + "/" + e.Namespace + "/" + e.Name
-}
+// func (e *ErrorNotFound) GraphError() string {
+// 	return "Resource not found: " + e.Cluster + "/" + e.Namespace + "/" + e.Name
+// }
 
-func (e *ErrorNotFound) As(v any) bool {
-	if _, ok := v.(*ErrorNotFound); ok {
-		return true
-	}
+// func (e *ErrorNotFound) As(v any) bool {
+// 	if _, ok := v.(*ErrorNotFound); ok {
+// 		return true
+// 	}
 
-	return false
-}
+// 	return false
+// }
 
-func (e *ErrorNotFound) Is(v error) bool {
-	if _, ok := v.(*ErrorNotFound); ok {
-		return true
-	}
+// func (e *ErrorNotFound) Is(v error) bool {
+// 	if _, ok := v.(*ErrorNotFound); ok {
+// 		return true
+// 	}
 
-	return false
-}
+// 	return false
+// }
 
-type Filter func(obj Object, cluster string) bool
+// type filterOptions struct {
+// 	labels labels.Selector
+// }
 
-func WithLabels(lbls labels.Selector) Filter {
-	return func(obj Object, _ string) bool {
-		return lbls.Matches(labels.Set(obj.GetLabels()))
-	}
-}
+// type Filter func(o *filterOptions)
 
-func InCluster(clusterName string) Filter {
-	return func(_ Object, cluster string) bool {
-		return clusterName == cluster
-	}
-}
+// func WithLabels(lbls labels.Selector) Filter {
+// 	return func(o *filterOptions) {
+// 		o.labels = lbls
+// 	}
+// }
 
-func WithObjectNames(objectNames []string) Filter {
-	return func(obj Object, _ string) bool {
-		return slices.Contains(objectNames, obj.GetName())
-	}
-}
+// // func InCluster(clusterName string) Filter {
+// // 	return func(_ Object, cluster string) bool {
+// // 		return clusterName == cluster
+// // 	}
+// // }
 
-type List[T Object] []*EnvironmentWrapper[T]
+// // func WithObjectNames(objectNames []string) Filter {
+// // 	return func(obj Object, _ string) bool {
+// // 		return slices.Contains(objectNames, obj.GetName())
+// // 	}
+// // }
 
-func (l List[T]) Clone() []*EnvironmentWrapper[T] {
-	ret := make([]*EnvironmentWrapper[T], len(l))
-	for i, v := range l {
-		ret[i] = &EnvironmentWrapper[T]{
-			Cluster: v.Cluster,
-			Obj:     v.Obj.DeepCopyObject().(T),
-		}
-	}
-	return ret
-}
+// type List[T Object] []*EnvironmentWrapper[T]
 
-type EnvironmentWrapper[T Object] struct {
-	Cluster string
-	Obj     T
-}
+// func (l List[T]) Clone() []*EnvironmentWrapper[T] {
+// 	ret := make([]*EnvironmentWrapper[T], len(l))
+// 	for i, v := range l {
+// 		ret[i] = &EnvironmentWrapper[T]{
+// 			Cluster: v.Cluster,
+// 			Obj:     v.Obj.DeepCopyObject().(T),
+// 		}
+// 	}
+// 	return ret
+// }
 
-func (e EnvironmentWrapper[T]) GetNamespace() string {
-	return e.Obj.GetNamespace()
-}
+// type EnvironmentWrapper[T Object] struct {
+// 	Cluster string
+// 	Obj     T
+// }
 
-func (e EnvironmentWrapper[T]) GetName() string {
-	return e.Obj.GetName()
-}
+// func (e EnvironmentWrapper[T]) GetNamespace() string {
+// 	return e.Obj.GetNamespace()
+// }
 
-type DataStore[T Object] struct {
-	lock       sync.RWMutex
-	namespaced map[string]List[T]
-	cluster    map[string]List[T]
-}
+// func (e EnvironmentWrapper[T]) GetName() string {
+// 	return e.Obj.GetName()
+// }
 
-func NewDataStore[T Object]() *DataStore[T] {
-	return &DataStore[T]{
-		namespaced: make(map[string]List[T]),
-		cluster:    make(map[string]List[T]),
-	}
-}
+// type DataStore[T Object] struct {
+// 	lock       sync.RWMutex
+// 	namespaced map[string]List[T]
+// 	cluster    map[string]List[T]
+// }
 
-func (d *DataStore[T]) Add(cluster string, obj T) {
-	d.lock.Lock()
-	defer d.lock.Unlock()
+// func NewDataStore[T Object]() *DataStore[T] {
+// 	return &DataStore[T]{
+// 		namespaced: make(map[string]List[T]),
+// 		cluster:    make(map[string]List[T]),
+// 	}
+// }
 
-	o := &EnvironmentWrapper[T]{Cluster: cluster, Obj: obj}
+// func (d *DataStore[T]) Add(cluster string, obj T) {
+// 	d.lock.Lock()
+// 	defer d.lock.Unlock()
 
-	if _, ok := d.cluster[cluster]; !ok {
-		d.cluster[cluster] = make(List[T], 0)
-	}
-	d.cluster[cluster] = append(d.cluster[cluster], o)
-	slices.SortFunc(d.cluster[cluster], func(i, j *EnvironmentWrapper[T]) int {
-		// Sort by cluster, then by namespace, then by name
-		if c := strings.Compare(i.Cluster, j.Cluster); c != 0 {
-			return c
-		}
-		if n := strings.Compare(i.GetNamespace(), j.GetNamespace()); n != 0 {
-			return n
-		}
-		return strings.Compare(i.GetName(), j.GetName())
-	})
+// 	o := &EnvironmentWrapper[T]{Cluster: cluster, Obj: obj}
 
-	if _, ok := d.namespaced[obj.GetNamespace()]; !ok {
-		d.namespaced[obj.GetNamespace()] = make(List[T], 0)
-	}
-	d.namespaced[obj.GetNamespace()] = append(d.namespaced[obj.GetNamespace()], o)
-	slices.SortFunc(d.namespaced[obj.GetNamespace()], func(i, j *EnvironmentWrapper[T]) int {
-		// Sort by cluster, then by name
-		if c := strings.Compare(i.Cluster, j.Cluster); c != 0 {
-			return c
-		}
-		return strings.Compare(i.GetName(), j.GetName())
-	})
-}
+// 	if _, ok := d.cluster[cluster]; !ok {
+// 		d.cluster[cluster] = make(List[T], 0)
+// 	}
+// 	d.cluster[cluster] = append(d.cluster[cluster], o)
+// 	slices.SortFunc(d.cluster[cluster], func(i, j *EnvironmentWrapper[T]) int {
+// 		// Sort by cluster, then by namespace, then by name
+// 		if c := strings.Compare(i.Cluster, j.Cluster); c != 0 {
+// 			return c
+// 		}
+// 		if n := strings.Compare(i.GetNamespace(), j.GetNamespace()); n != 0 {
+// 			return n
+// 		}
+// 		return strings.Compare(i.GetName(), j.GetName())
+// 	})
 
-func (d *DataStore[T]) Remove(cluster string, obj T) {
-	d.lock.Lock()
-	defer d.lock.Unlock()
+// 	if _, ok := d.namespaced[obj.GetNamespace()]; !ok {
+// 		d.namespaced[obj.GetNamespace()] = make(List[T], 0)
+// 	}
+// 	d.namespaced[obj.GetNamespace()] = append(d.namespaced[obj.GetNamespace()], o)
+// 	slices.SortFunc(d.namespaced[obj.GetNamespace()], func(i, j *EnvironmentWrapper[T]) int {
+// 		// Sort by cluster, then by name
+// 		if c := strings.Compare(i.Cluster, j.Cluster); c != 0 {
+// 			return c
+// 		}
+// 		return strings.Compare(i.GetName(), j.GetName())
+// 	})
+// }
 
-	if _, ok := d.cluster[cluster]; ok {
-		for i, o := range d.cluster[cluster] {
-			if o.GetName() == obj.GetName() && o.GetNamespace() == obj.GetNamespace() {
-				d.cluster[cluster] = append(d.cluster[cluster][:i], d.cluster[cluster][i+1:]...)
-				break
-			}
-		}
-		if len(d.cluster[cluster]) == 0 {
-			delete(d.cluster, cluster)
-		}
-	}
+// func (d *DataStore[T]) Remove(cluster string, obj T) {
+// 	d.lock.Lock()
+// 	defer d.lock.Unlock()
 
-	if _, ok := d.namespaced[obj.GetNamespace()]; ok {
-		for i, o := range d.namespaced[obj.GetNamespace()] {
-			if o.Cluster == cluster && o.GetName() == obj.GetName() {
-				d.namespaced[obj.GetNamespace()] = append(d.namespaced[obj.GetNamespace()][:i], d.namespaced[obj.GetNamespace()][i+1:]...)
-				break
-			}
-		}
+// 	if _, ok := d.cluster[cluster]; ok {
+// 		for i, o := range d.cluster[cluster] {
+// 			if o.GetName() == obj.GetName() && o.GetNamespace() == obj.GetNamespace() {
+// 				d.cluster[cluster] = append(d.cluster[cluster][:i], d.cluster[cluster][i+1:]...)
+// 				break
+// 			}
+// 		}
+// 		if len(d.cluster[cluster]) == 0 {
+// 			delete(d.cluster, cluster)
+// 		}
+// 	}
 
-		if len(d.namespaced[obj.GetNamespace()]) == 0 {
-			delete(d.namespaced, obj.GetNamespace())
-		}
-	}
-}
+// 	if _, ok := d.namespaced[obj.GetNamespace()]; ok {
+// 		for i, o := range d.namespaced[obj.GetNamespace()] {
+// 			if o.Cluster == cluster && o.GetName() == obj.GetName() {
+// 				d.namespaced[obj.GetNamespace()] = append(d.namespaced[obj.GetNamespace()][:i], d.namespaced[obj.GetNamespace()][i+1:]...)
+// 				break
+// 			}
+// 		}
 
-func (d *DataStore[T]) Update(cluster string, obj T) {
-	d.lock.Lock()
-	defer d.lock.Unlock()
+// 		if len(d.namespaced[obj.GetNamespace()]) == 0 {
+// 			delete(d.namespaced, obj.GetNamespace())
+// 		}
+// 	}
+// }
 
-	for _, a := range d.cluster[cluster] {
-		if a.GetName() == obj.GetName() && a.GetNamespace() == obj.GetNamespace() {
-			a.Obj = obj
-		}
-	}
-}
+// func (d *DataStore[T]) Update(cluster string, obj T) {
+// 	d.lock.Lock()
+// 	defer d.lock.Unlock()
 
-func (d *DataStore[T]) GetByNamespace(namespace string, filters ...Filter) []*EnvironmentWrapper[T] {
-	d.lock.RLock()
-	defer d.lock.RUnlock()
+// 	for _, a := range d.cluster[cluster] {
+// 		if a.GetName() == obj.GetName() && a.GetNamespace() == obj.GetNamespace() {
+// 			a.Obj = obj
+// 		}
+// 	}
+// }
 
-	if _, ok := d.namespaced[namespace]; !ok {
-		return nil
-	}
-	ret := d.namespaced[namespace].Clone()
-	if len(filters) == 0 {
-		return ret
-	}
+// func (d *DataStore[T]) GetByNamespace(namespace string, filters ...Filter) []*EnvironmentWrapper[T] {
+// 	d.lock.RLock()
+// 	defer d.lock.RUnlock()
 
-	return slices.DeleteFunc(ret, func(o *EnvironmentWrapper[T]) bool {
-		for _, f := range filters {
-			if !f(o.Obj, o.Cluster) {
-				return true
-			}
-		}
-		return false
-	})
-}
+// 	if _, ok := d.namespaced[namespace]; !ok {
+// 		return nil
+// 	}
+// 	ret := d.namespaced[namespace].Clone()
+// 	if len(filters) == 0 {
+// 		return ret
+// 	}
 
-func (d *DataStore[T]) GetByCluster(cluster string, filters ...Filter) []*EnvironmentWrapper[T] {
-	d.lock.RLock()
-	defer d.lock.RUnlock()
+// 	return slices.DeleteFunc(ret, func(o *EnvironmentWrapper[T]) bool {
+// 		for _, f := range filters {
+// 			if !f(o.Obj, o.Cluster) {
+// 				return true
+// 			}
+// 		}
+// 		return false
+// 	})
+// }
 
-	if _, ok := d.cluster[cluster]; !ok {
-		return nil
-	}
+// func (d *DataStore[T]) GetByCluster(cluster string, filters ...Filter) []*EnvironmentWrapper[T] {
+// 	d.lock.RLock()
+// 	defer d.lock.RUnlock()
 
-	ret := d.cluster[cluster].Clone()
-	if len(filters) == 0 {
-		return ret
-	}
+// 	if _, ok := d.cluster[cluster]; !ok {
+// 		return nil
+// 	}
 
-	return slices.DeleteFunc(ret, func(o *EnvironmentWrapper[T]) bool {
-		for _, f := range filters {
-			if !f(o.Obj, o.Cluster) {
-				return true
-			}
-		}
-		return false
-	})
-}
+// 	ret := d.cluster[cluster].Clone()
+// 	if len(filters) == 0 {
+// 		return ret
+// 	}
 
-func (d *DataStore[T]) Get(cluster, namespace, name string) (T, error) {
-	d.lock.RLock()
-	defer d.lock.RUnlock()
+// 	return slices.DeleteFunc(ret, func(o *EnvironmentWrapper[T]) bool {
+// 		for _, f := range filters {
+// 			if !f(o.Obj, o.Cluster) {
+// 				return true
+// 			}
+// 		}
+// 		return false
+// 	})
+// }
 
-	for _, o := range d.cluster[cluster] {
-		if o.GetName() == name && o.GetNamespace() == namespace {
-			return o.Obj, nil
-		}
-	}
-	var t T
-	return t, &ErrorNotFound{Cluster: cluster, Namespace: namespace, Name: name}
-}
+// func (d *DataStore[T]) Get(cluster, namespace, name string) (T, error) {
+// 	d.lock.RLock()
+// 	defer d.lock.RUnlock()
 
-func (d *DataStore[T]) All() []*EnvironmentWrapper[T] {
-	d.lock.RLock()
-	defer d.lock.RUnlock()
+// 	for _, o := range d.cluster[cluster] {
+// 		if o.GetName() == name && o.GetNamespace() == namespace {
+// 			return o.Obj, nil
+// 		}
+// 	}
+// 	var t T
+// 	return t, &ErrorNotFound{Cluster: cluster, Namespace: namespace, Name: name}
+// }
 
-	size := 0
-	for _, l := range d.cluster {
-		size += len(l)
-	}
+// func (d *DataStore[T]) All() []*EnvironmentWrapper[T] {
+// 	d.lock.RLock()
+// 	defer d.lock.RUnlock()
 
-	ret := make([]*EnvironmentWrapper[T], size)
-	if size == 0 {
-		return ret
-	}
+// 	size := 0
+// 	for _, l := range d.cluster {
+// 		size += len(l)
+// 	}
 
-	i := 0
-	for _, l := range d.cluster {
-		for _, o := range l {
-			ret[i] = o
-			i++
-		}
-	}
-	return ret
-}
+// 	ret := make([]*EnvironmentWrapper[T], size)
+// 	if size == 0 {
+// 		return ret
+// 	}
+
+// 	i := 0
+// 	for _, l := range d.cluster {
+// 		for _, o := range l {
+// 			ret[i] = o
+// 			i++
+// 		}
+// 	}
+// 	return ret
+// }

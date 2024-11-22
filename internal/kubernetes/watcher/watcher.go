@@ -3,11 +3,15 @@ package watcher
 import (
 	"context"
 	"fmt"
+	"slices"
+	"strings"
 
+	"github.com/pingcap/errors"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 )
@@ -33,7 +37,6 @@ type watcherSettings struct {
 
 type Watcher[T Object] struct {
 	watchers        []*clusterWatcher[T]
-	datastore       *DataStore[T]
 	log             logrus.FieldLogger
 	resourceCounter metric.Int64UpDownCounter
 	watchedType     string
@@ -41,7 +44,6 @@ type Watcher[T Object] struct {
 
 func newWatcher[T Object](mgr *Manager, obj T, settings *watcherSettings, log logrus.FieldLogger) *Watcher[T] {
 	w := &Watcher[T]{
-		datastore:       NewDataStore[T](),
 		log:             log,
 		resourceCounter: mgr.resourceCounter,
 	}
@@ -71,7 +73,6 @@ func (w *Watcher[T]) add(cluster string, obj T) {
 		"name":      obj.GetName(),
 		"namespace": obj.GetNamespace(),
 	}).Debug("Adding object")
-	w.datastore.Add(cluster, obj)
 }
 
 func (w *Watcher[T]) remove(cluster string, obj T) {
@@ -81,7 +82,6 @@ func (w *Watcher[T]) remove(cluster string, obj T) {
 		"name":      obj.GetName(),
 		"namespace": obj.GetNamespace(),
 	}).Debug("Removing object")
-	w.datastore.Remove(cluster, obj)
 }
 
 func (w *Watcher[T]) update(cluster string, obj T) {
@@ -91,23 +91,136 @@ func (w *Watcher[T]) update(cluster string, obj T) {
 		"name":      obj.GetName(),
 		"namespace": obj.GetNamespace(),
 	}).Debug("Updating object")
-	w.datastore.Update(cluster, obj)
 }
 
 func (w *Watcher[T]) All() []*EnvironmentWrapper[T] {
-	return w.datastore.All()
+	ret := make([]*EnvironmentWrapper[T], 0)
+	for _, wat := range w.watchers {
+		objs, err := wat.informer.Lister().List(labels.Everything())
+		if err != nil {
+			w.log.WithError(err).Error("listing objects")
+			continue
+		}
+
+		for _, obj := range objs {
+			if o, ok := wat.convert(obj.(*unstructured.Unstructured)); ok {
+				ret = append(ret, &EnvironmentWrapper[T]{
+					Obj:     o,
+					Cluster: wat.cluster,
+				})
+			}
+		}
+
+	}
+
+	return ret
 }
 
 func (w *Watcher[T]) Get(cluster, namespace, name string) (T, error) {
-	return w.datastore.Get(cluster, namespace, name)
+	var nilish T
+	for _, wat := range w.watchers {
+		if wat.cluster != cluster {
+			continue
+		}
+
+		obj, err := wat.informer.Lister().ByNamespace(namespace).Get(name)
+		if err != nil {
+			if errors.IsNotFound(err) {
+				return nilish, &ErrorNotFound{
+					Cluster:   cluster,
+					Namespace: namespace,
+					Name:      name,
+				}
+			}
+			return nilish, err
+		}
+
+		if o, ok := wat.convert(obj.(*unstructured.Unstructured)); ok {
+			return o, nil
+		}
+	}
+	// return w.datastore.Get(cluster, namespace, name)
+	return nilish, &ErrorNotFound{
+		Cluster:   cluster,
+		Namespace: namespace,
+		Name:      name,
+	}
 }
 
 func (w *Watcher[T]) GetByCluster(cluster string, filter ...Filter) []*EnvironmentWrapper[T] {
-	return w.datastore.GetByCluster(cluster, filter...)
+	opts := &filterOptions{
+		labels: labels.Everything(),
+	}
+	for _, f := range filter {
+		f(opts)
+	}
+
+	// return w.datastore.GetByCluster(cluster, filter...)
+	ret := make([]*EnvironmentWrapper[T], 0)
+	for _, wat := range w.watchers {
+		if wat.cluster != cluster {
+			continue
+		}
+
+		objs, err := wat.informer.Lister().List(opts.labels)
+		if err != nil {
+			w.log.WithError(err).Error("listing objects")
+			continue
+		}
+
+		for _, obj := range objs {
+			if o, ok := wat.convert(obj.(*unstructured.Unstructured)); ok {
+				ret = append(ret, &EnvironmentWrapper[T]{
+					Obj:     o,
+					Cluster: wat.cluster,
+				})
+			}
+		}
+	}
+
+	slices.SortFunc(ret, func(i, j *EnvironmentWrapper[T]) int {
+		return strings.Compare(i.GetName(), j.GetName())
+	})
+
+	return ret
 }
 
 func (w *Watcher[T]) GetByNamespace(namespace string, filter ...Filter) []*EnvironmentWrapper[T] {
-	return w.datastore.GetByNamespace(namespace, filter...)
+	opts := &filterOptions{
+		labels: labels.Everything(),
+	}
+	for _, f := range filter {
+		f(opts)
+	}
+
+	// return w.datastore.GetByNamespace(namespace, filter...)
+	ret := make([]*EnvironmentWrapper[T], 0)
+	for _, wat := range w.watchers {
+		if len(opts.clusters) > 0 && !slices.Contains(opts.clusters, wat.cluster) {
+			continue
+		}
+
+		objs, err := wat.informer.Lister().ByNamespace(namespace).List(opts.labels)
+		if err != nil {
+			w.log.WithError(err).Error("listing objects")
+			continue
+		}
+
+		for _, obj := range objs {
+			if o, ok := wat.convert(obj.(*unstructured.Unstructured)); ok {
+				ret = append(ret, &EnvironmentWrapper[T]{
+					Obj:     o,
+					Cluster: wat.cluster,
+				})
+			}
+		}
+	}
+
+	slices.SortFunc(ret, func(i, j *EnvironmentWrapper[T]) int {
+		return strings.Compare(i.GetName(), j.GetName())
+	})
+
+	return ret
 }
 
 func (w *Watcher[T]) Delete(ctx context.Context, cluster, namespace string, name string) error {
