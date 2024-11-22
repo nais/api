@@ -19,7 +19,7 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Created Unleash instance"),
 			}, nil
 		case activitylog.ActivityLogEntryActionUpdated:
-			data, err := activitylog.TransformData(entry, func(data *UnleashInstanceUpdatedActivityLogData) *UnleashInstanceUpdatedActivityLogData {
+			data, err := activitylog.TransformData(entry, func(data *UnleashInstanceUpdatedActivityLogEntryData) *UnleashInstanceUpdatedActivityLogEntryData {
 				if data.AllowedTeamSlug == nil && data.RevokedTeamSlug == nil {
 					return nil
 				}
@@ -46,10 +46,10 @@ type UnleashInstanceCreatedActivityLogEntry struct {
 
 type UnleashInstanceUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *UnleashInstanceUpdatedActivityLogData `json:"data"`
+	Data *UnleashInstanceUpdatedActivityLogEntryData `json:"data"`
 }
 
-type UnleashInstanceUpdatedActivityLogData struct {
+type UnleashInstanceUpdatedActivityLogEntryData struct {
 	RevokedTeamSlug *slug.Slug `json:"revokedTeamSlug"`
 	AllowedTeamSlug *slug.Slug `json:"allowedTeamSlug"`
 }

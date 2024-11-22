@@ -25,7 +25,7 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Disable reconciler"),
 			}, nil
 		case activityLogEntryActionConfigureReconciler:
-			data, err := activitylog.TransformData(entry, func(data *ReconcilerConfiguredActivityLogData) *ReconcilerConfiguredActivityLogData {
+			data, err := activitylog.TransformData(entry, func(data *ReconcilerConfiguredActivityLogEntryData) *ReconcilerConfiguredActivityLogEntryData {
 				if len(data.UpdatedKeys) == 0 {
 					return nil
 				}
@@ -55,9 +55,9 @@ type ReconcilerDisabledActivityLogEntry struct {
 
 type ReconcilerConfiguredActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *ReconcilerConfiguredActivityLogData `json:"data"`
+	Data *ReconcilerConfiguredActivityLogEntryData `json:"data"`
 }
 
-type ReconcilerConfiguredActivityLogData struct {
+type ReconcilerConfiguredActivityLogEntryData struct {
 	UpdatedKeys []string `json:"updatedKeys"`
 }

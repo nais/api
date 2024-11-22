@@ -25,7 +25,7 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Deleted secret"),
 			}, nil
 		case activityLogEntryActionAddSecretValue:
-			data, err := activitylog.TransformData(entry, func(data *SecretValueAddedActivityLogData) *SecretValueAddedActivityLogData {
+			data, err := activitylog.TransformData(entry, func(data *SecretValueAddedActivityLogEntryData) *SecretValueAddedActivityLogEntryData {
 				return data
 			})
 			if err != nil {
@@ -37,7 +37,7 @@ func init() {
 				Data:                    data,
 			}, nil
 		case activityLogEntryActionUpdateSecretValue:
-			data, err := activitylog.TransformData(entry, func(data *SecretValueUpdatedActivityLogData) *SecretValueUpdatedActivityLogData {
+			data, err := activitylog.TransformData(entry, func(data *SecretValueUpdatedActivityLogEntryData) *SecretValueUpdatedActivityLogEntryData {
 				return data
 			})
 			if err != nil {
@@ -49,7 +49,7 @@ func init() {
 				Data:                    data,
 			}, nil
 		case activityLogEntryActionRemoveSecretValue:
-			data, err := activitylog.TransformData(entry, func(data *SecretValueRemovedActivityLogData) *SecretValueRemovedActivityLogData {
+			data, err := activitylog.TransformData(entry, func(data *SecretValueRemovedActivityLogEntryData) *SecretValueRemovedActivityLogEntryData {
 				return data
 			})
 			if err != nil {
@@ -72,28 +72,28 @@ type SecretCreatedActivityLogEntry struct {
 
 type SecretValueAddedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *SecretValueAddedActivityLogData
+	Data *SecretValueAddedActivityLogEntryData
 }
 
-type SecretValueAddedActivityLogData struct {
+type SecretValueAddedActivityLogEntryData struct {
 	ValueName string
 }
 
 type SecretValueUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *SecretValueUpdatedActivityLogData
+	Data *SecretValueUpdatedActivityLogEntryData
 }
 
-type SecretValueUpdatedActivityLogData struct {
+type SecretValueUpdatedActivityLogEntryData struct {
 	ValueName string
 }
 
 type SecretValueRemovedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *SecretValueRemovedActivityLogData
+	Data *SecretValueRemovedActivityLogEntryData
 }
 
-type SecretValueRemovedActivityLogData struct {
+type SecretValueRemovedActivityLogEntryData struct {
 	ValueName string
 }
 

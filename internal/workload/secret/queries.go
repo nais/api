@@ -278,7 +278,7 @@ func AddSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secret
 		ResourceType:    activityLogEntryResourceTypeSecret,
 		ResourceName:    secretName,
 		TeamSlug:        ptr.To(teamSlug),
-		Data: &SecretValueAddedActivityLogData{
+		Data: &SecretValueAddedActivityLogEntryData{
 			ValueName: valueToAdd.Name,
 		},
 	})
@@ -352,7 +352,7 @@ func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 		ResourceType:    activityLogEntryResourceTypeSecret,
 		ResourceName:    secretName,
 		TeamSlug:        ptr.To(teamSlug),
-		Data: &SecretValueUpdatedActivityLogData{
+		Data: &SecretValueUpdatedActivityLogEntryData{
 			ValueName: valueToUpdate.Name,
 		},
 	})
@@ -417,7 +417,7 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 		ResourceType:    activityLogEntryResourceTypeSecret,
 		ResourceName:    secretName,
 		TeamSlug:        ptr.To(teamSlug),
-		Data: &SecretValueRemovedActivityLogData{
+		Data: &SecretValueRemovedActivityLogEntryData{
 			ValueName: valueName,
 		},
 	})

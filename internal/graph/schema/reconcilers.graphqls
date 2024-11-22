@@ -231,10 +231,10 @@ type ReconcilerConfiguredActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: ReconcilerConfiguredActivityLogData!
+	data: ReconcilerConfiguredActivityLogEntryData!
 }
 
-type ReconcilerConfiguredActivityLogData {
+type ReconcilerConfiguredActivityLogEntryData {
 	"Keys that were updated."
 	updatedKeys: [String!]!
 }

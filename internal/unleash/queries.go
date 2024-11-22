@@ -131,7 +131,7 @@ func AllowTeamAccess(ctx context.Context, input AllowTeamAccessToUnleashInput) (
 		Actor:        authz.ActorFromContext(ctx).User,
 		ResourceType: activityLogEntryResourceTypeUnleash,
 		ResourceName: input.TeamSlug.String(),
-		Data: &UnleashInstanceUpdatedActivityLogData{
+		Data: &UnleashInstanceUpdatedActivityLogEntryData{
 			AllowedTeamSlug: &input.AllowedTeamSlug,
 		},
 		TeamSlug: &input.TeamSlug,
@@ -166,7 +166,7 @@ func RevokeTeamAccess(ctx context.Context, input RevokeTeamAccessToUnleashInput)
 		Actor:        authz.ActorFromContext(ctx).User,
 		ResourceType: activityLogEntryResourceTypeUnleash,
 		ResourceName: input.TeamSlug.String(),
-		Data: &UnleashInstanceUpdatedActivityLogData{
+		Data: &UnleashInstanceUpdatedActivityLogEntryData{
 			RevokedTeamSlug: &input.RevokedTeamSlug,
 		},
 		TeamSlug: &input.TeamSlug,

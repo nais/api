@@ -86,9 +86,9 @@ func Update(ctx context.Context, input *UpdateTeamInput, actor *authz.Actor) (*T
 			return err
 		}
 
-		updatedFields := make([]*TeamUpdatedActivityLogDataUpdatedField, 0)
+		updatedFields := make([]*TeamUpdatedActivityLogEntryDataUpdatedField, 0)
 		if input.Purpose != nil && *input.Purpose != existingTeam.Purpose {
-			updatedFields = append(updatedFields, &TeamUpdatedActivityLogDataUpdatedField{
+			updatedFields = append(updatedFields, &TeamUpdatedActivityLogEntryDataUpdatedField{
 				Field:    "purpose",
 				OldValue: &existingTeam.Purpose,
 				NewValue: input.Purpose,
@@ -96,7 +96,7 @@ func Update(ctx context.Context, input *UpdateTeamInput, actor *authz.Actor) (*T
 		}
 
 		if input.SlackChannel != nil && *input.SlackChannel != existingTeam.SlackChannel {
-			updatedFields = append(updatedFields, &TeamUpdatedActivityLogDataUpdatedField{
+			updatedFields = append(updatedFields, &TeamUpdatedActivityLogEntryDataUpdatedField{
 				Field:    "slackChannel",
 				OldValue: &existingTeam.SlackChannel,
 				NewValue: input.SlackChannel,
@@ -109,12 +109,12 @@ func Update(ctx context.Context, input *UpdateTeamInput, actor *authz.Actor) (*T
 			ResourceType: activityLogEntryResourceTypeTeam,
 			ResourceName: input.Slug.String(),
 			TeamSlug:     ptr.To(input.Slug),
-			Data: func(fields []*TeamUpdatedActivityLogDataUpdatedField) *TeamUpdatedActivityLogData {
+			Data: func(fields []*TeamUpdatedActivityLogEntryDataUpdatedField) *TeamUpdatedActivityLogEntryData {
 				if len(fields) == 0 {
 					return nil
 				}
 
-				return &TeamUpdatedActivityLogData{
+				return &TeamUpdatedActivityLogEntryData{
 					UpdatedFields: fields,
 				}
 			}(updatedFields),
@@ -352,7 +352,7 @@ func AddMember(ctx context.Context, input AddTeamMemberInput, actor *authz.Actor
 			ResourceType: activityLogEntryResourceTypeTeam,
 			ResourceName: input.TeamSlug.String(),
 			TeamSlug:     ptr.To(input.TeamSlug),
-			Data: &TeamMemberAddedActivityLogData{
+			Data: &TeamMemberAddedActivityLogEntryData{
 				Role:      input.Role,
 				UserUUID:  input.UserID,
 				UserEmail: input.UserEmail,
@@ -387,7 +387,7 @@ func RemoveMember(ctx context.Context, input RemoveTeamMemberInput, actor *authz
 			ResourceType: activityLogEntryResourceTypeTeam,
 			ResourceName: input.TeamSlug.String(),
 			TeamSlug:     ptr.To(input.TeamSlug),
-			Data: &TeamMemberRemovedActivityLogData{
+			Data: &TeamMemberRemovedActivityLogEntryData{
 				UserUUID:  input.UserID,
 				UserEmail: input.UserEmail,
 			},
@@ -435,7 +435,7 @@ func SetMemberRole(ctx context.Context, input SetTeamMemberRoleInput, actor *aut
 			ResourceType: activityLogEntryResourceTypeTeam,
 			ResourceName: input.TeamSlug.String(),
 			TeamSlug:     ptr.To(input.TeamSlug),
-			Data: &TeamMemberSetRoleActivityLogData{
+			Data: &TeamMemberSetRoleActivityLogEntryData{
 				Role:      input.Role,
 				UserUUID:  input.UserID,
 				UserEmail: input.UserEmail,
@@ -499,8 +499,8 @@ func UpdateEnvironment(ctx context.Context, input *UpdateTeamEnvironmentInput, a
 			ResourceType: activityLogEntryResourceTypeTeam,
 			ResourceName: input.Slug.String(),
 			TeamSlug:     ptr.To(input.Slug),
-			Data: &TeamEnvironmentUpdatedActivityLogData{
-				UpdatedFields: []*TeamEnvironmentUpdatedActivityLogDataUpdatedField{
+			Data: &TeamEnvironmentUpdatedActivityLogEntryData{
+				UpdatedFields: []*TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField{
 					{
 						Field:    "slackAlertsChannel",
 						OldValue: &existingTeamEnvironment.SlackAlertsChannel,

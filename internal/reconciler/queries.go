@@ -176,7 +176,7 @@ func Configure(ctx context.Context, name string, config []*ReconcilerConfigInput
 			Actor:        authz.ActorFromContext(ctx).User,
 			ResourceType: ActivityLogEntryResourceTypeReconciler,
 			ResourceName: name,
-			Data: &ReconcilerConfiguredActivityLogData{
+			Data: &ReconcilerConfiguredActivityLogEntryData{
 				UpdatedKeys: slices.Sorted(maps.Keys(reconcilerConfig)),
 			},
 		})

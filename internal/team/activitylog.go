@@ -25,9 +25,9 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Created team"),
 			}, nil
 		case activitylog.ActivityLogEntryActionUpdated:
-			data, err := activitylog.TransformData(entry, func(data *TeamUpdatedActivityLogData) *TeamUpdatedActivityLogData {
+			data, err := activitylog.TransformData(entry, func(data *TeamUpdatedActivityLogEntryData) *TeamUpdatedActivityLogEntryData {
 				if len(data.UpdatedFields) == 0 {
-					return &TeamUpdatedActivityLogData{}
+					return &TeamUpdatedActivityLogEntryData{}
 				}
 				return data
 			})
@@ -48,7 +48,7 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Confirm delete key"),
 			}, nil
 		case activitylog.ActivityLogEntryActionAdded:
-			data, err := activitylog.TransformData(entry, func(data *TeamMemberAddedActivityLogData) *TeamMemberAddedActivityLogData {
+			data, err := activitylog.TransformData(entry, func(data *TeamMemberAddedActivityLogEntryData) *TeamMemberAddedActivityLogEntryData {
 				return data
 			})
 			if err != nil {
@@ -59,7 +59,7 @@ func init() {
 				Data:                    data,
 			}, nil
 		case activitylog.ActivityLogEntryActionRemoved:
-			data, err := activitylog.TransformData(entry, func(data *TeamMemberRemovedActivityLogData) *TeamMemberRemovedActivityLogData {
+			data, err := activitylog.TransformData(entry, func(data *TeamMemberRemovedActivityLogEntryData) *TeamMemberRemovedActivityLogEntryData {
 				return data
 			})
 			if err != nil {
@@ -70,7 +70,7 @@ func init() {
 				Data:                    data,
 			}, nil
 		case activityLogEntryActionSetMemberRole:
-			data, err := activitylog.TransformData(entry, func(data *TeamMemberSetRoleActivityLogData) *TeamMemberSetRoleActivityLogData {
+			data, err := activitylog.TransformData(entry, func(data *TeamMemberSetRoleActivityLogEntryData) *TeamMemberSetRoleActivityLogEntryData {
 				return data
 			})
 			if err != nil {
@@ -81,7 +81,7 @@ func init() {
 				Data:                    data,
 			}, nil
 		case activityLogEntryActionUpdateEnvironment:
-			data, err := activitylog.TransformData(entry, func(data *TeamEnvironmentUpdatedActivityLogData) *TeamEnvironmentUpdatedActivityLogData {
+			data, err := activitylog.TransformData(entry, func(data *TeamEnvironmentUpdatedActivityLogEntryData) *TeamEnvironmentUpdatedActivityLogEntryData {
 				return data
 			})
 			if err != nil {
@@ -104,14 +104,14 @@ type TeamCreatedActivityLogEntry struct {
 
 type TeamUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *TeamUpdatedActivityLogData `json:"data"`
+	Data *TeamUpdatedActivityLogEntryData `json:"data"`
 }
 
-type TeamUpdatedActivityLogData struct {
-	UpdatedFields []*TeamUpdatedActivityLogDataUpdatedField `json:"updatedFields"`
+type TeamUpdatedActivityLogEntryData struct {
+	UpdatedFields []*TeamUpdatedActivityLogEntryDataUpdatedField `json:"updatedFields"`
 }
 
-type TeamUpdatedActivityLogDataUpdatedField struct {
+type TeamUpdatedActivityLogEntryDataUpdatedField struct {
 	Field    string  `json:"field"`
 	OldValue *string `json:"oldValue"`
 	NewValue *string `json:"newValue"`
@@ -127,58 +127,58 @@ type TeamCreateDeleteKeyActivityLogEntry struct {
 
 type TeamMemberAddedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *TeamMemberAddedActivityLogData `json:"data"`
+	Data *TeamMemberAddedActivityLogEntryData `json:"data"`
 }
 
-type TeamMemberAddedActivityLogData struct {
+type TeamMemberAddedActivityLogEntryData struct {
 	Role      TeamMemberRole `json:"role"`
 	UserUUID  uuid.UUID      `json:"userID"`
 	UserEmail string         `json:"userEmail"`
 }
 
-func (t TeamMemberAddedActivityLogData) UserID() ident.Ident {
+func (t TeamMemberAddedActivityLogEntryData) UserID() ident.Ident {
 	return user.NewIdent(t.UserUUID)
 }
 
 type TeamMemberRemovedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *TeamMemberRemovedActivityLogData `json:"data"`
+	Data *TeamMemberRemovedActivityLogEntryData `json:"data"`
 }
 
-type TeamMemberRemovedActivityLogData struct {
+type TeamMemberRemovedActivityLogEntryData struct {
 	UserUUID  uuid.UUID `json:"userID"`
 	UserEmail string    `json:"userEmail"`
 }
 
-func (t TeamMemberRemovedActivityLogData) UserID() ident.Ident {
+func (t TeamMemberRemovedActivityLogEntryData) UserID() ident.Ident {
 	return user.NewIdent(t.UserUUID)
 }
 
 type TeamMemberSetRoleActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *TeamMemberSetRoleActivityLogData `json:"data"`
+	Data *TeamMemberSetRoleActivityLogEntryData `json:"data"`
 }
 
-type TeamMemberSetRoleActivityLogData struct {
+type TeamMemberSetRoleActivityLogEntryData struct {
 	Role      TeamMemberRole `json:"role"`
 	UserUUID  uuid.UUID      `json:"userID"`
 	UserEmail string         `json:"userEmail"`
 }
 
-func (t TeamMemberSetRoleActivityLogData) UserID() ident.Ident {
+func (t TeamMemberSetRoleActivityLogEntryData) UserID() ident.Ident {
 	return user.NewIdent(t.UserUUID)
 }
 
 type TeamEnvironmentUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *TeamEnvironmentUpdatedActivityLogData `json:"data"`
+	Data *TeamEnvironmentUpdatedActivityLogEntryData `json:"data"`
 }
 
-type TeamEnvironmentUpdatedActivityLogData struct {
-	UpdatedFields []*TeamEnvironmentUpdatedActivityLogDataUpdatedField `json:"updatedFields"`
+type TeamEnvironmentUpdatedActivityLogEntryData struct {
+	UpdatedFields []*TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField `json:"updatedFields"`
 }
 
-type TeamEnvironmentUpdatedActivityLogDataUpdatedField struct {
+type TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField struct {
 	Field    string  `json:"field"`
 	OldValue *string `json:"oldValue"`
 	NewValue *string `json:"newValue"`

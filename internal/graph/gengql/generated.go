@@ -845,10 +845,6 @@ type ComplexityRoot struct {
 		Value       func(childComplexity int) int
 	}
 
-	ReconcilerConfiguredActivityLogData struct {
-		UpdatedKeys func(childComplexity int) int
-	}
-
 	ReconcilerConfiguredActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
@@ -859,6 +855,10 @@ type ComplexityRoot struct {
 		ResourceName    func(childComplexity int) int
 		ResourceType    func(childComplexity int) int
 		TeamSlug        func(childComplexity int) int
+	}
+
+	ReconcilerConfiguredActivityLogEntryData struct {
+		UpdatedKeys func(childComplexity int) int
 	}
 
 	ReconcilerConnection struct {
@@ -1084,10 +1084,6 @@ type ComplexityRoot struct {
 		Value func(childComplexity int) int
 	}
 
-	SecretValueAddedActivityLogData struct {
-		ValueName func(childComplexity int) int
-	}
-
 	SecretValueAddedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
@@ -1100,7 +1096,7 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
-	SecretValueRemovedActivityLogData struct {
+	SecretValueAddedActivityLogEntryData struct {
 		ValueName func(childComplexity int) int
 	}
 
@@ -1116,7 +1112,7 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
-	SecretValueUpdatedActivityLogData struct {
+	SecretValueRemovedActivityLogEntryData struct {
 		ValueName func(childComplexity int) int
 	}
 
@@ -1130,6 +1126,10 @@ type ComplexityRoot struct {
 		ResourceName    func(childComplexity int) int
 		ResourceType    func(childComplexity int) int
 		TeamSlug        func(childComplexity int) int
+	}
+
+	SecretValueUpdatedActivityLogEntryData struct {
+		ValueName func(childComplexity int) int
 	}
 
 	ServiceAccount struct {
@@ -1436,16 +1436,6 @@ type ComplexityRoot struct {
 		Sum    func(childComplexity int) int
 	}
 
-	TeamEnvironmentUpdatedActivityLogData struct {
-		UpdatedFields func(childComplexity int) int
-	}
-
-	TeamEnvironmentUpdatedActivityLogDataUpdatedField struct {
-		Field    func(childComplexity int) int
-		NewValue func(childComplexity int) int
-		OldValue func(childComplexity int) int
-	}
-
 	TeamEnvironmentUpdatedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
@@ -1456,6 +1446,16 @@ type ComplexityRoot struct {
 		ResourceName    func(childComplexity int) int
 		ResourceType    func(childComplexity int) int
 		TeamSlug        func(childComplexity int) int
+	}
+
+	TeamEnvironmentUpdatedActivityLogEntryData struct {
+		UpdatedFields func(childComplexity int) int
+	}
+
+	TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField struct {
+		Field    func(childComplexity int) int
+		NewValue func(childComplexity int) int
+		OldValue func(childComplexity int) int
 	}
 
 	TeamExternalResources struct {
@@ -1529,12 +1529,6 @@ type ComplexityRoot struct {
 		User func(childComplexity int) int
 	}
 
-	TeamMemberAddedActivityLogData struct {
-		Role      func(childComplexity int) int
-		UserEmail func(childComplexity int) int
-		UserID    func(childComplexity int) int
-	}
-
 	TeamMemberAddedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
@@ -1547,6 +1541,12 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
+	TeamMemberAddedActivityLogEntryData struct {
+		Role      func(childComplexity int) int
+		UserEmail func(childComplexity int) int
+		UserID    func(childComplexity int) int
+	}
+
 	TeamMemberConnection struct {
 		Edges    func(childComplexity int) int
 		Nodes    func(childComplexity int) int
@@ -1556,11 +1556,6 @@ type ComplexityRoot struct {
 	TeamMemberEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
-	}
-
-	TeamMemberRemovedActivityLogData struct {
-		UserEmail func(childComplexity int) int
-		UserID    func(childComplexity int) int
 	}
 
 	TeamMemberRemovedActivityLogEntry struct {
@@ -1575,8 +1570,7 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
-	TeamMemberSetRoleActivityLogData struct {
-		Role      func(childComplexity int) int
+	TeamMemberRemovedActivityLogEntryData struct {
 		UserEmail func(childComplexity int) int
 		UserID    func(childComplexity int) int
 	}
@@ -1591,6 +1585,12 @@ type ComplexityRoot struct {
 		ResourceName    func(childComplexity int) int
 		ResourceType    func(childComplexity int) int
 		TeamSlug        func(childComplexity int) int
+	}
+
+	TeamMemberSetRoleActivityLogEntryData struct {
+		Role      func(childComplexity int) int
+		UserEmail func(childComplexity int) int
+		UserID    func(childComplexity int) int
 	}
 
 	TeamServiceUtilization struct {
@@ -1621,16 +1621,6 @@ type ComplexityRoot struct {
 		Utilization func(childComplexity int) int
 	}
 
-	TeamUpdatedActivityLogData struct {
-		UpdatedFields func(childComplexity int) int
-	}
-
-	TeamUpdatedActivityLogDataUpdatedField struct {
-		Field    func(childComplexity int) int
-		NewValue func(childComplexity int) int
-		OldValue func(childComplexity int) int
-	}
-
 	TeamUpdatedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
@@ -1641,6 +1631,16 @@ type ComplexityRoot struct {
 		ResourceName    func(childComplexity int) int
 		ResourceType    func(childComplexity int) int
 		TeamSlug        func(childComplexity int) int
+	}
+
+	TeamUpdatedActivityLogEntryData struct {
+		UpdatedFields func(childComplexity int) int
+	}
+
+	TeamUpdatedActivityLogEntryDataUpdatedField struct {
+		Field    func(childComplexity int) int
+		NewValue func(childComplexity int) int
+		OldValue func(childComplexity int) int
 	}
 
 	TeamUtilizationData struct {
@@ -1710,11 +1710,6 @@ type ComplexityRoot struct {
 		Toggles           func(childComplexity int) int
 	}
 
-	UnleashInstanceUpdatedActivityLogData struct {
-		AllowedTeamSlug func(childComplexity int) int
-		RevokedTeamSlug func(childComplexity int) int
-	}
-
 	UnleashInstanceUpdatedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
@@ -1725,6 +1720,11 @@ type ComplexityRoot struct {
 		ResourceName    func(childComplexity int) int
 		ResourceType    func(childComplexity int) int
 		TeamSlug        func(childComplexity int) int
+	}
+
+	UnleashInstanceUpdatedActivityLogEntryData struct {
+		AllowedTeamSlug func(childComplexity int) int
+		RevokedTeamSlug func(childComplexity int) int
 	}
 
 	UpdateImageVulnerabilityPayload struct {
@@ -5368,13 +5368,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ReconcilerConfig.Value(childComplexity), true
 
-	case "ReconcilerConfiguredActivityLogData.updatedKeys":
-		if e.complexity.ReconcilerConfiguredActivityLogData.UpdatedKeys == nil {
-			break
-		}
-
-		return e.complexity.ReconcilerConfiguredActivityLogData.UpdatedKeys(childComplexity), true
-
 	case "ReconcilerConfiguredActivityLogEntry.actor":
 		if e.complexity.ReconcilerConfiguredActivityLogEntry.Actor == nil {
 			break
@@ -5437,6 +5430,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ReconcilerConfiguredActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "ReconcilerConfiguredActivityLogEntryData.updatedKeys":
+		if e.complexity.ReconcilerConfiguredActivityLogEntryData.UpdatedKeys == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerConfiguredActivityLogEntryData.UpdatedKeys(childComplexity), true
 
 	case "ReconcilerConnection.edges":
 		if e.complexity.ReconcilerConnection.Edges == nil {
@@ -6305,13 +6305,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SecretValue.Value(childComplexity), true
 
-	case "SecretValueAddedActivityLogData.valueName":
-		if e.complexity.SecretValueAddedActivityLogData.ValueName == nil {
-			break
-		}
-
-		return e.complexity.SecretValueAddedActivityLogData.ValueName(childComplexity), true
-
 	case "SecretValueAddedActivityLogEntry.actor":
 		if e.complexity.SecretValueAddedActivityLogEntry.Actor == nil {
 			break
@@ -6375,12 +6368,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SecretValueAddedActivityLogEntry.TeamSlug(childComplexity), true
 
-	case "SecretValueRemovedActivityLogData.valueName":
-		if e.complexity.SecretValueRemovedActivityLogData.ValueName == nil {
+	case "SecretValueAddedActivityLogEntryData.valueName":
+		if e.complexity.SecretValueAddedActivityLogEntryData.ValueName == nil {
 			break
 		}
 
-		return e.complexity.SecretValueRemovedActivityLogData.ValueName(childComplexity), true
+		return e.complexity.SecretValueAddedActivityLogEntryData.ValueName(childComplexity), true
 
 	case "SecretValueRemovedActivityLogEntry.actor":
 		if e.complexity.SecretValueRemovedActivityLogEntry.Actor == nil {
@@ -6445,12 +6438,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SecretValueRemovedActivityLogEntry.TeamSlug(childComplexity), true
 
-	case "SecretValueUpdatedActivityLogData.valueName":
-		if e.complexity.SecretValueUpdatedActivityLogData.ValueName == nil {
+	case "SecretValueRemovedActivityLogEntryData.valueName":
+		if e.complexity.SecretValueRemovedActivityLogEntryData.ValueName == nil {
 			break
 		}
 
-		return e.complexity.SecretValueUpdatedActivityLogData.ValueName(childComplexity), true
+		return e.complexity.SecretValueRemovedActivityLogEntryData.ValueName(childComplexity), true
 
 	case "SecretValueUpdatedActivityLogEntry.actor":
 		if e.complexity.SecretValueUpdatedActivityLogEntry.Actor == nil {
@@ -6514,6 +6507,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SecretValueUpdatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "SecretValueUpdatedActivityLogEntryData.valueName":
+		if e.complexity.SecretValueUpdatedActivityLogEntryData.ValueName == nil {
+			break
+		}
+
+		return e.complexity.SecretValueUpdatedActivityLogEntryData.ValueName(childComplexity), true
 
 	case "ServiceAccount.id":
 		if e.complexity.ServiceAccount.ID == nil {
@@ -7973,34 +7973,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamEnvironmentCostPeriod.Sum(childComplexity), true
 
-	case "TeamEnvironmentUpdatedActivityLogData.updatedFields":
-		if e.complexity.TeamEnvironmentUpdatedActivityLogData.UpdatedFields == nil {
-			break
-		}
-
-		return e.complexity.TeamEnvironmentUpdatedActivityLogData.UpdatedFields(childComplexity), true
-
-	case "TeamEnvironmentUpdatedActivityLogDataUpdatedField.field":
-		if e.complexity.TeamEnvironmentUpdatedActivityLogDataUpdatedField.Field == nil {
-			break
-		}
-
-		return e.complexity.TeamEnvironmentUpdatedActivityLogDataUpdatedField.Field(childComplexity), true
-
-	case "TeamEnvironmentUpdatedActivityLogDataUpdatedField.newValue":
-		if e.complexity.TeamEnvironmentUpdatedActivityLogDataUpdatedField.NewValue == nil {
-			break
-		}
-
-		return e.complexity.TeamEnvironmentUpdatedActivityLogDataUpdatedField.NewValue(childComplexity), true
-
-	case "TeamEnvironmentUpdatedActivityLogDataUpdatedField.oldValue":
-		if e.complexity.TeamEnvironmentUpdatedActivityLogDataUpdatedField.OldValue == nil {
-			break
-		}
-
-		return e.complexity.TeamEnvironmentUpdatedActivityLogDataUpdatedField.OldValue(childComplexity), true
-
 	case "TeamEnvironmentUpdatedActivityLogEntry.actor":
 		if e.complexity.TeamEnvironmentUpdatedActivityLogEntry.Actor == nil {
 			break
@@ -8063,6 +8035,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamEnvironmentUpdatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "TeamEnvironmentUpdatedActivityLogEntryData.updatedFields":
+		if e.complexity.TeamEnvironmentUpdatedActivityLogEntryData.UpdatedFields == nil {
+			break
+		}
+
+		return e.complexity.TeamEnvironmentUpdatedActivityLogEntryData.UpdatedFields(childComplexity), true
+
+	case "TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField.field":
+		if e.complexity.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField.Field == nil {
+			break
+		}
+
+		return e.complexity.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField.Field(childComplexity), true
+
+	case "TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField.newValue":
+		if e.complexity.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField.NewValue == nil {
+			break
+		}
+
+		return e.complexity.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField.NewValue(childComplexity), true
+
+	case "TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField.oldValue":
+		if e.complexity.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField.OldValue == nil {
+			break
+		}
+
+		return e.complexity.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField.OldValue(childComplexity), true
 
 	case "TeamExternalResources.cdn":
 		if e.complexity.TeamExternalResources.CDN == nil {
@@ -8267,27 +8267,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamMember.User(childComplexity), true
 
-	case "TeamMemberAddedActivityLogData.role":
-		if e.complexity.TeamMemberAddedActivityLogData.Role == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberAddedActivityLogData.Role(childComplexity), true
-
-	case "TeamMemberAddedActivityLogData.userEmail":
-		if e.complexity.TeamMemberAddedActivityLogData.UserEmail == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberAddedActivityLogData.UserEmail(childComplexity), true
-
-	case "TeamMemberAddedActivityLogData.userID":
-		if e.complexity.TeamMemberAddedActivityLogData.UserID == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberAddedActivityLogData.UserID(childComplexity), true
-
 	case "TeamMemberAddedActivityLogEntry.actor":
 		if e.complexity.TeamMemberAddedActivityLogEntry.Actor == nil {
 			break
@@ -8351,6 +8330,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamMemberAddedActivityLogEntry.TeamSlug(childComplexity), true
 
+	case "TeamMemberAddedActivityLogEntryData.role":
+		if e.complexity.TeamMemberAddedActivityLogEntryData.Role == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberAddedActivityLogEntryData.Role(childComplexity), true
+
+	case "TeamMemberAddedActivityLogEntryData.userEmail":
+		if e.complexity.TeamMemberAddedActivityLogEntryData.UserEmail == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberAddedActivityLogEntryData.UserEmail(childComplexity), true
+
+	case "TeamMemberAddedActivityLogEntryData.userID":
+		if e.complexity.TeamMemberAddedActivityLogEntryData.UserID == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberAddedActivityLogEntryData.UserID(childComplexity), true
+
 	case "TeamMemberConnection.edges":
 		if e.complexity.TeamMemberConnection.Edges == nil {
 			break
@@ -8385,20 +8385,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamMemberEdge.Node(childComplexity), true
-
-	case "TeamMemberRemovedActivityLogData.userEmail":
-		if e.complexity.TeamMemberRemovedActivityLogData.UserEmail == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberRemovedActivityLogData.UserEmail(childComplexity), true
-
-	case "TeamMemberRemovedActivityLogData.userID":
-		if e.complexity.TeamMemberRemovedActivityLogData.UserID == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberRemovedActivityLogData.UserID(childComplexity), true
 
 	case "TeamMemberRemovedActivityLogEntry.actor":
 		if e.complexity.TeamMemberRemovedActivityLogEntry.Actor == nil {
@@ -8463,26 +8449,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamMemberRemovedActivityLogEntry.TeamSlug(childComplexity), true
 
-	case "TeamMemberSetRoleActivityLogData.role":
-		if e.complexity.TeamMemberSetRoleActivityLogData.Role == nil {
+	case "TeamMemberRemovedActivityLogEntryData.userEmail":
+		if e.complexity.TeamMemberRemovedActivityLogEntryData.UserEmail == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleActivityLogData.Role(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLogEntryData.UserEmail(childComplexity), true
 
-	case "TeamMemberSetRoleActivityLogData.userEmail":
-		if e.complexity.TeamMemberSetRoleActivityLogData.UserEmail == nil {
+	case "TeamMemberRemovedActivityLogEntryData.userID":
+		if e.complexity.TeamMemberRemovedActivityLogEntryData.UserID == nil {
 			break
 		}
 
-		return e.complexity.TeamMemberSetRoleActivityLogData.UserEmail(childComplexity), true
-
-	case "TeamMemberSetRoleActivityLogData.userID":
-		if e.complexity.TeamMemberSetRoleActivityLogData.UserID == nil {
-			break
-		}
-
-		return e.complexity.TeamMemberSetRoleActivityLogData.UserID(childComplexity), true
+		return e.complexity.TeamMemberRemovedActivityLogEntryData.UserID(childComplexity), true
 
 	case "TeamMemberSetRoleActivityLogEntry.actor":
 		if e.complexity.TeamMemberSetRoleActivityLogEntry.Actor == nil {
@@ -8546,6 +8525,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamMemberSetRoleActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "TeamMemberSetRoleActivityLogEntryData.role":
+		if e.complexity.TeamMemberSetRoleActivityLogEntryData.Role == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberSetRoleActivityLogEntryData.Role(childComplexity), true
+
+	case "TeamMemberSetRoleActivityLogEntryData.userEmail":
+		if e.complexity.TeamMemberSetRoleActivityLogEntryData.UserEmail == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberSetRoleActivityLogEntryData.UserEmail(childComplexity), true
+
+	case "TeamMemberSetRoleActivityLogEntryData.userID":
+		if e.complexity.TeamMemberSetRoleActivityLogEntryData.UserID == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberSetRoleActivityLogEntryData.UserID(childComplexity), true
 
 	case "TeamServiceUtilization.sqlInstances":
 		if e.complexity.TeamServiceUtilization.SQLInstances == nil {
@@ -8638,34 +8638,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamServiceUtilizationSqlInstancesMemory.Utilization(childComplexity), true
 
-	case "TeamUpdatedActivityLogData.updatedFields":
-		if e.complexity.TeamUpdatedActivityLogData.UpdatedFields == nil {
-			break
-		}
-
-		return e.complexity.TeamUpdatedActivityLogData.UpdatedFields(childComplexity), true
-
-	case "TeamUpdatedActivityLogDataUpdatedField.field":
-		if e.complexity.TeamUpdatedActivityLogDataUpdatedField.Field == nil {
-			break
-		}
-
-		return e.complexity.TeamUpdatedActivityLogDataUpdatedField.Field(childComplexity), true
-
-	case "TeamUpdatedActivityLogDataUpdatedField.newValue":
-		if e.complexity.TeamUpdatedActivityLogDataUpdatedField.NewValue == nil {
-			break
-		}
-
-		return e.complexity.TeamUpdatedActivityLogDataUpdatedField.NewValue(childComplexity), true
-
-	case "TeamUpdatedActivityLogDataUpdatedField.oldValue":
-		if e.complexity.TeamUpdatedActivityLogDataUpdatedField.OldValue == nil {
-			break
-		}
-
-		return e.complexity.TeamUpdatedActivityLogDataUpdatedField.OldValue(childComplexity), true
-
 	case "TeamUpdatedActivityLogEntry.actor":
 		if e.complexity.TeamUpdatedActivityLogEntry.Actor == nil {
 			break
@@ -8728,6 +8700,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamUpdatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "TeamUpdatedActivityLogEntryData.updatedFields":
+		if e.complexity.TeamUpdatedActivityLogEntryData.UpdatedFields == nil {
+			break
+		}
+
+		return e.complexity.TeamUpdatedActivityLogEntryData.UpdatedFields(childComplexity), true
+
+	case "TeamUpdatedActivityLogEntryDataUpdatedField.field":
+		if e.complexity.TeamUpdatedActivityLogEntryDataUpdatedField.Field == nil {
+			break
+		}
+
+		return e.complexity.TeamUpdatedActivityLogEntryDataUpdatedField.Field(childComplexity), true
+
+	case "TeamUpdatedActivityLogEntryDataUpdatedField.newValue":
+		if e.complexity.TeamUpdatedActivityLogEntryDataUpdatedField.NewValue == nil {
+			break
+		}
+
+		return e.complexity.TeamUpdatedActivityLogEntryDataUpdatedField.NewValue(childComplexity), true
+
+	case "TeamUpdatedActivityLogEntryDataUpdatedField.oldValue":
+		if e.complexity.TeamUpdatedActivityLogEntryDataUpdatedField.OldValue == nil {
+			break
+		}
+
+		return e.complexity.TeamUpdatedActivityLogEntryDataUpdatedField.OldValue(childComplexity), true
 
 	case "TeamUtilizationData.environment":
 		if e.complexity.TeamUtilizationData.Environment == nil {
@@ -9035,20 +9035,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UnleashInstanceMetrics.Toggles(childComplexity), true
 
-	case "UnleashInstanceUpdatedActivityLogData.allowedTeamSlug":
-		if e.complexity.UnleashInstanceUpdatedActivityLogData.AllowedTeamSlug == nil {
-			break
-		}
-
-		return e.complexity.UnleashInstanceUpdatedActivityLogData.AllowedTeamSlug(childComplexity), true
-
-	case "UnleashInstanceUpdatedActivityLogData.revokedTeamSlug":
-		if e.complexity.UnleashInstanceUpdatedActivityLogData.RevokedTeamSlug == nil {
-			break
-		}
-
-		return e.complexity.UnleashInstanceUpdatedActivityLogData.RevokedTeamSlug(childComplexity), true
-
 	case "UnleashInstanceUpdatedActivityLogEntry.actor":
 		if e.complexity.UnleashInstanceUpdatedActivityLogEntry.Actor == nil {
 			break
@@ -9111,6 +9097,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.UnleashInstanceUpdatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "UnleashInstanceUpdatedActivityLogEntryData.allowedTeamSlug":
+		if e.complexity.UnleashInstanceUpdatedActivityLogEntryData.AllowedTeamSlug == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceUpdatedActivityLogEntryData.AllowedTeamSlug(childComplexity), true
+
+	case "UnleashInstanceUpdatedActivityLogEntryData.revokedTeamSlug":
+		if e.complexity.UnleashInstanceUpdatedActivityLogEntryData.RevokedTeamSlug == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstanceUpdatedActivityLogEntryData.RevokedTeamSlug(childComplexity), true
 
 	case "UpdateImageVulnerabilityPayload.vulnerability":
 		if e.complexity.UpdateImageVulnerabilityPayload.Vulnerability == nil {
@@ -12122,10 +12122,10 @@ type ReconcilerConfiguredActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: ReconcilerConfiguredActivityLogData!
+	data: ReconcilerConfiguredActivityLogEntryData!
 }
 
-type ReconcilerConfiguredActivityLogData {
+type ReconcilerConfiguredActivityLogEntryData {
 	"Keys that were updated."
 	updatedKeys: [String!]!
 }
@@ -13020,10 +13020,10 @@ type SecretValueAddedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the entry."
-	data: SecretValueAddedActivityLogData!
+	data: SecretValueAddedActivityLogEntryData!
 }
 
-type SecretValueAddedActivityLogData {
+type SecretValueAddedActivityLogEntryData {
 	"The name of the added value."
 	valueName: String!
 }
@@ -13054,10 +13054,10 @@ type SecretValueUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the entry."
-	data: SecretValueUpdatedActivityLogData!
+	data: SecretValueUpdatedActivityLogEntryData!
 }
 
-type SecretValueUpdatedActivityLogData {
+type SecretValueUpdatedActivityLogEntryData {
 	"The name of the updated value."
 	valueName: String!
 }
@@ -13088,10 +13088,10 @@ type SecretValueRemovedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the entry."
-	data: SecretValueRemovedActivityLogData!
+	data: SecretValueRemovedActivityLogEntryData!
 }
 
-type SecretValueRemovedActivityLogData {
+type SecretValueRemovedActivityLogEntryData {
 	"The name of the removed value."
 	valueName: String!
 }
@@ -14038,15 +14038,15 @@ type TeamUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: TeamUpdatedActivityLogData!
+	data: TeamUpdatedActivityLogEntryData!
 }
 
-type TeamUpdatedActivityLogData {
+type TeamUpdatedActivityLogEntryData {
 	"Fields that were updated."
-	updatedFields: [TeamUpdatedActivityLogDataUpdatedField!]!
+	updatedFields: [TeamUpdatedActivityLogEntryDataUpdatedField!]!
 }
 
-type TeamUpdatedActivityLogDataUpdatedField {
+type TeamUpdatedActivityLogEntryDataUpdatedField {
 	"The name of the field."
 	field: String!
 
@@ -14135,10 +14135,10 @@ type TeamMemberAddedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the action."
-	data: TeamMemberAddedActivityLogData!
+	data: TeamMemberAddedActivityLogEntryData!
 }
 
-type TeamMemberAddedActivityLogData {
+type TeamMemberAddedActivityLogEntryData {
 	"The role that the user was added with."
 	role: TeamMemberRole!
 
@@ -14175,10 +14175,10 @@ type TeamMemberRemovedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the action."
-	data: TeamMemberRemovedActivityLogData!
+	data: TeamMemberRemovedActivityLogEntryData!
 }
 
-type TeamMemberRemovedActivityLogData {
+type TeamMemberRemovedActivityLogEntryData {
 	"The ID of the user that was removed."
 	userID: ID!
 
@@ -14212,10 +14212,10 @@ type TeamMemberSetRoleActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the action."
-	data: TeamMemberSetRoleActivityLogData!
+	data: TeamMemberSetRoleActivityLogEntryData!
 }
 
-type TeamMemberSetRoleActivityLogData {
+type TeamMemberSetRoleActivityLogEntryData {
 	"The role that the user was assigned."
 	role: TeamMemberRole!
 
@@ -14252,15 +14252,15 @@ type TeamEnvironmentUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the action."
-	data: TeamEnvironmentUpdatedActivityLogData!
+	data: TeamEnvironmentUpdatedActivityLogEntryData!
 }
 
-type TeamEnvironmentUpdatedActivityLogData {
+type TeamEnvironmentUpdatedActivityLogEntryData {
 	"Fields that were updated."
-	updatedFields: [TeamEnvironmentUpdatedActivityLogDataUpdatedField!]!
+	updatedFields: [TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField!]!
 }
 
-type TeamEnvironmentUpdatedActivityLogDataUpdatedField {
+type TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField {
 	"The name of the field."
 	field: String!
 
@@ -14454,10 +14454,10 @@ type UnleashInstanceUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: UnleashInstanceUpdatedActivityLogData!
+	data: UnleashInstanceUpdatedActivityLogEntryData!
 }
 
-type UnleashInstanceUpdatedActivityLogData {
+type UnleashInstanceUpdatedActivityLogEntryData {
 	"Revoked team slug."
 	revokedTeamSlug: Slug
 
@@ -44183,50 +44183,6 @@ func (ec *executionContext) fieldContext_ReconcilerConfig_value(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ReconcilerConfiguredActivityLogData_updatedKeys(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLogData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLogData_updatedKeys(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedKeys, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]string)
-	fc.Result = res
-	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLogData_updatedKeys(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ReconcilerConfiguredActivityLogData",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _ReconcilerConfiguredActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLogEntry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLogEntry_id(ctx, field)
 	if err != nil {
@@ -44602,9 +44558,9 @@ func (ec *executionContext) _ReconcilerConfiguredActivityLogEntry_data(ctx conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*reconciler.ReconcilerConfiguredActivityLogData)
+	res := resTmp.(*reconciler.ReconcilerConfiguredActivityLogEntryData)
 	fc.Result = res
-	return ec.marshalNReconcilerConfiguredActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerConfiguredActivityLogData(ctx, field.Selections, res)
+	return ec.marshalNReconcilerConfiguredActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerConfiguredActivityLogEntryData(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -44616,9 +44572,53 @@ func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLogEntry_da
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "updatedKeys":
-				return ec.fieldContext_ReconcilerConfiguredActivityLogData_updatedKeys(ctx, field)
+				return ec.fieldContext_ReconcilerConfiguredActivityLogEntryData_updatedKeys(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ReconcilerConfiguredActivityLogData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ReconcilerConfiguredActivityLogEntryData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerConfiguredActivityLogEntryData_updatedKeys(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerConfiguredActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerConfiguredActivityLogEntryData_updatedKeys(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedKeys, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerConfiguredActivityLogEntryData_updatedKeys(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerConfiguredActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -50856,50 +50856,6 @@ func (ec *executionContext) fieldContext_SecretValue_value(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueAddedActivityLogData_valueName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueAddedActivityLogData_valueName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ValueName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLogData_valueName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SecretValueAddedActivityLogData",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _SecretValueAddedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SecretValueAddedActivityLogEntry_id(ctx, field)
 	if err != nil {
@@ -51275,9 +51231,9 @@ func (ec *executionContext) _SecretValueAddedActivityLogEntry_data(ctx context.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*secret.SecretValueAddedActivityLogData)
+	res := resTmp.(*secret.SecretValueAddedActivityLogEntryData)
 	fc.Result = res
-	return ec.marshalNSecretValueAddedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueAddedActivityLogData(ctx, field.Selections, res)
+	return ec.marshalNSecretValueAddedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueAddedActivityLogEntryData(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -51289,16 +51245,16 @@ func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_data(_
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "valueName":
-				return ec.fieldContext_SecretValueAddedActivityLogData_valueName(ctx, field)
+				return ec.fieldContext_SecretValueAddedActivityLogEntryData_valueName(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type SecretValueAddedActivityLogData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type SecretValueAddedActivityLogEntryData", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLogData_valueName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueRemovedActivityLogData_valueName(ctx, field)
+func (ec *executionContext) _SecretValueAddedActivityLogEntryData_valueName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueAddedActivityLogEntryData_valueName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51328,9 +51284,9 @@ func (ec *executionContext) _SecretValueRemovedActivityLogData_valueName(ctx con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogData_valueName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntryData_valueName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueRemovedActivityLogData",
+		Object:     "SecretValueAddedActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -51716,9 +51672,9 @@ func (ec *executionContext) _SecretValueRemovedActivityLogEntry_data(ctx context
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*secret.SecretValueRemovedActivityLogData)
+	res := resTmp.(*secret.SecretValueRemovedActivityLogEntryData)
 	fc.Result = res
-	return ec.marshalNSecretValueRemovedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueRemovedActivityLogData(ctx, field.Selections, res)
+	return ec.marshalNSecretValueRemovedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueRemovedActivityLogEntryData(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -51730,16 +51686,16 @@ func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_data
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "valueName":
-				return ec.fieldContext_SecretValueRemovedActivityLogData_valueName(ctx, field)
+				return ec.fieldContext_SecretValueRemovedActivityLogEntryData_valueName(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type SecretValueRemovedActivityLogData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type SecretValueRemovedActivityLogEntryData", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLogData_valueName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SecretValueUpdatedActivityLogData_valueName(ctx, field)
+func (ec *executionContext) _SecretValueRemovedActivityLogEntryData_valueName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueRemovedActivityLogEntryData_valueName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -51769,9 +51725,9 @@ func (ec *executionContext) _SecretValueUpdatedActivityLogData_valueName(ctx con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogData_valueName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntryData_valueName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SecretValueUpdatedActivityLogData",
+		Object:     "SecretValueRemovedActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -52157,9 +52113,9 @@ func (ec *executionContext) _SecretValueUpdatedActivityLogEntry_data(ctx context
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*secret.SecretValueUpdatedActivityLogData)
+	res := resTmp.(*secret.SecretValueUpdatedActivityLogEntryData)
 	fc.Result = res
-	return ec.marshalNSecretValueUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueUpdatedActivityLogData(ctx, field.Selections, res)
+	return ec.marshalNSecretValueUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueUpdatedActivityLogEntryData(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -52171,9 +52127,53 @@ func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_data
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "valueName":
-				return ec.fieldContext_SecretValueUpdatedActivityLogData_valueName(ctx, field)
+				return ec.fieldContext_SecretValueUpdatedActivityLogEntryData_valueName(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type SecretValueUpdatedActivityLogData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type SecretValueUpdatedActivityLogEntryData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SecretValueUpdatedActivityLogEntryData_valueName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SecretValueUpdatedActivityLogEntryData_valueName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ValueName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntryData_valueName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SecretValueUpdatedActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -62003,184 +62003,6 @@ func (ec *executionContext) fieldContext_TeamEnvironmentCostPeriod_series(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogData_updatedFields(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogData_updatedFields(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedFields, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*team.TeamEnvironmentUpdatedActivityLogDataUpdatedField)
-	fc.Result = res
-	return ec.marshalNTeamEnvironmentUpdatedActivityLogDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogDataUpdatedFieldᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogData_updatedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedActivityLogData",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "field":
-				return ec.fieldContext_TeamEnvironmentUpdatedActivityLogDataUpdatedField_field(ctx, field)
-			case "oldValue":
-				return ec.fieldContext_TeamEnvironmentUpdatedActivityLogDataUpdatedField_oldValue(ctx, field)
-			case "newValue":
-				return ec.fieldContext_TeamEnvironmentUpdatedActivityLogDataUpdatedField_newValue(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironmentUpdatedActivityLogDataUpdatedField", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogDataUpdatedField_field(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogDataUpdatedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogDataUpdatedField_field(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Field, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogDataUpdatedField_field(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedActivityLogDataUpdatedField",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogDataUpdatedField_oldValue(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogDataUpdatedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogDataUpdatedField_oldValue(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.OldValue, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogDataUpdatedField_oldValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedActivityLogDataUpdatedField",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogDataUpdatedField_newValue(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogDataUpdatedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogDataUpdatedField_newValue(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.NewValue, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogDataUpdatedField_newValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamEnvironmentUpdatedActivityLogDataUpdatedField",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntry_id(ctx, field)
 	if err != nil {
@@ -62556,9 +62378,9 @@ func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_data(ctx con
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*team.TeamEnvironmentUpdatedActivityLogData)
+	res := resTmp.(*team.TeamEnvironmentUpdatedActivityLogEntryData)
 	fc.Result = res
-	return ec.marshalNTeamEnvironmentUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogData(ctx, field.Selections, res)
+	return ec.marshalNTeamEnvironmentUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryData(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -62570,9 +62392,187 @@ func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "updatedFields":
-				return ec.fieldContext_TeamEnvironmentUpdatedActivityLogData_updatedFields(ctx, field)
+				return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntryData_updatedFields(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironmentUpdatedActivityLogData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironmentUpdatedActivityLogEntryData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntryData_updatedFields(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntryData_updatedFields(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedFields, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField)
+	fc.Result = res
+	return ec.marshalNTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntryData_updatedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironmentUpdatedActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "field":
+				return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+			case "oldValue":
+				return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+			case "newValue":
+				return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_field(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Field, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_field(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OldValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_oldValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_newValue(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NewValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_newValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -63979,138 +63979,6 @@ func (ec *executionContext) fieldContext_TeamMember_role(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberAddedActivityLogData_role(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedActivityLogData_role(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Role, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(team.TeamMemberRole)
-	fc.Result = res
-	return ec.marshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogData_role(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedActivityLogData",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type TeamMemberRole does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberAddedActivityLogData_userID(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedActivityLogData_userID(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UserID(), nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(ident.Ident)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogData_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedActivityLogData",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberAddedActivityLogData_userEmail(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberAddedActivityLogData_userEmail(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UserEmail, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogData_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberAddedActivityLogData",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _TeamMemberAddedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamMemberAddedActivityLogEntry_id(ctx, field)
 	if err != nil {
@@ -64486,9 +64354,9 @@ func (ec *executionContext) _TeamMemberAddedActivityLogEntry_data(ctx context.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*team.TeamMemberAddedActivityLogData)
+	res := resTmp.(*team.TeamMemberAddedActivityLogEntryData)
 	fc.Result = res
-	return ec.marshalNTeamMemberAddedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberAddedActivityLogData(ctx, field.Selections, res)
+	return ec.marshalNTeamMemberAddedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberAddedActivityLogEntryData(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -64500,13 +64368,145 @@ func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_data(_ 
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "role":
-				return ec.fieldContext_TeamMemberAddedActivityLogData_role(ctx, field)
+				return ec.fieldContext_TeamMemberAddedActivityLogEntryData_role(ctx, field)
 			case "userID":
-				return ec.fieldContext_TeamMemberAddedActivityLogData_userID(ctx, field)
+				return ec.fieldContext_TeamMemberAddedActivityLogEntryData_userID(ctx, field)
 			case "userEmail":
-				return ec.fieldContext_TeamMemberAddedActivityLogData_userEmail(ctx, field)
+				return ec.fieldContext_TeamMemberAddedActivityLogEntryData_userEmail(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamMemberAddedActivityLogData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TeamMemberAddedActivityLogEntryData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberAddedActivityLogEntryData_role(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLogEntryData_role(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Role, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(team.TeamMemberRole)
+	fc.Result = res
+	return ec.marshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntryData_role(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberAddedActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TeamMemberRole does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberAddedActivityLogEntryData_userID(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLogEntryData_userID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntryData_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberAddedActivityLogEntryData",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberAddedActivityLogEntryData_userEmail(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberAddedActivityLogEntryData_userEmail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserEmail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntryData_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberAddedActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -64765,94 +64765,6 @@ func (ec *executionContext) fieldContext_TeamMemberEdge_node(_ context.Context, 
 				return ec.fieldContext_TeamMember_role(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamMember", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberRemovedActivityLogData_userID(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedActivityLogData_userID(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UserID(), nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(ident.Ident)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogData_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedActivityLogData",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberRemovedActivityLogData_userEmail(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberRemovedActivityLogData_userEmail(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UserEmail, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogData_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberRemovedActivityLogData",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -65233,9 +65145,9 @@ func (ec *executionContext) _TeamMemberRemovedActivityLogEntry_data(ctx context.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*team.TeamMemberRemovedActivityLogData)
+	res := resTmp.(*team.TeamMemberRemovedActivityLogEntryData)
 	fc.Result = res
-	return ec.marshalNTeamMemberRemovedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRemovedActivityLogData(ctx, field.Selections, res)
+	return ec.marshalNTeamMemberRemovedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRemovedActivityLogEntryData(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -65247,62 +65159,18 @@ func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_data(
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "userID":
-				return ec.fieldContext_TeamMemberRemovedActivityLogData_userID(ctx, field)
+				return ec.fieldContext_TeamMemberRemovedActivityLogEntryData_userID(ctx, field)
 			case "userEmail":
-				return ec.fieldContext_TeamMemberRemovedActivityLogData_userEmail(ctx, field)
+				return ec.fieldContext_TeamMemberRemovedActivityLogEntryData_userEmail(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamMemberRemovedActivityLogData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TeamMemberRemovedActivityLogEntryData", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLogData_role(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLogData_role(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Role, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(team.TeamMemberRole)
-	fc.Result = res
-	return ec.marshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogData_role(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleActivityLogData",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type TeamMemberRole does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamMemberSetRoleActivityLogData_userID(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLogData_userID(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLogEntryData_userID(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLogEntryData_userID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65332,9 +65200,9 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLogData_userID(ctx context
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogData_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntryData_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleActivityLogData",
+		Object:     "TeamMemberRemovedActivityLogEntryData",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -65345,8 +65213,8 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogData_userID
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLogData_userEmail(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLogData_userEmail(ctx, field)
+func (ec *executionContext) _TeamMemberRemovedActivityLogEntryData_userEmail(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedActivityLogEntryData_userEmail(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -65376,9 +65244,9 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLogData_userEmail(ctx cont
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogData_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntryData_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamMemberSetRoleActivityLogData",
+		Object:     "TeamMemberRemovedActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -65764,9 +65632,9 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry_data(ctx context.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*team.TeamMemberSetRoleActivityLogData)
+	res := resTmp.(*team.TeamMemberSetRoleActivityLogEntryData)
 	fc.Result = res
-	return ec.marshalNTeamMemberSetRoleActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberSetRoleActivityLogData(ctx, field.Selections, res)
+	return ec.marshalNTeamMemberSetRoleActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberSetRoleActivityLogEntryData(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -65778,13 +65646,145 @@ func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_data(
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "role":
-				return ec.fieldContext_TeamMemberSetRoleActivityLogData_role(ctx, field)
+				return ec.fieldContext_TeamMemberSetRoleActivityLogEntryData_role(ctx, field)
 			case "userID":
-				return ec.fieldContext_TeamMemberSetRoleActivityLogData_userID(ctx, field)
+				return ec.fieldContext_TeamMemberSetRoleActivityLogEntryData_userID(ctx, field)
 			case "userEmail":
-				return ec.fieldContext_TeamMemberSetRoleActivityLogData_userEmail(ctx, field)
+				return ec.fieldContext_TeamMemberSetRoleActivityLogEntryData_userEmail(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamMemberSetRoleActivityLogData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TeamMemberSetRoleActivityLogEntryData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberSetRoleActivityLogEntryData_role(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLogEntryData_role(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Role, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(team.TeamMemberRole)
+	fc.Result = res
+	return ec.marshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntryData_role(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberSetRoleActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TeamMemberRole does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberSetRoleActivityLogEntryData_userID(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLogEntryData_userID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntryData_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberSetRoleActivityLogEntryData",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberSetRoleActivityLogEntryData_userEmail(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberSetRoleActivityLogEntryData_userEmail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserEmail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntryData_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberSetRoleActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -66394,184 +66394,6 @@ func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesMemor
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUpdatedActivityLogData_updatedFields(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedActivityLogData_updatedFields(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedFields, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*team.TeamUpdatedActivityLogDataUpdatedField)
-	fc.Result = res
-	return ec.marshalNTeamUpdatedActivityLogDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogDataUpdatedFieldᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLogData_updatedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedActivityLogData",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "field":
-				return ec.fieldContext_TeamUpdatedActivityLogDataUpdatedField_field(ctx, field)
-			case "oldValue":
-				return ec.fieldContext_TeamUpdatedActivityLogDataUpdatedField_oldValue(ctx, field)
-			case "newValue":
-				return ec.fieldContext_TeamUpdatedActivityLogDataUpdatedField_newValue(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamUpdatedActivityLogDataUpdatedField", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamUpdatedActivityLogDataUpdatedField_field(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogDataUpdatedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedActivityLogDataUpdatedField_field(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Field, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLogDataUpdatedField_field(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedActivityLogDataUpdatedField",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamUpdatedActivityLogDataUpdatedField_oldValue(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogDataUpdatedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedActivityLogDataUpdatedField_oldValue(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.OldValue, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLogDataUpdatedField_oldValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedActivityLogDataUpdatedField",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamUpdatedActivityLogDataUpdatedField_newValue(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogDataUpdatedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedActivityLogDataUpdatedField_newValue(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.NewValue, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLogDataUpdatedField_newValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedActivityLogDataUpdatedField",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _TeamUpdatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamUpdatedActivityLogEntry_id(ctx, field)
 	if err != nil {
@@ -66947,9 +66769,9 @@ func (ec *executionContext) _TeamUpdatedActivityLogEntry_data(ctx context.Contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*team.TeamUpdatedActivityLogData)
+	res := resTmp.(*team.TeamUpdatedActivityLogEntryData)
 	fc.Result = res
-	return ec.marshalNTeamUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogData(ctx, field.Selections, res)
+	return ec.marshalNTeamUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryData(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -66961,9 +66783,187 @@ func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_data(_ cont
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "updatedFields":
-				return ec.fieldContext_TeamUpdatedActivityLogData_updatedFields(ctx, field)
+				return ec.fieldContext_TeamUpdatedActivityLogEntryData_updatedFields(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamUpdatedActivityLogData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TeamUpdatedActivityLogEntryData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamUpdatedActivityLogEntryData_updatedFields(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLogEntryData_updatedFields(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedFields, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*team.TeamUpdatedActivityLogEntryDataUpdatedField)
+	fc.Result = res
+	return ec.marshalNTeamUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntryData_updatedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamUpdatedActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "field":
+				return ec.fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+			case "oldValue":
+				return ec.fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+			case "newValue":
+				return ec.fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamUpdatedActivityLogEntryDataUpdatedField", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamUpdatedActivityLogEntryDataUpdatedField_field(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Field, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_field(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamUpdatedActivityLogEntryDataUpdatedField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OldValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_oldValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamUpdatedActivityLogEntryDataUpdatedField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamUpdatedActivityLogEntryDataUpdatedField_newValue(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NewValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_newValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamUpdatedActivityLogEntryDataUpdatedField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -69059,88 +69059,6 @@ func (ec *executionContext) fieldContext_UnleashInstanceMetrics_memoryRequests(_
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashInstanceUpdatedActivityLogData_revokedTeamSlug(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLogData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLogData_revokedTeamSlug(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.RevokedTeamSlug, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*slug.Slug)
-	fc.Result = res
-	return ec.marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogData_revokedTeamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedActivityLogData",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Slug does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnleashInstanceUpdatedActivityLogData_allowedTeamSlug(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLogData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLogData_allowedTeamSlug(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.AllowedTeamSlug, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*slug.Slug)
-	fc.Result = res
-	return ec.marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogData_allowedTeamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnleashInstanceUpdatedActivityLogData",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Slug does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLogEntry_id(ctx, field)
 	if err != nil {
@@ -69516,9 +69434,9 @@ func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntry_data(ctx con
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*unleash.UnleashInstanceUpdatedActivityLogData)
+	res := resTmp.(*unleash.UnleashInstanceUpdatedActivityLogEntryData)
 	fc.Result = res
-	return ec.marshalNUnleashInstanceUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstanceUpdatedActivityLogData(ctx, field.Selections, res)
+	return ec.marshalNUnleashInstanceUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstanceUpdatedActivityLogEntryData(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -69530,11 +69448,93 @@ func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogEntry_
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "revokedTeamSlug":
-				return ec.fieldContext_UnleashInstanceUpdatedActivityLogData_revokedTeamSlug(ctx, field)
+				return ec.fieldContext_UnleashInstanceUpdatedActivityLogEntryData_revokedTeamSlug(ctx, field)
 			case "allowedTeamSlug":
-				return ec.fieldContext_UnleashInstanceUpdatedActivityLogData_allowedTeamSlug(ctx, field)
+				return ec.fieldContext_UnleashInstanceUpdatedActivityLogEntryData_allowedTeamSlug(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type UnleashInstanceUpdatedActivityLogData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type UnleashInstanceUpdatedActivityLogEntryData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntryData_revokedTeamSlug(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLogEntryData_revokedTeamSlug(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RevokedTeamSlug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*slug.Slug)
+	fc.Result = res
+	return ec.marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogEntryData_revokedTeamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstanceUpdatedActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntryData_allowedTeamSlug(ctx context.Context, field graphql.CollectedField, obj *unleash.UnleashInstanceUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstanceUpdatedActivityLogEntryData_allowedTeamSlug(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AllowedTeamSlug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*slug.Slug)
+	fc.Result = res
+	return ec.marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstanceUpdatedActivityLogEntryData_allowedTeamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstanceUpdatedActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
 		},
 	}
 	return fc, nil
@@ -86161,45 +86161,6 @@ func (ec *executionContext) _ReconcilerConfig(ctx context.Context, sel ast.Selec
 	return out
 }
 
-var reconcilerConfiguredActivityLogDataImplementors = []string{"ReconcilerConfiguredActivityLogData"}
-
-func (ec *executionContext) _ReconcilerConfiguredActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *reconciler.ReconcilerConfiguredActivityLogData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerConfiguredActivityLogDataImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ReconcilerConfiguredActivityLogData")
-		case "updatedKeys":
-			out.Values[i] = ec._ReconcilerConfiguredActivityLogData_updatedKeys(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var reconcilerConfiguredActivityLogEntryImplementors = []string{"ReconcilerConfiguredActivityLogEntry", "ActivityLogEntry", "Node"}
 
 func (ec *executionContext) _ReconcilerConfiguredActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *reconciler.ReconcilerConfiguredActivityLogEntry) graphql.Marshaler {
@@ -86250,6 +86211,45 @@ func (ec *executionContext) _ReconcilerConfiguredActivityLogEntry(ctx context.Co
 			out.Values[i] = ec._ReconcilerConfiguredActivityLogEntry_environmentName(ctx, field, obj)
 		case "data":
 			out.Values[i] = ec._ReconcilerConfiguredActivityLogEntry_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var reconcilerConfiguredActivityLogEntryDataImplementors = []string{"ReconcilerConfiguredActivityLogEntryData"}
+
+func (ec *executionContext) _ReconcilerConfiguredActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *reconciler.ReconcilerConfiguredActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerConfiguredActivityLogEntryDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ReconcilerConfiguredActivityLogEntryData")
+		case "updatedKeys":
+			out.Values[i] = ec._ReconcilerConfiguredActivityLogEntryData_updatedKeys(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -88547,45 +88547,6 @@ func (ec *executionContext) _SecretValue(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
-var secretValueAddedActivityLogDataImplementors = []string{"SecretValueAddedActivityLogData"}
-
-func (ec *executionContext) _SecretValueAddedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueAddedActivityLogData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueAddedActivityLogDataImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("SecretValueAddedActivityLogData")
-		case "valueName":
-			out.Values[i] = ec._SecretValueAddedActivityLogData_valueName(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var secretValueAddedActivityLogEntryImplementors = []string{"SecretValueAddedActivityLogEntry", "ActivityLogEntry", "Node"}
 
 func (ec *executionContext) _SecretValueAddedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueAddedActivityLogEntry) graphql.Marshaler {
@@ -88662,19 +88623,19 @@ func (ec *executionContext) _SecretValueAddedActivityLogEntry(ctx context.Contex
 	return out
 }
 
-var secretValueRemovedActivityLogDataImplementors = []string{"SecretValueRemovedActivityLogData"}
+var secretValueAddedActivityLogEntryDataImplementors = []string{"SecretValueAddedActivityLogEntryData"}
 
-func (ec *executionContext) _SecretValueRemovedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueRemovedActivityLogData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueRemovedActivityLogDataImplementors)
+func (ec *executionContext) _SecretValueAddedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueAddedActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueAddedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("SecretValueRemovedActivityLogData")
+			out.Values[i] = graphql.MarshalString("SecretValueAddedActivityLogEntryData")
 		case "valueName":
-			out.Values[i] = ec._SecretValueRemovedActivityLogData_valueName(ctx, field, obj)
+			out.Values[i] = ec._SecretValueAddedActivityLogEntryData_valueName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -88777,19 +88738,19 @@ func (ec *executionContext) _SecretValueRemovedActivityLogEntry(ctx context.Cont
 	return out
 }
 
-var secretValueUpdatedActivityLogDataImplementors = []string{"SecretValueUpdatedActivityLogData"}
+var secretValueRemovedActivityLogEntryDataImplementors = []string{"SecretValueRemovedActivityLogEntryData"}
 
-func (ec *executionContext) _SecretValueUpdatedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueUpdatedActivityLogData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueUpdatedActivityLogDataImplementors)
+func (ec *executionContext) _SecretValueRemovedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueRemovedActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueRemovedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("SecretValueUpdatedActivityLogData")
+			out.Values[i] = graphql.MarshalString("SecretValueRemovedActivityLogEntryData")
 		case "valueName":
-			out.Values[i] = ec._SecretValueUpdatedActivityLogData_valueName(ctx, field, obj)
+			out.Values[i] = ec._SecretValueRemovedActivityLogEntryData_valueName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -88866,6 +88827,45 @@ func (ec *executionContext) _SecretValueUpdatedActivityLogEntry(ctx context.Cont
 			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_environmentName(ctx, field, obj)
 		case "data":
 			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var secretValueUpdatedActivityLogEntryDataImplementors = []string{"SecretValueUpdatedActivityLogEntryData"}
+
+func (ec *executionContext) _SecretValueUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueUpdatedActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueUpdatedActivityLogEntryDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SecretValueUpdatedActivityLogEntryData")
+		case "valueName":
+			out.Values[i] = ec._SecretValueUpdatedActivityLogEntryData_valueName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -92867,88 +92867,6 @@ func (ec *executionContext) _TeamEnvironmentCostPeriod(ctx context.Context, sel 
 	return out
 }
 
-var teamEnvironmentUpdatedActivityLogDataImplementors = []string{"TeamEnvironmentUpdatedActivityLogData"}
-
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEnvironmentUpdatedActivityLogData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentUpdatedActivityLogDataImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamEnvironmentUpdatedActivityLogData")
-		case "updatedFields":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogData_updatedFields(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var teamEnvironmentUpdatedActivityLogDataUpdatedFieldImplementors = []string{"TeamEnvironmentUpdatedActivityLogDataUpdatedField"}
-
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogDataUpdatedField(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEnvironmentUpdatedActivityLogDataUpdatedField) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentUpdatedActivityLogDataUpdatedFieldImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamEnvironmentUpdatedActivityLogDataUpdatedField")
-		case "field":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogDataUpdatedField_field(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "oldValue":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogDataUpdatedField_oldValue(ctx, field, obj)
-		case "newValue":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogDataUpdatedField_newValue(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var teamEnvironmentUpdatedActivityLogEntryImplementors = []string{"TeamEnvironmentUpdatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
 func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEnvironmentUpdatedActivityLogEntry) graphql.Marshaler {
@@ -93002,6 +92920,88 @@ func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry(ctx context.
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamEnvironmentUpdatedActivityLogEntryDataImplementors = []string{"TeamEnvironmentUpdatedActivityLogEntryData"}
+
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEnvironmentUpdatedActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentUpdatedActivityLogEntryDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamEnvironmentUpdatedActivityLogEntryData")
+		case "updatedFields":
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntryData_updatedFields(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamEnvironmentUpdatedActivityLogEntryDataUpdatedFieldImplementors = []string{"TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField"}
+
+func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentUpdatedActivityLogEntryDataUpdatedFieldImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField")
+		case "field":
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_field(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "oldValue":
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field, obj)
+		case "newValue":
+			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -93941,55 +93941,6 @@ func (ec *executionContext) _TeamMember(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
-var teamMemberAddedActivityLogDataImplementors = []string{"TeamMemberAddedActivityLogData"}
-
-func (ec *executionContext) _TeamMemberAddedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberAddedActivityLogData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberAddedActivityLogDataImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamMemberAddedActivityLogData")
-		case "role":
-			out.Values[i] = ec._TeamMemberAddedActivityLogData_role(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "userID":
-			out.Values[i] = ec._TeamMemberAddedActivityLogData_userID(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "userEmail":
-			out.Values[i] = ec._TeamMemberAddedActivityLogData_userEmail(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var teamMemberAddedActivityLogEntryImplementors = []string{"TeamMemberAddedActivityLogEntry", "ActivityLogEntry", "Node"}
 
 func (ec *executionContext) _TeamMemberAddedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberAddedActivityLogEntry) graphql.Marshaler {
@@ -94040,6 +93991,55 @@ func (ec *executionContext) _TeamMemberAddedActivityLogEntry(ctx context.Context
 			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_environmentName(ctx, field, obj)
 		case "data":
 			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamMemberAddedActivityLogEntryDataImplementors = []string{"TeamMemberAddedActivityLogEntryData"}
+
+func (ec *executionContext) _TeamMemberAddedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberAddedActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberAddedActivityLogEntryDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamMemberAddedActivityLogEntryData")
+		case "role":
+			out.Values[i] = ec._TeamMemberAddedActivityLogEntryData_role(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userID":
+			out.Values[i] = ec._TeamMemberAddedActivityLogEntryData_userID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userEmail":
+			out.Values[i] = ec._TeamMemberAddedActivityLogEntryData_userEmail(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -94159,50 +94159,6 @@ func (ec *executionContext) _TeamMemberEdge(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var teamMemberRemovedActivityLogDataImplementors = []string{"TeamMemberRemovedActivityLogData"}
-
-func (ec *executionContext) _TeamMemberRemovedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberRemovedActivityLogData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberRemovedActivityLogDataImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamMemberRemovedActivityLogData")
-		case "userID":
-			out.Values[i] = ec._TeamMemberRemovedActivityLogData_userID(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "userEmail":
-			out.Values[i] = ec._TeamMemberRemovedActivityLogData_userEmail(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var teamMemberRemovedActivityLogEntryImplementors = []string{"TeamMemberRemovedActivityLogEntry", "ActivityLogEntry", "Node"}
 
 func (ec *executionContext) _TeamMemberRemovedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberRemovedActivityLogEntry) graphql.Marshaler {
@@ -94279,29 +94235,24 @@ func (ec *executionContext) _TeamMemberRemovedActivityLogEntry(ctx context.Conte
 	return out
 }
 
-var teamMemberSetRoleActivityLogDataImplementors = []string{"TeamMemberSetRoleActivityLogData"}
+var teamMemberRemovedActivityLogEntryDataImplementors = []string{"TeamMemberRemovedActivityLogEntryData"}
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberSetRoleActivityLogData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberSetRoleActivityLogDataImplementors)
+func (ec *executionContext) _TeamMemberRemovedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberRemovedActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberRemovedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamMemberSetRoleActivityLogData")
-		case "role":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLogData_role(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
+			out.Values[i] = graphql.MarshalString("TeamMemberRemovedActivityLogEntryData")
 		case "userID":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLogData_userID(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLogEntryData_userID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "userEmail":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLogData_userEmail(ctx, field, obj)
+			out.Values[i] = ec._TeamMemberRemovedActivityLogEntryData_userEmail(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -94378,6 +94329,55 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry(ctx context.Conte
 			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_environmentName(ctx, field, obj)
 		case "data":
 			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamMemberSetRoleActivityLogEntryDataImplementors = []string{"TeamMemberSetRoleActivityLogEntryData"}
+
+func (ec *executionContext) _TeamMemberSetRoleActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberSetRoleActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberSetRoleActivityLogEntryDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamMemberSetRoleActivityLogEntryData")
+		case "role":
+			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntryData_role(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userID":
+			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntryData_userID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userEmail":
+			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntryData_userEmail(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -94763,88 +94763,6 @@ func (ec *executionContext) _TeamServiceUtilizationSqlInstancesMemory(ctx contex
 	return out
 }
 
-var teamUpdatedActivityLogDataImplementors = []string{"TeamUpdatedActivityLogData"}
-
-func (ec *executionContext) _TeamUpdatedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamUpdatedActivityLogData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamUpdatedActivityLogDataImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamUpdatedActivityLogData")
-		case "updatedFields":
-			out.Values[i] = ec._TeamUpdatedActivityLogData_updatedFields(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var teamUpdatedActivityLogDataUpdatedFieldImplementors = []string{"TeamUpdatedActivityLogDataUpdatedField"}
-
-func (ec *executionContext) _TeamUpdatedActivityLogDataUpdatedField(ctx context.Context, sel ast.SelectionSet, obj *team.TeamUpdatedActivityLogDataUpdatedField) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamUpdatedActivityLogDataUpdatedFieldImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamUpdatedActivityLogDataUpdatedField")
-		case "field":
-			out.Values[i] = ec._TeamUpdatedActivityLogDataUpdatedField_field(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "oldValue":
-			out.Values[i] = ec._TeamUpdatedActivityLogDataUpdatedField_oldValue(ctx, field, obj)
-		case "newValue":
-			out.Values[i] = ec._TeamUpdatedActivityLogDataUpdatedField_newValue(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var teamUpdatedActivityLogEntryImplementors = []string{"TeamUpdatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
 func (ec *executionContext) _TeamUpdatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamUpdatedActivityLogEntry) graphql.Marshaler {
@@ -94898,6 +94816,88 @@ func (ec *executionContext) _TeamUpdatedActivityLogEntry(ctx context.Context, se
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamUpdatedActivityLogEntryDataImplementors = []string{"TeamUpdatedActivityLogEntryData"}
+
+func (ec *executionContext) _TeamUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamUpdatedActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamUpdatedActivityLogEntryDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamUpdatedActivityLogEntryData")
+		case "updatedFields":
+			out.Values[i] = ec._TeamUpdatedActivityLogEntryData_updatedFields(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamUpdatedActivityLogEntryDataUpdatedFieldImplementors = []string{"TeamUpdatedActivityLogEntryDataUpdatedField"}
+
+func (ec *executionContext) _TeamUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, obj *team.TeamUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamUpdatedActivityLogEntryDataUpdatedFieldImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamUpdatedActivityLogEntryDataUpdatedField")
+		case "field":
+			out.Values[i] = ec._TeamUpdatedActivityLogEntryDataUpdatedField_field(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "oldValue":
+			out.Values[i] = ec._TeamUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field, obj)
+		case "newValue":
+			out.Values[i] = ec._TeamUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -95740,44 +95740,6 @@ func (ec *executionContext) _UnleashInstanceMetrics(ctx context.Context, sel ast
 	return out
 }
 
-var unleashInstanceUpdatedActivityLogDataImplementors = []string{"UnleashInstanceUpdatedActivityLogData"}
-
-func (ec *executionContext) _UnleashInstanceUpdatedActivityLogData(ctx context.Context, sel ast.SelectionSet, obj *unleash.UnleashInstanceUpdatedActivityLogData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, unleashInstanceUpdatedActivityLogDataImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("UnleashInstanceUpdatedActivityLogData")
-		case "revokedTeamSlug":
-			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogData_revokedTeamSlug(ctx, field, obj)
-		case "allowedTeamSlug":
-			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogData_allowedTeamSlug(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var unleashInstanceUpdatedActivityLogEntryImplementors = []string{"UnleashInstanceUpdatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
 func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *unleash.UnleashInstanceUpdatedActivityLogEntry) graphql.Marshaler {
@@ -95831,6 +95793,44 @@ func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntry(ctx context.
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var unleashInstanceUpdatedActivityLogEntryDataImplementors = []string{"UnleashInstanceUpdatedActivityLogEntryData"}
+
+func (ec *executionContext) _UnleashInstanceUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *unleash.UnleashInstanceUpdatedActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, unleashInstanceUpdatedActivityLogEntryDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UnleashInstanceUpdatedActivityLogEntryData")
+		case "revokedTeamSlug":
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogEntryData_revokedTeamSlug(ctx, field, obj)
+		case "allowedTeamSlug":
+			out.Values[i] = ec._UnleashInstanceUpdatedActivityLogEntryData_allowedTeamSlug(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -101235,14 +101235,14 @@ func (ec *executionContext) unmarshalNReconcilerConfigInput2ᚖgithubᚗcomᚋna
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNReconcilerConfiguredActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerConfiguredActivityLogData(ctx context.Context, sel ast.SelectionSet, v *reconciler.ReconcilerConfiguredActivityLogData) graphql.Marshaler {
+func (ec *executionContext) marshalNReconcilerConfiguredActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerConfiguredActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *reconciler.ReconcilerConfiguredActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ReconcilerConfiguredActivityLogData(ctx, sel, v)
+	return ec._ReconcilerConfiguredActivityLogEntryData(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNReconcilerConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*reconciler.Reconciler]) graphql.Marshaler {
@@ -102302,14 +102302,14 @@ func (ec *executionContext) marshalNSecretValue2ᚖgithubᚗcomᚋnaisᚋapiᚋi
 	return ec._SecretValue(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSecretValueAddedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueAddedActivityLogData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValueAddedActivityLogData) graphql.Marshaler {
+func (ec *executionContext) marshalNSecretValueAddedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueAddedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValueAddedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SecretValueAddedActivityLogData(ctx, sel, v)
+	return ec._SecretValueAddedActivityLogEntryData(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNSecretValueInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueInput(ctx context.Context, v interface{}) (*secret.SecretValueInput, error) {
@@ -102317,24 +102317,24 @@ func (ec *executionContext) unmarshalNSecretValueInput2ᚖgithubᚗcomᚋnaisᚋ
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNSecretValueRemovedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueRemovedActivityLogData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValueRemovedActivityLogData) graphql.Marshaler {
+func (ec *executionContext) marshalNSecretValueRemovedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueRemovedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValueRemovedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SecretValueRemovedActivityLogData(ctx, sel, v)
+	return ec._SecretValueRemovedActivityLogEntryData(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSecretValueUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueUpdatedActivityLogData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValueUpdatedActivityLogData) graphql.Marshaler {
+func (ec *executionContext) marshalNSecretValueUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValueUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SecretValueUpdatedActivityLogData(ctx, sel, v)
+	return ec._SecretValueUpdatedActivityLogEntryData(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNServiceCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSampleᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.ServiceCostSample) graphql.Marshaler {
@@ -103321,17 +103321,17 @@ func (ec *executionContext) marshalNTeamEnvironmentCostPeriod2ᚖgithubᚗcomᚋ
 	return ec._TeamEnvironmentCostPeriod(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogData(ctx context.Context, sel ast.SelectionSet, v *team.TeamEnvironmentUpdatedActivityLogData) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamEnvironmentUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamEnvironmentUpdatedActivityLogData(ctx, sel, v)
+	return ec._TeamEnvironmentUpdatedActivityLogEntryData(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogDataUpdatedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamEnvironmentUpdatedActivityLogDataUpdatedField) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -103355,7 +103355,7 @@ func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogDataUpdated
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNTeamEnvironmentUpdatedActivityLogDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogDataUpdatedField(ctx, sel, v[i])
+			ret[i] = ec.marshalNTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -103375,14 +103375,14 @@ func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogDataUpdated
 	return ret
 }
 
-func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogDataUpdatedField(ctx context.Context, sel ast.SelectionSet, v *team.TeamEnvironmentUpdatedActivityLogDataUpdatedField) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, v *team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamEnvironmentUpdatedActivityLogDataUpdatedField(ctx, sel, v)
+	return ec._TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNTeamExternalResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamExternalResources(ctx context.Context, sel ast.SelectionSet, v *team.TeamExternalResources) graphql.Marshaler {
@@ -103579,14 +103579,14 @@ func (ec *executionContext) marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋin
 	return ec._TeamMember(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamMemberAddedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberAddedActivityLogData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberAddedActivityLogData) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamMemberAddedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberAddedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberAddedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamMemberAddedActivityLogData(ctx, sel, v)
+	return ec._TeamMemberAddedActivityLogEntryData(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNTeamMemberConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*team.TeamMember]) graphql.Marshaler {
@@ -103661,14 +103661,14 @@ func (ec *executionContext) marshalNTeamMemberOrderField2githubᚗcomᚋnaisᚋa
 	return v
 }
 
-func (ec *executionContext) marshalNTeamMemberRemovedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRemovedActivityLogData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberRemovedActivityLogData) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamMemberRemovedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRemovedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberRemovedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamMemberRemovedActivityLogData(ctx, sel, v)
+	return ec._TeamMemberRemovedActivityLogEntryData(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx context.Context, v interface{}) (team.TeamMemberRole, error) {
@@ -103681,14 +103681,14 @@ func (ec *executionContext) marshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋi
 	return v
 }
 
-func (ec *executionContext) marshalNTeamMemberSetRoleActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberSetRoleActivityLogData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberSetRoleActivityLogData) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamMemberSetRoleActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberSetRoleActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberSetRoleActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamMemberSetRoleActivityLogData(ctx, sel, v)
+	return ec._TeamMemberSetRoleActivityLogEntryData(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNTeamOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamOrderField(ctx context.Context, v interface{}) (team.TeamOrderField, error) {
@@ -103771,17 +103771,17 @@ func (ec *executionContext) marshalNTeamServiceUtilizationSqlInstancesMemory2ᚖ
 	return ec._TeamServiceUtilizationSqlInstancesMemory(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogData(ctx context.Context, sel ast.SelectionSet, v *team.TeamUpdatedActivityLogData) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamUpdatedActivityLogData(ctx, sel, v)
+	return ec._TeamUpdatedActivityLogEntryData(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamUpdatedActivityLogDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogDataUpdatedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamUpdatedActivityLogDataUpdatedField) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -103805,7 +103805,7 @@ func (ec *executionContext) marshalNTeamUpdatedActivityLogDataUpdatedField2ᚕ�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNTeamUpdatedActivityLogDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogDataUpdatedField(ctx, sel, v[i])
+			ret[i] = ec.marshalNTeamUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -103825,14 +103825,14 @@ func (ec *executionContext) marshalNTeamUpdatedActivityLogDataUpdatedField2ᚕ�
 	return ret
 }
 
-func (ec *executionContext) marshalNTeamUpdatedActivityLogDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogDataUpdatedField(ctx context.Context, sel ast.SelectionSet, v *team.TeamUpdatedActivityLogDataUpdatedField) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, v *team.TeamUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamUpdatedActivityLogDataUpdatedField(ctx, sel, v)
+	return ec._TeamUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNTeamUtilizationData2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamUtilizationDataᚄ(ctx context.Context, sel ast.SelectionSet, v []*utilization.TeamUtilizationData) graphql.Marshaler {
@@ -104031,14 +104031,14 @@ func (ec *executionContext) marshalNUnleashInstanceMetrics2ᚖgithubᚗcomᚋnai
 	return ec._UnleashInstanceMetrics(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUnleashInstanceUpdatedActivityLogData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstanceUpdatedActivityLogData(ctx context.Context, sel ast.SelectionSet, v *unleash.UnleashInstanceUpdatedActivityLogData) graphql.Marshaler {
+func (ec *executionContext) marshalNUnleashInstanceUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstanceUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *unleash.UnleashInstanceUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._UnleashInstanceUpdatedActivityLogData(ctx, sel, v)
+	return ec._UnleashInstanceUpdatedActivityLogEntryData(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNUpdateImageVulnerabilityInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐUpdateImageVulnerabilityInput(ctx context.Context, v interface{}) (vulnerability.UpdateImageVulnerabilityInput, error) {

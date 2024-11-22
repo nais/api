@@ -139,10 +139,10 @@ type UnleashInstanceUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: UnleashInstanceUpdatedActivityLogData!
+	data: UnleashInstanceUpdatedActivityLogEntryData!
 }
 
-type UnleashInstanceUpdatedActivityLogData {
+type UnleashInstanceUpdatedActivityLogEntryData {
 	"Revoked team slug."
 	revokedTeamSlug: Slug
 

@@ -492,15 +492,15 @@ type TeamUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: TeamUpdatedActivityLogData!
+	data: TeamUpdatedActivityLogEntryData!
 }
 
-type TeamUpdatedActivityLogData {
+type TeamUpdatedActivityLogEntryData {
 	"Fields that were updated."
-	updatedFields: [TeamUpdatedActivityLogDataUpdatedField!]!
+	updatedFields: [TeamUpdatedActivityLogEntryDataUpdatedField!]!
 }
 
-type TeamUpdatedActivityLogDataUpdatedField {
+type TeamUpdatedActivityLogEntryDataUpdatedField {
 	"The name of the field."
 	field: String!
 
@@ -589,10 +589,10 @@ type TeamMemberAddedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the action."
-	data: TeamMemberAddedActivityLogData!
+	data: TeamMemberAddedActivityLogEntryData!
 }
 
-type TeamMemberAddedActivityLogData {
+type TeamMemberAddedActivityLogEntryData {
 	"The role that the user was added with."
 	role: TeamMemberRole!
 
@@ -629,10 +629,10 @@ type TeamMemberRemovedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the action."
-	data: TeamMemberRemovedActivityLogData!
+	data: TeamMemberRemovedActivityLogEntryData!
 }
 
-type TeamMemberRemovedActivityLogData {
+type TeamMemberRemovedActivityLogEntryData {
 	"The ID of the user that was removed."
 	userID: ID!
 
@@ -666,10 +666,10 @@ type TeamMemberSetRoleActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the action."
-	data: TeamMemberSetRoleActivityLogData!
+	data: TeamMemberSetRoleActivityLogEntryData!
 }
 
-type TeamMemberSetRoleActivityLogData {
+type TeamMemberSetRoleActivityLogEntryData {
 	"The role that the user was assigned."
 	role: TeamMemberRole!
 
@@ -706,15 +706,15 @@ type TeamEnvironmentUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"Data associated with the action."
-	data: TeamEnvironmentUpdatedActivityLogData!
+	data: TeamEnvironmentUpdatedActivityLogEntryData!
 }
 
-type TeamEnvironmentUpdatedActivityLogData {
+type TeamEnvironmentUpdatedActivityLogEntryData {
 	"Fields that were updated."
-	updatedFields: [TeamEnvironmentUpdatedActivityLogDataUpdatedField!]!
+	updatedFields: [TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField!]!
 }
 
-type TeamEnvironmentUpdatedActivityLogDataUpdatedField {
+type TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField {
 	"The name of the field."
 	field: String!
 
