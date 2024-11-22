@@ -38,6 +38,11 @@ extend type TeamInventoryCounts {
 	jobs: TeamInventoryCountJobs!
 }
 
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to jobs will use this resource type."
+	JOB
+}
+
 input TeamJobsFilter {
 	name: String!
 }
@@ -303,7 +308,7 @@ type TriggerJobPayload {
 	jobRun: JobRun
 }
 
-type JobDeletedAuditEntry implements AuditEntry & Node {
+type JobDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -317,7 +322,7 @@ type JobDeletedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -329,7 +334,7 @@ type JobDeletedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type JobTriggeredAuditEntry implements AuditEntry & Node {
+type JobTriggeredActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -343,7 +348,7 @@ type JobTriggeredAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!

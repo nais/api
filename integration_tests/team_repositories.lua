@@ -95,7 +95,7 @@ Test.gql("List repositories for team after creation", function(t)
 	t.query [[
 		{
 			team(slug: "slug-1") {
-				auditEntries {
+				activityLog {
 					nodes {
 						message
 						resourceName
@@ -116,7 +116,7 @@ Test.gql("List repositories for team after creation", function(t)
 	t.check {
 		data = {
 			team = {
-				auditEntries = {
+				activityLog = {
 					nodes = {
 						{
 							message = "Added repository to team",
@@ -181,7 +181,7 @@ Test.gql("List repositories for team after deletion", function(t)
 	t.query [[
 		{
 			team(slug: "slug-1") {
-				auditEntries {
+				activityLog {
 					nodes {
 						message
 						resourceName
@@ -202,7 +202,7 @@ Test.gql("List repositories for team after deletion", function(t)
 	t.check {
 		data = {
 			team = {
-				auditEntries = {
+				activityLog = {
 					nodes = {
 						{
 							message = "Removed repository from team",

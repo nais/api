@@ -170,7 +170,12 @@ extend enum JobOrderField {
 	DEPLOYMENT_TIME
 }
 
-type TeamDeployKeyUpdatedAuditEntry implements AuditEntry & Node {
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to deploy keys will use this resource type."
+	DEPLOY_KEY
+}
+
+type TeamDeployKeyUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -184,7 +189,7 @@ type TeamDeployKeyUpdatedAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!

@@ -7,7 +7,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/apierror"
@@ -94,10 +94,10 @@ func Enable(ctx context.Context, name string) (*Reconciler, error) {
 			return err
 		}
 
-		return audit.Create(ctx, audit.CreateInput{
-			Action:       auditActionEnableReconciler,
+		return activitylog.Create(ctx, activitylog.CreateInput{
+			Action:       activityLogEntryActionEnableReconciler,
 			Actor:        authz.ActorFromContext(ctx).User,
-			ResourceType: AuditResourceTypeReconciler,
+			ResourceType: ActivityLogEntryResourceTypeReconciler,
 			ResourceName: name,
 		})
 	})
@@ -121,10 +121,10 @@ func Disable(ctx context.Context, name string) (*Reconciler, error) {
 			return err
 		}
 
-		return audit.Create(ctx, audit.CreateInput{
-			Action:       auditActionDisableReconciler,
+		return activitylog.Create(ctx, activitylog.CreateInput{
+			Action:       activityLogEntryActionDisableReconciler,
 			Actor:        authz.ActorFromContext(ctx).User,
-			ResourceType: AuditResourceTypeReconciler,
+			ResourceType: ActivityLogEntryResourceTypeReconciler,
 			ResourceName: name,
 		})
 	})
@@ -171,12 +171,12 @@ func Configure(ctx context.Context, name string, config []*ReconcilerConfigInput
 			}
 		}
 
-		return audit.Create(ctx, audit.CreateInput{
-			Action:       auditActionConfigureReconciler,
+		return activitylog.Create(ctx, activitylog.CreateInput{
+			Action:       activityLogEntryActionConfigureReconciler,
 			Actor:        authz.ActorFromContext(ctx).User,
-			ResourceType: AuditResourceTypeReconciler,
+			ResourceType: ActivityLogEntryResourceTypeReconciler,
 			ResourceName: name,
-			Data: &ReconcilerConfiguredAuditEntryData{
+			Data: &ReconcilerConfiguredActivityLogEntryData{
 				UpdatedKeys: slices.Sorted(maps.Keys(reconcilerConfig)),
 			},
 		})

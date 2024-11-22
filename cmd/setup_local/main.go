@@ -13,7 +13,7 @@ import (
 
 	"cloud.google.com/go/pubsub"
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/environment"
@@ -151,7 +151,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 	defer pool.Close()
 
 	ctx = database.NewLoaderContext(ctx, pool)
-	ctx = audit.NewLoaderContext(ctx, pool)
+	ctx = activitylog.NewLoaderContext(ctx, pool)
 	ctx = user.NewLoaderContext(ctx, pool)
 	ctx = team.NewLoaderContext(ctx, pool)
 	ctx = role.NewLoaderContext(ctx, pool)

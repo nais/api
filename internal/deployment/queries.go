@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
@@ -85,10 +85,10 @@ func ChangeDeploymentKey(ctx context.Context, teamSlug slug.Slug) (*DeploymentKe
 		return nil, err
 	}
 
-	err = audit.Create(ctx, audit.CreateInput{
-		Action:       audit.AuditActionUpdated,
+	err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:       activitylog.ActivityLogEntryActionUpdated,
 		Actor:        authz.ActorFromContext(ctx).User,
-		ResourceType: auditResourceTypeDeployKey,
+		ResourceType: activityLogEntryResourceTypeDeployKey,
 		ResourceName: "deploy-key",
 		TeamSlug:     ptr.To(teamSlug),
 	})

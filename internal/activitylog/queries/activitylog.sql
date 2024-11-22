@@ -2,7 +2,7 @@
 SELECT
 	*
 FROM
-	audit_events
+	activity_log_entries
 WHERE
 	team_slug = @team_slug
 ORDER BY
@@ -17,7 +17,7 @@ OFFSET
 SELECT
 	*
 FROM
-	audit_events
+	activity_log_entries
 WHERE
 	resource_type = @resource_type
 	AND resource_name = @resource_name
@@ -33,7 +33,7 @@ OFFSET
 SELECT
 	*
 FROM
-	audit_events
+	activity_log_entries
 WHERE
 	team_slug = @team_slug
 	AND resource_type = @resource_type
@@ -47,7 +47,7 @@ OFFSET
 
 -- name: Create :exec
 INSERT INTO
-	audit_events (
+	activity_log_entries (
 		actor,
 		action,
 		resource_type,
@@ -72,7 +72,7 @@ VALUES
 SELECT
 	*
 FROM
-	audit_events
+	activity_log_entries
 WHERE
 	id = @id
 ;
@@ -81,7 +81,7 @@ WHERE
 SELECT
 	*
 FROM
-	audit_events
+	activity_log_entries
 WHERE
 	id = ANY (@ids::UUID [])
 ORDER BY
@@ -92,7 +92,7 @@ ORDER BY
 SELECT
 	COUNT(*)
 FROM
-	audit_events
+	activity_log_entries
 WHERE
 	team_slug = @team_slug
 ;
@@ -101,7 +101,7 @@ WHERE
 SELECT
 	COUNT(*)
 FROM
-	audit_events
+	activity_log_entries
 WHERE
 	resource_type = @resource_type
 	AND resource_name = @resource_name
@@ -111,7 +111,7 @@ WHERE
 SELECT
 	COUNT(*)
 FROM
-	audit_events
+	activity_log_entries
 WHERE
 	team_slug = @team_slug
 	AND resource_type = @resource_type

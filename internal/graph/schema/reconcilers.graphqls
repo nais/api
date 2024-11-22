@@ -34,6 +34,11 @@ extend type Query {
 	): ReconcilerConnection!
 }
 
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to reconcilers will use this resource type."
+	RECONCILER
+}
+
 type ReconcilerConnection {
 	"Pagination information."
 	pageInfo: PageInfo!
@@ -148,7 +153,7 @@ input ReconcilerConfigInput {
 	value: String!
 }
 
-type ReconcilerEnabledAuditEntry implements AuditEntry & Node {
+type ReconcilerEnabledActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -162,7 +167,7 @@ type ReconcilerEnabledAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -174,7 +179,7 @@ type ReconcilerEnabledAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type ReconcilerDisabledAuditEntry implements AuditEntry & Node {
+type ReconcilerDisabledActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -188,7 +193,7 @@ type ReconcilerDisabledAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -200,7 +205,7 @@ type ReconcilerDisabledAuditEntry implements AuditEntry & Node {
 	environmentName: String
 }
 
-type ReconcilerConfiguredAuditEntry implements AuditEntry & Node {
+type ReconcilerConfiguredActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
 
@@ -214,7 +219,7 @@ type ReconcilerConfiguredAuditEntry implements AuditEntry & Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditResourceType!
+	resourceType: ActivityLogEntryResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -226,10 +231,10 @@ type ReconcilerConfiguredAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: ReconcilerConfiguredAuditEntryData!
+	data: ReconcilerConfiguredActivityLogEntryData!
 }
 
-type ReconcilerConfiguredAuditEntryData {
+type ReconcilerConfiguredActivityLogEntryData {
 	"Keys that were updated."
 	updatedKeys: [String!]!
 }

@@ -1,4 +1,4 @@
-package audit
+package activitylog
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/audit/auditsql"
+	"github.com/nais/api/internal/activitylog/activitylogsql"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
@@ -17,9 +17,9 @@ import (
 )
 
 type CreateInput struct {
-	Action       AuditAction
+	Action       ActivityLogEntryAction
 	Actor        authz.AuthenticatedUser
-	ResourceType AuditResourceType
+	ResourceType ActivityLogEntryResourceType
 	ResourceName string
 
 	Data            any        // optional
@@ -27,7 +27,6 @@ type CreateInput struct {
 	TeamSlug        *slug.Slug // optional
 }
 
-// MarshalData marshals audit entry data. Its inverse is UnmarshalData.
 func MarshalData(input CreateInput) ([]byte, error) {
 	if input.Data == nil {
 		return nil, nil
@@ -35,7 +34,7 @@ func MarshalData(input CreateInput) ([]byte, error) {
 
 	bytes, err := json.Marshal(input.Data)
 	if err != nil {
-		return nil, fmt.Errorf("marshaling audit entry data: %w", err)
+		return nil, fmt.Errorf("marshaling data: %w", err)
 	}
 
 	return bytes, nil
@@ -49,7 +48,7 @@ func Create(ctx context.Context, input CreateInput) error {
 		return err
 	}
 
-	return q.Create(ctx, auditsql.CreateParams{
+	return q.Create(ctx, activitylogsql.CreateParams{
 		Action:          string(input.Action),
 		Actor:           input.Actor.Identity(),
 		Data:            data,
@@ -60,11 +59,11 @@ func Create(ctx context.Context, input CreateInput) error {
 	})
 }
 
-func Get(ctx context.Context, uid uuid.UUID) (AuditEntry, error) {
-	return fromContext(ctx).auditLogLoader.Load(ctx, uid)
+func Get(ctx context.Context, uid uuid.UUID) (ActivityLogEntry, error) {
+	return fromContext(ctx).activityLogLoader.Load(ctx, uid)
 }
 
-func GetByIdent(ctx context.Context, id ident.Ident) (AuditEntry, error) {
+func GetByIdent(ctx context.Context, id ident.Ident) (ActivityLogEntry, error) {
 	uid, err := parseIdent(id)
 	if err != nil {
 		return nil, err
@@ -72,10 +71,10 @@ func GetByIdent(ctx context.Context, id ident.Ident) (AuditEntry, error) {
 	return Get(ctx, uid)
 }
 
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*AuditEntryConnection, error) {
+func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*ActivityLogEntryConnection, error) {
 	q := db(ctx)
 
-	ret, err := q.ListForTeam(ctx, auditsql.ListForTeamParams{
+	ret, err := q.ListForTeam(ctx, activitylogsql.ListForTeamParams{
 		TeamSlug: ptr.To(teamSlug),
 		Offset:   page.Offset(),
 		Limit:    page.Limit(),
@@ -88,13 +87,13 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	if err != nil {
 		return nil, err
 	}
-	return pagination.NewConvertConnectionWithError(ret, page, total, toGraphAuditLog)
+	return pagination.NewConvertConnectionWithError(ret, page, total, toGraphActivityLogEntry)
 }
 
-func ListForResource(ctx context.Context, resourceType AuditResourceType, resourceName string, page *pagination.Pagination) (*AuditEntryConnection, error) {
+func ListForResource(ctx context.Context, resourceType ActivityLogEntryResourceType, resourceName string, page *pagination.Pagination) (*ActivityLogEntryConnection, error) {
 	q := db(ctx)
 
-	ret, err := q.ListForResource(ctx, auditsql.ListForResourceParams{
+	ret, err := q.ListForResource(ctx, activitylogsql.ListForResourceParams{
 		ResourceType: string(resourceType),
 		ResourceName: resourceName,
 		Offset:       page.Offset(),
@@ -104,34 +103,34 @@ func ListForResource(ctx context.Context, resourceType AuditResourceType, resour
 		return nil, err
 	}
 
-	total, err := q.CountForResource(ctx, auditsql.CountForResourceParams{
+	total, err := q.CountForResource(ctx, activitylogsql.CountForResourceParams{
 		ResourceType: string(resourceType),
 		ResourceName: resourceName,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return pagination.NewConvertConnectionWithError(ret, page, total, toGraphAuditLog)
+	return pagination.NewConvertConnectionWithError(ret, page, total, toGraphActivityLogEntry)
 }
 
-func toGraphAuditLog(row *auditsql.AuditEvent) (AuditEntry, error) {
+func toGraphActivityLogEntry(row *activitylogsql.ActivityLogEntry) (ActivityLogEntry, error) {
 	titler := cases.Title(language.English)
-	entry := GenericAuditEntry{
-		Action:          AuditAction(row.Action),
+	entry := GenericActivityLogEntry{
+		Action:          ActivityLogEntryAction(row.Action),
 		Actor:           row.Actor,
 		CreatedAt:       row.CreatedAt.Time,
 		EnvironmentName: row.Environment,
 		Message:         titler.String(row.Action) + " " + titler.String(row.ResourceType),
-		ResourceType:    AuditResourceType(row.ResourceType),
+		ResourceType:    ActivityLogEntryResourceType(row.ResourceType),
 		ResourceName:    row.ResourceName,
 		TeamSlug:        row.TeamSlug,
 		UUID:            row.ID,
 		Data:            row.Data,
 	}
 
-	transformer, ok := knownTransformers[AuditResourceType(row.ResourceType)]
+	transformer, ok := knownTransformers[ActivityLogEntryResourceType(row.ResourceType)]
 	if !ok {
-		return nil, fmt.Errorf("no transformer registered for audit resource type: %q", row.ResourceType)
+		return nil, fmt.Errorf("no transformer registered for activity log resource type: %q", row.ResourceType)
 	}
 
 	return transformer(entry)

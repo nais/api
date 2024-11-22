@@ -1,4 +1,4 @@
-package audit
+package activitylog
 
 import (
 	"fmt"
@@ -15,7 +15,7 @@ const (
 )
 
 func init() {
-	ident.RegisterIdentType(identKey, "AE", GetByIdent)
+	ident.RegisterIdentType(identKey, "AL", GetByIdent)
 }
 
 func newIdent(uid uuid.UUID) ident.Ident {
@@ -25,7 +25,7 @@ func newIdent(uid uuid.UUID) ident.Ident {
 func parseIdent(id ident.Ident) (uuid.UUID, error) {
 	parts := id.Parts()
 	if len(parts) != 1 {
-		return uuid.Nil, fmt.Errorf("invalid audit ident")
+		return uuid.Nil, fmt.Errorf("invalid activity log ident")
 	}
 
 	return uuid.FromBytes(base58.Decode(parts[0]))

@@ -26,7 +26,7 @@ omit_root_models: true
 # if they match it will use them, otherwise it will generate them.
 autobind:
   - "github.com/99designs/gqlgen/graphql/introspection" # Without this line in the beginning, a `prelude.resolver.go` is generated
-  - "github.com/nais/api/internal/audit"
+  - "github.com/nais/api/internal/activitylog"
   - "github.com/nais/api/internal/cost"
   - "github.com/nais/api/internal/deployment"
   - "github.com/nais/api/internal/github/repository"
