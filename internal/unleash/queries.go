@@ -7,7 +7,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/kubernetes/watcher"
@@ -67,8 +67,8 @@ func Create(ctx context.Context, input *CreateUnleashForTeamInput) (*UnleashInst
 		return nil, fmt.Errorf("decoding unleash instance: %w", err)
 	}
 
-	err = audit.Create(ctx, audit.CreateInput{
-		Action:       audit.AuditActionCreated,
+	err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:       activitylog.AuditActionCreated,
 		Actor:        authz.ActorFromContext(ctx).User,
 		ResourceType: auditResourceTypeUnleash,
 		ResourceName: input.TeamSlug.String(),
@@ -126,8 +126,8 @@ func AllowTeamAccess(ctx context.Context, input AllowTeamAccessToUnleashInput) (
 		return nil, err
 	}
 
-	err = audit.Create(ctx, audit.CreateInput{
-		Action:       audit.AuditActionUpdated,
+	err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:       activitylog.AuditActionUpdated,
 		Actor:        authz.ActorFromContext(ctx).User,
 		ResourceType: auditResourceTypeUnleash,
 		ResourceName: input.TeamSlug.String(),
@@ -161,8 +161,8 @@ func RevokeTeamAccess(ctx context.Context, input RevokeTeamAccessToUnleashInput)
 		return nil, err
 	}
 
-	err = audit.Create(ctx, audit.CreateInput{
-		Action:       audit.AuditActionUpdated,
+	err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:       activitylog.AuditActionUpdated,
 		Actor:        authz.ActorFromContext(ctx).User,
 		ResourceType: auditResourceTypeUnleash,
 		ResourceName: input.TeamSlug.String(),

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
@@ -174,8 +174,8 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environmentName, name strin
 		return nil, err
 	}
 
-	if err := audit.Create(ctx, audit.CreateInput{
-		Action:          audit.AuditActionDeleted,
+	if err := activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.AuditActionDeleted,
 		Actor:           authz.ActorFromContext(ctx).User,
 		ResourceType:    auditResourceTypeJob,
 		ResourceName:    name,
@@ -226,7 +226,7 @@ func Trigger(ctx context.Context, teamSlug slug.Slug, environmentName, name, run
 		return nil, err
 	}
 
-	if err := audit.Create(ctx, audit.CreateInput{
+	if err := activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          auditActionTriggerJob,
 		Actor:           authz.ActorFromContext(ctx).User,
 		ResourceType:    auditResourceTypeJob,

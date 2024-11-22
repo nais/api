@@ -3,17 +3,17 @@ package deployment
 import (
 	"fmt"
 
-	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/activitylog"
 )
 
 const (
-	auditResourceTypeDeployKey audit.AuditResourceType = "DEPLOY_KEY"
+	auditResourceTypeDeployKey activitylog.AuditResourceType = "DEPLOY_KEY"
 )
 
 func init() {
-	audit.RegisterTransformer(auditResourceTypeDeployKey, func(entry audit.GenericAuditEntry) (audit.AuditEntry, error) {
+	activitylog.RegisterTransformer(auditResourceTypeDeployKey, func(entry activitylog.GenericAuditEntry) (activitylog.AuditEntry, error) {
 		switch entry.Action {
-		case audit.AuditActionUpdated:
+		case activitylog.AuditActionUpdated:
 			return TeamDeployKeyUpdatedAuditEntry{
 				GenericAuditEntry: entry.WithMessage("Updated deployment key"),
 			}, nil
@@ -24,5 +24,5 @@ func init() {
 }
 
 type TeamDeployKeyUpdatedAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 }

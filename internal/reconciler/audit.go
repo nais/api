@@ -3,18 +3,18 @@ package reconciler
 import (
 	"fmt"
 
-	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/activitylog"
 )
 
 const (
-	AuditResourceTypeReconciler    audit.AuditResourceType = "RECONCILER"
-	auditActionEnableReconciler    audit.AuditAction       = "ENABLE_RECONCILER"
-	auditActionDisableReconciler                           = "DISABLE_RECONCILER"
-	auditActionConfigureReconciler                         = "CONFIGURE_RECONCILER"
+	AuditResourceTypeReconciler    activitylog.AuditResourceType = "RECONCILER"
+	auditActionEnableReconciler    activitylog.AuditAction       = "ENABLE_RECONCILER"
+	auditActionDisableReconciler                                 = "DISABLE_RECONCILER"
+	auditActionConfigureReconciler                               = "CONFIGURE_RECONCILER"
 )
 
 func init() {
-	audit.RegisterTransformer(AuditResourceTypeReconciler, func(entry audit.GenericAuditEntry) (audit.AuditEntry, error) {
+	activitylog.RegisterTransformer(AuditResourceTypeReconciler, func(entry activitylog.GenericAuditEntry) (activitylog.AuditEntry, error) {
 		switch entry.Action {
 		case auditActionEnableReconciler:
 			return ReconcilerEnabledAuditEntry{
@@ -25,7 +25,7 @@ func init() {
 				GenericAuditEntry: entry.WithMessage("Disable reconciler"),
 			}, nil
 		case auditActionConfigureReconciler:
-			data, err := audit.TransformData(entry, func(data *ReconcilerConfiguredAuditEntryData) *ReconcilerConfiguredAuditEntryData {
+			data, err := activitylog.TransformData(entry, func(data *ReconcilerConfiguredAuditEntryData) *ReconcilerConfiguredAuditEntryData {
 				if len(data.UpdatedKeys) == 0 {
 					return nil
 				}
@@ -46,15 +46,15 @@ func init() {
 }
 
 type ReconcilerEnabledAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 }
 
 type ReconcilerDisabledAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 }
 
 type ReconcilerConfiguredAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 	Data *ReconcilerConfiguredAuditEntryData `json:"data"`
 }
 

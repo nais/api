@@ -1,4 +1,4 @@
-package audit
+package activitylog
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/audit/auditsql"
+	"github.com/nais/api/internal/activitylog/activitylogsql"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
@@ -49,7 +49,7 @@ func Create(ctx context.Context, input CreateInput) error {
 		return err
 	}
 
-	return q.Create(ctx, auditsql.CreateParams{
+	return q.Create(ctx, activitylogsql.CreateParams{
 		Action:          string(input.Action),
 		Actor:           input.Actor.Identity(),
 		Data:            data,
@@ -75,7 +75,7 @@ func GetByIdent(ctx context.Context, id ident.Ident) (AuditEntry, error) {
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*AuditEntryConnection, error) {
 	q := db(ctx)
 
-	ret, err := q.ListForTeam(ctx, auditsql.ListForTeamParams{
+	ret, err := q.ListForTeam(ctx, activitylogsql.ListForTeamParams{
 		TeamSlug: ptr.To(teamSlug),
 		Offset:   page.Offset(),
 		Limit:    page.Limit(),
@@ -94,7 +94,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 func ListForResource(ctx context.Context, resourceType AuditResourceType, resourceName string, page *pagination.Pagination) (*AuditEntryConnection, error) {
 	q := db(ctx)
 
-	ret, err := q.ListForResource(ctx, auditsql.ListForResourceParams{
+	ret, err := q.ListForResource(ctx, activitylogsql.ListForResourceParams{
 		ResourceType: string(resourceType),
 		ResourceName: resourceName,
 		Offset:       page.Offset(),
@@ -104,7 +104,7 @@ func ListForResource(ctx context.Context, resourceType AuditResourceType, resour
 		return nil, err
 	}
 
-	total, err := q.CountForResource(ctx, auditsql.CountForResourceParams{
+	total, err := q.CountForResource(ctx, activitylogsql.CountForResourceParams{
 		ResourceType: string(resourceType),
 		ResourceName: resourceName,
 	})
@@ -114,7 +114,7 @@ func ListForResource(ctx context.Context, resourceType AuditResourceType, resour
 	return pagination.NewConvertConnectionWithError(ret, page, total, toGraphAuditLog)
 }
 
-func toGraphAuditLog(row *auditsql.AuditEvent) (AuditEntry, error) {
+func toGraphAuditLog(row *activitylogsql.ActivityLog) (AuditEntry, error) {
 	titler := cases.Title(language.English)
 	entry := GenericAuditEntry{
 		Action:          AuditAction(row.Action),

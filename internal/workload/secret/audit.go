@@ -3,31 +3,29 @@ package secret
 import (
 	"fmt"
 
-	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/activitylog"
 )
 
 const (
-	auditResourceTypeSecret      audit.AuditResourceType = "SECRET"
-	auditActionCreateSecret      audit.AuditAction       = "CREATE_SECRET"
-	auditActionDeleteSecret                              = "DELETE_SECRET"
-	auditActionAddSecretValue                            = "ADD_SECRET_VALUE"
-	auditActionUpdateSecretValue                         = "UPDATE_SECRET_VALUE"
-	auditActionRemoveSecretValue                         = "REMOVE_SECRET_VALUE"
+	auditResourceTypeSecret      activitylog.AuditResourceType = "SECRET"
+	auditActionAddSecretValue    activitylog.AuditAction       = "ADD_SECRET_VALUE"
+	auditActionUpdateSecretValue                               = "UPDATE_SECRET_VALUE"
+	auditActionRemoveSecretValue                               = "REMOVE_SECRET_VALUE"
 )
 
 func init() {
-	audit.RegisterTransformer(auditResourceTypeSecret, func(entry audit.GenericAuditEntry) (audit.AuditEntry, error) {
+	activitylog.RegisterTransformer(auditResourceTypeSecret, func(entry activitylog.GenericAuditEntry) (activitylog.AuditEntry, error) {
 		switch entry.Action {
-		case auditActionCreateSecret:
+		case activitylog.AuditActionCreated:
 			return SecretCreatedAuditEntry{
 				GenericAuditEntry: entry.WithMessage("Created secret"),
 			}, nil
-		case auditActionDeleteSecret:
+		case activitylog.AuditActionDeleted:
 			return SecretDeletedAuditEntry{
 				GenericAuditEntry: entry.WithMessage("Deleted secret"),
 			}, nil
 		case auditActionAddSecretValue:
-			data, err := audit.TransformData(entry, func(data *SecretValueAddedAuditEntryData) *SecretValueAddedAuditEntryData {
+			data, err := activitylog.TransformData(entry, func(data *SecretValueAddedAuditEntryData) *SecretValueAddedAuditEntryData {
 				return data
 			})
 			if err != nil {
@@ -39,7 +37,7 @@ func init() {
 				Data:              data,
 			}, nil
 		case auditActionUpdateSecretValue:
-			data, err := audit.TransformData(entry, func(data *SecretValueUpdatedAuditEntryData) *SecretValueUpdatedAuditEntryData {
+			data, err := activitylog.TransformData(entry, func(data *SecretValueUpdatedAuditEntryData) *SecretValueUpdatedAuditEntryData {
 				return data
 			})
 			if err != nil {
@@ -51,7 +49,7 @@ func init() {
 				Data:              data,
 			}, nil
 		case auditActionRemoveSecretValue:
-			data, err := audit.TransformData(entry, func(data *SecretValueRemovedAuditEntryData) *SecretValueRemovedAuditEntryData {
+			data, err := activitylog.TransformData(entry, func(data *SecretValueRemovedAuditEntryData) *SecretValueRemovedAuditEntryData {
 				return data
 			})
 			if err != nil {
@@ -69,11 +67,11 @@ func init() {
 }
 
 type SecretCreatedAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 }
 
 type SecretValueAddedAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 	Data *SecretValueAddedAuditEntryData
 }
 
@@ -82,7 +80,7 @@ type SecretValueAddedAuditEntryData struct {
 }
 
 type SecretValueUpdatedAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 	Data *SecretValueUpdatedAuditEntryData
 }
 
@@ -91,7 +89,7 @@ type SecretValueUpdatedAuditEntryData struct {
 }
 
 type SecretValueRemovedAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 	Data *SecretValueRemovedAuditEntryData
 }
 
@@ -100,5 +98,5 @@ type SecretValueRemovedAuditEntryData struct {
 }
 
 type SecretDeletedAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 }

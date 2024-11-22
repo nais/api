@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/github/repository/repositorysql"
@@ -65,8 +65,8 @@ func AddToTeam(ctx context.Context, input AddRepositoryToTeamInput) (*Repository
 			return err
 		}
 
-		return audit.Create(ctx, audit.CreateInput{
-			Action:       audit.AuditActionAdded,
+		return activitylog.Create(ctx, activitylog.CreateInput{
+			Action:       activitylog.AuditActionAdded,
 			Actor:        authz.ActorFromContext(ctx).User,
 			ResourceType: auditResourceTypeRepository,
 			ResourceName: input.RepositoryName,
@@ -90,8 +90,8 @@ func RemoveFromTeam(ctx context.Context, input RemoveRepositoryFromTeamInput) er
 			return err
 		}
 
-		return audit.Create(ctx, audit.CreateInput{
-			Action:       audit.AuditActionRemoved,
+		return activitylog.Create(ctx, activitylog.CreateInput{
+			Action:       activitylog.AuditActionRemoved,
 			Actor:        authz.ActorFromContext(ctx).User,
 			ResourceType: auditResourceTypeRepository,
 			ResourceName: input.RepositoryName,

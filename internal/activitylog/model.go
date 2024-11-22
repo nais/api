@@ -1,4 +1,4 @@
-package audit
+package activitylog
 
 import (
 	"encoding/json"

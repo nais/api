@@ -68,13 +68,13 @@ sql:
         out: "../internal/role/rolesql"
 
   - <<: *default_domain
-    name: "Audit SQL"
-    queries: "../internal/audit/queries"
+    name: "Activity log SQL"
+    queries: "../internal/activitylog/queries"
     gen:
       go:
         <<: *default_go
-        package: "auditsql"
-        out: "../internal/audit/auditsql"
+        package: "activitylogsql"
+        out: "../internal/activitylog/activitylogsql"
 
   - <<: *default_domain
     name: "GitHub repositories SQL"

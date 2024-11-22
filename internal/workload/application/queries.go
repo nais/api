@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
@@ -110,8 +110,8 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environmentName, name strin
 		return nil, err
 	}
 
-	if err := audit.Create(ctx, audit.CreateInput{
-		Action:          audit.AuditActionDeleted,
+	if err := activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.AuditActionDeleted,
 		ResourceType:    auditResourceTypeApplication,
 		TeamSlug:        &teamSlug,
 		EnvironmentName: &environmentName,
@@ -145,7 +145,7 @@ func Restart(ctx context.Context, teamSlug slug.Slug, environmentName, name stri
 		return fmt.Errorf("patch deployment: %w", err)
 	}
 
-	return audit.Create(ctx, audit.CreateInput{
+	return activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          auditActionRestartApplication,
 		ResourceType:    auditResourceTypeApplication,
 		TeamSlug:        &teamSlug,

@@ -4,32 +4,30 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/user"
 )
 
 const (
-	auditResourceTypeTeam        audit.AuditResourceType = "TEAM"
-	auditActionCreateDeleteKey   audit.AuditAction       = "CREATE_DELETE_KEY"
-	auditActionConfirmDeleteKey                          = "CONFIRM_DELETE_KEY"
-	auditActionAddMember                                 = "ADD_MEMBER"
-	auditActionRemoveMember                              = "REMOVE_MEMBER"
-	auditActionSetMemberRole                             = "SET_MEMBER_ROLE"
-	auditActionUpdateEnvironment                         = "UPDATE_ENVIRONMENT"
+	auditResourceTypeTeam        activitylog.AuditResourceType = "TEAM"
+	auditActionCreateDeleteKey   activitylog.AuditAction       = "CREATE_DELETE_KEY"
+	auditActionConfirmDeleteKey                                = "CONFIRM_DELETE_KEY"
+	auditActionSetMemberRole                                   = "SET_MEMBER_ROLE"
+	auditActionUpdateEnvironment                               = "UPDATE_ENVIRONMENT"
 )
 
 func init() {
-	audit.RegisterTransformer(auditResourceTypeTeam, func(entry audit.GenericAuditEntry) (audit.AuditEntry, error) {
+	activitylog.RegisterTransformer(auditResourceTypeTeam, func(entry activitylog.GenericAuditEntry) (activitylog.AuditEntry, error) {
 		switch entry.Action {
-		case audit.AuditActionCreated:
+		case activitylog.AuditActionCreated:
 			return TeamCreatedAuditEntry{
 				GenericAuditEntry: entry.WithMessage("Created team"),
 			}, nil
-		case audit.AuditActionUpdated:
-			data, err := audit.TransformData(entry, func(data *TeamUpdatedAuditEntryData) *TeamUpdatedAuditEntryData {
+		case activitylog.AuditActionUpdated:
+			data, err := activitylog.TransformData(entry, func(data *TeamUpdatedAuditEntryData) *TeamUpdatedAuditEntryData {
 				if len(data.UpdatedFields) == 0 {
-					return nil
+					return &TeamUpdatedAuditEntryData{}
 				}
 				return data
 			})
@@ -49,8 +47,8 @@ func init() {
 			return TeamConfirmDeleteKeyAuditEntry{
 				GenericAuditEntry: entry.WithMessage("Confirm delete key"),
 			}, nil
-		case auditActionAddMember:
-			data, err := audit.TransformData(entry, func(data *TeamMemberAddedAuditEntryData) *TeamMemberAddedAuditEntryData {
+		case activitylog.AuditActionAdded:
+			data, err := activitylog.TransformData(entry, func(data *TeamMemberAddedAuditEntryData) *TeamMemberAddedAuditEntryData {
 				return data
 			})
 			if err != nil {
@@ -60,8 +58,8 @@ func init() {
 				GenericAuditEntry: entry.WithMessage("Add member"),
 				Data:              data,
 			}, nil
-		case auditActionRemoveMember:
-			data, err := audit.TransformData(entry, func(data *TeamMemberRemovedAuditEntryData) *TeamMemberRemovedAuditEntryData {
+		case activitylog.AuditActionRemoved:
+			data, err := activitylog.TransformData(entry, func(data *TeamMemberRemovedAuditEntryData) *TeamMemberRemovedAuditEntryData {
 				return data
 			})
 			if err != nil {
@@ -72,7 +70,7 @@ func init() {
 				Data:              data,
 			}, nil
 		case auditActionSetMemberRole:
-			data, err := audit.TransformData(entry, func(data *TeamMemberSetRoleAuditEntryData) *TeamMemberSetRoleAuditEntryData {
+			data, err := activitylog.TransformData(entry, func(data *TeamMemberSetRoleAuditEntryData) *TeamMemberSetRoleAuditEntryData {
 				return data
 			})
 			if err != nil {
@@ -83,7 +81,7 @@ func init() {
 				Data:              data,
 			}, nil
 		case auditActionUpdateEnvironment:
-			data, err := audit.TransformData(entry, func(data *TeamEnvironmentUpdatedAuditEntryData) *TeamEnvironmentUpdatedAuditEntryData {
+			data, err := activitylog.TransformData(entry, func(data *TeamEnvironmentUpdatedAuditEntryData) *TeamEnvironmentUpdatedAuditEntryData {
 				return data
 			})
 			if err != nil {
@@ -101,11 +99,11 @@ func init() {
 }
 
 type TeamCreatedAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 }
 
 type TeamUpdatedAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 	Data *TeamUpdatedAuditEntryData `json:"data"`
 }
 
@@ -120,15 +118,15 @@ type TeamUpdatedAuditEntryDataUpdatedField struct {
 }
 
 type TeamConfirmDeleteKeyAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 }
 
 type TeamCreateDeleteKeyAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 }
 
 type TeamMemberAddedAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 	Data *TeamMemberAddedAuditEntryData `json:"data"`
 }
 
@@ -143,7 +141,7 @@ func (t TeamMemberAddedAuditEntryData) UserID() ident.Ident {
 }
 
 type TeamMemberRemovedAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 	Data *TeamMemberRemovedAuditEntryData `json:"data"`
 }
 
@@ -157,7 +155,7 @@ func (t TeamMemberRemovedAuditEntryData) UserID() ident.Ident {
 }
 
 type TeamMemberSetRoleAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 	Data *TeamMemberSetRoleAuditEntryData `json:"data"`
 }
 
@@ -172,7 +170,7 @@ func (t TeamMemberSetRoleAuditEntryData) UserID() ident.Ident {
 }
 
 type TeamEnvironmentUpdatedAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 	Data *TeamEnvironmentUpdatedAuditEntryData `json:"data"`
 }
 

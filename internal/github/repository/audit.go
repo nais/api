@@ -3,21 +3,21 @@ package repository
 import (
 	"fmt"
 
-	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/activitylog"
 )
 
 const (
-	auditResourceTypeRepository audit.AuditResourceType = "REPOSITORY"
+	auditResourceTypeRepository activitylog.AuditResourceType = "REPOSITORY"
 )
 
 func init() {
-	audit.RegisterTransformer(auditResourceTypeRepository, func(entry audit.GenericAuditEntry) (audit.AuditEntry, error) {
+	activitylog.RegisterTransformer(auditResourceTypeRepository, func(entry activitylog.GenericAuditEntry) (activitylog.AuditEntry, error) {
 		switch entry.Action {
-		case audit.AuditActionAdded:
+		case activitylog.AuditActionAdded:
 			return RepositoryAddedAuditEntry{
 				GenericAuditEntry: entry.WithMessage("Added repository to team"),
 			}, nil
-		case audit.AuditActionRemoved:
+		case activitylog.AuditActionRemoved:
 			return RepositoryRemovedAuditEntry{
 				GenericAuditEntry: entry.WithMessage("Removed repository from team"),
 			}, nil
@@ -29,9 +29,9 @@ func init() {
 }
 
 type RepositoryAddedAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 }
 
 type RepositoryRemovedAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 }

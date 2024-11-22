@@ -3,23 +3,23 @@ package unleash
 import (
 	"fmt"
 
-	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/slug"
 )
 
 const (
-	auditResourceTypeUnleash audit.AuditResourceType = "UNLEASH"
+	auditResourceTypeUnleash activitylog.AuditResourceType = "UNLEASH"
 )
 
 func init() {
-	audit.RegisterTransformer(auditResourceTypeUnleash, func(entry audit.GenericAuditEntry) (audit.AuditEntry, error) {
+	activitylog.RegisterTransformer(auditResourceTypeUnleash, func(entry activitylog.GenericAuditEntry) (activitylog.AuditEntry, error) {
 		switch entry.Action {
-		case audit.AuditActionCreated:
+		case activitylog.AuditActionCreated:
 			return UnleashInstanceCreatedAuditEntry{
 				GenericAuditEntry: entry.WithMessage("Created Unleash instance"),
 			}, nil
-		case audit.AuditActionUpdated:
-			data, err := audit.TransformData(entry, func(data *UnleashInstanceUpdatedAuditEntryData) *UnleashInstanceUpdatedAuditEntryData {
+		case activitylog.AuditActionUpdated:
+			data, err := activitylog.TransformData(entry, func(data *UnleashInstanceUpdatedAuditEntryData) *UnleashInstanceUpdatedAuditEntryData {
 				if data.AllowedTeamSlug == nil && data.RevokedTeamSlug == nil {
 					return nil
 				}
@@ -41,11 +41,11 @@ func init() {
 }
 
 type UnleashInstanceCreatedAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 }
 
 type UnleashInstanceUpdatedAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 	Data *UnleashInstanceUpdatedAuditEntryData `json:"data"`
 }
 

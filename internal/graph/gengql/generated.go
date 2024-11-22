@@ -15,7 +15,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/deployment"
 	"github.com/nais/api/internal/github/repository"
@@ -2060,7 +2060,7 @@ type ReconcilerResolver interface {
 	Config(ctx context.Context, obj *reconciler.Reconciler) ([]*reconciler.ReconcilerConfig, error)
 	Configured(ctx context.Context, obj *reconciler.Reconciler) (bool, error)
 	Errors(ctx context.Context, obj *reconciler.Reconciler, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*reconciler.ReconcilerError], error)
-	AuditEntries(ctx context.Context, obj *reconciler.Reconciler, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[audit.AuditEntry], error)
+	AuditEntries(ctx context.Context, obj *reconciler.Reconciler, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[activitylog.AuditEntry], error)
 }
 type ReconcilerErrorResolver interface {
 	Team(ctx context.Context, obj *reconciler.ReconcilerError) (*team.Team, error)
@@ -2131,7 +2131,7 @@ type TeamResolver interface {
 	DeleteKey(ctx context.Context, obj *team.Team, key string) (*team.TeamDeleteKey, error)
 	InventoryCounts(ctx context.Context, obj *team.Team) (*team.TeamInventoryCounts, error)
 	Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) (*pagination.Connection[*application.Application], error)
-	AuditEntries(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[audit.AuditEntry], error)
+	AuditEntries(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[activitylog.AuditEntry], error)
 	BigQueryDatasets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
 	Buckets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
 	Cost(ctx context.Context, obj *team.Team) (*cost.TeamCost, error)
@@ -24764,9 +24764,9 @@ func (ec *executionContext) _ApplicationDeletedAuditEntry_resourceType(ctx conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ApplicationDeletedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -26087,9 +26087,9 @@ func (ec *executionContext) _ApplicationRestartedAuditEntry_resourceType(ctx con
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ApplicationRestartedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -26366,7 +26366,7 @@ func (ec *executionContext) fieldContext_ApplicationScaling_strategies(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditEntryConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[audit.AuditEntry]) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuditEntryConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[activitylog.AuditEntry]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuditEntryConnection_pageInfo(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -26426,7 +26426,7 @@ func (ec *executionContext) fieldContext_AuditEntryConnection_pageInfo(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditEntryConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[audit.AuditEntry]) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuditEntryConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[activitylog.AuditEntry]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuditEntryConnection_nodes(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -26452,9 +26452,9 @@ func (ec *executionContext) _AuditEntryConnection_nodes(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]audit.AuditEntry)
+	res := resTmp.([]activitylog.AuditEntry)
 	fc.Result = res
-	return ec.marshalNAuditEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditEntryᚄ(ctx, field.Selections, res)
+	return ec.marshalNAuditEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditEntryᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuditEntryConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -26470,7 +26470,7 @@ func (ec *executionContext) fieldContext_AuditEntryConnection_nodes(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditEntryConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[audit.AuditEntry]) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuditEntryConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[activitylog.AuditEntry]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuditEntryConnection_edges(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -26496,7 +26496,7 @@ func (ec *executionContext) _AuditEntryConnection_edges(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]pagination.Edge[audit.AuditEntry])
+	res := resTmp.([]pagination.Edge[activitylog.AuditEntry])
 	fc.Result = res
 	return ec.marshalNAuditEntryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
 }
@@ -26520,7 +26520,7 @@ func (ec *executionContext) fieldContext_AuditEntryConnection_edges(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditEntryEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[audit.AuditEntry]) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuditEntryEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[activitylog.AuditEntry]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuditEntryEdge_cursor(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -26564,7 +26564,7 @@ func (ec *executionContext) fieldContext_AuditEntryEdge_cursor(_ context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditEntryEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[audit.AuditEntry]) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuditEntryEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[activitylog.AuditEntry]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuditEntryEdge_node(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -26590,9 +26590,9 @@ func (ec *executionContext) _AuditEntryEdge_node(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditEntry)
+	res := resTmp.(activitylog.AuditEntry)
 	fc.Result = res
-	return ec.marshalNAuditEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditEntry(ctx, field.Selections, res)
+	return ec.marshalNAuditEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditEntry(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuditEntryEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -35299,9 +35299,9 @@ func (ec *executionContext) _JobDeletedAuditEntry_resourceType(ctx context.Conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_JobDeletedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -37107,9 +37107,9 @@ func (ec *executionContext) _JobTriggeredAuditEntry_resourceType(ctx context.Con
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_JobTriggeredAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -43860,7 +43860,7 @@ func (ec *executionContext) _Reconciler_auditEntries(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*pagination.Connection[audit.AuditEntry])
+	res := resTmp.(*pagination.Connection[activitylog.AuditEntry])
 	fc.Result = res
 	return ec.marshalNAuditEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
 }
@@ -44360,9 +44360,9 @@ func (ec *executionContext) _ReconcilerConfiguredAuditEntry_resourceType(ctx con
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ReconcilerConfiguredAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -44975,9 +44975,9 @@ func (ec *executionContext) _ReconcilerDisabledAuditEntry_resourceType(ctx conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ReconcilerDisabledAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -45432,9 +45432,9 @@ func (ec *executionContext) _ReconcilerEnabledAuditEntry_resourceType(ctx contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ReconcilerEnabledAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -47949,9 +47949,9 @@ func (ec *executionContext) _RepositoryAddedAuditEntry_resourceType(ctx context.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RepositoryAddedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -48556,9 +48556,9 @@ func (ec *executionContext) _RepositoryRemovedAuditEntry_resourceType(ctx contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RepositoryRemovedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -50137,9 +50137,9 @@ func (ec *executionContext) _SecretCreatedAuditEntry_resourceType(ctx context.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SecretCreatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -50486,9 +50486,9 @@ func (ec *executionContext) _SecretDeletedAuditEntry_resourceType(ctx context.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SecretDeletedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -51033,9 +51033,9 @@ func (ec *executionContext) _SecretValueAddedAuditEntry_resourceType(ctx context
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SecretValueAddedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -51474,9 +51474,9 @@ func (ec *executionContext) _SecretValueRemovedAuditEntry_resourceType(ctx conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SecretValueRemovedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -51915,9 +51915,9 @@ func (ec *executionContext) _SecretValueUpdatedAuditEntry_resourceType(ctx conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SecretValueUpdatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -57041,7 +57041,7 @@ func (ec *executionContext) _Team_auditEntries(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*pagination.Connection[audit.AuditEntry])
+	res := resTmp.(*pagination.Connection[activitylog.AuditEntry])
 	fc.Result = res
 	return ec.marshalNAuditEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
 }
@@ -58367,9 +58367,9 @@ func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_resourceType(ctx con
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -59329,9 +59329,9 @@ func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_resourceType(ctx cont
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -59678,9 +59678,9 @@ func (ec *executionContext) _TeamCreatedAuditEntry_resourceType(ctx context.Cont
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamCreatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -60331,9 +60331,9 @@ func (ec *executionContext) _TeamDeployKeyUpdatedAuditEntry_resourceType(ctx con
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -62180,9 +62180,9 @@ func (ec *executionContext) _TeamEnvironmentUpdatedAuditEntry_resourceType(ctx c
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -64156,9 +64156,9 @@ func (ec *executionContext) _TeamMemberAddedAuditEntry_resourceType(ctx context.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -64947,9 +64947,9 @@ func (ec *executionContext) _TeamMemberRemovedAuditEntry_resourceType(ctx contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -65434,9 +65434,9 @@ func (ec *executionContext) _TeamMemberSetRoleAuditEntry_resourceType(ctx contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -66571,9 +66571,9 @@ func (ec *executionContext) _TeamUpdatedAuditEntry_resourceType(ctx context.Cont
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamUpdatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -68623,9 +68623,9 @@ func (ec *executionContext) _UnleashInstanceCreatedAuditEntry_resourceType(ctx c
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UnleashInstanceCreatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -69236,9 +69236,9 @@ func (ec *executionContext) _UnleashInstanceUpdatedAuditEntry_resourceType(ctx c
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UnleashInstanceUpdatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -70664,9 +70664,9 @@ func (ec *executionContext) _VulnerabilityUpdatedAuditEntry_resourceType(ctx con
 		}
 		return graphql.Null
 	}
-	res := resTmp.(audit.AuditResourceType)
+	res := resTmp.(activitylog.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_VulnerabilityUpdatedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -77181,7 +77181,7 @@ func (ec *executionContext) _ApplicationAuthIntegrations(ctx context.Context, se
 	}
 }
 
-func (ec *executionContext) _AuditEntry(ctx context.Context, sel ast.SelectionSet, obj audit.AuditEntry) graphql.Marshaler {
+func (ec *executionContext) _AuditEntry(ctx context.Context, sel ast.SelectionSet, obj activitylog.AuditEntry) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
@@ -77826,7 +77826,7 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ImageVulnerability(ctx, sel, obj)
-	case audit.AuditEntry:
+	case activitylog.AuditEntry:
 		if obj == nil {
 			return graphql.Null
 		}
@@ -79543,7 +79543,7 @@ func (ec *executionContext) _ApplicationScaling(ctx context.Context, sel ast.Sel
 
 var auditEntryConnectionImplementors = []string{"AuditEntryConnection"}
 
-func (ec *executionContext) _AuditEntryConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[audit.AuditEntry]) graphql.Marshaler {
+func (ec *executionContext) _AuditEntryConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[activitylog.AuditEntry]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, auditEntryConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -79592,7 +79592,7 @@ func (ec *executionContext) _AuditEntryConnection(ctx context.Context, sel ast.S
 
 var auditEntryEdgeImplementors = []string{"AuditEntryEdge"}
 
-func (ec *executionContext) _AuditEntryEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[audit.AuditEntry]) graphql.Marshaler {
+func (ec *executionContext) _AuditEntryEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[activitylog.AuditEntry]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, auditEntryEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -98285,7 +98285,7 @@ func (ec *executionContext) marshalNApplicationScaling2ᚖgithubᚗcomᚋnaisᚋ
 	return ec._ApplicationScaling(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAuditEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditEntry(ctx context.Context, sel ast.SelectionSet, v audit.AuditEntry) graphql.Marshaler {
+func (ec *executionContext) marshalNAuditEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditEntry(ctx context.Context, sel ast.SelectionSet, v activitylog.AuditEntry) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -98295,7 +98295,7 @@ func (ec *executionContext) marshalNAuditEntry2githubᚗcomᚋnaisᚋapiᚋinter
 	return ec._AuditEntry(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAuditEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditEntryᚄ(ctx context.Context, sel ast.SelectionSet, v []audit.AuditEntry) graphql.Marshaler {
+func (ec *executionContext) marshalNAuditEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditEntryᚄ(ctx context.Context, sel ast.SelectionSet, v []activitylog.AuditEntry) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -98319,7 +98319,7 @@ func (ec *executionContext) marshalNAuditEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNAuditEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditEntry(ctx, sel, v[i])
+			ret[i] = ec.marshalNAuditEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditEntry(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -98339,11 +98339,11 @@ func (ec *executionContext) marshalNAuditEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 	return ret
 }
 
-func (ec *executionContext) marshalNAuditEntryConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[audit.AuditEntry]) graphql.Marshaler {
+func (ec *executionContext) marshalNAuditEntryConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[activitylog.AuditEntry]) graphql.Marshaler {
 	return ec._AuditEntryConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAuditEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[audit.AuditEntry]) graphql.Marshaler {
+func (ec *executionContext) marshalNAuditEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[activitylog.AuditEntry]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -98353,11 +98353,11 @@ func (ec *executionContext) marshalNAuditEntryConnection2ᚖgithubᚗcomᚋnais�
 	return ec._AuditEntryConnection(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAuditEntryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[audit.AuditEntry]) graphql.Marshaler {
+func (ec *executionContext) marshalNAuditEntryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[activitylog.AuditEntry]) graphql.Marshaler {
 	return ec._AuditEntryEdge(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAuditEntryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[audit.AuditEntry]) graphql.Marshaler {
+func (ec *executionContext) marshalNAuditEntryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[activitylog.AuditEntry]) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -98401,13 +98401,13 @@ func (ec *executionContext) marshalNAuditEntryEdge2ᚕgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) unmarshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx context.Context, v interface{}) (audit.AuditResourceType, error) {
+func (ec *executionContext) unmarshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx context.Context, v interface{}) (activitylog.AuditResourceType, error) {
 	tmp, err := graphql.UnmarshalString(v)
-	res := audit.AuditResourceType(tmp)
+	res := activitylog.AuditResourceType(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditᚐAuditResourceType(ctx context.Context, sel ast.SelectionSet, v audit.AuditResourceType) graphql.Marshaler {
+func (ec *executionContext) marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐAuditResourceType(ctx context.Context, sel ast.SelectionSet, v activitylog.AuditResourceType) graphql.Marshaler {
 	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {

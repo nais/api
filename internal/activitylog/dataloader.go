@@ -1,14 +1,13 @@
-package audit
+package activitylog
 
 import (
 	"context"
 
-	"github.com/nais/api/internal/graph/loader"
-
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/nais/api/internal/audit/auditsql"
+	"github.com/nais/api/internal/activitylog/activitylogsql"
 	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/graph/loader"
 	"github.com/vikstrous/dataloadgen"
 )
 
@@ -25,12 +24,12 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	internalQuerier *auditsql.Queries
+	internalQuerier *activitylogsql.Queries
 	auditLogLoader  *dataloadgen.Loader[uuid.UUID, AuditEntry]
 }
 
 func newLoaders(dbConn *pgxpool.Pool) *loaders {
-	db := auditsql.New(dbConn)
+	db := activitylogsql.New(dbConn)
 
 	auditLoader := &dataloader{db: db}
 
@@ -41,7 +40,7 @@ func newLoaders(dbConn *pgxpool.Pool) *loaders {
 }
 
 type dataloader struct {
-	db auditsql.Querier
+	db activitylogsql.Querier
 }
 
 func (l dataloader) get(ctx context.Context, ids []uuid.UUID) ([]AuditEntry, []error) {
@@ -49,7 +48,7 @@ func (l dataloader) get(ctx context.Context, ids []uuid.UUID) ([]AuditEntry, []e
 	return loader.LoadModelsWithError(ctx, ids, l.db.ListByIDs, toGraphAuditLog, makeKey)
 }
 
-func db(ctx context.Context) *auditsql.Queries {
+func db(ctx context.Context) *activitylogsql.Queries {
 	l := fromContext(ctx)
 
 	if tx := database.TransactionFromContext(ctx); tx != nil {

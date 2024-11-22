@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/apierror"
@@ -46,8 +46,8 @@ func Create(ctx context.Context, input *CreateTeamInput, actor *authz.Actor) (*T
 			return err
 		}
 
-		return audit.Create(ctx, audit.CreateInput{
-			Action:       audit.AuditActionCreated,
+		return activitylog.Create(ctx, activitylog.CreateInput{
+			Action:       activitylog.AuditActionCreated,
 			Actor:        actor.User,
 			ResourceType: auditResourceTypeTeam,
 			ResourceName: input.Slug.String(),
@@ -103,8 +103,8 @@ func Update(ctx context.Context, input *UpdateTeamInput, actor *authz.Actor) (*T
 			})
 		}
 
-		return audit.Create(ctx, audit.CreateInput{
-			Action:       audit.AuditActionUpdated,
+		return activitylog.Create(ctx, activitylog.CreateInput{
+			Action:       activitylog.AuditActionUpdated,
 			Actor:        actor.User,
 			ResourceType: auditResourceTypeTeam,
 			ResourceName: input.Slug.String(),
@@ -273,7 +273,7 @@ func CreateDeleteKey(ctx context.Context, teamSlug slug.Slug, actor *authz.Actor
 			return err
 		}
 
-		return audit.Create(ctx, audit.CreateInput{
+		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:       auditActionCreateDeleteKey,
 			Actor:        actor.User,
 			ResourceType: auditResourceTypeTeam,
@@ -300,7 +300,7 @@ func ConfirmDeleteKey(ctx context.Context, teamSlug slug.Slug, deleteKey uuid.UU
 			return err
 		}
 
-		return audit.Create(ctx, audit.CreateInput{
+		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:       auditActionConfirmDeleteKey,
 			Actor:        actor.User,
 			ResourceType: auditResourceTypeTeam,
@@ -346,8 +346,8 @@ func AddMember(ctx context.Context, input AddTeamMemberInput, actor *authz.Actor
 			return err
 		}
 
-		return audit.Create(ctx, audit.CreateInput{
-			Action:       auditActionAddMember,
+		return activitylog.Create(ctx, activitylog.CreateInput{
+			Action:       activitylog.AuditActionAdded,
 			Actor:        actor.User,
 			ResourceType: auditResourceTypeTeam,
 			ResourceName: input.TeamSlug.String(),
@@ -381,8 +381,8 @@ func RemoveMember(ctx context.Context, input RemoveTeamMemberInput, actor *authz
 			return err
 		}
 
-		return audit.Create(ctx, audit.CreateInput{
-			Action:       auditActionRemoveMember,
+		return activitylog.Create(ctx, activitylog.CreateInput{
+			Action:       activitylog.AuditActionRemoved,
 			Actor:        actor.User,
 			ResourceType: auditResourceTypeTeam,
 			ResourceName: input.TeamSlug.String(),
@@ -429,7 +429,7 @@ func SetMemberRole(ctx context.Context, input SetTeamMemberRoleInput, actor *aut
 			return err
 		}
 
-		return audit.Create(ctx, audit.CreateInput{
+		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:       auditActionSetMemberRole,
 			Actor:        actor.User,
 			ResourceType: auditResourceTypeTeam,
@@ -493,7 +493,7 @@ func UpdateEnvironment(ctx context.Context, input *UpdateTeamEnvironmentInput, a
 			return err
 		}
 
-		return audit.Create(ctx, audit.CreateInput{
+		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:       auditActionUpdateEnvironment,
 			Actor:        actor.User,
 			ResourceType: auditResourceTypeTeam,

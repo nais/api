@@ -1,4 +1,4 @@
-package audit
+package activitylog
 
 type Transformer = func(entry GenericAuditEntry) (AuditEntry, error)
 

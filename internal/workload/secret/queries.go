@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
@@ -197,8 +197,8 @@ func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (
 		return nil, fmt.Errorf("creating secret: %w", err)
 	}
 
-	err = audit.Create(ctx, audit.CreateInput{
-		Action:          auditActionCreateSecret,
+	err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.AuditActionCreated,
 		Actor:           actor.User,
 		EnvironmentName: ptr.To(environment),
 		ResourceType:    auditResourceTypeSecret,
@@ -271,7 +271,7 @@ func AddSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secret
 		return nil, err
 	}
 
-	err = audit.Create(ctx, audit.CreateInput{
+	err = activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          auditActionAddSecretValue,
 		Actor:           actor.User,
 		EnvironmentName: ptr.To(environment),
@@ -345,7 +345,7 @@ func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 		return nil, err
 	}
 
-	err = audit.Create(ctx, audit.CreateInput{
+	err = activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          auditActionUpdateSecretValue,
 		Actor:           actor.User,
 		EnvironmentName: ptr.To(environment),
@@ -410,7 +410,7 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 		return nil, err
 	}
 
-	err = audit.Create(ctx, audit.CreateInput{
+	err = activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          auditActionRemoveSecretValue,
 		Actor:           actor.User,
 		EnvironmentName: ptr.To(environment),
@@ -445,8 +445,8 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) e
 		return err
 	}
 
-	err = audit.Create(ctx, audit.CreateInput{
-		Action:          auditActionDeleteSecret,
+	err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.AuditActionDeleted,
 		Actor:           authz.ActorFromContext(ctx).User,
 		EnvironmentName: ptr.To(environment),
 		ResourceType:    auditResourceTypeSecret,

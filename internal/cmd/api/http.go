@@ -12,7 +12,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/cost"
@@ -248,7 +248,7 @@ func ConfigureGraph(
 		ctx = cost.NewLoaderContext(ctx, pool, costOpts...)
 		ctx = repository.NewLoaderContext(ctx, pool)
 		ctx = role.NewLoaderContext(ctx, pool)
-		ctx = audit.NewLoaderContext(ctx, pool)
+		ctx = activitylog.NewLoaderContext(ctx, pool)
 		ctx = vulnerability.NewLoaderContext(ctx, vClient, tenantName, clusters, fakeClients, log)
 		ctx = reconciler.NewLoaderContext(ctx, pool)
 		ctx = deployment.NewLoaderContext(ctx, hookdClient)

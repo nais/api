@@ -3,16 +3,16 @@ package application
 import (
 	"fmt"
 
-	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/activitylog"
 )
 
 const (
-	auditResourceTypeApplication  audit.AuditResourceType = "APP"
-	auditActionRestartApplication audit.AuditAction       = "RESTARTED"
+	auditResourceTypeApplication  activitylog.AuditResourceType = "APP"
+	auditActionRestartApplication activitylog.AuditAction       = "RESTARTED"
 )
 
 func init() {
-	audit.RegisterTransformer(auditResourceTypeApplication, func(entry audit.GenericAuditEntry) (audit.AuditEntry, error) {
+	activitylog.RegisterTransformer(auditResourceTypeApplication, func(entry activitylog.GenericAuditEntry) (activitylog.AuditEntry, error) {
 		switch entry.Action {
 		case auditActionRestartApplication:
 			if entry.TeamSlug == nil {
@@ -24,7 +24,7 @@ func init() {
 			return ApplicationRestartedAuditEntry{
 				GenericAuditEntry: entry.WithMessage("Application restarted"),
 			}, nil
-		case audit.AuditActionDeleted:
+		case activitylog.AuditActionDeleted:
 			return ApplicationDeletedAuditEntry{
 				GenericAuditEntry: entry.WithMessage("Application deleted"),
 			}, nil
@@ -36,9 +36,9 @@ func init() {
 }
 
 type ApplicationRestartedAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 }
 
 type ApplicationDeletedAuditEntry struct {
-	audit.GenericAuditEntry
+	activitylog.GenericAuditEntry
 }

@@ -7,7 +7,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/apierror"
@@ -94,7 +94,7 @@ func Enable(ctx context.Context, name string) (*Reconciler, error) {
 			return err
 		}
 
-		return audit.Create(ctx, audit.CreateInput{
+		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:       auditActionEnableReconciler,
 			Actor:        authz.ActorFromContext(ctx).User,
 			ResourceType: AuditResourceTypeReconciler,
@@ -121,7 +121,7 @@ func Disable(ctx context.Context, name string) (*Reconciler, error) {
 			return err
 		}
 
-		return audit.Create(ctx, audit.CreateInput{
+		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:       auditActionDisableReconciler,
 			Actor:        authz.ActorFromContext(ctx).User,
 			ResourceType: AuditResourceTypeReconciler,
@@ -171,7 +171,7 @@ func Configure(ctx context.Context, name string, config []*ReconcilerConfigInput
 			}
 		}
 
-		return audit.Create(ctx, audit.CreateInput{
+		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:       auditActionConfigureReconciler,
 			Actor:        authz.ActorFromContext(ctx).User,
 			ResourceType: AuditResourceTypeReconciler,
