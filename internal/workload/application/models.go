@@ -61,7 +61,6 @@ type ApplicationInstance struct {
 	EnvironmentName            string                 `json:"-"`
 	TeamSlug                   slug.Slug              `json:"-"`
 	ApplicationName            string                 `json:"-"`
-	Spec                       *corev1.Pod            `json:"-"`
 	ApplicationContainerStatus corev1.ContainerStatus `json:"-"`
 }
 
@@ -101,21 +100,14 @@ func toGraphInstance(pod *corev1.Pod, teamSlug slug.Slug, environmentName string
 	}
 
 	ret := &ApplicationInstance{
-		Name:            pod.Name,
-		Restarts:        int(containerStatus.RestartCount),
-		Created:         pod.CreationTimestamp.Time,
-		Spec:            pod,
-		EnvironmentName: environmentName,
-		ImageString:     pod.Spec.Containers[0].Image,
-		TeamSlug:        teamSlug,
-		ApplicationName: applicationName,
-	}
-
-	for _, c := range pod.Status.ContainerStatuses {
-		if c.Name == applicationName {
-			ret.ApplicationContainerStatus = c
-			break
-		}
+		Name:                       pod.Name,
+		Restarts:                   int(containerStatus.RestartCount),
+		Created:                    pod.CreationTimestamp.Time,
+		EnvironmentName:            environmentName,
+		ImageString:                pod.Spec.Containers[0].Image,
+		TeamSlug:                   teamSlug,
+		ApplicationName:            applicationName,
+		ApplicationContainerStatus: containerStatus,
 	}
 
 	return ret

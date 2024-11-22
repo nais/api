@@ -14,6 +14,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/tools/cache"
 )
 
 type WatchOption func(*watcherSettings)
@@ -24,6 +25,12 @@ func WithConverter(fn func(o *unstructured.Unstructured, environmentName string)
 	}
 }
 
+func WithTransformer(fn cache.TransformFunc) WatchOption {
+	return func(m *watcherSettings) {
+		m.transformer = fn
+	}
+}
+
 func WithGVR(gvr schema.GroupVersionResource) WatchOption {
 	return func(m *watcherSettings) {
 		m.gvr = &gvr
@@ -31,8 +38,9 @@ func WithGVR(gvr schema.GroupVersionResource) WatchOption {
 }
 
 type watcherSettings struct {
-	converter func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool)
-	gvr       *schema.GroupVersionResource
+	converter   func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool)
+	transformer cache.TransformFunc
+	gvr         *schema.GroupVersionResource
 }
 
 type Watcher[T Object] struct {
