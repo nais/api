@@ -36,6 +36,9 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 	inbound := &InboundNetworkPolicy{}
 	if policy.Inbound != nil {
 		for _, rule := range policy.Inbound.Rules {
+			if rule.Cluster != "" && strings.Contains(rule.Cluster, "-fss") {
+				continue
+			}
 			inbound.Rules = append(inbound.Rules, &NetworkPolicyRule{
 				TargetWorkloadName: rule.Application,
 				TargetTeamSlug:     defaultSlug(rule.Namespace),
@@ -50,6 +53,9 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 	outbound := &OutboundNetworkPolicy{}
 	if policy.Outbound != nil {
 		for _, rule := range policy.Outbound.Rules {
+			if rule.Cluster != "" && strings.Contains(rule.Cluster, "-fss") {
+				continue
+			}
 			outbound.Rules = append(outbound.Rules, &NetworkPolicyRule{
 				TargetWorkloadName: rule.Application,
 				TargetTeamSlug:     defaultSlug(rule.Namespace),
