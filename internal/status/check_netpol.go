@@ -11,6 +11,10 @@ import (
 type checkNetpol struct{}
 
 func (checkNetpol) Run(ctx context.Context, w workload.Workload) ([]WorkloadStatusError, WorkloadState) {
+	if strings.Contains(w.GetEnvironmentName(), "-fss") {
+		return nil, WorkloadStateNais
+	}
+
 	policy := netpol.ListForWorkload(ctx, w.GetTeamSlug(), w.GetEnvironmentName(), w.GetName(), w.GetAccessPolicy())
 
 	ret := []WorkloadStatusError{}
