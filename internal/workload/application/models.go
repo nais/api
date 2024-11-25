@@ -80,7 +80,7 @@ func (i *ApplicationInstance) Status() *ApplicationInstanceStatus {
 	case i.ApplicationContainerStatus.State.Terminated != nil:
 		return &ApplicationInstanceStatus{
 			State:   ApplicationInstanceStateFailing,
-			Message: i.ApplicationContainerStatus.State.Waiting.Reason,
+			Message: i.ApplicationContainerStatus.State.Terminated.Reason,
 		}
 	default:
 		return &ApplicationInstanceStatus{
