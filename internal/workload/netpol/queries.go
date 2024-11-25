@@ -34,7 +34,6 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 				TeamSlug:           teamSlug,
 				WorkloadName:       workloadName,
 				Cluster:            rule.Cluster,
-				IsLikelyNetPol:     isLikelyNetpol(environmentName, rule, rule.Cluster),
 			})
 		}
 	}
@@ -50,7 +49,6 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 				TeamSlug:           teamSlug,
 				WorkloadName:       workloadName,
 				Cluster:            rule.Cluster,
-				IsLikelyNetPol:     isLikelyNetpol(environmentName, rule, rule.Cluster),
 			})
 		}
 
@@ -135,27 +133,4 @@ func allowsWorkload(rules []nais_io_v1.AccessPolicyRule, teamSlug slug.Slug, env
 
 func equalOrWildcard(a, b string) bool {
 	return a == "*" || a == b
-}
-
-type rule interface {
-	MatchesCluster(string) bool
-}
-
-func isLikelyNetpol(workloadEnvironment string, policy rule, cluster string) bool {
-	if policy == nil {
-		return false
-	}
-
-	ignoredCluster := func(env string) bool {
-		return env == "dev-fss" || env == "prod-fss"
-	}
-
-	if ignoredCluster(cluster) || ignoredCluster(workloadEnvironment) {
-		return false
-	}
-
-	if workloadEnvironment == "" {
-	}
-
-	return policy.MatchesCluster(workloadEnvironment)
 }

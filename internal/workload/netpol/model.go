@@ -40,7 +40,6 @@ type NetworkPolicyRule struct {
 	WorkloadName    string    `json:"-"`
 	IsOutbound      bool      `json:"-"`
 	Cluster         string    `json:"-"`
-	IsLikelyNetPol  bool      `json:"-"`
 }
 
 type OutboundNetworkPolicy struct {
