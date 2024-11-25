@@ -33,6 +33,8 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 				EnvironmentName:    environmentName,
 				TeamSlug:           teamSlug,
 				WorkloadName:       workloadName,
+				Cluster:            rule.Cluster,
+				IsLikelyNetPol:     rule.MatchesCluster(environmentName),
 			})
 		}
 	}
@@ -47,6 +49,8 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 				IsOutbound:         true,
 				TeamSlug:           teamSlug,
 				WorkloadName:       workloadName,
+				Cluster:            rule.Cluster,
+				IsLikelyNetPol:     rule.MatchesCluster(environmentName),
 			})
 		}
 

@@ -14,6 +14,9 @@ func (checkNetpol) Run(ctx context.Context, w workload.Workload) ([]WorkloadStat
 
 	ret := []WorkloadStatusError{}
 	for _, p := range policy.Inbound.Rules {
+		if !p.IsLikelyNetPol {
+			continue
+		}
 		isAllowed := netpol.AllowsOutboundWorkload(ctx, p.TargetTeamSlug, p.EnvironmentName, p.TargetWorkloadName, p.TeamSlug, p.WorkloadName)
 		if isAllowed {
 			continue
@@ -26,6 +29,9 @@ func (checkNetpol) Run(ctx context.Context, w workload.Workload) ([]WorkloadStat
 	}
 
 	for _, p := range policy.Outbound.Rules {
+		if !p.IsLikelyNetPol {
+			continue
+		}
 		isAllowed := netpol.AllowsInboundWorkload(ctx, p.TargetTeamSlug, p.EnvironmentName, p.TargetWorkloadName, p.TeamSlug, p.WorkloadName)
 		if isAllowed {
 			continue

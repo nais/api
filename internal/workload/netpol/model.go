@@ -39,6 +39,8 @@ type NetworkPolicyRule struct {
 	TeamSlug        slug.Slug `json:"-"`
 	WorkloadName    string    `json:"-"`
 	IsOutbound      bool      `json:"-"`
+	Cluster         string    `json:"-"`
+	IsLikelyNetPol  bool      `json:"-"`
 }
 
 type OutboundNetworkPolicy struct {
