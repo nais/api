@@ -2,6 +2,7 @@ package netpol
 
 import (
 	"context"
+	"strings"
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload/application"
@@ -11,6 +12,14 @@ import (
 
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, workloadName string, policy *nais_io_v1.AccessPolicy) *NetworkPolicy {
 	if policy == nil {
+		return &NetworkPolicy{
+			Inbound:  &InboundNetworkPolicy{},
+			Outbound: &OutboundNetworkPolicy{},
+		}
+	}
+
+	// No network polcies in onprem environments
+	if strings.Contains(environmentName, "-fss") {
 		return &NetworkPolicy{
 			Inbound:  &InboundNetworkPolicy{},
 			Outbound: &OutboundNetworkPolicy{},
