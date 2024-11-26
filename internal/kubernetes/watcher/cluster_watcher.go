@@ -58,7 +58,9 @@ func newClusterWatcher[T Object](mgr *clusterManager, cluster string, watcher *W
 	}
 
 	if settings.transformer != nil {
-		inf.Informer().SetTransform(settings.transformer)
+		if err := inf.Informer().SetTransform(settings.transformer); err != nil {
+			panic(err)
+		}
 	}
 
 	if _, err := inf.Informer().AddEventHandler(w); err != nil {

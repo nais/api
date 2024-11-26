@@ -97,8 +97,8 @@ func transformPod(in any) (any, error) {
 	pod.SetLabels(labels)
 
 	// Adding data back
-	unstructured.SetNestedSlice(pod.Object, newContainers, "spec", "containers")
-	unstructured.SetNestedSlice(pod.Object, containerStatuses, "status", "containerStatuses")
+	_ = unstructured.SetNestedSlice(pod.Object, newContainers, "spec", "containers")
+	_ = unstructured.SetNestedSlice(pod.Object, containerStatuses, "status", "containerStatuses")
 
 	return pod, nil
 }

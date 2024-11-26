@@ -100,8 +100,8 @@ func transformIngress(in any) (any, error) {
 	ingress.SetLabels(labels)
 
 	// Adding data back
-	unstructured.SetNestedSlice(ingress.Object, newRules, "spec", "rules")
-	unstructured.SetNestedField(ingress.Object, ingressClassName, "spec", "ingressClassName")
+	_ = unstructured.SetNestedSlice(ingress.Object, newRules, "spec", "rules")
+	_ = unstructured.SetNestedField(ingress.Object, ingressClassName, "spec", "ingressClassName")
 
 	return ingress, nil
 }

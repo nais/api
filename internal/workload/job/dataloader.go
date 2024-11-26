@@ -96,7 +96,7 @@ func transformJob(in any) (any, error) {
 	job.SetLabels(labels)
 
 	// Adding data back
-	unstructured.SetNestedSlice(job.Object, newContainers, "spec", "containers")
+	_ = unstructured.SetNestedSlice(job.Object, newContainers, "spec", "containers")
 
 	return job, nil
 }
