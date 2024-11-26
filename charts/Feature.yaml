@@ -173,3 +173,9 @@ values:
       type: string
     computed:
       template: '"{{ .Management.bifrost_unleash_namespace}}"'
+
+  replicas:
+    displayName: Number of replicas
+    description: The number of replicas to run
+    config:
+      type: int
