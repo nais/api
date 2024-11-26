@@ -5,7 +5,7 @@ NAIS API is the main entrypoint when interacting with the API of the NAIS platfo
 ## Local development
 
 ```bash
-asdf install # Install required dependencies
+asdf install # Install required dependencies, see .tool-versions for plugins used
 docker compose up -d
 make setup-local # Setup local environment (seeds database and creates pubsub topic)
 make local
@@ -13,7 +13,11 @@ make local
 
 For local development you need to set the `WITH_FAKE_CLIENTS` environment variable to `true` (as set by `make local`),
 and you will also need to set the `X-User-Email` header to `dev.usersen@example.com` if you want to act as a regular
-user, or `admin.usersen@example.com` if you need an admin user.
+user, or `admin.usersen@example.com` if you need an admin user, when interacting with the GraphQL API.
+
+If you want to override the default configuration, you can create a `.env` file in the root of the project.
+
+Locally, most external services are replaced with fake clients, and the Kubernetes client reads data from `data/k8s`.
 
 ## Development practices
 
@@ -28,6 +32,20 @@ We have defined a set of practices for the Graph-API in the [docs/graphql_practi
 We have a set of fake clients, and stubs, that can be used for local development.
 One of the clients is a fake Kubernetes client that read data from `data/k8s`.
 You can read more about how the fake clients works in the [data/k8s/README.md](data/k8s/README.md) file.
+
+## Integration tests
+
+We are using [tester](https://github.com/nais/tester) for integration tests.
+These tests are written in Lua and can be found in the `integration_tests` directory.
+
+A spec file is generated to support auto-completion using the Lua language server.
+
+When running `make test` the integration tests will be run as part of the test suite.
+If you only want to run the integration tests, and get information about coverage, you can run `make integration-test`.
+
+To run the integration tests in watch mode, run `make integration_test_ui`.
+This will start a web server on `localhost:9876` where you can see the test results.
+They will be re-run every time you save a `.lua` file.
 
 ## Architecture
 
