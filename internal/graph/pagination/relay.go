@@ -40,12 +40,14 @@ func ParsePage(first *int, after *Cursor, last *int, before *Cursor) (*Paginatio
 	}
 
 	switch {
-	case first != nil && before != nil:
+	case first != nil && before.valid():
 		return nil, apierror.Errorf("first and before cannot be used together")
 	case last != nil && after != nil:
 		return nil, apierror.Errorf("last and after cannot be used together")
 	case last != nil && before == nil:
 		return nil, apierror.Errorf("last must be used with before")
+	case before != nil && before.empty:
+		return nil, apierror.Errorf("before cannot be empty")
 	}
 
 	if first != nil {
@@ -62,7 +64,7 @@ func ParsePage(first *int, after *Cursor, last *int, before *Cursor) (*Paginatio
 		p.limit = l
 	}
 
-	if after != nil {
+	if after != nil && !after.empty {
 		p.offset = after.Offset + 1
 	} else if before != nil {
 		p.offset = before.Offset - int(p.Limit())

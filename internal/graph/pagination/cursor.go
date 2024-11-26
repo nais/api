@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/btcsuite/btcutil/base58"
+	"github.com/nais/api/internal/graph/apierror"
 )
 
 var cursorVersions = map[string]func(c *Cursor, i []byte) error{
@@ -17,6 +18,11 @@ var cursorVersions = map[string]func(c *Cursor, i []byte) error{
 
 type Cursor struct {
 	Offset int `json:"offset"`
+	empty  bool
+}
+
+func (c *Cursor) valid() bool {
+	return c != nil && !c.empty
 }
 
 func (c Cursor) MarshalGQLContext(_ context.Context, w io.Writer) error {
@@ -31,14 +37,18 @@ func (c Cursor) MarshalGQLContext(_ context.Context, w io.Writer) error {
 
 func (c *Cursor) UnmarshalGQLContext(_ context.Context, v interface{}) error {
 	if s, ok := v.(string); ok {
+		if s == "" {
+			c.empty = true
+			return nil
+		}
 		b := base58.Decode(s)
 		version, cursor, ok := bytes.Cut(b, []byte{':'})
 		if !ok {
-			return fmt.Errorf("invalid cursor format")
+			return apierror.Errorf("Unsupported cursor format")
 		}
 		parseCursor, ok := cursorVersions[string(version)]
 		if !ok {
-			return fmt.Errorf("unsupported cursor version")
+			return apierror.Errorf("Unsupported cursor version: %q", string(version))
 		}
 		if err := parseCursor(c, cursor); err != nil {
 			return err

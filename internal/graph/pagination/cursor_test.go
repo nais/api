@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 func TestCursor_MarshalGQLContext(t *testing.T) {
@@ -58,7 +59,7 @@ func TestCursor_UnmarshalGQLContext(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			if diff := cmp.Diff(tc.expected, c); diff != "" {
+			if diff := cmp.Diff(tc.expected, c, cmpopts.IgnoreUnexported(Cursor{})); diff != "" {
 				t.Errorf("diff: -want +got\n%s", diff)
 			}
 		})
