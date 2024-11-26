@@ -131,7 +131,7 @@ type unleashConfig struct {
 	Namespace string `env:"UNLEASH_NAMESPACE,default=bifrost-unleash"`
 
 	// BifrostApiEndpoint is the endpoint for the Bifrost API
-	BifrostApiUrl string `env:"UNLEASH_BIFROST_API_URL,default=http://bifrost-backend"`
+	BifrostApiUrl string `env:"UNLEASH_BIFROST_API_URL,default=*fake*"`
 }
 
 type Config struct {

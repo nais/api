@@ -20,6 +20,8 @@ type ctxKey int
 const (
 	prometheusURL        = "https://nais-prometheus.%s.cloud.nais.io"
 	loadersKey    ctxKey = iota
+
+	FakeBifrostURL = "*fake*"
 )
 
 // NewLoaderContext creates a new context with a loaders value.
@@ -47,7 +49,7 @@ type loaders struct {
 func newLoaders(tenantName string, appWatcher *watcher.Watcher[*UnleashInstance], bifrostAPIURL string, log logrus.FieldLogger) *loaders {
 	var client BifrostClient
 	var prometheus Prometheus
-	if bifrostAPIURL == "*fake*" {
+	if bifrostAPIURL == FakeBifrostURL {
 		client = NewFakeBifrostClient(appWatcher)
 		prometheus = NewFakePrometheusClient()
 	} else {

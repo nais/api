@@ -70,6 +70,7 @@ func runHttpServer(
 	reg prometheus.Gatherer,
 	vClient vulnerability.Client,
 	hookdClient hookd.Client,
+	bifrostAPIURL string,
 	log logrus.FieldLogger,
 ) error {
 	router := chi.NewRouter()
@@ -92,7 +93,7 @@ func runHttpServer(
 		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL playground", "/graphql"), "playground")),
 	)
 
-	contextDependencies, err := ConfigureGraph(ctx, insecureAuthAndFakes, watcherMgr, mgmtWatcherMgr, pool, k8sClients, vClient, tenantName, clusters, hookdClient, log)
+	contextDependencies, err := ConfigureGraph(ctx, insecureAuthAndFakes, watcherMgr, mgmtWatcherMgr, pool, k8sClients, vClient, tenantName, clusters, hookdClient, bifrostAPIURL, log)
 	if err != nil {
 		return err
 	}
@@ -177,6 +178,7 @@ func ConfigureGraph(
 	tenantName string,
 	clusters []string,
 	hookdClient hookd.Client,
+	bifrostAPIURL string,
 	log logrus.FieldLogger,
 ) (func(http.Handler) http.Handler, error) {
 	appWatcher := application.NewWatcher(ctx, watcherMgr)
@@ -254,7 +256,7 @@ func ConfigureGraph(
 		ctx = deployment.NewLoaderContext(ctx, hookdClient)
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)
 		ctx = session.NewLoaderContext(ctx, pool)
-		ctx = unleash.NewLoaderContext(ctx, tenantName, unleashWatcher, "*fake*", log)
+		ctx = unleash.NewLoaderContext(ctx, tenantName, unleashWatcher, bifrostAPIURL, log)
 		return ctx
 	}), nil
 }

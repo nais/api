@@ -27,6 +27,7 @@ import (
 	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/role/rolesql"
 	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"
+	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/usersync"
 	"github.com/nais/api/internal/vulnerability"
@@ -147,7 +148,7 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 
 	vulnerabilityClient := vulnerability.NewDependencyTrackClient(vulnerability.DependencyTrackConfig{EnableFakes: true}, log)
 
-	graphMiddleware, err := api.ConfigureGraph(ctx, true, watcherMgr, managementWatcherMgr, pool, clusterConfig, vulnerabilityClient, config.TenantName, clusters(), fakeHookd.New(), log)
+	graphMiddleware, err := api.ConfigureGraph(ctx, true, watcherMgr, managementWatcherMgr, pool, clusterConfig, vulnerabilityClient, config.TenantName, clusters(), fakeHookd.New(), unleash.FakeBifrostURL, log)
 	if err != nil {
 		return nil, fmt.Errorf("failed to configure graph: %w", err)
 	}
