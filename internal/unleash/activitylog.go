@@ -35,7 +35,7 @@ func init() {
 			}, nil
 
 		default:
-			return nil, fmt.Errorf("unsupported team activity log entry action: %q", entry.Action)
+			return nil, fmt.Errorf("unsupported unleash activity log entry action: %q", entry.Action)
 		}
 	})
 }
