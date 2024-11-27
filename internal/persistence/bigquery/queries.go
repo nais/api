@@ -22,7 +22,18 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*BigQueryDataset, error) {
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*BigQueryDataset, error) {
-	return fromContext(ctx).watcher.Get(environment, teamSlug.String(), name)
+	all := fromContext(ctx).watcher.GetByNamespace(teamSlug.String(), watcher.InCluster(environment))
+	for _, dataset := range all {
+		if dataset.Obj.Name == name {
+			return dataset.Obj, nil
+		}
+	}
+
+	return nil, &watcher.ErrorNotFound{
+		Cluster:   environment,
+		Name:      name,
+		Namespace: teamSlug.String(),
+	}
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *BigQueryDatasetOrder) (*BigQueryDatasetConnection, error) {

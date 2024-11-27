@@ -27,15 +27,6 @@ func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*Big
 		Group:    "google.nais.io",
 		Version:  "v1",
 		Resource: "bigquerydatasets",
-	}), watcher.WithTransformer(func(a any) (any, error) {
-		u := a.(*unstructured.Unstructured)
-		name, ok, err := unstructured.NestedString(u.Object, "spec", "name")
-		if err != nil || !ok {
-			return nil, err
-		}
-
-		u.SetName(name)
-		return u, nil
 	}))
 	w.Start(ctx)
 	return w
