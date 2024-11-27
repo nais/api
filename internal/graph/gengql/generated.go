@@ -18,6 +18,7 @@ import (
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/deployment"
+	"github.com/nais/api/internal/feature"
 	"github.com/nais/api/internal/github/repository"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
@@ -463,6 +464,10 @@ type ComplexityRoot struct {
 		Target func(childComplexity int) int
 	}
 
+	Features struct {
+		Unleash func(childComplexity int) int
+	}
+
 	IDPortenAuthIntegration struct {
 		Name func(childComplexity int) int
 	}
@@ -813,6 +818,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		Features         func(childComplexity int) int
 		Me               func(childComplexity int) int
 		Node             func(childComplexity int, id ident.Ident) int
 		Reconcilers      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -2047,6 +2053,7 @@ type OpenSearchAccessResolver interface {
 }
 type QueryResolver interface {
 	Node(ctx context.Context, id ident.Ident) (model.Node, error)
+	Features(ctx context.Context) (*feature.Features, error)
 	Reconcilers(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*reconciler.Reconciler], error)
 	Search(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) (*pagination.Connection[search.SearchNode], error)
 	Teams(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) (*pagination.Connection[*team.Team], error)
@@ -3524,6 +3531,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ExternalNetworkPolicyIpv4.Target(childComplexity), true
+
+	case "Features.unleash":
+		if e.complexity.Features.Unleash == nil {
+			break
+		}
+
+		return e.complexity.Features.Unleash(childComplexity), true
 
 	case "IDPortenAuthIntegration.name":
 		if e.complexity.IDPortenAuthIntegration.Name == nil {
@@ -5149,6 +5163,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PageInfo.TotalCount(childComplexity), true
+
+	case "Query.features":
+		if e.complexity.Query.Features == nil {
+			break
+		}
+
+		return e.complexity.Query.Features(childComplexity), true
 
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
@@ -11156,6 +11177,20 @@ type TeamDeployKeyUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
+}
+`, BuiltIn: false},
+	{Name: "../schema/feateure.graphqls", Input: `type Features {
+	"""
+	Wether Unleash is enabled or not.
+	"""
+	unleash: Boolean!
+}
+
+extend type Query {
+	"""
+	Feature flags.
+	"""
+	features: Features!
 }
 `, BuiltIn: false},
 	{Name: "../schema/jobs.graphqls", Input: `extend type Team {
@@ -32007,6 +32042,50 @@ func (ec *executionContext) fieldContext_ExternalNetworkPolicyIpv4_ports(_ conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Features_unleash(ctx context.Context, field graphql.CollectedField, obj *feature.Features) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Features_unleash(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Unleash, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Features_unleash(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Features",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _IDPortenAuthIntegration_name(ctx context.Context, field graphql.CollectedField, obj *workload.IDPortenAuthIntegration) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_IDPortenAuthIntegration_name(ctx, field)
 	if err != nil {
@@ -42827,6 +42906,54 @@ func (ec *executionContext) fieldContext_Query_node(ctx context.Context, field g
 	if fc.Args, err = ec.field_Query_node_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_features(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_features(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Features(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*feature.Features)
+	fc.Result = res
+	return ec.marshalNFeatures2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatures(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_features(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "unleash":
+				return ec.fieldContext_Features_unleash(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Features", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -81951,6 +82078,45 @@ func (ec *executionContext) _ExternalNetworkPolicyIpv4(ctx context.Context, sel 
 	return out
 }
 
+var featuresImplementors = []string{"Features"}
+
+func (ec *executionContext) _Features(ctx context.Context, sel ast.SelectionSet, obj *feature.Features) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, featuresImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Features")
+		case "unleash":
+			out.Values[i] = ec._Features_unleash(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var iDPortenAuthIntegrationImplementors = []string{"IDPortenAuthIntegration", "ApplicationAuthIntegrations", "AuthIntegration"}
 
 func (ec *executionContext) _IDPortenAuthIntegration(ctx context.Context, sel ast.SelectionSet, obj *workload.IDPortenAuthIntegration) graphql.Marshaler {
@@ -85749,6 +85915,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_node(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "features":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_features(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
@@ -99622,6 +99810,20 @@ func (ec *executionContext) marshalNExternalNetworkPolicyTarget2ᚕgithubᚗcom�
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNFeatures2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatures(ctx context.Context, sel ast.SelectionSet, v feature.Features) graphql.Marshaler {
+	return ec._Features(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNFeatures2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatures(ctx context.Context, sel ast.SelectionSet, v *feature.Features) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Features(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {

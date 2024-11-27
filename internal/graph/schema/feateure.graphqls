@@ -1,0 +1,13 @@
+type Features {
+	"""
+	Wether Unleash is enabled or not.
+	"""
+	unleash: Boolean!
+}
+
+extend type Query {
+	"""
+	Feature flags.
+	"""
+	features: Features!
+}

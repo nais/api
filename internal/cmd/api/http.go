@@ -18,6 +18,7 @@ import (
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/deployment"
+	"github.com/nais/api/internal/feature"
 	"github.com/nais/api/internal/github/repository"
 	"github.com/nais/api/internal/graph/loader"
 	apik8s "github.com/nais/api/internal/kubernetes"
@@ -257,6 +258,7 @@ func ConfigureGraph(
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)
 		ctx = session.NewLoaderContext(ctx, pool)
 		ctx = unleash.NewLoaderContext(ctx, tenantName, unleashWatcher, bifrostAPIURL, log)
+		ctx = feature.NewLoaderContext(ctx, unleashWatcher.Enabled())
 		return ctx
 	}), nil
 }
