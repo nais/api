@@ -22,11 +22,7 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*BigQueryDataset, error) {
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*BigQueryDataset, error) {
-	return fromContext(ctx).datasetLoader.Load(ctx, resourceIdentifier{
-		namespace:   teamSlug.String(),
-		environment: environment,
-		name:        name,
-	})
+	return fromContext(ctx).watcher.Get(environment, teamSlug.String(), name)
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *BigQueryDatasetOrder) (*BigQueryDatasetConnection, error) {
