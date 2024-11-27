@@ -75,7 +75,7 @@ func (l dataloader) list(ctx context.Context, ids []resourceIdentifier) ([]*BigQ
 		return resourceIdentifier{
 			namespace:   obj.TeamSlug.String(),
 			environment: obj.EnvironmentName,
-			name:        obj.K8sResourceName,
+			name:        obj.Name,
 		}
 	}
 	return loader.LoadModels(ctx, ids, l.client.getBigQueryDatasets, func(d *BigQueryDataset) *BigQueryDataset { return d }, makeKey)
