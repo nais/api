@@ -220,3 +220,9 @@ func (e *SecretOrderField) UnmarshalGQL(v interface{}) error {
 func (e SecretOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
+
+// Input for filtering the secrets of a team.
+type SecretFilter struct {
+	// Filter by usage of the secret.
+	InUse *bool `json:"inUse"`
+}

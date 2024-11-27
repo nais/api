@@ -200,7 +200,7 @@ func (r *secretResolver) LastModifiedBy(ctx context.Context, obj *secret.Secret)
 	return user.GetByEmail(ctx, *obj.ModifiedByUserEmail)
 }
 
-func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder) (*pagination.Connection[*secret.Secret], error) {
+func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder, filter *secret.SecretFilter) (*pagination.Connection[*secret.Secret], error) {
 	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationSecretsList, obj.Slug); err != nil {
 		return nil, nil
 	}
@@ -210,7 +210,7 @@ func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, 
 		return nil, err
 	}
 
-	return secret.ListForTeam(ctx, obj.Slug, page, orderBy)
+	return secret.ListForTeam(ctx, obj.Slug, page, orderBy, filter)
 }
 
 func (r *teamEnvironmentResolver) Secret(ctx context.Context, obj *team.TeamEnvironment, name string) (*secret.Secret, error) {

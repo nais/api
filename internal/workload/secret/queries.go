@@ -63,7 +63,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 	return pagination.NewConnection(paginated, page, len(ret)), nil
 }
 
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *SecretOrder) (*SecretConnection, error) {
+func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *SecretOrder, filter *SecretFilter) (*SecretConnection, error) {
 	clients, err := fromContext(ctx).Clients(ctx)
 	if err != nil {
 		return nil, err
@@ -94,6 +94,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		}
 	}
 
+	retVal = SortFilter.Filter(ctx, retVal, filter)
 	SortFilter.Sort(ctx, retVal, orderBy.Field, orderBy.Direction)
 
 	secrets := pagination.Slice(retVal, page)
