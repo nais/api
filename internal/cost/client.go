@@ -117,7 +117,7 @@ func (client) DailyForTeamEnvironment(ctx context.Context, teamSlug slug.Slug, e
 
 		if row.AppLabel != nil {
 			daily[row.Date].Workloads = append(daily[row.Date].Workloads, &WorkloadCostSample{
-				Cost:            float64(ptr.Deref(row.DailyCost, 0)),
+				Cost:            float64(row.DailyCost),
 				TeamSlug:        teamSlug,
 				EnvironmentName: environmentName,
 				WorkloadName:    *row.AppLabel,

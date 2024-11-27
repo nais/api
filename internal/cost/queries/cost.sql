@@ -223,7 +223,7 @@ SELECT
 	cost.environment,
 	cost.team_slug,
 	cost.app_label,
-	cost.daily_cost
+	SUM(cost.daily_cost)::REAL AS daily_cost
 FROM
 	date_range
 	LEFT OUTER JOIN cost ON cost.date = date_range.date
@@ -233,6 +233,11 @@ WHERE
 		environment = @environment::TEXT
 		AND team_slug = @team_slug::slug
 	)
+GROUP BY
+	date_range.date,
+	cost.environment,
+	cost.team_slug,
+	cost.app_label
 ORDER BY
 	date_range.date,
 	cost.app_label ASC

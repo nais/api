@@ -169,7 +169,7 @@ SELECT
 	cost.environment,
 	cost.team_slug,
 	cost.app_label,
-	cost.daily_cost
+	SUM(cost.daily_cost)::REAL AS daily_cost
 FROM
 	date_range
 	LEFT OUTER JOIN cost ON cost.date = date_range.date
@@ -179,6 +179,11 @@ WHERE
 		environment = $1::TEXT
 		AND team_slug = $2::slug
 	)
+GROUP BY
+	date_range.date,
+	cost.environment,
+	cost.team_slug,
+	cost.app_label
 ORDER BY
 	date_range.date,
 	cost.app_label ASC
@@ -196,7 +201,7 @@ type DailyCostForTeamEnvironmentRow struct {
 	Environment *string
 	TeamSlug    *slug.Slug
 	AppLabel    *string
-	DailyCost   *float32
+	DailyCost   float32
 }
 
 func (q *Queries) DailyCostForTeamEnvironment(ctx context.Context, arg DailyCostForTeamEnvironmentParams) ([]*DailyCostForTeamEnvironmentRow, error) {
