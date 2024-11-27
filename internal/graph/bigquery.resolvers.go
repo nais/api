@@ -2,10 +2,12 @@ package graph
 
 import (
 	"context"
+	"errors"
 
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
@@ -49,7 +51,14 @@ func (r *bigQueryDatasetResolver) Access(ctx context.Context, obj *bigquery.BigQ
 }
 
 func (r *bigQueryDatasetResolver) Workload(ctx context.Context, obj *bigquery.BigQueryDataset) (workload.Workload, error) {
-	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
+	w, err := getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
+	if errors.Is(err, &watcher.ErrorNotFound{}) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return w, nil
 }
 
 func (r *jobResolver) BigQueryDatasets(ctx context.Context, obj *job.Job, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error) {
