@@ -29,6 +29,7 @@ autobind:
   - "github.com/nais/api/internal/activitylog"
   - "github.com/nais/api/internal/cost"
   - "github.com/nais/api/internal/deployment"
+  - "github.com/nais/api/internal/feature"
   - "github.com/nais/api/internal/github/repository"
   - "github.com/nais/api/internal/graph/model"
   - "github.com/nais/api/internal/persistence"

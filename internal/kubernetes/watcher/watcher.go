@@ -81,6 +81,16 @@ func (w *Watcher[T]) Start(ctx context.Context) {
 	}
 }
 
+func (w *Watcher[T]) Enabled() bool {
+	for _, watcher := range w.watchers {
+		if watcher.isRegistered {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (w *Watcher[T]) add(cluster string, obj T) {
 	w.resourceCounter.Add(context.TODO(), 1, metric.WithAttributes(attribute.String("type", w.watchedType), attribute.String("action", "add")))
 	w.log.WithFields(logrus.Fields{

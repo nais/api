@@ -1,0 +1,81 @@
+type Features implements Node {
+	"""
+	Unique identifier for the feature container.
+	"""
+	id: ID!
+
+	"""
+	Information about Unleash feature.
+	"""
+	unleash: FeatureUnleash!
+
+	"""
+	Information about Redis feature.
+	"""
+	redis: FeatureRedis!
+
+	"""
+	Information about Kafka feature.
+	"""
+	kafka: FeatureKafka!
+
+	"""
+	Information about OpenSearch feature.
+	"""
+	openSearch: FeatureOpenSearch!
+}
+
+extend type Query {
+	"""
+	Feature flags.
+	"""
+	features: Features!
+}
+
+type FeatureUnleash implements Node {
+	"""
+	Unique identifier for the feature.
+	"""
+	id: ID!
+
+	"""
+	Wether Unleash is enabled or not.
+	"""
+	enabled: Boolean!
+}
+
+type FeatureRedis implements Node {
+	"""
+	Unique identifier for the feature.
+	"""
+	id: ID!
+
+	"""
+	Wether Redis is enabled or not.
+	"""
+	enabled: Boolean!
+}
+
+type FeatureKafka implements Node {
+	"""
+	Unique identifier for the feature.
+	"""
+	id: ID!
+
+	"""
+	Wether Kafka is enabled or not.
+	"""
+	enabled: Boolean!
+}
+
+type FeatureOpenSearch implements Node {
+	"""
+	Unique identifier for the feature.
+	"""
+	id: ID!
+
+	"""
+	Wether OpenSearch is enabled or not.
+	"""
+	enabled: Boolean!
+}
