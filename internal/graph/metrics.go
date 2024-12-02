@@ -6,12 +6,14 @@ import (
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 )
 
 type Metrics struct {
 	resolverTime metric.Int64Histogram
+	complexity   metric.Int64Histogram
 }
 
 var _ interface {
@@ -25,9 +27,14 @@ func NewMetrics(meter metric.Meter) (*Metrics, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to create gql_query_time histogram: %w", err)
 	}
+	complexity, err := meter.Int64Histogram("gql_query_complexity", metric.WithDescription("query complexity"), metric.WithExplicitBucketBoundaries(1000, 5000, 10000, 20000, 50000, 100000))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create gql_query_time histogram: %w", err)
+	}
 
 	return &Metrics{
 		resolverTime: resTime,
+		complexity:   complexity,
 	}, nil
 }
 
@@ -40,6 +47,16 @@ func (a *Metrics) Validate(_ graphql.ExecutableSchema) error {
 }
 
 func (a *Metrics) InterceptResponse(ctx context.Context, next graphql.ResponseHandler) *graphql.Response {
+	return next(ctx)
+}
+
+func (a *Metrics) InterceptRootField(ctx context.Context, next graphql.RootResolver) graphql.Marshaler {
+	stats := extension.GetComplexityStats(ctx)
+	if stats == nil {
+		return next(ctx)
+	}
+
+	a.complexity.Record(ctx, int64(stats.Complexity), metric.WithAttributes(attribute.String("operation", graphql.GetOperationContext(ctx).Operation.Name)))
 	return next(ctx)
 }
 

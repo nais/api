@@ -7,6 +7,8 @@ import (
 	"github.com/nais/api/internal/graph/apierror"
 )
 
+const DefaultPageSize = 20
+
 type Pagination struct {
 	offset int
 	limit  int
@@ -24,7 +26,7 @@ func (p *Pagination) Offset() int32 {
 
 func (p *Pagination) Limit() int32 {
 	if p == nil || p.limit <= 0 {
-		return 20
+		return DefaultPageSize
 	}
 	if p.limit > math.MaxInt32 {
 		panic(fmt.Sprintf("limit out of bounds: %d", p.limit))

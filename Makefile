@@ -15,6 +15,7 @@ generate-sql:
 
 generate-graphql:
 	go run github.com/99designs/gqlgen generate --config .configs/gqlgen.yaml
+	go run ./cmd/gen_complexity
 	go run mvdan.cc/gofumpt@latest -w ./internal/graph
 
 generate-mocks:
