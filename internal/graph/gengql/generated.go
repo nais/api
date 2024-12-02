@@ -11287,7 +11287,7 @@ type TeamDeployKeyUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 }
 `, BuiltIn: false},
-	{Name: "../schema/feateure.graphqls", Input: `type Features implements Node {
+	{Name: "../schema/feature.graphqls", Input: `type Features implements Node {
 	"""
 	Unique identifier for the feature container.
 	"""
