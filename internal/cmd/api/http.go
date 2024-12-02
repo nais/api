@@ -258,7 +258,13 @@ func ConfigureGraph(
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)
 		ctx = session.NewLoaderContext(ctx, pool)
 		ctx = unleash.NewLoaderContext(ctx, tenantName, unleashWatcher, bifrostAPIURL, log)
-		ctx = feature.NewLoaderContext(ctx, unleashWatcher.Enabled())
+		ctx = feature.NewLoaderContext(
+			ctx,
+			unleashWatcher.Enabled(),
+			redisWatcher.Enabled(),
+			kafkaTopicWatcher.Enabled(),
+			openSearchWatcher.Enabled(),
+		)
 		return ctx
 	}), nil
 }

@@ -464,8 +464,32 @@ type ComplexityRoot struct {
 		Target func(childComplexity int) int
 	}
 
+	FeatureKafka struct {
+		Enabled func(childComplexity int) int
+		ID      func(childComplexity int) int
+	}
+
+	FeatureOpenSearch struct {
+		Enabled func(childComplexity int) int
+		ID      func(childComplexity int) int
+	}
+
+	FeatureRedis struct {
+		Enabled func(childComplexity int) int
+		ID      func(childComplexity int) int
+	}
+
+	FeatureUnleash struct {
+		Enabled func(childComplexity int) int
+		ID      func(childComplexity int) int
+	}
+
 	Features struct {
-		Unleash func(childComplexity int) int
+		ID         func(childComplexity int) int
+		Kafka      func(childComplexity int) int
+		OpenSearch func(childComplexity int) int
+		Redis      func(childComplexity int) int
+		Unleash    func(childComplexity int) int
 	}
 
 	IDPortenAuthIntegration struct {
@@ -3531,6 +3555,90 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ExternalNetworkPolicyIpv4.Target(childComplexity), true
+
+	case "FeatureKafka.enabled":
+		if e.complexity.FeatureKafka.Enabled == nil {
+			break
+		}
+
+		return e.complexity.FeatureKafka.Enabled(childComplexity), true
+
+	case "FeatureKafka.id":
+		if e.complexity.FeatureKafka.ID == nil {
+			break
+		}
+
+		return e.complexity.FeatureKafka.ID(childComplexity), true
+
+	case "FeatureOpenSearch.enabled":
+		if e.complexity.FeatureOpenSearch.Enabled == nil {
+			break
+		}
+
+		return e.complexity.FeatureOpenSearch.Enabled(childComplexity), true
+
+	case "FeatureOpenSearch.id":
+		if e.complexity.FeatureOpenSearch.ID == nil {
+			break
+		}
+
+		return e.complexity.FeatureOpenSearch.ID(childComplexity), true
+
+	case "FeatureRedis.enabled":
+		if e.complexity.FeatureRedis.Enabled == nil {
+			break
+		}
+
+		return e.complexity.FeatureRedis.Enabled(childComplexity), true
+
+	case "FeatureRedis.id":
+		if e.complexity.FeatureRedis.ID == nil {
+			break
+		}
+
+		return e.complexity.FeatureRedis.ID(childComplexity), true
+
+	case "FeatureUnleash.enabled":
+		if e.complexity.FeatureUnleash.Enabled == nil {
+			break
+		}
+
+		return e.complexity.FeatureUnleash.Enabled(childComplexity), true
+
+	case "FeatureUnleash.id":
+		if e.complexity.FeatureUnleash.ID == nil {
+			break
+		}
+
+		return e.complexity.FeatureUnleash.ID(childComplexity), true
+
+	case "Features.id":
+		if e.complexity.Features.ID == nil {
+			break
+		}
+
+		return e.complexity.Features.ID(childComplexity), true
+
+	case "Features.kafka":
+		if e.complexity.Features.Kafka == nil {
+			break
+		}
+
+		return e.complexity.Features.Kafka(childComplexity), true
+
+	case "Features.openSearch":
+		if e.complexity.Features.OpenSearch == nil {
+			break
+		}
+
+		return e.complexity.Features.OpenSearch(childComplexity), true
+
+	case "Features.redis":
+		if e.complexity.Features.Redis == nil {
+			break
+		}
+
+		return e.complexity.Features.Redis(childComplexity), true
 
 	case "Features.unleash":
 		if e.complexity.Features.Unleash == nil {
@@ -11179,11 +11287,31 @@ type TeamDeployKeyUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 }
 `, BuiltIn: false},
-	{Name: "../schema/feateure.graphqls", Input: `type Features {
+	{Name: "../schema/feateure.graphqls", Input: `type Features implements Node {
 	"""
-	Wether Unleash is enabled or not.
+	Unique identifier for the feature container.
 	"""
-	unleash: Boolean!
+	id: ID!
+
+	"""
+	Information about Unleash feature.
+	"""
+	unleash: FeatureUnleash!
+
+	"""
+	Information about Redis feature.
+	"""
+	redis: FeatureRedis!
+
+	"""
+	Information about Kafka feature.
+	"""
+	kafka: FeatureKafka!
+
+	"""
+	Information about OpenSearch feature.
+	"""
+	openSearch: FeatureOpenSearch!
 }
 
 extend type Query {
@@ -11191,6 +11319,54 @@ extend type Query {
 	Feature flags.
 	"""
 	features: Features!
+}
+
+type FeatureUnleash implements Node {
+	"""
+	Unique identifier for the feature.
+	"""
+	id: ID!
+
+	"""
+	Wether Unleash is enabled or not.
+	"""
+	enabled: Boolean!
+}
+
+type FeatureRedis implements Node {
+	"""
+	Unique identifier for the feature.
+	"""
+	id: ID!
+
+	"""
+	Wether Redis is enabled or not.
+	"""
+	enabled: Boolean!
+}
+
+type FeatureKafka implements Node {
+	"""
+	Unique identifier for the feature.
+	"""
+	id: ID!
+
+	"""
+	Wether Kafka is enabled or not.
+	"""
+	enabled: Boolean!
+}
+
+type FeatureOpenSearch implements Node {
+	"""
+	Unique identifier for the feature.
+	"""
+	id: ID!
+
+	"""
+	Wether OpenSearch is enabled or not.
+	"""
+	enabled: Boolean!
 }
 `, BuiltIn: false},
 	{Name: "../schema/jobs.graphqls", Input: `extend type Team {
@@ -32042,6 +32218,402 @@ func (ec *executionContext) fieldContext_ExternalNetworkPolicyIpv4_ports(_ conte
 	return fc, nil
 }
 
+func (ec *executionContext) _FeatureKafka_id(ctx context.Context, field graphql.CollectedField, obj *feature.FeatureKafka) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FeatureKafka_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FeatureKafka_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FeatureKafka",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FeatureKafka_enabled(ctx context.Context, field graphql.CollectedField, obj *feature.FeatureKafka) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FeatureKafka_enabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Enabled, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FeatureKafka_enabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FeatureKafka",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FeatureOpenSearch_id(ctx context.Context, field graphql.CollectedField, obj *feature.FeatureOpenSearch) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FeatureOpenSearch_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FeatureOpenSearch_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FeatureOpenSearch",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FeatureOpenSearch_enabled(ctx context.Context, field graphql.CollectedField, obj *feature.FeatureOpenSearch) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FeatureOpenSearch_enabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Enabled, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FeatureOpenSearch_enabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FeatureOpenSearch",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FeatureRedis_id(ctx context.Context, field graphql.CollectedField, obj *feature.FeatureRedis) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FeatureRedis_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FeatureRedis_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FeatureRedis",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FeatureRedis_enabled(ctx context.Context, field graphql.CollectedField, obj *feature.FeatureRedis) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FeatureRedis_enabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Enabled, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FeatureRedis_enabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FeatureRedis",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FeatureUnleash_id(ctx context.Context, field graphql.CollectedField, obj *feature.FeatureUnleash) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FeatureUnleash_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FeatureUnleash_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FeatureUnleash",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FeatureUnleash_enabled(ctx context.Context, field graphql.CollectedField, obj *feature.FeatureUnleash) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FeatureUnleash_enabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Enabled, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FeatureUnleash_enabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FeatureUnleash",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Features_id(ctx context.Context, field graphql.CollectedField, obj *feature.Features) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Features_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Features_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Features",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Features_unleash(ctx context.Context, field graphql.CollectedField, obj *feature.Features) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Features_unleash(ctx, field)
 	if err != nil {
@@ -32068,9 +32640,9 @@ func (ec *executionContext) _Features_unleash(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(bool)
+	res := resTmp.(feature.FeatureUnleash)
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalNFeatureUnleash2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureUnleash(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Features_unleash(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -32080,7 +32652,163 @@ func (ec *executionContext) fieldContext_Features_unleash(_ context.Context, fie
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_FeatureUnleash_id(ctx, field)
+			case "enabled":
+				return ec.fieldContext_FeatureUnleash_enabled(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type FeatureUnleash", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Features_redis(ctx context.Context, field graphql.CollectedField, obj *feature.Features) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Features_redis(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Redis, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(feature.FeatureRedis)
+	fc.Result = res
+	return ec.marshalNFeatureRedis2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureRedis(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Features_redis(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Features",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_FeatureRedis_id(ctx, field)
+			case "enabled":
+				return ec.fieldContext_FeatureRedis_enabled(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type FeatureRedis", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Features_kafka(ctx context.Context, field graphql.CollectedField, obj *feature.Features) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Features_kafka(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Kafka, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(feature.FeatureKafka)
+	fc.Result = res
+	return ec.marshalNFeatureKafka2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureKafka(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Features_kafka(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Features",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_FeatureKafka_id(ctx, field)
+			case "enabled":
+				return ec.fieldContext_FeatureKafka_enabled(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type FeatureKafka", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Features_openSearch(ctx context.Context, field graphql.CollectedField, obj *feature.Features) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Features_openSearch(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OpenSearch, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(feature.FeatureOpenSearch)
+	fc.Result = res
+	return ec.marshalNFeatureOpenSearch2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureOpenSearch(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Features_openSearch(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Features",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_FeatureOpenSearch_id(ctx, field)
+			case "enabled":
+				return ec.fieldContext_FeatureOpenSearch_enabled(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type FeatureOpenSearch", field.Name)
 		},
 	}
 	return fc, nil
@@ -42949,8 +43677,16 @@ func (ec *executionContext) fieldContext_Query_features(_ context.Context, field
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_Features_id(ctx, field)
 			case "unleash":
 				return ec.fieldContext_Features_unleash(ctx, field)
+			case "redis":
+				return ec.fieldContext_Features_redis(ctx, field)
+			case "kafka":
+				return ec.fieldContext_Features_kafka(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Features_openSearch(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Features", field.Name)
 		},
@@ -77698,13 +78434,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case secret.SecretCreatedActivityLogEntry:
-		return ec._SecretCreatedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretCreatedActivityLogEntry:
+	case team.TeamUpdatedActivityLogEntry:
+		return ec._TeamUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretCreatedActivityLogEntry(ctx, sel, obj)
+		return ec._TeamUpdatedActivityLogEntry(ctx, sel, obj)
+	case team.TeamCreateDeleteKeyActivityLogEntry:
+		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamCreateDeleteKeyActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, obj)
 	case vulnerability.VulnerabilityUpdatedActivityLogEntry:
 		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *vulnerability.VulnerabilityUpdatedActivityLogEntry:
@@ -77712,13 +78455,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, obj)
-	case secret.SecretValueAddedActivityLogEntry:
-		return ec._SecretValueAddedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretValueAddedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SecretValueAddedActivityLogEntry(ctx, sel, obj)
 	case application.ApplicationDeletedActivityLogEntry:
 		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, &obj)
 	case *application.ApplicationDeletedActivityLogEntry:
@@ -77726,13 +78462,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, obj)
-	case application.ApplicationRestartedActivityLogEntry:
-		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, &obj)
-	case *application.ApplicationRestartedActivityLogEntry:
+	case repository.RepositoryAddedActivityLogEntry:
+		return ec._RepositoryAddedActivityLogEntry(ctx, sel, &obj)
+	case *repository.RepositoryAddedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, obj)
+		return ec._RepositoryAddedActivityLogEntry(ctx, sel, obj)
 	case bigquery.BigQueryDataset:
 		return ec._BigQueryDataset(ctx, sel, &obj)
 	case *bigquery.BigQueryDataset:
@@ -77747,6 +78483,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Bucket(ctx, sel, obj)
+	case unleash.UnleashInstanceUpdatedActivityLogEntry:
+		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *unleash.UnleashInstanceUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, obj)
 	case unleash.UnleashInstanceCreatedActivityLogEntry:
 		return ec._UnleashInstanceCreatedActivityLogEntry(ctx, sel, &obj)
 	case *unleash.UnleashInstanceCreatedActivityLogEntry:
@@ -77754,13 +78497,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UnleashInstanceCreatedActivityLogEntry(ctx, sel, obj)
-	case team.TeamEnvironmentUpdatedActivityLogEntry:
-		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamEnvironmentUpdatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, obj)
 	case deployment.TeamDeployKeyUpdatedActivityLogEntry:
 		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *deployment.TeamDeployKeyUpdatedActivityLogEntry:
@@ -77768,13 +78504,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, obj)
-	case job.Job:
-		return ec._Job(ctx, sel, &obj)
-	case *job.Job:
+	case team.TeamEnvironmentUpdatedActivityLogEntry:
+		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamEnvironmentUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Job(ctx, sel, obj)
+		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, obj)
 	case team.TeamMemberSetRoleActivityLogEntry:
 		return ec._TeamMemberSetRoleActivityLogEntry(ctx, sel, &obj)
 	case *team.TeamMemberSetRoleActivityLogEntry:
@@ -77789,6 +78525,41 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, obj)
+	case team.TeamMemberAddedActivityLogEntry:
+		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamMemberAddedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, obj)
+	case team.TeamConfirmDeleteKeyActivityLogEntry:
+		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamConfirmDeleteKeyActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, obj)
+	case job.Job:
+		return ec._Job(ctx, sel, &obj)
+	case *job.Job:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Job(ctx, sel, obj)
+	case application.Application:
+		return ec._Application(ctx, sel, &obj)
+	case *application.Application:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Application(ctx, sel, obj)
+	case team.TeamCreatedActivityLogEntry:
+		return ec._TeamCreatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamCreatedActivityLogEntry(ctx, sel, obj)
 	case job.JobDeletedActivityLogEntry:
 		return ec._JobDeletedActivityLogEntry(ctx, sel, &obj)
 	case *job.JobDeletedActivityLogEntry:
@@ -77817,27 +78588,27 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._OpenSearch(ctx, sel, obj)
-	case team.TeamMemberAddedActivityLogEntry:
-		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamMemberAddedActivityLogEntry:
+	case sqlinstance.SQLInstance:
+		return ec._SqlInstance(ctx, sel, &obj)
+	case *sqlinstance.SQLInstance:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, obj)
-	case team.TeamConfirmDeleteKeyActivityLogEntry:
-		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamConfirmDeleteKeyActivityLogEntry:
+		return ec._SqlInstance(ctx, sel, obj)
+	case sqlinstance.SQLDatabase:
+		return ec._SqlDatabase(ctx, sel, &obj)
+	case *sqlinstance.SQLDatabase:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, obj)
-	case reconciler.ReconcilerEnabledActivityLogEntry:
-		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, &obj)
-	case *reconciler.ReconcilerEnabledActivityLogEntry:
+		return ec._SqlDatabase(ctx, sel, obj)
+	case repository.RepositoryRemovedActivityLogEntry:
+		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, &obj)
+	case *repository.RepositoryRemovedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, obj)
+		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, obj)
 	case reconciler.ReconcilerDisabledActivityLogEntry:
 		return ec._ReconcilerDisabledActivityLogEntry(ctx, sel, &obj)
 	case *reconciler.ReconcilerDisabledActivityLogEntry:
@@ -77859,62 +78630,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._RedisInstance(ctx, sel, obj)
-	case team.TeamCreateDeleteKeyActivityLogEntry:
-		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamCreateDeleteKeyActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, obj)
-	case team.TeamUpdatedActivityLogEntry:
-		return ec._TeamUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamUpdatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamUpdatedActivityLogEntry(ctx, sel, obj)
-	case repository.RepositoryRemovedActivityLogEntry:
-		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, &obj)
-	case *repository.RepositoryRemovedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, obj)
-	case repository.RepositoryAddedActivityLogEntry:
-		return ec._RepositoryAddedActivityLogEntry(ctx, sel, &obj)
-	case *repository.RepositoryAddedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._RepositoryAddedActivityLogEntry(ctx, sel, obj)
-	case application.Application:
-		return ec._Application(ctx, sel, &obj)
-	case *application.Application:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Application(ctx, sel, obj)
-	case unleash.UnleashInstanceUpdatedActivityLogEntry:
-		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *unleash.UnleashInstanceUpdatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, obj)
-	case secret.SecretValueUpdatedActivityLogEntry:
-		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretValueUpdatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, obj)
-	case secret.SecretValueRemovedActivityLogEntry:
-		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretValueRemovedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, obj)
 	case secret.SecretDeletedActivityLogEntry:
 		return ec._SecretDeletedActivityLogEntry(ctx, sel, &obj)
 	case *secret.SecretDeletedActivityLogEntry:
@@ -77922,34 +78637,114 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._SecretDeletedActivityLogEntry(ctx, sel, obj)
-	case team.TeamCreatedActivityLogEntry:
-		return ec._TeamCreatedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamCreatedActivityLogEntry:
+	case application.ApplicationRestartedActivityLogEntry:
+		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, &obj)
+	case *application.ApplicationRestartedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamCreatedActivityLogEntry(ctx, sel, obj)
-	case sqlinstance.SQLDatabase:
-		return ec._SqlDatabase(ctx, sel, &obj)
-	case *sqlinstance.SQLDatabase:
+		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, obj)
+	case reconciler.ReconcilerEnabledActivityLogEntry:
+		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, &obj)
+	case *reconciler.ReconcilerEnabledActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SqlDatabase(ctx, sel, obj)
-	case sqlinstance.SQLInstance:
-		return ec._SqlInstance(ctx, sel, &obj)
-	case *sqlinstance.SQLInstance:
+		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, obj)
+	case secret.SecretValueRemovedActivityLogEntry:
+		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueRemovedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SqlInstance(ctx, sel, obj)
-	case workload.ContainerImage:
-		return ec._ContainerImage(ctx, sel, &obj)
-	case *workload.ContainerImage:
+		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretCreatedActivityLogEntry:
+		return ec._SecretCreatedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ContainerImage(ctx, sel, obj)
+		return ec._SecretCreatedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretValueAddedActivityLogEntry:
+		return ec._SecretValueAddedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueAddedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretValueAddedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretValueUpdatedActivityLogEntry:
+		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, obj)
+	case repository.Repository:
+		return ec._Repository(ctx, sel, &obj)
+	case *repository.Repository:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Repository(ctx, sel, obj)
+	case job.JobRun:
+		return ec._JobRun(ctx, sel, &obj)
+	case *job.JobRun:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._JobRun(ctx, sel, obj)
+	case secret.Secret:
+		return ec._Secret(ctx, sel, &obj)
+	case *secret.Secret:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Secret(ctx, sel, obj)
+	case reconciler.Reconciler:
+		return ec._Reconciler(ctx, sel, &obj)
+	case *reconciler.Reconciler:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Reconciler(ctx, sel, obj)
+	case persistence.Persistence:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Persistence(ctx, sel, obj)
+	case team.Team:
+		return ec._Team(ctx, sel, &obj)
+	case *team.Team:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Team(ctx, sel, obj)
+	case team.TeamEnvironment:
+		return ec._TeamEnvironment(ctx, sel, &obj)
+	case *team.TeamEnvironment:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamEnvironment(ctx, sel, obj)
+	case job.JobRunInstance:
+		return ec._JobRunInstance(ctx, sel, &obj)
+	case *job.JobRunInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._JobRunInstance(ctx, sel, obj)
+	case activitylog.ActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ActivityLogEntry(ctx, sel, obj)
+	case feature.FeatureRedis:
+		return ec._FeatureRedis(ctx, sel, &obj)
+	case *feature.FeatureRedis:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._FeatureRedis(ctx, sel, obj)
 	case serviceaccount.ServiceAccount:
 		return ec._ServiceAccount(ctx, sel, &obj)
 	case *serviceaccount.ServiceAccount:
@@ -77957,6 +78752,34 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ServiceAccount(ctx, sel, obj)
+	case application.ApplicationInstance:
+		return ec._ApplicationInstance(ctx, sel, &obj)
+	case *application.ApplicationInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationInstance(ctx, sel, obj)
+	case workload.ContainerImage:
+		return ec._ContainerImage(ctx, sel, &obj)
+	case *workload.ContainerImage:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ContainerImage(ctx, sel, obj)
+	case feature.FeatureKafka:
+		return ec._FeatureKafka(ctx, sel, &obj)
+	case *feature.FeatureKafka:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._FeatureKafka(ctx, sel, obj)
+	case feature.Features:
+		return ec._Features(ctx, sel, &obj)
+	case *feature.Features:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Features(ctx, sel, obj)
 	case unleash.UnleashInstance:
 		return ec._UnleashInstance(ctx, sel, &obj)
 	case *unleash.UnleashInstance:
@@ -77971,53 +78794,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Deployment(ctx, sel, obj)
-	case repository.Repository:
-		return ec._Repository(ctx, sel, &obj)
-	case *repository.Repository:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Repository(ctx, sel, obj)
-	case reconciler.Reconciler:
-		return ec._Reconciler(ctx, sel, &obj)
-	case *reconciler.Reconciler:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Reconciler(ctx, sel, obj)
-	case persistence.Persistence:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Persistence(ctx, sel, obj)
-	case team.TeamEnvironment:
-		return ec._TeamEnvironment(ctx, sel, &obj)
-	case *team.TeamEnvironment:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamEnvironment(ctx, sel, obj)
-	case job.JobRun:
-		return ec._JobRun(ctx, sel, &obj)
-	case *job.JobRun:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._JobRun(ctx, sel, obj)
-	case job.JobRunInstance:
-		return ec._JobRunInstance(ctx, sel, &obj)
-	case *job.JobRunInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._JobRunInstance(ctx, sel, obj)
-	case secret.Secret:
-		return ec._Secret(ctx, sel, &obj)
-	case *secret.Secret:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Secret(ctx, sel, obj)
 	case deployment.DeploymentKey:
 		return ec._DeploymentKey(ctx, sel, &obj)
 	case *deployment.DeploymentKey:
@@ -78025,13 +78801,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._DeploymentKey(ctx, sel, obj)
-	case application.ApplicationInstance:
-		return ec._ApplicationInstance(ctx, sel, &obj)
-	case *application.ApplicationInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ApplicationInstance(ctx, sel, obj)
 	case user.User:
 		return ec._User(ctx, sel, &obj)
 	case *user.User:
@@ -78046,23 +78815,25 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ImageVulnerability(ctx, sel, obj)
-	case activitylog.ActivityLogEntry:
+	case feature.FeatureOpenSearch:
+		return ec._FeatureOpenSearch(ctx, sel, &obj)
+	case *feature.FeatureOpenSearch:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ActivityLogEntry(ctx, sel, obj)
+		return ec._FeatureOpenSearch(ctx, sel, obj)
 	case workload.Workload:
 		if obj == nil {
 			return graphql.Null
 		}
 		return ec._Workload(ctx, sel, obj)
-	case team.Team:
-		return ec._Team(ctx, sel, &obj)
-	case *team.Team:
+	case feature.FeatureUnleash:
+		return ec._FeatureUnleash(ctx, sel, &obj)
+	case *feature.FeatureUnleash:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Team(ctx, sel, obj)
+		return ec._FeatureUnleash(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -82078,7 +82849,183 @@ func (ec *executionContext) _ExternalNetworkPolicyIpv4(ctx context.Context, sel 
 	return out
 }
 
-var featuresImplementors = []string{"Features"}
+var featureKafkaImplementors = []string{"FeatureKafka", "Node"}
+
+func (ec *executionContext) _FeatureKafka(ctx context.Context, sel ast.SelectionSet, obj *feature.FeatureKafka) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, featureKafkaImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("FeatureKafka")
+		case "id":
+			out.Values[i] = ec._FeatureKafka_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "enabled":
+			out.Values[i] = ec._FeatureKafka_enabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var featureOpenSearchImplementors = []string{"FeatureOpenSearch", "Node"}
+
+func (ec *executionContext) _FeatureOpenSearch(ctx context.Context, sel ast.SelectionSet, obj *feature.FeatureOpenSearch) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, featureOpenSearchImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("FeatureOpenSearch")
+		case "id":
+			out.Values[i] = ec._FeatureOpenSearch_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "enabled":
+			out.Values[i] = ec._FeatureOpenSearch_enabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var featureRedisImplementors = []string{"FeatureRedis", "Node"}
+
+func (ec *executionContext) _FeatureRedis(ctx context.Context, sel ast.SelectionSet, obj *feature.FeatureRedis) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, featureRedisImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("FeatureRedis")
+		case "id":
+			out.Values[i] = ec._FeatureRedis_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "enabled":
+			out.Values[i] = ec._FeatureRedis_enabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var featureUnleashImplementors = []string{"FeatureUnleash", "Node"}
+
+func (ec *executionContext) _FeatureUnleash(ctx context.Context, sel ast.SelectionSet, obj *feature.FeatureUnleash) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, featureUnleashImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("FeatureUnleash")
+		case "id":
+			out.Values[i] = ec._FeatureUnleash_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "enabled":
+			out.Values[i] = ec._FeatureUnleash_enabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var featuresImplementors = []string{"Features", "Node"}
 
 func (ec *executionContext) _Features(ctx context.Context, sel ast.SelectionSet, obj *feature.Features) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, featuresImplementors)
@@ -82089,8 +83036,28 @@ func (ec *executionContext) _Features(ctx context.Context, sel ast.SelectionSet,
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Features")
+		case "id":
+			out.Values[i] = ec._Features_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "unleash":
 			out.Values[i] = ec._Features_unleash(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "redis":
+			out.Values[i] = ec._Features_redis(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "kafka":
+			out.Values[i] = ec._Features_kafka(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "openSearch":
+			out.Values[i] = ec._Features_openSearch(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -99810,6 +100777,22 @@ func (ec *executionContext) marshalNExternalNetworkPolicyTarget2ᚕgithubᚗcom�
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNFeatureKafka2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureKafka(ctx context.Context, sel ast.SelectionSet, v feature.FeatureKafka) graphql.Marshaler {
+	return ec._FeatureKafka(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNFeatureOpenSearch2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureOpenSearch(ctx context.Context, sel ast.SelectionSet, v feature.FeatureOpenSearch) graphql.Marshaler {
+	return ec._FeatureOpenSearch(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNFeatureRedis2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureRedis(ctx context.Context, sel ast.SelectionSet, v feature.FeatureRedis) graphql.Marshaler {
+	return ec._FeatureRedis(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNFeatureUnleash2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureUnleash(ctx context.Context, sel ast.SelectionSet, v feature.FeatureUnleash) graphql.Marshaler {
+	return ec._FeatureUnleash(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNFeatures2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatures(ctx context.Context, sel ast.SelectionSet, v feature.Features) graphql.Marshaler {

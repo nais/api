@@ -10,9 +10,23 @@ const (
 	loadersKey ctxKey = iota
 )
 
-func NewLoaderContext(ctx context.Context, unleash bool) context.Context {
+func NewLoaderContext(
+	ctx context.Context,
+	unleash, redis, kafka, openSearch bool,
+) context.Context {
 	return context.WithValue(ctx, loadersKey, newLoaders(&Features{
-		Unleash: unleash,
+		Unleash: FeatureUnleash{
+			Enabled: unleash,
+		},
+		Redis: FeatureRedis{
+			Enabled: redis,
+		},
+		Kafka: FeatureKafka{
+			Enabled: kafka,
+		},
+		OpenSearch: FeatureOpenSearch{
+			Enabled: openSearch,
+		},
 	}))
 }
 
