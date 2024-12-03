@@ -1,10 +1,12 @@
-Test.gql("forward pagination", function(t)
+Test.gql("pagination using cursors", function(t)
 	local fetchTeams = function(after)
 		t.query(string.format([[
 			query {
 				teams(first:5 after:"%s") {
 					pageInfo {
+						hasPreviousPage
 						hasNextPage
+						startCursor
 						endCursor
 					}
 					edges {
@@ -23,7 +25,9 @@ Test.gql("forward pagination", function(t)
 		data = {
 			teams = {
 				pageInfo = {
+					hasPreviousPage = false,
 					hasNextPage = true,
+					startCursor = Save("startCursor"),
 					endCursor = Save("endCursor"),
 				},
 				edges = {
@@ -31,7 +35,7 @@ Test.gql("forward pagination", function(t)
 						node = {
 							slug = "slug-1",
 						},
-						cursor = Ignore(),
+						cursor = Save("firstNodeInPageCursor"),
 					},
 					{
 						node = {
@@ -62,6 +66,7 @@ Test.gql("forward pagination", function(t)
 		},
 	}
 
+	assert(State.firstNodeInPageCursor == State.startCursor, "firstNodeInPageCursor is not equal to startCursor")
 	assert(State.lastNodeInPageCursor == State.endCursor, "lastNodeInPageCursor is not equal to endCursor")
 
 	fetchTeams(State.endCursor)
@@ -69,7 +74,9 @@ Test.gql("forward pagination", function(t)
 		data = {
 			teams = {
 				pageInfo = {
+					hasPreviousPage = true,
 					hasNextPage = true,
+					startCursor = Save("startCursor"),
 					endCursor = Save("endCursor"),
 				},
 				edges = {
@@ -77,7 +84,7 @@ Test.gql("forward pagination", function(t)
 						node = {
 							slug = "slug-14",
 						},
-						cursor = Ignore(),
+						cursor = Save("firstNodeInPageCursor"),
 					},
 					{
 						node = {
@@ -108,6 +115,7 @@ Test.gql("forward pagination", function(t)
 		},
 	}
 
+	assert(State.firstNodeInPageCursor == State.startCursor, "firstNodeInPageCursor is not equal to startCursor")
 	assert(State.lastNodeInPageCursor == State.endCursor, "lastNodeInPageCursor is not equal to endCursor")
 
 	fetchTeams(State.endCursor)
@@ -115,7 +123,9 @@ Test.gql("forward pagination", function(t)
 		data = {
 			teams = {
 				pageInfo = {
+					hasPreviousPage = true,
 					hasNextPage = true,
+					startCursor = Save("startCursor"),
 					endCursor = Save("endCursor"),
 				},
 				edges = {
@@ -123,7 +133,7 @@ Test.gql("forward pagination", function(t)
 						node = {
 							slug = "slug-19",
 						},
-						cursor = Ignore(),
+						cursor = Save("firstNodeInPageCursor"),
 					},
 					{
 						node = {
@@ -155,6 +165,7 @@ Test.gql("forward pagination", function(t)
 		},
 	}
 
+	assert(State.firstNodeInPageCursor == State.startCursor, "firstNodeInPageCursor is not equal to startCursor")
 	assert(State.lastNodeInPageCursor == State.endCursor, "lastNodeInPageCursor is not equal to endCursor")
 
 	fetchTeams(State.endCursor)
@@ -162,7 +173,9 @@ Test.gql("forward pagination", function(t)
 		data = {
 			teams = {
 				pageInfo = {
+					hasPreviousPage = true,
 					hasNextPage = false,
+					startCursor = Save("startCursor"),
 					endCursor = Save("endCursor"),
 				},
 				edges = {
@@ -170,7 +183,7 @@ Test.gql("forward pagination", function(t)
 						node = {
 							slug = "slug-5",
 						},
-						cursor = Ignore(),
+						cursor = Save("firstNodeInPageCursor"),
 					},
 					{
 						node = {
@@ -201,5 +214,6 @@ Test.gql("forward pagination", function(t)
 		},
 	}
 
+	assert(State.firstNodeInPageCursor == State.startCursor, "firstNodeInPageCursor is not equal to startCursor")
 	assert(State.lastNodeInPageCursor == State.endCursor, "lastNodeInPageCursor is not equal to endCursor")
 end)
