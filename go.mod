@@ -58,6 +58,7 @@ require (
 	golang.org/x/oauth2 v0.21.0
 	golang.org/x/sync v0.9.0
 	golang.org/x/text v0.19.0
+	golang.org/x/tools v0.24.0
 	google.golang.org/api v0.188.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240711142825-46eb208f015d
 	google.golang.org/grpc v1.65.0
@@ -243,7 +244,6 @@ require (
 	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/term v0.25.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	golang.org/x/tools v0.24.0 // indirect
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
 	google.golang.org/genproto v0.0.0-20240708141625-4ad9e859172b // indirect
