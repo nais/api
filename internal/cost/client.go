@@ -76,7 +76,7 @@ func (client) MonthlyForWorkload(ctx context.Context, teamSlug slug.Slug, enviro
 	for _, row := range rows {
 		if _, exists := daily[row.Month]; !exists {
 			daily[row.Month] = &ServiceCostSeries{
-				Date: scalar.NewDate(row.Month.Time),
+				Date: scalar.NewDate(row.LastRecordedDate.Time),
 			}
 		}
 
@@ -88,7 +88,7 @@ func (client) MonthlyForWorkload(ctx context.Context, teamSlug slug.Slug, enviro
 
 	ret := maps.Values(daily)
 	slices.SortFunc(ret, func(a, b *ServiceCostSeries) int {
-		return a.Date.Time().Compare(b.Date.Time())
+		return b.Date.Time().Compare(a.Date.Time())
 	})
 
 	return &WorkloadCostPeriod{
