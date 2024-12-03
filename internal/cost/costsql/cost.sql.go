@@ -479,7 +479,7 @@ SELECT
 	service,
 	-- Extract last day of known cost samples for the month, or the last recorded date
 	-- This helps with estimation etc
-	(
+	MAX(
 		CASE
 			WHEN DATE_TRUNC('month', date) < DATE_TRUNC('month', last_run) THEN DATE_TRUNC('month', date) + INTERVAL '1 month' - INTERVAL '1 day'
 			ELSE DATE_TRUNC('day', last_run)
