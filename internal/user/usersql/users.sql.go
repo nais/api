@@ -235,6 +235,24 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]*User, error) {
 	return items, nil
 }
 
+const listGCPGroupsForUser = `-- name: ListGCPGroupsForUser :one
+SELECT
+	ARRAY_AGG(teams.google_group_email)::TEXT[]
+FROM
+	teams
+	JOIN user_roles ON user_roles.target_team_slug = teams.slug
+WHERE
+	user_roles.user_id = $1
+	AND teams.google_group_email IS NOT NULL
+`
+
+func (q *Queries) ListGCPGroupsForUser(ctx context.Context, userID uuid.UUID) ([]string, error) {
+	row := q.db.QueryRow(ctx, listGCPGroupsForUser, userID)
+	var column_1 []string
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const listMemberships = `-- name: ListMemberships :many
 SELECT
 	teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.entra_id_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.delete_key_confirmed_at,

@@ -32,7 +32,6 @@ type Querier interface {
 	// Input is two arrays of equal length, one for slugs and one for names
 	ListEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg ListEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamAllEnvironment, error)
 	ListForUser(ctx context.Context, arg ListForUserParams) ([]*ListForUserRow, error)
-	ListGCPGroupsForUser(ctx context.Context, userID uuid.UUID) ([]string, error)
 	ListMembers(ctx context.Context, arg ListMembersParams) ([]*ListMembersRow, error)
 	RemoveMember(ctx context.Context, arg RemoveMemberParams) error
 	RemoveSlackAlertsChannel(ctx context.Context, arg RemoveSlackAlertsChannelParams) error

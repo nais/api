@@ -18,6 +18,7 @@ type Querier interface {
 	GetByExternalID(ctx context.Context, externalID string) (*User, error)
 	GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error)
 	List(ctx context.Context, arg ListParams) ([]*User, error)
+	ListGCPGroupsForUser(ctx context.Context, userID uuid.UUID) ([]string, error)
 	ListMemberships(ctx context.Context, arg ListMembershipsParams) ([]*ListMembershipsRow, error)
 	Update(ctx context.Context, arg UpdateParams) (*User, error)
 }

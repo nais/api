@@ -6,17 +6,19 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/loader"
+	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team/teamsql"
 	"github.com/vikstrous/dataloadgen"
+	corev1 "k8s.io/api/core/v1"
 )
 
 type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, dbConn *pgxpool.Pool) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(dbConn))
+func NewLoaderContext(ctx context.Context, dbConn *pgxpool.Pool, namespaceWatcher *watcher.Watcher[*corev1.Namespace]) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(dbConn, namespaceWatcher))
 }
 
 func fromContext(ctx context.Context) *loaders {
@@ -27,9 +29,10 @@ type loaders struct {
 	internalQuerier       *teamsql.Queries
 	teamLoader            *dataloadgen.Loader[slug.Slug, *Team]
 	teamEnvironmentLoader *dataloadgen.Loader[envSlugName, *TeamEnvironment]
+	namespaceWatcher      *watcher.Watcher[*corev1.Namespace]
 }
 
-func newLoaders(dbConn *pgxpool.Pool) *loaders {
+func newLoaders(dbConn *pgxpool.Pool, namespaceWatcher *watcher.Watcher[*corev1.Namespace]) *loaders {
 	db := teamsql.New(dbConn)
 	teamLoader := &dataloader{db: db}
 
@@ -37,11 +40,18 @@ func newLoaders(dbConn *pgxpool.Pool) *loaders {
 		internalQuerier:       db,
 		teamLoader:            dataloadgen.NewLoader(teamLoader.list, loader.DefaultDataLoaderOptions...),
 		teamEnvironmentLoader: dataloadgen.NewLoader(teamLoader.getEnvironments, loader.DefaultDataLoaderOptions...),
+		namespaceWatcher:      namespaceWatcher,
 	}
 }
 
 type dataloader struct {
 	db teamsql.Querier
+}
+
+func NewNamespaceWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*corev1.Namespace] {
+	w := watcher.Watch(mgr, &corev1.Namespace{})
+	w.Start(ctx)
+	return w
 }
 
 func (l dataloader) list(ctx context.Context, slugs []slug.Slug) ([]*Team, []error) {

@@ -26,6 +26,10 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input team.CreateTeam
 		return nil, &slug.ErrInvalidSlug{Message: "The name prefix 'team' is redundant. When you create a team, it is by definition a team. Try again with a different name, perhaps just removing the prefix?"}
 	}
 
+	if team.NamespaceExists(ctx, input.Slug) {
+		return nil, &slug.ErrInvalidSlug{Message: "The team slug is not available."}
+	}
+
 	t, err := team.Create(ctx, &input, actor)
 	if err != nil {
 		return nil, err

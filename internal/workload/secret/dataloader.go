@@ -6,7 +6,7 @@ import (
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
-	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/user"
 	"github.com/sirupsen/logrus"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/dynamic"
@@ -65,7 +65,7 @@ func CreatorFromConfig(ctx context.Context, configs map[string]*rest.Config) Cli
 
 		actor := authz.ActorFromContext(ctx)
 
-		groups, err := team.ListGCPGroupsForUser(ctx, actor.User.GetID())
+		groups, err := user.ListGCPGroupsForUser(ctx, actor.User.GetID())
 		if err != nil {
 			return nil, fmt.Errorf("listing GCP groups for user: %w", err)
 		}

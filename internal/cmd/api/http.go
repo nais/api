@@ -194,6 +194,7 @@ func ConfigureGraph(
 	kafkaTopicWatcher := kafkatopic.NewWatcher(ctx, watcherMgr)
 	podWatcher := workload.NewWatcher(ctx, watcherMgr)
 	ingressWatcher := application.NewIngressWatcher(ctx, watcherMgr)
+	namespaceWatcher := team.NewNamespaceWatcher(ctx, watcherMgr)
 	unleashWatcher := unleash.NewWatcher(ctx, mgmtWatcherMgr)
 
 	sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(fakeClients), sqlinstance.WithInstanceWatcher(sqlInstanceWatcher))
@@ -246,7 +247,7 @@ func ConfigureGraph(
 		ctx = utilization.NewLoaderContext(ctx, utilizationClient)
 		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, sqlDatabaseWatcher, sqlInstanceWatcher)
 		ctx = database.NewLoaderContext(ctx, pool)
-		ctx = team.NewLoaderContext(ctx, pool)
+		ctx = team.NewLoaderContext(ctx, pool, namespaceWatcher)
 		ctx = user.NewLoaderContext(ctx, pool)
 		ctx = cost.NewLoaderContext(ctx, pool, costOpts...)
 		ctx = repository.NewLoaderContext(ctx, pool)

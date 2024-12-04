@@ -1,3 +1,38 @@
+Helper.readK8sResources("./k8s_resources/simple")
+
+Test.gql("Create team with namespace that already exists", function(t)
+	t.query [[
+		mutation {
+			createTeam(
+				input: {
+					slug: "slug-1"
+					purpose: "some purpose"
+					slackChannel: "#channel"
+				}
+			) {
+				team {
+					id
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = Null,
+		errors = {
+			{
+				extensions = {
+					field = "slug",
+				},
+				message = "Team slug is not available.",
+				path = {
+					"createTeam",
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("Create team", function(t)
 	t.query [[
 		mutation {
@@ -112,17 +147,6 @@ Test.gql("Create team with invalid slug", function(t)
 		"some-long-string-more-than-30-chars",
 	}
 	testSlug(longSlugs, "A team slug must be at most 30 characters long.")
-
-	local reservedSlugs = {
-		"nais-system",
-		"kube-system",
-		"kube-node-lease",
-		"kube-public",
-		"kyverno",
-		"cnrm-system",
-		"configconnector-operator-system",
-	}
-	testSlug(reservedSlugs, "This slug is reserved by NAIS.")
 
 	local invalidSlugs = {
 		"-foo",

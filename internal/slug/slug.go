@@ -43,26 +43,9 @@ func (e *ErrInvalidSlug) GraphError() string {
 	return e.Message
 }
 
-// reservedSlugs is a list of slugs that are reserved and cannot be used for NAIS teams.
-var reservedSlugs = []Slug{
-	"nais-system",
-	"kube-system",
-	"kube-node-lease",
-	"kube-public",
-	"kyverno",
-	"cnrm-system",
-	"configconnector-operator-system",
-}
-
 var slugPattern = regexp.MustCompile(`^[a-z](-?[a-z0-9]+)+$`)
 
 func (s Slug) Validate() error {
-	for _, reserved := range reservedSlugs {
-		if s == reserved {
-			return invalid("This slug is reserved by NAIS.")
-		}
-	}
-
 	if len(s) < 3 {
 		return invalid("A team slug must be at least 3 characters long.")
 	}

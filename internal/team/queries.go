@@ -182,10 +182,6 @@ func ListForUser(ctx context.Context, userID uuid.UUID, page *pagination.Paginat
 	return pagination.NewConvertConnection(ret, page, total, toGraphUserTeam), nil
 }
 
-func ListGCPGroupsForUser(ctx context.Context, userID uuid.UUID) ([]string, error) {
-	return db(ctx).ListGCPGroupsForUser(ctx, userID)
-}
-
 func GetMemberByEmail(ctx context.Context, teamSlug slug.Slug, email string) (*TeamMember, error) {
 	q := db(ctx)
 
@@ -557,4 +553,16 @@ func ListBySlugs(ctx context.Context, slugs []slug.Slug, page *pagination.Pagina
 
 func ListAllSlugs(ctx context.Context) ([]slug.Slug, error) {
 	return db(ctx).ListAllSlugs(ctx)
+}
+
+func NamespaceExists(ctx context.Context, teamSlug slug.Slug) bool {
+	watcher := fromContext(ctx).namespaceWatcher
+
+	for _, r := range watcher.All() {
+		if r.Obj.Name == teamSlug.String() {
+			return true
+		}
+	}
+
+	return false
 }

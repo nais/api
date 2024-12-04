@@ -123,3 +123,14 @@ DELETE FROM users
 WHERE
 	id = @id
 ;
+
+-- name: ListGCPGroupsForUser :one
+SELECT
+	ARRAY_AGG(teams.google_group_email)::TEXT[]
+FROM
+	teams
+	JOIN user_roles ON user_roles.target_team_slug = teams.slug
+WHERE
+	user_roles.user_id = @user_id
+	AND teams.google_group_email IS NOT NULL
+;
