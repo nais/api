@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/search"
 )
@@ -13,5 +14,11 @@ func (r *queryResolver) Search(ctx context.Context, first *int, after *paginatio
 		return nil, err
 	}
 
-	return search.Search(ctx, page, filter)
+	ret, err := search.Search(ctx, page, filter)
+
+	if filter.Query == "aura" {
+		spew.Dump(ret)
+	}
+
+	return ret, err
 }
