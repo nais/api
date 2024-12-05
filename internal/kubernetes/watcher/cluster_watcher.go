@@ -78,6 +78,10 @@ func (w *clusterWatcher[T]) Start(ctx context.Context) {
 }
 
 func (w *clusterWatcher[T]) convert(obj *unstructured.Unstructured) (T, bool) {
+	if obj.GetNamespace() == "nais-system" {
+		var def T
+		return def, false
+	}
 	if w.converterFunc != nil {
 		o, ok := w.converterFunc(obj, w.cluster)
 		if !ok {
