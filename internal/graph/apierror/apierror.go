@@ -19,17 +19,7 @@ import (
 var (
 	ErrInternal                        = Errorf("The server errored out while processing your request, and we didn't write a suitable error message. You might consider that a bug on our side. Please try again, and if the error persists, contact the NAIS team.")
 	ErrDatabase                        = Errorf("The database encountered an error while processing your request. This is probably a transient error, please try again. If the error persists, contact the NAIS team.")
-	ErrAppNotFound                     = Errorf("We were unable to find the app you were looking for.")
-	ErrUserNotExists                   = Errorf("The user does not exist.")
-	ErrTeamSlug                        = Errorf("Your team identifier does not fit our requirements. Team identifiers must contain only lowercase alphanumeric characters or hyphens, contain at least 3 characters and at most 30 characters, start with an alphabetic character, end with an alphanumeric character, and not contain two hyphens in a row.")
-	ErrTeamPurpose                     = Errorf("You must specify the purpose for your team. This is a human-readable string which is used in external systems, and is important because other people might need to to understand what your team is all about.")
-	ErrTeamNotExist                    = Errorf("The team you are referring to does not exist in our database.")
-	ErrTeamPrefixRedundant             = Errorf("The name prefix 'team' is redundant. When you create a team, it is by definition a team. Try again with a different name, perhaps just removing the prefix?")
-	ErrTeamSlugReserved                = Errorf("The specified slug is reserved by the platform.")
-	ErrUserIsNotTeamMember             = Errorf("The user is not a member of the team.")
-	ErrSecretUnmanaged                 = Errorf("The secret name conflicts with a secret managed by another service. Please try again with a different name.")
 	ErrGoogleCloudMonitoringMetricsApi = Errorf("Unable to fetch SQL instance metrics from the Google Cloud Monitoring API")
-	ErrUnleashEmptyAllowedTeams        = Errorf("You must specify at least one team that is allowed to access the Unleash instance.")
 )
 
 type graphError interface {
