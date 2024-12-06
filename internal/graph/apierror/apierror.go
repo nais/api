@@ -16,12 +16,6 @@ import (
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
-var (
-	ErrInternal                        = Errorf("The server errored out while processing your request, and we didn't write a suitable error message. You might consider that a bug on our side. Please try again, and if the error persists, contact the NAIS team.")
-	ErrDatabase                        = Errorf("The database encountered an error while processing your request. This is probably a transient error, please try again. If the error persists, contact the NAIS team.")
-	ErrGoogleCloudMonitoringMetricsApi = Errorf("Unable to fetch SQL instance metrics from the Google Cloud Monitoring API")
-)
-
 type graphError interface {
 	GraphError() string
 }
@@ -33,6 +27,10 @@ type Error struct {
 
 // Error returns the formatted message for end-users
 func (e Error) Error() string {
+	return e.err.Error()
+}
+
+func (e Error) GraphError() string {
 	return e.err.Error()
 }
 
@@ -57,20 +55,11 @@ func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
 		switch originalError := unwrappedError.(type) {
 		case *gqlerror.Error:
 			return originalError
-		case Error:
-			// Error is already formatted for end-user consumption.
-			return err
 		case graphError:
 			err.Message = originalError.GraphError()
 			return err
-		case authz.ErrMissingRole:
-			err.Message = fmt.Sprintf("You are authenticated, but your account is not authorized to perform this action. Specifically, you need the %q role.", originalError.Role())
-			return err
-		case authz.ErrMissingAuthorization:
-			err.Message = fmt.Sprintf("You are authenticated, but your account is not authorized to perform this action. Specifically, you need the %q authorization.", originalError.Authorization())
-			return err
 		case *pgconn.PgError:
-			err.Message = ErrDatabase.Error()
+			err.Message = "The database encountered an error while processing your request. This is probably a transient error, please try again. If the error persists, contact the NAIS team."
 			log.WithError(originalError).Errorf("database error %s: %s (%s)", originalError.Code, originalError.Message, originalError.Detail)
 			return err
 		case *validate.ValidationErrors:
@@ -111,7 +100,7 @@ func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
 				identity = actor.User.Identity()
 			}
 			log.WithError(err).WithField("actor", identity).Errorf("unhandled error: %q", err)
-			err.Message = ErrInternal.Error()
+			err.Message = "The server errored out while processing your request, and we didn't write a suitable error message. You might consider that a bug on our side. Please try again, and if the error persists, contact the NAIS team."
 		}
 
 		return err

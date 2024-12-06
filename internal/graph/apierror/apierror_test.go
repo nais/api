@@ -35,7 +35,7 @@ func TestError(t *testing.T) {
 
 		databaseError := &pgconn.PgError{Message: "some database error"}
 		err := testWithError(databaseError)
-		assert.ErrorContains(t, err, apierror.ErrDatabase.Error())
+		assert.ErrorContains(t, err, "The database encountered an error")
 
 		assert.Equal(t, 1, len(hook.Entries))
 		assert.Equal(t, logrus.ErrorLevel, hook.LastEntry().Level)
@@ -70,7 +70,7 @@ func TestError(t *testing.T) {
 
 		unhandlerError := errors.New("some unhandled error")
 		err := testWithError(unhandlerError)
-		assert.ErrorContains(t, err, apierror.ErrInternal.Error())
+		assert.ErrorContains(t, err, "we didn't write a suitable error message")
 		assert.Equal(t, 1, len(hook.Entries))
 		assert.Equal(t, logrus.ErrorLevel, hook.LastEntry().Level)
 		assert.Contains(t, hook.LastEntry().Message, "some unhandled error")

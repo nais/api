@@ -1,5 +1,40 @@
 Helper.readK8sResources("./k8s_resources/simple")
 
+Helper.SQLExec [[
+	INSERT INTO users (name, email, external_id)
+	VALUES ('Unauthorized', 'unauthorized@example.com', '123')
+]]
+
+Test.gql("Create team with user that is not authorized", function(t)
+	t.query([[
+		mutation {
+			createTeam(
+				input: {
+					slug: "slug-1"
+					purpose: "some purpose"
+					slackChannel: "#channel"
+				}
+			) {
+				team {
+					id
+				}
+			}
+		}
+	]], { ["x-user-email"] = "unauthorized@example.com" })
+
+	t.check {
+		data = Null,
+		errors = {
+			{
+				message = Contains("Specifically, you need the \"teams:create\" authorization."),
+				path = {
+					"createTeam",
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("Create team with namespace that already exists", function(t)
 	t.query [[
 		mutation {

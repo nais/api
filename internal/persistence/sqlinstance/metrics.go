@@ -9,7 +9,6 @@ import (
 
 	monitoring "cloud.google.com/go/monitoring/apiv3/v2"
 	"cloud.google.com/go/monitoring/apiv3/v2/monitoringpb"
-	"github.com/nais/api/internal/graph/apierror"
 	"github.com/patrickmn/go-cache"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/api/iterator"
@@ -33,6 +32,24 @@ const (
 	filter metricsFilter = `metric.type="%s"
 		AND resource.type="cloudsql_database"`
 )
+
+type metricsError struct {
+	err error
+}
+
+func (e metricsError) Error() string {
+	return e.err.Error()
+}
+
+func (e metricsError) GraphError() string {
+	return "Unable to fetch SQL instance metrics from the Google Cloud Monitoring API."
+}
+
+func newMetricsError(err error) metricsError {
+	return metricsError{
+		err: err,
+	}
+}
 
 type (
 	metricsFilter = string
@@ -287,12 +304,12 @@ func (m *Metrics) cpuForSQLInstance(ctx context.Context, projectID, name string)
 	databaseID := projectID + ":" + name
 	cpu, err := m.averageForDatabase(ctx, projectID, cpuUtilization, databaseID)
 	if err != nil {
-		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+		return nil, newMetricsError(err)
 	}
 
 	cpuCores, err := m.averageForDatabase(ctx, projectID, cpuCores, databaseID)
 	if err != nil {
-		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+		return nil, newMetricsError(err)
 	}
 
 	return &SQLInstanceCPU{
@@ -305,12 +322,12 @@ func (m *Metrics) memoryForSQLInstance(ctx context.Context, projectID, name stri
 	databaseID := projectID + ":" + name
 	memory, err := m.averageForDatabase(ctx, projectID, memoryUtilization, databaseID)
 	if err != nil {
-		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+		return nil, newMetricsError(err)
 	}
 
 	memoryQuota, err := m.averageForDatabase(ctx, projectID, memoryQuota, databaseID)
 	if err != nil {
-		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+		return nil, newMetricsError(err)
 	}
 
 	return &SQLInstanceMemory{
@@ -322,12 +339,12 @@ func (m *Metrics) memoryForSQLInstance(ctx context.Context, projectID, name stri
 func (m *Metrics) teamSummaryCPU(ctx context.Context, projectID string) (*TeamServiceUtilizationSQLInstancesCPU, error) {
 	usage, err := m.sumForTeam(ctx, projectID, cpuUsage)
 	if err != nil {
-		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+		return nil, newMetricsError(err)
 	}
 
 	cores, err := m.sumForTeam(ctx, projectID, cpuCores)
 	if err != nil {
-		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+		return nil, newMetricsError(err)
 	}
 
 	utilization := 0.0
@@ -345,12 +362,12 @@ func (m *Metrics) teamSummaryCPU(ctx context.Context, projectID string) (*TeamSe
 func (m *Metrics) teamSummaryMemory(ctx context.Context, projectID string) (*TeamServiceUtilizationSQLInstancesMemory, error) {
 	usage, err := m.sumForTeam(ctx, projectID, memoryUsage)
 	if err != nil {
-		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+		return nil, newMetricsError(err)
 	}
 
 	quota, err := m.sumForTeam(ctx, projectID, memoryQuota)
 	if err != nil {
-		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+		return nil, newMetricsError(err)
 	}
 
 	utilization := 0.0
@@ -368,12 +385,12 @@ func (m *Metrics) teamSummaryMemory(ctx context.Context, projectID string) (*Tea
 func (m *Metrics) teamSummaryDisk(ctx context.Context, projectID string) (*TeamServiceUtilizationSQLInstancesDisk, error) {
 	usage, err := m.sumForTeam(ctx, projectID, diskUsage)
 	if err != nil {
-		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+		return nil, newMetricsError(err)
 	}
 
 	quota, err := m.sumForTeam(ctx, projectID, diskQuota)
 	if err != nil {
-		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+		return nil, newMetricsError(err)
 	}
 
 	utilization := 0.0
@@ -392,12 +409,12 @@ func (m *Metrics) diskForSQLInstance(ctx context.Context, projectID, name string
 	databaseID := projectID + ":" + name
 	disk, err := m.averageForDatabase(ctx, projectID, diskUtilization, databaseID)
 	if err != nil {
-		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+		return nil, newMetricsError(err)
 	}
 
 	diskQuota, err := m.averageForDatabase(ctx, projectID, diskQuota, databaseID)
 	if err != nil {
-		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+		return nil, newMetricsError(err)
 	}
 
 	return &SQLInstanceDisk{
