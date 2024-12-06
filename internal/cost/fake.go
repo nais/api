@@ -71,7 +71,16 @@ func (c *FakeClient) MonthlyForWorkload(_ context.Context, teamSlug slug.Slug, e
 	currentMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
 
 	for i := range 12 {
-		series[i] = serviceCostSeries(currentMonth.AddDate(0, -i, 0))
+		monthStart := currentMonth.AddDate(0, -i, 0)
+		var date time.Time
+		if i == 0 {
+			// Use the current date - 2 days for the current month
+			date = now.AddDate(0, 0, -2)
+		} else {
+			// Use the last day of the month
+			date = monthStart.AddDate(0, 1, -1)
+		}
+		series[i] = serviceCostSeries(date)
 	}
 	c.monthlyForWorkloadCache[cc] = &WorkloadCostPeriod{
 		Series: series,
@@ -132,7 +141,7 @@ func (c *FakeClient) MonthlySummaryForTeam(_ context.Context, teamSlug slug.Slug
 	}
 
 	today := time.Now()
-	currentMonth := time.Date(today.Year(), today.Month(), today.Day(), 0, 0, 0, 0, today.Location())
+	currentMonth := time.Date(today.Year(), today.Month(), today.Day()-2, 0, 0, 0, 0, today.Location())
 	samples := []*TeamCostMonthlySample{
 		{
 			Date: scalar.Date(currentMonth),
