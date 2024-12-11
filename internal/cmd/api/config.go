@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"slices"
 
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/sethvargo/go-envconfig"
@@ -26,40 +25,6 @@ type ClusterInfo struct {
 }
 
 type ClusterList map[string]ClusterInfo
-
-func (c ClusterList) GCPClusters() []string {
-	if c == nil {
-		return nil
-	}
-
-	var ret []string
-	for cluster, info := range c {
-		if info.GCP {
-			ret = append(ret, cluster)
-		}
-	}
-
-	return ret
-}
-
-func (c ClusterList) Names() []string {
-	if c == nil {
-		return nil
-	}
-
-	var ret []string
-	for cluster := range c {
-		ret = append(ret, cluster)
-	}
-
-	slices.SortFunc(ret, func(i, j string) int {
-		if i < j {
-			return -1
-		}
-		return 1
-	})
-	return ret
-}
 
 func (k *k8sConfig) ClusterList() ClusterList {
 	clusters := make(ClusterList)
