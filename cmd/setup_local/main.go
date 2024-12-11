@@ -120,7 +120,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 
 		log.Infof("creating subscription")
 
-		if _, err := client.CreateSubscription(ctx, "api-reconcilers-api-events", pubsub.SubscriptionConfig{
+		if _, err := client.CreateSubscription(ctx, "nais-api-reconcilers-api-events", pubsub.SubscriptionConfig{
 			Topic:             client.Topic("nais-api"),
 			RetentionDuration: 1 * time.Hour,
 		}); err != nil {

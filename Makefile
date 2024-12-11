@@ -2,7 +2,7 @@ LUA_FORMATTER_VERSION = 1.5.6
 BIN_DIR := $(shell pwd)/bin
 LUAFMT=$(BIN_DIR)/luafmt-$(LUA_FORMATTER_VERSION)
 
-.PHONY: all
+.PHONY: all local
 
 all: generate fmt test check build helm-lint
 
