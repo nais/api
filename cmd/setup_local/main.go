@@ -197,9 +197,14 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 
 			devEnvironment  = "dev"
 			prodEnvironment = "superprod"
+			kindEnvironment = "kind-kind"
 		)
 
 		envs := []*environment.Environment{
+			{
+				Name: kindEnvironment,
+				GCP:  false,
+			},
 			{
 				Name: devEnvironment,
 				GCP:  true,
@@ -304,6 +309,16 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 		}
 
 		input := &team.UpdateTeamEnvironmentInput{
+			Slug:               devteam.Slug,
+			EnvironmentName:    kindEnvironment,
+			SlackAlertsChannel: ptr.To("#kind"),
+			GCPProjectID:       ptr.To("kind-kind"),
+		}
+		if _, err := team.UpdateEnvironment(ctx, input, actor); err != nil {
+			return fmt.Errorf("update environment %q for devteam: %w", kindEnvironment, err)
+		}
+
+		input = &team.UpdateTeamEnvironmentInput{
 			Slug:               devteam.Slug,
 			EnvironmentName:    devEnvironment,
 			SlackAlertsChannel: ptr.To("#yolo"),
