@@ -52,6 +52,7 @@ func transformPod(in any) (any, error) {
 	labelsToKeep := []string{
 		"app",
 		"team",
+		"job-name",
 	}
 
 	pod := in.(*unstructured.Unstructured)
