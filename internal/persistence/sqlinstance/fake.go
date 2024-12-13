@@ -80,7 +80,7 @@ func (f FakeGoogleAPI) ListTimeSeries(_ context.Context, request *monitoringpb.L
 		case strings.Contains(request.Filter, "cpu/reserved_cores"):
 			ts.Metric.Type = "cloudsql.googleapis.com/database/cpu/reserved_cores"
 			ts.ValueType = metric.MetricDescriptor_INT64
-			addInt64Point(ts, rand.Int64())
+			addInt64Point(ts, rand.Int64N(20))
 		case strings.Contains(request.Filter, "disk/utilization"):
 			ts.Metric.Type = "cloudsql.googleapis.com/database/disk/utilization"
 			ts.ValueType = metric.MetricDescriptor_DOUBLE
