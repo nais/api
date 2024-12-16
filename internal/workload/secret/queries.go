@@ -508,8 +508,5 @@ func secretIsManagedByConsole(secret *unstructured.Unstructured) bool {
 	hasOwnerReferences := len(secret.GetOwnerReferences()) > 0
 	hasFinalizers := len(secret.GetFinalizers()) > 0
 
-	typeLabel, ok := labels["type"]
-	isJwker := ok && typeLabel == "jwker.nais.io"
-
-	return hasConsoleLabel && isOpaque && !hasOwnerReferences && !hasFinalizers && !isJwker
+	return hasConsoleLabel && isOpaque && !hasOwnerReferences && !hasFinalizers
 }
