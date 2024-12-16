@@ -2,6 +2,7 @@ package status
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/nais/api/internal/graph/pagination"
@@ -22,7 +23,10 @@ func (c checkJobRuns) Run(ctx context.Context, w workload.Workload) ([]WorkloadS
 
 func (checkJobRuns) run(ctx context.Context, w workload.Workload) WorkloadStatusError {
 	page, _ := pagination.ParsePage(ptr.To(5), nil, nil, nil)
-	runs, _ := job.Runs(ctx, w.GetTeamSlug(), w.GetName(), page)
+	runs, err := job.Runs(ctx, w.GetTeamSlug(), w.GetName(), page)
+	if err != nil {
+		panic(fmt.Sprintf("unable to get runs for job: %q, error: %s", w.GetName(), err.Error()))
+	}
 
 	var tmpTime time.Time
 	var tmpRun *job.JobRun
