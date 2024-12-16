@@ -2,7 +2,6 @@ package status
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/nais/api/internal/graph/pagination"
@@ -25,7 +24,10 @@ func (checkJobRuns) run(ctx context.Context, w workload.Workload) WorkloadStatus
 	page, _ := pagination.ParsePage(ptr.To(5), nil, nil, nil)
 	runs, err := job.Runs(ctx, w.GetTeamSlug(), w.GetName(), page)
 	if err != nil {
-		panic(fmt.Sprintf("unable to get runs for job: %q, error: %s", w.GetName(), err.Error()))
+		// TODO(chredvar): Unable to create label selector above, log?
+		return &WorkloadStatusSynchronizationFailing{
+			Level: WorkloadStatusErrorLevelUnknown,
+		}
 	}
 
 	var tmpTime time.Time
