@@ -196,7 +196,7 @@ func Configure(ctx context.Context, name string, config []*ReconcilerConfigInput
 func GetErrors(ctx context.Context, reconcilerName string, page *pagination.Pagination) (*ReconcilerErrorConnection, error) {
 	q := db(ctx)
 
-	ret, err := q.GetErrors(ctx, reconcilersql.GetErrorsParams{
+	ret, err := q.ListReconcilerErrors(ctx, reconcilersql.ListReconcilerErrorsParams{
 		Reconciler: reconcilerName,
 		Offset:     page.Offset(),
 		Limit:      page.Limit(),
@@ -205,7 +205,7 @@ func GetErrors(ctx context.Context, reconcilerName string, page *pagination.Pagi
 		return nil, err
 	}
 
-	total, err := q.GetErrorsCount(ctx, reconcilerName)
+	total, err := q.ListReconcilerErrorsCount(ctx, reconcilerName)
 	if err != nil {
 		return nil, err
 	}

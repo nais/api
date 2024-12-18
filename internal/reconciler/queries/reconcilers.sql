@@ -101,7 +101,7 @@ WHERE
 	AND key = @key
 ;
 
--- name: GetErrors :many
+-- name: ListReconcilerErrors :many
 SELECT
 	reconciler_errors.*
 FROM
@@ -118,7 +118,7 @@ OFFSET
 	sqlc.arg('offset')
 ;
 
--- name: GetErrorsCount :one
+-- name: ListReconcilerErrorsCount :one
 SELECT
 	COUNT(*)
 FROM

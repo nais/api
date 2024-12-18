@@ -13,11 +13,11 @@ type Querier interface {
 	Enable(ctx context.Context, name string) (*Reconciler, error)
 	Get(ctx context.Context, name string) (*Reconciler, error)
 	GetConfig(ctx context.Context, arg GetConfigParams) ([]*GetConfigRow, error)
-	GetErrors(ctx context.Context, arg GetErrorsParams) ([]*ReconcilerError, error)
-	GetErrorsCount(ctx context.Context, reconciler string) (int64, error)
 	List(ctx context.Context, arg ListParams) ([]*Reconciler, error)
 	ListByNames(ctx context.Context, names []string) ([]*Reconciler, error)
 	ListEnabledReconcilers(ctx context.Context) ([]*Reconciler, error)
+	ListReconcilerErrors(ctx context.Context, arg ListReconcilerErrorsParams) ([]*ReconcilerError, error)
+	ListReconcilerErrorsCount(ctx context.Context, reconciler string) (int64, error)
 }
 
 var _ Querier = (*Queries)(nil)
