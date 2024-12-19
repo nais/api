@@ -375,10 +375,8 @@ func (e ApplicationInstanceState) MarshalGQL(w io.Writer) {
 }
 
 type TeamInventoryCountApplications struct {
-	// Total number of applications.
-	Total int `json:"total"`
-	// Number of applications considered not nais.
-	NotNais int `json:"notNais"`
+	Total    int       `json:"total"`
+	TeamSlug slug.Slug `json:"-"`
 }
 
 type Ingress struct {

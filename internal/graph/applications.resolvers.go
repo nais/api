@@ -125,7 +125,7 @@ func (r *teamEnvironmentResolver) Application(ctx context.Context, obj *team.Tea
 	return application.Get(ctx, obj.TeamSlug, obj.Name, name)
 }
 
-func (r *teamInventoryCountsResolver) Applications(ctx context.Context, obj *team.TeamInventoryCounts) (*application.TeamInventoryCountApplications, error) {
+func (r *teamInventoryCountApplicationsResolver) NotNais(ctx context.Context, obj *application.TeamInventoryCountApplications) (int, error) {
 	apps := application.ListAllForTeam(ctx, obj.TeamSlug)
 	notNais := 0
 
@@ -135,10 +135,15 @@ func (r *teamInventoryCountsResolver) Applications(ctx context.Context, obj *tea
 			notNais++
 		}
 	}
+	return notNais, nil
+}
+
+func (r *teamInventoryCountsResolver) Applications(ctx context.Context, obj *team.TeamInventoryCounts) (*application.TeamInventoryCountApplications, error) {
+	apps := application.ListAllForTeam(ctx, obj.TeamSlug)
 
 	return &application.TeamInventoryCountApplications{
-		Total:   len(apps),
-		NotNais: notNais,
+		Total:    len(apps),
+		TeamSlug: obj.TeamSlug,
 	}, nil
 }
 
@@ -154,9 +159,14 @@ func (r *Resolver) RestartApplicationPayload() gengql.RestartApplicationPayloadR
 	return &restartApplicationPayloadResolver{r}
 }
 
+func (r *Resolver) TeamInventoryCountApplications() gengql.TeamInventoryCountApplicationsResolver {
+	return &teamInventoryCountApplicationsResolver{r}
+}
+
 type (
-	applicationResolver               struct{ *Resolver }
-	deleteApplicationPayloadResolver  struct{ *Resolver }
-	ingressResolver                   struct{ *Resolver }
-	restartApplicationPayloadResolver struct{ *Resolver }
+	applicationResolver                    struct{ *Resolver }
+	deleteApplicationPayloadResolver       struct{ *Resolver }
+	ingressResolver                        struct{ *Resolver }
+	restartApplicationPayloadResolver      struct{ *Resolver }
+	teamInventoryCountApplicationsResolver struct{ *Resolver }
 )
