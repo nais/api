@@ -124,20 +124,24 @@ func (r *teamEnvironmentResolver) Job(ctx context.Context, obj *team.TeamEnviron
 	return job.Get(ctx, obj.TeamSlug, obj.Name, name)
 }
 
-func (r *teamInventoryCountsResolver) Jobs(ctx context.Context, obj *team.TeamInventoryCounts) (*job.TeamInventoryCountJobs, error) {
-	apps := job.ListAllForTeam(ctx, obj.TeamSlug)
+func (r *teamInventoryCountJobsResolver) NotNais(ctx context.Context, obj *job.TeamInventoryCountJobs) (int, error) {
+	jobs := job.ListAllForTeam(ctx, obj.TeamSlug)
 	notNais := 0
 
-	for _, app := range apps {
-		s := status.ForWorkload(ctx, app)
+	for _, job := range jobs {
+		s := status.ForWorkload(ctx, job)
 		if s.State == status.WorkloadStateNotNais {
 			notNais++
 		}
 	}
+	return notNais, nil
+}
+
+func (r *teamInventoryCountsResolver) Jobs(ctx context.Context, obj *team.TeamInventoryCounts) (*job.TeamInventoryCountJobs, error) {
+	apps := job.ListAllForTeam(ctx, obj.TeamSlug)
 
 	return &job.TeamInventoryCountJobs{
-		Total:   len(apps),
-		NotNais: notNais,
+		Total: len(apps),
 	}, nil
 }
 
@@ -153,13 +157,18 @@ func (r *Resolver) Job() gengql.JobResolver { return &jobResolver{r} }
 
 func (r *Resolver) JobRun() gengql.JobRunResolver { return &jobRunResolver{r} }
 
+func (r *Resolver) TeamInventoryCountJobs() gengql.TeamInventoryCountJobsResolver {
+	return &teamInventoryCountJobsResolver{r}
+}
+
 func (r *Resolver) TriggerJobPayload() gengql.TriggerJobPayloadResolver {
 	return &triggerJobPayloadResolver{r}
 }
 
 type (
-	deleteJobPayloadResolver  struct{ *Resolver }
-	jobResolver               struct{ *Resolver }
-	jobRunResolver            struct{ *Resolver }
-	triggerJobPayloadResolver struct{ *Resolver }
+	deleteJobPayloadResolver       struct{ *Resolver }
+	jobResolver                    struct{ *Resolver }
+	jobRunResolver                 struct{ *Resolver }
+	teamInventoryCountJobsResolver struct{ *Resolver }
+	triggerJobPayloadResolver      struct{ *Resolver }
 )

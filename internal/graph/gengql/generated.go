@@ -110,6 +110,7 @@ type ResolverRoot interface {
 	TeamEnvironment() TeamEnvironmentResolver
 	TeamEnvironmentCost() TeamEnvironmentCostResolver
 	TeamInventoryCountApplications() TeamInventoryCountApplicationsResolver
+	TeamInventoryCountJobs() TeamInventoryCountJobsResolver
 	TeamInventoryCounts() TeamInventoryCountsResolver
 	TeamMember() TeamMemberResolver
 	TeamServiceUtilization() TeamServiceUtilizationResolver
@@ -2209,6 +2210,9 @@ type TeamEnvironmentCostResolver interface {
 }
 type TeamInventoryCountApplicationsResolver interface {
 	NotNais(ctx context.Context, obj *application.TeamInventoryCountApplications) (int, error)
+}
+type TeamInventoryCountJobsResolver interface {
+	NotNais(ctx context.Context, obj *job.TeamInventoryCountJobs) (int, error)
 }
 type TeamInventoryCountsResolver interface {
 	Applications(ctx context.Context, obj *team.TeamInventoryCounts) (*application.TeamInventoryCountApplications, error)
@@ -64077,7 +64081,7 @@ func (ec *executionContext) _TeamInventoryCountJobs_notNais(ctx context.Context,
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.NotNais, nil
+		return ec.resolvers.TeamInventoryCountJobs().NotNais(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -64098,8 +64102,8 @@ func (ec *executionContext) fieldContext_TeamInventoryCountJobs_notNais(_ contex
 	fc = &graphql.FieldContext{
 		Object:     "TeamInventoryCountJobs",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
 		},
@@ -94580,13 +94584,44 @@ func (ec *executionContext) _TeamInventoryCountJobs(ctx context.Context, sel ast
 		case "total":
 			out.Values[i] = ec._TeamInventoryCountJobs_total(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "notNais":
-			out.Values[i] = ec._TeamInventoryCountJobs_notNais(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamInventoryCountJobs_notNais(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
