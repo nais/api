@@ -10318,7 +10318,12 @@ input TeamApplicationsFilter {
 	"""
 	Filter by the name of the application.
 	"""
-	name: String!
+	name: String
+
+	"""
+	Filter by the name of the environment.
+	"""
+	environments: [String!]
 }
 
 """
@@ -77457,7 +77462,7 @@ func (ec *executionContext) unmarshalInputTeamApplicationsFilter(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name"}
+	fieldsInOrder := [...]string{"name", "environments"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -77466,11 +77471,18 @@ func (ec *executionContext) unmarshalInputTeamApplicationsFilter(ctx context.Con
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalOString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
+		case "environments":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Environments = data
 		}
 	}
 
@@ -106686,6 +106698,16 @@ func (ec *executionContext) unmarshalOSqlInstanceUserOrder2ᚖgithubᚗcomᚋnai
 	}
 	res, err := ec.unmarshalInputSqlInstanceUserOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
+	res, err := graphql.UnmarshalString(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	res := graphql.MarshalString(v)
+	return res
 }
 
 func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {

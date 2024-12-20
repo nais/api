@@ -176,7 +176,12 @@ input TeamApplicationsFilter {
 	"""
 	Filter by the name of the application.
 	"""
-	name: String!
+	name: String
+
+	"""
+	Filter by the name of the environment.
+	"""
+	environments: [String!]
 }
 
 """

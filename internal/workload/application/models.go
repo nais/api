@@ -437,5 +437,6 @@ type ApplicationInstanceStatus struct {
 }
 
 type TeamApplicationsFilter struct {
-	Name string `json:"name"`
+	Name         string   `json:"name"`
+	Environments []string `json:"environments"`
 }
