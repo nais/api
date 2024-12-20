@@ -141,7 +141,8 @@ func (r *teamInventoryCountsResolver) Jobs(ctx context.Context, obj *team.TeamIn
 	apps := job.ListAllForTeam(ctx, obj.TeamSlug)
 
 	return &job.TeamInventoryCountJobs{
-		Total: len(apps),
+		Total:    len(apps),
+		TeamSlug: obj.TeamSlug,
 	}, nil
 }
 
