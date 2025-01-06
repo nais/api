@@ -43,8 +43,7 @@ VALUES
 		@member_aware,
 		@enabled_if_new
 	)
-ON CONFLICT (name) DO
-UPDATE
+ON CONFLICT (name) DO UPDATE
 SET
 	display_name = EXCLUDED.display_name,
 	description = EXCLUDED.description,
@@ -102,8 +101,7 @@ VALUES
 		@description,
 		@secret
 	)
-ON CONFLICT (reconciler, key) DO
-UPDATE
+ON CONFLICT (reconciler, key) DO UPDATE
 SET
 	display_name = EXCLUDED.display_name,
 	description = EXCLUDED.description,

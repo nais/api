@@ -13,8 +13,7 @@ VALUES
 		@reconciler,
 		@error_message
 	)
-ON CONFLICT (team_slug, reconciler) DO
-UPDATE
+ON CONFLICT (team_slug, reconciler) DO UPDATE
 SET
 	correlation_id = EXCLUDED.correlation_id,
 	created_at = NOW(),

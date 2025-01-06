@@ -34,7 +34,7 @@ SELECT
 FROM
 	user_roles
 WHERE
-	user_id = ANY (@user_ids::UUID [])
+	user_id = ANY (@user_ids::UUID[])
 GROUP BY
 	user_id
 ORDER BY
@@ -57,7 +57,7 @@ SELECT
 FROM
 	service_account_roles
 WHERE
-	service_account_id = ANY (@service_account_ids::UUID [])
+	service_account_id = ANY (@service_account_ids::UUID[])
 GROUP BY
 	service_account_id
 ORDER BY

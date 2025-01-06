@@ -46,7 +46,7 @@ SELECT
 FROM
 	users
 WHERE
-	id = ANY (@ids::UUID [])
+	id = ANY (@ids::UUID[])
 ORDER BY
 	name,
 	email ASC

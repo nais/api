@@ -79,8 +79,7 @@ VALUES
 		@date,
 		@daily_cost
 	)
-ON CONFLICT ON CONSTRAINT daily_cost_key DO
-UPDATE
+ON CONFLICT ON CONSTRAINT daily_cost_key DO UPDATE
 SET
 	daily_cost = EXCLUDED.daily_cost
 ;

@@ -83,7 +83,7 @@ SELECT
 FROM
 	activity_log_entries
 WHERE
-	id = ANY (@ids::UUID [])
+	id = ANY (@ids::UUID[])
 ORDER BY
 	created_at DESC
 ;

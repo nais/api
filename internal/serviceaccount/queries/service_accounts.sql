@@ -60,7 +60,7 @@ SELECT
 FROM
 	service_accounts
 WHERE
-	id = ANY (@ids::UUID [])
+	id = ANY (@ids::UUID[])
 ORDER BY
 	name ASC
 ;
