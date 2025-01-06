@@ -44,7 +44,15 @@ extend enum ActivityLogEntryResourceType {
 }
 
 input TeamJobsFilter {
+	"""
+	Filter by the name of the application.
+	"""
 	name: String!
+
+	"""
+	Filter by the name of the environment.
+	"""
+	environments: [String!]
 }
 type Job implements Node & Workload {
 	"The globally unique ID of the job."

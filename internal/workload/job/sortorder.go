@@ -2,6 +2,7 @@ package job
 
 import (
 	"context"
+	"slices"
 	"strings"
 
 	"github.com/nais/api/internal/graph/sortfilter"
@@ -17,6 +18,18 @@ func init() {
 		return strings.Compare(a.GetEnvironmentName(), b.GetEnvironmentName())
 	})
 	SortFilter.RegisterFilter(func(ctx context.Context, v *Job, filter *TeamJobsFilter) bool {
-		return strings.Contains(strings.ToLower(v.Name), strings.ToLower(filter.Name))
+		if filter.Name != "" {
+			if !strings.Contains(strings.ToLower(v.Name), strings.ToLower(filter.Name)) {
+				return false
+			}
+		}
+
+		if len(filter.Environments) > 0 {
+			if !slices.Contains(filter.Environments, v.EnvironmentName) {
+				return false
+			}
+		}
+
+		return true
 	})
 }

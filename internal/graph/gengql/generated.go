@@ -11428,7 +11428,15 @@ extend enum ActivityLogEntryResourceType {
 }
 
 input TeamJobsFilter {
+	"""
+	Filter by the name of the application.
+	"""
 	name: String!
+
+	"""
+	Filter by the name of the environment.
+	"""
+	environments: [String!]
 }
 type Job implements Node & Workload {
 	"The globally unique ID of the job."
@@ -77523,7 +77531,7 @@ func (ec *executionContext) unmarshalInputTeamJobsFilter(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name"}
+	fieldsInOrder := [...]string{"name", "environments"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -77537,6 +77545,13 @@ func (ec *executionContext) unmarshalInputTeamJobsFilter(ctx context.Context, ob
 				return it, err
 			}
 			it.Name = data
+		case "environments":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Environments = data
 		}
 	}
 
