@@ -88,6 +88,10 @@ spec:
             - name: USERSYNC_ADMIN_GROUP_PREFIX
               value: "{{ .Values.usersync.adminGroupPrefix }}"
             {{- end }}
+            {{- if .Values.replaceEnvironmentNames }}
+            - name: REPLACE_ENVIRONMENT_NAMES
+              value: {{ .Values.replaceEnvironmentNames | quote }}
+            {{- end }}
           envFrom:
             - secretRef:
                 name: "{{ .Release.Name }}"

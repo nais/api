@@ -63,6 +63,9 @@ func newWatcher[T Object](mgr *Manager, obj T, settings *watcherSettings, log lo
 		resourceCounter: mgr.resourceCounter,
 	}
 	for cluster, client := range mgr.managers {
+		if mgr.replaceEnvironmentNames != nil && mgr.replaceEnvironmentNames[cluster] != "" {
+			cluster = mgr.replaceEnvironmentNames[cluster]
+		}
 		watcher, gvr := newClusterWatcher(client, cluster, w, obj, settings, log.WithField("cluster", cluster))
 		if !watcher.isRegistered {
 			continue

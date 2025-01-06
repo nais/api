@@ -23,7 +23,8 @@ type Discovery interface {
 }
 
 type settings struct {
-	clientCreator func(cluster string) (dynamic.Interface, Discovery, *rest.Config, error)
+	clientCreator           func(cluster string) (dynamic.Interface, Discovery, *rest.Config, error)
+	replaceEnvironmentNames map[string]string
 }
 
 type Option func(*settings)
@@ -34,10 +35,17 @@ func WithClientCreator(fn func(cluster string) (dynamic.Interface, Discovery, *r
 	}
 }
 
+func WithReplaceEnvironmentNames(m map[string]string) Option {
+	return func(s *settings) {
+		s.replaceEnvironmentNames = m
+	}
+}
+
 type Manager struct {
-	managers map[string]*clusterManager
-	scheme   *runtime.Scheme
-	log      logrus.FieldLogger
+	managers                map[string]*clusterManager
+	scheme                  *runtime.Scheme
+	log                     logrus.FieldLogger
+	replaceEnvironmentNames map[string]string
 
 	cacheSyncs      []cache.InformerSynced
 	resourceCounter metric.Int64UpDownCounter
@@ -101,10 +109,11 @@ func NewManager(scheme *runtime.Scheme, clusterConfig kubernetes.ClusterConfigMa
 	}
 
 	return &Manager{
-		scheme:          scheme,
-		managers:        managers,
-		log:             log,
-		resourceCounter: udCounter,
+		scheme:                  scheme,
+		managers:                managers,
+		log:                     log,
+		resourceCounter:         udCounter,
+		replaceEnvironmentNames: s.replaceEnvironmentNames,
 	}, nil
 }
 

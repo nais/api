@@ -131,6 +131,8 @@ type Config struct {
 	LeaseName      string `env:"LEASE_NAME,default=nais-api-lease"`
 	LeaseNamespace string `env:"LEASE_NAMESPACE,default=nais-system"`
 
+	ReplaceEnvironmentNames map[string]string `env:"REPLACE_ENVIRONMENT_NAMES, noinit"`
+
 	K8s             k8sConfig
 	Usersync        usersyncConfig
 	Cost            costConfig

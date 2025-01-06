@@ -92,7 +92,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 	defer pool.Close()
 
-	if err := syncEnvironments(ctx, pool, cfg.K8s.ClusterList()); err != nil {
+	if err := syncEnvironments(ctx, pool, cfg.K8s.ClusterList(), cfg.ReplaceEnvironmentNames); err != nil {
 		return err
 	}
 
@@ -109,6 +109,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	if cfg.WithFakeClients {
 		watcherOpts = append(watcherOpts, watcher.WithClientCreator(fake.Clients(os.DirFS("./data/k8s"))))
 	}
+	watcherOpts = append(watcherOpts, watcher.WithReplaceEnvironmentNames(cfg.ReplaceEnvironmentNames))
 
 	clusterConfig, err := kubernetes.CreateClusterConfigMap(cfg.Tenant, cfg.K8s.Clusters, cfg.K8s.StaticClusters)
 	if err != nil {
