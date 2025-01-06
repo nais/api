@@ -147,7 +147,7 @@ SELECT
 FROM
 	users
 WHERE
-	id = ANY ($1::UUID [])
+	id = ANY ($1::UUID[])
 ORDER BY
 	name,
 	email ASC

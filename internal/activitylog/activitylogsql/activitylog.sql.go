@@ -148,7 +148,7 @@ SELECT
 FROM
 	activity_log_entries
 WHERE
-	id = ANY ($1::UUID [])
+	id = ANY ($1::UUID[])
 ORDER BY
 	created_at DESC
 `

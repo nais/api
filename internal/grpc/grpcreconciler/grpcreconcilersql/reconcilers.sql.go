@@ -202,8 +202,7 @@ VALUES
 		$4,
 		$5
 	)
-ON CONFLICT (name) DO
-UPDATE
+ON CONFLICT (name) DO UPDATE
 SET
 	display_name = EXCLUDED.display_name,
 	description = EXCLUDED.description,
@@ -256,8 +255,7 @@ VALUES
 		$4,
 		$5
 	)
-ON CONFLICT (reconciler, key) DO
-UPDATE
+ON CONFLICT (reconciler, key) DO UPDATE
 SET
 	display_name = EXCLUDED.display_name,
 	description = EXCLUDED.description,

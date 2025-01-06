@@ -42,8 +42,7 @@ VALUES
 		$3,
 		$4
 	)
-ON CONFLICT (team_slug, reconciler) DO
-UPDATE
+ON CONFLICT (team_slug, reconciler) DO UPDATE
 SET
 	correlation_id = EXCLUDED.correlation_id,
 	created_at = NOW(),

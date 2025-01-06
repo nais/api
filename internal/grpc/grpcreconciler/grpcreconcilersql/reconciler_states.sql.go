@@ -60,8 +60,7 @@ INSERT INTO
 	reconciler_states (reconciler_name, team_slug, value)
 VALUES
 	($1, $2, $3)
-ON CONFLICT (reconciler_name, team_slug) DO
-UPDATE
+ON CONFLICT (reconciler_name, team_slug) DO UPDATE
 SET
 	value = EXCLUDED.value
 RETURNING

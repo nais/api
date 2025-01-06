@@ -76,7 +76,7 @@ SELECT
 FROM
 	service_accounts
 WHERE
-	id = ANY ($1::UUID [])
+	id = ANY ($1::UUID[])
 ORDER BY
 	name ASC
 `

@@ -598,8 +598,7 @@ VALUES
 		$3,
 		$4
 	)
-ON CONFLICT (team_slug, environment) DO
-UPDATE
+ON CONFLICT (team_slug, environment) DO UPDATE
 SET
 	slack_alerts_channel = COALESCE(
 		EXCLUDED.slack_alerts_channel,

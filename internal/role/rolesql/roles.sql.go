@@ -104,7 +104,7 @@ SELECT
 FROM
 	service_account_roles
 WHERE
-	service_account_id = ANY ($1::UUID [])
+	service_account_id = ANY ($1::UUID[])
 GROUP BY
 	service_account_id
 ORDER BY
@@ -152,7 +152,7 @@ SELECT
 FROM
 	user_roles
 WHERE
-	user_id = ANY ($1::UUID [])
+	user_id = ANY ($1::UUID[])
 GROUP BY
 	user_id
 ORDER BY
