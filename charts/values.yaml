@@ -57,6 +57,8 @@ slack:
 
 staticServiceAccounts: "" # mapped in fasit
 
+replaceEnvironmentNames: null # mapped in fasit
+
 usersync:
   serviceAccount: null # Config in fasit
   subjectEmail: null # Config in fasit
