@@ -23,7 +23,8 @@ func (r *applicationResolver) Secrets(ctx context.Context, obj *application.Appl
 		return nil, err
 	}
 
-	return secret.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj, page)
+	envName := r.unmappedEnvironmentName(obj.EnvironmentName)
+	return secret.ListForWorkload(ctx, obj.TeamSlug, envName, obj, page)
 }
 
 func (r *jobResolver) Secrets(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*secret.Secret], error) {
@@ -32,7 +33,8 @@ func (r *jobResolver) Secrets(ctx context.Context, obj *job.Job, first *int, aft
 		return nil, err
 	}
 
-	return secret.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj, page)
+	envName := r.unmappedEnvironmentName(obj.EnvironmentName)
+	return secret.ListForWorkload(ctx, obj.TeamSlug, envName, obj, page)
 }
 
 func (r *mutationResolver) CreateSecret(ctx context.Context, input secret.CreateSecretInput) (*secret.CreateSecretPayload, error) {
@@ -40,7 +42,8 @@ func (r *mutationResolver) CreateSecret(ctx context.Context, input secret.Create
 		return nil, err
 	}
 
-	s, err := secret.Create(ctx, input.Team, input.Environment, input.Name)
+	envName := r.unmappedEnvironmentName(input.Environment)
+	s, err := secret.Create(ctx, input.Team, envName, input.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +58,8 @@ func (r *mutationResolver) AddSecretValue(ctx context.Context, input secret.AddS
 		return nil, err
 	}
 
-	s, err := secret.AddSecretValue(ctx, input.Team, input.Environment, input.Name, input.Value)
+	envName := r.unmappedEnvironmentName(input.Environment)
+	s, err := secret.AddSecretValue(ctx, input.Team, envName, input.Name, input.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +74,8 @@ func (r *mutationResolver) UpdateSecretValue(ctx context.Context, input secret.U
 		return nil, err
 	}
 
-	s, err := secret.UpdateSecretValue(ctx, input.Team, input.Environment, input.Name, input.Value)
+	envName := r.unmappedEnvironmentName(input.Environment)
+	s, err := secret.UpdateSecretValue(ctx, input.Team, envName, input.Name, input.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +90,8 @@ func (r *mutationResolver) RemoveSecretValue(ctx context.Context, input secret.R
 		return nil, err
 	}
 
-	s, err := secret.RemoveSecretValue(ctx, input.Team, input.Environment, input.SecretName, input.ValueName)
+	envName := r.unmappedEnvironmentName(input.Environment)
+	s, err := secret.RemoveSecretValue(ctx, input.Team, envName, input.SecretName, input.ValueName)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +106,8 @@ func (r *mutationResolver) DeleteSecret(ctx context.Context, input secret.Delete
 		return nil, err
 	}
 
-	if err := secret.Delete(ctx, input.Team, input.Environment, input.Name); err != nil {
+	envName := r.unmappedEnvironmentName(input.Environment)
+	if err := secret.Delete(ctx, input.Team, envName, input.Name); err != nil {
 		return nil, err
 	}
 
@@ -110,7 +117,7 @@ func (r *mutationResolver) DeleteSecret(ctx context.Context, input secret.Delete
 }
 
 func (r *secretResolver) Environment(ctx context.Context, obj *secret.Secret) (*team.TeamEnvironment, error) {
-	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, r.mappedEnvironmentName(obj.EnvironmentName))
 }
 
 func (r *secretResolver) Team(ctx context.Context, obj *secret.Secret) (*team.Team, error) {
@@ -122,7 +129,7 @@ func (r *secretResolver) Values(ctx context.Context, obj *secret.Secret) ([]*sec
 		return nil, err
 	}
 
-	return secret.GetSecretValues(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
+	return secret.GetSecretValues(ctx, obj.TeamSlug, r.unmappedEnvironmentName(obj.EnvironmentName), obj.Name)
 }
 
 func (r *secretResolver) Applications(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*application.Application], error) {
@@ -218,7 +225,8 @@ func (r *teamEnvironmentResolver) Secret(ctx context.Context, obj *team.TeamEnvi
 		return nil, nil
 	}
 
-	return secret.Get(ctx, obj.TeamSlug, obj.Name, name)
+	envName := r.unmappedEnvironmentName(obj.Name)
+	return secret.Get(ctx, obj.TeamSlug, envName, name)
 }
 
 func (r *Resolver) Secret() gengql.SecretResolver { return &secretResolver{r} }

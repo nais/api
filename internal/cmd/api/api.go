@@ -136,6 +136,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		Resolvers: graph.NewResolver(
 			&graph.TopicWrapper{Topic: pubsubTopic},
 			graph.WithLogger(log),
+			graph.WithReplacedEnvironmentName(cfg.ReplaceEnvironmentNames),
 		),
 		Complexity: gengql.NewComplexityRoot(),
 	}, log)

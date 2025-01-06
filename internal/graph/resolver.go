@@ -17,8 +17,35 @@ import (
 )
 
 type Resolver struct {
-	pubsubTopic PubsubTopic
-	log         logrus.FieldLogger
+	pubsubTopic             PubsubTopic
+	log                     logrus.FieldLogger
+	replacedEnvironmentName map[string]string
+}
+
+func (r *Resolver) mappedEnvironmentName(envName string) string {
+	if r.replacedEnvironmentName == nil {
+		return envName
+	}
+
+	if replacement, ok := r.replacedEnvironmentName[envName]; ok {
+		return replacement
+	}
+
+	return envName
+}
+
+func (r *Resolver) unmappedEnvironmentName(envName string) string {
+	if r.replacedEnvironmentName == nil {
+		return envName
+	}
+
+	for k, v := range r.replacedEnvironmentName {
+		if v == envName {
+			return k
+		}
+	}
+
+	return envName
 }
 
 type ResolverOption func(*Resolver)
@@ -26,6 +53,12 @@ type ResolverOption func(*Resolver)
 func WithLogger(log logrus.FieldLogger) ResolverOption {
 	return func(r *Resolver) {
 		r.log = log
+	}
+}
+
+func WithReplacedEnvironmentName(replacedEnvironmentName map[string]string) ResolverOption {
+	return func(r *Resolver) {
+		r.replacedEnvironmentName = replacedEnvironmentName
 	}
 }
 

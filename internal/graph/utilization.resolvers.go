@@ -12,7 +12,7 @@ import (
 
 func (r *applicationResolver) Utilization(ctx context.Context, obj *application.Application) (*utilization.WorkloadUtilization, error) {
 	return &utilization.WorkloadUtilization{
-		EnvironmentName: obj.EnvironmentName,
+		EnvironmentName: r.unmappedEnvironmentName(obj.EnvironmentName),
 		WorkloadName:    obj.Name,
 		TeamSlug:        obj.TeamSlug,
 		WorkloadType:    utilization.WorkloadTypeApplication,
