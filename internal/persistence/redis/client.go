@@ -21,7 +21,7 @@ func redisInstanceNamer(teamSlug slug.Slug, instanceName string) string {
 func (c client) getAccessForApplications(ctx context.Context, environmentName, redisInstanceName string, teamSlug slug.Slug) ([]*RedisInstanceAccess, error) {
 	access := make([]*RedisInstanceAccess, 0)
 
-	workloads := application.ListAllForTeam(ctx, teamSlug)
+	workloads := application.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName)
 	for _, w := range workloads {
 		for _, r := range w.Spec.Redis {
 			if redisInstanceNamer(teamSlug, r.Instance) == redisInstanceName {
@@ -44,7 +44,7 @@ func (c client) getAccessForApplications(ctx context.Context, environmentName, r
 func (c client) getAccessForJobs(ctx context.Context, environmentName, redisInstanceName string, teamSlug slug.Slug) ([]*RedisInstanceAccess, error) {
 	access := make([]*RedisInstanceAccess, 0)
 
-	workloads := job.ListAllForTeam(ctx, teamSlug)
+	workloads := job.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName)
 	for _, w := range workloads {
 		for _, r := range w.Spec.Redis {
 			if redisInstanceNamer(teamSlug, r.Instance) == redisInstanceName {
