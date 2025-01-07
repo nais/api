@@ -23,7 +23,7 @@ import (
 
 func (r *applicationResolver) Cost(ctx context.Context, obj *application.Application) (*cost.WorkloadCost, error) {
 	return &cost.WorkloadCost{
-		EnvironmentName: r.unmappedEnvironmentName(obj.EnvironmentName),
+		EnvironmentName: obj.EnvironmentName,
 		WorkloadName:    obj.Name,
 		TeamSlug:        obj.TeamSlug,
 	}, nil
@@ -53,7 +53,7 @@ func (r *bigQueryDatasetResolver) Cost(ctx context.Context, obj *bigquery.BigQue
 
 func (r *jobResolver) Cost(ctx context.Context, obj *job.Job) (*cost.WorkloadCost, error) {
 	return &cost.WorkloadCost{
-		EnvironmentName: r.unmappedEnvironmentName(obj.EnvironmentName),
+		EnvironmentName: obj.EnvironmentName,
 		WorkloadName:    obj.Name,
 		TeamSlug:        obj.TeamSlug,
 	}, nil
@@ -137,7 +137,7 @@ func (r *teamCostResolver) MonthlySummary(ctx context.Context, obj *cost.TeamCos
 }
 
 func (r *teamEnvironmentResolver) Cost(ctx context.Context, obj *team.TeamEnvironment) (*cost.TeamEnvironmentCost, error) {
-	return &cost.TeamEnvironmentCost{TeamSlug: obj.TeamSlug, EnvironmentName: r.unmappedEnvironmentName(obj.Name)}, nil
+	return &cost.TeamEnvironmentCost{TeamSlug: obj.TeamSlug, EnvironmentName: obj.Name}, nil
 }
 
 func (r *teamEnvironmentCostResolver) Daily(ctx context.Context, obj *cost.TeamEnvironmentCost, from scalar.Date, to scalar.Date) (*cost.TeamEnvironmentCostPeriod, error) {
