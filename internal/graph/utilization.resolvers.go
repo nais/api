@@ -38,7 +38,7 @@ func (r *teamUtilizationDataResolver) Team(ctx context.Context, obj *utilization
 }
 
 func (r *teamUtilizationDataResolver) Environment(ctx context.Context, obj *utilization.TeamUtilizationData) (*team.TeamEnvironment, error) {
-	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, r.mappedEnvironmentName(obj.EnvironmentName))
 }
 
 func (r *workloadUtilizationResolver) Current(ctx context.Context, obj *utilization.WorkloadUtilization, resourceType utilization.UtilizationResourceType) (float64, error) {
@@ -54,7 +54,7 @@ func (r *workloadUtilizationResolver) Series(ctx context.Context, obj *utilizati
 }
 
 func (r *workloadUtilizationDataResolver) Workload(ctx context.Context, obj *utilization.WorkloadUtilizationData) (workload.Workload, error) {
-	return tryWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadName)
+	return tryWorkload(ctx, obj.TeamSlug, r.mappedEnvironmentName(obj.EnvironmentName), obj.WorkloadName)
 }
 
 func (r *Resolver) TeamServiceUtilization() gengql.TeamServiceUtilizationResolver {
