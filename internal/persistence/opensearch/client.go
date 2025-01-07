@@ -20,7 +20,7 @@ func openSearchNamer(teamSlug slug.Slug, instanceName string) string {
 
 func (c client) getAccessForApplications(ctx context.Context, environmentName, openSearchName string, teamSlug slug.Slug) ([]*OpenSearchAccess, error) {
 	access := make([]*OpenSearchAccess, 0)
-	workloads := application.ListAllForTeam(ctx, teamSlug)
+	workloads := application.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName)
 
 	for _, w := range workloads {
 
@@ -47,7 +47,7 @@ func (c client) getAccessForApplications(ctx context.Context, environmentName, o
 func (c client) getAccessForJobs(ctx context.Context, environmentName, openSearchName string, teamSlug slug.Slug) ([]*OpenSearchAccess, error) {
 	access := make([]*OpenSearchAccess, 0)
 
-	workloads := job.ListAllForTeam(ctx, teamSlug)
+	workloads := job.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName)
 	for _, w := range workloads {
 		if w.Spec.OpenSearch == nil {
 			continue
