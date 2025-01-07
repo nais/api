@@ -8,7 +8,10 @@ import (
 )
 
 func (r *subscriptionResolver) WorkloadLog(ctx context.Context, filter podlog.WorkloadLogSubscriptionFilter) (<-chan *podlog.WorkloadLogLine, error) {
-	return podlog.LogStream(ctx, &filter)
+	envFilter := filter
+	envFilter.Environment = r.unmappedEnvironmentName(envFilter.Environment)
+
+	return podlog.LogStream(ctx, &envFilter)
 }
 
 func (r *Resolver) Subscription() gengql.SubscriptionResolver { return &subscriptionResolver{r} }
