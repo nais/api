@@ -42,13 +42,17 @@ func GetDatabase(ctx context.Context, teamSlug slug.Slug, environmentName, sqlIn
 }
 
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, references []nais_io_v1.CloudSqlInstance, orderBy *SQLInstanceOrder) (*SQLInstanceConnection, error) {
-	all := fromContext(ctx).sqlInstanceWatcher.GetByNamespace(teamSlug.String())
+	all := fromContext(ctx).sqlInstanceWatcher.GetByNamespace(teamSlug.String(), watcher.InCluster(environmentName))
 
 	ret := make([]*SQLInstance, 0)
 
 	for _, ref := range references {
+		refName := ref.Name
+		if refName == "" && ref.Database() != nil {
+			refName = ref.Database().Name
+		}
 		for _, d := range all {
-			if d.Obj.Name == ref.Name && d.Obj.EnvironmentName == environmentName {
+			if d.Obj.Name == refName {
 				ret = append(ret, d.Obj)
 			}
 		}
