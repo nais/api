@@ -75,9 +75,9 @@ spec:
             - name: GRPC_LISTEN_ADDRESS
               value: ":3001"
             - name: USERSYNC_SERVICE_ACCOUNT
-              value: {{ .Values.usersync.serviceAccount | default (printf "nais-api@%s.iam.gserviceaccount.com" .Values.google.managementProjectID) | quote }}
+              value: {{ .Values.usersync.serviceAccount | quote }}
             - name: USERSYNC_SUBJECT_EMAIL
-              value: {{ .Values.usersync.subjectEmail | default (printf "nais-admin@%s" .Values.tenant.domain) | quote }}
+              value: {{ .Values.usersync.subjectEmail | quote }}
             - name: UNLEASH_ENABLED
               value: "{{ .Values.unleash.enabled }}"
             - name: UNLEASH_NAMESPACE

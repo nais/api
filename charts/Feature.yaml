@@ -145,14 +145,16 @@ values:
   usersync.serviceAccount:
     displayName: Service account for user sync
     description: The service account used to sync users from GSuite
-    config:
-      type: string
+    computed:
+      template: |
+        {{ .Env.tenant_directory_serviceaccount_email | quote }}
 
   usersync.subjectEmail:
     displayName: Subject email for user sync
     description: The email address of the user to sync from GSuite
-    config:
-      type: string
+    computed:
+      template: |
+        nais-admin@{{ .Env.tenant_domain }}
 
   usersync.adminGroupPrefix:
     displayName: Admin group prefix for user sync
