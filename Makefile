@@ -35,10 +35,10 @@ build:
 	go build -o bin/setup_local ./cmd/setup_local
 
 local:
-	env bash -c 'source local.env; go run ./cmd/api'
+	go run ./cmd/api
 
 debug:
-	env bash -c 'source local.env; dlv debug --headless --listen=:2345 --api-version=2 ./cmd/api'
+	dlv debug --headless --listen=:2345 --api-version=2 ./cmd/api
 
 test:
 	go test -cover -tags integration_test --race ./... github.com/nais/api/pkg/apiclient/...

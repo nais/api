@@ -6,6 +6,7 @@ NAIS API is the main entrypoint when interacting with the API of the NAIS platfo
 
 ```bash
 asdf install # Install required dependencies, see .tool-versions for plugins used
+cp .env.example .env # Copy example configuration file, and adjust to your needs
 docker compose up -d
 make setup-local # Setup local environment (seeds database and creates pubsub topic)
 make local
@@ -14,8 +15,6 @@ make local
 For local development you need to set the `WITH_FAKE_CLIENTS` environment variable to `true` (as set by `make local`),
 and you will also need to set the `X-User-Email` header to `dev.usersen@example.com` if you want to act as a regular
 user, or `admin.usersen@example.com` if you need an admin user, when interacting with the GraphQL API.
-
-If you want to override the default configuration, you can create a `.env` file in the root of the project.
 
 Locally, most external services are replaced with fake clients, and the Kubernetes client reads data from `data/k8s`.
 
