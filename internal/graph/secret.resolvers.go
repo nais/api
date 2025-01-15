@@ -176,16 +176,17 @@ func (r *secretResolver) Workloads(ctx context.Context, obj *secret.Secret, firs
 		return nil, err
 	}
 
+	envName := r.mappedEnvironmentName(obj.EnvironmentName)
 	ret := make([]workload.Workload, 0)
 
-	applications := application.ListAllForTeamInEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+	applications := application.ListAllForTeamInEnvironment(ctx, obj.TeamSlug, envName)
 	for _, app := range applications {
 		if slices.Contains(app.GetSecrets(), obj.Name) {
 			ret = append(ret, app)
 		}
 	}
 
-	jobs := job.ListAllForTeamInEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+	jobs := job.ListAllForTeamInEnvironment(ctx, obj.TeamSlug, envName)
 	for _, j := range jobs {
 		if slices.Contains(j.GetSecrets(), obj.Name) {
 			ret = append(ret, j)
