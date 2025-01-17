@@ -73,7 +73,7 @@ spec:
             - name: LISTEN_ADDRESS
               value: ":3000"
             - name: INTERNAL_LISTEN_ADDRESS
-              value: ":3000"
+              value: ":3005"
             - name: GRPC_LISTEN_ADDRESS
               value: ":3001"
             - name: USERSYNC_SERVICE_ACCOUNT
