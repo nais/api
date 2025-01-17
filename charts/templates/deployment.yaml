@@ -72,6 +72,8 @@ spec:
               value: "https://{{ .Values.host }}"
             - name: LISTEN_ADDRESS
               value: ":3000"
+            - name: INTERNAL_LISTEN_ADDRESS
+              value: ":3000"
             - name: GRPC_LISTEN_ADDRESS
               value: ":3001"
             - name: USERSYNC_SERVICE_ACCOUNT
@@ -114,19 +116,19 @@ spec:
           startupProbe:
             httpGet:
               path: /healthz
-              port: http
+              port: 3005
             initialDelaySeconds: 5
             periodSeconds: 10
             failureThreshold: 10
           readinessProbe:
             httpGet:
               path: /healthz
-              port: http
+              port: 3005
             failureThreshold: 3
           livenessProbe:
             httpGet:
               path: /healthz
-              port: http
+              port: 3005
             failureThreshold: 3
           resources:
             limits:
