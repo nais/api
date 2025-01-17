@@ -8,7 +8,7 @@ metadata:
 spec:
   endpoints:
     - interval: 1m
-      port: http
+      port: 3005
       scrapeTimeout: 10s
   namespaceSelector:
     matchNames:
