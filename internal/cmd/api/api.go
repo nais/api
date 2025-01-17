@@ -197,10 +197,17 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			mgmtWatcher,
 			authHandler,
 			graphHandler,
-			promReg,
 			vulnClient,
 			hookdClient,
 			cfg.Unleash.BifrostApiUrl,
+			log,
+		)
+	})
+	wg.Go(func() error {
+		return runInternalHTTPServer(
+			ctx,
+			cfg.InternalListenAddress,
+			promReg,
 			log,
 		)
 	})
