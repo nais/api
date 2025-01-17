@@ -1,14 +1,14 @@
 apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
+kind: PodMonitor
 metadata:
   name: "{{ .Release.Name }}"
   namespace: nais-system
   labels:
     app: "{{ .Release.Name }}"
 spec:
-  endpoints:
+  podMetricsEndpoints:
     - interval: 1m
-      port: 3005
+      port: metrics
       scrapeTimeout: 10s
   namespaceSelector:
     matchNames:

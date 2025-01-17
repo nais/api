@@ -110,25 +110,28 @@ spec:
             - name: http
               containerPort: 3000
               protocol: TCP
+            - name: metrics
+              containerPort: 3005
+              protocol: TCP
             - name: grpc
               containerPort: 3001
               protocol: TCP
           startupProbe:
             httpGet:
               path: /healthz
-              port: 3005
+              port: metrics
             initialDelaySeconds: 5
             periodSeconds: 10
             failureThreshold: 10
           readinessProbe:
             httpGet:
               path: /healthz
-              port: 3005
+              port: metrics
             failureThreshold: 3
           livenessProbe:
             httpGet:
               path: /healthz
-              port: 3005
+              port: metrics
             failureThreshold: 3
           resources:
             limits:
