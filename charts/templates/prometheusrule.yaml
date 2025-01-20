@@ -29,4 +29,13 @@ spec:
           annotations:
             consequence: Users may not be able to see workload information in console.
             action: "Check logs in {{ .Release.Name }}"
+        - alert: Cost updater has not updated cost in 24 hours
+          expr: absent_over_time(nais_api_cost_updater_runs_total{container="nais-api",success="true"}[24h])
+          for: 4h
+          labels:
+            namespace: nais-system
+            severity: warning
+          annotations:
+            consequence: Cost information may be outdated.
+            action: "Check logs in {{ .Release.Name }}"
 {{- end }}
