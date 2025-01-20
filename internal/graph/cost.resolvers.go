@@ -65,7 +65,7 @@ func (r *openSearchResolver) Cost(ctx context.Context, obj *opensearch.OpenSearc
 		return &cost.OpenSearchCost{}, nil
 	}
 
-	sum, err := cost.MonthlyForService(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name, "Redis")
+	sum, err := cost.MonthlyForService(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name, "OpenSearch")
 	if err != nil {
 		r.log.WithError(err).WithFields(logrus.Fields{
 			"EnvironmentName": obj.EnvironmentName,
