@@ -16,7 +16,7 @@ import (
 	"go.opentelemetry.io/otel/metric"
 )
 
-const costUpdateSchedule = 5 * time.Minute
+const costUpdateSchedule = time.Hour
 
 func costUpdater(ctx context.Context, pool *pgxpool.Pool, cfg *Config, log logrus.FieldLogger) error {
 	if !cfg.Cost.ImportEnabled {
