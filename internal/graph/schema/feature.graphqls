@@ -15,6 +15,11 @@ type Features implements Node {
 	redis: FeatureRedis!
 
 	"""
+	Information about Valkey feature.
+	"""
+	valkey: FeatureValkey!
+
+	"""
 	Information about Kafka feature.
 	"""
 	kafka: FeatureKafka!
@@ -52,6 +57,18 @@ type FeatureRedis implements Node {
 
 	"""
 	Wether Redis is enabled or not.
+	"""
+	enabled: Boolean!
+}
+
+type FeatureValkey implements Node {
+	"""
+	Unique identifier for the feature.
+	"""
+	id: ID!
+
+	"""
+	Wether Valkey is enabled or not.
 	"""
 	enabled: Boolean!
 }

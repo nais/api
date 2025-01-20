@@ -76,6 +76,7 @@ CREATE TABLE audit_logs (
 -- BigQuery
 -- Kubernetes Engine
 -- Redis
+-- Valkey
 -- Cloud Storage
 -- V and it should really, really be an enum.
 CREATE TABLE cost (
@@ -83,7 +84,7 @@ CREATE TABLE cost (
 	environment TEXT,
 	team_slug slug,
 	app TEXT NOT NULL,
-	cost_type TEXT NOT NULL, --  some sort of string describing a cost center, maybe "redis"
+	cost_type TEXT NOT NULL, --  some sort of string describing a cost center, maybe "valkey"
 	date date NOT NULL,
 	daily_cost REAL NOT NULL,
 	CONSTRAINT daily_cost_key UNIQUE (environment, team_slug, app, cost_type, date)

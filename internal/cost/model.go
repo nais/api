@@ -89,6 +89,10 @@ type RedisInstanceCost struct {
 	Sum float64 `json:"sum"`
 }
 
+type ValkeyInstanceCost struct {
+	Sum float64 `json:"sum"`
+}
+
 type TeamEnvironmentCost struct {
 	TeamSlug        slug.Slug `json:"-"`
 	EnvironmentName string    `json:"-"`

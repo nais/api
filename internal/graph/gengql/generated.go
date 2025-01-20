@@ -31,6 +31,7 @@ import (
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/redis"
 	"github.com/nais/api/internal/persistence/sqlinstance"
+	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/reconciler"
 	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/serviceaccount"
@@ -122,6 +123,8 @@ type ResolverRoot interface {
 	UnleashInstance() UnleashInstanceResolver
 	UnleashInstanceMetrics() UnleashInstanceMetricsResolver
 	User() UserResolver
+	ValkeyInstance() ValkeyInstanceResolver
+	ValkeyInstanceAccess() ValkeyInstanceAccessResolver
 	WorkloadCost() WorkloadCostResolver
 	WorkloadCostSample() WorkloadCostSampleResolver
 	WorkloadUtilization() WorkloadUtilizationResolver
@@ -182,6 +185,7 @@ type ComplexityRoot struct {
 		Status           func(childComplexity int) int
 		Team             func(childComplexity int) int
 		Utilization      func(childComplexity int) int
+		ValkeyInstances  func(childComplexity int, orderBy *valkey.ValkeyInstanceOrder) int
 	}
 
 	ApplicationConnection struct {
@@ -487,12 +491,18 @@ type ComplexityRoot struct {
 		ID      func(childComplexity int) int
 	}
 
+	FeatureValkey struct {
+		Enabled func(childComplexity int) int
+		ID      func(childComplexity int) int
+	}
+
 	Features struct {
 		ID         func(childComplexity int) int
 		Kafka      func(childComplexity int) int
 		OpenSearch func(childComplexity int) int
 		Redis      func(childComplexity int) int
 		Unleash    func(childComplexity int) int
+		Valkey     func(childComplexity int) int
 	}
 
 	IDPortenAuthIntegration struct {
@@ -586,6 +596,7 @@ type ComplexityRoot struct {
 		Secrets          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Status           func(childComplexity int) int
 		Team             func(childComplexity int) int
+		ValkeyInstances  func(childComplexity int, orderBy *valkey.ValkeyInstanceOrder) int
 	}
 
 	JobConnection struct {
@@ -1364,6 +1375,7 @@ type ComplexityRoot struct {
 		SlackChannel         func(childComplexity int) int
 		Slug                 func(childComplexity int) int
 		Unleash              func(childComplexity int) int
+		ValkeyInstances      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyInstanceOrder) int
 		ViewerIsMember       func(childComplexity int) int
 		ViewerIsOwner        func(childComplexity int) int
 		VulnerabilitySummary func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter) int
@@ -1478,6 +1490,7 @@ type ComplexityRoot struct {
 		Secret             func(childComplexity int, name string) int
 		SlackAlertsChannel func(childComplexity int) int
 		Team               func(childComplexity int) int
+		ValkeyInstance     func(childComplexity int, name string) int
 		Workload           func(childComplexity int, name string) int
 	}
 
@@ -1566,6 +1579,10 @@ type ComplexityRoot struct {
 		Total func(childComplexity int) int
 	}
 
+	TeamInventoryCountValkeyInstances struct {
+		Total func(childComplexity int) int
+	}
+
 	TeamInventoryCounts struct {
 		Applications        func(childComplexity int) int
 		BigQueryDatasets    func(childComplexity int) int
@@ -1575,6 +1592,7 @@ type ComplexityRoot struct {
 		OpenSearchInstances func(childComplexity int) int
 		RedisInstances      func(childComplexity int) int
 		SQLInstances        func(childComplexity int) int
+		ValkeyInstances     func(childComplexity int) int
 	}
 
 	TeamMember struct {
@@ -1862,6 +1880,52 @@ type ComplexityRoot struct {
 		Value     func(childComplexity int) int
 	}
 
+	ValkeyInstance struct {
+		Access      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyInstanceAccessOrder) int
+		Cost        func(childComplexity int) int
+		Environment func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Name        func(childComplexity int) int
+		Status      func(childComplexity int) int
+		Team        func(childComplexity int) int
+		Workload    func(childComplexity int) int
+	}
+
+	ValkeyInstanceAccess struct {
+		Access   func(childComplexity int) int
+		Workload func(childComplexity int) int
+	}
+
+	ValkeyInstanceAccessConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	ValkeyInstanceAccessEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	ValkeyInstanceConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	ValkeyInstanceCost struct {
+		Sum func(childComplexity int) int
+	}
+
+	ValkeyInstanceEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	ValkeyInstanceStatus struct {
+		State func(childComplexity int) int
+	}
+
 	VulnerabilityUpdatedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
@@ -2011,6 +2075,7 @@ type ApplicationResolver interface {
 	SQLInstances(ctx context.Context, obj *application.Application, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
 	Status(ctx context.Context, obj *application.Application) (*status.WorkloadStatus, error)
 	Utilization(ctx context.Context, obj *application.Application) (*utilization.WorkloadUtilization, error)
+	ValkeyInstances(ctx context.Context, obj *application.Application, orderBy *valkey.ValkeyInstanceOrder) (*pagination.Connection[*valkey.ValkeyInstance], error)
 }
 type BigQueryDatasetResolver interface {
 	Team(ctx context.Context, obj *bigquery.BigQueryDataset) (*team.Team, error)
@@ -2078,6 +2143,7 @@ type JobResolver interface {
 	Secrets(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*secret.Secret], error)
 	SQLInstances(ctx context.Context, obj *job.Job, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
 	Status(ctx context.Context, obj *job.Job) (*status.WorkloadStatus, error)
+	ValkeyInstances(ctx context.Context, obj *job.Job, orderBy *valkey.ValkeyInstanceOrder) (*pagination.Connection[*valkey.ValkeyInstance], error)
 }
 type JobRunResolver interface {
 	Duration(ctx context.Context, obj *job.JobRun) (int, error)
@@ -2243,6 +2309,7 @@ type TeamResolver interface {
 	Unleash(ctx context.Context, obj *team.Team) (*unleash.UnleashInstance, error)
 	WorkloadUtilization(ctx context.Context, obj *team.Team, resourceType utilization.UtilizationResourceType) ([]*utilization.WorkloadUtilizationData, error)
 	ServiceUtilization(ctx context.Context, obj *team.Team) (*utilization.TeamServiceUtilization, error)
+	ValkeyInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyInstanceOrder) (*pagination.Connection[*valkey.ValkeyInstance], error)
 	VulnerabilitySummary(ctx context.Context, obj *team.Team, filter *vulnerability.TeamVulnerabilitySummaryFilter) (*vulnerability.TeamVulnerabilitySummary, error)
 	Workloads(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) (*pagination.Connection[workload.Workload], error)
 }
@@ -2266,6 +2333,7 @@ type TeamEnvironmentResolver interface {
 	RedisInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*redis.RedisInstance, error)
 	Secret(ctx context.Context, obj *team.TeamEnvironment, name string) (*secret.Secret, error)
 	SQLInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*sqlinstance.SQLInstance, error)
+	ValkeyInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*valkey.ValkeyInstance, error)
 	Workload(ctx context.Context, obj *team.TeamEnvironment, name string) (workload.Workload, error)
 }
 type TeamEnvironmentCostResolver interface {
@@ -2286,6 +2354,7 @@ type TeamInventoryCountsResolver interface {
 	OpenSearchInstances(ctx context.Context, obj *team.TeamInventoryCounts) (*opensearch.TeamInventoryCountOpenSearchInstances, error)
 	RedisInstances(ctx context.Context, obj *team.TeamInventoryCounts) (*redis.TeamInventoryCountRedisInstances, error)
 	SQLInstances(ctx context.Context, obj *team.TeamInventoryCounts) (*sqlinstance.TeamInventoryCountSQLInstances, error)
+	ValkeyInstances(ctx context.Context, obj *team.TeamInventoryCounts) (*valkey.TeamInventoryCountValkeyInstances, error)
 }
 type TeamMemberResolver interface {
 	Team(ctx context.Context, obj *team.TeamMember) (*team.Team, error)
@@ -2325,6 +2394,17 @@ type UnleashInstanceMetricsResolver interface {
 type UserResolver interface {
 	Teams(ctx context.Context, obj *user.User, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.UserTeamOrder) (*pagination.Connection[*team.TeamMember], error)
 	IsAdmin(ctx context.Context, obj *user.User) (bool, error)
+}
+type ValkeyInstanceResolver interface {
+	Team(ctx context.Context, obj *valkey.ValkeyInstance) (*team.Team, error)
+	Environment(ctx context.Context, obj *valkey.ValkeyInstance) (*team.TeamEnvironment, error)
+	Access(ctx context.Context, obj *valkey.ValkeyInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyInstanceAccessOrder) (*pagination.Connection[*valkey.ValkeyInstanceAccess], error)
+	Workload(ctx context.Context, obj *valkey.ValkeyInstance) (workload.Workload, error)
+
+	Cost(ctx context.Context, obj *valkey.ValkeyInstance) (*cost.ValkeyInstanceCost, error)
+}
+type ValkeyInstanceAccessResolver interface {
+	Workload(ctx context.Context, obj *valkey.ValkeyInstanceAccess) (workload.Workload, error)
 }
 type WorkloadCostResolver interface {
 	Daily(ctx context.Context, obj *cost.WorkloadCost, from scalar.Date, to scalar.Date) (*cost.WorkloadCostPeriod, error)
@@ -2612,6 +2692,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Application.Utilization(childComplexity), true
+
+	case "Application.valkeyInstances":
+		if e.complexity.Application.ValkeyInstances == nil {
+			break
+		}
+
+		args, err := ec.field_Application_valkeyInstances_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Application.ValkeyInstances(childComplexity, args["orderBy"].(*valkey.ValkeyInstanceOrder)), true
 
 	case "ApplicationConnection.edges":
 		if e.complexity.ApplicationConnection.Edges == nil {
@@ -3683,6 +3775,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.FeatureUnleash.ID(childComplexity), true
 
+	case "FeatureValkey.enabled":
+		if e.complexity.FeatureValkey.Enabled == nil {
+			break
+		}
+
+		return e.complexity.FeatureValkey.Enabled(childComplexity), true
+
+	case "FeatureValkey.id":
+		if e.complexity.FeatureValkey.ID == nil {
+			break
+		}
+
+		return e.complexity.FeatureValkey.ID(childComplexity), true
+
 	case "Features.id":
 		if e.complexity.Features.ID == nil {
 			break
@@ -3717,6 +3823,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Features.Unleash(childComplexity), true
+
+	case "Features.valkey":
+		if e.complexity.Features.Valkey == nil {
+			break
+		}
+
+		return e.complexity.Features.Valkey(childComplexity), true
 
 	case "IDPortenAuthIntegration.name":
 		if e.complexity.IDPortenAuthIntegration.Name == nil {
@@ -4156,6 +4269,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Job.Team(childComplexity), true
+
+	case "Job.valkeyInstances":
+		if e.complexity.Job.ValkeyInstances == nil {
+			break
+		}
+
+		args, err := ec.field_Job_valkeyInstances_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Job.ValkeyInstances(childComplexity, args["orderBy"].(*valkey.ValkeyInstanceOrder)), true
 
 	case "JobConnection.edges":
 		if e.complexity.JobConnection.Edges == nil {
@@ -7676,6 +7801,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.Unleash(childComplexity), true
 
+	case "Team.valkeyInstances":
+		if e.complexity.Team.ValkeyInstances == nil {
+			break
+		}
+
+		args, err := ec.field_Team_valkeyInstances_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Team.ValkeyInstances(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*valkey.ValkeyInstanceOrder)), true
+
 	case "Team.viewerIsMember":
 		if e.complexity.Team.ViewerIsMember == nil {
 			break
@@ -8245,6 +8382,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamEnvironment.Team(childComplexity), true
 
+	case "TeamEnvironment.valkeyInstance":
+		if e.complexity.TeamEnvironment.ValkeyInstance == nil {
+			break
+		}
+
+		args, err := ec.field_TeamEnvironment_valkeyInstance_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.TeamEnvironment.ValkeyInstance(childComplexity, args["name"].(string)), true
+
 	case "TeamEnvironment.workload":
 		if e.complexity.TeamEnvironment.Workload == nil {
 			break
@@ -8500,6 +8649,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamInventoryCountSqlInstances.Total(childComplexity), true
 
+	case "TeamInventoryCountValkeyInstances.total":
+		if e.complexity.TeamInventoryCountValkeyInstances.Total == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCountValkeyInstances.Total(childComplexity), true
+
 	case "TeamInventoryCounts.applications":
 		if e.complexity.TeamInventoryCounts.Applications == nil {
 			break
@@ -8555,6 +8711,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamInventoryCounts.SQLInstances(childComplexity), true
+
+	case "TeamInventoryCounts.valkeyInstances":
+		if e.complexity.TeamInventoryCounts.ValkeyInstances == nil {
+			break
+		}
+
+		return e.complexity.TeamInventoryCounts.ValkeyInstances(childComplexity), true
 
 	case "TeamMember.role":
 		if e.complexity.TeamMember.Role == nil {
@@ -9721,6 +9884,165 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UtilizationSample.Value(childComplexity), true
 
+	case "ValkeyInstance.access":
+		if e.complexity.ValkeyInstance.Access == nil {
+			break
+		}
+
+		args, err := ec.field_ValkeyInstance_access_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.ValkeyInstance.Access(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*valkey.ValkeyInstanceAccessOrder)), true
+
+	case "ValkeyInstance.cost":
+		if e.complexity.ValkeyInstance.Cost == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstance.Cost(childComplexity), true
+
+	case "ValkeyInstance.environment":
+		if e.complexity.ValkeyInstance.Environment == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstance.Environment(childComplexity), true
+
+	case "ValkeyInstance.id":
+		if e.complexity.ValkeyInstance.ID == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstance.ID(childComplexity), true
+
+	case "ValkeyInstance.name":
+		if e.complexity.ValkeyInstance.Name == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstance.Name(childComplexity), true
+
+	case "ValkeyInstance.status":
+		if e.complexity.ValkeyInstance.Status == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstance.Status(childComplexity), true
+
+	case "ValkeyInstance.team":
+		if e.complexity.ValkeyInstance.Team == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstance.Team(childComplexity), true
+
+	case "ValkeyInstance.workload":
+		if e.complexity.ValkeyInstance.Workload == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstance.Workload(childComplexity), true
+
+	case "ValkeyInstanceAccess.access":
+		if e.complexity.ValkeyInstanceAccess.Access == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstanceAccess.Access(childComplexity), true
+
+	case "ValkeyInstanceAccess.workload":
+		if e.complexity.ValkeyInstanceAccess.Workload == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstanceAccess.Workload(childComplexity), true
+
+	case "ValkeyInstanceAccessConnection.edges":
+		if e.complexity.ValkeyInstanceAccessConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstanceAccessConnection.Edges(childComplexity), true
+
+	case "ValkeyInstanceAccessConnection.nodes":
+		if e.complexity.ValkeyInstanceAccessConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstanceAccessConnection.Nodes(childComplexity), true
+
+	case "ValkeyInstanceAccessConnection.pageInfo":
+		if e.complexity.ValkeyInstanceAccessConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstanceAccessConnection.PageInfo(childComplexity), true
+
+	case "ValkeyInstanceAccessEdge.cursor":
+		if e.complexity.ValkeyInstanceAccessEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstanceAccessEdge.Cursor(childComplexity), true
+
+	case "ValkeyInstanceAccessEdge.node":
+		if e.complexity.ValkeyInstanceAccessEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstanceAccessEdge.Node(childComplexity), true
+
+	case "ValkeyInstanceConnection.edges":
+		if e.complexity.ValkeyInstanceConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstanceConnection.Edges(childComplexity), true
+
+	case "ValkeyInstanceConnection.nodes":
+		if e.complexity.ValkeyInstanceConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstanceConnection.Nodes(childComplexity), true
+
+	case "ValkeyInstanceConnection.pageInfo":
+		if e.complexity.ValkeyInstanceConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstanceConnection.PageInfo(childComplexity), true
+
+	case "ValkeyInstanceCost.sum":
+		if e.complexity.ValkeyInstanceCost.Sum == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstanceCost.Sum(childComplexity), true
+
+	case "ValkeyInstanceEdge.cursor":
+		if e.complexity.ValkeyInstanceEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstanceEdge.Cursor(childComplexity), true
+
+	case "ValkeyInstanceEdge.node":
+		if e.complexity.ValkeyInstanceEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstanceEdge.Node(childComplexity), true
+
+	case "ValkeyInstanceStatus.state":
+		if e.complexity.ValkeyInstanceStatus.State == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstanceStatus.State(childComplexity), true
+
 	case "VulnerabilityUpdatedActivityLogEntry.actor":
 		if e.complexity.VulnerabilityUpdatedActivityLogEntry.Actor == nil {
 			break
@@ -10227,6 +10549,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateTeamInput,
 		ec.unmarshalInputUserOrder,
 		ec.unmarshalInputUserTeamOrder,
+		ec.unmarshalInputValkeyInstanceAccessOrder,
+		ec.unmarshalInputValkeyInstanceOrder,
 		ec.unmarshalInputWorkloadLogSubscriptionFilter,
 		ec.unmarshalInputWorkloadOrder,
 		ec.unmarshalInputWorkloadUtilizationSeriesInput,
@@ -11429,6 +11753,14 @@ type RedisInstanceCost {
 	sum: Float!
 }
 
+extend type ValkeyInstance {
+	cost: ValkeyInstanceCost!
+}
+
+type ValkeyInstanceCost {
+	sum: Float!
+}
+
 extend type BigQueryDataset {
 	cost: BigQueryDatasetCost!
 }
@@ -11665,6 +11997,11 @@ type TeamDeployKeyUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	redis: FeatureRedis!
 
 	"""
+	Information about Valkey feature.
+	"""
+	valkey: FeatureValkey!
+
+	"""
 	Information about Kafka feature.
 	"""
 	kafka: FeatureKafka!
@@ -11702,6 +12039,18 @@ type FeatureRedis implements Node {
 
 	"""
 	Wether Redis is enabled or not.
+	"""
+	enabled: Boolean!
+}
+
+type FeatureValkey implements Node {
+	"""
+	Unique identifier for the feature.
+	"""
+	id: ID!
+
+	"""
+	Wether Valkey is enabled or not.
 	"""
 	enabled: Boolean!
 }
@@ -15625,6 +15974,137 @@ type TeamUtilizationData {
 	environment: TeamEnvironment!
 }
 `, BuiltIn: false},
+	{Name: "../schema/valkey.graphqls", Input: `extend type Team {
+	"Valkey instances owned by the team."
+	valkeyInstances(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Ordering options for items returned from the connection."
+		orderBy: ValkeyInstanceOrder
+	): ValkeyInstanceConnection!
+}
+
+extend type TeamEnvironment {
+	"Valkey instance in the team environment."
+	valkeyInstance(name: String!): ValkeyInstance!
+}
+
+extend interface Workload {
+	"Valkey instances referenced by the workload. This does not currently support pagination, but will return all available Valkey instances."
+	valkeyInstances(
+		"Ordering options for items returned from the connection."
+		orderBy: ValkeyInstanceOrder
+	): ValkeyInstanceConnection!
+}
+
+extend type Application {
+	"Valkey instances referenced by the application. This does not currently support pagination, but will return all available Valkey instances."
+	valkeyInstances(
+		"Ordering options for items returned from the connection."
+		orderBy: ValkeyInstanceOrder
+	): ValkeyInstanceConnection!
+}
+
+extend type Job {
+	"Valkey instances referenced by the job. This does not currently support pagination, but will return all available Valkey instances."
+	valkeyInstances(
+		"Ordering options for items returned from the connection."
+		orderBy: ValkeyInstanceOrder
+	): ValkeyInstanceConnection!
+}
+
+extend type TeamInventoryCounts {
+	valkeyInstances: TeamInventoryCountValkeyInstances!
+}
+
+type TeamInventoryCountValkeyInstances {
+	"Total number of Valkey instances."
+	total: Int!
+}
+
+type ValkeyInstance implements Persistence & Node {
+	id: ID!
+	name: String!
+	team: Team!
+	environment: TeamEnvironment!
+	access(
+		first: Int
+		after: Cursor
+		last: Int
+		before: Cursor
+		orderBy: ValkeyInstanceAccessOrder
+	): ValkeyInstanceAccessConnection!
+	workload: Workload
+	status: ValkeyInstanceStatus!
+}
+
+type ValkeyInstanceAccess {
+	workload: Workload!
+	access: String!
+}
+
+type ValkeyInstanceStatus {
+	state: String!
+}
+
+type ValkeyInstanceAccessConnection {
+	pageInfo: PageInfo!
+	nodes: [ValkeyInstanceAccess!]!
+	edges: [ValkeyInstanceAccessEdge!]!
+}
+
+type ValkeyInstanceConnection {
+	pageInfo: PageInfo!
+	nodes: [ValkeyInstance!]!
+	edges: [ValkeyInstanceEdge!]!
+}
+
+type ValkeyInstanceAccessEdge {
+	cursor: Cursor!
+	node: ValkeyInstanceAccess!
+}
+
+type ValkeyInstanceEdge {
+	cursor: Cursor!
+	node: ValkeyInstance!
+}
+
+input ValkeyInstanceAccessOrder {
+	field: ValkeyInstanceAccessOrderField!
+	direction: OrderDirection!
+}
+
+input ValkeyInstanceOrder {
+	field: ValkeyInstanceOrderField!
+	direction: OrderDirection!
+}
+
+enum ValkeyInstanceAccessOrderField {
+	ACCESS
+	WORKLOAD
+}
+
+enum ValkeyInstanceOrderField {
+	NAME
+	ENVIRONMENT
+}
+
+extend union SearchNode = ValkeyInstance
+
+extend enum SearchType {
+	VALKEY_INSTANCE
+}
+`, BuiltIn: false},
 	{Name: "../schema/vulnerability.graphqls", Input: `extend type Mutation {
 	"""
 	Updates a vulnerability
@@ -16667,6 +17147,38 @@ func (ec *executionContext) field_Application_sqlInstances_argsOrderBy(
 	}
 
 	var zeroVal *sqlinstance.SQLInstanceOrder
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Application_valkeyInstances_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Application_valkeyInstances_argsOrderBy(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["orderBy"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Application_valkeyInstances_argsOrderBy(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*valkey.ValkeyInstanceOrder, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["orderBy"]
+	if !ok {
+		var zeroVal *valkey.ValkeyInstanceOrder
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		return ec.unmarshalOValkeyInstanceOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceOrder(ctx, tmp)
+	}
+
+	var zeroVal *valkey.ValkeyInstanceOrder
 	return zeroVal, nil
 }
 
@@ -17785,6 +18297,38 @@ func (ec *executionContext) field_Job_sqlInstances_argsOrderBy(
 	}
 
 	var zeroVal *sqlinstance.SQLInstanceOrder
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Job_valkeyInstances_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Job_valkeyInstances_argsOrderBy(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["orderBy"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Job_valkeyInstances_argsOrderBy(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*valkey.ValkeyInstanceOrder, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["orderBy"]
+	if !ok {
+		var zeroVal *valkey.ValkeyInstanceOrder
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		return ec.unmarshalOValkeyInstanceOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceOrder(ctx, tmp)
+	}
+
+	var zeroVal *valkey.ValkeyInstanceOrder
 	return zeroVal, nil
 }
 
@@ -21188,6 +21732,38 @@ func (ec *executionContext) field_TeamEnvironment_sqlInstance_argsName(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_TeamEnvironment_valkeyInstance_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_TeamEnvironment_valkeyInstance_argsName(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["name"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_TeamEnvironment_valkeyInstance_argsName(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (string, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["name"]
+	if !ok {
+		var zeroVal string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+	if tmp, ok := rawArgs["name"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_TeamEnvironment_workload_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -23190,6 +23766,146 @@ func (ec *executionContext) field_Team_sqlInstances_argsOrderBy(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Team_valkeyInstances_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Team_valkeyInstances_argsFirst(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := ec.field_Team_valkeyInstances_argsAfter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := ec.field_Team_valkeyInstances_argsLast(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := ec.field_Team_valkeyInstances_argsBefore(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	arg4, err := ec.field_Team_valkeyInstances_argsOrderBy(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["orderBy"] = arg4
+	return args, nil
+}
+func (ec *executionContext) field_Team_valkeyInstances_argsFirst(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*int, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["first"]
+	if !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+	if tmp, ok := rawArgs["first"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Team_valkeyInstances_argsAfter(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*pagination.Cursor, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["after"]
+	if !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+	if tmp, ok := rawArgs["after"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Team_valkeyInstances_argsLast(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*int, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["last"]
+	if !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+	if tmp, ok := rawArgs["last"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Team_valkeyInstances_argsBefore(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*pagination.Cursor, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["before"]
+	if !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+	if tmp, ok := rawArgs["before"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Team_valkeyInstances_argsOrderBy(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*valkey.ValkeyInstanceOrder, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["orderBy"]
+	if !ok {
+		var zeroVal *valkey.ValkeyInstanceOrder
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		return ec.unmarshalOValkeyInstanceOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceOrder(ctx, tmp)
+	}
+
+	var zeroVal *valkey.ValkeyInstanceOrder
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Team_vulnerabilitySummary_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -23671,6 +24387,146 @@ func (ec *executionContext) field_User_teams_argsOrderBy(
 	}
 
 	var zeroVal *team.UserTeamOrder
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_ValkeyInstance_access_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_ValkeyInstance_access_argsFirst(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := ec.field_ValkeyInstance_access_argsAfter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := ec.field_ValkeyInstance_access_argsLast(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := ec.field_ValkeyInstance_access_argsBefore(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	arg4, err := ec.field_ValkeyInstance_access_argsOrderBy(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["orderBy"] = arg4
+	return args, nil
+}
+func (ec *executionContext) field_ValkeyInstance_access_argsFirst(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*int, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["first"]
+	if !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+	if tmp, ok := rawArgs["first"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_ValkeyInstance_access_argsAfter(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*pagination.Cursor, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["after"]
+	if !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+	if tmp, ok := rawArgs["after"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_ValkeyInstance_access_argsLast(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*int, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["last"]
+	if !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+	if tmp, ok := rawArgs["last"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_ValkeyInstance_access_argsBefore(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*pagination.Cursor, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["before"]
+	if !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+	if tmp, ok := rawArgs["before"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_ValkeyInstance_access_argsOrderBy(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*valkey.ValkeyInstanceAccessOrder, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["orderBy"]
+	if !ok {
+		var zeroVal *valkey.ValkeyInstanceAccessOrder
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		return ec.unmarshalOValkeyInstanceAccessOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceAccessOrder(ctx, tmp)
+	}
+
+	var zeroVal *valkey.ValkeyInstanceAccessOrder
 	return zeroVal, nil
 }
 
@@ -24554,6 +25410,8 @@ func (ec *executionContext) fieldContext_Application_team(_ context.Context, fie
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -24634,6 +25492,8 @@ func (ec *executionContext) fieldContext_Application_environment(_ context.Conte
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
 			case "workload":
 				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
@@ -25655,6 +26515,69 @@ func (ec *executionContext) fieldContext_Application_utilization(_ context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Application_valkeyInstances(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Application_valkeyInstances(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Application().ValkeyInstances(rctx, obj, fc.Args["orderBy"].(*valkey.ValkeyInstanceOrder))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*pagination.Connection[*valkey.ValkeyInstance])
+	fc.Result = res
+	return ec.marshalNValkeyInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Application_valkeyInstances(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Application",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pageInfo":
+				return ec.fieldContext_ValkeyInstanceConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_ValkeyInstanceConnection_nodes(ctx, field)
+			case "edges":
+				return ec.fieldContext_ValkeyInstanceConnection_edges(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ValkeyInstanceConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Application_valkeyInstances_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ApplicationConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*application.Application]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ApplicationConnection_pageInfo(ctx, field)
 	if err != nil {
@@ -25798,6 +26721,8 @@ func (ec *executionContext) fieldContext_ApplicationConnection_nodes(_ context.C
 				return ec.fieldContext_Application_status(ctx, field)
 			case "utilization":
 				return ec.fieldContext_Application_utilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Application_valkeyInstances(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
 		},
@@ -26331,6 +27256,8 @@ func (ec *executionContext) fieldContext_ApplicationEdge_node(_ context.Context,
 				return ec.fieldContext_Application_status(ctx, field)
 			case "utilization":
 				return ec.fieldContext_Application_utilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Application_valkeyInstances(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
 		},
@@ -27850,6 +28777,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(_ context.Context,
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -27930,6 +28859,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_environment(_ context.C
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
 			case "workload":
 				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
@@ -29174,6 +30105,8 @@ func (ec *executionContext) fieldContext_Bucket_team(_ context.Context, field gr
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -29254,6 +30187,8 @@ func (ec *executionContext) fieldContext_Bucket_environment(_ context.Context, f
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
 			case "workload":
 				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
@@ -30899,6 +31834,8 @@ func (ec *executionContext) fieldContext_CreateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -31069,6 +32006,8 @@ func (ec *executionContext) fieldContext_DeleteApplicationPayload_team(_ context
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -31221,6 +32160,8 @@ func (ec *executionContext) fieldContext_DeleteJobPayload_team(_ context.Context
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -31461,6 +32402,8 @@ func (ec *executionContext) fieldContext_Deployment_team(_ context.Context, fiel
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -31597,6 +32540,8 @@ func (ec *executionContext) fieldContext_Deployment_environment(_ context.Contex
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
 			case "workload":
 				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
@@ -33344,6 +34289,94 @@ func (ec *executionContext) fieldContext_FeatureUnleash_enabled(_ context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _FeatureValkey_id(ctx context.Context, field graphql.CollectedField, obj *feature.FeatureValkey) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FeatureValkey_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FeatureValkey_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FeatureValkey",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FeatureValkey_enabled(ctx context.Context, field graphql.CollectedField, obj *feature.FeatureValkey) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FeatureValkey_enabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Enabled, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FeatureValkey_enabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FeatureValkey",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Features_id(ctx context.Context, field graphql.CollectedField, obj *feature.Features) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Features_id(ctx, field)
 	if err != nil {
@@ -33483,6 +34516,56 @@ func (ec *executionContext) fieldContext_Features_redis(_ context.Context, field
 				return ec.fieldContext_FeatureRedis_enabled(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type FeatureRedis", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Features_valkey(ctx context.Context, field graphql.CollectedField, obj *feature.Features) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Features_valkey(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Valkey, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(feature.FeatureValkey)
+	fc.Result = res
+	return ec.marshalNFeatureValkey2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureValkey(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Features_valkey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Features",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_FeatureValkey_id(ctx, field)
+			case "enabled":
+				return ec.fieldContext_FeatureValkey_enabled(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type FeatureValkey", field.Name)
 		},
 	}
 	return fc, nil
@@ -35502,6 +36585,8 @@ func (ec *executionContext) fieldContext_Job_team(_ context.Context, field graph
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -35582,6 +36667,8 @@ func (ec *executionContext) fieldContext_Job_environment(_ context.Context, fiel
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
 			case "workload":
 				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
@@ -36546,6 +37633,69 @@ func (ec *executionContext) fieldContext_Job_status(_ context.Context, field gra
 	return fc, nil
 }
 
+func (ec *executionContext) _Job_valkeyInstances(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Job_valkeyInstances(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Job().ValkeyInstances(rctx, obj, fc.Args["orderBy"].(*valkey.ValkeyInstanceOrder))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*pagination.Connection[*valkey.ValkeyInstance])
+	fc.Result = res
+	return ec.marshalNValkeyInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Job_valkeyInstances(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pageInfo":
+				return ec.fieldContext_ValkeyInstanceConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_ValkeyInstanceConnection_nodes(ctx, field)
+			case "edges":
+				return ec.fieldContext_ValkeyInstanceConnection_edges(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ValkeyInstanceConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Job_valkeyInstances_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _JobConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*job.Job]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_JobConnection_pageInfo(ctx, field)
 	if err != nil {
@@ -36687,6 +37837,8 @@ func (ec *executionContext) fieldContext_JobConnection_nodes(_ context.Context, 
 				return ec.fieldContext_Job_sqlInstances(ctx, field)
 			case "status":
 				return ec.fieldContext_Job_status(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Job_valkeyInstances(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
 		},
@@ -37218,6 +38370,8 @@ func (ec *executionContext) fieldContext_JobEdge_node(_ context.Context, field g
 				return ec.fieldContext_Job_sqlInstances(ctx, field)
 			case "status":
 				return ec.fieldContext_Job_status(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Job_valkeyInstances(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
 		},
@@ -39224,6 +40378,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_team(_ context.Context, fiel
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -39304,6 +40460,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_environment(_ context.Contex
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
 			case "workload":
 				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
@@ -39711,6 +40869,8 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_team(_ context.Context, f
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -42715,6 +43875,8 @@ func (ec *executionContext) fieldContext_NetworkPolicyRule_targetTeam(_ context.
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -42961,6 +44123,8 @@ func (ec *executionContext) fieldContext_OpenSearch_team(_ context.Context, fiel
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -43041,6 +44205,8 @@ func (ec *executionContext) fieldContext_OpenSearch_environment(_ context.Contex
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
 			case "workload":
 				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
@@ -44457,6 +45623,8 @@ func (ec *executionContext) fieldContext_Query_features(_ context.Context, field
 				return ec.fieldContext_Features_unleash(ctx, field)
 			case "redis":
 				return ec.fieldContext_Features_redis(ctx, field)
+			case "valkey":
+				return ec.fieldContext_Features_valkey(ctx, field)
 			case "kafka":
 				return ec.fieldContext_Features_kafka(ctx, field)
 			case "openSearch":
@@ -44760,6 +45928,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -47580,6 +48750,8 @@ func (ec *executionContext) fieldContext_ReconcilerError_team(_ context.Context,
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -48044,6 +49216,8 @@ func (ec *executionContext) fieldContext_RedisInstance_team(_ context.Context, f
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -48124,6 +49298,8 @@ func (ec *executionContext) fieldContext_RedisInstance_environment(_ context.Con
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
 			case "workload":
 				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
@@ -49300,6 +50476,8 @@ func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_team(_ context.
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -49502,6 +50680,8 @@ func (ec *executionContext) fieldContext_Repository_team(_ context.Context, fiel
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -50602,6 +51782,8 @@ func (ec *executionContext) fieldContext_RestartApplicationPayload_application(_
 				return ec.fieldContext_Application_status(ctx, field)
 			case "utilization":
 				return ec.fieldContext_Application_utilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Application_valkeyInstances(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
 		},
@@ -51683,6 +52865,8 @@ func (ec *executionContext) fieldContext_Secret_environment(_ context.Context, f
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
 			case "workload":
 				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
@@ -51795,6 +52979,8 @@ func (ec *executionContext) fieldContext_Secret_team(_ context.Context, field gr
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -55090,6 +56276,8 @@ func (ec *executionContext) fieldContext_SqlDatabase_team(_ context.Context, fie
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -55170,6 +56358,8 @@ func (ec *executionContext) fieldContext_SqlDatabase_environment(_ context.Conte
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
 			case "workload":
 				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
@@ -55537,6 +56727,8 @@ func (ec *executionContext) fieldContext_SqlInstance_team(_ context.Context, fie
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -55617,6 +56809,8 @@ func (ec *executionContext) fieldContext_SqlInstance_environment(_ context.Conte
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
 			case "workload":
 				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
@@ -59107,6 +60301,8 @@ func (ec *executionContext) fieldContext_Team_environments(_ context.Context, fi
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
 			case "workload":
 				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
@@ -59185,6 +60381,8 @@ func (ec *executionContext) fieldContext_Team_environment(ctx context.Context, f
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
 			case "workload":
 				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
@@ -59327,6 +60525,8 @@ func (ec *executionContext) fieldContext_Team_inventoryCounts(_ context.Context,
 				return ec.fieldContext_TeamInventoryCounts_redisInstances(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_TeamInventoryCounts_sqlInstances(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_TeamInventoryCounts_valkeyInstances(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCounts", field.Name)
 		},
@@ -60361,6 +61561,69 @@ func (ec *executionContext) fieldContext_Team_serviceUtilization(_ context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_valkeyInstances(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_valkeyInstances(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().ValkeyInstances(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*valkey.ValkeyInstanceOrder))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*pagination.Connection[*valkey.ValkeyInstance])
+	fc.Result = res
+	return ec.marshalNValkeyInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_valkeyInstances(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pageInfo":
+				return ec.fieldContext_ValkeyInstanceConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_ValkeyInstanceConnection_nodes(ctx, field)
+			case "edges":
+				return ec.fieldContext_ValkeyInstanceConnection_edges(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ValkeyInstanceConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Team_valkeyInstances_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_vulnerabilitySummary(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 	if err != nil {
@@ -61059,6 +62322,8 @@ func (ec *executionContext) fieldContext_TeamConnection_nodes(_ context.Context,
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -62500,6 +63765,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(_ context.Context, f
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -63007,6 +64274,8 @@ func (ec *executionContext) fieldContext_TeamEdge_node(_ context.Context, field 
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -63338,6 +64607,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_team(_ context.Context,
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -63432,6 +64703,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_application(ctx context
 				return ec.fieldContext_Application_status(ctx, field)
 			case "utilization":
 				return ec.fieldContext_Application_utilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Application_valkeyInstances(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
 		},
@@ -63731,6 +65004,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_job(ctx context.Context
 				return ec.fieldContext_Job_sqlInstances(ctx, field)
 			case "status":
 				return ec.fieldContext_Job_status(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Job_valkeyInstances(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
 		},
@@ -64142,6 +65417,79 @@ func (ec *executionContext) fieldContext_TeamEnvironment_sqlInstance(ctx context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_TeamEnvironment_sqlInstance_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironment_valkeyInstance(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamEnvironment().ValkeyInstance(rctx, obj, fc.Args["name"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*valkey.ValkeyInstance)
+	fc.Result = res
+	return ec.marshalNValkeyInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstance(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironment_valkeyInstance(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironment",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ValkeyInstance_id(ctx, field)
+			case "name":
+				return ec.fieldContext_ValkeyInstance_name(ctx, field)
+			case "team":
+				return ec.fieldContext_ValkeyInstance_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_ValkeyInstance_environment(ctx, field)
+			case "access":
+				return ec.fieldContext_ValkeyInstance_access(ctx, field)
+			case "workload":
+				return ec.fieldContext_ValkeyInstance_workload(ctx, field)
+			case "status":
+				return ec.fieldContext_ValkeyInstance_status(ctx, field)
+			case "cost":
+				return ec.fieldContext_ValkeyInstance_cost(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ValkeyInstance", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_TeamEnvironment_valkeyInstance_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -65732,6 +67080,50 @@ func (ec *executionContext) fieldContext_TeamInventoryCountSqlInstances_total(_ 
 	return fc, nil
 }
 
+func (ec *executionContext) _TeamInventoryCountValkeyInstances_total(ctx context.Context, field graphql.CollectedField, obj *valkey.TeamInventoryCountValkeyInstances) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventoryCountValkeyInstances_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCountValkeyInstances_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCountValkeyInstances",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TeamInventoryCounts_applications(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamInventoryCounts_applications(ctx, field)
 	if err != nil {
@@ -66120,6 +67512,54 @@ func (ec *executionContext) fieldContext_TeamInventoryCounts_sqlInstances(_ cont
 	return fc, nil
 }
 
+func (ec *executionContext) _TeamInventoryCounts_valkeyInstances(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventoryCounts_valkeyInstances(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamInventoryCounts().ValkeyInstances(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*valkey.TeamInventoryCountValkeyInstances)
+	fc.Result = res
+	return ec.marshalNTeamInventoryCountValkeyInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐTeamInventoryCountValkeyInstances(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventoryCounts_valkeyInstances(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventoryCounts",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_TeamInventoryCountValkeyInstances_total(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountValkeyInstances", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TeamMember_team(ctx context.Context, field graphql.CollectedField, obj *team.TeamMember) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamMember_team(ctx, field)
 	if err != nil {
@@ -66223,6 +67663,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, fiel
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -69429,6 +70871,8 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_team(_ context.Cont
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -69597,6 +71041,8 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_environment(_ conte
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
 			case "workload":
 				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
@@ -70352,6 +71798,8 @@ func (ec *executionContext) fieldContext_TriggerJobPayload_job(_ context.Context
 				return ec.fieldContext_Job_sqlInstances(ctx, field)
 			case "status":
 				return ec.fieldContext_Job_status(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Job_valkeyInstances(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
 		},
@@ -72083,6 +73531,8 @@ func (ec *executionContext) fieldContext_UpdateTeamEnvironmentPayload_environmen
 				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
 			case "workload":
 				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
 			}
@@ -72192,6 +73642,8 @@ func (ec *executionContext) fieldContext_UpdateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_workloadUtilization(ctx, field)
 			case "serviceUtilization":
 				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 			case "workloads":
@@ -73961,6 +75413,1198 @@ func (ec *executionContext) fieldContext_UtilizationSample_value(_ context.Conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstance_id(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstance_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstance_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstance_name(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstance_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstance_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstance_team(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstance_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ValkeyInstance().Team(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.Team)
+	fc.Result = res
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstance_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "externalResources":
+				return ec.fieldContext_Team_externalResources(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "inventoryCounts":
+				return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Team_activityLog(ctx, field)
+			case "applications":
+				return ec.fieldContext_Team_applications(ctx, field)
+			case "bigQueryDatasets":
+				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "cost":
+				return ec.fieldContext_Team_cost(ctx, field)
+			case "deploymentKey":
+				return ec.fieldContext_Team_deploymentKey(ctx, field)
+			case "deployments":
+				return ec.fieldContext_Team_deployments(ctx, field)
+			case "jobs":
+				return ec.fieldContext_Team_jobs(ctx, field)
+			case "kafkaTopics":
+				return ec.fieldContext_Team_kafkaTopics(ctx, field)
+			case "openSearchInstances":
+				return ec.fieldContext_Team_openSearchInstances(ctx, field)
+			case "redisInstances":
+				return ec.fieldContext_Team_redisInstances(ctx, field)
+			case "repositories":
+				return ec.fieldContext_Team_repositories(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
+			case "workloadUtilization":
+				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "serviceUtilization":
+				return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			case "valkeyInstances":
+				return ec.fieldContext_Team_valkeyInstances(ctx, field)
+			case "vulnerabilitySummary":
+				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstance_environment(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstance_environment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ValkeyInstance().Environment(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamEnvironment)
+	fc.Result = res
+	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstance_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
+			case "bucket":
+				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
+			case "job":
+				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "secret":
+				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstance_access(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstance_access(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ValkeyInstance().Access(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*valkey.ValkeyInstanceAccessOrder))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*pagination.Connection[*valkey.ValkeyInstanceAccess])
+	fc.Result = res
+	return ec.marshalNValkeyInstanceAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstance_access(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pageInfo":
+				return ec.fieldContext_ValkeyInstanceAccessConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_ValkeyInstanceAccessConnection_nodes(ctx, field)
+			case "edges":
+				return ec.fieldContext_ValkeyInstanceAccessConnection_edges(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ValkeyInstanceAccessConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_ValkeyInstance_access_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstance_workload(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstance_workload(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ValkeyInstance().Workload(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(workload.Workload)
+	fc.Result = res
+	return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstance_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstance_status(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstance_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*valkey.ValkeyInstanceStatus)
+	fc.Result = res
+	return ec.marshalNValkeyInstanceStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstance_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "state":
+				return ec.fieldContext_ValkeyInstanceStatus_state(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ValkeyInstanceStatus", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstance_cost(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstance_cost(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ValkeyInstance().Cost(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*cost.ValkeyInstanceCost)
+	fc.Result = res
+	return ec.marshalNValkeyInstanceCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐValkeyInstanceCost(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstance_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "sum":
+				return ec.fieldContext_ValkeyInstanceCost_sum(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ValkeyInstanceCost", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstanceAccess_workload(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyInstanceAccess) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstanceAccess_workload(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ValkeyInstanceAccess().Workload(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(workload.Workload)
+	fc.Result = res
+	return ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstanceAccess_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstanceAccess",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstanceAccess_access(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyInstanceAccess) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstanceAccess_access(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Access, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstanceAccess_access(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstanceAccess",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstanceAccessConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*valkey.ValkeyInstanceAccess]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstanceAccessConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstanceAccessConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstanceAccessConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "endCursor":
+				return ec.fieldContext_PageInfo_endCursor(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			case "startCursor":
+				return ec.fieldContext_PageInfo_startCursor(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstanceAccessConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*valkey.ValkeyInstanceAccess]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstanceAccessConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*valkey.ValkeyInstanceAccess)
+	fc.Result = res
+	return ec.marshalNValkeyInstanceAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceAccessᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstanceAccessConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstanceAccessConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "workload":
+				return ec.fieldContext_ValkeyInstanceAccess_workload(ctx, field)
+			case "access":
+				return ec.fieldContext_ValkeyInstanceAccess_access(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ValkeyInstanceAccess", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstanceAccessConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*valkey.ValkeyInstanceAccess]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstanceAccessConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]pagination.Edge[*valkey.ValkeyInstanceAccess])
+	fc.Result = res
+	return ec.marshalNValkeyInstanceAccessEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstanceAccessConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstanceAccessConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cursor":
+				return ec.fieldContext_ValkeyInstanceAccessEdge_cursor(ctx, field)
+			case "node":
+				return ec.fieldContext_ValkeyInstanceAccessEdge_node(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ValkeyInstanceAccessEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstanceAccessEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*valkey.ValkeyInstanceAccess]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstanceAccessEdge_cursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.Cursor)
+	fc.Result = res
+	return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstanceAccessEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstanceAccessEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Cursor does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstanceAccessEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*valkey.ValkeyInstanceAccess]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstanceAccessEdge_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*valkey.ValkeyInstanceAccess)
+	fc.Result = res
+	return ec.marshalNValkeyInstanceAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceAccess(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstanceAccessEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstanceAccessEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "workload":
+				return ec.fieldContext_ValkeyInstanceAccess_workload(ctx, field)
+			case "access":
+				return ec.fieldContext_ValkeyInstanceAccess_access(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ValkeyInstanceAccess", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstanceConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*valkey.ValkeyInstance]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstanceConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstanceConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstanceConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "endCursor":
+				return ec.fieldContext_PageInfo_endCursor(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			case "startCursor":
+				return ec.fieldContext_PageInfo_startCursor(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstanceConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*valkey.ValkeyInstance]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstanceConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*valkey.ValkeyInstance)
+	fc.Result = res
+	return ec.marshalNValkeyInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstanceConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstanceConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ValkeyInstance_id(ctx, field)
+			case "name":
+				return ec.fieldContext_ValkeyInstance_name(ctx, field)
+			case "team":
+				return ec.fieldContext_ValkeyInstance_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_ValkeyInstance_environment(ctx, field)
+			case "access":
+				return ec.fieldContext_ValkeyInstance_access(ctx, field)
+			case "workload":
+				return ec.fieldContext_ValkeyInstance_workload(ctx, field)
+			case "status":
+				return ec.fieldContext_ValkeyInstance_status(ctx, field)
+			case "cost":
+				return ec.fieldContext_ValkeyInstance_cost(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ValkeyInstance", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstanceConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*valkey.ValkeyInstance]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstanceConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]pagination.Edge[*valkey.ValkeyInstance])
+	fc.Result = res
+	return ec.marshalNValkeyInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstanceConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstanceConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cursor":
+				return ec.fieldContext_ValkeyInstanceEdge_cursor(ctx, field)
+			case "node":
+				return ec.fieldContext_ValkeyInstanceEdge_node(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ValkeyInstanceEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstanceCost_sum(ctx context.Context, field graphql.CollectedField, obj *cost.ValkeyInstanceCost) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstanceCost_sum(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Sum, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstanceCost_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstanceCost",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstanceEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*valkey.ValkeyInstance]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstanceEdge_cursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.Cursor)
+	fc.Result = res
+	return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstanceEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstanceEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Cursor does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstanceEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*valkey.ValkeyInstance]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstanceEdge_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*valkey.ValkeyInstance)
+	fc.Result = res
+	return ec.marshalNValkeyInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstance(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstanceEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstanceEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ValkeyInstance_id(ctx, field)
+			case "name":
+				return ec.fieldContext_ValkeyInstance_name(ctx, field)
+			case "team":
+				return ec.fieldContext_ValkeyInstance_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_ValkeyInstance_environment(ctx, field)
+			case "access":
+				return ec.fieldContext_ValkeyInstance_access(ctx, field)
+			case "workload":
+				return ec.fieldContext_ValkeyInstance_workload(ctx, field)
+			case "status":
+				return ec.fieldContext_ValkeyInstance_status(ctx, field)
+			case "cost":
+				return ec.fieldContext_ValkeyInstance_cost(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ValkeyInstance", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValkeyInstanceStatus_state(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyInstanceStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstanceStatus_state(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.State, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstanceStatus_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstanceStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -80555,6 +83199,74 @@ func (ec *executionContext) unmarshalInputUserTeamOrder(ctx context.Context, obj
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputValkeyInstanceAccessOrder(ctx context.Context, obj interface{}) (valkey.ValkeyInstanceAccessOrder, error) {
+	var it valkey.ValkeyInstanceAccessOrder
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNValkeyInstanceAccessOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceAccessOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputValkeyInstanceOrder(ctx context.Context, obj interface{}) (valkey.ValkeyInstanceOrder, error) {
+	var it valkey.ValkeyInstanceOrder
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNValkeyInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputWorkloadLogSubscriptionFilter(ctx context.Context, obj interface{}) (podlog.WorkloadLogSubscriptionFilter, error) {
 	var it podlog.WorkloadLogSubscriptionFilter
 	asMap := map[string]interface{}{}
@@ -81212,9 +83924,9 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ReconcilerConfiguredActivityLogEntry(ctx, sel, obj)
-	case redis.RedisInstance:
-		return ec._RedisInstance(ctx, sel, &obj)
-	case *redis.RedisInstance:
+	case vulnerability.VulnerabilityUpdatedActivityLogEntry:
+		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *vulnerability.VulnerabilityUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
@@ -81521,6 +84233,13 @@ func (ec *executionContext) _Persistence(ctx context.Context, sel ast.SelectionS
 			return graphql.Null
 		}
 		return ec._SqlInstance(ctx, sel, obj)
+	case valkey.ValkeyInstance:
+		return ec._ValkeyInstance(ctx, sel, &obj)
+	case *valkey.ValkeyInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ValkeyInstance(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -81609,6 +84328,13 @@ func (ec *executionContext) _SearchNode(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._SqlInstance(ctx, sel, obj)
+	case valkey.ValkeyInstance:
+		return ec._ValkeyInstance(ctx, sel, &obj)
+	case *valkey.ValkeyInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ValkeyInstance(ctx, sel, obj)
 	case team.Team:
 		return ec._Team(ctx, sel, &obj)
 	case *team.Team:
@@ -82666,6 +85392,42 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 					}
 				}()
 				res = ec._Application_utilization(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "valkeyInstances":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Application_valkeyInstances(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -85688,6 +88450,50 @@ func (ec *executionContext) _FeatureUnleash(ctx context.Context, sel ast.Selecti
 	return out
 }
 
+var featureValkeyImplementors = []string{"FeatureValkey", "Node"}
+
+func (ec *executionContext) _FeatureValkey(ctx context.Context, sel ast.SelectionSet, obj *feature.FeatureValkey) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, featureValkeyImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("FeatureValkey")
+		case "id":
+			out.Values[i] = ec._FeatureValkey_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "enabled":
+			out.Values[i] = ec._FeatureValkey_enabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var featuresImplementors = []string{"Features", "Node"}
 
 func (ec *executionContext) _Features(ctx context.Context, sel ast.SelectionSet, obj *feature.Features) graphql.Marshaler {
@@ -85711,6 +88517,11 @@ func (ec *executionContext) _Features(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "redis":
 			out.Values[i] = ec._Features_redis(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "valkey":
+			out.Values[i] = ec._Features_valkey(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -86974,6 +89785,42 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 					}
 				}()
 				res = ec._Job_status(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "valkeyInstances":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Job_valkeyInstances(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -95407,6 +98254,42 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "valkeyInstances":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_valkeyInstances(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "vulnerabilitySummary":
 			field := field
 
@@ -96740,6 +99623,42 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "valkeyInstance":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamEnvironment_valkeyInstance(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "workload":
 			field := field
 
@@ -97616,6 +100535,45 @@ func (ec *executionContext) _TeamInventoryCountSqlInstances(ctx context.Context,
 	return out
 }
 
+var teamInventoryCountValkeyInstancesImplementors = []string{"TeamInventoryCountValkeyInstances"}
+
+func (ec *executionContext) _TeamInventoryCountValkeyInstances(ctx context.Context, sel ast.SelectionSet, obj *valkey.TeamInventoryCountValkeyInstances) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountValkeyInstancesImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamInventoryCountValkeyInstances")
+		case "total":
+			out.Values[i] = ec._TeamInventoryCountValkeyInstances_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var teamInventoryCountsImplementors = []string{"TeamInventoryCounts"}
 
 func (ec *executionContext) _TeamInventoryCounts(ctx context.Context, sel ast.SelectionSet, obj *team.TeamInventoryCounts) graphql.Marshaler {
@@ -97889,6 +100847,42 @@ func (ec *executionContext) _TeamInventoryCounts(ctx context.Context, sel ast.Se
 					}
 				}()
 				res = ec._TeamInventoryCounts_sqlInstances(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "valkeyInstances":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamInventoryCounts_valkeyInstances(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -100638,6 +103632,571 @@ func (ec *executionContext) _UtilizationSample(ctx context.Context, sel ast.Sele
 			}
 		case "value":
 			out.Values[i] = ec._UtilizationSample_value(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var valkeyInstanceImplementors = []string{"ValkeyInstance", "SearchNode", "Persistence", "Node"}
+
+func (ec *executionContext) _ValkeyInstance(ctx context.Context, sel ast.SelectionSet, obj *valkey.ValkeyInstance) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, valkeyInstanceImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ValkeyInstance")
+		case "id":
+			out.Values[i] = ec._ValkeyInstance_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "name":
+			out.Values[i] = ec._ValkeyInstance_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "team":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ValkeyInstance_team(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "environment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ValkeyInstance_environment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "access":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ValkeyInstance_access(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "workload":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ValkeyInstance_workload(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "status":
+			out.Values[i] = ec._ValkeyInstance_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "cost":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ValkeyInstance_cost(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var valkeyInstanceAccessImplementors = []string{"ValkeyInstanceAccess"}
+
+func (ec *executionContext) _ValkeyInstanceAccess(ctx context.Context, sel ast.SelectionSet, obj *valkey.ValkeyInstanceAccess) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, valkeyInstanceAccessImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ValkeyInstanceAccess")
+		case "workload":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ValkeyInstanceAccess_workload(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "access":
+			out.Values[i] = ec._ValkeyInstanceAccess_access(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var valkeyInstanceAccessConnectionImplementors = []string{"ValkeyInstanceAccessConnection"}
+
+func (ec *executionContext) _ValkeyInstanceAccessConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*valkey.ValkeyInstanceAccess]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, valkeyInstanceAccessConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ValkeyInstanceAccessConnection")
+		case "pageInfo":
+			out.Values[i] = ec._ValkeyInstanceAccessConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._ValkeyInstanceAccessConnection_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._ValkeyInstanceAccessConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var valkeyInstanceAccessEdgeImplementors = []string{"ValkeyInstanceAccessEdge"}
+
+func (ec *executionContext) _ValkeyInstanceAccessEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*valkey.ValkeyInstanceAccess]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, valkeyInstanceAccessEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ValkeyInstanceAccessEdge")
+		case "cursor":
+			out.Values[i] = ec._ValkeyInstanceAccessEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "node":
+			out.Values[i] = ec._ValkeyInstanceAccessEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var valkeyInstanceConnectionImplementors = []string{"ValkeyInstanceConnection"}
+
+func (ec *executionContext) _ValkeyInstanceConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*valkey.ValkeyInstance]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, valkeyInstanceConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ValkeyInstanceConnection")
+		case "pageInfo":
+			out.Values[i] = ec._ValkeyInstanceConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._ValkeyInstanceConnection_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._ValkeyInstanceConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var valkeyInstanceCostImplementors = []string{"ValkeyInstanceCost"}
+
+func (ec *executionContext) _ValkeyInstanceCost(ctx context.Context, sel ast.SelectionSet, obj *cost.ValkeyInstanceCost) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, valkeyInstanceCostImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ValkeyInstanceCost")
+		case "sum":
+			out.Values[i] = ec._ValkeyInstanceCost_sum(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var valkeyInstanceEdgeImplementors = []string{"ValkeyInstanceEdge"}
+
+func (ec *executionContext) _ValkeyInstanceEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*valkey.ValkeyInstance]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, valkeyInstanceEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ValkeyInstanceEdge")
+		case "cursor":
+			out.Values[i] = ec._ValkeyInstanceEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "node":
+			out.Values[i] = ec._ValkeyInstanceEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var valkeyInstanceStatusImplementors = []string{"ValkeyInstanceStatus"}
+
+func (ec *executionContext) _ValkeyInstanceStatus(ctx context.Context, sel ast.SelectionSet, obj *valkey.ValkeyInstanceStatus) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, valkeyInstanceStatusImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ValkeyInstanceStatus")
+		case "state":
+			out.Values[i] = ec._ValkeyInstanceStatus_state(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -103973,6 +107532,10 @@ func (ec *executionContext) marshalNFeatureRedis2githubᚗcomᚋnaisᚋapiᚋint
 
 func (ec *executionContext) marshalNFeatureUnleash2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureUnleash(ctx context.Context, sel ast.SelectionSet, v feature.FeatureUnleash) graphql.Marshaler {
 	return ec._FeatureUnleash(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNFeatureValkey2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureValkey(ctx context.Context, sel ast.SelectionSet, v feature.FeatureValkey) graphql.Marshaler {
+	return ec._FeatureValkey(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNFeatures2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatures(ctx context.Context, sel ast.SelectionSet, v feature.Features) graphql.Marshaler {
@@ -107940,6 +111503,20 @@ func (ec *executionContext) marshalNTeamInventoryCountSqlInstances2ᚖgithubᚗc
 	return ec._TeamInventoryCountSqlInstances(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNTeamInventoryCountValkeyInstances2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐTeamInventoryCountValkeyInstances(ctx context.Context, sel ast.SelectionSet, v valkey.TeamInventoryCountValkeyInstances) graphql.Marshaler {
+	return ec._TeamInventoryCountValkeyInstances(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamInventoryCountValkeyInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐTeamInventoryCountValkeyInstances(ctx context.Context, sel ast.SelectionSet, v *valkey.TeamInventoryCountValkeyInstances) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamInventoryCountValkeyInstances(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNTeamInventoryCounts2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamInventoryCounts(ctx context.Context, sel ast.SelectionSet, v team.TeamInventoryCounts) graphql.Marshaler {
 	return ec._TeamInventoryCounts(ctx, sel, &v)
 }
@@ -108868,6 +112445,286 @@ func (ec *executionContext) marshalNUtilizationSample2ᚖgithubᚗcomᚋnaisᚋa
 		return graphql.Null
 	}
 	return ec._UtilizationSample(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNValkeyInstance2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstance(ctx context.Context, sel ast.SelectionSet, v valkey.ValkeyInstance) graphql.Marshaler {
+	return ec._ValkeyInstance(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNValkeyInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceᚄ(ctx context.Context, sel ast.SelectionSet, v []*valkey.ValkeyInstance) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNValkeyInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstance(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNValkeyInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstance(ctx context.Context, sel ast.SelectionSet, v *valkey.ValkeyInstance) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ValkeyInstance(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNValkeyInstanceAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceAccessᚄ(ctx context.Context, sel ast.SelectionSet, v []*valkey.ValkeyInstanceAccess) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNValkeyInstanceAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceAccess(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNValkeyInstanceAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceAccess(ctx context.Context, sel ast.SelectionSet, v *valkey.ValkeyInstanceAccess) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ValkeyInstanceAccess(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNValkeyInstanceAccessConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*valkey.ValkeyInstanceAccess]) graphql.Marshaler {
+	return ec._ValkeyInstanceAccessConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNValkeyInstanceAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*valkey.ValkeyInstanceAccess]) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ValkeyInstanceAccessConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNValkeyInstanceAccessEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*valkey.ValkeyInstanceAccess]) graphql.Marshaler {
+	return ec._ValkeyInstanceAccessEdge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNValkeyInstanceAccessEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*valkey.ValkeyInstanceAccess]) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNValkeyInstanceAccessEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNValkeyInstanceAccessOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceAccessOrderField(ctx context.Context, v interface{}) (valkey.ValkeyInstanceAccessOrderField, error) {
+	var res valkey.ValkeyInstanceAccessOrderField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNValkeyInstanceAccessOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceAccessOrderField(ctx context.Context, sel ast.SelectionSet, v valkey.ValkeyInstanceAccessOrderField) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNValkeyInstanceConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*valkey.ValkeyInstance]) graphql.Marshaler {
+	return ec._ValkeyInstanceConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNValkeyInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*valkey.ValkeyInstance]) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ValkeyInstanceConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNValkeyInstanceCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐValkeyInstanceCost(ctx context.Context, sel ast.SelectionSet, v cost.ValkeyInstanceCost) graphql.Marshaler {
+	return ec._ValkeyInstanceCost(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNValkeyInstanceCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐValkeyInstanceCost(ctx context.Context, sel ast.SelectionSet, v *cost.ValkeyInstanceCost) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ValkeyInstanceCost(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNValkeyInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*valkey.ValkeyInstance]) graphql.Marshaler {
+	return ec._ValkeyInstanceEdge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNValkeyInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*valkey.ValkeyInstance]) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNValkeyInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNValkeyInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceOrderField(ctx context.Context, v interface{}) (valkey.ValkeyInstanceOrderField, error) {
+	var res valkey.ValkeyInstanceOrderField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNValkeyInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceOrderField(ctx context.Context, sel ast.SelectionSet, v valkey.ValkeyInstanceOrderField) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNValkeyInstanceStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceStatus(ctx context.Context, sel ast.SelectionSet, v *valkey.ValkeyInstanceStatus) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ValkeyInstanceStatus(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx context.Context, sel ast.SelectionSet, v workload.Workload) graphql.Marshaler {
@@ -110148,6 +114005,22 @@ func (ec *executionContext) unmarshalOUserTeamOrder2ᚖgithubᚗcomᚋnaisᚋapi
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputUserTeamOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOValkeyInstanceAccessOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceAccessOrder(ctx context.Context, v interface{}) (*valkey.ValkeyInstanceAccessOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputValkeyInstanceAccessOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOValkeyInstanceOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyInstanceOrder(ctx context.Context, v interface{}) (*valkey.ValkeyInstanceOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputValkeyInstanceOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

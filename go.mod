@@ -22,7 +22,7 @@ require (
 	github.com/nais/api/pkg/apiclient v0.0.0-00010101000000-000000000000
 	github.com/nais/bifrost v0.0.0-20240521085955-c2d2e61bfcd0
 	github.com/nais/dependencytrack v0.0.0-20240610080458-c76185696c11
-	github.com/nais/liberator v0.0.0-20240704120107-2f372679d62b
+	github.com/nais/liberator v0.0.0-20250120121331-1a7304c71267
 	github.com/nais/tester v0.1.0-pre.9
 	github.com/nais/unleasherator v0.0.0-20240513081022-06f454638fc1
 	github.com/patrickmn/go-cache v2.1.0+incompatible

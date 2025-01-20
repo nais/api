@@ -153,6 +153,8 @@ func depluralized(s string) string {
 	switch s {
 	case "redises":
 		return "redis"
+	case "valkeys":
+		return "valkey"
 	case "opensearchs", "opensearches":
 		return "opensearches"
 	case "unleashs":
@@ -182,6 +184,7 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 	return dynfake.NewSimpleDynamicClientWithCustomListKinds(newScheme,
 		map[schema.GroupVersionResource]string{
 			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("redis"):        "RedisList",
+			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("valkey"):       "ValkeyList",
 			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("opensearches"): "OpenSearchList",
 			unleash_nais_io_v1.GroupVersion.WithResource("unleashes"):             "UnleashList",
 			unleash_nais_io_v1.GroupVersion.WithResource("remoteunleashes"):       "RemoteUnleashList",

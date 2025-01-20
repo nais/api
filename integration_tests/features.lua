@@ -11,6 +11,10 @@ Test.gql("list enabled features", function(t)
 					id
 					enabled
 				}
+				valkey {
+					id
+					enabled
+				}
 				kafka {
 					id
 					enabled
@@ -35,6 +39,10 @@ Test.gql("list enabled features", function(t)
 					id = "F_DuZv6up",
 					enabled = true,
 				},
+				valkey = {
+					id = "F_VuZv6up",
+					enabled = true,
+				},
 				kafka = {
 					id = "F_D7fH1tt",
 					enabled = true,
@@ -56,6 +64,10 @@ local nodeTests = {
 	{
 		name = "FeatureRedis",
 		id = "F_DuZv6up",
+	},
+	{
+		name = "FeatureValkey",
+		id = "F_VuZv6up",
 	},
 	{
 		name = "FeatureKafka",

@@ -75,6 +75,9 @@ spec:
   redis:
     - instance: contests
       access: admin
+  valkey:
+    - instance: contests
+      access: admin
   openSearch:
     instance: opensearch-1
     access: readwrite

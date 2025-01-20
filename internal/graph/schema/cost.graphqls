@@ -164,6 +164,14 @@ type RedisInstanceCost {
 	sum: Float!
 }
 
+extend type ValkeyInstance {
+	cost: ValkeyInstanceCost!
+}
+
+type ValkeyInstanceCost {
+	sum: Float!
+}
+
 extend type BigQueryDataset {
 	cost: BigQueryDatasetCost!
 }
