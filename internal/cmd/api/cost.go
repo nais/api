@@ -13,7 +13,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const costUpdateSchedule = time.Hour
+const costUpdateSchedule = 5 * time.Minute
 
 func costUpdater(ctx context.Context, pool *pgxpool.Pool, cfg *Config, log logrus.FieldLogger) error {
 	if !cfg.Cost.ImportEnabled {
