@@ -9,7 +9,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/usersync/usersyncsql"
 	"github.com/sirupsen/logrus"
@@ -17,7 +16,6 @@ import (
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/impersonate"
 	"google.golang.org/api/option"
-	"k8s.io/utils/ptr"
 )
 
 type Usersynchronizer struct {
@@ -93,10 +91,8 @@ func NewFromConfig(ctx context.Context, pool *pgxpool.Pool, serviceAccount, subj
 //
 // All users present in the admin group in the Google Directory will also be granted the admin role in NAIS API, and
 // existing admins that no longer exist in the admin group will get the admin role revoked.
-func (s *Usersynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) error {
-	log := s.log.WithField("correlation_id", correlationID)
-
-	googleUsers, err := getGoogleUsers(ctx, s.service.Users, s.tenantDomain, log)
+func (s *Usersynchronizer) Sync(ctx context.Context) error {
+	googleUsers, err := getGoogleUsers(ctx, s.service.Users, s.tenantDomain, s.log)
 	if err != nil {
 		return fmt.Errorf("get users from Google Directory: %w", err)
 	}
@@ -137,9 +133,9 @@ func (s *Usersynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) er
 			"name":        gu.Name,
 		}
 		if created {
-			log.WithFields(fields).Debugf("created user")
+			s.log.WithFields(fields).Debugf("created user")
 		} else {
-			log.WithFields(fields).Debugf("user already exists")
+			s.log.WithFields(fields).Debugf("user already exists")
 		}
 
 		if userIsOutdated(user, gu) {
@@ -182,25 +178,11 @@ func (s *Usersynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) er
 		delete(userRoles, deletedUser)
 	}
 
-	if err := assignAdmins(ctx, querier, s.service.Members, s.adminGroupPrefix, s.tenantDomain, googleUserMap, userRoles, log); err != nil {
+	if err := assignAdmins(ctx, querier, s.service.Members, s.adminGroupPrefix, s.tenantDomain, googleUserMap, userRoles, s.log); err != nil {
 		return err
 	}
 
 	return tx.Commit(ctx)
-}
-
-// RegisterRun registers a user sync run with a potential error message in the database.
-func (s *Usersynchronizer) RegisterRun(ctx context.Context, correlationID uuid.UUID, startedAt, finishedAt time.Time, err error) error {
-	var errorMessage *string
-	if err != nil {
-		errorMessage = ptr.To(err.Error())
-	}
-	return s.querier.CreateRun(ctx, usersyncsql.CreateRunParams{
-		ID:         correlationID,
-		StartedAt:  pgtype.Timestamptz{Time: startedAt, Valid: true},
-		FinishedAt: pgtype.Timestamptz{Time: finishedAt, Valid: true},
-		Error:      errorMessage,
-	})
 }
 
 // deleteUnknownUsers will delete users from NAIS API that does not exist in the Google Directory.

@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/pagination"
@@ -62,10 +61,9 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		correlationID := uuid.New()
 		err = usersync.
 			New(pool, adminGroupPrefix, domain, svc, log).
-			Sync(ctx, correlationID)
+			Sync(ctx)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -112,10 +110,9 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		correlationID := uuid.New()
 		err = usersync.
 			New(pool, adminGroupPrefix, domain, svc, log).
-			Sync(ctx, correlationID)
+			Sync(ctx)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -176,10 +173,9 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		correlationID := uuid.New()
 		err = usersync.
 			New(pool, adminGroupPrefix, domain, svc, log).
-			Sync(ctx, correlationID)
+			Sync(ctx)
 		if err != nil {
 			t.Fatal(err)
 		}

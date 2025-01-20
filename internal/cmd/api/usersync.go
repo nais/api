@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/nais/api/internal/usersync"
@@ -35,20 +34,14 @@ func runUsersync(ctx context.Context, pool *pgxpool.Pool, cfg *Config, log logru
 				return
 			}
 
-			correlationID := uuid.New()
-			log := log.WithField("correlation_id", correlationID)
 			log.Debugf("starting usersync...")
 
 			ctx, cancel := context.WithTimeout(ctx, usersyncTimeout)
 			defer cancel()
 
 			start := time.Now()
-			if err := usersyncer.Sync(ctx, correlationID); err != nil {
+			if err := usersyncer.Sync(ctx); err != nil {
 				log.WithError(err).Errorf("sync users")
-			}
-
-			if err := usersyncer.RegisterRun(ctx, correlationID, start, time.Now(), err); err != nil {
-				log.WithError(err).Errorf("create usersync run")
 			}
 
 			log.WithField("duration", time.Since(start)).Infof("usersync complete")

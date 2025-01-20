@@ -7,7 +7,6 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const assignGlobalRole = `-- name: AssignGlobalRole :exec
@@ -56,30 +55,6 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) (*User, error) {
 		&i.ExternalID,
 	)
 	return &i, err
-}
-
-const createRun = `-- name: CreateRun :exec
-INSERT INTO
-	usersync_runs (id, started_at, finished_at, error)
-VALUES
-	($1, $2, $3, $4)
-`
-
-type CreateRunParams struct {
-	ID         uuid.UUID
-	StartedAt  pgtype.Timestamptz
-	FinishedAt pgtype.Timestamptz
-	Error      *string
-}
-
-func (q *Queries) CreateRun(ctx context.Context, arg CreateRunParams) error {
-	_, err := q.db.Exec(ctx, createRun,
-		arg.ID,
-		arg.StartedAt,
-		arg.FinishedAt,
-		arg.Error,
-	)
-	return err
 }
 
 const delete = `-- name: Delete :exec

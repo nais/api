@@ -11,7 +11,6 @@ import (
 type Querier interface {
 	AssignGlobalRole(ctx context.Context, arg AssignGlobalRoleParams) error
 	Create(ctx context.Context, arg CreateParams) (*User, error)
-	CreateRun(ctx context.Context, arg CreateRunParams) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	List(ctx context.Context) ([]*User, error)
 	ListRoles(ctx context.Context) ([]*UserRole, error)

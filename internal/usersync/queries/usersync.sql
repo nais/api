@@ -68,10 +68,3 @@ WHERE
 	AND target_service_account_id IS NULL
 	AND role_name = $2
 ;
-
--- name: CreateRun :exec
-INSERT INTO
-	usersync_runs (id, started_at, finished_at, error)
-VALUES
-	($1, $2, $3, $4)
-;
