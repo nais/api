@@ -54,7 +54,7 @@ func runCostUpdater(ctx context.Context, pool *pgxpool.Pool, tenant, bigQueryPro
 				return
 			}
 
-			ctx, cancel := context.WithTimeout(ctx, costUpdateSchedule-5*time.Minute)
+			ctx, cancel := context.WithTimeout(ctx, 15*time.Minute)
 			defer cancel()
 
 			done := make(chan struct{})
