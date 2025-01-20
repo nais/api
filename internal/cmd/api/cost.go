@@ -11,6 +11,9 @@ import (
 	"github.com/nais/api/internal/cost/costupdater"
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
 )
 
 const costUpdateSchedule = 5 * time.Minute
@@ -35,6 +38,11 @@ func runCostUpdater(ctx context.Context, pool *pgxpool.Pool, tenant, bigQueryPro
 	if err != nil {
 		return fmt.Errorf("unable to set up and run cost updater: %w", err)
 	}
+	meter := otel.GetMeterProvider().Meter("nais_api_cost_updater")
+	runsCounter, err := meter.Int64Counter("nais_api_cost_updater_runs", metric.WithDescription("Number of cost update runs"))
+	if err != nil {
+		return fmt.Errorf("creating cost updater runs counter: %w", err)
+	}
 
 	for {
 		func() {
@@ -42,9 +50,6 @@ func runCostUpdater(ctx context.Context, pool *pgxpool.Pool, tenant, bigQueryPro
 				log.Debug("not leader, skipping cost update run")
 				return
 			}
-
-			log.Infof("start scheduled cost update run")
-			start := time.Now()
 
 			if shouldUpdate, err := updater.ShouldUpdateCosts(ctx); err != nil {
 				log.WithError(err).Errorf("unable to check if costs should be updated")
@@ -54,32 +59,8 @@ func runCostUpdater(ctx context.Context, pool *pgxpool.Pool, tenant, bigQueryPro
 				return
 			}
 
-			ctx, cancel := context.WithTimeout(ctx, 15*time.Minute)
-			defer cancel()
-
-			done := make(chan struct{})
-			defer close(done)
-
-			ch := make(chan costsql.CostUpsertParams, costupdater.UpsertBatchSize*2)
-
-			go func() {
-				if err := updater.UpdateCosts(ctx, ch); err != nil {
-					log.WithError(err).Errorf("failed to update costs")
-				}
-				done <- struct{}{}
-			}()
-
-			if err := updater.FetchBigQueryData(ctx, ch); err != nil {
-				log.WithError(err).Errorf("failed to fetch bigquery data")
-			}
-			close(ch)
-			<-done
-
-			if err := updater.RefreshView(ctx); err != nil {
-				log.WithError(err).Errorf("unable to refresh cost team monthly")
-			}
-
-			log.WithField("duration", time.Since(start)).Infof("cost update run finished")
+			success := runCostUpdateJob(ctx, updater, log)
+			runsCounter.Add(ctx, 1, metric.WithAttributes(attribute.Bool("success", success)))
 		}()
 
 		select {
@@ -88,6 +69,43 @@ func runCostUpdater(ctx context.Context, pool *pgxpool.Pool, tenant, bigQueryPro
 		case <-time.After(costUpdateSchedule):
 		}
 	}
+}
+
+func runCostUpdateJob(ctx context.Context, updater *costupdater.Updater, log logrus.FieldLogger) (success bool) {
+	log.Infof("start scheduled cost update run")
+	start := time.Now()
+
+	ctx, cancel := context.WithTimeout(ctx, 15*time.Minute)
+	defer cancel()
+
+	done := make(chan bool)
+	defer close(done)
+
+	ch := make(chan costsql.CostUpsertParams, costupdater.UpsertBatchSize*2)
+
+	go func() {
+		if err := updater.UpdateCosts(ctx, ch); err != nil {
+			log.WithError(err).Errorf("failed to update costs")
+			done <- false
+		} else {
+			done <- true
+		}
+	}()
+
+	fetchSuccess := true
+	if err := updater.FetchBigQueryData(ctx, ch); err != nil {
+		log.WithError(err).Errorf("failed to fetch bigquery data")
+		fetchSuccess = false
+	}
+	close(ch)
+	updateSuccess := <-done
+
+	if err := updater.RefreshView(ctx); err != nil {
+		log.WithError(err).Errorf("unable to refresh cost team monthly")
+	}
+
+	log.WithField("duration", time.Since(start)).Infof("cost update run finished")
+	return fetchSuccess && updateSuccess
 }
 
 // getBigQueryClient will return a new BigQuery client for the specified project
