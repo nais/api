@@ -27,6 +27,20 @@ func (q *Queries) AssignGlobalRole(ctx context.Context, arg AssignGlobalRolePara
 	return err
 }
 
+const countLogEntries = `-- name: CountLogEntries :one
+SELECT
+	COUNT(*)
+FROM
+	usersync_log_entries
+`
+
+func (q *Queries) CountLogEntries(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countLogEntries)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const create = `-- name: Create :one
 INSERT INTO
 	users (name, email, external_id)
@@ -55,6 +69,44 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) (*User, error) {
 		&i.ExternalID,
 	)
 	return &i, err
+}
+
+const createLogEntry = `-- name: CreateLogEntry :exec
+INSERT INTO
+	usersync_log_entries (
+		action,
+		user_id,
+		user_name,
+		user_email,
+		old_user_name,
+		old_user_email,
+		role_name
+	)
+VALUES
+	($1, $2, $3, $4, $5, $6, $7)
+`
+
+type CreateLogEntryParams struct {
+	Action       UsersyncLogEntryAction
+	UserID       uuid.UUID
+	UserName     string
+	UserEmail    string
+	OldUserName  *string
+	OldUserEmail *string
+	RoleName     *string
+}
+
+func (q *Queries) CreateLogEntry(ctx context.Context, arg CreateLogEntryParams) error {
+	_, err := q.db.Exec(ctx, createLogEntry,
+		arg.Action,
+		arg.UserID,
+		arg.UserName,
+		arg.UserEmail,
+		arg.OldUserName,
+		arg.OldUserEmail,
+		arg.RoleName,
+	)
+	return err
 }
 
 const delete = `-- name: Delete :exec
@@ -95,6 +147,95 @@ func (q *Queries) List(ctx context.Context) ([]*User, error) {
 			&i.Email,
 			&i.Name,
 			&i.ExternalID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listLogEntries = `-- name: ListLogEntries :many
+SELECT
+	id, created_at, action, user_id, user_name, user_email, old_user_name, old_user_email, role_name
+FROM
+	usersync_log_entries
+ORDER BY
+	created_at DESC
+LIMIT
+	$2
+OFFSET
+	$1
+`
+
+type ListLogEntriesParams struct {
+	Offset int32
+	Limit  int32
+}
+
+func (q *Queries) ListLogEntries(ctx context.Context, arg ListLogEntriesParams) ([]*UsersyncLogEntry, error) {
+	rows, err := q.db.Query(ctx, listLogEntries, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*UsersyncLogEntry{}
+	for rows.Next() {
+		var i UsersyncLogEntry
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.Action,
+			&i.UserID,
+			&i.UserName,
+			&i.UserEmail,
+			&i.OldUserName,
+			&i.OldUserEmail,
+			&i.RoleName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listLogEntriesByIDs = `-- name: ListLogEntriesByIDs :many
+SELECT
+	id, created_at, action, user_id, user_name, user_email, old_user_name, old_user_email, role_name
+FROM
+	usersync_log_entries
+WHERE
+	id = ANY ($1::UUID[])
+ORDER BY
+	created_at DESC
+`
+
+func (q *Queries) ListLogEntriesByIDs(ctx context.Context, ids []uuid.UUID) ([]*UsersyncLogEntry, error) {
+	rows, err := q.db.Query(ctx, listLogEntriesByIDs, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*UsersyncLogEntry{}
+	for rows.Next() {
+		var i UsersyncLogEntry
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.Action,
+			&i.UserID,
+			&i.UserName,
+			&i.UserEmail,
+			&i.OldUserName,
+			&i.OldUserEmail,
+			&i.RoleName,
 		); err != nil {
 			return nil, err
 		}

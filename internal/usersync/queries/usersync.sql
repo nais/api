@@ -68,3 +68,49 @@ WHERE
 	AND target_service_account_id IS NULL
 	AND role_name = $2
 ;
+
+-- name: ListLogEntriesByIDs :many
+SELECT
+	*
+FROM
+	usersync_log_entries
+WHERE
+	id = ANY (@ids::UUID[])
+ORDER BY
+	created_at DESC
+;
+
+-- name: ListLogEntries :many
+SELECT
+	*
+FROM
+	usersync_log_entries
+ORDER BY
+	created_at DESC
+LIMIT
+	sqlc.arg('limit')
+OFFSET
+	sqlc.arg('offset')
+;
+
+-- name: CountLogEntries :one
+SELECT
+	COUNT(*)
+FROM
+	usersync_log_entries
+;
+
+-- name: CreateLogEntry :exec
+INSERT INTO
+	usersync_log_entries (
+		action,
+		user_id,
+		user_name,
+		user_email,
+		old_user_name,
+		old_user_email,
+		role_name
+	)
+VALUES
+	($1, $2, $3, $4, $5, $6, $7)
+;

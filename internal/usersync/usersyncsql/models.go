@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -95,6 +96,73 @@ func AllRoleNameValues() []RoleName {
 	}
 }
 
+type UsersyncLogEntryAction string
+
+const (
+	UsersyncLogEntryActionCreateUser UsersyncLogEntryAction = "create_user"
+	UsersyncLogEntryActionUpdateUser UsersyncLogEntryAction = "update_user"
+	UsersyncLogEntryActionDeleteUser UsersyncLogEntryAction = "delete_user"
+	UsersyncLogEntryActionAssignRole UsersyncLogEntryAction = "assign_role"
+	UsersyncLogEntryActionRevokeRole UsersyncLogEntryAction = "revoke_role"
+)
+
+func (e *UsersyncLogEntryAction) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = UsersyncLogEntryAction(s)
+	case string:
+		*e = UsersyncLogEntryAction(s)
+	default:
+		return fmt.Errorf("unsupported scan type for UsersyncLogEntryAction: %T", src)
+	}
+	return nil
+}
+
+type NullUsersyncLogEntryAction struct {
+	UsersyncLogEntryAction UsersyncLogEntryAction
+	Valid                  bool // Valid is true if UsersyncLogEntryAction is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullUsersyncLogEntryAction) Scan(value interface{}) error {
+	if value == nil {
+		ns.UsersyncLogEntryAction, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.UsersyncLogEntryAction.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullUsersyncLogEntryAction) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.UsersyncLogEntryAction), nil
+}
+
+func (e UsersyncLogEntryAction) Valid() bool {
+	switch e {
+	case UsersyncLogEntryActionCreateUser,
+		UsersyncLogEntryActionUpdateUser,
+		UsersyncLogEntryActionDeleteUser,
+		UsersyncLogEntryActionAssignRole,
+		UsersyncLogEntryActionRevokeRole:
+		return true
+	}
+	return false
+}
+
+func AllUsersyncLogEntryActionValues() []UsersyncLogEntryAction {
+	return []UsersyncLogEntryAction{
+		UsersyncLogEntryActionCreateUser,
+		UsersyncLogEntryActionUpdateUser,
+		UsersyncLogEntryActionDeleteUser,
+		UsersyncLogEntryActionAssignRole,
+		UsersyncLogEntryActionRevokeRole,
+	}
+}
+
 type User struct {
 	ID         uuid.UUID
 	Email      string
@@ -108,4 +176,16 @@ type UserRole struct {
 	UserID                 uuid.UUID
 	TargetTeamSlug         *slug.Slug
 	TargetServiceAccountID *uuid.UUID
+}
+
+type UsersyncLogEntry struct {
+	ID           uuid.UUID
+	CreatedAt    pgtype.Timestamptz
+	Action       UsersyncLogEntryAction
+	UserID       uuid.UUID
+	UserName     string
+	UserEmail    string
+	OldUserName  *string
+	OldUserEmail *string
+	RoleName     *string
 }

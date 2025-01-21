@@ -2,7 +2,13 @@
 DROP TABLE usersync_runs
 ;
 
-CREATE TYPE usersync_log_entry_action AS ENUM('create', 'update', 'delete')
+CREATE TYPE usersync_log_entry_action AS ENUM(
+	'create_user',
+	'update_user',
+	'delete_user',
+	'assign_role',
+	'revoke_role'
+)
 ;
 
 CREATE TABLE usersync_log_entries (
@@ -13,6 +19,7 @@ CREATE TABLE usersync_log_entries (
 	user_name TEXT NOT NULL,
 	user_email TEXT NOT NULL,
 	old_user_name TEXT,
-	old_user_email TEXT
+	old_user_email TEXT,
+	role_name TEXT
 )
 ;

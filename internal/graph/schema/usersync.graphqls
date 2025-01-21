@@ -45,12 +45,17 @@ interface UserSyncLogEntry implements Node {
 	message: String!
 
 	"""
-	The name of the created user.
+	The ID of the affected user.
+	"""
+	userID: ID!
+
+	"""
+	The name of the affected user.
 	"""
 	userName: String!
 
 	"""
-	The email of the created user.
+	The email address of the affected user.
 	"""
 	userEmail: String!
 }
@@ -75,12 +80,17 @@ type UserCreatedUserSyncLogEntry implements UserSyncLogEntry & Node {
 	message: String!
 
 	"""
+	The ID of the created user.
+	"""
+	userID: ID!
+
+	"""
 	The name of the created user.
 	"""
 	userName: String!
 
 	"""
-	The email of the created user.
+	The email address of the created user.
 	"""
 	userEmail: String!
 }
@@ -105,12 +115,17 @@ type UserUpdatedUserSyncLogEntry implements UserSyncLogEntry & Node {
 	message: String!
 
 	"""
+	The ID of the updated user.
+	"""
+	userID: ID!
+
+	"""
 	The name of the updated user.
 	"""
 	userName: String!
 
 	"""
-	The email of the updated user.
+	The email address of the updated user.
 	"""
 	userEmail: String!
 
@@ -120,79 +135,9 @@ type UserUpdatedUserSyncLogEntry implements UserSyncLogEntry & Node {
 	oldUserName: String!
 
 	"""
-	The old email of the user.
+	The old email address of the user.
 	"""
 	oldUserEmail: String!
-}
-
-"""
-Assigned role to user log entry.
-"""
-type AssignedRoleUserSyncLogEntry implements UserSyncLogEntry & Node {
-	"""
-	ID of the entry.
-	"""
-	id: ID!
-
-	"""
-	Creation time of the entry.
-	"""
-	createdAt: Time!
-
-	"""
-	Message that summarizes the log entry.
-	"""
-	message: String!
-
-	"""
-	The name of the updated user.
-	"""
-	userName: String!
-
-	"""
-	The email of the updated user.
-	"""
-	userEmail: String!
-
-	"""
-	The assigned role.
-	"""
-	role: String!
-}
-
-"""
-Revoked role from user log entry.
-"""
-type RevokedRoleUserSyncLogEntry implements UserSyncLogEntry & Node {
-	"""
-	ID of the entry.
-	"""
-	id: ID!
-
-	"""
-	Creation time of the entry.
-	"""
-	createdAt: Time!
-
-	"""
-	Message that summarizes the log entry.
-	"""
-	message: String!
-
-	"""
-	The name of the updated user.
-	"""
-	userName: String!
-
-	"""
-	The email of the updated user.
-	"""
-	userEmail: String!
-
-	"""
-	The revoked role.
-	"""
-	role: String!
 }
 
 """
@@ -215,14 +160,99 @@ type UserDeletedUserSyncLogEntry implements UserSyncLogEntry & Node {
 	message: String!
 
 	"""
-	The name of the created user.
+	The ID of the deleted user.
+	"""
+	userID: ID!
+
+	"""
+	The name of the deleted user.
 	"""
 	userName: String!
 
 	"""
-	The email of the created user.
+	The email address of the deleted user.
 	"""
 	userEmail: String!
+}
+
+"""
+Assigned role to user log entry.
+"""
+type RoleAssignedUserSyncLogEntry implements UserSyncLogEntry & Node {
+	"""
+	ID of the entry.
+	"""
+	id: ID!
+
+	"""
+	Creation time of the entry.
+	"""
+	createdAt: Time!
+
+	"""
+	Message that summarizes the log entry.
+	"""
+	message: String!
+
+	"""
+	The ID of the user that was assigned a role.
+	"""
+	userID: ID!
+
+	"""
+	The name of the user that was assigned a role.
+	"""
+	userName: String!
+
+	"""
+	The email address of the user that was assigned a role.
+	"""
+	userEmail: String!
+
+	"""
+	The name of the assigned role.
+	"""
+	roleName: String!
+}
+
+"""
+Revoked role from user log entry.
+"""
+type RoleRevokedUserSyncLogEntry implements UserSyncLogEntry & Node {
+	"""
+	ID of the entry.
+	"""
+	id: ID!
+
+	"""
+	Creation time of the entry.
+	"""
+	createdAt: Time!
+
+	"""
+	Message that summarizes the log entry.
+	"""
+	message: String!
+
+	"""
+	The ID of the user that got a role revoked.
+	"""
+	userID: ID!
+
+	"""
+	The name of the user that got a role revoked.
+	"""
+	userName: String!
+
+	"""
+	The email address of the user that got a role revoked.
+	"""
+	userEmail: String!
+
+	"""
+	The name of the revoked role.
+	"""
+	roleName: String!
 }
 
 """
