@@ -36,6 +36,7 @@ import (
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/user"
+	"github.com/nais/api/internal/usersync"
 	"github.com/nais/api/internal/utilization"
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
@@ -230,6 +231,7 @@ func ConfigureGraph(
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, namespaceWatcher)
 		ctx = user.NewLoaderContext(ctx, pool)
+		ctx = usersync.NewLoaderContext(ctx, pool)
 		ctx = cost.NewLoaderContext(ctx, pool, costOpts...)
 		ctx = repository.NewLoaderContext(ctx, pool)
 		ctx = role.NewLoaderContext(ctx, pool)

@@ -1,4 +1,4 @@
-package usersync
+package usersyncer
 
 import (
 	"context"
@@ -9,7 +9,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/usersync/usersyncsql"
 	"github.com/sirupsen/logrus"
@@ -93,10 +92,8 @@ func NewFromConfig(ctx context.Context, pool *pgxpool.Pool, serviceAccount, subj
 //
 // All users present in the admin group in the Google Directory will also be granted the admin role in NAIS API, and
 // existing admins that no longer exist in the admin group will get the admin role revoked.
-func (s *Usersynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) error {
-	log := s.log.WithField("correlation_id", correlationID)
-
-	googleUsers, err := getGoogleUsers(ctx, s.service.Users, s.tenantDomain, log)
+func (s *Usersynchronizer) Sync(ctx context.Context) error {
+	googleUsers, err := getGoogleUsers(ctx, s.service.Users, s.tenantDomain, s.log)
 	if err != nil {
 		return fmt.Errorf("get users from Google Directory: %w", err)
 	}
@@ -126,20 +123,9 @@ func (s *Usersynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) er
 
 	googleUserMap := make(map[string]*usersyncsql.User)
 	for _, gu := range googleUsers {
-		user, created, err := getOrCreateUserFromGoogleUser(ctx, querier, gu, users)
+		user, err := getOrCreateUserFromGoogleUser(ctx, querier, gu, users, s.log)
 		if err != nil {
 			return fmt.Errorf("get or create user %q: %w", gu.Email, err)
-		}
-
-		fields := logrus.Fields{
-			"external_id": gu.ID,
-			"email":       gu.Email,
-			"name":        gu.Name,
-		}
-		if created {
-			log.WithFields(fields).Debugf("created user")
-		} else {
-			log.WithFields(fields).Debugf("user already exists")
 		}
 
 		if userIsOutdated(user, gu) {
@@ -150,6 +136,17 @@ func (s *Usersynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) er
 				ExternalID: gu.ID,
 			}); err != nil {
 				return fmt.Errorf("update user %q: %w", gu.Email, err)
+			}
+
+			if err := querier.CreateLogEntry(ctx, usersyncsql.CreateLogEntryParams{
+				Action:       usersyncsql.UsersyncLogEntryActionUpdateUser,
+				UserID:       user.ID,
+				UserName:     gu.Name,
+				UserEmail:    gu.Email,
+				OldUserName:  &user.Name,
+				OldUserEmail: &user.Email,
+			}); err != nil {
+				s.log.WithError(err).Errorf("create user sync log entry")
 			}
 		}
 
@@ -165,6 +162,16 @@ func (s *Usersynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) er
 			}); err != nil {
 				return fmt.Errorf("attach default role %q to user %q: %w", roleName, user.Email, err)
 			}
+
+			if err := querier.CreateLogEntry(ctx, usersyncsql.CreateLogEntryParams{
+				Action:    usersyncsql.UsersyncLogEntryActionAssignRole,
+				UserID:    user.ID,
+				UserName:  user.Name,
+				UserEmail: user.Email,
+				RoleName:  ptr.To(string(roleName)),
+			}); err != nil {
+				s.log.WithError(err).Errorf("create user sync log entry")
+			}
 		}
 
 		googleUserMap[gu.ID] = user
@@ -173,7 +180,7 @@ func (s *Usersynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) er
 		delete(users.byID, user.ID)
 	}
 
-	deletedUsers, err := deleteUnknownUsers(ctx, querier, users.byID)
+	deletedUsers, err := deleteUnknownUsers(ctx, querier, users.byID, s.log)
 	if err != nil {
 		return err
 	}
@@ -182,35 +189,29 @@ func (s *Usersynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) er
 		delete(userRoles, deletedUser)
 	}
 
-	if err := assignAdmins(ctx, querier, s.service.Members, s.adminGroupPrefix, s.tenantDomain, googleUserMap, userRoles, log); err != nil {
+	if err := assignAdmins(ctx, querier, s.service.Members, s.adminGroupPrefix, s.tenantDomain, googleUserMap, userRoles, s.log); err != nil {
 		return err
 	}
 
 	return tx.Commit(ctx)
 }
 
-// RegisterRun registers a user sync run with a potential error message in the database.
-func (s *Usersynchronizer) RegisterRun(ctx context.Context, correlationID uuid.UUID, startedAt, finishedAt time.Time, err error) error {
-	var errorMessage *string
-	if err != nil {
-		errorMessage = ptr.To(err.Error())
-	}
-	return s.querier.CreateRun(ctx, usersyncsql.CreateRunParams{
-		ID:         correlationID,
-		StartedAt:  pgtype.Timestamptz{Time: startedAt, Valid: true},
-		FinishedAt: pgtype.Timestamptz{Time: finishedAt, Valid: true},
-		Error:      errorMessage,
-	})
-}
-
 // deleteUnknownUsers will delete users from NAIS API that does not exist in the Google Directory.
-func deleteUnknownUsers(ctx context.Context, querier usersyncsql.Querier, unknownUsers map[uuid.UUID]*usersyncsql.User) ([]*usersyncsql.User, error) {
+func deleteUnknownUsers(ctx context.Context, querier usersyncsql.Querier, unknownUsers map[uuid.UUID]*usersyncsql.User, log logrus.FieldLogger) ([]*usersyncsql.User, error) {
 	ret := make([]*usersyncsql.User, 0)
 	for _, user := range unknownUsers {
 		if err := querier.Delete(ctx, user.ID); err != nil {
 			return nil, fmt.Errorf("delete user %q: %w", user.Email, err)
 		}
 		ret = append(ret, user)
+		if err := querier.CreateLogEntry(ctx, usersyncsql.CreateLogEntryParams{
+			Action:    usersyncsql.UsersyncLogEntryActionDeleteUser,
+			UserID:    user.ID,
+			UserName:  user.Name,
+			UserEmail: user.Email,
+		}); err != nil {
+			log.WithError(err).Errorf("create user sync log entry")
+		}
 	}
 
 	return ret, nil
@@ -233,6 +234,16 @@ func assignAdmins(ctx context.Context, querier usersyncsql.Querier, membersServi
 				RoleName: usersyncsql.RoleNameAdmin,
 			}); err != nil {
 				return err
+			}
+
+			if err := querier.CreateLogEntry(ctx, usersyncsql.CreateLogEntryParams{
+				Action:    usersyncsql.UsersyncLogEntryActionRevokeRole,
+				UserID:    existingAdmin.ID,
+				UserName:  existingAdmin.Name,
+				UserEmail: existingAdmin.Email,
+				RoleName:  ptr.To(string(usersyncsql.RoleNameAdmin)),
+			}); err != nil {
+				log.WithError(err).Errorf("create user sync log entry")
 			}
 		}
 	}
@@ -325,13 +336,13 @@ func userIsOutdated(user *usersyncsql.User, gu *googleUser) bool {
 }
 
 // getOrCreateUserFromGoogleUser will return a user for a Google user, creating it first if needed.
-func getOrCreateUserFromGoogleUser(ctx context.Context, querier usersyncsql.Querier, googleUser *googleUser, existingUsers *userMap) (*usersyncsql.User, bool, error) {
+func getOrCreateUserFromGoogleUser(ctx context.Context, querier usersyncsql.Querier, googleUser *googleUser, existingUsers *userMap, log logrus.FieldLogger) (*usersyncsql.User, error) {
 	if existingUser, exists := existingUsers.byExternalID[googleUser.ID]; exists {
-		return existingUser, false, nil
+		return existingUser, nil
 	}
 
 	if existingUser, exists := existingUsers.byEmail[googleUser.Email]; exists {
-		return existingUser, false, nil
+		return existingUser, nil
 	}
 
 	createdUser, err := querier.Create(ctx, usersyncsql.CreateParams{
@@ -340,10 +351,19 @@ func getOrCreateUserFromGoogleUser(ctx context.Context, querier usersyncsql.Quer
 		ExternalID: googleUser.ID,
 	})
 	if err != nil {
-		return nil, false, err
+		return nil, err
 	}
 
-	return createdUser, true, nil
+	if err := querier.CreateLogEntry(ctx, usersyncsql.CreateLogEntryParams{
+		Action:    usersyncsql.UsersyncLogEntryActionCreateUser,
+		UserID:    createdUser.ID,
+		UserName:  createdUser.Name,
+		UserEmail: createdUser.Email,
+	}); err != nil {
+		log.WithError(err).Errorf("create user sync log entry")
+	}
+
+	return createdUser, nil
 }
 
 // getGoogleUsers fetches all users from the Google Directory.

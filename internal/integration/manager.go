@@ -29,7 +29,7 @@ import (
 	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/user"
-	"github.com/nais/api/internal/usersync"
+	"github.com/nais/api/internal/usersync/usersyncer"
 	"github.com/nais/api/internal/vulnerability"
 	testmanager "github.com/nais/tester/lua"
 	"github.com/nais/tester/lua/runner"
@@ -299,7 +299,7 @@ func newDB(ctx context.Context, container *postgres.PostgresContainer, connStr s
 		}
 
 		for _, usr := range users.Nodes() {
-			for _, roleName := range usersync.DefaultRoleNames {
+			for _, roleName := range usersyncer.DefaultRoleNames {
 				if err := role.AssignGlobalRoleToUser(ctx, usr.UUID, rolesql.RoleName(roleName)); err != nil {
 					cleanup()
 					return nil, nil, fmt.Errorf("attach default role %q to user %q: %w", roleName, usr.Email, err)

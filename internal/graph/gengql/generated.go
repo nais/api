@@ -39,6 +39,7 @@ import (
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/user"
+	"github.com/nais/api/internal/usersync"
 	"github.com/nais/api/internal/utilization"
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
@@ -853,6 +854,7 @@ type ComplexityRoot struct {
 		Teams            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) int
 		TeamsUtilization func(childComplexity int, resourceType utilization.UtilizationResourceType) int
 		User             func(childComplexity int, email *string) int
+		UserSyncLog      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Users            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) int
 	}
 
@@ -1052,6 +1054,26 @@ type ComplexityRoot struct {
 
 	RevokeTeamAccessToUnleashPayload struct {
 		Unleash func(childComplexity int) int
+	}
+
+	RoleAssignedUserSyncLogEntry struct {
+		CreatedAt func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Message   func(childComplexity int) int
+		RoleName  func(childComplexity int) int
+		UserEmail func(childComplexity int) int
+		UserID    func(childComplexity int) int
+		UserName  func(childComplexity int) int
+	}
+
+	RoleRevokedUserSyncLogEntry struct {
+		CreatedAt func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Message   func(childComplexity int) int
+		RoleName  func(childComplexity int) int
+		UserEmail func(childComplexity int) int
+		UserID    func(childComplexity int) int
+		UserName  func(childComplexity int) int
 	}
 
 	SearchNodeConnection struct {
@@ -1790,9 +1812,49 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
+	UserCreatedUserSyncLogEntry struct {
+		CreatedAt func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Message   func(childComplexity int) int
+		UserEmail func(childComplexity int) int
+		UserID    func(childComplexity int) int
+		UserName  func(childComplexity int) int
+	}
+
+	UserDeletedUserSyncLogEntry struct {
+		CreatedAt func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Message   func(childComplexity int) int
+		UserEmail func(childComplexity int) int
+		UserID    func(childComplexity int) int
+		UserName  func(childComplexity int) int
+	}
+
 	UserEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	UserSyncLogEntryConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	UserSyncLogEntryEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	UserUpdatedUserSyncLogEntry struct {
+		CreatedAt    func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Message      func(childComplexity int) int
+		OldUserEmail func(childComplexity int) int
+		OldUserName  func(childComplexity int) int
+		UserEmail    func(childComplexity int) int
+		UserID       func(childComplexity int) int
+		UserName     func(childComplexity int) int
 	}
 
 	UtilizationSample struct {
@@ -2087,6 +2149,7 @@ type QueryResolver interface {
 	Users(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) (*pagination.Connection[*user.User], error)
 	User(ctx context.Context, email *string) (*user.User, error)
 	Me(ctx context.Context) (user.AuthenticatedUser, error)
+	UserSyncLog(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[usersync.UserSyncLogEntry], error)
 	TeamsUtilization(ctx context.Context, resourceType utilization.UtilizationResourceType) ([]*utilization.TeamUtilizationData, error)
 }
 type ReconcilerResolver interface {
@@ -5378,6 +5441,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.User(childComplexity, args["email"].(*string)), true
 
+	case "Query.userSyncLog":
+		if e.complexity.Query.UserSyncLog == nil {
+			break
+		}
+
+		args, err := ec.field_Query_userSyncLog_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.UserSyncLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
 			break
@@ -6160,6 +6235,104 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RevokeTeamAccessToUnleashPayload.Unleash(childComplexity), true
+
+	case "RoleAssignedUserSyncLogEntry.createdAt":
+		if e.complexity.RoleAssignedUserSyncLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.RoleAssignedUserSyncLogEntry.CreatedAt(childComplexity), true
+
+	case "RoleAssignedUserSyncLogEntry.id":
+		if e.complexity.RoleAssignedUserSyncLogEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.RoleAssignedUserSyncLogEntry.ID(childComplexity), true
+
+	case "RoleAssignedUserSyncLogEntry.message":
+		if e.complexity.RoleAssignedUserSyncLogEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.RoleAssignedUserSyncLogEntry.Message(childComplexity), true
+
+	case "RoleAssignedUserSyncLogEntry.roleName":
+		if e.complexity.RoleAssignedUserSyncLogEntry.RoleName == nil {
+			break
+		}
+
+		return e.complexity.RoleAssignedUserSyncLogEntry.RoleName(childComplexity), true
+
+	case "RoleAssignedUserSyncLogEntry.userEmail":
+		if e.complexity.RoleAssignedUserSyncLogEntry.UserEmail == nil {
+			break
+		}
+
+		return e.complexity.RoleAssignedUserSyncLogEntry.UserEmail(childComplexity), true
+
+	case "RoleAssignedUserSyncLogEntry.userID":
+		if e.complexity.RoleAssignedUserSyncLogEntry.UserID == nil {
+			break
+		}
+
+		return e.complexity.RoleAssignedUserSyncLogEntry.UserID(childComplexity), true
+
+	case "RoleAssignedUserSyncLogEntry.userName":
+		if e.complexity.RoleAssignedUserSyncLogEntry.UserName == nil {
+			break
+		}
+
+		return e.complexity.RoleAssignedUserSyncLogEntry.UserName(childComplexity), true
+
+	case "RoleRevokedUserSyncLogEntry.createdAt":
+		if e.complexity.RoleRevokedUserSyncLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.RoleRevokedUserSyncLogEntry.CreatedAt(childComplexity), true
+
+	case "RoleRevokedUserSyncLogEntry.id":
+		if e.complexity.RoleRevokedUserSyncLogEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.RoleRevokedUserSyncLogEntry.ID(childComplexity), true
+
+	case "RoleRevokedUserSyncLogEntry.message":
+		if e.complexity.RoleRevokedUserSyncLogEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.RoleRevokedUserSyncLogEntry.Message(childComplexity), true
+
+	case "RoleRevokedUserSyncLogEntry.roleName":
+		if e.complexity.RoleRevokedUserSyncLogEntry.RoleName == nil {
+			break
+		}
+
+		return e.complexity.RoleRevokedUserSyncLogEntry.RoleName(childComplexity), true
+
+	case "RoleRevokedUserSyncLogEntry.userEmail":
+		if e.complexity.RoleRevokedUserSyncLogEntry.UserEmail == nil {
+			break
+		}
+
+		return e.complexity.RoleRevokedUserSyncLogEntry.UserEmail(childComplexity), true
+
+	case "RoleRevokedUserSyncLogEntry.userID":
+		if e.complexity.RoleRevokedUserSyncLogEntry.UserID == nil {
+			break
+		}
+
+		return e.complexity.RoleRevokedUserSyncLogEntry.UserID(childComplexity), true
+
+	case "RoleRevokedUserSyncLogEntry.userName":
+		if e.complexity.RoleRevokedUserSyncLogEntry.UserName == nil {
+			break
+		}
+
+		return e.complexity.RoleRevokedUserSyncLogEntry.UserName(childComplexity), true
 
 	case "SearchNodeConnection.edges":
 		if e.complexity.SearchNodeConnection.Edges == nil {
@@ -9345,6 +9518,90 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserConnection.PageInfo(childComplexity), true
 
+	case "UserCreatedUserSyncLogEntry.createdAt":
+		if e.complexity.UserCreatedUserSyncLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.UserCreatedUserSyncLogEntry.CreatedAt(childComplexity), true
+
+	case "UserCreatedUserSyncLogEntry.id":
+		if e.complexity.UserCreatedUserSyncLogEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.UserCreatedUserSyncLogEntry.ID(childComplexity), true
+
+	case "UserCreatedUserSyncLogEntry.message":
+		if e.complexity.UserCreatedUserSyncLogEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.UserCreatedUserSyncLogEntry.Message(childComplexity), true
+
+	case "UserCreatedUserSyncLogEntry.userEmail":
+		if e.complexity.UserCreatedUserSyncLogEntry.UserEmail == nil {
+			break
+		}
+
+		return e.complexity.UserCreatedUserSyncLogEntry.UserEmail(childComplexity), true
+
+	case "UserCreatedUserSyncLogEntry.userID":
+		if e.complexity.UserCreatedUserSyncLogEntry.UserID == nil {
+			break
+		}
+
+		return e.complexity.UserCreatedUserSyncLogEntry.UserID(childComplexity), true
+
+	case "UserCreatedUserSyncLogEntry.userName":
+		if e.complexity.UserCreatedUserSyncLogEntry.UserName == nil {
+			break
+		}
+
+		return e.complexity.UserCreatedUserSyncLogEntry.UserName(childComplexity), true
+
+	case "UserDeletedUserSyncLogEntry.createdAt":
+		if e.complexity.UserDeletedUserSyncLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.UserDeletedUserSyncLogEntry.CreatedAt(childComplexity), true
+
+	case "UserDeletedUserSyncLogEntry.id":
+		if e.complexity.UserDeletedUserSyncLogEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.UserDeletedUserSyncLogEntry.ID(childComplexity), true
+
+	case "UserDeletedUserSyncLogEntry.message":
+		if e.complexity.UserDeletedUserSyncLogEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.UserDeletedUserSyncLogEntry.Message(childComplexity), true
+
+	case "UserDeletedUserSyncLogEntry.userEmail":
+		if e.complexity.UserDeletedUserSyncLogEntry.UserEmail == nil {
+			break
+		}
+
+		return e.complexity.UserDeletedUserSyncLogEntry.UserEmail(childComplexity), true
+
+	case "UserDeletedUserSyncLogEntry.userID":
+		if e.complexity.UserDeletedUserSyncLogEntry.UserID == nil {
+			break
+		}
+
+		return e.complexity.UserDeletedUserSyncLogEntry.UserID(childComplexity), true
+
+	case "UserDeletedUserSyncLogEntry.userName":
+		if e.complexity.UserDeletedUserSyncLogEntry.UserName == nil {
+			break
+		}
+
+		return e.complexity.UserDeletedUserSyncLogEntry.UserName(childComplexity), true
+
 	case "UserEdge.cursor":
 		if e.complexity.UserEdge.Cursor == nil {
 			break
@@ -9358,6 +9615,97 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.UserEdge.Node(childComplexity), true
+
+	case "UserSyncLogEntryConnection.edges":
+		if e.complexity.UserSyncLogEntryConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.UserSyncLogEntryConnection.Edges(childComplexity), true
+
+	case "UserSyncLogEntryConnection.nodes":
+		if e.complexity.UserSyncLogEntryConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.UserSyncLogEntryConnection.Nodes(childComplexity), true
+
+	case "UserSyncLogEntryConnection.pageInfo":
+		if e.complexity.UserSyncLogEntryConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.UserSyncLogEntryConnection.PageInfo(childComplexity), true
+
+	case "UserSyncLogEntryEdge.cursor":
+		if e.complexity.UserSyncLogEntryEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.UserSyncLogEntryEdge.Cursor(childComplexity), true
+
+	case "UserSyncLogEntryEdge.node":
+		if e.complexity.UserSyncLogEntryEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.UserSyncLogEntryEdge.Node(childComplexity), true
+
+	case "UserUpdatedUserSyncLogEntry.createdAt":
+		if e.complexity.UserUpdatedUserSyncLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.UserUpdatedUserSyncLogEntry.CreatedAt(childComplexity), true
+
+	case "UserUpdatedUserSyncLogEntry.id":
+		if e.complexity.UserUpdatedUserSyncLogEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.UserUpdatedUserSyncLogEntry.ID(childComplexity), true
+
+	case "UserUpdatedUserSyncLogEntry.message":
+		if e.complexity.UserUpdatedUserSyncLogEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.UserUpdatedUserSyncLogEntry.Message(childComplexity), true
+
+	case "UserUpdatedUserSyncLogEntry.oldUserEmail":
+		if e.complexity.UserUpdatedUserSyncLogEntry.OldUserEmail == nil {
+			break
+		}
+
+		return e.complexity.UserUpdatedUserSyncLogEntry.OldUserEmail(childComplexity), true
+
+	case "UserUpdatedUserSyncLogEntry.oldUserName":
+		if e.complexity.UserUpdatedUserSyncLogEntry.OldUserName == nil {
+			break
+		}
+
+		return e.complexity.UserUpdatedUserSyncLogEntry.OldUserName(childComplexity), true
+
+	case "UserUpdatedUserSyncLogEntry.userEmail":
+		if e.complexity.UserUpdatedUserSyncLogEntry.UserEmail == nil {
+			break
+		}
+
+		return e.complexity.UserUpdatedUserSyncLogEntry.UserEmail(childComplexity), true
+
+	case "UserUpdatedUserSyncLogEntry.userID":
+		if e.complexity.UserUpdatedUserSyncLogEntry.UserID == nil {
+			break
+		}
+
+		return e.complexity.UserUpdatedUserSyncLogEntry.UserID(childComplexity), true
+
+	case "UserUpdatedUserSyncLogEntry.userName":
+		if e.complexity.UserUpdatedUserSyncLogEntry.UserName == nil {
+			break
+		}
+
+		return e.complexity.UserUpdatedUserSyncLogEntry.UserName(childComplexity), true
 
 	case "UtilizationSample.timestamp":
 		if e.complexity.UtilizationSample.Timestamp == nil {
@@ -14908,6 +15256,298 @@ Authenticated user type.
 """
 union AuthenticatedUser = User | ServiceAccount
 `, BuiltIn: false},
+	{Name: "../schema/usersync.graphqls", Input: `extend type Query {
+	"""
+	Log entries from the user sync process.
+	"""
+	userSyncLog(
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
+		first: Int
+
+		"""
+		Get items after this cursor.
+		"""
+		after: Cursor
+
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
+		last: Int
+
+		"""
+		Get items before this cursor.
+		"""
+		before: Cursor
+	): UserSyncLogEntryConnection!
+}
+
+"""
+Interface for user sync log entries.
+"""
+interface UserSyncLogEntry implements Node {
+	"""
+	ID of the entry.
+	"""
+	id: ID!
+
+	"""
+	Creation time of the entry.
+	"""
+	createdAt: Time!
+
+	"""
+	Message that summarizes the log entry.
+	"""
+	message: String!
+
+	"""
+	The ID of the affected user.
+	"""
+	userID: ID!
+
+	"""
+	The name of the affected user.
+	"""
+	userName: String!
+
+	"""
+	The email address of the affected user.
+	"""
+	userEmail: String!
+}
+
+"""
+User created log entry.
+"""
+type UserCreatedUserSyncLogEntry implements UserSyncLogEntry & Node {
+	"""
+	ID of the entry.
+	"""
+	id: ID!
+
+	"""
+	Creation time of the entry.
+	"""
+	createdAt: Time!
+
+	"""
+	Message that summarizes the log entry.
+	"""
+	message: String!
+
+	"""
+	The ID of the created user.
+	"""
+	userID: ID!
+
+	"""
+	The name of the created user.
+	"""
+	userName: String!
+
+	"""
+	The email address of the created user.
+	"""
+	userEmail: String!
+}
+
+"""
+User updated log entry.
+"""
+type UserUpdatedUserSyncLogEntry implements UserSyncLogEntry & Node {
+	"""
+	ID of the entry.
+	"""
+	id: ID!
+
+	"""
+	Creation time of the entry.
+	"""
+	createdAt: Time!
+
+	"""
+	Message that summarizes the log entry.
+	"""
+	message: String!
+
+	"""
+	The ID of the updated user.
+	"""
+	userID: ID!
+
+	"""
+	The name of the updated user.
+	"""
+	userName: String!
+
+	"""
+	The email address of the updated user.
+	"""
+	userEmail: String!
+
+	"""
+	The old name of the user.
+	"""
+	oldUserName: String!
+
+	"""
+	The old email address of the user.
+	"""
+	oldUserEmail: String!
+}
+
+"""
+User deleted log entry.
+"""
+type UserDeletedUserSyncLogEntry implements UserSyncLogEntry & Node {
+	"""
+	ID of the entry.
+	"""
+	id: ID!
+
+	"""
+	Creation time of the entry.
+	"""
+	createdAt: Time!
+
+	"""
+	Message that summarizes the log entry.
+	"""
+	message: String!
+
+	"""
+	The ID of the deleted user.
+	"""
+	userID: ID!
+
+	"""
+	The name of the deleted user.
+	"""
+	userName: String!
+
+	"""
+	The email address of the deleted user.
+	"""
+	userEmail: String!
+}
+
+"""
+Assigned role to user log entry.
+"""
+type RoleAssignedUserSyncLogEntry implements UserSyncLogEntry & Node {
+	"""
+	ID of the entry.
+	"""
+	id: ID!
+
+	"""
+	Creation time of the entry.
+	"""
+	createdAt: Time!
+
+	"""
+	Message that summarizes the log entry.
+	"""
+	message: String!
+
+	"""
+	The ID of the user that was assigned a role.
+	"""
+	userID: ID!
+
+	"""
+	The name of the user that was assigned a role.
+	"""
+	userName: String!
+
+	"""
+	The email address of the user that was assigned a role.
+	"""
+	userEmail: String!
+
+	"""
+	The name of the assigned role.
+	"""
+	roleName: String!
+}
+
+"""
+Revoked role from user log entry.
+"""
+type RoleRevokedUserSyncLogEntry implements UserSyncLogEntry & Node {
+	"""
+	ID of the entry.
+	"""
+	id: ID!
+
+	"""
+	Creation time of the entry.
+	"""
+	createdAt: Time!
+
+	"""
+	Message that summarizes the log entry.
+	"""
+	message: String!
+
+	"""
+	The ID of the user that got a role revoked.
+	"""
+	userID: ID!
+
+	"""
+	The name of the user that got a role revoked.
+	"""
+	userName: String!
+
+	"""
+	The email address of the user that got a role revoked.
+	"""
+	userEmail: String!
+
+	"""
+	The name of the revoked role.
+	"""
+	roleName: String!
+}
+
+"""
+User sync log entry connection.
+"""
+type UserSyncLogEntryConnection {
+	"""
+	Pagination information.
+	"""
+	pageInfo: PageInfo!
+
+	"""
+	List of nodes.
+	"""
+	nodes: [UserSyncLogEntry!]!
+
+	"""
+	List of edges.
+	"""
+	edges: [UserSyncLogEntryEdge!]!
+}
+
+"""
+User sync log edge.
+"""
+type UserSyncLogEntryEdge {
+	"""
+	Cursor for this edge that can be used for pagination.
+	"""
+	cursor: Cursor!
+
+	"""
+	The log entry.
+	"""
+	node: UserSyncLogEntry!
+}
+`, BuiltIn: false},
 	{Name: "../schema/utilization.graphqls", Input: `extend type Application {
 	utilization: WorkloadUtilization!
 }
@@ -18837,6 +19477,119 @@ func (ec *executionContext) field_Query_teams_argsOrderBy(
 	}
 
 	var zeroVal *team.TeamOrder
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_userSyncLog_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Query_userSyncLog_argsFirst(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := ec.field_Query_userSyncLog_argsAfter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := ec.field_Query_userSyncLog_argsLast(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := ec.field_Query_userSyncLog_argsBefore(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	return args, nil
+}
+func (ec *executionContext) field_Query_userSyncLog_argsFirst(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*int, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["first"]
+	if !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+	if tmp, ok := rawArgs["first"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_userSyncLog_argsAfter(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*pagination.Cursor, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["after"]
+	if !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+	if tmp, ok := rawArgs["after"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_userSyncLog_argsLast(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*int, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["last"]
+	if !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+	if tmp, ok := rawArgs["last"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_userSyncLog_argsBefore(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*pagination.Cursor, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["before"]
+	if !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+	if tmp, ok := rawArgs["before"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
 	return zeroVal, nil
 }
 
@@ -44205,6 +44958,69 @@ func (ec *executionContext) fieldContext_Query_me(_ context.Context, field graph
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_userSyncLog(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_userSyncLog(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().UserSyncLog(rctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*pagination.Connection[usersync.UserSyncLogEntry])
+	fc.Result = res
+	return ec.marshalNUserSyncLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_userSyncLog(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pageInfo":
+				return ec.fieldContext_UserSyncLogEntryConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_UserSyncLogEntryConnection_nodes(ctx, field)
+			case "edges":
+				return ec.fieldContext_UserSyncLogEntryConnection_edges(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UserSyncLogEntryConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_userSyncLog_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_teamsUtilization(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_teamsUtilization(ctx, field)
 	if err != nil {
@@ -49847,6 +50663,622 @@ func (ec *executionContext) fieldContext_RevokeTeamAccessToUnleashPayload_unleas
 				return ec.fieldContext_UnleashInstance_ready(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UnleashInstance", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RoleAssignedUserSyncLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleAssignedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleAssignedUserSyncLogEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RoleAssignedUserSyncLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RoleAssignedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RoleAssignedUserSyncLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleAssignedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleAssignedUserSyncLogEntry_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RoleAssignedUserSyncLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RoleAssignedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RoleAssignedUserSyncLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleAssignedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleAssignedUserSyncLogEntry_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RoleAssignedUserSyncLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RoleAssignedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RoleAssignedUserSyncLogEntry_userID(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleAssignedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleAssignedUserSyncLogEntry_userID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RoleAssignedUserSyncLogEntry_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RoleAssignedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RoleAssignedUserSyncLogEntry_userName(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleAssignedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleAssignedUserSyncLogEntry_userName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RoleAssignedUserSyncLogEntry_userName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RoleAssignedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RoleAssignedUserSyncLogEntry_userEmail(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleAssignedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleAssignedUserSyncLogEntry_userEmail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserEmail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RoleAssignedUserSyncLogEntry_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RoleAssignedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RoleAssignedUserSyncLogEntry_roleName(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleAssignedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleAssignedUserSyncLogEntry_roleName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RoleName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RoleAssignedUserSyncLogEntry_roleName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RoleAssignedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RoleRevokedUserSyncLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleRevokedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleRevokedUserSyncLogEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RoleRevokedUserSyncLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RoleRevokedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RoleRevokedUserSyncLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleRevokedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleRevokedUserSyncLogEntry_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RoleRevokedUserSyncLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RoleRevokedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RoleRevokedUserSyncLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleRevokedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleRevokedUserSyncLogEntry_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RoleRevokedUserSyncLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RoleRevokedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RoleRevokedUserSyncLogEntry_userID(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleRevokedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleRevokedUserSyncLogEntry_userID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RoleRevokedUserSyncLogEntry_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RoleRevokedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RoleRevokedUserSyncLogEntry_userName(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleRevokedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleRevokedUserSyncLogEntry_userName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RoleRevokedUserSyncLogEntry_userName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RoleRevokedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RoleRevokedUserSyncLogEntry_userEmail(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleRevokedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleRevokedUserSyncLogEntry_userEmail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserEmail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RoleRevokedUserSyncLogEntry_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RoleRevokedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RoleRevokedUserSyncLogEntry_roleName(ctx context.Context, field graphql.CollectedField, obj *usersync.RoleRevokedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleRevokedUserSyncLogEntry_roleName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RoleName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RoleRevokedUserSyncLogEntry_roleName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RoleRevokedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -71222,6 +72654,534 @@ func (ec *executionContext) fieldContext_UserConnection_edges(_ context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _UserCreatedUserSyncLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *usersync.UserCreatedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserCreatedUserSyncLogEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserCreatedUserSyncLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserCreatedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserCreatedUserSyncLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *usersync.UserCreatedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserCreatedUserSyncLogEntry_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserCreatedUserSyncLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserCreatedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserCreatedUserSyncLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *usersync.UserCreatedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserCreatedUserSyncLogEntry_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserCreatedUserSyncLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserCreatedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserCreatedUserSyncLogEntry_userID(ctx context.Context, field graphql.CollectedField, obj *usersync.UserCreatedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserCreatedUserSyncLogEntry_userID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserCreatedUserSyncLogEntry_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserCreatedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserCreatedUserSyncLogEntry_userName(ctx context.Context, field graphql.CollectedField, obj *usersync.UserCreatedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserCreatedUserSyncLogEntry_userName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserCreatedUserSyncLogEntry_userName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserCreatedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserCreatedUserSyncLogEntry_userEmail(ctx context.Context, field graphql.CollectedField, obj *usersync.UserCreatedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserCreatedUserSyncLogEntry_userEmail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserEmail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserCreatedUserSyncLogEntry_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserCreatedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserDeletedUserSyncLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *usersync.UserDeletedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserDeletedUserSyncLogEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserDeletedUserSyncLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserDeletedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserDeletedUserSyncLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *usersync.UserDeletedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserDeletedUserSyncLogEntry_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserDeletedUserSyncLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserDeletedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserDeletedUserSyncLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *usersync.UserDeletedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserDeletedUserSyncLogEntry_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserDeletedUserSyncLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserDeletedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserDeletedUserSyncLogEntry_userID(ctx context.Context, field graphql.CollectedField, obj *usersync.UserDeletedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserDeletedUserSyncLogEntry_userID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserDeletedUserSyncLogEntry_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserDeletedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserDeletedUserSyncLogEntry_userName(ctx context.Context, field graphql.CollectedField, obj *usersync.UserDeletedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserDeletedUserSyncLogEntry_userName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserDeletedUserSyncLogEntry_userName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserDeletedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserDeletedUserSyncLogEntry_userEmail(ctx context.Context, field graphql.CollectedField, obj *usersync.UserDeletedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserDeletedUserSyncLogEntry_userEmail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserEmail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserDeletedUserSyncLogEntry_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserDeletedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _UserEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*user.User]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserEdge_cursor(ctx, field)
 	if err != nil {
@@ -71319,6 +73279,600 @@ func (ec *executionContext) fieldContext_UserEdge_node(_ context.Context, field 
 				return ec.fieldContext_User_isAdmin(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserSyncLogEntryConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[usersync.UserSyncLogEntry]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserSyncLogEntryConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserSyncLogEntryConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserSyncLogEntryConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "endCursor":
+				return ec.fieldContext_PageInfo_endCursor(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			case "startCursor":
+				return ec.fieldContext_PageInfo_startCursor(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserSyncLogEntryConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[usersync.UserSyncLogEntry]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserSyncLogEntryConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]usersync.UserSyncLogEntry)
+	fc.Result = res
+	return ec.marshalNUserSyncLogEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋusersyncᚐUserSyncLogEntryᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserSyncLogEntryConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserSyncLogEntryConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserSyncLogEntryConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[usersync.UserSyncLogEntry]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserSyncLogEntryConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]pagination.Edge[usersync.UserSyncLogEntry])
+	fc.Result = res
+	return ec.marshalNUserSyncLogEntryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserSyncLogEntryConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserSyncLogEntryConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cursor":
+				return ec.fieldContext_UserSyncLogEntryEdge_cursor(ctx, field)
+			case "node":
+				return ec.fieldContext_UserSyncLogEntryEdge_node(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UserSyncLogEntryEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserSyncLogEntryEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[usersync.UserSyncLogEntry]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserSyncLogEntryEdge_cursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.Cursor)
+	fc.Result = res
+	return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserSyncLogEntryEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserSyncLogEntryEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Cursor does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserSyncLogEntryEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[usersync.UserSyncLogEntry]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserSyncLogEntryEdge_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(usersync.UserSyncLogEntry)
+	fc.Result = res
+	return ec.marshalNUserSyncLogEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋusersyncᚐUserSyncLogEntry(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserSyncLogEntryEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserSyncLogEntryEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserUpdatedUserSyncLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *usersync.UserUpdatedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserUpdatedUserSyncLogEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserUpdatedUserSyncLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserUpdatedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserUpdatedUserSyncLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *usersync.UserUpdatedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserUpdatedUserSyncLogEntry_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserUpdatedUserSyncLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserUpdatedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserUpdatedUserSyncLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *usersync.UserUpdatedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserUpdatedUserSyncLogEntry_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserUpdatedUserSyncLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserUpdatedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserUpdatedUserSyncLogEntry_userID(ctx context.Context, field graphql.CollectedField, obj *usersync.UserUpdatedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserUpdatedUserSyncLogEntry_userID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserUpdatedUserSyncLogEntry_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserUpdatedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserUpdatedUserSyncLogEntry_userName(ctx context.Context, field graphql.CollectedField, obj *usersync.UserUpdatedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserUpdatedUserSyncLogEntry_userName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserUpdatedUserSyncLogEntry_userName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserUpdatedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserUpdatedUserSyncLogEntry_userEmail(ctx context.Context, field graphql.CollectedField, obj *usersync.UserUpdatedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserUpdatedUserSyncLogEntry_userEmail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserEmail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserUpdatedUserSyncLogEntry_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserUpdatedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserUpdatedUserSyncLogEntry_oldUserName(ctx context.Context, field graphql.CollectedField, obj *usersync.UserUpdatedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserUpdatedUserSyncLogEntry_oldUserName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OldUserName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserUpdatedUserSyncLogEntry_oldUserName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserUpdatedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserUpdatedUserSyncLogEntry_oldUserEmail(ctx context.Context, field graphql.CollectedField, obj *usersync.UserUpdatedUserSyncLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserUpdatedUserSyncLogEntry_oldUserEmail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OldUserEmail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserUpdatedUserSyncLogEntry_oldUserEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserUpdatedUserSyncLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -78469,27 +81023,27 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case team.TeamUpdatedActivityLogEntry:
-		return ec._TeamUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamUpdatedActivityLogEntry:
+	case team.TeamMemberSetRoleActivityLogEntry:
+		return ec._TeamMemberSetRoleActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamMemberSetRoleActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamUpdatedActivityLogEntry(ctx, sel, obj)
-	case team.TeamCreateDeleteKeyActivityLogEntry:
-		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamCreateDeleteKeyActivityLogEntry:
+		return ec._TeamMemberSetRoleActivityLogEntry(ctx, sel, obj)
+	case team.TeamMemberAddedActivityLogEntry:
+		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamMemberAddedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, obj)
-	case vulnerability.VulnerabilityUpdatedActivityLogEntry:
-		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *vulnerability.VulnerabilityUpdatedActivityLogEntry:
+		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, obj)
+	case repository.RepositoryRemovedActivityLogEntry:
+		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, &obj)
+	case *repository.RepositoryRemovedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, obj)
+		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, obj)
 	case application.ApplicationDeletedActivityLogEntry:
 		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, &obj)
 	case *application.ApplicationDeletedActivityLogEntry:
@@ -78497,13 +81051,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, obj)
-	case repository.RepositoryAddedActivityLogEntry:
-		return ec._RepositoryAddedActivityLogEntry(ctx, sel, &obj)
-	case *repository.RepositoryAddedActivityLogEntry:
+	case application.ApplicationRestartedActivityLogEntry:
+		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, &obj)
+	case *application.ApplicationRestartedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RepositoryAddedActivityLogEntry(ctx, sel, obj)
+		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, obj)
 	case bigquery.BigQueryDataset:
 		return ec._BigQueryDataset(ctx, sel, &obj)
 	case *bigquery.BigQueryDataset:
@@ -78518,6 +81072,48 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Bucket(ctx, sel, obj)
+	case usersync.RoleAssignedUserSyncLogEntry:
+		return ec._RoleAssignedUserSyncLogEntry(ctx, sel, &obj)
+	case *usersync.RoleAssignedUserSyncLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RoleAssignedUserSyncLogEntry(ctx, sel, obj)
+	case usersync.UserDeletedUserSyncLogEntry:
+		return ec._UserDeletedUserSyncLogEntry(ctx, sel, &obj)
+	case *usersync.UserDeletedUserSyncLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._UserDeletedUserSyncLogEntry(ctx, sel, obj)
+	case deployment.TeamDeployKeyUpdatedActivityLogEntry:
+		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *deployment.TeamDeployKeyUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretCreatedActivityLogEntry:
+		return ec._SecretCreatedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretCreatedActivityLogEntry(ctx, sel, obj)
+	case usersync.UserUpdatedUserSyncLogEntry:
+		return ec._UserUpdatedUserSyncLogEntry(ctx, sel, &obj)
+	case *usersync.UserUpdatedUserSyncLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._UserUpdatedUserSyncLogEntry(ctx, sel, obj)
+	case usersync.UserCreatedUserSyncLogEntry:
+		return ec._UserCreatedUserSyncLogEntry(ctx, sel, &obj)
+	case *usersync.UserCreatedUserSyncLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._UserCreatedUserSyncLogEntry(ctx, sel, obj)
 	case unleash.UnleashInstanceUpdatedActivityLogEntry:
 		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *unleash.UnleashInstanceUpdatedActivityLogEntry:
@@ -78532,48 +81128,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UnleashInstanceCreatedActivityLogEntry(ctx, sel, obj)
-	case deployment.TeamDeployKeyUpdatedActivityLogEntry:
-		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *deployment.TeamDeployKeyUpdatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, obj)
-	case team.TeamEnvironmentUpdatedActivityLogEntry:
-		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamEnvironmentUpdatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, obj)
-	case team.TeamMemberSetRoleActivityLogEntry:
-		return ec._TeamMemberSetRoleActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamMemberSetRoleActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamMemberSetRoleActivityLogEntry(ctx, sel, obj)
-	case team.TeamMemberRemovedActivityLogEntry:
-		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamMemberRemovedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, obj)
-	case team.TeamMemberAddedActivityLogEntry:
-		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamMemberAddedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, obj)
-	case team.TeamConfirmDeleteKeyActivityLogEntry:
-		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamConfirmDeleteKeyActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, obj)
 	case job.Job:
 		return ec._Job(ctx, sel, &obj)
 	case *job.Job:
@@ -78581,20 +81135,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Job(ctx, sel, obj)
-	case application.Application:
-		return ec._Application(ctx, sel, &obj)
-	case *application.Application:
+	case team.TeamEnvironmentUpdatedActivityLogEntry:
+		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamEnvironmentUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Application(ctx, sel, obj)
-	case team.TeamCreatedActivityLogEntry:
-		return ec._TeamCreatedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamCreatedActivityLogEntry:
+		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, obj)
+	case team.TeamMemberRemovedActivityLogEntry:
+		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamMemberRemovedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamCreatedActivityLogEntry(ctx, sel, obj)
+		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, obj)
 	case job.JobDeletedActivityLogEntry:
 		return ec._JobDeletedActivityLogEntry(ctx, sel, &obj)
 	case *job.JobDeletedActivityLogEntry:
@@ -78623,27 +81177,27 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._OpenSearch(ctx, sel, obj)
-	case sqlinstance.SQLInstance:
-		return ec._SqlInstance(ctx, sel, &obj)
-	case *sqlinstance.SQLInstance:
+	case application.Application:
+		return ec._Application(ctx, sel, &obj)
+	case *application.Application:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SqlInstance(ctx, sel, obj)
-	case sqlinstance.SQLDatabase:
-		return ec._SqlDatabase(ctx, sel, &obj)
-	case *sqlinstance.SQLDatabase:
+		return ec._Application(ctx, sel, obj)
+	case team.TeamConfirmDeleteKeyActivityLogEntry:
+		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamConfirmDeleteKeyActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SqlDatabase(ctx, sel, obj)
-	case repository.RepositoryRemovedActivityLogEntry:
-		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, &obj)
-	case *repository.RepositoryRemovedActivityLogEntry:
+		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, obj)
+	case reconciler.ReconcilerEnabledActivityLogEntry:
+		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, &obj)
+	case *reconciler.ReconcilerEnabledActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, obj)
+		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, obj)
 	case reconciler.ReconcilerDisabledActivityLogEntry:
 		return ec._ReconcilerDisabledActivityLogEntry(ctx, sel, &obj)
 	case *reconciler.ReconcilerDisabledActivityLogEntry:
@@ -78665,41 +81219,41 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._RedisInstance(ctx, sel, obj)
-	case secret.SecretDeletedActivityLogEntry:
-		return ec._SecretDeletedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretDeletedActivityLogEntry:
+	case team.TeamCreateDeleteKeyActivityLogEntry:
+		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamCreateDeleteKeyActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretDeletedActivityLogEntry(ctx, sel, obj)
-	case application.ApplicationRestartedActivityLogEntry:
-		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, &obj)
-	case *application.ApplicationRestartedActivityLogEntry:
+		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, obj)
+	case repository.RepositoryAddedActivityLogEntry:
+		return ec._RepositoryAddedActivityLogEntry(ctx, sel, &obj)
+	case *repository.RepositoryAddedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, obj)
-	case reconciler.ReconcilerEnabledActivityLogEntry:
-		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, &obj)
-	case *reconciler.ReconcilerEnabledActivityLogEntry:
+		return ec._RepositoryAddedActivityLogEntry(ctx, sel, obj)
+	case vulnerability.VulnerabilityUpdatedActivityLogEntry:
+		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *vulnerability.VulnerabilityUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, obj)
-	case secret.SecretValueRemovedActivityLogEntry:
-		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretValueRemovedActivityLogEntry:
+		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, obj)
+	case usersync.RoleRevokedUserSyncLogEntry:
+		return ec._RoleRevokedUserSyncLogEntry(ctx, sel, &obj)
+	case *usersync.RoleRevokedUserSyncLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, obj)
-	case secret.SecretCreatedActivityLogEntry:
-		return ec._SecretCreatedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretCreatedActivityLogEntry:
+		return ec._RoleRevokedUserSyncLogEntry(ctx, sel, obj)
+	case team.TeamUpdatedActivityLogEntry:
+		return ec._TeamUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretCreatedActivityLogEntry(ctx, sel, obj)
+		return ec._TeamUpdatedActivityLogEntry(ctx, sel, obj)
 	case secret.SecretValueAddedActivityLogEntry:
 		return ec._SecretValueAddedActivityLogEntry(ctx, sel, &obj)
 	case *secret.SecretValueAddedActivityLogEntry:
@@ -78714,6 +81268,69 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretValueRemovedActivityLogEntry:
+		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueRemovedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretDeletedActivityLogEntry:
+		return ec._SecretDeletedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretDeletedActivityLogEntry(ctx, sel, obj)
+	case team.TeamCreatedActivityLogEntry:
+		return ec._TeamCreatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamCreatedActivityLogEntry(ctx, sel, obj)
+	case sqlinstance.SQLDatabase:
+		return ec._SqlDatabase(ctx, sel, &obj)
+	case *sqlinstance.SQLDatabase:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SqlDatabase(ctx, sel, obj)
+	case sqlinstance.SQLInstance:
+		return ec._SqlInstance(ctx, sel, &obj)
+	case *sqlinstance.SQLInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SqlInstance(ctx, sel, obj)
+	case feature.Features:
+		return ec._Features(ctx, sel, &obj)
+	case *feature.Features:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Features(ctx, sel, obj)
+	case application.ApplicationInstance:
+		return ec._ApplicationInstance(ctx, sel, &obj)
+	case *application.ApplicationInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationInstance(ctx, sel, obj)
+	case serviceaccount.ServiceAccount:
+		return ec._ServiceAccount(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccount:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ServiceAccount(ctx, sel, obj)
+	case feature.FeatureKafka:
+		return ec._FeatureKafka(ctx, sel, &obj)
+	case *feature.FeatureKafka:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._FeatureKafka(ctx, sel, obj)
 	case repository.Repository:
 		return ec._Repository(ctx, sel, &obj)
 	case *repository.Repository:
@@ -78721,20 +81338,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Repository(ctx, sel, obj)
-	case job.JobRun:
-		return ec._JobRun(ctx, sel, &obj)
-	case *job.JobRun:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._JobRun(ctx, sel, obj)
-	case secret.Secret:
-		return ec._Secret(ctx, sel, &obj)
-	case *secret.Secret:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Secret(ctx, sel, obj)
 	case reconciler.Reconciler:
 		return ec._Reconciler(ctx, sel, &obj)
 	case *reconciler.Reconciler:
@@ -78742,25 +81345,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Reconciler(ctx, sel, obj)
-	case persistence.Persistence:
+	case user.User:
+		return ec._User(ctx, sel, &obj)
+	case *user.User:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Persistence(ctx, sel, obj)
-	case team.Team:
-		return ec._Team(ctx, sel, &obj)
-	case *team.Team:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Team(ctx, sel, obj)
-	case team.TeamEnvironment:
-		return ec._TeamEnvironment(ctx, sel, &obj)
-	case *team.TeamEnvironment:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamEnvironment(ctx, sel, obj)
+		return ec._User(ctx, sel, obj)
 	case job.JobRunInstance:
 		return ec._JobRunInstance(ctx, sel, &obj)
 	case *job.JobRunInstance:
@@ -78773,27 +81364,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ActivityLogEntry(ctx, sel, obj)
-	case feature.FeatureRedis:
-		return ec._FeatureRedis(ctx, sel, &obj)
-	case *feature.FeatureRedis:
+	case job.JobRun:
+		return ec._JobRun(ctx, sel, &obj)
+	case *job.JobRun:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._FeatureRedis(ctx, sel, obj)
-	case serviceaccount.ServiceAccount:
-		return ec._ServiceAccount(ctx, sel, &obj)
-	case *serviceaccount.ServiceAccount:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ServiceAccount(ctx, sel, obj)
-	case application.ApplicationInstance:
-		return ec._ApplicationInstance(ctx, sel, &obj)
-	case *application.ApplicationInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ApplicationInstance(ctx, sel, obj)
+		return ec._JobRun(ctx, sel, obj)
 	case workload.ContainerImage:
 		return ec._ContainerImage(ctx, sel, &obj)
 	case *workload.ContainerImage:
@@ -78801,27 +81378,44 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ContainerImage(ctx, sel, obj)
-	case feature.FeatureKafka:
-		return ec._FeatureKafka(ctx, sel, &obj)
-	case *feature.FeatureKafka:
+	case feature.FeatureOpenSearch:
+		return ec._FeatureOpenSearch(ctx, sel, &obj)
+	case *feature.FeatureOpenSearch:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._FeatureKafka(ctx, sel, obj)
-	case feature.Features:
-		return ec._Features(ctx, sel, &obj)
-	case *feature.Features:
+		return ec._FeatureOpenSearch(ctx, sel, obj)
+	case usersync.UserSyncLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Features(ctx, sel, obj)
-	case unleash.UnleashInstance:
-		return ec._UnleashInstance(ctx, sel, &obj)
-	case *unleash.UnleashInstance:
+		return ec._UserSyncLogEntry(ctx, sel, obj)
+	case persistence.Persistence:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._UnleashInstance(ctx, sel, obj)
+		return ec._Persistence(ctx, sel, obj)
+	case team.Team:
+		return ec._Team(ctx, sel, &obj)
+	case *team.Team:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Team(ctx, sel, obj)
+	case feature.FeatureRedis:
+		return ec._FeatureRedis(ctx, sel, &obj)
+	case *feature.FeatureRedis:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._FeatureRedis(ctx, sel, obj)
+	case feature.FeatureUnleash:
+		return ec._FeatureUnleash(ctx, sel, &obj)
+	case *feature.FeatureUnleash:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._FeatureUnleash(ctx, sel, obj)
 	case deployment.Deployment:
 		return ec._Deployment(ctx, sel, &obj)
 	case *deployment.Deployment:
@@ -78836,13 +81430,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._DeploymentKey(ctx, sel, obj)
-	case user.User:
-		return ec._User(ctx, sel, &obj)
-	case *user.User:
+	case secret.Secret:
+		return ec._Secret(ctx, sel, &obj)
+	case *secret.Secret:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._User(ctx, sel, obj)
+		return ec._Secret(ctx, sel, obj)
 	case vulnerability.ImageVulnerability:
 		return ec._ImageVulnerability(ctx, sel, &obj)
 	case *vulnerability.ImageVulnerability:
@@ -78850,25 +81444,25 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ImageVulnerability(ctx, sel, obj)
-	case feature.FeatureOpenSearch:
-		return ec._FeatureOpenSearch(ctx, sel, &obj)
-	case *feature.FeatureOpenSearch:
+	case team.TeamEnvironment:
+		return ec._TeamEnvironment(ctx, sel, &obj)
+	case *team.TeamEnvironment:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._FeatureOpenSearch(ctx, sel, obj)
+		return ec._TeamEnvironment(ctx, sel, obj)
 	case workload.Workload:
 		if obj == nil {
 			return graphql.Null
 		}
 		return ec._Workload(ctx, sel, obj)
-	case feature.FeatureUnleash:
-		return ec._FeatureUnleash(ctx, sel, &obj)
-	case *feature.FeatureUnleash:
+	case unleash.UnleashInstance:
+		return ec._UnleashInstance(ctx, sel, &obj)
+	case *unleash.UnleashInstance:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._FeatureUnleash(ctx, sel, obj)
+		return ec._UnleashInstance(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -79022,6 +81616,40 @@ func (ec *executionContext) _SearchNode(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._Team(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _UserSyncLogEntry(ctx context.Context, sel ast.SelectionSet, obj usersync.UserSyncLogEntry) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case *usersync.UserCreatedUserSyncLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._UserCreatedUserSyncLogEntry(ctx, sel, obj)
+	case *usersync.UserUpdatedUserSyncLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._UserUpdatedUserSyncLogEntry(ctx, sel, obj)
+	case *usersync.UserDeletedUserSyncLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._UserDeletedUserSyncLogEntry(ctx, sel, obj)
+	case *usersync.RoleAssignedUserSyncLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RoleAssignedUserSyncLogEntry(ctx, sel, obj)
+	case *usersync.RoleRevokedUserSyncLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RoleRevokedUserSyncLogEntry(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -87102,6 +89730,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "userSyncLog":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_userSyncLog(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "teamsUtilization":
 			field := field
 
@@ -89115,6 +91765,144 @@ func (ec *executionContext) _RevokeTeamAccessToUnleashPayload(ctx context.Contex
 			out.Values[i] = graphql.MarshalString("RevokeTeamAccessToUnleashPayload")
 		case "unleash":
 			out.Values[i] = ec._RevokeTeamAccessToUnleashPayload_unleash(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var roleAssignedUserSyncLogEntryImplementors = []string{"RoleAssignedUserSyncLogEntry", "UserSyncLogEntry", "Node"}
+
+func (ec *executionContext) _RoleAssignedUserSyncLogEntry(ctx context.Context, sel ast.SelectionSet, obj *usersync.RoleAssignedUserSyncLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, roleAssignedUserSyncLogEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RoleAssignedUserSyncLogEntry")
+		case "id":
+			out.Values[i] = ec._RoleAssignedUserSyncLogEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._RoleAssignedUserSyncLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._RoleAssignedUserSyncLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userID":
+			out.Values[i] = ec._RoleAssignedUserSyncLogEntry_userID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userName":
+			out.Values[i] = ec._RoleAssignedUserSyncLogEntry_userName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userEmail":
+			out.Values[i] = ec._RoleAssignedUserSyncLogEntry_userEmail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "roleName":
+			out.Values[i] = ec._RoleAssignedUserSyncLogEntry_roleName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var roleRevokedUserSyncLogEntryImplementors = []string{"RoleRevokedUserSyncLogEntry", "UserSyncLogEntry", "Node"}
+
+func (ec *executionContext) _RoleRevokedUserSyncLogEntry(ctx context.Context, sel ast.SelectionSet, obj *usersync.RoleRevokedUserSyncLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, roleRevokedUserSyncLogEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RoleRevokedUserSyncLogEntry")
+		case "id":
+			out.Values[i] = ec._RoleRevokedUserSyncLogEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._RoleRevokedUserSyncLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._RoleRevokedUserSyncLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userID":
+			out.Values[i] = ec._RoleRevokedUserSyncLogEntry_userID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userName":
+			out.Values[i] = ec._RoleRevokedUserSyncLogEntry_userName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userEmail":
+			out.Values[i] = ec._RoleRevokedUserSyncLogEntry_userEmail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "roleName":
+			out.Values[i] = ec._RoleRevokedUserSyncLogEntry_roleName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -97493,6 +100281,134 @@ func (ec *executionContext) _UserConnection(ctx context.Context, sel ast.Selecti
 	return out
 }
 
+var userCreatedUserSyncLogEntryImplementors = []string{"UserCreatedUserSyncLogEntry", "UserSyncLogEntry", "Node"}
+
+func (ec *executionContext) _UserCreatedUserSyncLogEntry(ctx context.Context, sel ast.SelectionSet, obj *usersync.UserCreatedUserSyncLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userCreatedUserSyncLogEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UserCreatedUserSyncLogEntry")
+		case "id":
+			out.Values[i] = ec._UserCreatedUserSyncLogEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._UserCreatedUserSyncLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._UserCreatedUserSyncLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userID":
+			out.Values[i] = ec._UserCreatedUserSyncLogEntry_userID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userName":
+			out.Values[i] = ec._UserCreatedUserSyncLogEntry_userName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userEmail":
+			out.Values[i] = ec._UserCreatedUserSyncLogEntry_userEmail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var userDeletedUserSyncLogEntryImplementors = []string{"UserDeletedUserSyncLogEntry", "UserSyncLogEntry", "Node"}
+
+func (ec *executionContext) _UserDeletedUserSyncLogEntry(ctx context.Context, sel ast.SelectionSet, obj *usersync.UserDeletedUserSyncLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userDeletedUserSyncLogEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UserDeletedUserSyncLogEntry")
+		case "id":
+			out.Values[i] = ec._UserDeletedUserSyncLogEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._UserDeletedUserSyncLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._UserDeletedUserSyncLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userID":
+			out.Values[i] = ec._UserDeletedUserSyncLogEntry_userID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userName":
+			out.Values[i] = ec._UserDeletedUserSyncLogEntry_userName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userEmail":
+			out.Values[i] = ec._UserDeletedUserSyncLogEntry_userEmail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var userEdgeImplementors = []string{"UserEdge"}
 
 func (ec *executionContext) _UserEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*user.User]) graphql.Marshaler {
@@ -97511,6 +100427,173 @@ func (ec *executionContext) _UserEdge(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "node":
 			out.Values[i] = ec._UserEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var userSyncLogEntryConnectionImplementors = []string{"UserSyncLogEntryConnection"}
+
+func (ec *executionContext) _UserSyncLogEntryConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[usersync.UserSyncLogEntry]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userSyncLogEntryConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UserSyncLogEntryConnection")
+		case "pageInfo":
+			out.Values[i] = ec._UserSyncLogEntryConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._UserSyncLogEntryConnection_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._UserSyncLogEntryConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var userSyncLogEntryEdgeImplementors = []string{"UserSyncLogEntryEdge"}
+
+func (ec *executionContext) _UserSyncLogEntryEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[usersync.UserSyncLogEntry]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userSyncLogEntryEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UserSyncLogEntryEdge")
+		case "cursor":
+			out.Values[i] = ec._UserSyncLogEntryEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "node":
+			out.Values[i] = ec._UserSyncLogEntryEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var userUpdatedUserSyncLogEntryImplementors = []string{"UserUpdatedUserSyncLogEntry", "UserSyncLogEntry", "Node"}
+
+func (ec *executionContext) _UserUpdatedUserSyncLogEntry(ctx context.Context, sel ast.SelectionSet, obj *usersync.UserUpdatedUserSyncLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userUpdatedUserSyncLogEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UserUpdatedUserSyncLogEntry")
+		case "id":
+			out.Values[i] = ec._UserUpdatedUserSyncLogEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._UserUpdatedUserSyncLogEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._UserUpdatedUserSyncLogEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userID":
+			out.Values[i] = ec._UserUpdatedUserSyncLogEntry_userID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userName":
+			out.Values[i] = ec._UserUpdatedUserSyncLogEntry_userName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userEmail":
+			out.Values[i] = ec._UserUpdatedUserSyncLogEntry_userEmail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "oldUserName":
+			out.Values[i] = ec._UserUpdatedUserSyncLogEntry_oldUserName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "oldUserEmail":
+			out.Values[i] = ec._UserUpdatedUserSyncLogEntry_oldUserEmail(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -105595,6 +108678,122 @@ func (ec *executionContext) unmarshalNUserOrderField2githubᚗcomᚋnaisᚋapi�
 
 func (ec *executionContext) marshalNUserOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUserOrderField(ctx context.Context, sel ast.SelectionSet, v user.UserOrderField) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) marshalNUserSyncLogEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋusersyncᚐUserSyncLogEntry(ctx context.Context, sel ast.SelectionSet, v usersync.UserSyncLogEntry) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UserSyncLogEntry(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNUserSyncLogEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋusersyncᚐUserSyncLogEntryᚄ(ctx context.Context, sel ast.SelectionSet, v []usersync.UserSyncLogEntry) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNUserSyncLogEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋusersyncᚐUserSyncLogEntry(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNUserSyncLogEntryConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[usersync.UserSyncLogEntry]) graphql.Marshaler {
+	return ec._UserSyncLogEntryConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUserSyncLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[usersync.UserSyncLogEntry]) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UserSyncLogEntryConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNUserSyncLogEntryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[usersync.UserSyncLogEntry]) graphql.Marshaler {
+	return ec._UserSyncLogEntryEdge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUserSyncLogEntryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[usersync.UserSyncLogEntry]) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNUserSyncLogEntryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalNUserTeamOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUserTeamOrderField(ctx context.Context, v interface{}) (team.UserTeamOrderField, error) {

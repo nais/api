@@ -7,7 +7,6 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const assignGlobalRole = `-- name: AssignGlobalRole :exec
@@ -28,11 +27,25 @@ func (q *Queries) AssignGlobalRole(ctx context.Context, arg AssignGlobalRolePara
 	return err
 }
 
+const countLogEntries = `-- name: CountLogEntries :one
+SELECT
+	COUNT(*)
+FROM
+	usersync_log_entries
+`
+
+func (q *Queries) CountLogEntries(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countLogEntries)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const create = `-- name: Create :one
 INSERT INTO
 	users (name, email, external_id)
 VALUES
-	($1, LOWER($3), $2)
+	($1, LOWER($2), $3)
 RETURNING
 	id,
 	email,
@@ -42,12 +55,12 @@ RETURNING
 
 type CreateParams struct {
 	Name       string
-	ExternalID string
 	Email      string
+	ExternalID string
 }
 
 func (q *Queries) Create(ctx context.Context, arg CreateParams) (*User, error) {
-	row := q.db.QueryRow(ctx, create, arg.Name, arg.ExternalID, arg.Email)
+	row := q.db.QueryRow(ctx, create, arg.Name, arg.Email, arg.ExternalID)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -58,26 +71,48 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) (*User, error) {
 	return &i, err
 }
 
-const createRun = `-- name: CreateRun :exec
+const createLogEntry = `-- name: CreateLogEntry :exec
 INSERT INTO
-	usersync_runs (id, started_at, finished_at, error)
+	usersync_log_entries (
+		action,
+		user_id,
+		user_name,
+		user_email,
+		old_user_name,
+		old_user_email,
+		role_name
+	)
 VALUES
-	($1, $2, $3, $4)
+	(
+		$1,
+		$2,
+		$3,
+		$4,
+		$5,
+		$6,
+		$7
+	)
 `
 
-type CreateRunParams struct {
-	ID         uuid.UUID
-	StartedAt  pgtype.Timestamptz
-	FinishedAt pgtype.Timestamptz
-	Error      *string
+type CreateLogEntryParams struct {
+	Action       UsersyncLogEntryAction
+	UserID       uuid.UUID
+	UserName     string
+	UserEmail    string
+	OldUserName  *string
+	OldUserEmail *string
+	RoleName     *string
 }
 
-func (q *Queries) CreateRun(ctx context.Context, arg CreateRunParams) error {
-	_, err := q.db.Exec(ctx, createRun,
-		arg.ID,
-		arg.StartedAt,
-		arg.FinishedAt,
-		arg.Error,
+func (q *Queries) CreateLogEntry(ctx context.Context, arg CreateLogEntryParams) error {
+	_, err := q.db.Exec(ctx, createLogEntry,
+		arg.Action,
+		arg.UserID,
+		arg.UserName,
+		arg.UserEmail,
+		arg.OldUserName,
+		arg.OldUserEmail,
+		arg.RoleName,
 	)
 	return err
 }
@@ -120,6 +155,95 @@ func (q *Queries) List(ctx context.Context) ([]*User, error) {
 			&i.Email,
 			&i.Name,
 			&i.ExternalID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listLogEntries = `-- name: ListLogEntries :many
+SELECT
+	id, created_at, action, user_id, user_name, user_email, old_user_name, old_user_email, role_name
+FROM
+	usersync_log_entries
+ORDER BY
+	created_at DESC
+LIMIT
+	$2
+OFFSET
+	$1
+`
+
+type ListLogEntriesParams struct {
+	Offset int32
+	Limit  int32
+}
+
+func (q *Queries) ListLogEntries(ctx context.Context, arg ListLogEntriesParams) ([]*UsersyncLogEntry, error) {
+	rows, err := q.db.Query(ctx, listLogEntries, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*UsersyncLogEntry{}
+	for rows.Next() {
+		var i UsersyncLogEntry
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.Action,
+			&i.UserID,
+			&i.UserName,
+			&i.UserEmail,
+			&i.OldUserName,
+			&i.OldUserEmail,
+			&i.RoleName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listLogEntriesByIDs = `-- name: ListLogEntriesByIDs :many
+SELECT
+	id, created_at, action, user_id, user_name, user_email, old_user_name, old_user_email, role_name
+FROM
+	usersync_log_entries
+WHERE
+	id = ANY ($1::UUID[])
+ORDER BY
+	created_at DESC
+`
+
+func (q *Queries) ListLogEntriesByIDs(ctx context.Context, ids []uuid.UUID) ([]*UsersyncLogEntry, error) {
+	rows, err := q.db.Query(ctx, listLogEntriesByIDs, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*UsersyncLogEntry{}
+	for rows.Next() {
+		var i UsersyncLogEntry
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.Action,
+			&i.UserID,
+			&i.UserName,
+			&i.UserEmail,
+			&i.OldUserName,
+			&i.OldUserEmail,
+			&i.RoleName,
 		); err != nil {
 			return nil, err
 		}
@@ -193,25 +317,25 @@ const update = `-- name: Update :exec
 UPDATE users
 SET
 	name = $1,
-	email = LOWER($4),
-	external_id = $2
+	email = LOWER($2),
+	external_id = $3
 WHERE
-	id = $3
+	id = $4
 `
 
 type UpdateParams struct {
 	Name       string
+	Email      string
 	ExternalID string
 	ID         uuid.UUID
-	Email      string
 }
 
 func (q *Queries) Update(ctx context.Context, arg UpdateParams) error {
 	_, err := q.db.Exec(ctx, update,
 		arg.Name,
+		arg.Email,
 		arg.ExternalID,
 		arg.ID,
-		arg.Email,
 	)
 	return err
 }

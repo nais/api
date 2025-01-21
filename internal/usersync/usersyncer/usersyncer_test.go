@@ -1,6 +1,6 @@
 //go:build integration_test
 
-package usersync_test
+package usersyncer_test
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/pagination"
@@ -16,7 +15,7 @@ import (
 	"github.com/nais/api/internal/role/rolesql"
 	"github.com/nais/api/internal/test"
 	"github.com/nais/api/internal/user"
-	"github.com/nais/api/internal/usersync"
+	"github.com/nais/api/internal/usersync/usersyncer"
 	"github.com/sirupsen/logrus"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
@@ -62,10 +61,9 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		correlationID := uuid.New()
-		err = usersync.
+		err = usersyncer.
 			New(pool, adminGroupPrefix, domain, svc, log).
-			Sync(ctx, correlationID)
+			Sync(ctx)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -112,10 +110,9 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		correlationID := uuid.New()
-		err = usersync.
+		err = usersyncer.
 			New(pool, adminGroupPrefix, domain, svc, log).
-			Sync(ctx, correlationID)
+			Sync(ctx)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -176,10 +173,9 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		correlationID := uuid.New()
-		err = usersync.
+		err = usersyncer.
 			New(pool, adminGroupPrefix, domain, svc, log).
-			Sync(ctx, correlationID)
+			Sync(ctx)
 		if err != nil {
 			t.Fatal(err)
 		}
