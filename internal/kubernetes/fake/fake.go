@@ -153,7 +153,7 @@ func depluralized(s string) string {
 	switch s {
 	case "redises":
 		return "redis"
-	case "valkeys":
+	case "valkeies":
 		return "valkey"
 	case "opensearchs", "opensearches":
 		return "opensearches"
