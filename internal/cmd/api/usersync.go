@@ -6,7 +6,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/leaderelection"
-	"github.com/nais/api/internal/usersync"
+	"github.com/nais/api/internal/usersync/usersyncer"
 	"github.com/sirupsen/logrus"
 )
 
@@ -21,7 +21,7 @@ func runUsersync(ctx context.Context, pool *pgxpool.Pool, cfg *Config, log logru
 		return nil
 	}
 
-	usersyncer, err := usersync.NewFromConfig(ctx, pool, cfg.Usersync.ServiceAccount, cfg.Usersync.SubjectEmail, cfg.TenantDomain, cfg.Usersync.AdminGroupPrefix, log)
+	us, err := usersyncer.NewFromConfig(ctx, pool, cfg.Usersync.ServiceAccount, cfg.Usersync.SubjectEmail, cfg.TenantDomain, cfg.Usersync.AdminGroupPrefix, log)
 	if err != nil {
 		log.WithError(err).Errorf("unable to set up usersyncer")
 		return err
@@ -40,7 +40,7 @@ func runUsersync(ctx context.Context, pool *pgxpool.Pool, cfg *Config, log logru
 			defer cancel()
 
 			start := time.Now()
-			if err := usersyncer.Sync(ctx); err != nil {
+			if err := us.Sync(ctx); err != nil {
 				log.WithError(err).Errorf("sync users")
 			}
 

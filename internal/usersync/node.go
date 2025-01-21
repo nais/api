@@ -1,6 +1,7 @@
 package usersync
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/btcsuite/btcutil/base58"
@@ -15,7 +16,7 @@ const (
 )
 
 func init() {
-	ident.RegisterIdentType(identKey, "USLE", GetByIdent)
+	ident.RegisterIdentType(identKey, "USLE", getByIdent)
 }
 
 func newIdent(uid uuid.UUID) ident.Ident {
@@ -29,4 +30,12 @@ func parseIdent(id ident.Ident) (uuid.UUID, error) {
 	}
 
 	return uuid.FromBytes(base58.Decode(parts[0]))
+}
+
+func getByIdent(ctx context.Context, id ident.Ident) (UserSyncLogEntry, error) {
+	uid, err := parseIdent(id)
+	if err != nil {
+		return nil, err
+	}
+	return fromContext(ctx).userSyncLogLoader.Load(ctx, uid)
 }
