@@ -45,7 +45,7 @@ const create = `-- name: Create :one
 INSERT INTO
 	users (name, email, external_id)
 VALUES
-	($1, LOWER($3), $2)
+	($1, LOWER($2), $3)
 RETURNING
 	id,
 	email,
@@ -55,12 +55,12 @@ RETURNING
 
 type CreateParams struct {
 	Name       string
-	ExternalID string
 	Email      string
+	ExternalID string
 }
 
 func (q *Queries) Create(ctx context.Context, arg CreateParams) (*User, error) {
-	row := q.db.QueryRow(ctx, create, arg.Name, arg.ExternalID, arg.Email)
+	row := q.db.QueryRow(ctx, create, arg.Name, arg.Email, arg.ExternalID)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -83,7 +83,15 @@ INSERT INTO
 		role_name
 	)
 VALUES
-	($1, $2, $3, $4, $5, $6, $7)
+	(
+		$1,
+		$2,
+		$3,
+		$4,
+		$5,
+		$6,
+		$7
+	)
 `
 
 type CreateLogEntryParams struct {
@@ -309,25 +317,25 @@ const update = `-- name: Update :exec
 UPDATE users
 SET
 	name = $1,
-	email = LOWER($4),
-	external_id = $2
+	email = LOWER($2),
+	external_id = $3
 WHERE
-	id = $3
+	id = $4
 `
 
 type UpdateParams struct {
 	Name       string
+	Email      string
 	ExternalID string
 	ID         uuid.UUID
-	Email      string
 }
 
 func (q *Queries) Update(ctx context.Context, arg UpdateParams) error {
 	_, err := q.db.Exec(ctx, update,
 		arg.Name,
+		arg.Email,
 		arg.ExternalID,
 		arg.ID,
-		arg.Email,
 	)
 	return err
 }

@@ -28,7 +28,7 @@ ORDER BY
 INSERT INTO
 	users (name, email, external_id)
 VALUES
-	($1, LOWER(sqlc.arg('email')), $2)
+	(@name, LOWER(@email), @external_id)
 RETURNING
 	id,
 	email,
@@ -39,34 +39,34 @@ RETURNING
 -- name: Update :exec
 UPDATE users
 SET
-	name = $1,
-	email = LOWER(sqlc.arg('email')),
-	external_id = $2
+	name = @name,
+	email = LOWER(@email),
+	external_id = @external_id
 WHERE
-	id = $3
+	id = @id
 ;
 
 -- name: Delete :exec
 DELETE FROM users
 WHERE
-	id = $1
+	id = @id
 ;
 
 -- name: AssignGlobalRole :exec
 INSERT INTO
 	user_roles (user_id, role_name)
 VALUES
-	($1, $2)
+	(@user_id, @role_name)
 ON CONFLICT DO NOTHING
 ;
 
 -- name: RevokeGlobalRole :exec
 DELETE FROM user_roles
 WHERE
-	user_id = $1
+	user_id = @user_id
 	AND target_team_slug IS NULL
 	AND target_service_account_id IS NULL
-	AND role_name = $2
+	AND role_name = @role_name
 ;
 
 -- name: ListLogEntriesByIDs :many
@@ -112,5 +112,13 @@ INSERT INTO
 		role_name
 	)
 VALUES
-	($1, $2, $3, $4, $5, $6, $7)
+	(
+		@action,
+		@user_id,
+		@user_name,
+		@user_email,
+		@old_user_name,
+		@old_user_email,
+		@role_name
+	)
 ;
