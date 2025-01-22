@@ -32,6 +32,10 @@ func (a *APIClient) Teams() protoapi.TeamsClient {
 	return protoapi.NewTeamsClient(a.conn)
 }
 
+func (a *APIClient) Deployments() protoapi.DeploymentsClient {
+	return protoapi.NewDeploymentsClient(a.conn)
+}
+
 func (a *APIClient) Close() error {
 	return a.conn.Close()
 }

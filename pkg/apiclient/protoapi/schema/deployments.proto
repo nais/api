@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "./pkg/apiclient/protoapi";
+
+service Deployments {
+  rpc CreateDeployment(CreateDeploymentRequest) returns (CreateDeploymentResponse) {}
+  rpc CreateDeploymentK8sResource(CreateDeploymentK8sResourceRequest) returns (CreateDeploymentK8sResourceResponse) {}
+  rpc CreateDeploymentStatus(CreateDeploymentStatusRequest) returns (CreateDeploymentStatusResponse) {}
+}
+
+enum DeploymentState {
+  success = 0;
+  error = 1;
+  failure = 2;
+  inactive = 3;
+  in_progress = 4;
+  queued = 5;
+  pending = 6;
+}
+
+message CreateDeploymentRequest {
+  google.protobuf.Timestamp created_at = 1;
+  string external_id = 2;
+  string team_slug = 3;
+  string github_repository = 4;
+  string environment = 5;
+  DeploymentState state = 6;
+}
+
+message CreateDeploymentResponse {
+  string id = 1;
+}
+
+message CreateDeploymentK8sResourceRequest {
+  oneof reference {
+      string deployment_id = 1;
+      string deployment_external_id = 2;
+  }
+  string group = 3;
+  string version = 4;
+  string kind = 5;
+  string name = 6;
+  string namespace = 7;
+}
+
+message CreateDeploymentK8sResourceResponse {
+  string id = 1;
+}
+
+message CreateDeploymentStatusRequest {
+  google.protobuf.Timestamp created_at = 1;
+  oneof reference {
+    string deployment_id = 2;
+    string deployment_external_id = 3;
+  }
+  DeploymentState state = 4;
+  string message = 5;
+}
+
+message CreateDeploymentStatusResponse {
+  string id = 1;
+}
