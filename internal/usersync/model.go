@@ -15,6 +15,7 @@ import (
 type UserSyncLogEntry interface {
 	model.Node
 	GetUUID() uuid.UUID
+	IsUserSyncLogEntry()
 }
 
 type (
@@ -31,7 +32,8 @@ type userSyncLogEntry struct {
 	UUID      uuid.UUID   `json:"-"`
 }
 
-func (userSyncLogEntry) IsNode() {}
+func (userSyncLogEntry) IsNode()             {}
+func (userSyncLogEntry) IsUserSyncLogEntry() {}
 func (l *userSyncLogEntry) GetUUID() uuid.UUID {
 	return l.UUID
 }
