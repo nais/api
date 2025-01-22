@@ -1,9 +1,15 @@
 package grpcdeployment
 
 import (
+	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/grpc/grpcdeployment/grpcdeploymentsql"
+	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/pkg/apiclient/protoapi"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type Server struct {
@@ -16,3 +22,55 @@ func NewServer(pool *pgxpool.Pool) *Server {
 		querier: grpcdeploymentsql.New(pool),
 	}
 }
+
+func (s *Server) CreateDeployment(ctx context.Context, req *protoapi.CreateDeploymentRequest) (*protoapi.CreateDeploymentResponse, error) {
+	exists, err := s.querier.TeamExists(ctx, slug.Slug(req.TeamSlug))
+	if err != nil {
+		return nil, err
+	}
+
+	if !exists {
+		return nil, status.Errorf(codes.NotFound, "team does not exist")
+	}
+
+	id, err := s.querier.CreateDeployment(ctx, grpcdeploymentsql.CreateDeploymentParams{
+		CreatedAt: pgtype.Timestamptz{
+			Time:  req.CreatedAt.AsTime(),
+			Valid: req.CreatedAt.IsValid(),
+		},
+		TeamSlug:         slug.Slug(req.TeamSlug),
+		GithubRepository: req.GithubRepository,
+		Environment:      req.Environment,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &protoapi.CreateDeploymentResponse{
+		Id: id.String(),
+	}, nil
+}
+
+func (s *Server) CreateDeploymentK8SResource(ctx context.Context, req *protoapi.CreateDeploymentK8SResourceRequest) (*protoapi.CreateDeploymentK8SResourceResponse, error) {
+	panic("not implemented") // TODO: Implement
+}
+
+func (s *Server) CreateDeploymentStatus(ctx context.Context, req *protoapi.CreateDeploymentStatusRequest) (*protoapi.CreateDeploymentStatusResponse, error) {
+	panic("not implemented") // TODO: Implement
+}
+
+// func toSQLStateEnum(gs *protoapi.DeploymentState) grpcdeploymentsql. {
+// 	if gs == nil {
+// 		return grpcdeploymentsql.NullDeploymentState{}
+// 	}
+
+// 	mapped := grpcdeploymentsql.DeploymentState(gs.String())
+// 	if !slices.Contains(grpcdeploymentsql.AllDeploymentStateValues(), mapped) {
+// 		return grpcdeploymentsql.NullDeploymentState{}
+// 	}
+
+// 	return grpcdeploymentsql.NullDeploymentState{
+// 		DeploymentState: mapped,
+// 		Valid:           true,
+// 	}
+// }

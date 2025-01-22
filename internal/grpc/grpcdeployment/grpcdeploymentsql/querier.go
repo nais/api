@@ -4,10 +4,14 @@ package grpcdeploymentsql
 
 import (
 	"context"
+
+	"github.com/google/uuid"
+	"github.com/nais/api/internal/slug"
 )
 
 type Querier interface {
-	CreateDeployment(ctx context.Context) (int32, error)
+	CreateDeployment(ctx context.Context, arg CreateDeploymentParams) (uuid.UUID, error)
+	TeamExists(ctx context.Context, argSlug slug.Slug) (bool, error)
 }
 
 var _ Querier = (*Queries)(nil)

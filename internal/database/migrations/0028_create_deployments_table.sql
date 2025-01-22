@@ -13,11 +13,9 @@ CREATE TYPE deployment_state AS ENUM(
 CREATE TABLE deployments (
 	id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CLOCK_TIMESTAMP() NOT NULL,
-	external_id TEXT NOT NULL UNIQUE,
 	team_slug slug NOT NULL,
 	github_repository TEXT,
-	environment TEXT NOT NULL,
-	state deployment_state
+	environment TEXT NOT NULL
 )
 ;
 

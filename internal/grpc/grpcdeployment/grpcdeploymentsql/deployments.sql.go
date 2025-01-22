@@ -5,16 +5,65 @@ package grpcdeploymentsql
 
 import (
 	"context"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/nais/api/internal/slug"
 )
 
 const createDeployment = `-- name: CreateDeployment :one
-SELECT
-	1
+INSERT INTO
+	deployments (
+		created_at,
+		team_slug,
+		github_repository,
+		environment
+	)
+VALUES
+	(
+		$1,
+		$2,
+		$3,
+		$4
+	)
+RETURNING
+	id
 `
 
-func (q *Queries) CreateDeployment(ctx context.Context) (int32, error) {
-	row := q.db.QueryRow(ctx, createDeployment)
-	var column_1 int32
-	err := row.Scan(&column_1)
-	return column_1, err
+type CreateDeploymentParams struct {
+	CreatedAt        pgtype.Timestamptz
+	TeamSlug         slug.Slug
+	GithubRepository *string
+	Environment      string
+}
+
+func (q *Queries) CreateDeployment(ctx context.Context, arg CreateDeploymentParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, createDeployment,
+		arg.CreatedAt,
+		arg.TeamSlug,
+		arg.GithubRepository,
+		arg.Environment,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
+const teamExists = `-- name: TeamExists :one
+SELECT
+	EXISTS (
+		SELECT
+			1
+		FROM
+			teams
+		WHERE
+			slug = $1
+	)
+`
+
+func (q *Queries) TeamExists(ctx context.Context, argSlug slug.Slug) (bool, error) {
+	row := q.db.QueryRow(ctx, teamExists, argSlug)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
