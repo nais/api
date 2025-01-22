@@ -2,6 +2,7 @@ package grpcdeployment
 
 import (
 	"context"
+	"slices"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -32,6 +33,10 @@ func (s *Server) CreateDeployment(ctx context.Context, req *protoapi.CreateDeplo
 
 	if !exists {
 		return nil, status.Errorf(codes.NotFound, "team does not exist")
+	}
+
+	if req.Environment == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "environment is required")
 	}
 
 	id, err := s.querier.CreateDeployment(ctx, grpcdeploymentsql.CreateDeploymentParams{
@@ -89,21 +94,43 @@ func (s *Server) CreateDeploymentK8SResource(ctx context.Context, req *protoapi.
 }
 
 func (s *Server) CreateDeploymentStatus(ctx context.Context, req *protoapi.CreateDeploymentStatusRequest) (*protoapi.CreateDeploymentStatusResponse, error) {
-	panic("not implemented") // TODO: Implement
+	uid, err := uuid.Parse(req.DeploymentId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid deployment id")
+	}
+
+	if req.Message == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "message is required")
+	}
+
+	state, ok := toSQLStateEnum(req.State)
+	if !ok {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid state")
+	}
+
+	id, err := s.querier.CreateDeploymentStatus(ctx, grpcdeploymentsql.CreateDeploymentStatusParams{
+		CreatedAt: pgtype.Timestamptz{
+			Time:  req.CreatedAt.AsTime(),
+			Valid: req.CreatedAt.IsValid(),
+		},
+		DeploymentID: uid,
+		State:        state,
+		Message:      req.Message,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &protoapi.CreateDeploymentStatusResponse{
+		Id: id.String(),
+	}, nil
 }
 
-// func toSQLStateEnum(gs *protoapi.DeploymentState) grpcdeploymentsql. {
-// 	if gs == nil {
-// 		return grpcdeploymentsql.NullDeploymentState{}
-// 	}
+func toSQLStateEnum(gs protoapi.DeploymentState) (grpcdeploymentsql.DeploymentState, bool) {
+	mapped := grpcdeploymentsql.DeploymentState(gs.String())
+	if !slices.Contains(grpcdeploymentsql.AllDeploymentStateValues(), mapped) {
+		return grpcdeploymentsql.DeploymentState(""), false
+	}
 
-// 	mapped := grpcdeploymentsql.DeploymentState(gs.String())
-// 	if !slices.Contains(grpcdeploymentsql.AllDeploymentStateValues(), mapped) {
-// 		return grpcdeploymentsql.NullDeploymentState{}
-// 	}
-
-// 	return grpcdeploymentsql.NullDeploymentState{
-// 		DeploymentState: mapped,
-// 		Valid:           true,
-// 	}
-// }
+	return mapped, true
+}

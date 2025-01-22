@@ -12,6 +12,7 @@ import (
 type Querier interface {
 	CreateDeployment(ctx context.Context, arg CreateDeploymentParams) (uuid.UUID, error)
 	CreateDeploymentK8sResource(ctx context.Context, arg CreateDeploymentK8sResourceParams) (uuid.UUID, error)
+	CreateDeploymentStatus(ctx context.Context, arg CreateDeploymentStatusParams) (uuid.UUID, error)
 	TeamExists(ctx context.Context, argSlug slug.Slug) (bool, error)
 }
 

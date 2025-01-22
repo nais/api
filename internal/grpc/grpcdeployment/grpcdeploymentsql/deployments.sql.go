@@ -95,6 +95,34 @@ func (q *Queries) CreateDeploymentK8sResource(ctx context.Context, arg CreateDep
 	return id, err
 }
 
+const createDeploymentStatus = `-- name: CreateDeploymentStatus :one
+INSERT INTO
+	deployment_statuses (created_at, deployment_id, state, message)
+VALUES
+	($1, $2, $3, $4)
+RETURNING
+	id
+`
+
+type CreateDeploymentStatusParams struct {
+	CreatedAt    pgtype.Timestamptz
+	DeploymentID uuid.UUID
+	State        DeploymentState
+	Message      string
+}
+
+func (q *Queries) CreateDeploymentStatus(ctx context.Context, arg CreateDeploymentStatusParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, createDeploymentStatus,
+		arg.CreatedAt,
+		arg.DeploymentID,
+		arg.State,
+		arg.Message,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const teamExists = `-- name: TeamExists :one
 SELECT
 	EXISTS (

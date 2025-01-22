@@ -51,3 +51,12 @@ VALUES
 RETURNING
 	id
 ;
+
+-- name: CreateDeploymentStatus :one
+INSERT INTO
+	deployment_statuses (created_at, deployment_id, state, message)
+VALUES
+	(@created_at, @deployment_id, @state, @message)
+RETURNING
+	id
+;
