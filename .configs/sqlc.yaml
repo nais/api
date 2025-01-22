@@ -140,6 +140,15 @@ sql:
         out: "../internal/grpc/grpcreconciler/grpcreconcilersql"
 
   - <<: *default_domain
+    name: "Deployments SQL for gRPC"
+    queries: "../internal/grpc/grpcdeployment/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "grpcdeploymentsql"
+        out: "../internal/grpc/grpcdeployment/grpcdeploymentsql"
+
+  - <<: *default_domain
     name: "Usersync SQL"
     queries: "../internal/usersync/queries"
     gen:
