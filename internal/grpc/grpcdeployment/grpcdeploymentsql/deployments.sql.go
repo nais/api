@@ -7,7 +7,6 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -21,7 +20,7 @@ INSERT INTO
 	)
 VALUES
 	(
-		$1,
+		COALESCE($1, CLOCK_TIMESTAMP()),
 		$2,
 		$3,
 		$4
@@ -31,7 +30,7 @@ RETURNING
 `
 
 type CreateDeploymentParams struct {
-	CreatedAt        pgtype.Timestamptz
+	CreatedAt        interface{}
 	TeamSlug         slug.Slug
 	GithubRepository *string
 	Environment      string
@@ -99,13 +98,18 @@ const createDeploymentStatus = `-- name: CreateDeploymentStatus :one
 INSERT INTO
 	deployment_statuses (created_at, deployment_id, state, message)
 VALUES
-	($1, $2, $3, $4)
+	(
+		COALESCE($1, CLOCK_TIMESTAMP()),
+		$2,
+		$3,
+		$4
+	)
 RETURNING
 	id
 `
 
 type CreateDeploymentStatusParams struct {
-	CreatedAt    pgtype.Timestamptz
+	CreatedAt    interface{}
 	DeploymentID uuid.UUID
 	State        DeploymentState
 	Message      string

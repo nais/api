@@ -8,7 +8,7 @@ INSERT INTO
 	)
 VALUES
 	(
-		@created_at,
+		COALESCE(@created_at, CLOCK_TIMESTAMP()),
 		@team_slug,
 		@github_repository,
 		@environment
@@ -56,7 +56,12 @@ RETURNING
 INSERT INTO
 	deployment_statuses (created_at, deployment_id, state, message)
 VALUES
-	(@created_at, @deployment_id, @state, @message)
+	(
+		COALESCE(@created_at, CLOCK_TIMESTAMP()),
+		@deployment_id,
+		@state,
+		@message
+	)
 RETURNING
 	id
 ;
