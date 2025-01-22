@@ -103,7 +103,7 @@ func getJobRunInstanceByIdent(ctx context.Context, id ident.Ident) (*JobRunInsta
 	return toGraphJobRunInstance(pod, env), nil
 }
 
-func Runs(ctx context.Context, teamSlug slug.Slug, jobName string, page *pagination.Pagination) (*JobRunConnection, error) {
+func Runs(ctx context.Context, teamSlug slug.Slug, environment, jobName string, page *pagination.Pagination) (*JobRunConnection, error) {
 	nameReq, err := labels.NewRequirement("app", selection.Equals, []string{jobName})
 	if err != nil {
 		return nil, err
@@ -111,7 +111,8 @@ func Runs(ctx context.Context, teamSlug slug.Slug, jobName string, page *paginat
 
 	selector := labels.NewSelector().Add(*nameReq)
 
-	allRuns := fromContext(ctx).runWatcher.GetByNamespace(teamSlug.String(), watcher.WithLabels(selector))
+	allRuns := fromContext(ctx).runWatcher.GetByNamespace(teamSlug.String(), watcher.InCluster(environment), watcher.WithLabels(selector))
+
 	ret := make([]*JobRun, len(allRuns))
 	for i, run := range allRuns {
 		ret[i] = toGraphJobRun(run.Obj, run.Cluster)

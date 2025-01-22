@@ -50,7 +50,7 @@ func (r *jobResolver) Runs(ctx context.Context, obj *job.Job, first *int, after 
 		return nil, err
 	}
 
-	return job.Runs(ctx, obj.TeamSlug, obj.Name, page)
+	return job.Runs(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, page)
 }
 
 func (r *jobResolver) Manifest(ctx context.Context, obj *job.Job) (*job.JobManifest, error) {

@@ -22,7 +22,7 @@ func (c checkJobRuns) Run(ctx context.Context, w workload.Workload) ([]WorkloadS
 
 func (checkJobRuns) run(ctx context.Context, w workload.Workload) WorkloadStatusError {
 	page, _ := pagination.ParsePage(ptr.To(5), nil, nil, nil)
-	runs, err := job.Runs(ctx, w.GetTeamSlug(), w.GetName(), page)
+	runs, err := job.Runs(ctx, w.GetTeamSlug(), w.GetEnvironmentName(), w.GetName(), page)
 	if err != nil {
 		// TODO(chredvar): Unable to create label selector above, log?
 		return &WorkloadStatusSynchronizationFailing{
