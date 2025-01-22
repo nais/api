@@ -12,7 +12,7 @@ type Features implements Node {
 	"""
 	Information about Redis feature.
 	"""
-	redis: FeatureRedis!
+	redis: FeatureRedis! @deprecated(reason: "We are switching to Valkey")
 
 	"""
 	Information about Valkey feature.

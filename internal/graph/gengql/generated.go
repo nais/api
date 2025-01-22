@@ -11746,11 +11746,11 @@ type OpenSearchCost {
 }
 
 extend type RedisInstance {
-	cost: RedisInstanceCost!
+	cost: RedisInstanceCost! @deprecated(reason: "We are switching to Valkey")
 }
 
 type RedisInstanceCost {
-	sum: Float!
+	sum: Float! @deprecated(reason: "We are switching to Valkey")
 }
 
 extend type ValkeyInstance {
@@ -11994,7 +11994,7 @@ type TeamDeployKeyUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"""
 	Information about Redis feature.
 	"""
-	redis: FeatureRedis!
+	redis: FeatureRedis! @deprecated(reason: "We are switching to Valkey")
 
 	"""
 	Information about Valkey feature.
@@ -13095,12 +13095,12 @@ input ConfigureReconcilerInput {
 
 		"Ordering options for items returned from the connection."
 		orderBy: RedisInstanceOrder
-	): RedisInstanceConnection!
+	): RedisInstanceConnection! @deprecated(reason: "We are switching to Valkey")
 }
 
 extend type TeamEnvironment {
 	"Redis instance in the team environment."
-	redisInstance(name: String!): RedisInstance!
+	redisInstance(name: String!): RedisInstance! @deprecated(reason: "We are switching to Valkey")
 }
 
 extend interface Workload {
@@ -13108,7 +13108,7 @@ extend interface Workload {
 	redisInstances(
 		"Ordering options for items returned from the connection."
 		orderBy: RedisInstanceOrder
-	): RedisInstanceConnection!
+	): RedisInstanceConnection! @deprecated(reason: "We are switching to Valkey")
 }
 
 extend type Application {
@@ -13116,7 +13116,7 @@ extend type Application {
 	redisInstances(
 		"Ordering options for items returned from the connection."
 		orderBy: RedisInstanceOrder
-	): RedisInstanceConnection!
+	): RedisInstanceConnection! @deprecated(reason: "We are switching to Valkey")
 }
 
 extend type Job {
@@ -13124,11 +13124,12 @@ extend type Job {
 	redisInstances(
 		"Ordering options for items returned from the connection."
 		orderBy: RedisInstanceOrder
-	): RedisInstanceConnection!
+	): RedisInstanceConnection! @deprecated(reason: "We are switching to Valkey")
 }
 
 extend type TeamInventoryCounts {
 	redisInstances: TeamInventoryCountRedisInstances!
+		@deprecated(reason: "We are switching to Valkey")
 }
 
 type TeamInventoryCountRedisInstances {
@@ -13184,29 +13185,29 @@ type RedisInstanceEdge {
 }
 
 input RedisInstanceAccessOrder {
-	field: RedisInstanceAccessOrderField!
+	field: RedisInstanceAccessOrderField! @deprecated(reason: "We are switching to Valkey")
 	direction: OrderDirection!
 }
 
 input RedisInstanceOrder {
-	field: RedisInstanceOrderField!
+	field: RedisInstanceOrderField! @deprecated(reason: "We are switching to Valkey")
 	direction: OrderDirection!
 }
 
 enum RedisInstanceAccessOrderField {
-	ACCESS
-	WORKLOAD
+	ACCESS @deprecated(reason: "We are switching to Valkey")
+	WORKLOAD @deprecated(reason: "We are switching to Valkey")
 }
 
 enum RedisInstanceOrderField {
-	NAME
-	ENVIRONMENT
+	NAME @deprecated(reason: "We are switching to Valkey")
+	ENVIRONMENT @deprecated(reason: "We are switching to Valkey")
 }
 
 extend union SearchNode = RedisInstance
 
 extend enum SearchType {
-	REDIS_INSTANCE
+	REDIS_INSTANCE @deprecated(reason: "We are switching to Valkey")
 }
 `, BuiltIn: false},
 	{Name: "../schema/repository.graphqls", Input: `extend type Team {
