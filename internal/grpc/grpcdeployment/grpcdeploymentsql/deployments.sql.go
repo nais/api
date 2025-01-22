@@ -49,6 +49,52 @@ func (q *Queries) CreateDeployment(ctx context.Context, arg CreateDeploymentPara
 	return id, err
 }
 
+const createDeploymentK8sResource = `-- name: CreateDeploymentK8sResource :one
+INSERT INTO
+	deployment_k8s_resources (
+		deployment_id,
+		"group",
+		version,
+		kind,
+		name,
+		namespace
+	)
+VALUES
+	(
+		$1,
+		$2,
+		$3,
+		$4,
+		$5,
+		$6
+	)
+RETURNING
+	id
+`
+
+type CreateDeploymentK8sResourceParams struct {
+	DeploymentID uuid.UUID
+	Group        string
+	Version      string
+	Kind         string
+	Name         string
+	Namespace    string
+}
+
+func (q *Queries) CreateDeploymentK8sResource(ctx context.Context, arg CreateDeploymentK8sResourceParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, createDeploymentK8sResource,
+		arg.DeploymentID,
+		arg.Group,
+		arg.Version,
+		arg.Kind,
+		arg.Name,
+		arg.Namespace,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const teamExists = `-- name: TeamExists :one
 SELECT
 	EXISTS (

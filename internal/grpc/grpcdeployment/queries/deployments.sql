@@ -28,3 +28,26 @@ SELECT
 			slug = @slug
 	)
 ;
+
+-- name: CreateDeploymentK8sResource :one
+INSERT INTO
+	deployment_k8s_resources (
+		deployment_id,
+		"group",
+		version,
+		kind,
+		name,
+		namespace
+	)
+VALUES
+	(
+		@deployment_id,
+		sqlc.arg('group'),
+		@version,
+		@kind,
+		@name,
+		@namespace
+	)
+RETURNING
+	id
+;
