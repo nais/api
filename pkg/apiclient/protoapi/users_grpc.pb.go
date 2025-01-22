@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Users_Get_FullMethodName  = "/Users/Get"
-	Users_List_FullMethodName = "/Users/List"
+	Users_Get_FullMethodName  = "/nais.api.protobuf.Users/Get"
+	Users_List_FullMethodName = "/nais.api.protobuf.Users/List"
 )
 
 // UsersClient is the client API for Users service.
@@ -129,7 +129,7 @@ func _Users_List_Handler(srv interface{}, ctx context.Context, dec func(interfac
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Users_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "Users",
+	ServiceName: "nais.api.protobuf.Users",
 	HandlerType: (*UsersServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

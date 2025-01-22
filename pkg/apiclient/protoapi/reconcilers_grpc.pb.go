@@ -19,16 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Reconcilers_Register_FullMethodName                     = "/Reconcilers/Register"
-	Reconcilers_Get_FullMethodName                          = "/Reconcilers/Get"
-	Reconcilers_List_FullMethodName                         = "/Reconcilers/List"
-	Reconcilers_Config_FullMethodName                       = "/Reconcilers/Config"
-	Reconcilers_SetReconcilerErrorForTeam_FullMethodName    = "/Reconcilers/SetReconcilerErrorForTeam"
-	Reconcilers_RemoveReconcilerErrorForTeam_FullMethodName = "/Reconcilers/RemoveReconcilerErrorForTeam"
-	Reconcilers_SuccessfulTeamSync_FullMethodName           = "/Reconcilers/SuccessfulTeamSync"
-	Reconcilers_SaveState_FullMethodName                    = "/Reconcilers/SaveState"
-	Reconcilers_State_FullMethodName                        = "/Reconcilers/State"
-	Reconcilers_DeleteState_FullMethodName                  = "/Reconcilers/DeleteState"
+	Reconcilers_Register_FullMethodName                     = "/nais.api.protobuf.Reconcilers/Register"
+	Reconcilers_Get_FullMethodName                          = "/nais.api.protobuf.Reconcilers/Get"
+	Reconcilers_List_FullMethodName                         = "/nais.api.protobuf.Reconcilers/List"
+	Reconcilers_Config_FullMethodName                       = "/nais.api.protobuf.Reconcilers/Config"
+	Reconcilers_SetReconcilerErrorForTeam_FullMethodName    = "/nais.api.protobuf.Reconcilers/SetReconcilerErrorForTeam"
+	Reconcilers_RemoveReconcilerErrorForTeam_FullMethodName = "/nais.api.protobuf.Reconcilers/RemoveReconcilerErrorForTeam"
+	Reconcilers_SuccessfulTeamSync_FullMethodName           = "/nais.api.protobuf.Reconcilers/SuccessfulTeamSync"
+	Reconcilers_SaveState_FullMethodName                    = "/nais.api.protobuf.Reconcilers/SaveState"
+	Reconcilers_State_FullMethodName                        = "/nais.api.protobuf.Reconcilers/State"
+	Reconcilers_DeleteState_FullMethodName                  = "/nais.api.protobuf.Reconcilers/DeleteState"
 )
 
 // ReconcilersClient is the client API for Reconcilers service.
@@ -393,7 +393,7 @@ func _Reconcilers_DeleteState_Handler(srv interface{}, ctx context.Context, dec 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Reconcilers_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "Reconcilers",
+	ServiceName: "nais.api.protobuf.Reconcilers",
 	HandlerType: (*ReconcilersServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

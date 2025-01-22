@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Deployments_CreateDeployment_FullMethodName            = "/Deployments/CreateDeployment"
-	Deployments_CreateDeploymentK8SResource_FullMethodName = "/Deployments/CreateDeploymentK8sResource"
-	Deployments_CreateDeploymentStatus_FullMethodName      = "/Deployments/CreateDeploymentStatus"
+	Deployments_CreateDeployment_FullMethodName            = "/nais.api.protobuf.Deployments/CreateDeployment"
+	Deployments_CreateDeploymentK8SResource_FullMethodName = "/nais.api.protobuf.Deployments/CreateDeploymentK8sResource"
+	Deployments_CreateDeploymentStatus_FullMethodName      = "/nais.api.protobuf.Deployments/CreateDeploymentStatus"
 )
 
 // DeploymentsClient is the client API for Deployments service.
@@ -162,7 +162,7 @@ func _Deployments_CreateDeploymentStatus_Handler(srv interface{}, ctx context.Co
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Deployments_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "Deployments",
+	ServiceName: "nais.api.protobuf.Deployments",
 	HandlerType: (*DeploymentsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

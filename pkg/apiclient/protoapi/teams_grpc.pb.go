@@ -19,15 +19,15 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Teams_ListAuthorizedRepositories_FullMethodName           = "/Teams/ListAuthorizedRepositories"
-	Teams_Get_FullMethodName                                  = "/Teams/Get"
-	Teams_List_FullMethodName                                 = "/Teams/List"
-	Teams_Members_FullMethodName                              = "/Teams/Members"
-	Teams_Environments_FullMethodName                         = "/Teams/Environments"
-	Teams_SetTeamExternalReferences_FullMethodName            = "/Teams/SetTeamExternalReferences"
-	Teams_SetTeamEnvironmentExternalReferences_FullMethodName = "/Teams/SetTeamEnvironmentExternalReferences"
-	Teams_Delete_FullMethodName                               = "/Teams/Delete"
-	Teams_IsRepositoryAuthorized_FullMethodName               = "/Teams/IsRepositoryAuthorized"
+	Teams_ListAuthorizedRepositories_FullMethodName           = "/nais.api.protobuf.Teams/ListAuthorizedRepositories"
+	Teams_Get_FullMethodName                                  = "/nais.api.protobuf.Teams/Get"
+	Teams_List_FullMethodName                                 = "/nais.api.protobuf.Teams/List"
+	Teams_Members_FullMethodName                              = "/nais.api.protobuf.Teams/Members"
+	Teams_Environments_FullMethodName                         = "/nais.api.protobuf.Teams/Environments"
+	Teams_SetTeamExternalReferences_FullMethodName            = "/nais.api.protobuf.Teams/SetTeamExternalReferences"
+	Teams_SetTeamEnvironmentExternalReferences_FullMethodName = "/nais.api.protobuf.Teams/SetTeamEnvironmentExternalReferences"
+	Teams_Delete_FullMethodName                               = "/nais.api.protobuf.Teams/Delete"
+	Teams_IsRepositoryAuthorized_FullMethodName               = "/nais.api.protobuf.Teams/IsRepositoryAuthorized"
 )
 
 // TeamsClient is the client API for Teams service.
@@ -360,7 +360,7 @@ func _Teams_IsRepositoryAuthorized_Handler(srv interface{}, ctx context.Context,
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Teams_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "Teams",
+	ServiceName: "nais.api.protobuf.Teams",
 	HandlerType: (*TeamsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+package nais.api.protobuf;
+
 import "google/protobuf/timestamp.proto";
 
 option go_package = "./pkg/apiclient/protoapi";
