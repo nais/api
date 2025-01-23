@@ -11,6 +11,7 @@ import (
 	opensearch "github.com/nais/api/internal/persistence/opensearch"
 	redis "github.com/nais/api/internal/persistence/redis"
 	sqlinstance "github.com/nais/api/internal/persistence/sqlinstance"
+	valkey "github.com/nais/api/internal/persistence/valkey"
 	search "github.com/nais/api/internal/search"
 	team "github.com/nais/api/internal/team"
 	user "github.com/nais/api/internal/user"
@@ -138,6 +139,9 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Team.Secrets = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder, filter *secret.SecretFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
+	c.Team.ValkeyInstances = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyInstanceOrder) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
 	c.Team.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
@@ -145,6 +149,9 @@ func NewComplexityRoot() ComplexityRoot {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.User.Teams = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.UserTeamOrder) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.ValkeyInstance.Access = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyInstanceAccessOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 

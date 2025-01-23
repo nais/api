@@ -14,6 +14,7 @@ import (
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/redis"
 	"github.com/nais/api/internal/persistence/sqlinstance"
+	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
@@ -64,7 +65,7 @@ func (r *openSearchResolver) Cost(ctx context.Context, obj *opensearch.OpenSearc
 		return &cost.OpenSearchCost{}, nil
 	}
 
-	sum, err := cost.MonthlyForService(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name, "Redis")
+	sum, err := cost.MonthlyForService(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name, "OpenSearch")
 	if err != nil {
 		r.log.WithError(err).WithFields(logrus.Fields{
 			"EnvironmentName": obj.EnvironmentName,
@@ -148,6 +149,28 @@ func (r *teamEnvironmentCostResolver) Daily(ctx context.Context, obj *cost.TeamE
 	}
 
 	return cost.DailyForTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName, from.Time(), to.Time())
+}
+
+func (r *valkeyInstanceResolver) Cost(ctx context.Context, obj *valkey.ValkeyInstance) (*cost.ValkeyInstanceCost, error) {
+	if obj.WorkloadReference == nil {
+		return &cost.ValkeyInstanceCost{}, nil
+	}
+
+	sum, err := cost.MonthlyForService(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name, "Valkey")
+	if err != nil {
+		r.log.WithError(err).WithFields(logrus.Fields{
+			"EnvironmentName": obj.EnvironmentName,
+			"TeamSlug":        obj.TeamSlug,
+			"Valkey":          obj.Name,
+		}).Warn("failed to get monthly cost for Valkey instance")
+		return &cost.ValkeyInstanceCost{
+			Sum: 0,
+		}, nil
+	}
+
+	return &cost.ValkeyInstanceCost{
+		Sum: float64(sum),
+	}, nil
 }
 
 func (r *workloadCostResolver) Daily(ctx context.Context, obj *cost.WorkloadCost, from scalar.Date, to scalar.Date) (*cost.WorkloadCostPeriod, error) {

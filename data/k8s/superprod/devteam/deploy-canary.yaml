@@ -53,6 +53,9 @@ spec:
   redis:
     - instance: contests
       access: readwrite
+  valkey:
+    - instance: contests
+      access: readwrite
 status:
   conditions:
     - lastTransitionTime: "2024-01-11T14:00:04Z"

@@ -182,6 +182,7 @@ func randomServices() []string {
 		"Cloud Storage",
 		"Compute Engine",
 		"Redis",
+		"Valkey",
 		"OpenSearch",
 	}
 	num := len(all)
