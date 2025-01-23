@@ -2,72 +2,81 @@ package deployment
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/graph/apierror"
+	"github.com/nais/api/internal/deployment/deploymentsql"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
-	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/workload"
 	"k8s.io/utils/ptr"
 )
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*DeploymentConnection, error) {
-	cluster, err := withCluster(ctx, teamSlug)
+	q := db(ctx)
+
+	ret, err := q.ListByTeamSlug(ctx, deploymentsql.ListByTeamSlugParams{
+		TeamSlug: teamSlug,
+		Offset:   page.Offset(),
+		Limit:    page.Limit(),
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	all, err := fromContext(ctx).client.Deployments(ctx, hookd.WithTeam(teamSlug.String()), hookd.WithLimit(100), hookd.WithCluster(cluster))
+	total, err := q.CountForTeam(ctx, teamSlug)
 	if err != nil {
-		return nil, fmt.Errorf("getting deploys from Hookd: %w", err)
+		return nil, err
 	}
 
-	ret := pagination.Slice(all, page)
-	return pagination.NewConvertConnection(ret, page, len(all), toGraphDeployment), nil
+	return pagination.NewConvertConnection(ret, page, total, toGraphDeployment), nil
 }
 
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string, workloadType workload.Type, page *pagination.Pagination) (*DeploymentConnection, error) {
-	cluster, err := withCluster(ctx, teamSlug)
-	if err != nil {
-		return nil, err
-	}
-
-	all, err := fromContext(ctx).client.Deployments(ctx, hookd.WithTeam(teamSlug.String()), hookd.WithCluster(environmentName), hookd.WithCluster(cluster))
-	if err != nil {
-		return nil, fmt.Errorf("getting deploys from Hookd: %w", err)
-	}
-
-	var kind string
-	switch workloadType {
-	case workload.TypeApplication:
-		kind = "Application"
-	case workload.TypeJob:
-		kind = "Naisjob"
-	default:
-		return nil, fmt.Errorf("unsupported workload type: %v", workloadType)
-	}
-
-	filtered := make([]hookd.Deploy, 0)
-deploys:
-	for _, deploy := range all {
-		for _, resource := range deploy.Resources {
-			if resource.Name == workloadName && resource.Kind == kind {
-				filtered = append(filtered, deploy)
-				continue deploys
+	panic("not implemented")
+	/*
+			cluster, err := withCluster(ctx, teamSlug)
+			if err != nil {
+				return nil, err
 			}
-		}
-	}
 
-	ret := pagination.Slice(filtered, page)
-	return pagination.NewConvertConnection(ret, page, len(filtered), toGraphDeployment), nil
+			all, err := fromContext(ctx).client.Deployments(ctx, hookd.WithTeam(teamSlug.String()), hookd.WithCluster(environmentName), hookd.WithCluster(cluster))
+			if err != nil {
+				return nil, fmt.Errorf("getting deploys from Hookd: %w", err)
+			}
+
+			var kind string
+			switch workloadType {
+			case workload.TypeApplication:
+				kind = "Application"
+			case workload.TypeJob:
+				kind = "Naisjob"
+			default:
+				return nil, fmt.Errorf("unsupported workload type: %v", workloadType)
+			}
+
+			filtered := make([]hookd.Deploy, 0)
+		deploys:
+			for _, deploy := range all {
+				for _, resource := range deploy.Resources {
+					if resource.Name == workloadName && resource.Kind == kind {
+						filtered = append(filtered, deploy)
+						continue deploys
+					}
+				}
+			}
+
+			ret := pagination.Slice(filtered, page)
+			return pagination.NewConvertConnection(ret, page, len(filtered), toGraphDeployment), nil
+
+	*/
 }
 
 func KeyForTeam(ctx context.Context, teamSlug slug.Slug) (*DeploymentKey, error) {
@@ -144,8 +153,20 @@ func getDeploymentKeyByIdent(ctx context.Context, id ident.Ident) (*DeploymentKe
 	return KeyForTeam(ctx, teamSlug)
 }
 
+func Get(ctx context.Context, id uuid.UUID) (*Deployment, error) {
+	deployment, err := fromContext(ctx).deploymentLoader.Load(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return deployment, nil
+}
+
 func getDeploymentByIdent(ctx context.Context, id ident.Ident) (*Deployment, error) {
-	return nil, apierror.Errorf("deployments are not accessible by node ID")
+	uid, err := parseDeploymentIdent(id)
+	if err != nil {
+		return nil, err
+	}
+	return Get(ctx, uid)
 }
 
 func withCluster(ctx context.Context, teamSlug slug.Slug) (string, error) {

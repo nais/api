@@ -3,6 +3,9 @@ package deployment
 import (
 	"fmt"
 
+	"github.com/btcsuite/btcutil/base58"
+	"github.com/google/uuid"
+
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/slug"
 )
@@ -32,6 +35,15 @@ func parseDeploymentKeyIdent(id ident.Ident) (slug.Slug, error) {
 	return slug.Slug(parts[0]), nil
 }
 
-func newDeploymentIdent(id string) ident.Ident {
-	return ident.NewIdent(identKeyDeployment, id)
+func parseDeploymentIdent(id ident.Ident) (uuid.UUID, error) {
+	parts := id.Parts()
+	if len(parts) != 1 {
+		return uuid.Nil, fmt.Errorf("invalid deployment ident")
+	}
+
+	return uuid.FromBytes(base58.Decode(parts[0]))
+}
+
+func newDeploymentIdent(id uuid.UUID) ident.Ident {
+	return ident.NewIdent(identKeyDeployment, base58.Encode(id[:]))
 }
