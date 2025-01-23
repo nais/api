@@ -15,3 +15,13 @@ type Deployment struct {
 	Repository  *string
 	Environment string
 }
+
+type DeploymentK8sResource struct {
+	ID           uuid.UUID
+	DeploymentID uuid.UUID
+	Group        string
+	Version      string
+	Kind         string
+	Name         string
+	Namespace    string
+}

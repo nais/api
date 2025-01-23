@@ -2,7 +2,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/nais/api/internal/auth/authz"
@@ -34,11 +33,16 @@ func (r *deploymentResolver) Environment(ctx context.Context, obj *deployment.De
 }
 
 func (r *deploymentResolver) Resources(ctx context.Context, obj *deployment.Deployment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.DeploymentResource], error) {
-	panic(fmt.Errorf("not implemented: Resources - resources"))
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return deployment.ListResourcesForDeployment(ctx, obj.UUID, page)
 }
 
 func (r *deploymentResolver) Statuses(ctx context.Context, obj *deployment.Deployment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.DeploymentStatus], error) {
-	panic(fmt.Errorf("not implemented: Statuses - statuses"))
+	panic("not implemented")
 }
 
 func (r *deploymentInfoResolver) History(ctx context.Context, obj *deployment.DeploymentInfo, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error) {

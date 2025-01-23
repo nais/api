@@ -11,8 +11,10 @@ import (
 
 type Querier interface {
 	CountForTeam(ctx context.Context, teamSlug slug.Slug) (int64, error)
+	CountResourcesForDeployment(ctx context.Context, deploymentID uuid.UUID) (int64, error)
 	ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*Deployment, error)
 	ListByTeamSlug(ctx context.Context, arg ListByTeamSlugParams) ([]*Deployment, error)
+	ListResourcesForDeployment(ctx context.Context, arg ListResourcesForDeploymentParams) ([]*DeploymentK8sResource, error)
 }
 
 var _ Querier = (*Queries)(nil)

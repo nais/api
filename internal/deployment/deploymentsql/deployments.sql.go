@@ -26,6 +26,22 @@ func (q *Queries) CountForTeam(ctx context.Context, teamSlug slug.Slug) (int64, 
 	return count, err
 }
 
+const countResourcesForDeployment = `-- name: CountResourcesForDeployment :one
+SELECT
+	COUNT(*)
+FROM
+	deployment_k8s_resources
+WHERE
+	deployment_id = $1
+`
+
+func (q *Queries) CountResourcesForDeployment(ctx context.Context, deploymentID uuid.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countResourcesForDeployment, deploymentID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const listByIDs = `-- name: ListByIDs :many
 SELECT
 	id, created_at, team_slug, repository, environment
@@ -99,6 +115,58 @@ func (q *Queries) ListByTeamSlug(ctx context.Context, arg ListByTeamSlugParams) 
 			&i.TeamSlug,
 			&i.Repository,
 			&i.Environment,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listResourcesForDeployment = `-- name: ListResourcesForDeployment :many
+SELECT
+	id, deployment_id, "group", version, kind, name, namespace
+FROM
+	deployment_k8s_resources
+WHERE
+	deployment_id = $1
+ORDER BY
+	"group",
+	version,
+	kind,
+	name
+LIMIT
+	$3
+OFFSET
+	$2
+`
+
+type ListResourcesForDeploymentParams struct {
+	DeploymentID uuid.UUID
+	Offset       int32
+	Limit        int32
+}
+
+func (q *Queries) ListResourcesForDeployment(ctx context.Context, arg ListResourcesForDeploymentParams) ([]*DeploymentK8sResource, error) {
+	rows, err := q.db.Query(ctx, listResourcesForDeployment, arg.DeploymentID, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*DeploymentK8sResource{}
+	for rows.Next() {
+		var i DeploymentK8sResource
+		if err := rows.Scan(
+			&i.ID,
+			&i.DeploymentID,
+			&i.Group,
+			&i.Version,
+			&i.Kind,
+			&i.Name,
+			&i.Namespace,
 		); err != nil {
 			return nil, err
 		}
