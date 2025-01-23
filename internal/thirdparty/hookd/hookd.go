@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -17,7 +16,6 @@ import (
 )
 
 type Client interface {
-	Deployments(ctx context.Context, opts ...RequestOption) ([]Deploy, error)
 	ChangeDeployKey(ctx context.Context, team string) (*DeployKey, error)
 	DeployKey(ctx context.Context, team string) (*DeployKey, error)
 }
@@ -115,44 +113,6 @@ func New(endpoint, psk string, log logrus.FieldLogger) Client {
 		},
 		log: log,
 	}
-}
-
-// Deployments returns a list of deployments from hookd
-func (c *client) Deployments(ctx context.Context, opts ...RequestOption) ([]Deploy, error) {
-	url := c.endpoint + "/internal/api/v1/console/deployments"
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, c.error(ctx, err, "create request for hookd")
-	}
-
-	for _, opt := range opts {
-		opt(req)
-	}
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, c.error(ctx, err, "calling hookd")
-	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			c.log.WithError(err).Error("closing response body")
-		}
-	}()
-
-	var deploymentsResponse DeploymentsResponse
-
-	if err := json.NewDecoder(resp.Body).Decode(&deploymentsResponse); err != nil {
-		return nil, c.error(ctx, err, "decoding response from hookd")
-	}
-
-	ret := deploymentsResponse.Deployments
-
-	sort.Slice(ret, func(i, j int) bool {
-		return ret[i].DeploymentInfo.Created.After(ret[j].DeploymentInfo.Created)
-	})
-
-	return ret, nil
 }
 
 // ChangeDeployKey changes the deploy key for a team
