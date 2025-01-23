@@ -23,10 +23,6 @@ func (r *deploymentResolver) Team(ctx context.Context, obj *deployment.Deploymen
 	return team.Get(ctx, obj.TeamSlug)
 }
 
-func (r *deploymentResolver) Resources(ctx context.Context, obj *deployment.Deployment) ([]*deployment.DeploymentResource, error) {
-	panic(fmt.Errorf("not implemented: Resources - resources"))
-}
-
 func (r *deploymentResolver) Environment(ctx context.Context, obj *deployment.Deployment) (*team.TeamEnvironment, error) {
 	env, err := team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 	if err != nil {
@@ -37,7 +33,11 @@ func (r *deploymentResolver) Environment(ctx context.Context, obj *deployment.De
 	return env, nil
 }
 
-func (r *deploymentResolver) Statuses(ctx context.Context, obj *deployment.Deployment) ([]*deployment.DeploymentStatus, error) {
+func (r *deploymentResolver) Resources(ctx context.Context, obj *deployment.Deployment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.DeploymentResource], error) {
+	panic(fmt.Errorf("not implemented: Resources - resources"))
+}
+
+func (r *deploymentResolver) Statuses(ctx context.Context, obj *deployment.Deployment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.DeploymentStatus], error) {
 	panic(fmt.Errorf("not implemented: Statuses - statuses"))
 }
 

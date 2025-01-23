@@ -1,5 +1,7 @@
 extend type Team {
-	"Deployment key for the team."
+	"""
+	Deployment key for the team.
+	"""
 	deploymentKey: DeploymentKey
 
 	"""
@@ -94,6 +96,40 @@ type DeploymentConnection {
 	edges: [DeploymentEdge!]!
 }
 
+type DeploymentStatusConnection {
+	"""
+	Pagination information.
+	"""
+	pageInfo: PageInfo!
+
+	"""
+	List of nodes.
+	"""
+	nodes: [DeploymentStatus!]!
+
+	"""
+	List of edges.
+	"""
+	edges: [DeploymentStatusEdge!]!
+}
+
+type DeploymentResourceConnection {
+	"""
+	Pagination information.
+	"""
+	pageInfo: PageInfo!
+
+	"""
+	List of nodes.
+	"""
+	nodes: [DeploymentResource!]!
+
+	"""
+	List of edges.
+	"""
+	edges: [DeploymentResourceEdge!]!
+}
+
 type DeploymentEdge {
 	"""
 	Cursor for this edge that can be used for pagination.
@@ -106,17 +142,92 @@ type DeploymentEdge {
 	node: Deployment!
 }
 
+type DeploymentStatusEdge {
+	"""
+	Cursor for this edge that can be used for pagination.
+	"""
+	cursor: Cursor!
+
+	"""
+	The deployment status.
+	"""
+	node: DeploymentStatus!
+}
+
+type DeploymentResourceEdge {
+	"""
+	Cursor for this edge that can be used for pagination.
+	"""
+	cursor: Cursor!
+
+	"""
+	The deployment resource.
+	"""
+	node: DeploymentResource!
+}
+
 """
 Description of a deployment.
 """
 type Deployment implements Node {
+	"""
+	ID of the deployment.
+	"""
 	id: ID!
+
+	"""
+	Creation timestamp of the deployment.
+	"""
 	createdAt: Time!
+
+	"""
+	Team that the deployment belongs to.
+	"""
 	team: Team!
-	resources: [DeploymentResource!]!
+
+	"""
+	Environment that the deployment belongs to.
+	"""
 	environment: TeamEnvironment!
-	statuses: [DeploymentStatus!]!
-	repository: String!
+
+	"""
+	The repository that triggered the deployment.
+	"""
+	repository: String
+
+	"""
+	Resources that were deployed.
+	"""
+	resources(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): DeploymentResourceConnection!
+
+	"""
+	Statuses of the deployment.
+	"""
+	statuses(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): DeploymentStatusConnection!
 }
 
 """

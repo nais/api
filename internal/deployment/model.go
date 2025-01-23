@@ -15,13 +15,15 @@ import (
 )
 
 type (
-	DeploymentConnection = pagination.Connection[*Deployment]
-	DeploymentEdge       = pagination.Edge[*Deployment]
+	DeploymentConnection         = pagination.Connection[*Deployment]
+	DeploymentEdge               = pagination.Edge[*Deployment]
+	DeploymentStatusConnection   = pagination.Connection[*DeploymentStatus]
+	DeploymentStatusEdge         = pagination.Edge[*DeploymentStatus]
+	DeploymentResourceConnection = pagination.Connection[*DeploymentResource]
+	DeploymentResourceEdge       = pagination.Edge[*DeploymentResource]
 )
 
 type Deployment struct {
-	// Resources       []*DeploymentResource `json:"resources"`
-	// Statuses        []*DeploymentStatus   `json:"statuses"`
 	CreatedAt       time.Time `json:"createdAt"`
 	Repository      *string   `json:"repository"`
 	UUID            uuid.UUID `json:"-"`
