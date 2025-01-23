@@ -26,7 +26,7 @@ func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*Val
 	}), watcher.WithGVR(schema.GroupVersionResource{
 		Group:    "aiven.io",
 		Version:  "v1alpha1",
-		Resource: "valkey",
+		Resource: "valkeys",
 	}))
 	w.Start(ctx)
 	return w
