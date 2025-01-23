@@ -1,16 +1,11 @@
 -- name: CreateDeployment :one
 INSERT INTO
-	deployments (
-		created_at,
-		team_slug,
-		github_repository,
-		environment
-	)
+	deployments (created_at, team_slug, repository, environment)
 VALUES
 	(
 		COALESCE(@created_at, CLOCK_TIMESTAMP()),
 		@team_slug,
-		@github_repository,
+		@repository,
 		@environment
 	)
 RETURNING

@@ -14,7 +14,7 @@ CREATE TABLE deployments (
 	id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CLOCK_TIMESTAMP() NOT NULL,
 	team_slug slug NOT NULL,
-	github_repository TEXT,
+	repository TEXT,
 	environment TEXT NOT NULL
 )
 ;

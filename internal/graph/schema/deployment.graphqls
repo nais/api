@@ -116,7 +116,7 @@ type Deployment implements Node {
 	resources: [DeploymentResource!]!
 	environment: TeamEnvironment!
 	statuses: [DeploymentStatus!]!
-	gitHubRepository: String!
+	repository: String!
 }
 
 """

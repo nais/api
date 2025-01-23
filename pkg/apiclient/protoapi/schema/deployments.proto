@@ -28,7 +28,7 @@ enum DeploymentState {
 message CreateDeploymentRequest {
   optional google.protobuf.Timestamp created_at = 1;
   string team_slug = 2;
-  optional string github_repository = 3;
+  optional string repository = 3;
   string environment = 4;
 }
 

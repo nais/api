@@ -22,11 +22,11 @@ type (
 type Deployment struct {
 	// Resources       []*DeploymentResource `json:"resources"`
 	// Statuses        []*DeploymentStatus   `json:"statuses"`
-	CreatedAt        time.Time `json:"createdAt"`
-	GitHubRepository *string   `json:"gitHubRepository"`
-	UUID             uuid.UUID `json:"-"`
-	TeamSlug         slug.Slug `json:"-"`
-	EnvironmentName  string    `json:"-"`
+	CreatedAt       time.Time `json:"createdAt"`
+	Repository      *string   `json:"repository"`
+	UUID            uuid.UUID `json:"-"`
+	TeamSlug        slug.Slug `json:"-"`
+	EnvironmentName string    `json:"-"`
 }
 
 func (Deployment) IsNode() {}
@@ -93,11 +93,11 @@ func (DeploymentKey) IsNode() {}
 
 func toGraphDeployment(row *deploymentsql.Deployment) *Deployment {
 	return &Deployment{
-		CreatedAt:        row.CreatedAt.Time,
-		GitHubRepository: row.GithubRepository,
-		UUID:             row.ID,
-		TeamSlug:         row.TeamSlug,
-		EnvironmentName:  row.Environment,
+		CreatedAt:       row.CreatedAt.Time,
+		Repository:      row.Repository,
+		UUID:            row.ID,
+		TeamSlug:        row.TeamSlug,
+		EnvironmentName: row.Environment,
 	}
 	/*
 		statuses := make([]*DeploymentStatus, len(d.Statuses))

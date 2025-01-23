@@ -9,9 +9,9 @@ import (
 )
 
 type Deployment struct {
-	ID               uuid.UUID
-	CreatedAt        pgtype.Timestamptz
-	TeamSlug         slug.Slug
-	GithubRepository *string
-	Environment      string
+	ID          uuid.UUID
+	CreatedAt   pgtype.Timestamptz
+	TeamSlug    slug.Slug
+	Repository  *string
+	Environment string
 }

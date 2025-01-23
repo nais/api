@@ -28,7 +28,7 @@ func (q *Queries) CountForTeam(ctx context.Context, teamSlug slug.Slug) (int64, 
 
 const listByIDs = `-- name: ListByIDs :many
 SELECT
-	id, created_at, team_slug, github_repository, environment
+	id, created_at, team_slug, repository, environment
 FROM
 	deployments
 WHERE
@@ -50,7 +50,7 @@ func (q *Queries) ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*Deployment
 			&i.ID,
 			&i.CreatedAt,
 			&i.TeamSlug,
-			&i.GithubRepository,
+			&i.Repository,
 			&i.Environment,
 		); err != nil {
 			return nil, err
@@ -65,7 +65,7 @@ func (q *Queries) ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*Deployment
 
 const listByTeamSlug = `-- name: ListByTeamSlug :many
 SELECT
-	id, created_at, team_slug, github_repository, environment
+	id, created_at, team_slug, repository, environment
 FROM
 	deployments
 WHERE
@@ -97,7 +97,7 @@ func (q *Queries) ListByTeamSlug(ctx context.Context, arg ListByTeamSlugParams) 
 			&i.ID,
 			&i.CreatedAt,
 			&i.TeamSlug,
-			&i.GithubRepository,
+			&i.Repository,
 			&i.Environment,
 		); err != nil {
 			return nil, err

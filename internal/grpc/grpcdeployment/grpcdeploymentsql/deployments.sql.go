@@ -12,12 +12,7 @@ import (
 
 const createDeployment = `-- name: CreateDeployment :one
 INSERT INTO
-	deployments (
-		created_at,
-		team_slug,
-		github_repository,
-		environment
-	)
+	deployments (created_at, team_slug, repository, environment)
 VALUES
 	(
 		COALESCE($1, CLOCK_TIMESTAMP()),
@@ -30,17 +25,17 @@ RETURNING
 `
 
 type CreateDeploymentParams struct {
-	CreatedAt        interface{}
-	TeamSlug         slug.Slug
-	GithubRepository *string
-	Environment      string
+	CreatedAt   interface{}
+	TeamSlug    slug.Slug
+	Repository  *string
+	Environment string
 }
 
 func (q *Queries) CreateDeployment(ctx context.Context, arg CreateDeploymentParams) (uuid.UUID, error) {
 	row := q.db.QueryRow(ctx, createDeployment,
 		arg.CreatedAt,
 		arg.TeamSlug,
-		arg.GithubRepository,
+		arg.Repository,
 		arg.Environment,
 	)
 	var id uuid.UUID
