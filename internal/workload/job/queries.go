@@ -119,7 +119,7 @@ func Runs(ctx context.Context, teamSlug slug.Slug, environment, jobName string, 
 	}
 
 	slices.SortStableFunc(ret, func(a, b *JobRun) int {
-		return b.CreationTime.Compare(a.CreationTime)
+		return b.StartTime.Compare(*a.StartTime)
 	})
 
 	runs := pagination.Slice(ret, page)
