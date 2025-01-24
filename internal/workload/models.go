@@ -191,6 +191,17 @@ const (
 	TypeJob
 )
 
+func (t Type) String() string {
+	switch t {
+	case TypeApplication:
+		return "Application"
+	case TypeJob:
+		return "Naisjob"
+	default:
+		return "Unknown"
+	}
+}
+
 type Reference struct {
 	// Name is the name of the referenced workload.
 	Name string

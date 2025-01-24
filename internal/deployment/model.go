@@ -174,6 +174,7 @@ func toGraphDeploymentResource(row *deploymentsql.DeploymentK8sResource) *Deploy
 		Kind:      row.Kind,
 		Name:      row.Name,
 		Namespace: row.Namespace,
+		UUID:      row.ID,
 	}
 }
 

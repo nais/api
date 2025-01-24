@@ -11,12 +11,14 @@ import (
 
 type Querier interface {
 	CountForTeam(ctx context.Context, teamSlug slug.Slug) (int64, error)
+	CountForWorkload(ctx context.Context, arg CountForWorkloadParams) (int64, error)
 	CountResourcesForDeployment(ctx context.Context, deploymentID uuid.UUID) (int64, error)
 	CountStatusesForDeployment(ctx context.Context, deploymentID uuid.UUID) (int64, error)
 	ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*Deployment, error)
 	ListByTeamSlug(ctx context.Context, arg ListByTeamSlugParams) ([]*Deployment, error)
 	ListDeploymentResourcesByIDs(ctx context.Context, ids []uuid.UUID) ([]*DeploymentK8sResource, error)
 	ListDeploymentStatusesByIDs(ctx context.Context, ids []uuid.UUID) ([]*DeploymentStatus, error)
+	ListForWorkload(ctx context.Context, arg ListForWorkloadParams) ([]*Deployment, error)
 	ListResourcesForDeployment(ctx context.Context, arg ListResourcesForDeploymentParams) ([]*DeploymentK8sResource, error)
 	ListStatusesForDeployment(ctx context.Context, arg ListStatusesForDeploymentParams) ([]*DeploymentStatus, error)
 }

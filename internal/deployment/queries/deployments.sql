@@ -102,3 +102,35 @@ FROM
 WHERE
 	deployment_id = @deployment_id
 ;
+
+-- name: ListForWorkload :many
+SELECT
+	deployments.*
+FROM
+	deployments
+	JOIN deployment_k8s_resources ON deployments.id = deployment_k8s_resources.deployment_id
+WHERE
+	deployment_k8s_resources.name = @workload_name
+	AND deployment_k8s_resources.kind = @workload_kind
+	AND deployments.environment = @environment_name
+	AND deployments.team_slug = @team_slug
+ORDER BY
+	deployments.created_at DESC
+LIMIT
+	sqlc.arg('limit')
+OFFSET
+	sqlc.arg('offset')
+;
+
+-- name: CountForWorkload :one
+SELECT
+	COUNT(*)
+FROM
+	deployments
+	JOIN deployment_k8s_resources ON deployments.id = deployment_k8s_resources.deployment_id
+WHERE
+	deployment_k8s_resources.name = @workload_name
+	AND deployment_k8s_resources.kind = @workload_kind
+	AND deployments.environment = @environment_name
+	AND deployments.team_slug = @team_slug
+;

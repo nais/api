@@ -77,43 +77,31 @@ func ListStatusesForDeployment(ctx context.Context, deploymentID uuid.UUID, page
 }
 
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string, workloadType workload.Type, page *pagination.Pagination) (*DeploymentConnection, error) {
-	panic("not implemented")
-	/*
-			cluster, err := withCluster(ctx, teamSlug)
-			if err != nil {
-				return nil, err
-			}
+	q := db(ctx)
 
-			all, err := fromContext(ctx).client.Deployments(ctx, hookd.WithTeam(teamSlug.String()), hookd.WithCluster(environmentName), hookd.WithCluster(cluster))
-			if err != nil {
-				return nil, fmt.Errorf("getting deploys from Hookd: %w", err)
-			}
+	ret, err := q.ListForWorkload(ctx, deploymentsql.ListForWorkloadParams{
+		TeamSlug:        teamSlug,
+		EnvironmentName: environmentName,
+		WorkloadName:    workloadName,
+		WorkloadKind:    workloadType.String(),
+		Offset:          page.Offset(),
+		Limit:           page.Limit(),
+	})
+	if err != nil {
+		return nil, err
+	}
 
-			var kind string
-			switch workloadType {
-			case workload.TypeApplication:
-				kind = "Application"
-			case workload.TypeJob:
-				kind = "Naisjob"
-			default:
-				return nil, fmt.Errorf("unsupported workload type: %v", workloadType)
-			}
+	total, err := q.CountForWorkload(ctx, deploymentsql.CountForWorkloadParams{
+		TeamSlug:        teamSlug,
+		EnvironmentName: environmentName,
+		WorkloadName:    workloadName,
+		WorkloadKind:    workloadType.String(),
+	})
+	if err != nil {
+		return nil, err
+	}
 
-			filtered := make([]hookd.Deploy, 0)
-		deploys:
-			for _, deploy := range all {
-				for _, resource := range deploy.Resources {
-					if resource.Name == workloadName && resource.Kind == kind {
-						filtered = append(filtered, deploy)
-						continue deploys
-					}
-				}
-			}
-
-			ret := pagination.Slice(filtered, page)
-			return pagination.NewConvertConnection(ret, page, len(filtered), toGraphDeployment), nil
-
-	*/
+	return pagination.NewConvertConnection(ret, page, total, toGraphDeployment), nil
 }
 
 func KeyForTeam(ctx context.Context, teamSlug slug.Slug) (*DeploymentKey, error) {

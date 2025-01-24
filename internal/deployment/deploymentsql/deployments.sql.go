@@ -26,6 +26,38 @@ func (q *Queries) CountForTeam(ctx context.Context, teamSlug slug.Slug) (int64, 
 	return count, err
 }
 
+const countForWorkload = `-- name: CountForWorkload :one
+SELECT
+	COUNT(*)
+FROM
+	deployments
+	JOIN deployment_k8s_resources ON deployments.id = deployment_k8s_resources.deployment_id
+WHERE
+	deployment_k8s_resources.name = $1
+	AND deployment_k8s_resources.kind = $2
+	AND deployments.environment = $3
+	AND deployments.team_slug = $4
+`
+
+type CountForWorkloadParams struct {
+	WorkloadName    string
+	WorkloadKind    string
+	EnvironmentName string
+	TeamSlug        slug.Slug
+}
+
+func (q *Queries) CountForWorkload(ctx context.Context, arg CountForWorkloadParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countForWorkload,
+		arg.WorkloadName,
+		arg.WorkloadKind,
+		arg.EnvironmentName,
+		arg.TeamSlug,
+	)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countResourcesForDeployment = `-- name: CountResourcesForDeployment :one
 SELECT
 	COUNT(*)
@@ -208,6 +240,67 @@ func (q *Queries) ListDeploymentStatusesByIDs(ctx context.Context, ids []uuid.UU
 			&i.DeploymentID,
 			&i.State,
 			&i.Message,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listForWorkload = `-- name: ListForWorkload :many
+SELECT
+	deployments.id, deployments.created_at, deployments.team_slug, deployments.repository, deployments.environment
+FROM
+	deployments
+	JOIN deployment_k8s_resources ON deployments.id = deployment_k8s_resources.deployment_id
+WHERE
+	deployment_k8s_resources.name = $1
+	AND deployment_k8s_resources.kind = $2
+	AND deployments.environment = $3
+	AND deployments.team_slug = $4
+ORDER BY
+	deployments.created_at DESC
+LIMIT
+	$6
+OFFSET
+	$5
+`
+
+type ListForWorkloadParams struct {
+	WorkloadName    string
+	WorkloadKind    string
+	EnvironmentName string
+	TeamSlug        slug.Slug
+	Offset          int32
+	Limit           int32
+}
+
+func (q *Queries) ListForWorkload(ctx context.Context, arg ListForWorkloadParams) ([]*Deployment, error) {
+	rows, err := q.db.Query(ctx, listForWorkload,
+		arg.WorkloadName,
+		arg.WorkloadKind,
+		arg.EnvironmentName,
+		arg.TeamSlug,
+		arg.Offset,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*Deployment{}
+	for rows.Next() {
+		var i Deployment
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.TeamSlug,
+			&i.Repository,
+			&i.Environment,
 		); err != nil {
 			return nil, err
 		}

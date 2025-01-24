@@ -10,12 +10,22 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
 )
 
 func (r *applicationResolver) DeploymentInfo(ctx context.Context, obj *application.Application) (*deployment.DeploymentInfo, error) {
 	return deployment.InfoForWorkload(ctx, obj)
+}
+
+func (r *applicationResolver) Deployments(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return deployment.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, workload.TypeApplication, page)
 }
 
 func (r *deploymentResolver) Team(ctx context.Context, obj *deployment.Deployment) (*team.Team, error) {
@@ -61,6 +71,15 @@ func (r *deploymentInfoResolver) History(ctx context.Context, obj *deployment.De
 
 func (r *jobResolver) DeploymentInfo(ctx context.Context, obj *job.Job) (*deployment.DeploymentInfo, error) {
 	return deployment.InfoForWorkload(ctx, obj)
+}
+
+func (r *jobResolver) Deployments(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return deployment.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, workload.TypeJob, page)
 }
 
 func (r *mutationResolver) ChangeDeploymentKey(ctx context.Context, input deployment.ChangeDeploymentKeyInput) (*deployment.ChangeDeploymentKeyPayload, error) {

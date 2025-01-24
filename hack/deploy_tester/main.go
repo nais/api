@@ -21,9 +21,9 @@ func main() {
 	// Create deployment
 	repo := "nais/testapp"
 	resp, err := client.Deployments().CreateDeployment(ctx, &protoapi.CreateDeploymentRequest{
-		TeamSlug:         "devteam",
-		GithubRepository: &repo,
-		Environment:      "dev",
+		TeamSlug:    "devteam",
+		Repository:  &repo,
+		Environment: "dev",
 	})
 	if err != nil {
 		panic(err)
@@ -38,7 +38,7 @@ func main() {
 		Version:      "v1alpha1",
 		DeploymentId: id,
 		Kind:         "Application",
-		Name:         "testapp",
+		Name:         "app-w-all-storage",
 		Namespace:    "default",
 	})
 	if err != nil {
