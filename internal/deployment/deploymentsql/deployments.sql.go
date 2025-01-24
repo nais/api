@@ -126,6 +126,83 @@ func (q *Queries) ListByTeamSlug(ctx context.Context, arg ListByTeamSlugParams) 
 	return items, nil
 }
 
+const listDeploymentResourcesByIDs = `-- name: ListDeploymentResourcesByIDs :many
+SELECT
+	id, created_at, deployment_id, "group", version, kind, name, namespace
+FROM
+	deployment_k8s_resources
+WHERE
+	id = ANY ($1::UUID[])
+ORDER BY
+	created_at
+`
+
+func (q *Queries) ListDeploymentResourcesByIDs(ctx context.Context, ids []uuid.UUID) ([]*DeploymentK8sResource, error) {
+	rows, err := q.db.Query(ctx, listDeploymentResourcesByIDs, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*DeploymentK8sResource{}
+	for rows.Next() {
+		var i DeploymentK8sResource
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.DeploymentID,
+			&i.Group,
+			&i.Version,
+			&i.Kind,
+			&i.Name,
+			&i.Namespace,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listDeploymentStatusesByIDs = `-- name: ListDeploymentStatusesByIDs :many
+SELECT
+	id, created_at, deployment_id, state, message
+FROM
+	deployment_statuses
+WHERE
+	id = ANY ($1::UUID[])
+ORDER BY
+	created_at
+`
+
+func (q *Queries) ListDeploymentStatusesByIDs(ctx context.Context, ids []uuid.UUID) ([]*DeploymentStatus, error) {
+	rows, err := q.db.Query(ctx, listDeploymentStatusesByIDs, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*DeploymentStatus{}
+	for rows.Next() {
+		var i DeploymentStatus
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.DeploymentID,
+			&i.State,
+			&i.Message,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listResourcesForDeployment = `-- name: ListResourcesForDeployment :many
 SELECT
 	id, created_at, deployment_id, "group", version, kind, name, namespace

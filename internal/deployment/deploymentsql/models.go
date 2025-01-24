@@ -3,10 +3,86 @@
 package deploymentsql
 
 import (
+	"database/sql/driver"
+	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/slug"
 )
+
+type DeploymentState string
+
+const (
+	DeploymentStateSuccess    DeploymentState = "success"
+	DeploymentStateError      DeploymentState = "error"
+	DeploymentStateFailure    DeploymentState = "failure"
+	DeploymentStateInactive   DeploymentState = "inactive"
+	DeploymentStateInProgress DeploymentState = "in_progress"
+	DeploymentStateQueued     DeploymentState = "queued"
+	DeploymentStatePending    DeploymentState = "pending"
+)
+
+func (e *DeploymentState) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = DeploymentState(s)
+	case string:
+		*e = DeploymentState(s)
+	default:
+		return fmt.Errorf("unsupported scan type for DeploymentState: %T", src)
+	}
+	return nil
+}
+
+type NullDeploymentState struct {
+	DeploymentState DeploymentState
+	Valid           bool // Valid is true if DeploymentState is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullDeploymentState) Scan(value interface{}) error {
+	if value == nil {
+		ns.DeploymentState, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.DeploymentState.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullDeploymentState) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.DeploymentState), nil
+}
+
+func (e DeploymentState) Valid() bool {
+	switch e {
+	case DeploymentStateSuccess,
+		DeploymentStateError,
+		DeploymentStateFailure,
+		DeploymentStateInactive,
+		DeploymentStateInProgress,
+		DeploymentStateQueued,
+		DeploymentStatePending:
+		return true
+	}
+	return false
+}
+
+func AllDeploymentStateValues() []DeploymentState {
+	return []DeploymentState{
+		DeploymentStateSuccess,
+		DeploymentStateError,
+		DeploymentStateFailure,
+		DeploymentStateInactive,
+		DeploymentStateInProgress,
+		DeploymentStateQueued,
+		DeploymentStatePending,
+	}
+}
 
 type Deployment struct {
 	ID          uuid.UUID
@@ -25,4 +101,12 @@ type DeploymentK8sResource struct {
 	Kind         string
 	Name         string
 	Namespace    string
+}
+
+type DeploymentStatus struct {
+	ID           uuid.UUID
+	CreatedAt    pgtype.Timestamptz
+	DeploymentID uuid.UUID
+	State        DeploymentState
+	Message      string
 }

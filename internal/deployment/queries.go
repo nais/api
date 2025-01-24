@@ -2,7 +2,6 @@ package deployment
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -13,7 +12,6 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
 	"k8s.io/utils/ptr"
 )
@@ -160,19 +158,18 @@ func InfoForWorkload(ctx context.Context, workload workload.Workload) (*Deployme
 }
 
 func getDeploymentKeyByIdent(ctx context.Context, id ident.Ident) (*DeploymentKey, error) {
-	// We ensure that the authenticated user has access to the deployment key first
-
 	teamSlug, err := parseDeploymentKeyIdent(id)
 	if err != nil {
 		return nil, err
 	}
+	// We ensure that the authenticated user has access to the deployment key first
 	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationDeployKeyRead, teamSlug); err != nil {
 		return nil, err
 	}
 	return KeyForTeam(ctx, teamSlug)
 }
 
-func Get(ctx context.Context, id uuid.UUID) (*Deployment, error) {
+func get(ctx context.Context, id uuid.UUID) (*Deployment, error) {
 	deployment, err := fromContext(ctx).deploymentLoader.Load(ctx, id)
 	if err != nil {
 		return nil, err
@@ -180,24 +177,42 @@ func Get(ctx context.Context, id uuid.UUID) (*Deployment, error) {
 	return deployment, nil
 }
 
+func getDeploymentResource(ctx context.Context, id uuid.UUID) (*DeploymentResource, error) {
+	resource, err := fromContext(ctx).deploymentResourceLoader.Load(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return resource, nil
+}
+
+func getDeploymentStatus(ctx context.Context, id uuid.UUID) (*DeploymentStatus, error) {
+	status, err := fromContext(ctx).deploymentStatusLoader.Load(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return status, nil
+}
+
 func getDeploymentByIdent(ctx context.Context, id ident.Ident) (*Deployment, error) {
 	uid, err := parseDeploymentIdent(id)
 	if err != nil {
 		return nil, err
 	}
-	return Get(ctx, uid)
+	return get(ctx, uid)
 }
 
-func withCluster(ctx context.Context, teamSlug slug.Slug) (string, error) {
-	envs, err := team.ListTeamEnvironments(ctx, teamSlug)
+func getDeploymentResourceByIdent(ctx context.Context, id ident.Ident) (*DeploymentResource, error) {
+	uid, err := parseDeploymentResourceIdent(id)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
+	return getDeploymentResource(ctx, uid)
+}
 
-	names := make([]string, 0, len(envs))
-	for _, env := range envs {
-		names = append(names, env.Name)
+func getDeploymentStatusByIdent(ctx context.Context, id ident.Ident) (*DeploymentStatus, error) {
+	uid, err := parseDeploymentStatusIdent(id)
+	if err != nil {
+		return nil, err
 	}
-
-	return strings.Join(names, ","), nil
+	return getDeploymentStatus(ctx, uid)
 }

@@ -14,6 +14,8 @@ type Querier interface {
 	CountResourcesForDeployment(ctx context.Context, deploymentID uuid.UUID) (int64, error)
 	ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*Deployment, error)
 	ListByTeamSlug(ctx context.Context, arg ListByTeamSlugParams) ([]*Deployment, error)
+	ListDeploymentResourcesByIDs(ctx context.Context, ids []uuid.UUID) ([]*DeploymentK8sResource, error)
+	ListDeploymentStatusesByIDs(ctx context.Context, ids []uuid.UUID) ([]*DeploymentStatus, error)
 	ListResourcesForDeployment(ctx context.Context, arg ListResourcesForDeploymentParams) ([]*DeploymentK8sResource, error)
 }
 

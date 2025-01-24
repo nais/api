@@ -9,6 +9,28 @@ ORDER BY
 	created_at
 ;
 
+-- name: ListDeploymentResourcesByIDs :many
+SELECT
+	*
+FROM
+	deployment_k8s_resources
+WHERE
+	id = ANY (@ids::UUID[])
+ORDER BY
+	created_at
+;
+
+-- name: ListDeploymentStatusesByIDs :many
+SELECT
+	*
+FROM
+	deployment_statuses
+WHERE
+	id = ANY (@ids::UUID[])
+ORDER BY
+	created_at
+;
+
 -- name: ListByTeamSlug :many
 SELECT
 	*

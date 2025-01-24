@@ -233,7 +233,12 @@ type Deployment implements Node {
 """
 Resource connected to a deployment.
 """
-type DeploymentResource {
+type DeploymentResource implements Node {
+	"""
+	Globally unique ID of the deployment resource.
+	"""
+	id: ID!
+
 	"""
 	Deployment resource kind.
 	"""
@@ -248,7 +253,12 @@ type DeploymentResource {
 """
 Resource connected to a deployment.
 """
-type DeploymentStatus {
+type DeploymentStatus implements Node {
+	"""
+	Globally unique ID of the deployment resource.
+	"""
+	id: ID!
+
 	"""
 	Creation timestamp of the deployment status.
 	"""

@@ -2,7 +2,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/nais/api/internal/auth/authz"
@@ -55,10 +54,6 @@ func (r *deploymentInfoResolver) History(ctx context.Context, obj *deployment.De
 	return deployment.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadName, obj.WorkloadType, page)
 }
 
-func (r *deploymentStatusResolver) State(ctx context.Context, obj *deployment.DeploymentStatus) (deployment.DeploymentStatusState, error) {
-	panic(fmt.Errorf("not implemented: State - state"))
-}
-
 func (r *jobResolver) DeploymentInfo(ctx context.Context, obj *job.Job) (*deployment.DeploymentInfo, error) {
 	return deployment.InfoForWorkload(ctx, obj)
 }
@@ -97,12 +92,7 @@ func (r *Resolver) Deployment() gengql.DeploymentResolver { return &deploymentRe
 
 func (r *Resolver) DeploymentInfo() gengql.DeploymentInfoResolver { return &deploymentInfoResolver{r} }
 
-func (r *Resolver) DeploymentStatus() gengql.DeploymentStatusResolver {
-	return &deploymentStatusResolver{r}
-}
-
 type (
-	deploymentResolver       struct{ *Resolver }
-	deploymentInfoResolver   struct{ *Resolver }
-	deploymentStatusResolver struct{ *Resolver }
+	deploymentResolver     struct{ *Resolver }
+	deploymentInfoResolver struct{ *Resolver }
 )

@@ -46,12 +46,26 @@ type DeploymentResource struct {
 	Group     string    `json:"-"`
 	Version   string    `json:"-"`
 	Namespace string    `json:"-"`
+	UUID      uuid.UUID `json:"-"`
+}
+
+func (DeploymentResource) IsNode() {}
+
+func (d *DeploymentResource) ID() ident.Ident {
+	return newDeploymentResourceIdent(d.UUID)
 }
 
 type DeploymentStatus struct {
 	CreatedAt time.Time             `json:"createdAt"`
-	Status    DeploymentStatusState `json:"status"`
+	State     DeploymentStatusState `json:"state"`
 	Message   string                `json:"message,omitempty"`
+	UUID      uuid.UUID             `json:"-"`
+}
+
+func (DeploymentStatus) IsNode() {}
+
+func (d *DeploymentStatus) ID() ident.Ident {
+	return newDeploymentStatusIdent(d.UUID)
 }
 
 type DeploymentStatusState string
@@ -151,42 +165,6 @@ func toGraphDeployment(row *deploymentsql.Deployment) *Deployment {
 		TeamSlug:        row.TeamSlug,
 		EnvironmentName: row.Environment,
 	}
-	/*
-		statuses := make([]*DeploymentStatus, len(d.Statuses))
-		for i, s := range d.Statuses {
-			var msg *string
-			if s.Message != "" {
-				msg = &s.Message
-			}
-			statuses[i] = &DeploymentStatus{
-				Status:  s.Status,
-				Message: msg,
-				Created: s.Created,
-			}
-		}
-
-		resources := make([]*DeploymentResource, len(d.Resources))
-		for i, r := range d.Resources {
-			resources[i] = &DeploymentResource{
-				Group:     r.Group,
-				Kind:      r.Kind,
-				Name:      r.Name,
-				Version:   r.Version,
-				Namespace: r.Namespace,
-			}
-		}
-
-		return &Deployment{
-			Created:         d.DeploymentInfo.Created,
-			Repository:      d.DeploymentInfo.GithubRepository,
-			TeamSlug:        d.DeploymentInfo.Team,
-			EnvironmentName: d.DeploymentInfo.Cluster,
-			Statuses:        statuses,
-			Resources:       resources,
-			ExternalID:      d.DeploymentInfo.ID,
-		}
-
-	*/
 }
 
 func toGraphDeploymentResource(row *deploymentsql.DeploymentK8sResource) *DeploymentResource {
@@ -197,40 +175,32 @@ func toGraphDeploymentResource(row *deploymentsql.DeploymentK8sResource) *Deploy
 		Name:      row.Name,
 		Namespace: row.Namespace,
 	}
-	/*
-		statuses := make([]*DeploymentStatus, len(d.Statuses))
-		for i, s := range d.Statuses {
-			var msg *string
-			if s.Message != "" {
-				msg = &s.Message
-			}
-			statuses[i] = &DeploymentStatus{
-				Status:  s.Status,
-				Message: msg,
-				Created: s.Created,
-			}
-		}
+}
 
-		resources := make([]*DeploymentResource, len(d.Resources))
-		for i, r := range d.Resources {
-			resources[i] = &DeploymentResource{
-				Group:     r.Group,
-				Kind:      r.Kind,
-				Name:      r.Name,
-				Version:   r.Version,
-				Namespace: r.Namespace,
-			}
-		}
-
-		return &Deployment{
-			Created:         d.DeploymentInfo.Created,
-			Repository:      d.DeploymentInfo.GithubRepository,
-			TeamSlug:        d.DeploymentInfo.Team,
-			EnvironmentName: d.DeploymentInfo.Cluster,
-			Statuses:        statuses,
-			Resources:       resources,
-			ExternalID:      d.DeploymentInfo.ID,
-		}
-
-	*/
+func toGraphDeploymentStatus(row *deploymentsql.DeploymentStatus) *DeploymentStatus {
+	var state DeploymentStatusState
+	switch row.State {
+	case deploymentsql.DeploymentStateSuccess:
+		state = DeploymentStatusStateSuccess
+	case deploymentsql.DeploymentStateError:
+		state = DeploymentStatusStateError
+	case deploymentsql.DeploymentStateFailure:
+		state = DeploymentStatusStateFailure
+	case deploymentsql.DeploymentStateInactive:
+		state = DeploymentStatusStateInactive
+	case deploymentsql.DeploymentStateInProgress:
+		state = DeploymentStatusStateInProgress
+	case deploymentsql.DeploymentStateQueued:
+		state = DeploymentStatusStateQueued
+	case deploymentsql.DeploymentStatePending:
+		state = DeploymentStatusStatePending
+	default:
+		state = DeploymentStatusStatePending
+	}
+	return &DeploymentStatus{
+		CreatedAt: row.CreatedAt.Time,
+		State:     state,
+		Message:   row.Message,
+		UUID:      row.ID,
+	}
 }
