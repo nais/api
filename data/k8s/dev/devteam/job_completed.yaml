@@ -1,0 +1,235 @@
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  annotations:
+    deploy.nais.io/client-version: 2023-12-19-bbbb39b
+    deploy.nais.io/github-actor: jhrv
+    deploy.nais.io/github-sha: c0b39684d253c19e39fd0afeecf203aef943fe7b
+    deploy.nais.io/github-workflow-run-url: https://github.com/nais/dataproduct-apps/actions/runs/7427397068
+    kubernetes.io/change-cause: "nais deploy: commit c0b39684d253c19e39fd0afeecf203aef943fe7b:
+      https://github.com/nais/dataproduct-apps/actions/runs/7427397068"
+    nais.io/deploymentCorrelationID: 54c600b1-c2a6-4018-9fb3-649df7a8920d
+  creationTimestamp: "2022-07-06T09:45:17Z"
+  finalizers:
+    - naiserator.nais.io/finalizer
+  generation: 243
+  name: test-job-4
+  resourceVersion: "4085586970"
+  uid: 3152cb5a-95f5-4418-8bd2-13b6d9f6058f
+spec:
+  azure:
+    application:
+      enabled: true
+  command:
+    - test-job-4
+  gcp:
+    buckets:
+      - name: dataproduct-apps-topics2
+  image: ghcr.io/nais/test-job-4:v1
+  liveness:
+    path: /isHealthy
+  readiness:
+    path: /isReady
+  schedule: 45 3 * * *
+  timeZone: "Europe/Oslo"
+  envFrom:
+    - secret: my-secret
+    - secret: my-other-secret
+  filesFrom:
+    - mountPath: /var/run/secrets
+      secret: my-secret
+status:
+  conditions:
+    - lastTransitionTime: "2024-01-05T22:35:39Z"
+      message: complete
+      reason: RolloutComplete
+      status: "True"
+      type: Ready
+    - lastTransitionTime: "2024-01-05T22:35:39Z"
+      message: complete
+      reason: RolloutComplete
+      status: "False"
+      type: Stalled
+    - lastTransitionTime: "2024-01-05T22:35:39Z"
+      message: complete
+      reason: RolloutComplete
+      status: "False"
+      type: Reconciling
+  correlationID: 54c600b1-c2a6-4018-9fb3-649df7a8920d
+  deploymentRolloutStatus: complete
+  rolloutCompleteTime: 1704838357272567094
+  synchronizationHash: 6e0cb332b94540ec
+  synchronizationState: RolloutComplete
+  synchronizationTime: 1704838351872468010
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    batch.kubernetes.io/cronjob-scheduled-timestamp: "2024-12-10T03:45:00Z"
+    nais.io/deploymentCorrelationID: d3778e4f-84ae-416e-a53b-59478088ece7
+  creationTimestamp: "2024-12-10T03:45:00Z"
+  generation: 1
+  labels:
+    apiserver-access: enabled
+    app: test-job-4
+    team: aura
+  name: test-job-4-28896705
+  namespace: aura
+  ownerReferences:
+    - apiVersion: batch/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: CronJob
+      name: test-job-4
+      uid: 8b7674b8-7d9f-4cde-99e4-039f5261c51e
+  resourceVersion: "5970222810"
+  uid: baa385d3-59e7-49e9-881a-aa197ee37ffc
+spec:
+  backoffLimit: 6
+  completionMode: NonIndexed
+  completions: 1
+  manualSelector: false
+  parallelism: 1
+  podReplacementPolicy: TerminatingOrFailed
+  selector:
+    matchLabels:
+      batch.kubernetes.io/controller-uid: baa385d3-59e7-49e9-881a-aa197ee37ffc
+  suspend: false
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: test-job-4
+      creationTimestamp: null
+      labels:
+        apiserver-access: enabled
+        app: test-job-4
+        batch.kubernetes.io/controller-uid: baa385d3-59e7-49e9-881a-aa197ee37ffc
+        batch.kubernetes.io/job-name: test-job-4-28896705
+        controller-uid: baa385d3-59e7-49e9-881a-aa197ee37ffc
+        job-name: test-job-4-28896705
+        nais.io/naisjob: "true"
+        team: aura
+      name: test-job-4
+      namespace: aura
+      ownerReferences:
+        - apiVersion: nais.io/v1
+          kind: Naisjob
+          name: test-job-4
+          uid: 3152cb5a-95f5-4418-8bd2-13b6d9f6058f
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - test-job-4
+                topologyKey: kubernetes.io/hostname
+              weight: 10
+      containers:
+        - command:
+            - test-job-4
+          env:
+            - name: PORT
+              value: "8080"
+            - name: BIND_ADDRESS
+              value: 0.0.0.0:8080
+          image: europe-north1-docker.pkg.dev/nais-io/nais/images/dataproduct-apps:20240925081649-47ebf39
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - sleep
+                  - "5"
+          name: test-job-2
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 200m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1069
+            runAsNonRoot: true
+            runAsUser: 1069
+            seccompProfile:
+              type: RuntimeDefault
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /etc/ssl/certs/java/cacerts
+              name: ca-bundle-jks
+              readOnly: true
+              subPath: ca-bundle.jks
+            - mountPath: /etc/ssl/certs/ca-certificates.crt
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /etc/pki/tls/certs/ca-bundle.crt
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /etc/ssl/ca-bundle.pem
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /etc/pki/tls/cacert.pem
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /tmp
+              name: writable-tmp
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+        - name: gh-docker-credentials
+        - name: gar-docker-credentials
+      restartPolicy: Never
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 1069
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccount: test-job-2
+      serviceAccountName: test-job-2
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: ca-bundle-jks
+          name: ca-bundle-jks
+        - configMap:
+            defaultMode: 420
+            name: ca-bundle-pem
+          name: ca-bundle-pem
+        - emptyDir: {}
+          name: writable-tmp
+status:
+  completionTime: "2025-01-24T14:01:00Z"
+  conditions:
+    - lastProbeTime: "2025-01-24T13:59:00Z"
+      lastTransitionTime: "2025-01-24T13:59:00Z"
+      status: "True"
+      type: Failed
+  ready: 0
+  startTime: "2025-01-24T13:45:00Z"
+  succeeded: 1
+  terminating: 0
+  uncountedTerminatedPods: {}
