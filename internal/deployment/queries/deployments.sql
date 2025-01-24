@@ -63,10 +63,7 @@ FROM
 WHERE
 	deployment_id = @deployment_id
 ORDER BY
-	"group",
-	version,
-	kind,
-	name
+	created_at DESC
 LIMIT
 	sqlc.arg('limit')
 OFFSET
@@ -78,6 +75,30 @@ SELECT
 	COUNT(*)
 FROM
 	deployment_k8s_resources
+WHERE
+	deployment_id = @deployment_id
+;
+
+-- name: ListStatusesForDeployment :many
+SELECT
+	*
+FROM
+	deployment_statuses
+WHERE
+	deployment_id = @deployment_id
+ORDER BY
+	created_at DESC
+LIMIT
+	sqlc.arg('limit')
+OFFSET
+	sqlc.arg('offset')
+;
+
+-- name: CountStatusesForDeployment :one
+SELECT
+	COUNT(*)
+FROM
+	deployment_statuses
 WHERE
 	deployment_id = @deployment_id
 ;

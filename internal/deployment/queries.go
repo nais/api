@@ -56,6 +56,26 @@ func ListResourcesForDeployment(ctx context.Context, deploymentID uuid.UUID, pag
 	return pagination.NewConvertConnection(ret, page, total, toGraphDeploymentResource), nil
 }
 
+func ListStatusesForDeployment(ctx context.Context, deploymentID uuid.UUID, page *pagination.Pagination) (*DeploymentStatusConnection, error) {
+	q := db(ctx)
+
+	ret, err := q.ListStatusesForDeployment(ctx, deploymentsql.ListStatusesForDeploymentParams{
+		DeploymentID: deploymentID,
+		Offset:       page.Offset(),
+		Limit:        page.Limit(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	total, err := q.CountStatusesForDeployment(ctx, deploymentID)
+	if err != nil {
+		return nil, err
+	}
+
+	return pagination.NewConvertConnection(ret, page, total, toGraphDeploymentStatus), nil
+}
+
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string, workloadType workload.Type, page *pagination.Pagination) (*DeploymentConnection, error) {
 	panic("not implemented")
 	/*

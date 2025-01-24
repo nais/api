@@ -42,7 +42,12 @@ func (r *deploymentResolver) Resources(ctx context.Context, obj *deployment.Depl
 }
 
 func (r *deploymentResolver) Statuses(ctx context.Context, obj *deployment.Deployment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.DeploymentStatus], error) {
-	panic("not implemented")
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return deployment.ListStatusesForDeployment(ctx, obj.UUID, page)
 }
 
 func (r *deploymentInfoResolver) History(ctx context.Context, obj *deployment.DeploymentInfo, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error) {

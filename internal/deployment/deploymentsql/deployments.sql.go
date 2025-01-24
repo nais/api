@@ -42,6 +42,22 @@ func (q *Queries) CountResourcesForDeployment(ctx context.Context, deploymentID 
 	return count, err
 }
 
+const countStatusesForDeployment = `-- name: CountStatusesForDeployment :one
+SELECT
+	COUNT(*)
+FROM
+	deployment_statuses
+WHERE
+	deployment_id = $1
+`
+
+func (q *Queries) CountStatusesForDeployment(ctx context.Context, deploymentID uuid.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countStatusesForDeployment, deploymentID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const listByIDs = `-- name: ListByIDs :many
 SELECT
 	id, created_at, team_slug, repository, environment
@@ -211,10 +227,7 @@ FROM
 WHERE
 	deployment_id = $1
 ORDER BY
-	"group",
-	version,
-	kind,
-	name
+	created_at DESC
 LIMIT
 	$3
 OFFSET
@@ -245,6 +258,53 @@ func (q *Queries) ListResourcesForDeployment(ctx context.Context, arg ListResour
 			&i.Kind,
 			&i.Name,
 			&i.Namespace,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listStatusesForDeployment = `-- name: ListStatusesForDeployment :many
+SELECT
+	id, created_at, deployment_id, state, message
+FROM
+	deployment_statuses
+WHERE
+	deployment_id = $1
+ORDER BY
+	created_at DESC
+LIMIT
+	$3
+OFFSET
+	$2
+`
+
+type ListStatusesForDeploymentParams struct {
+	DeploymentID uuid.UUID
+	Offset       int32
+	Limit        int32
+}
+
+func (q *Queries) ListStatusesForDeployment(ctx context.Context, arg ListStatusesForDeploymentParams) ([]*DeploymentStatus, error) {
+	rows, err := q.db.Query(ctx, listStatusesForDeployment, arg.DeploymentID, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*DeploymentStatus{}
+	for rows.Next() {
+		var i DeploymentStatus
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.DeploymentID,
+			&i.State,
+			&i.Message,
 		); err != nil {
 			return nil, err
 		}
