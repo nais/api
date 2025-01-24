@@ -38,11 +38,12 @@ func (d *Deployment) ID() ident.Ident {
 }
 
 type DeploymentResource struct {
-	Group     string `json:"group"`
-	Kind      string `json:"kind"`
-	Name      string `json:"name"`
-	Version   string `json:"version"`
-	Namespace string `json:"namespace"`
+	CreatedAt time.Time `json:"createdAt"`
+	Group     string    `json:"group"`
+	Kind      string    `json:"kind"`
+	Name      string    `json:"name"`
+	Version   string    `json:"version"`
+	Namespace string    `json:"namespace"`
 }
 
 type DeploymentStatus struct {

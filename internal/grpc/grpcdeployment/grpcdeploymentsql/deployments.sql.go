@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -15,7 +16,7 @@ INSERT INTO
 	deployments (created_at, team_slug, repository, environment)
 VALUES
 	(
-		COALESCE($1, CLOCK_TIMESTAMP()),
+		COALESCE($1, CLOCK_TIMESTAMP())::TIMESTAMPTZ,
 		$2,
 		$3,
 		$4
@@ -25,7 +26,7 @@ RETURNING
 `
 
 type CreateDeploymentParams struct {
-	CreatedAt   interface{}
+	CreatedAt   pgtype.Timestamptz
 	TeamSlug    slug.Slug
 	Repository  *string
 	Environment string
@@ -47,6 +48,7 @@ const createDeploymentK8sResource = `-- name: CreateDeploymentK8sResource :one
 INSERT INTO
 	deployment_k8s_resources (
 		deployment_id,
+		created_at,
 		"group",
 		version,
 		kind,
@@ -56,11 +58,12 @@ INSERT INTO
 VALUES
 	(
 		$1,
-		$2,
+		COALESCE($2, CLOCK_TIMESTAMP())::TIMESTAMPTZ,
 		$3,
 		$4,
 		$5,
-		$6
+		$6,
+		$7
 	)
 RETURNING
 	id
@@ -68,6 +71,7 @@ RETURNING
 
 type CreateDeploymentK8sResourceParams struct {
 	DeploymentID uuid.UUID
+	CreatedAt    pgtype.Timestamptz
 	Group        string
 	Version      string
 	Kind         string
@@ -78,6 +82,7 @@ type CreateDeploymentK8sResourceParams struct {
 func (q *Queries) CreateDeploymentK8sResource(ctx context.Context, arg CreateDeploymentK8sResourceParams) (uuid.UUID, error) {
 	row := q.db.QueryRow(ctx, createDeploymentK8sResource,
 		arg.DeploymentID,
+		arg.CreatedAt,
 		arg.Group,
 		arg.Version,
 		arg.Kind,
@@ -94,7 +99,7 @@ INSERT INTO
 	deployment_statuses (created_at, deployment_id, state, message)
 VALUES
 	(
-		COALESCE($1, CLOCK_TIMESTAMP()),
+		COALESCE($1, CLOCK_TIMESTAMP())::TIMESTAMPTZ,
 		$2,
 		$3,
 		$4
@@ -104,7 +109,7 @@ RETURNING
 `
 
 type CreateDeploymentStatusParams struct {
-	CreatedAt    interface{}
+	CreatedAt    pgtype.Timestamptz
 	DeploymentID uuid.UUID
 	State        DeploymentState
 	Message      string

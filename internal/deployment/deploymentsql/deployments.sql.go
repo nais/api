@@ -128,7 +128,7 @@ func (q *Queries) ListByTeamSlug(ctx context.Context, arg ListByTeamSlugParams) 
 
 const listResourcesForDeployment = `-- name: ListResourcesForDeployment :many
 SELECT
-	id, deployment_id, "group", version, kind, name, namespace
+	id, created_at, deployment_id, "group", version, kind, name, namespace
 FROM
 	deployment_k8s_resources
 WHERE
@@ -161,6 +161,7 @@ func (q *Queries) ListResourcesForDeployment(ctx context.Context, arg ListResour
 		var i DeploymentK8sResource
 		if err := rows.Scan(
 			&i.ID,
+			&i.CreatedAt,
 			&i.DeploymentID,
 			&i.Group,
 			&i.Version,

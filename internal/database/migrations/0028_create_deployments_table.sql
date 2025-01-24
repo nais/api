@@ -21,6 +21,7 @@ CREATE TABLE deployments (
 
 CREATE TABLE deployment_k8s_resources (
 	id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT CLOCK_TIMESTAMP() NOT NULL,
 	deployment_id UUID NOT NULL,
 	"group" TEXT NOT NULL,
 	version TEXT NOT NULL,

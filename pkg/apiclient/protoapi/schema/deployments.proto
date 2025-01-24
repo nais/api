@@ -36,18 +36,19 @@ message CreateDeploymentResponse { string id = 1; }
 
 message CreateDeploymentK8sResourceRequest {
   string deployment_id = 1;
-  string group = 2;
-  string version = 3;
-  string kind = 4;
-  string name = 5;
-  string namespace = 6;
+  optional google.protobuf.Timestamp created_at = 2;
+  string group = 3;
+  string version = 4;
+  string kind = 5;
+  string name = 6;
+  string namespace = 7;
 }
 
 message CreateDeploymentK8sResourceResponse { string id = 1; }
 
 message CreateDeploymentStatusRequest {
-  optional google.protobuf.Timestamp created_at = 1;
-  string deployment_id = 2;
+  string deployment_id = 1;
+  optional google.protobuf.Timestamp created_at = 2;
   DeploymentState state = 3;
   string message = 4;
 }

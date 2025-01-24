@@ -78,11 +78,15 @@ func (s *Server) CreateDeploymentK8SResource(ctx context.Context, req *protoapi.
 
 	id, err := s.querier.CreateDeploymentK8sResource(ctx, grpcdeploymentsql.CreateDeploymentK8sResourceParams{
 		DeploymentID: uid,
-		Group:        req.Group,
-		Version:      req.Version,
-		Kind:         req.Kind,
-		Name:         req.Name,
-		Namespace:    req.Namespace,
+		CreatedAt: pgtype.Timestamptz{
+			Time:  req.CreatedAt.AsTime(),
+			Valid: req.CreatedAt.IsValid(),
+		},
+		Group:     req.Group,
+		Version:   req.Version,
+		Kind:      req.Kind,
+		Name:      req.Name,
+		Namespace: req.Namespace,
 	})
 	if err != nil {
 		return nil, err

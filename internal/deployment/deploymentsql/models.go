@@ -18,6 +18,7 @@ type Deployment struct {
 
 type DeploymentK8sResource struct {
 	ID           uuid.UUID
+	CreatedAt    pgtype.Timestamptz
 	DeploymentID uuid.UUID
 	Group        string
 	Version      string

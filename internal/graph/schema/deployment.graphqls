@@ -235,6 +235,7 @@ DO NOT USE
 This type is a work in progress, and will be changed in the future.
 """
 type DeploymentResource {
+	createdAt: Time!
 	group: String!
 	kind: String!
 	name: String!

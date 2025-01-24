@@ -444,6 +444,7 @@ type ComplexityRoot struct {
 	}
 
 	DeploymentResource struct {
+		CreatedAt func(childComplexity int) int
 		Group     func(childComplexity int) int
 		Kind      func(childComplexity int) int
 		Name      func(childComplexity int) int
@@ -3661,6 +3662,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.DeploymentKey.Key(childComplexity), true
+
+	case "DeploymentResource.createdAt":
+		if e.complexity.DeploymentResource.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.DeploymentResource.CreatedAt(childComplexity), true
 
 	case "DeploymentResource.group":
 		if e.complexity.DeploymentResource.Group == nil {
@@ -12118,6 +12126,7 @@ DO NOT USE
 This type is a work in progress, and will be changed in the future.
 """
 type DeploymentResource {
+	createdAt: Time!
 	group: String!
 	kind: String!
 	name: String!
@@ -33831,6 +33840,50 @@ func (ec *executionContext) fieldContext_DeploymentKey_expires(_ context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _DeploymentResource_createdAt(ctx context.Context, field graphql.CollectedField, obj *deployment.DeploymentResource) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeploymentResource_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeploymentResource_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeploymentResource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _DeploymentResource_group(ctx context.Context, field graphql.CollectedField, obj *deployment.DeploymentResource) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_DeploymentResource_group(ctx, field)
 	if err != nil {
@@ -34150,6 +34203,8 @@ func (ec *executionContext) fieldContext_DeploymentResourceConnection_nodes(_ co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "createdAt":
+				return ec.fieldContext_DeploymentResource_createdAt(ctx, field)
 			case "group":
 				return ec.fieldContext_DeploymentResource_group(ctx, field)
 			case "kind":
@@ -34300,6 +34355,8 @@ func (ec *executionContext) fieldContext_DeploymentResourceEdge_node(_ context.C
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "createdAt":
+				return ec.fieldContext_DeploymentResource_createdAt(ctx, field)
 			case "group":
 				return ec.fieldContext_DeploymentResource_group(ctx, field)
 			case "kind":
@@ -89113,6 +89170,11 @@ func (ec *executionContext) _DeploymentResource(ctx context.Context, sel ast.Sel
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("DeploymentResource")
+		case "createdAt":
+			out.Values[i] = ec._DeploymentResource_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "group":
 			out.Values[i] = ec._DeploymentResource_group(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
