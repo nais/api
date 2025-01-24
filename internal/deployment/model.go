@@ -1,17 +1,19 @@
 package deployment
 
 import (
+	"fmt"
+	"io"
+	"slices"
+	"strconv"
 	"time"
-
-	"github.com/nais/api/internal/workload"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/deployment/deploymentsql"
-
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/hookd"
+	"github.com/nais/api/internal/workload"
 )
 
 type (
@@ -38,18 +40,65 @@ func (d *Deployment) ID() ident.Ident {
 }
 
 type DeploymentResource struct {
-	CreatedAt time.Time `json:"createdAt"`
-	Group     string    `json:"group"`
 	Kind      string    `json:"kind"`
 	Name      string    `json:"name"`
-	Version   string    `json:"version"`
-	Namespace string    `json:"namespace"`
+	CreatedAt time.Time `json:"-"`
+	Group     string    `json:"-"`
+	Version   string    `json:"-"`
+	Namespace string    `json:"-"`
 }
 
 type DeploymentStatus struct {
-	Status  string    `json:"status"`
-	Message *string   `json:"message,omitempty"`
-	Created time.Time `json:"created"`
+	CreatedAt time.Time             `json:"createdAt"`
+	Status    DeploymentStatusState `json:"status"`
+	Message   string                `json:"message,omitempty"`
+}
+
+type DeploymentStatusState string
+
+const (
+	DeploymentStatusStateSuccess    DeploymentStatusState = "SUCCESS"
+	DeploymentStatusStateError      DeploymentStatusState = "ERROR"
+	DeploymentStatusStateFailure    DeploymentStatusState = "FAILURE"
+	DeploymentStatusStateInactive   DeploymentStatusState = "INACTIVE"
+	DeploymentStatusStateInProgress DeploymentStatusState = "IN_PROGRESS"
+	DeploymentStatusStateQueued     DeploymentStatusState = "QUEUED"
+	DeploymentStatusStatePending    DeploymentStatusState = "PENDING"
+)
+
+var AllDeploymentStatusState = []DeploymentStatusState{
+	DeploymentStatusStateSuccess,
+	DeploymentStatusStateError,
+	DeploymentStatusStateFailure,
+	DeploymentStatusStateInactive,
+	DeploymentStatusStateInProgress,
+	DeploymentStatusStateQueued,
+	DeploymentStatusStatePending,
+}
+
+func (e DeploymentStatusState) IsValid() bool {
+	return slices.Contains(AllDeploymentStatusState, e)
+}
+
+func (e DeploymentStatusState) String() string {
+	return string(e)
+}
+
+func (e *DeploymentStatusState) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = DeploymentStatusState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid DeploymentStatusState", str)
+	}
+	return nil
+}
+
+func (e DeploymentStatusState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type DeploymentInfo struct {
