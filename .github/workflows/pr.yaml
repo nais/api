@@ -22,6 +22,7 @@ jobs:
           before_install: |
             rm ~/.asdf/.tool-versions
             asdf install golang latest
+            asdf install golang
             asdf global golang latest
       - name: Find go cache dir
         id: go-cache
