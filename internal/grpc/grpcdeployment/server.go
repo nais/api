@@ -12,6 +12,7 @@ import (
 	"github.com/nais/api/pkg/apiclient/protoapi"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"k8s.io/utils/ptr"
 )
 
 type Server struct {
@@ -26,7 +27,7 @@ func NewServer(pool *pgxpool.Pool) *Server {
 }
 
 func (s *Server) CreateDeployment(ctx context.Context, req *protoapi.CreateDeploymentRequest) (*protoapi.CreateDeploymentResponse, error) {
-	exists, err := s.querier.TeamExists(ctx, slug.Slug(req.TeamSlug))
+	exists, err := s.querier.TeamExists(ctx, slug.Slug(req.GetTeamSlug()))
 	if err != nil {
 		return nil, err
 	}
@@ -35,105 +36,109 @@ func (s *Server) CreateDeployment(ctx context.Context, req *protoapi.CreateDeplo
 		return nil, status.Errorf(codes.NotFound, "team does not exist")
 	}
 
-	if req.Environment == "" {
+	if req.GetEnvironment() == "" {
 		return nil, status.Errorf(codes.InvalidArgument, "environment is required")
 	}
 
+	var repoName *string
+	if req.HasRepository() {
+		repoName = ptr.To(req.GetRepository())
+	}
 	id, err := s.querier.CreateDeployment(ctx, grpcdeploymentsql.CreateDeploymentParams{
 		CreatedAt: pgtype.Timestamptz{
-			Time:  req.CreatedAt.AsTime(),
-			Valid: req.CreatedAt.IsValid(),
+			Time:  req.GetCreatedAt().AsTime(),
+			Valid: req.GetCreatedAt().IsValid(),
 		},
-		TeamSlug:        slug.Slug(req.TeamSlug),
-		Repository:      req.Repository,
-		EnvironmentName: req.Environment,
+		TeamSlug:        slug.Slug(req.GetTeamSlug()),
+		Repository:      repoName,
+		EnvironmentName: req.GetEnvironment(),
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return &protoapi.CreateDeploymentResponse{
-		Id: id.String(),
-	}, nil
+	return protoapi.CreateDeploymentResponse_builder{
+		Id: ptr.To(id.String()),
+	}.Build(), nil
 }
 
 func (s *Server) CreateDeploymentK8SResource(ctx context.Context, req *protoapi.CreateDeploymentK8SResourceRequest) (*protoapi.CreateDeploymentK8SResourceResponse, error) {
-	uid, err := uuid.Parse(req.DeploymentId)
+	uid, err := uuid.Parse(req.GetDeploymentId())
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid deployment id")
 	}
 
 	switch {
-	case req.Group == "":
+	case req.GetGroup() == "":
 		return nil, status.Errorf(codes.InvalidArgument, "group is required")
-	case req.Version == "":
+	case req.GetVersion() == "":
 		return nil, status.Errorf(codes.InvalidArgument, "version is required")
-	case req.Kind == "":
+	case req.GetKind() == "":
 		return nil, status.Errorf(codes.InvalidArgument, "kind is required")
-	case req.Name == "":
+	case req.GetName() == "":
 		return nil, status.Errorf(codes.InvalidArgument, "name is required")
-	case req.Namespace == "":
+	case req.GetNamespace() == "":
 		return nil, status.Errorf(codes.InvalidArgument, "namespace is required")
 	}
 
 	id, err := s.querier.CreateDeploymentK8sResource(ctx, grpcdeploymentsql.CreateDeploymentK8sResourceParams{
 		DeploymentID: uid,
 		CreatedAt: pgtype.Timestamptz{
-			Time:  req.CreatedAt.AsTime(),
-			Valid: req.CreatedAt.IsValid(),
+			Time:  req.GetCreatedAt().AsTime(),
+			Valid: req.GetCreatedAt().IsValid(),
 		},
-		Group:     req.Group,
-		Version:   req.Version,
-		Kind:      req.Kind,
-		Name:      req.Name,
-		Namespace: req.Namespace,
+		Group:     req.GetGroup(),
+		Version:   req.GetVersion(),
+		Kind:      req.GetKind(),
+		Name:      req.GetName(),
+		Namespace: req.GetNamespace(),
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return &protoapi.CreateDeploymentK8SResourceResponse{
-		Id: id.String(),
-	}, nil
+	return protoapi.CreateDeploymentK8SResourceResponse_builder{
+		Id: ptr.To(id.String()),
+	}.Build(), nil
 }
 
 func (s *Server) CreateDeploymentStatus(ctx context.Context, req *protoapi.CreateDeploymentStatusRequest) (*protoapi.CreateDeploymentStatusResponse, error) {
-	uid, err := uuid.Parse(req.DeploymentId)
+	uid, err := uuid.Parse(req.GetDeploymentId())
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid deployment id")
 	}
 
-	if req.Message == "" {
+	if req.GetMessage() == "" {
 		return nil, status.Errorf(codes.InvalidArgument, "message is required")
 	}
 
-	state, ok := toSQLStateEnum(req.State)
+	state, ok := toSQLStateEnum(req.GetState())
 	if !ok {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid state")
 	}
 
 	id, err := s.querier.CreateDeploymentStatus(ctx, grpcdeploymentsql.CreateDeploymentStatusParams{
 		CreatedAt: pgtype.Timestamptz{
-			Time:  req.CreatedAt.AsTime(),
-			Valid: req.CreatedAt.IsValid(),
+			Time:  req.GetCreatedAt().AsTime(),
+			Valid: req.GetCreatedAt().IsValid(),
 		},
 		DeploymentID: uid,
 		State:        state,
-		Message:      req.Message,
+		Message:      req.GetMessage(),
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return &protoapi.CreateDeploymentStatusResponse{
-		Id: id.String(),
-	}, nil
+	return protoapi.CreateDeploymentStatusResponse_builder{
+		Id: ptr.To(id.String()),
+	}.Build(), nil
 }
 
 func toSQLStateEnum(gs protoapi.DeploymentState) (grpcdeploymentsql.DeploymentState, bool) {
 	mapped := grpcdeploymentsql.DeploymentState(gs.String())
 	if !slices.Contains(grpcdeploymentsql.AllDeploymentStateValues(), mapped) {
-		return grpcdeploymentsql.DeploymentState(""), false
+		return "", false
 	}
 
 	return mapped, true
