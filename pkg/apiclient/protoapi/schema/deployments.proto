@@ -3,8 +3,6 @@ edition = "2023";
 package nais.api.protobuf;
 
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/go_features.proto";
-option features.(pb.go).api_level = API_OPAQUE;
 option go_package = "./pkg/apiclient/protoapi";
 
 service Deployments {
