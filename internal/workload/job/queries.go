@@ -119,6 +119,13 @@ func Runs(ctx context.Context, teamSlug slug.Slug, environment, jobName string, 
 	}
 
 	slices.SortStableFunc(ret, func(a, b *JobRun) int {
+		if a.StartTime == nil {
+			return 1
+		}
+		if b.StartTime == nil {
+			return -1
+		}
+
 		return b.StartTime.Compare(*a.StartTime)
 	})
 
