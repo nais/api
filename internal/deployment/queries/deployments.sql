@@ -112,7 +112,7 @@ FROM
 WHERE
 	deployment_k8s_resources.name = @workload_name
 	AND deployment_k8s_resources.kind = @workload_kind
-	AND deployments.environment = @environment_name
+	AND deployments.environment_name = @environment_name
 	AND deployments.team_slug = @team_slug
 ORDER BY
 	deployments.created_at DESC
@@ -131,6 +131,6 @@ FROM
 WHERE
 	deployment_k8s_resources.name = @workload_name
 	AND deployment_k8s_resources.kind = @workload_kind
-	AND deployments.environment = @environment_name
+	AND deployments.environment_name = @environment_name
 	AND deployments.team_slug = @team_slug
 ;

@@ -44,9 +44,9 @@ func (s *Server) CreateDeployment(ctx context.Context, req *protoapi.CreateDeplo
 			Time:  req.CreatedAt.AsTime(),
 			Valid: req.CreatedAt.IsValid(),
 		},
-		TeamSlug:    slug.Slug(req.TeamSlug),
-		Repository:  req.Repository,
-		Environment: req.Environment,
+		TeamSlug:        slug.Slug(req.TeamSlug),
+		Repository:      req.Repository,
+		EnvironmentName: req.Environment,
 	})
 	if err != nil {
 		return nil, err

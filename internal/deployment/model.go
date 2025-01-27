@@ -163,7 +163,7 @@ func toGraphDeployment(row *deploymentsql.Deployment) *Deployment {
 		Repository:      row.Repository,
 		UUID:            row.ID,
 		TeamSlug:        row.TeamSlug,
-		EnvironmentName: row.Environment,
+		EnvironmentName: row.EnvironmentName,
 	}
 }
 

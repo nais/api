@@ -85,11 +85,11 @@ func AllDeploymentStateValues() []DeploymentState {
 }
 
 type Deployment struct {
-	ID          uuid.UUID
-	CreatedAt   pgtype.Timestamptz
-	TeamSlug    slug.Slug
-	Repository  *string
-	Environment string
+	ID              uuid.UUID
+	CreatedAt       pgtype.Timestamptz
+	TeamSlug        slug.Slug
+	Repository      *string
+	EnvironmentName string
 }
 
 type DeploymentK8sResource struct {

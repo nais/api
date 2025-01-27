@@ -13,7 +13,12 @@ import (
 
 const createDeployment = `-- name: CreateDeployment :one
 INSERT INTO
-	deployments (created_at, team_slug, repository, environment)
+	deployments (
+		created_at,
+		team_slug,
+		repository,
+		environment_name
+	)
 VALUES
 	(
 		COALESCE($1, CLOCK_TIMESTAMP())::TIMESTAMPTZ,
@@ -26,10 +31,10 @@ RETURNING
 `
 
 type CreateDeploymentParams struct {
-	CreatedAt   pgtype.Timestamptz
-	TeamSlug    slug.Slug
-	Repository  *string
-	Environment string
+	CreatedAt       pgtype.Timestamptz
+	TeamSlug        slug.Slug
+	Repository      *string
+	EnvironmentName string
 }
 
 func (q *Queries) CreateDeployment(ctx context.Context, arg CreateDeploymentParams) (uuid.UUID, error) {
@@ -37,7 +42,7 @@ func (q *Queries) CreateDeployment(ctx context.Context, arg CreateDeploymentPara
 		arg.CreatedAt,
 		arg.TeamSlug,
 		arg.Repository,
-		arg.Environment,
+		arg.EnvironmentName,
 	)
 	var id uuid.UUID
 	err := row.Scan(&id)
