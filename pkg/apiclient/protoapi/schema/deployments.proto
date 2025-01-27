@@ -30,7 +30,7 @@ message CreateDeploymentRequest {
   google.protobuf.Timestamp created_at = 1;
   string team_slug = 2;
   string repository = 3;
-  string environment = 4;
+  string environment_name = 4;
 }
 
 message CreateDeploymentResponse { string id = 1; }

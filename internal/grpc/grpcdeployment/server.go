@@ -36,7 +36,7 @@ func (s *Server) CreateDeployment(ctx context.Context, req *protoapi.CreateDeplo
 		return nil, status.Errorf(codes.NotFound, "team does not exist")
 	}
 
-	if req.GetEnvironment() == "" {
+	if req.GetEnvironmentName() == "" {
 		return nil, status.Errorf(codes.InvalidArgument, "environment is required")
 	}
 
@@ -51,7 +51,7 @@ func (s *Server) CreateDeployment(ctx context.Context, req *protoapi.CreateDeplo
 		},
 		TeamSlug:        slug.Slug(req.GetTeamSlug()),
 		Repository:      repoName,
-		EnvironmentName: req.GetEnvironment(),
+		EnvironmentName: req.GetEnvironmentName(),
 	})
 	if err != nil {
 		return nil, err
