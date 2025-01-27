@@ -14,6 +14,7 @@ import (
 const createDeployment = `-- name: CreateDeployment :one
 INSERT INTO
 	deployments (
+		external_id,
 		created_at,
 		team_slug,
 		repository,
@@ -21,16 +22,18 @@ INSERT INTO
 	)
 VALUES
 	(
-		COALESCE($1, CLOCK_TIMESTAMP())::TIMESTAMPTZ,
-		$2,
+		$1,
+		COALESCE($2, CLOCK_TIMESTAMP())::TIMESTAMPTZ,
 		$3,
-		$4
+		$4,
+		$5
 	)
 RETURNING
 	id
 `
 
 type CreateDeploymentParams struct {
+	ExternalID      string
 	CreatedAt       pgtype.Timestamptz
 	TeamSlug        slug.Slug
 	Repository      *string
@@ -39,6 +42,7 @@ type CreateDeploymentParams struct {
 
 func (q *Queries) CreateDeployment(ctx context.Context, arg CreateDeploymentParams) (uuid.UUID, error) {
 	row := q.db.QueryRow(ctx, createDeployment,
+		arg.ExternalID,
 		arg.CreatedAt,
 		arg.TeamSlug,
 		arg.Repository,
@@ -53,7 +57,6 @@ const createDeploymentK8sResource = `-- name: CreateDeploymentK8sResource :one
 INSERT INTO
 	deployment_k8s_resources (
 		deployment_id,
-		created_at,
 		"group",
 		version,
 		kind,
@@ -62,8 +65,15 @@ INSERT INTO
 	)
 VALUES
 	(
-		$1,
-		COALESCE($2, CLOCK_TIMESTAMP())::TIMESTAMPTZ,
+		(
+			SELECT
+				deployments.id
+			FROM
+				deployments
+			WHERE
+				deployments.id = $1
+				OR deployments.external_id = $2
+		),
 		$3,
 		$4,
 		$5,
@@ -75,19 +85,19 @@ RETURNING
 `
 
 type CreateDeploymentK8sResourceParams struct {
-	DeploymentID uuid.UUID
-	CreatedAt    pgtype.Timestamptz
-	Group        string
-	Version      string
-	Kind         string
-	Name         string
-	Namespace    string
+	DeploymentID         uuid.UUID
+	ExternalDeploymentID *string
+	Group                string
+	Version              string
+	Kind                 string
+	Name                 string
+	Namespace            string
 }
 
 func (q *Queries) CreateDeploymentK8sResource(ctx context.Context, arg CreateDeploymentK8sResourceParams) (uuid.UUID, error) {
 	row := q.db.QueryRow(ctx, createDeploymentK8sResource,
 		arg.DeploymentID,
-		arg.CreatedAt,
+		arg.ExternalDeploymentID,
 		arg.Group,
 		arg.Version,
 		arg.Kind,
@@ -105,25 +115,35 @@ INSERT INTO
 VALUES
 	(
 		COALESCE($1, CLOCK_TIMESTAMP())::TIMESTAMPTZ,
-		$2,
-		$3,
-		$4
+		(
+			SELECT
+				deployments.id
+			FROM
+				deployments
+			WHERE
+				deployments.id = $2
+				OR deployments.external_id = $3
+		),
+		$4,
+		$5
 	)
 RETURNING
 	id
 `
 
 type CreateDeploymentStatusParams struct {
-	CreatedAt    pgtype.Timestamptz
-	DeploymentID uuid.UUID
-	State        DeploymentState
-	Message      string
+	CreatedAt            pgtype.Timestamptz
+	DeploymentID         uuid.UUID
+	ExternalDeploymentID *string
+	State                DeploymentState
+	Message              string
 }
 
 func (q *Queries) CreateDeploymentStatus(ctx context.Context, arg CreateDeploymentStatusParams) (uuid.UUID, error) {
 	row := q.db.QueryRow(ctx, createDeploymentStatus,
 		arg.CreatedAt,
 		arg.DeploymentID,
+		arg.ExternalDeploymentID,
 		arg.State,
 		arg.Message,
 	)

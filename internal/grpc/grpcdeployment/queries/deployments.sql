@@ -1,6 +1,7 @@
 -- name: CreateDeployment :one
 INSERT INTO
 	deployments (
+		external_id,
 		created_at,
 		team_slug,
 		repository,
@@ -8,6 +9,7 @@ INSERT INTO
 	)
 VALUES
 	(
+		@external_id,
 		COALESCE(@created_at, CLOCK_TIMESTAMP())::TIMESTAMPTZ,
 		@team_slug,
 		@repository,
@@ -33,7 +35,6 @@ SELECT
 INSERT INTO
 	deployment_k8s_resources (
 		deployment_id,
-		created_at,
 		"group",
 		version,
 		kind,
@@ -42,8 +43,15 @@ INSERT INTO
 	)
 VALUES
 	(
-		@deployment_id,
-		COALESCE(@created_at, CLOCK_TIMESTAMP())::TIMESTAMPTZ,
+		(
+			SELECT
+				deployments.id
+			FROM
+				deployments
+			WHERE
+				deployments.id = @deployment_id
+				OR deployments.external_id = sqlc.narg('external_deployment_id')
+		),
 		sqlc.arg('group'),
 		@version,
 		@kind,
@@ -60,7 +68,15 @@ INSERT INTO
 VALUES
 	(
 		COALESCE(@created_at, CLOCK_TIMESTAMP())::TIMESTAMPTZ,
-		@deployment_id,
+		(
+			SELECT
+				deployments.id
+			FROM
+				deployments
+			WHERE
+				deployments.id = @deployment_id
+				OR deployments.external_id = sqlc.narg('external_deployment_id')
+		),
 		@state,
 		@message
 	)

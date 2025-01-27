@@ -86,6 +86,7 @@ func AllDeploymentStateValues() []DeploymentState {
 
 type Deployment struct {
 	ID              uuid.UUID
+	ExternalID      string
 	CreatedAt       pgtype.Timestamptz
 	TeamSlug        slug.Slug
 	Repository      *string

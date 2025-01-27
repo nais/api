@@ -92,7 +92,7 @@ func (q *Queries) CountStatusesForDeployment(ctx context.Context, deploymentID u
 
 const listByIDs = `-- name: ListByIDs :many
 SELECT
-	id, created_at, team_slug, repository, environment_name
+	id, external_id, created_at, team_slug, repository, environment_name
 FROM
 	deployments
 WHERE
@@ -112,6 +112,7 @@ func (q *Queries) ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*Deployment
 		var i Deployment
 		if err := rows.Scan(
 			&i.ID,
+			&i.ExternalID,
 			&i.CreatedAt,
 			&i.TeamSlug,
 			&i.Repository,
@@ -129,7 +130,7 @@ func (q *Queries) ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*Deployment
 
 const listByTeamSlug = `-- name: ListByTeamSlug :many
 SELECT
-	id, created_at, team_slug, repository, environment_name
+	id, external_id, created_at, team_slug, repository, environment_name
 FROM
 	deployments
 WHERE
@@ -159,6 +160,7 @@ func (q *Queries) ListByTeamSlug(ctx context.Context, arg ListByTeamSlugParams) 
 		var i Deployment
 		if err := rows.Scan(
 			&i.ID,
+			&i.ExternalID,
 			&i.CreatedAt,
 			&i.TeamSlug,
 			&i.Repository,
@@ -253,7 +255,7 @@ func (q *Queries) ListDeploymentStatusesByIDs(ctx context.Context, ids []uuid.UU
 
 const listForWorkload = `-- name: ListForWorkload :many
 SELECT
-	deployments.id, deployments.created_at, deployments.team_slug, deployments.repository, deployments.environment_name
+	deployments.id, deployments.external_id, deployments.created_at, deployments.team_slug, deployments.repository, deployments.environment_name
 FROM
 	deployments
 	JOIN deployment_k8s_resources ON deployments.id = deployment_k8s_resources.deployment_id
@@ -297,6 +299,7 @@ func (q *Queries) ListForWorkload(ctx context.Context, arg ListForWorkloadParams
 		var i Deployment
 		if err := rows.Scan(
 			&i.ID,
+			&i.ExternalID,
 			&i.CreatedAt,
 			&i.TeamSlug,
 			&i.Repository,

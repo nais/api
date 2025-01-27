@@ -45,6 +45,7 @@ func (s *Server) CreateDeployment(ctx context.Context, req *protoapi.CreateDeplo
 		repoName = ptr.To(req.GetRepository())
 	}
 	id, err := s.querier.CreateDeployment(ctx, grpcdeploymentsql.CreateDeploymentParams{
+		ExternalID: req.GetExternalId(),
 		CreatedAt: pgtype.Timestamptz{
 			Time:  req.GetCreatedAt().AsTime(),
 			Valid: req.GetCreatedAt().IsValid(),
@@ -63,11 +64,6 @@ func (s *Server) CreateDeployment(ctx context.Context, req *protoapi.CreateDeplo
 }
 
 func (s *Server) CreateDeploymentK8SResource(ctx context.Context, req *protoapi.CreateDeploymentK8SResourceRequest) (*protoapi.CreateDeploymentK8SResourceResponse, error) {
-	uid, err := uuid.Parse(req.GetDeploymentId())
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid deployment id")
-	}
-
 	switch {
 	case req.GetGroup() == "":
 		return nil, status.Errorf(codes.InvalidArgument, "group is required")
@@ -81,17 +77,32 @@ func (s *Server) CreateDeploymentK8SResource(ctx context.Context, req *protoapi.
 		return nil, status.Errorf(codes.InvalidArgument, "namespace is required")
 	}
 
+	var uid uuid.UUID
+	var externalID *string
+	switch req.WhichReference() {
+	case protoapi.CreateDeploymentK8SResourceRequest_DeploymentId_case:
+		var err error
+		uid, err = uuid.Parse(req.GetDeploymentId())
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "invalid deployment id")
+		}
+	case protoapi.CreateDeploymentK8SResourceRequest_ExternalDeploymentId_case:
+		if req.GetExternalDeploymentId() == "" {
+			return nil, status.Errorf(codes.InvalidArgument, "external deployment id cannot be empty")
+		}
+		externalID = ptr.To(req.GetExternalDeploymentId())
+	default:
+		return nil, status.Errorf(codes.InvalidArgument, "reference is required")
+	}
+
 	id, err := s.querier.CreateDeploymentK8sResource(ctx, grpcdeploymentsql.CreateDeploymentK8sResourceParams{
-		DeploymentID: uid,
-		CreatedAt: pgtype.Timestamptz{
-			Time:  req.GetCreatedAt().AsTime(),
-			Valid: req.GetCreatedAt().IsValid(),
-		},
-		Group:     req.GetGroup(),
-		Version:   req.GetVersion(),
-		Kind:      req.GetKind(),
-		Name:      req.GetName(),
-		Namespace: req.GetNamespace(),
+		DeploymentID:         uid,
+		ExternalDeploymentID: externalID,
+		Group:                req.GetGroup(),
+		Version:              req.GetVersion(),
+		Kind:                 req.GetKind(),
+		Name:                 req.GetName(),
+		Namespace:            req.GetNamespace(),
 	})
 	if err != nil {
 		return nil, err
@@ -103,13 +114,26 @@ func (s *Server) CreateDeploymentK8SResource(ctx context.Context, req *protoapi.
 }
 
 func (s *Server) CreateDeploymentStatus(ctx context.Context, req *protoapi.CreateDeploymentStatusRequest) (*protoapi.CreateDeploymentStatusResponse, error) {
-	uid, err := uuid.Parse(req.GetDeploymentId())
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid deployment id")
-	}
-
 	if req.GetMessage() == "" {
 		return nil, status.Errorf(codes.InvalidArgument, "message is required")
+	}
+
+	var uid uuid.UUID
+	var externalID *string
+	switch req.WhichReference() {
+	case protoapi.CreateDeploymentStatusRequest_DeploymentId_case:
+		var err error
+		uid, err = uuid.Parse(req.GetDeploymentId())
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "invalid deployment id")
+		}
+	case protoapi.CreateDeploymentStatusRequest_ExternalDeploymentId_case:
+		if req.GetExternalDeploymentId() == "" {
+			return nil, status.Errorf(codes.InvalidArgument, "external deployment id cannot be empty")
+		}
+		externalID = ptr.To(req.GetExternalDeploymentId())
+	default:
+		return nil, status.Errorf(codes.InvalidArgument, "reference is required")
 	}
 
 	state, ok := toSQLStateEnum(req.GetState())
@@ -118,13 +142,14 @@ func (s *Server) CreateDeploymentStatus(ctx context.Context, req *protoapi.Creat
 	}
 
 	id, err := s.querier.CreateDeploymentStatus(ctx, grpcdeploymentsql.CreateDeploymentStatusParams{
+		DeploymentID:         uid,
+		ExternalDeploymentID: externalID,
 		CreatedAt: pgtype.Timestamptz{
 			Time:  req.GetCreatedAt().AsTime(),
 			Valid: req.GetCreatedAt().IsValid(),
 		},
-		DeploymentID: uid,
-		State:        state,
-		Message:      req.GetMessage(),
+		State:   state,
+		Message: req.GetMessage(),
 	})
 	if err != nil {
 		return nil, err
