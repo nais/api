@@ -33,7 +33,7 @@ RETURNING
 `
 
 type CreateDeploymentParams struct {
-	ExternalID      string
+	ExternalID      *string
 	CreatedAt       pgtype.Timestamptz
 	TeamSlug        slug.Slug
 	Repository      *string

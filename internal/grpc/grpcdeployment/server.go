@@ -44,8 +44,14 @@ func (s *Server) CreateDeployment(ctx context.Context, req *protoapi.CreateDeplo
 	if req.HasRepository() {
 		repoName = ptr.To(req.GetRepository())
 	}
+
+	var externalID *string
+	if id := req.GetExternalId(); id != "" {
+		externalID = ptr.To(id)
+	}
+
 	id, err := s.querier.CreateDeployment(ctx, grpcdeploymentsql.CreateDeploymentParams{
-		ExternalID: req.GetExternalId(),
+		ExternalID: externalID,
 		CreatedAt: pgtype.Timestamptz{
 			Time:  req.GetCreatedAt().AsTime(),
 			Valid: req.GetCreatedAt().IsValid(),

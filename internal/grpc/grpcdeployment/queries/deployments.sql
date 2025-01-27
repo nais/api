@@ -50,7 +50,7 @@ VALUES
 				deployments
 			WHERE
 				deployments.id = @deployment_id
-				OR deployments.external_id = sqlc.narg('external_deployment_id')
+				OR deployments.external_id = @external_deployment_id
 		),
 		sqlc.arg('group'),
 		@version,
@@ -75,7 +75,7 @@ VALUES
 				deployments
 			WHERE
 				deployments.id = @deployment_id
-				OR deployments.external_id = sqlc.narg('external_deployment_id')
+				OR deployments.external_id = @external_deployment_id
 		),
 		@state,
 		@message
