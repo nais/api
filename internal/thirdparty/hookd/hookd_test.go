@@ -3,8 +3,6 @@ package hookd_test
 import (
 	"context"
 	"net/http"
-	"net/url"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -76,31 +74,4 @@ func TestClient(t *testing.T) {
 			t.Errorf("diff: -want +got\n%s", diff)
 		}
 	})
-}
-
-func TestRequestOptions(t *testing.T) {
-	const team = "team"
-	const cluster = "cluster"
-	const limit = 42
-	ignoreTeams := []string{"team1", "team2"}
-
-	r, err := http.NewRequest(http.MethodGet, "http://localhost", nil)
-	if err != nil {
-		t.Fatalf("unexpected error %v", err)
-	}
-
-	hookd.WithTeam(team)(r)
-	hookd.WithCluster(cluster)(r)
-	hookd.WithLimit(limit)(r)
-	hookd.WithIgnoreTeams(ignoreTeams...)(r)
-
-	want := url.Values{
-		"team":       []string{team},
-		"cluster":    []string{cluster},
-		"limit":      []string{strconv.Itoa(limit)},
-		"ignoreTeam": []string{strings.Join(ignoreTeams, ",")},
-	}
-	if diff := cmp.Diff(want, r.URL.Query()); diff != "" {
-		t.Errorf("diff: -want +got\n%s", diff)
-	}
 }

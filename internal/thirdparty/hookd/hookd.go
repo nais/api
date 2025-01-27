@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/nais/api/internal/slug"
@@ -68,38 +66,6 @@ type DeployKey struct {
 }
 
 type RequestOption func(*http.Request)
-
-func WithTeam(team string) RequestOption {
-	return func(req *http.Request) {
-		q := req.URL.Query()
-		q.Set("team", team)
-		req.URL.RawQuery = q.Encode()
-	}
-}
-
-func WithCluster(cluster string) RequestOption {
-	return func(req *http.Request) {
-		q := req.URL.Query()
-		q.Set("cluster", cluster)
-		req.URL.RawQuery = q.Encode()
-	}
-}
-
-func WithLimit(limit int) RequestOption {
-	return func(req *http.Request) {
-		q := req.URL.Query()
-		q.Set("limit", strconv.Itoa(limit))
-		req.URL.RawQuery = q.Encode()
-	}
-}
-
-func WithIgnoreTeams(teams ...string) RequestOption {
-	return func(req *http.Request) {
-		q := req.URL.Query()
-		q.Set("ignoreTeam", strings.Join(teams, ","))
-		req.URL.RawQuery = q.Encode()
-	}
-}
 
 // New creates a new hookd client
 func New(endpoint, psk string, log logrus.FieldLogger) Client {
