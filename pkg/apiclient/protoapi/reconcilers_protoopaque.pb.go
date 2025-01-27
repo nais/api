@@ -4,7 +4,7 @@
 // 	protoc        v5.29.3
 // source: reconcilers.proto
 
-//go:build !protoopaque
+//go:build protoopaque
 
 package protoapi
 
@@ -24,10 +24,10 @@ const (
 )
 
 type SuccessfulTeamSyncRequest struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	TeamSlug      string                 `protobuf:"bytes,1,opt,name=team_slug,json=teamSlug,proto3" json:"team_slug,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_TeamSlug string                 `protobuf:"bytes,1,opt,name=team_slug,json=teamSlug,proto3"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *SuccessfulTeamSyncRequest) Reset() {
@@ -57,13 +57,13 @@ func (x *SuccessfulTeamSyncRequest) ProtoReflect() protoreflect.Message {
 
 func (x *SuccessfulTeamSyncRequest) GetTeamSlug() string {
 	if x != nil {
-		return x.TeamSlug
+		return x.xxx_hidden_TeamSlug
 	}
 	return ""
 }
 
 func (x *SuccessfulTeamSyncRequest) SetTeamSlug(v string) {
-	x.TeamSlug = v
+	x.xxx_hidden_TeamSlug = v
 }
 
 type SuccessfulTeamSyncRequest_builder struct {
@@ -76,12 +76,12 @@ func (b0 SuccessfulTeamSyncRequest_builder) Build() *SuccessfulTeamSyncRequest {
 	m0 := &SuccessfulTeamSyncRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.TeamSlug = b.TeamSlug
+	x.xxx_hidden_TeamSlug = b.TeamSlug
 	return m0
 }
 
 type SuccessfulTeamSyncResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -124,13 +124,13 @@ func (b0 SuccessfulTeamSyncResponse_builder) Build() *SuccessfulTeamSyncResponse
 }
 
 type SetReconcilerErrorForTeamRequest struct {
-	state          protoimpl.MessageState `protogen:"hybrid.v1"`
-	TeamSlug       string                 `protobuf:"bytes,1,opt,name=team_slug,json=teamSlug,proto3" json:"team_slug,omitempty"`
-	ReconcilerName string                 `protobuf:"bytes,2,opt,name=reconciler_name,json=reconcilerName,proto3" json:"reconciler_name,omitempty"`
-	CorrelationId  string                 `protobuf:"bytes,3,opt,name=correlation_id,json=correlationId,proto3" json:"correlation_id,omitempty"`
-	ErrorMessage   string                 `protobuf:"bytes,4,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state                     protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_TeamSlug       string                 `protobuf:"bytes,1,opt,name=team_slug,json=teamSlug,proto3"`
+	xxx_hidden_ReconcilerName string                 `protobuf:"bytes,2,opt,name=reconciler_name,json=reconcilerName,proto3"`
+	xxx_hidden_CorrelationId  string                 `protobuf:"bytes,3,opt,name=correlation_id,json=correlationId,proto3"`
+	xxx_hidden_ErrorMessage   string                 `protobuf:"bytes,4,opt,name=error_message,json=errorMessage,proto3"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *SetReconcilerErrorForTeamRequest) Reset() {
@@ -160,46 +160,46 @@ func (x *SetReconcilerErrorForTeamRequest) ProtoReflect() protoreflect.Message {
 
 func (x *SetReconcilerErrorForTeamRequest) GetTeamSlug() string {
 	if x != nil {
-		return x.TeamSlug
+		return x.xxx_hidden_TeamSlug
 	}
 	return ""
 }
 
 func (x *SetReconcilerErrorForTeamRequest) GetReconcilerName() string {
 	if x != nil {
-		return x.ReconcilerName
+		return x.xxx_hidden_ReconcilerName
 	}
 	return ""
 }
 
 func (x *SetReconcilerErrorForTeamRequest) GetCorrelationId() string {
 	if x != nil {
-		return x.CorrelationId
+		return x.xxx_hidden_CorrelationId
 	}
 	return ""
 }
 
 func (x *SetReconcilerErrorForTeamRequest) GetErrorMessage() string {
 	if x != nil {
-		return x.ErrorMessage
+		return x.xxx_hidden_ErrorMessage
 	}
 	return ""
 }
 
 func (x *SetReconcilerErrorForTeamRequest) SetTeamSlug(v string) {
-	x.TeamSlug = v
+	x.xxx_hidden_TeamSlug = v
 }
 
 func (x *SetReconcilerErrorForTeamRequest) SetReconcilerName(v string) {
-	x.ReconcilerName = v
+	x.xxx_hidden_ReconcilerName = v
 }
 
 func (x *SetReconcilerErrorForTeamRequest) SetCorrelationId(v string) {
-	x.CorrelationId = v
+	x.xxx_hidden_CorrelationId = v
 }
 
 func (x *SetReconcilerErrorForTeamRequest) SetErrorMessage(v string) {
-	x.ErrorMessage = v
+	x.xxx_hidden_ErrorMessage = v
 }
 
 type SetReconcilerErrorForTeamRequest_builder struct {
@@ -215,15 +215,15 @@ func (b0 SetReconcilerErrorForTeamRequest_builder) Build() *SetReconcilerErrorFo
 	m0 := &SetReconcilerErrorForTeamRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.TeamSlug = b.TeamSlug
-	x.ReconcilerName = b.ReconcilerName
-	x.CorrelationId = b.CorrelationId
-	x.ErrorMessage = b.ErrorMessage
+	x.xxx_hidden_TeamSlug = b.TeamSlug
+	x.xxx_hidden_ReconcilerName = b.ReconcilerName
+	x.xxx_hidden_CorrelationId = b.CorrelationId
+	x.xxx_hidden_ErrorMessage = b.ErrorMessage
 	return m0
 }
 
 type SetReconcilerErrorForTeamResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -266,11 +266,11 @@ func (b0 SetReconcilerErrorForTeamResponse_builder) Build() *SetReconcilerErrorF
 }
 
 type RemoveReconcilerErrorForTeamRequest struct {
-	state          protoimpl.MessageState `protogen:"hybrid.v1"`
-	TeamSlug       string                 `protobuf:"bytes,1,opt,name=team_slug,json=teamSlug,proto3" json:"team_slug,omitempty"`
-	ReconcilerName string                 `protobuf:"bytes,2,opt,name=reconciler_name,json=reconcilerName,proto3" json:"reconciler_name,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state                     protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_TeamSlug       string                 `protobuf:"bytes,1,opt,name=team_slug,json=teamSlug,proto3"`
+	xxx_hidden_ReconcilerName string                 `protobuf:"bytes,2,opt,name=reconciler_name,json=reconcilerName,proto3"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *RemoveReconcilerErrorForTeamRequest) Reset() {
@@ -300,24 +300,24 @@ func (x *RemoveReconcilerErrorForTeamRequest) ProtoReflect() protoreflect.Messag
 
 func (x *RemoveReconcilerErrorForTeamRequest) GetTeamSlug() string {
 	if x != nil {
-		return x.TeamSlug
+		return x.xxx_hidden_TeamSlug
 	}
 	return ""
 }
 
 func (x *RemoveReconcilerErrorForTeamRequest) GetReconcilerName() string {
 	if x != nil {
-		return x.ReconcilerName
+		return x.xxx_hidden_ReconcilerName
 	}
 	return ""
 }
 
 func (x *RemoveReconcilerErrorForTeamRequest) SetTeamSlug(v string) {
-	x.TeamSlug = v
+	x.xxx_hidden_TeamSlug = v
 }
 
 func (x *RemoveReconcilerErrorForTeamRequest) SetReconcilerName(v string) {
-	x.ReconcilerName = v
+	x.xxx_hidden_ReconcilerName = v
 }
 
 type RemoveReconcilerErrorForTeamRequest_builder struct {
@@ -331,13 +331,13 @@ func (b0 RemoveReconcilerErrorForTeamRequest_builder) Build() *RemoveReconcilerE
 	m0 := &RemoveReconcilerErrorForTeamRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.TeamSlug = b.TeamSlug
-	x.ReconcilerName = b.ReconcilerName
+	x.xxx_hidden_TeamSlug = b.TeamSlug
+	x.xxx_hidden_ReconcilerName = b.ReconcilerName
 	return m0
 }
 
 type RemoveReconcilerErrorForTeamResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -380,14 +380,14 @@ func (b0 RemoveReconcilerErrorForTeamResponse_builder) Build() *RemoveReconciler
 }
 
 type Reconciler struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	DisplayName   string                 `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
-	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Enabled       bool                   `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	MemberAware   bool                   `protobuf:"varint,5,opt,name=member_aware,json=memberAware,proto3" json:"member_aware,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Name        string                 `protobuf:"bytes,1,opt,name=name,proto3"`
+	xxx_hidden_DisplayName string                 `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3"`
+	xxx_hidden_Description string                 `protobuf:"bytes,3,opt,name=description,proto3"`
+	xxx_hidden_Enabled     bool                   `protobuf:"varint,4,opt,name=enabled,proto3"`
+	xxx_hidden_MemberAware bool                   `protobuf:"varint,5,opt,name=member_aware,json=memberAware,proto3"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *Reconciler) Reset() {
@@ -417,57 +417,57 @@ func (x *Reconciler) ProtoReflect() protoreflect.Message {
 
 func (x *Reconciler) GetName() string {
 	if x != nil {
-		return x.Name
+		return x.xxx_hidden_Name
 	}
 	return ""
 }
 
 func (x *Reconciler) GetDisplayName() string {
 	if x != nil {
-		return x.DisplayName
+		return x.xxx_hidden_DisplayName
 	}
 	return ""
 }
 
 func (x *Reconciler) GetDescription() string {
 	if x != nil {
-		return x.Description
+		return x.xxx_hidden_Description
 	}
 	return ""
 }
 
 func (x *Reconciler) GetEnabled() bool {
 	if x != nil {
-		return x.Enabled
+		return x.xxx_hidden_Enabled
 	}
 	return false
 }
 
 func (x *Reconciler) GetMemberAware() bool {
 	if x != nil {
-		return x.MemberAware
+		return x.xxx_hidden_MemberAware
 	}
 	return false
 }
 
 func (x *Reconciler) SetName(v string) {
-	x.Name = v
+	x.xxx_hidden_Name = v
 }
 
 func (x *Reconciler) SetDisplayName(v string) {
-	x.DisplayName = v
+	x.xxx_hidden_DisplayName = v
 }
 
 func (x *Reconciler) SetDescription(v string) {
-	x.Description = v
+	x.xxx_hidden_Description = v
 }
 
 func (x *Reconciler) SetEnabled(v bool) {
-	x.Enabled = v
+	x.xxx_hidden_Enabled = v
 }
 
 func (x *Reconciler) SetMemberAware(v bool) {
-	x.MemberAware = v
+	x.xxx_hidden_MemberAware = v
 }
 
 type Reconciler_builder struct {
@@ -484,23 +484,23 @@ func (b0 Reconciler_builder) Build() *Reconciler {
 	m0 := &Reconciler{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Name = b.Name
-	x.DisplayName = b.DisplayName
-	x.Description = b.Description
-	x.Enabled = b.Enabled
-	x.MemberAware = b.MemberAware
+	x.xxx_hidden_Name = b.Name
+	x.xxx_hidden_DisplayName = b.DisplayName
+	x.xxx_hidden_Description = b.Description
+	x.xxx_hidden_Enabled = b.Enabled
+	x.xxx_hidden_MemberAware = b.MemberAware
 	return m0
 }
 
 type ReconcilerConfig struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	DisplayName   string                 `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
-	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Value         string                 `protobuf:"bytes,4,opt,name=value,proto3" json:"value,omitempty"`
-	Secret        bool                   `protobuf:"varint,5,opt,name=secret,proto3" json:"secret,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Key         string                 `protobuf:"bytes,1,opt,name=key,proto3"`
+	xxx_hidden_DisplayName string                 `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3"`
+	xxx_hidden_Description string                 `protobuf:"bytes,3,opt,name=description,proto3"`
+	xxx_hidden_Value       string                 `protobuf:"bytes,4,opt,name=value,proto3"`
+	xxx_hidden_Secret      bool                   `protobuf:"varint,5,opt,name=secret,proto3"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *ReconcilerConfig) Reset() {
@@ -530,57 +530,57 @@ func (x *ReconcilerConfig) ProtoReflect() protoreflect.Message {
 
 func (x *ReconcilerConfig) GetKey() string {
 	if x != nil {
-		return x.Key
+		return x.xxx_hidden_Key
 	}
 	return ""
 }
 
 func (x *ReconcilerConfig) GetDisplayName() string {
 	if x != nil {
-		return x.DisplayName
+		return x.xxx_hidden_DisplayName
 	}
 	return ""
 }
 
 func (x *ReconcilerConfig) GetDescription() string {
 	if x != nil {
-		return x.Description
+		return x.xxx_hidden_Description
 	}
 	return ""
 }
 
 func (x *ReconcilerConfig) GetValue() string {
 	if x != nil {
-		return x.Value
+		return x.xxx_hidden_Value
 	}
 	return ""
 }
 
 func (x *ReconcilerConfig) GetSecret() bool {
 	if x != nil {
-		return x.Secret
+		return x.xxx_hidden_Secret
 	}
 	return false
 }
 
 func (x *ReconcilerConfig) SetKey(v string) {
-	x.Key = v
+	x.xxx_hidden_Key = v
 }
 
 func (x *ReconcilerConfig) SetDisplayName(v string) {
-	x.DisplayName = v
+	x.xxx_hidden_DisplayName = v
 }
 
 func (x *ReconcilerConfig) SetDescription(v string) {
-	x.Description = v
+	x.xxx_hidden_Description = v
 }
 
 func (x *ReconcilerConfig) SetValue(v string) {
-	x.Value = v
+	x.xxx_hidden_Value = v
 }
 
 func (x *ReconcilerConfig) SetSecret(v bool) {
-	x.Secret = v
+	x.xxx_hidden_Secret = v
 }
 
 type ReconcilerConfig_builder struct {
@@ -597,22 +597,22 @@ func (b0 ReconcilerConfig_builder) Build() *ReconcilerConfig {
 	m0 := &ReconcilerConfig{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Key = b.Key
-	x.DisplayName = b.DisplayName
-	x.Description = b.Description
-	x.Value = b.Value
-	x.Secret = b.Secret
+	x.xxx_hidden_Key = b.Key
+	x.xxx_hidden_DisplayName = b.DisplayName
+	x.xxx_hidden_Description = b.Description
+	x.xxx_hidden_Value = b.Value
+	x.xxx_hidden_Secret = b.Secret
 	return m0
 }
 
 type ReconcilerConfigSpec struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	DisplayName   string                 `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
-	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Secret        bool                   `protobuf:"varint,4,opt,name=secret,proto3" json:"secret,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Key         string                 `protobuf:"bytes,1,opt,name=key,proto3"`
+	xxx_hidden_DisplayName string                 `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3"`
+	xxx_hidden_Description string                 `protobuf:"bytes,3,opt,name=description,proto3"`
+	xxx_hidden_Secret      bool                   `protobuf:"varint,4,opt,name=secret,proto3"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *ReconcilerConfigSpec) Reset() {
@@ -642,46 +642,46 @@ func (x *ReconcilerConfigSpec) ProtoReflect() protoreflect.Message {
 
 func (x *ReconcilerConfigSpec) GetKey() string {
 	if x != nil {
-		return x.Key
+		return x.xxx_hidden_Key
 	}
 	return ""
 }
 
 func (x *ReconcilerConfigSpec) GetDisplayName() string {
 	if x != nil {
-		return x.DisplayName
+		return x.xxx_hidden_DisplayName
 	}
 	return ""
 }
 
 func (x *ReconcilerConfigSpec) GetDescription() string {
 	if x != nil {
-		return x.Description
+		return x.xxx_hidden_Description
 	}
 	return ""
 }
 
 func (x *ReconcilerConfigSpec) GetSecret() bool {
 	if x != nil {
-		return x.Secret
+		return x.xxx_hidden_Secret
 	}
 	return false
 }
 
 func (x *ReconcilerConfigSpec) SetKey(v string) {
-	x.Key = v
+	x.xxx_hidden_Key = v
 }
 
 func (x *ReconcilerConfigSpec) SetDisplayName(v string) {
-	x.DisplayName = v
+	x.xxx_hidden_DisplayName = v
 }
 
 func (x *ReconcilerConfigSpec) SetDescription(v string) {
-	x.Description = v
+	x.xxx_hidden_Description = v
 }
 
 func (x *ReconcilerConfigSpec) SetSecret(v bool) {
-	x.Secret = v
+	x.xxx_hidden_Secret = v
 }
 
 type ReconcilerConfigSpec_builder struct {
@@ -697,23 +697,23 @@ func (b0 ReconcilerConfigSpec_builder) Build() *ReconcilerConfigSpec {
 	m0 := &ReconcilerConfigSpec{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Key = b.Key
-	x.DisplayName = b.DisplayName
-	x.Description = b.Description
-	x.Secret = b.Secret
+	x.xxx_hidden_Key = b.Key
+	x.xxx_hidden_DisplayName = b.DisplayName
+	x.xxx_hidden_Description = b.Description
+	x.xxx_hidden_Secret = b.Secret
 	return m0
 }
 
 type NewReconciler struct {
-	state           protoimpl.MessageState  `protogen:"hybrid.v1"`
-	Name            string                  `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	DisplayName     string                  `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
-	Description     string                  `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	MemberAware     bool                    `protobuf:"varint,4,opt,name=member_aware,json=memberAware,proto3" json:"member_aware,omitempty"`
-	Config          []*ReconcilerConfigSpec `protobuf:"bytes,5,rep,name=config,proto3" json:"config,omitempty"`
-	EnableByDefault bool                    `protobuf:"varint,6,opt,name=enableByDefault,proto3" json:"enableByDefault,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state                      protoimpl.MessageState   `protogen:"opaque.v1"`
+	xxx_hidden_Name            string                   `protobuf:"bytes,1,opt,name=name,proto3"`
+	xxx_hidden_DisplayName     string                   `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3"`
+	xxx_hidden_Description     string                   `protobuf:"bytes,3,opt,name=description,proto3"`
+	xxx_hidden_MemberAware     bool                     `protobuf:"varint,4,opt,name=member_aware,json=memberAware,proto3"`
+	xxx_hidden_Config          *[]*ReconcilerConfigSpec `protobuf:"bytes,5,rep,name=config,proto3"`
+	xxx_hidden_EnableByDefault bool                     `protobuf:"varint,6,opt,name=enableByDefault,proto3"`
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
 }
 
 func (x *NewReconciler) Reset() {
@@ -743,68 +743,70 @@ func (x *NewReconciler) ProtoReflect() protoreflect.Message {
 
 func (x *NewReconciler) GetName() string {
 	if x != nil {
-		return x.Name
+		return x.xxx_hidden_Name
 	}
 	return ""
 }
 
 func (x *NewReconciler) GetDisplayName() string {
 	if x != nil {
-		return x.DisplayName
+		return x.xxx_hidden_DisplayName
 	}
 	return ""
 }
 
 func (x *NewReconciler) GetDescription() string {
 	if x != nil {
-		return x.Description
+		return x.xxx_hidden_Description
 	}
 	return ""
 }
 
 func (x *NewReconciler) GetMemberAware() bool {
 	if x != nil {
-		return x.MemberAware
+		return x.xxx_hidden_MemberAware
 	}
 	return false
 }
 
 func (x *NewReconciler) GetConfig() []*ReconcilerConfigSpec {
 	if x != nil {
-		return x.Config
+		if x.xxx_hidden_Config != nil {
+			return *x.xxx_hidden_Config
+		}
 	}
 	return nil
 }
 
 func (x *NewReconciler) GetEnableByDefault() bool {
 	if x != nil {
-		return x.EnableByDefault
+		return x.xxx_hidden_EnableByDefault
 	}
 	return false
 }
 
 func (x *NewReconciler) SetName(v string) {
-	x.Name = v
+	x.xxx_hidden_Name = v
 }
 
 func (x *NewReconciler) SetDisplayName(v string) {
-	x.DisplayName = v
+	x.xxx_hidden_DisplayName = v
 }
 
 func (x *NewReconciler) SetDescription(v string) {
-	x.Description = v
+	x.xxx_hidden_Description = v
 }
 
 func (x *NewReconciler) SetMemberAware(v bool) {
-	x.MemberAware = v
+	x.xxx_hidden_MemberAware = v
 }
 
 func (x *NewReconciler) SetConfig(v []*ReconcilerConfigSpec) {
-	x.Config = v
+	x.xxx_hidden_Config = &v
 }
 
 func (x *NewReconciler) SetEnableByDefault(v bool) {
-	x.EnableByDefault = v
+	x.xxx_hidden_EnableByDefault = v
 }
 
 type NewReconciler_builder struct {
@@ -822,20 +824,20 @@ func (b0 NewReconciler_builder) Build() *NewReconciler {
 	m0 := &NewReconciler{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Name = b.Name
-	x.DisplayName = b.DisplayName
-	x.Description = b.Description
-	x.MemberAware = b.MemberAware
-	x.Config = b.Config
-	x.EnableByDefault = b.EnableByDefault
+	x.xxx_hidden_Name = b.Name
+	x.xxx_hidden_DisplayName = b.DisplayName
+	x.xxx_hidden_Description = b.Description
+	x.xxx_hidden_MemberAware = b.MemberAware
+	x.xxx_hidden_Config = &b.Config
+	x.xxx_hidden_EnableByDefault = b.EnableByDefault
 	return m0
 }
 
 type RegisterReconcilerRequest struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Reconcilers   []*NewReconciler       `protobuf:"bytes,1,rep,name=reconcilers,proto3" json:"reconcilers,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Reconcilers *[]*NewReconciler      `protobuf:"bytes,1,rep,name=reconcilers,proto3"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *RegisterReconcilerRequest) Reset() {
@@ -865,13 +867,15 @@ func (x *RegisterReconcilerRequest) ProtoReflect() protoreflect.Message {
 
 func (x *RegisterReconcilerRequest) GetReconcilers() []*NewReconciler {
 	if x != nil {
-		return x.Reconcilers
+		if x.xxx_hidden_Reconcilers != nil {
+			return *x.xxx_hidden_Reconcilers
+		}
 	}
 	return nil
 }
 
 func (x *RegisterReconcilerRequest) SetReconcilers(v []*NewReconciler) {
-	x.Reconcilers = v
+	x.xxx_hidden_Reconcilers = &v
 }
 
 type RegisterReconcilerRequest_builder struct {
@@ -884,12 +888,12 @@ func (b0 RegisterReconcilerRequest_builder) Build() *RegisterReconcilerRequest {
 	m0 := &RegisterReconcilerRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Reconcilers = b.Reconcilers
+	x.xxx_hidden_Reconcilers = &b.Reconcilers
 	return m0
 }
 
 type RegisterReconcilerResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -932,10 +936,10 @@ func (b0 RegisterReconcilerResponse_builder) Build() *RegisterReconcilerResponse
 }
 
 type GetReconcilerRequest struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Name string                 `protobuf:"bytes,1,opt,name=name,proto3"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *GetReconcilerRequest) Reset() {
@@ -965,13 +969,13 @@ func (x *GetReconcilerRequest) ProtoReflect() protoreflect.Message {
 
 func (x *GetReconcilerRequest) GetName() string {
 	if x != nil {
-		return x.Name
+		return x.xxx_hidden_Name
 	}
 	return ""
 }
 
 func (x *GetReconcilerRequest) SetName(v string) {
-	x.Name = v
+	x.xxx_hidden_Name = v
 }
 
 type GetReconcilerRequest_builder struct {
@@ -984,15 +988,15 @@ func (b0 GetReconcilerRequest_builder) Build() *GetReconcilerRequest {
 	m0 := &GetReconcilerRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Name = b.Name
+	x.xxx_hidden_Name = b.Name
 	return m0
 }
 
 type GetReconcilerResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Reconciler    *Reconciler            `protobuf:"bytes,1,opt,name=reconciler,proto3" json:"reconciler,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Reconciler *Reconciler            `protobuf:"bytes,1,opt,name=reconciler,proto3"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *GetReconcilerResponse) Reset() {
@@ -1022,24 +1026,24 @@ func (x *GetReconcilerResponse) ProtoReflect() protoreflect.Message {
 
 func (x *GetReconcilerResponse) GetReconciler() *Reconciler {
 	if x != nil {
-		return x.Reconciler
+		return x.xxx_hidden_Reconciler
 	}
 	return nil
 }
 
 func (x *GetReconcilerResponse) SetReconciler(v *Reconciler) {
-	x.Reconciler = v
+	x.xxx_hidden_Reconciler = v
 }
 
 func (x *GetReconcilerResponse) HasReconciler() bool {
 	if x == nil {
 		return false
 	}
-	return x.Reconciler != nil
+	return x.xxx_hidden_Reconciler != nil
 }
 
 func (x *GetReconcilerResponse) ClearReconciler() {
-	x.Reconciler = nil
+	x.xxx_hidden_Reconciler = nil
 }
 
 type GetReconcilerResponse_builder struct {
@@ -1052,16 +1056,16 @@ func (b0 GetReconcilerResponse_builder) Build() *GetReconcilerResponse {
 	m0 := &GetReconcilerResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Reconciler = b.Reconciler
+	x.xxx_hidden_Reconciler = b.Reconciler
 	return m0
 }
 
 type ListReconcilersRequest struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Limit         int64                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset        int64                  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Limit  int64                  `protobuf:"varint,1,opt,name=limit,proto3"`
+	xxx_hidden_Offset int64                  `protobuf:"varint,2,opt,name=offset,proto3"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ListReconcilersRequest) Reset() {
@@ -1091,24 +1095,24 @@ func (x *ListReconcilersRequest) ProtoReflect() protoreflect.Message {
 
 func (x *ListReconcilersRequest) GetLimit() int64 {
 	if x != nil {
-		return x.Limit
+		return x.xxx_hidden_Limit
 	}
 	return 0
 }
 
 func (x *ListReconcilersRequest) GetOffset() int64 {
 	if x != nil {
-		return x.Offset
+		return x.xxx_hidden_Offset
 	}
 	return 0
 }
 
 func (x *ListReconcilersRequest) SetLimit(v int64) {
-	x.Limit = v
+	x.xxx_hidden_Limit = v
 }
 
 func (x *ListReconcilersRequest) SetOffset(v int64) {
-	x.Offset = v
+	x.xxx_hidden_Offset = v
 }
 
 type ListReconcilersRequest_builder struct {
@@ -1122,17 +1126,17 @@ func (b0 ListReconcilersRequest_builder) Build() *ListReconcilersRequest {
 	m0 := &ListReconcilersRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Limit = b.Limit
-	x.Offset = b.Offset
+	x.xxx_hidden_Limit = b.Limit
+	x.xxx_hidden_Offset = b.Offset
 	return m0
 }
 
 type ListReconcilersResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Nodes         []*Reconciler          `protobuf:"bytes,1,rep,name=nodes,proto3" json:"nodes,omitempty"`
-	PageInfo      *PageInfo              `protobuf:"bytes,2,opt,name=page_info,json=pageInfo,proto3" json:"page_info,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Nodes    *[]*Reconciler         `protobuf:"bytes,1,rep,name=nodes,proto3"`
+	xxx_hidden_PageInfo *PageInfo              `protobuf:"bytes,2,opt,name=page_info,json=pageInfo,proto3"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ListReconcilersResponse) Reset() {
@@ -1162,35 +1166,37 @@ func (x *ListReconcilersResponse) ProtoReflect() protoreflect.Message {
 
 func (x *ListReconcilersResponse) GetNodes() []*Reconciler {
 	if x != nil {
-		return x.Nodes
+		if x.xxx_hidden_Nodes != nil {
+			return *x.xxx_hidden_Nodes
+		}
 	}
 	return nil
 }
 
 func (x *ListReconcilersResponse) GetPageInfo() *PageInfo {
 	if x != nil {
-		return x.PageInfo
+		return x.xxx_hidden_PageInfo
 	}
 	return nil
 }
 
 func (x *ListReconcilersResponse) SetNodes(v []*Reconciler) {
-	x.Nodes = v
+	x.xxx_hidden_Nodes = &v
 }
 
 func (x *ListReconcilersResponse) SetPageInfo(v *PageInfo) {
-	x.PageInfo = v
+	x.xxx_hidden_PageInfo = v
 }
 
 func (x *ListReconcilersResponse) HasPageInfo() bool {
 	if x == nil {
 		return false
 	}
-	return x.PageInfo != nil
+	return x.xxx_hidden_PageInfo != nil
 }
 
 func (x *ListReconcilersResponse) ClearPageInfo() {
-	x.PageInfo = nil
+	x.xxx_hidden_PageInfo = nil
 }
 
 type ListReconcilersResponse_builder struct {
@@ -1204,18 +1210,18 @@ func (b0 ListReconcilersResponse_builder) Build() *ListReconcilersResponse {
 	m0 := &ListReconcilersResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Nodes = b.Nodes
-	x.PageInfo = b.PageInfo
+	x.xxx_hidden_Nodes = &b.Nodes
+	x.xxx_hidden_PageInfo = b.PageInfo
 	return m0
 }
 
 type ConfigReconcilerRequest struct {
-	state          protoimpl.MessageState `protogen:"hybrid.v1"`
-	Limit          int64                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset         int64                  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
-	ReconcilerName string                 `protobuf:"bytes,3,opt,name=reconciler_name,json=reconcilerName,proto3" json:"reconciler_name,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state                     protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Limit          int64                  `protobuf:"varint,1,opt,name=limit,proto3"`
+	xxx_hidden_Offset         int64                  `protobuf:"varint,2,opt,name=offset,proto3"`
+	xxx_hidden_ReconcilerName string                 `protobuf:"bytes,3,opt,name=reconciler_name,json=reconcilerName,proto3"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *ConfigReconcilerRequest) Reset() {
@@ -1245,35 +1251,35 @@ func (x *ConfigReconcilerRequest) ProtoReflect() protoreflect.Message {
 
 func (x *ConfigReconcilerRequest) GetLimit() int64 {
 	if x != nil {
-		return x.Limit
+		return x.xxx_hidden_Limit
 	}
 	return 0
 }
 
 func (x *ConfigReconcilerRequest) GetOffset() int64 {
 	if x != nil {
-		return x.Offset
+		return x.xxx_hidden_Offset
 	}
 	return 0
 }
 
 func (x *ConfigReconcilerRequest) GetReconcilerName() string {
 	if x != nil {
-		return x.ReconcilerName
+		return x.xxx_hidden_ReconcilerName
 	}
 	return ""
 }
 
 func (x *ConfigReconcilerRequest) SetLimit(v int64) {
-	x.Limit = v
+	x.xxx_hidden_Limit = v
 }
 
 func (x *ConfigReconcilerRequest) SetOffset(v int64) {
-	x.Offset = v
+	x.xxx_hidden_Offset = v
 }
 
 func (x *ConfigReconcilerRequest) SetReconcilerName(v string) {
-	x.ReconcilerName = v
+	x.xxx_hidden_ReconcilerName = v
 }
 
 type ConfigReconcilerRequest_builder struct {
@@ -1288,18 +1294,18 @@ func (b0 ConfigReconcilerRequest_builder) Build() *ConfigReconcilerRequest {
 	m0 := &ConfigReconcilerRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Limit = b.Limit
-	x.Offset = b.Offset
-	x.ReconcilerName = b.ReconcilerName
+	x.xxx_hidden_Limit = b.Limit
+	x.xxx_hidden_Offset = b.Offset
+	x.xxx_hidden_ReconcilerName = b.ReconcilerName
 	return m0
 }
 
 type ConfigReconcilerResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Nodes         []*ReconcilerConfig    `protobuf:"bytes,1,rep,name=nodes,proto3" json:"nodes,omitempty"`
-	PageInfo      *PageInfo              `protobuf:"bytes,2,opt,name=page_info,json=pageInfo,proto3" json:"page_info,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Nodes    *[]*ReconcilerConfig   `protobuf:"bytes,1,rep,name=nodes,proto3"`
+	xxx_hidden_PageInfo *PageInfo              `protobuf:"bytes,2,opt,name=page_info,json=pageInfo,proto3"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ConfigReconcilerResponse) Reset() {
@@ -1329,35 +1335,37 @@ func (x *ConfigReconcilerResponse) ProtoReflect() protoreflect.Message {
 
 func (x *ConfigReconcilerResponse) GetNodes() []*ReconcilerConfig {
 	if x != nil {
-		return x.Nodes
+		if x.xxx_hidden_Nodes != nil {
+			return *x.xxx_hidden_Nodes
+		}
 	}
 	return nil
 }
 
 func (x *ConfigReconcilerResponse) GetPageInfo() *PageInfo {
 	if x != nil {
-		return x.PageInfo
+		return x.xxx_hidden_PageInfo
 	}
 	return nil
 }
 
 func (x *ConfigReconcilerResponse) SetNodes(v []*ReconcilerConfig) {
-	x.Nodes = v
+	x.xxx_hidden_Nodes = &v
 }
 
 func (x *ConfigReconcilerResponse) SetPageInfo(v *PageInfo) {
-	x.PageInfo = v
+	x.xxx_hidden_PageInfo = v
 }
 
 func (x *ConfigReconcilerResponse) HasPageInfo() bool {
 	if x == nil {
 		return false
 	}
-	return x.PageInfo != nil
+	return x.xxx_hidden_PageInfo != nil
 }
 
 func (x *ConfigReconcilerResponse) ClearPageInfo() {
-	x.PageInfo = nil
+	x.xxx_hidden_PageInfo = nil
 }
 
 type ConfigReconcilerResponse_builder struct {
@@ -1371,21 +1379,21 @@ func (b0 ConfigReconcilerResponse_builder) Build() *ConfigReconcilerResponse {
 	m0 := &ConfigReconcilerResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Nodes = b.Nodes
-	x.PageInfo = b.PageInfo
+	x.xxx_hidden_Nodes = &b.Nodes
+	x.xxx_hidden_PageInfo = b.PageInfo
 	return m0
 }
 
 type ReconcilerState struct {
-	state          protoimpl.MessageState `protogen:"hybrid.v1"`
-	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	ReconcilerName string                 `protobuf:"bytes,2,opt,name=reconciler_name,json=reconcilerName,proto3" json:"reconciler_name,omitempty"`
-	TeamSlug       string                 `protobuf:"bytes,3,opt,name=team_slug,json=teamSlug,proto3" json:"team_slug,omitempty"`
-	Value          []byte                 `protobuf:"bytes,4,opt,name=value,proto3" json:"value,omitempty"`
-	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt      *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state                     protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id             string                 `protobuf:"bytes,1,opt,name=id,proto3"`
+	xxx_hidden_ReconcilerName string                 `protobuf:"bytes,2,opt,name=reconciler_name,json=reconcilerName,proto3"`
+	xxx_hidden_TeamSlug       string                 `protobuf:"bytes,3,opt,name=team_slug,json=teamSlug,proto3"`
+	xxx_hidden_Value          []byte                 `protobuf:"bytes,4,opt,name=value,proto3"`
+	xxx_hidden_CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3"`
+	xxx_hidden_UpdatedAt      *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *ReconcilerState) Reset() {
@@ -1415,93 +1423,93 @@ func (x *ReconcilerState) ProtoReflect() protoreflect.Message {
 
 func (x *ReconcilerState) GetId() string {
 	if x != nil {
-		return x.Id
+		return x.xxx_hidden_Id
 	}
 	return ""
 }
 
 func (x *ReconcilerState) GetReconcilerName() string {
 	if x != nil {
-		return x.ReconcilerName
+		return x.xxx_hidden_ReconcilerName
 	}
 	return ""
 }
 
 func (x *ReconcilerState) GetTeamSlug() string {
 	if x != nil {
-		return x.TeamSlug
+		return x.xxx_hidden_TeamSlug
 	}
 	return ""
 }
 
 func (x *ReconcilerState) GetValue() []byte {
 	if x != nil {
-		return x.Value
+		return x.xxx_hidden_Value
 	}
 	return nil
 }
 
 func (x *ReconcilerState) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
-		return x.CreatedAt
+		return x.xxx_hidden_CreatedAt
 	}
 	return nil
 }
 
 func (x *ReconcilerState) GetUpdatedAt() *timestamppb.Timestamp {
 	if x != nil {
-		return x.UpdatedAt
+		return x.xxx_hidden_UpdatedAt
 	}
 	return nil
 }
 
 func (x *ReconcilerState) SetId(v string) {
-	x.Id = v
+	x.xxx_hidden_Id = v
 }
 
 func (x *ReconcilerState) SetReconcilerName(v string) {
-	x.ReconcilerName = v
+	x.xxx_hidden_ReconcilerName = v
 }
 
 func (x *ReconcilerState) SetTeamSlug(v string) {
-	x.TeamSlug = v
+	x.xxx_hidden_TeamSlug = v
 }
 
 func (x *ReconcilerState) SetValue(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
-	x.Value = v
+	x.xxx_hidden_Value = v
 }
 
 func (x *ReconcilerState) SetCreatedAt(v *timestamppb.Timestamp) {
-	x.CreatedAt = v
+	x.xxx_hidden_CreatedAt = v
 }
 
 func (x *ReconcilerState) SetUpdatedAt(v *timestamppb.Timestamp) {
-	x.UpdatedAt = v
+	x.xxx_hidden_UpdatedAt = v
 }
 
 func (x *ReconcilerState) HasCreatedAt() bool {
 	if x == nil {
 		return false
 	}
-	return x.CreatedAt != nil
+	return x.xxx_hidden_CreatedAt != nil
 }
 
 func (x *ReconcilerState) HasUpdatedAt() bool {
 	if x == nil {
 		return false
 	}
-	return x.UpdatedAt != nil
+	return x.xxx_hidden_UpdatedAt != nil
 }
 
 func (x *ReconcilerState) ClearCreatedAt() {
-	x.CreatedAt = nil
+	x.xxx_hidden_CreatedAt = nil
 }
 
 func (x *ReconcilerState) ClearUpdatedAt() {
-	x.UpdatedAt = nil
+	x.xxx_hidden_UpdatedAt = nil
 }
 
 type ReconcilerState_builder struct {
@@ -1519,17 +1527,17 @@ func (b0 ReconcilerState_builder) Build() *ReconcilerState {
 	m0 := &ReconcilerState{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Id = b.Id
-	x.ReconcilerName = b.ReconcilerName
-	x.TeamSlug = b.TeamSlug
-	x.Value = b.Value
-	x.CreatedAt = b.CreatedAt
-	x.UpdatedAt = b.UpdatedAt
+	x.xxx_hidden_Id = b.Id
+	x.xxx_hidden_ReconcilerName = b.ReconcilerName
+	x.xxx_hidden_TeamSlug = b.TeamSlug
+	x.xxx_hidden_Value = b.Value
+	x.xxx_hidden_CreatedAt = b.CreatedAt
+	x.xxx_hidden_UpdatedAt = b.UpdatedAt
 	return m0
 }
 
 type SaveReconcilerStateResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1572,12 +1580,12 @@ func (b0 SaveReconcilerStateResponse_builder) Build() *SaveReconcilerStateRespon
 }
 
 type SaveReconcilerStateRequest struct {
-	state          protoimpl.MessageState `protogen:"hybrid.v1"`
-	ReconcilerName string                 `protobuf:"bytes,1,opt,name=reconciler_name,json=reconcilerName,proto3" json:"reconciler_name,omitempty"`
-	TeamSlug       string                 `protobuf:"bytes,2,opt,name=team_slug,json=teamSlug,proto3" json:"team_slug,omitempty"`
-	Value          []byte                 `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state                     protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_ReconcilerName string                 `protobuf:"bytes,1,opt,name=reconciler_name,json=reconcilerName,proto3"`
+	xxx_hidden_TeamSlug       string                 `protobuf:"bytes,2,opt,name=team_slug,json=teamSlug,proto3"`
+	xxx_hidden_Value          []byte                 `protobuf:"bytes,3,opt,name=value,proto3"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *SaveReconcilerStateRequest) Reset() {
@@ -1607,38 +1615,38 @@ func (x *SaveReconcilerStateRequest) ProtoReflect() protoreflect.Message {
 
 func (x *SaveReconcilerStateRequest) GetReconcilerName() string {
 	if x != nil {
-		return x.ReconcilerName
+		return x.xxx_hidden_ReconcilerName
 	}
 	return ""
 }
 
 func (x *SaveReconcilerStateRequest) GetTeamSlug() string {
 	if x != nil {
-		return x.TeamSlug
+		return x.xxx_hidden_TeamSlug
 	}
 	return ""
 }
 
 func (x *SaveReconcilerStateRequest) GetValue() []byte {
 	if x != nil {
-		return x.Value
+		return x.xxx_hidden_Value
 	}
 	return nil
 }
 
 func (x *SaveReconcilerStateRequest) SetReconcilerName(v string) {
-	x.ReconcilerName = v
+	x.xxx_hidden_ReconcilerName = v
 }
 
 func (x *SaveReconcilerStateRequest) SetTeamSlug(v string) {
-	x.TeamSlug = v
+	x.xxx_hidden_TeamSlug = v
 }
 
 func (x *SaveReconcilerStateRequest) SetValue(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
-	x.Value = v
+	x.xxx_hidden_Value = v
 }
 
 type SaveReconcilerStateRequest_builder struct {
@@ -1653,18 +1661,18 @@ func (b0 SaveReconcilerStateRequest_builder) Build() *SaveReconcilerStateRequest
 	m0 := &SaveReconcilerStateRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.ReconcilerName = b.ReconcilerName
-	x.TeamSlug = b.TeamSlug
-	x.Value = b.Value
+	x.xxx_hidden_ReconcilerName = b.ReconcilerName
+	x.xxx_hidden_TeamSlug = b.TeamSlug
+	x.xxx_hidden_Value = b.Value
 	return m0
 }
 
 type DeleteReconcilerStateRequest struct {
-	state          protoimpl.MessageState `protogen:"hybrid.v1"`
-	ReconcilerName string                 `protobuf:"bytes,1,opt,name=reconciler_name,json=reconcilerName,proto3" json:"reconciler_name,omitempty"`
-	TeamSlug       string                 `protobuf:"bytes,2,opt,name=team_slug,json=teamSlug,proto3" json:"team_slug,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state                     protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_ReconcilerName string                 `protobuf:"bytes,1,opt,name=reconciler_name,json=reconcilerName,proto3"`
+	xxx_hidden_TeamSlug       string                 `protobuf:"bytes,2,opt,name=team_slug,json=teamSlug,proto3"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *DeleteReconcilerStateRequest) Reset() {
@@ -1694,24 +1702,24 @@ func (x *DeleteReconcilerStateRequest) ProtoReflect() protoreflect.Message {
 
 func (x *DeleteReconcilerStateRequest) GetReconcilerName() string {
 	if x != nil {
-		return x.ReconcilerName
+		return x.xxx_hidden_ReconcilerName
 	}
 	return ""
 }
 
 func (x *DeleteReconcilerStateRequest) GetTeamSlug() string {
 	if x != nil {
-		return x.TeamSlug
+		return x.xxx_hidden_TeamSlug
 	}
 	return ""
 }
 
 func (x *DeleteReconcilerStateRequest) SetReconcilerName(v string) {
-	x.ReconcilerName = v
+	x.xxx_hidden_ReconcilerName = v
 }
 
 func (x *DeleteReconcilerStateRequest) SetTeamSlug(v string) {
-	x.TeamSlug = v
+	x.xxx_hidden_TeamSlug = v
 }
 
 type DeleteReconcilerStateRequest_builder struct {
@@ -1725,13 +1733,13 @@ func (b0 DeleteReconcilerStateRequest_builder) Build() *DeleteReconcilerStateReq
 	m0 := &DeleteReconcilerStateRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.ReconcilerName = b.ReconcilerName
-	x.TeamSlug = b.TeamSlug
+	x.xxx_hidden_ReconcilerName = b.ReconcilerName
+	x.xxx_hidden_TeamSlug = b.TeamSlug
 	return m0
 }
 
 type DeleteReconcilerStateResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1774,11 +1782,11 @@ func (b0 DeleteReconcilerStateResponse_builder) Build() *DeleteReconcilerStateRe
 }
 
 type GetReconcilerStateRequest struct {
-	state          protoimpl.MessageState `protogen:"hybrid.v1"`
-	ReconcilerName string                 `protobuf:"bytes,3,opt,name=reconciler_name,json=reconcilerName,proto3" json:"reconciler_name,omitempty"`
-	TeamSlug       string                 `protobuf:"bytes,4,opt,name=team_slug,json=teamSlug,proto3" json:"team_slug,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state                     protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_ReconcilerName string                 `protobuf:"bytes,3,opt,name=reconciler_name,json=reconcilerName,proto3"`
+	xxx_hidden_TeamSlug       string                 `protobuf:"bytes,4,opt,name=team_slug,json=teamSlug,proto3"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *GetReconcilerStateRequest) Reset() {
@@ -1808,24 +1816,24 @@ func (x *GetReconcilerStateRequest) ProtoReflect() protoreflect.Message {
 
 func (x *GetReconcilerStateRequest) GetReconcilerName() string {
 	if x != nil {
-		return x.ReconcilerName
+		return x.xxx_hidden_ReconcilerName
 	}
 	return ""
 }
 
 func (x *GetReconcilerStateRequest) GetTeamSlug() string {
 	if x != nil {
-		return x.TeamSlug
+		return x.xxx_hidden_TeamSlug
 	}
 	return ""
 }
 
 func (x *GetReconcilerStateRequest) SetReconcilerName(v string) {
-	x.ReconcilerName = v
+	x.xxx_hidden_ReconcilerName = v
 }
 
 func (x *GetReconcilerStateRequest) SetTeamSlug(v string) {
-	x.TeamSlug = v
+	x.xxx_hidden_TeamSlug = v
 }
 
 type GetReconcilerStateRequest_builder struct {
@@ -1839,16 +1847,16 @@ func (b0 GetReconcilerStateRequest_builder) Build() *GetReconcilerStateRequest {
 	m0 := &GetReconcilerStateRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.ReconcilerName = b.ReconcilerName
-	x.TeamSlug = b.TeamSlug
+	x.xxx_hidden_ReconcilerName = b.ReconcilerName
+	x.xxx_hidden_TeamSlug = b.TeamSlug
 	return m0
 }
 
 type GetReconcilerStateResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	State         *ReconcilerState       `protobuf:"bytes,1,opt,name=state,proto3" json:"state,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_State *ReconcilerState       `protobuf:"bytes,1,opt,name=state,proto3"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *GetReconcilerStateResponse) Reset() {
@@ -1878,24 +1886,24 @@ func (x *GetReconcilerStateResponse) ProtoReflect() protoreflect.Message {
 
 func (x *GetReconcilerStateResponse) GetState() *ReconcilerState {
 	if x != nil {
-		return x.State
+		return x.xxx_hidden_State
 	}
 	return nil
 }
 
 func (x *GetReconcilerStateResponse) SetState(v *ReconcilerState) {
-	x.State = v
+	x.xxx_hidden_State = v
 }
 
 func (x *GetReconcilerStateResponse) HasState() bool {
 	if x == nil {
 		return false
 	}
-	return x.State != nil
+	return x.xxx_hidden_State != nil
 }
 
 func (x *GetReconcilerStateResponse) ClearState() {
-	x.State = nil
+	x.xxx_hidden_State = nil
 }
 
 type GetReconcilerStateResponse_builder struct {
@@ -1908,7 +1916,7 @@ func (b0 GetReconcilerStateResponse_builder) Build() *GetReconcilerStateResponse
 	m0 := &GetReconcilerStateResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.State = b.State
+	x.xxx_hidden_State = b.State
 	return m0
 }
 

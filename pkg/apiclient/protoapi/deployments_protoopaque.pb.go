@@ -4,7 +4,7 @@
 // 	protoc        v5.29.3
 // source: deployments.proto
 
-//go:build !protoopaque
+//go:build protoopaque
 
 package protoapi
 
@@ -80,13 +80,15 @@ func (x DeploymentState) Number() protoreflect.EnumNumber {
 }
 
 type CreateDeploymentRequest struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`
-	TeamSlug      string                 `protobuf:"bytes,2,opt,name=team_slug,json=teamSlug,proto3" json:"team_slug,omitempty"`
-	Repository    *string                `protobuf:"bytes,3,opt,name=repository,proto3,oneof" json:"repository,omitempty"`
-	Environment   string                 `protobuf:"bytes,4,opt,name=environment,proto3" json:"environment,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_CreatedAt   *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=created_at,json=createdAt,proto3,oneof"`
+	xxx_hidden_TeamSlug    string                 `protobuf:"bytes,2,opt,name=team_slug,json=teamSlug,proto3"`
+	xxx_hidden_Repository  *string                `protobuf:"bytes,3,opt,name=repository,proto3,oneof"`
+	xxx_hidden_Environment string                 `protobuf:"bytes,4,opt,name=environment,proto3"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *CreateDeploymentRequest) Reset() {
@@ -116,68 +118,73 @@ func (x *CreateDeploymentRequest) ProtoReflect() protoreflect.Message {
 
 func (x *CreateDeploymentRequest) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
-		return x.CreatedAt
+		return x.xxx_hidden_CreatedAt
 	}
 	return nil
 }
 
 func (x *CreateDeploymentRequest) GetTeamSlug() string {
 	if x != nil {
-		return x.TeamSlug
+		return x.xxx_hidden_TeamSlug
 	}
 	return ""
 }
 
 func (x *CreateDeploymentRequest) GetRepository() string {
-	if x != nil && x.Repository != nil {
-		return *x.Repository
+	if x != nil {
+		if x.xxx_hidden_Repository != nil {
+			return *x.xxx_hidden_Repository
+		}
+		return ""
 	}
 	return ""
 }
 
 func (x *CreateDeploymentRequest) GetEnvironment() string {
 	if x != nil {
-		return x.Environment
+		return x.xxx_hidden_Environment
 	}
 	return ""
 }
 
 func (x *CreateDeploymentRequest) SetCreatedAt(v *timestamppb.Timestamp) {
-	x.CreatedAt = v
+	x.xxx_hidden_CreatedAt = v
 }
 
 func (x *CreateDeploymentRequest) SetTeamSlug(v string) {
-	x.TeamSlug = v
+	x.xxx_hidden_TeamSlug = v
 }
 
 func (x *CreateDeploymentRequest) SetRepository(v string) {
-	x.Repository = &v
+	x.xxx_hidden_Repository = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 4)
 }
 
 func (x *CreateDeploymentRequest) SetEnvironment(v string) {
-	x.Environment = v
+	x.xxx_hidden_Environment = v
 }
 
 func (x *CreateDeploymentRequest) HasCreatedAt() bool {
 	if x == nil {
 		return false
 	}
-	return x.CreatedAt != nil
+	return x.xxx_hidden_CreatedAt != nil
 }
 
 func (x *CreateDeploymentRequest) HasRepository() bool {
 	if x == nil {
 		return false
 	}
-	return x.Repository != nil
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
 func (x *CreateDeploymentRequest) ClearCreatedAt() {
-	x.CreatedAt = nil
+	x.xxx_hidden_CreatedAt = nil
 }
 
 func (x *CreateDeploymentRequest) ClearRepository() {
-	x.Repository = nil
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Repository = nil
 }
 
 type CreateDeploymentRequest_builder struct {
@@ -193,16 +200,19 @@ func (b0 CreateDeploymentRequest_builder) Build() *CreateDeploymentRequest {
 	m0 := &CreateDeploymentRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.CreatedAt = b.CreatedAt
-	x.TeamSlug = b.TeamSlug
-	x.Repository = b.Repository
-	x.Environment = b.Environment
+	x.xxx_hidden_CreatedAt = b.CreatedAt
+	x.xxx_hidden_TeamSlug = b.TeamSlug
+	if b.Repository != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 4)
+		x.xxx_hidden_Repository = b.Repository
+	}
+	x.xxx_hidden_Environment = b.Environment
 	return m0
 }
 
 type CreateDeploymentResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id string                 `protobuf:"bytes,1,opt,name=id,proto3"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -234,13 +244,13 @@ func (x *CreateDeploymentResponse) ProtoReflect() protoreflect.Message {
 
 func (x *CreateDeploymentResponse) GetId() string {
 	if x != nil {
-		return x.Id
+		return x.xxx_hidden_Id
 	}
 	return ""
 }
 
 func (x *CreateDeploymentResponse) SetId(v string) {
-	x.Id = v
+	x.xxx_hidden_Id = v
 }
 
 type CreateDeploymentResponse_builder struct {
@@ -253,21 +263,21 @@ func (b0 CreateDeploymentResponse_builder) Build() *CreateDeploymentResponse {
 	m0 := &CreateDeploymentResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Id = b.Id
+	x.xxx_hidden_Id = b.Id
 	return m0
 }
 
 type CreateDeploymentK8SResourceRequest struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	DeploymentId  string                 `protobuf:"bytes,1,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`
-	Group         string                 `protobuf:"bytes,3,opt,name=group,proto3" json:"group,omitempty"`
-	Version       string                 `protobuf:"bytes,4,opt,name=version,proto3" json:"version,omitempty"`
-	Kind          string                 `protobuf:"bytes,5,opt,name=kind,proto3" json:"kind,omitempty"`
-	Name          string                 `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`
-	Namespace     string                 `protobuf:"bytes,7,opt,name=namespace,proto3" json:"namespace,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_DeploymentId string                 `protobuf:"bytes,1,opt,name=deployment_id,json=deploymentId,proto3"`
+	xxx_hidden_CreatedAt    *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3,oneof"`
+	xxx_hidden_Group        string                 `protobuf:"bytes,3,opt,name=group,proto3"`
+	xxx_hidden_Version      string                 `protobuf:"bytes,4,opt,name=version,proto3"`
+	xxx_hidden_Kind         string                 `protobuf:"bytes,5,opt,name=kind,proto3"`
+	xxx_hidden_Name         string                 `protobuf:"bytes,6,opt,name=name,proto3"`
+	xxx_hidden_Namespace    string                 `protobuf:"bytes,7,opt,name=namespace,proto3"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *CreateDeploymentK8SResourceRequest) Reset() {
@@ -297,90 +307,90 @@ func (x *CreateDeploymentK8SResourceRequest) ProtoReflect() protoreflect.Message
 
 func (x *CreateDeploymentK8SResourceRequest) GetDeploymentId() string {
 	if x != nil {
-		return x.DeploymentId
+		return x.xxx_hidden_DeploymentId
 	}
 	return ""
 }
 
 func (x *CreateDeploymentK8SResourceRequest) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
-		return x.CreatedAt
+		return x.xxx_hidden_CreatedAt
 	}
 	return nil
 }
 
 func (x *CreateDeploymentK8SResourceRequest) GetGroup() string {
 	if x != nil {
-		return x.Group
+		return x.xxx_hidden_Group
 	}
 	return ""
 }
 
 func (x *CreateDeploymentK8SResourceRequest) GetVersion() string {
 	if x != nil {
-		return x.Version
+		return x.xxx_hidden_Version
 	}
 	return ""
 }
 
 func (x *CreateDeploymentK8SResourceRequest) GetKind() string {
 	if x != nil {
-		return x.Kind
+		return x.xxx_hidden_Kind
 	}
 	return ""
 }
 
 func (x *CreateDeploymentK8SResourceRequest) GetName() string {
 	if x != nil {
-		return x.Name
+		return x.xxx_hidden_Name
 	}
 	return ""
 }
 
 func (x *CreateDeploymentK8SResourceRequest) GetNamespace() string {
 	if x != nil {
-		return x.Namespace
+		return x.xxx_hidden_Namespace
 	}
 	return ""
 }
 
 func (x *CreateDeploymentK8SResourceRequest) SetDeploymentId(v string) {
-	x.DeploymentId = v
+	x.xxx_hidden_DeploymentId = v
 }
 
 func (x *CreateDeploymentK8SResourceRequest) SetCreatedAt(v *timestamppb.Timestamp) {
-	x.CreatedAt = v
+	x.xxx_hidden_CreatedAt = v
 }
 
 func (x *CreateDeploymentK8SResourceRequest) SetGroup(v string) {
-	x.Group = v
+	x.xxx_hidden_Group = v
 }
 
 func (x *CreateDeploymentK8SResourceRequest) SetVersion(v string) {
-	x.Version = v
+	x.xxx_hidden_Version = v
 }
 
 func (x *CreateDeploymentK8SResourceRequest) SetKind(v string) {
-	x.Kind = v
+	x.xxx_hidden_Kind = v
 }
 
 func (x *CreateDeploymentK8SResourceRequest) SetName(v string) {
-	x.Name = v
+	x.xxx_hidden_Name = v
 }
 
 func (x *CreateDeploymentK8SResourceRequest) SetNamespace(v string) {
-	x.Namespace = v
+	x.xxx_hidden_Namespace = v
 }
 
 func (x *CreateDeploymentK8SResourceRequest) HasCreatedAt() bool {
 	if x == nil {
 		return false
 	}
-	return x.CreatedAt != nil
+	return x.xxx_hidden_CreatedAt != nil
 }
 
 func (x *CreateDeploymentK8SResourceRequest) ClearCreatedAt() {
-	x.CreatedAt = nil
+	x.xxx_hidden_CreatedAt = nil
 }
 
 type CreateDeploymentK8SResourceRequest_builder struct {
@@ -399,19 +409,19 @@ func (b0 CreateDeploymentK8SResourceRequest_builder) Build() *CreateDeploymentK8
 	m0 := &CreateDeploymentK8SResourceRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.DeploymentId = b.DeploymentId
-	x.CreatedAt = b.CreatedAt
-	x.Group = b.Group
-	x.Version = b.Version
-	x.Kind = b.Kind
-	x.Name = b.Name
-	x.Namespace = b.Namespace
+	x.xxx_hidden_DeploymentId = b.DeploymentId
+	x.xxx_hidden_CreatedAt = b.CreatedAt
+	x.xxx_hidden_Group = b.Group
+	x.xxx_hidden_Version = b.Version
+	x.xxx_hidden_Kind = b.Kind
+	x.xxx_hidden_Name = b.Name
+	x.xxx_hidden_Namespace = b.Namespace
 	return m0
 }
 
 type CreateDeploymentK8SResourceResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id string                 `protobuf:"bytes,1,opt,name=id,proto3"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -443,13 +453,13 @@ func (x *CreateDeploymentK8SResourceResponse) ProtoReflect() protoreflect.Messag
 
 func (x *CreateDeploymentK8SResourceResponse) GetId() string {
 	if x != nil {
-		return x.Id
+		return x.xxx_hidden_Id
 	}
 	return ""
 }
 
 func (x *CreateDeploymentK8SResourceResponse) SetId(v string) {
-	x.Id = v
+	x.xxx_hidden_Id = v
 }
 
 type CreateDeploymentK8SResourceResponse_builder struct {
@@ -462,18 +472,18 @@ func (b0 CreateDeploymentK8SResourceResponse_builder) Build() *CreateDeploymentK
 	m0 := &CreateDeploymentK8SResourceResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Id = b.Id
+	x.xxx_hidden_Id = b.Id
 	return m0
 }
 
 type CreateDeploymentStatusRequest struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	DeploymentId  string                 `protobuf:"bytes,1,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`
-	State         DeploymentState        `protobuf:"varint,3,opt,name=state,proto3,enum=nais.api.protobuf.DeploymentState" json:"state,omitempty"`
-	Message       string                 `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_DeploymentId string                 `protobuf:"bytes,1,opt,name=deployment_id,json=deploymentId,proto3"`
+	xxx_hidden_CreatedAt    *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3,oneof"`
+	xxx_hidden_State        DeploymentState        `protobuf:"varint,3,opt,name=state,proto3,enum=nais.api.protobuf.DeploymentState"`
+	xxx_hidden_Message      string                 `protobuf:"bytes,4,opt,name=message,proto3"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *CreateDeploymentStatusRequest) Reset() {
@@ -503,57 +513,57 @@ func (x *CreateDeploymentStatusRequest) ProtoReflect() protoreflect.Message {
 
 func (x *CreateDeploymentStatusRequest) GetDeploymentId() string {
 	if x != nil {
-		return x.DeploymentId
+		return x.xxx_hidden_DeploymentId
 	}
 	return ""
 }
 
 func (x *CreateDeploymentStatusRequest) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
-		return x.CreatedAt
+		return x.xxx_hidden_CreatedAt
 	}
 	return nil
 }
 
 func (x *CreateDeploymentStatusRequest) GetState() DeploymentState {
 	if x != nil {
-		return x.State
+		return x.xxx_hidden_State
 	}
 	return DeploymentState_success
 }
 
 func (x *CreateDeploymentStatusRequest) GetMessage() string {
 	if x != nil {
-		return x.Message
+		return x.xxx_hidden_Message
 	}
 	return ""
 }
 
 func (x *CreateDeploymentStatusRequest) SetDeploymentId(v string) {
-	x.DeploymentId = v
+	x.xxx_hidden_DeploymentId = v
 }
 
 func (x *CreateDeploymentStatusRequest) SetCreatedAt(v *timestamppb.Timestamp) {
-	x.CreatedAt = v
+	x.xxx_hidden_CreatedAt = v
 }
 
 func (x *CreateDeploymentStatusRequest) SetState(v DeploymentState) {
-	x.State = v
+	x.xxx_hidden_State = v
 }
 
 func (x *CreateDeploymentStatusRequest) SetMessage(v string) {
-	x.Message = v
+	x.xxx_hidden_Message = v
 }
 
 func (x *CreateDeploymentStatusRequest) HasCreatedAt() bool {
 	if x == nil {
 		return false
 	}
-	return x.CreatedAt != nil
+	return x.xxx_hidden_CreatedAt != nil
 }
 
 func (x *CreateDeploymentStatusRequest) ClearCreatedAt() {
-	x.CreatedAt = nil
+	x.xxx_hidden_CreatedAt = nil
 }
 
 type CreateDeploymentStatusRequest_builder struct {
@@ -569,16 +579,16 @@ func (b0 CreateDeploymentStatusRequest_builder) Build() *CreateDeploymentStatusR
 	m0 := &CreateDeploymentStatusRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.DeploymentId = b.DeploymentId
-	x.CreatedAt = b.CreatedAt
-	x.State = b.State
-	x.Message = b.Message
+	x.xxx_hidden_DeploymentId = b.DeploymentId
+	x.xxx_hidden_CreatedAt = b.CreatedAt
+	x.xxx_hidden_State = b.State
+	x.xxx_hidden_Message = b.Message
 	return m0
 }
 
 type CreateDeploymentStatusResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id string                 `protobuf:"bytes,1,opt,name=id,proto3"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -610,13 +620,13 @@ func (x *CreateDeploymentStatusResponse) ProtoReflect() protoreflect.Message {
 
 func (x *CreateDeploymentStatusResponse) GetId() string {
 	if x != nil {
-		return x.Id
+		return x.xxx_hidden_Id
 	}
 	return ""
 }
 
 func (x *CreateDeploymentStatusResponse) SetId(v string) {
-	x.Id = v
+	x.xxx_hidden_Id = v
 }
 
 type CreateDeploymentStatusResponse_builder struct {
@@ -629,7 +639,7 @@ func (b0 CreateDeploymentStatusResponse_builder) Build() *CreateDeploymentStatus
 	m0 := &CreateDeploymentStatusResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Id = b.Id
+	x.xxx_hidden_Id = b.Id
 	return m0
 }
 

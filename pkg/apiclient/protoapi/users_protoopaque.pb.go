@@ -4,7 +4,7 @@
 // 	protoc        v5.29.3
 // source: users.proto
 
-//go:build !protoopaque
+//go:build protoopaque
 
 package protoapi
 
@@ -23,13 +23,13 @@ const (
 )
 
 type User struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
-	ExternalId    string                 `protobuf:"bytes,4,opt,name=external_id,json=externalId,proto3" json:"external_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id         string                 `protobuf:"bytes,1,opt,name=id,proto3"`
+	xxx_hidden_Name       string                 `protobuf:"bytes,2,opt,name=name,proto3"`
+	xxx_hidden_Email      string                 `protobuf:"bytes,3,opt,name=email,proto3"`
+	xxx_hidden_ExternalId string                 `protobuf:"bytes,4,opt,name=external_id,json=externalId,proto3"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *User) Reset() {
@@ -59,46 +59,46 @@ func (x *User) ProtoReflect() protoreflect.Message {
 
 func (x *User) GetId() string {
 	if x != nil {
-		return x.Id
+		return x.xxx_hidden_Id
 	}
 	return ""
 }
 
 func (x *User) GetName() string {
 	if x != nil {
-		return x.Name
+		return x.xxx_hidden_Name
 	}
 	return ""
 }
 
 func (x *User) GetEmail() string {
 	if x != nil {
-		return x.Email
+		return x.xxx_hidden_Email
 	}
 	return ""
 }
 
 func (x *User) GetExternalId() string {
 	if x != nil {
-		return x.ExternalId
+		return x.xxx_hidden_ExternalId
 	}
 	return ""
 }
 
 func (x *User) SetId(v string) {
-	x.Id = v
+	x.xxx_hidden_Id = v
 }
 
 func (x *User) SetName(v string) {
-	x.Name = v
+	x.xxx_hidden_Name = v
 }
 
 func (x *User) SetEmail(v string) {
-	x.Email = v
+	x.xxx_hidden_Email = v
 }
 
 func (x *User) SetExternalId(v string) {
-	x.ExternalId = v
+	x.xxx_hidden_ExternalId = v
 }
 
 type User_builder struct {
@@ -114,18 +114,18 @@ func (b0 User_builder) Build() *User {
 	m0 := &User{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Id = b.Id
-	x.Name = b.Name
-	x.Email = b.Email
-	x.ExternalId = b.ExternalId
+	x.xxx_hidden_Id = b.Id
+	x.xxx_hidden_Name = b.Name
+	x.xxx_hidden_Email = b.Email
+	x.xxx_hidden_ExternalId = b.ExternalId
 	return m0
 }
 
 type GetUserResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	User          *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_User *User                  `protobuf:"bytes,1,opt,name=user,proto3"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *GetUserResponse) Reset() {
@@ -155,24 +155,24 @@ func (x *GetUserResponse) ProtoReflect() protoreflect.Message {
 
 func (x *GetUserResponse) GetUser() *User {
 	if x != nil {
-		return x.User
+		return x.xxx_hidden_User
 	}
 	return nil
 }
 
 func (x *GetUserResponse) SetUser(v *User) {
-	x.User = v
+	x.xxx_hidden_User = v
 }
 
 func (x *GetUserResponse) HasUser() bool {
 	if x == nil {
 		return false
 	}
-	return x.User != nil
+	return x.xxx_hidden_User != nil
 }
 
 func (x *GetUserResponse) ClearUser() {
-	x.User = nil
+	x.xxx_hidden_User = nil
 }
 
 type GetUserResponse_builder struct {
@@ -185,17 +185,17 @@ func (b0 GetUserResponse_builder) Build() *GetUserResponse {
 	m0 := &GetUserResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.User = b.User
+	x.xxx_hidden_User = b.User
 	return m0
 }
 
 type GetUserRequest struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	ExternalId    string                 `protobuf:"bytes,3,opt,name=external_id,json=externalId,proto3" json:"external_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id         string                 `protobuf:"bytes,1,opt,name=id,proto3"`
+	xxx_hidden_Email      string                 `protobuf:"bytes,2,opt,name=email,proto3"`
+	xxx_hidden_ExternalId string                 `protobuf:"bytes,3,opt,name=external_id,json=externalId,proto3"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *GetUserRequest) Reset() {
@@ -225,35 +225,35 @@ func (x *GetUserRequest) ProtoReflect() protoreflect.Message {
 
 func (x *GetUserRequest) GetId() string {
 	if x != nil {
-		return x.Id
+		return x.xxx_hidden_Id
 	}
 	return ""
 }
 
 func (x *GetUserRequest) GetEmail() string {
 	if x != nil {
-		return x.Email
+		return x.xxx_hidden_Email
 	}
 	return ""
 }
 
 func (x *GetUserRequest) GetExternalId() string {
 	if x != nil {
-		return x.ExternalId
+		return x.xxx_hidden_ExternalId
 	}
 	return ""
 }
 
 func (x *GetUserRequest) SetId(v string) {
-	x.Id = v
+	x.xxx_hidden_Id = v
 }
 
 func (x *GetUserRequest) SetEmail(v string) {
-	x.Email = v
+	x.xxx_hidden_Email = v
 }
 
 func (x *GetUserRequest) SetExternalId(v string) {
-	x.ExternalId = v
+	x.xxx_hidden_ExternalId = v
 }
 
 type GetUserRequest_builder struct {
@@ -268,18 +268,18 @@ func (b0 GetUserRequest_builder) Build() *GetUserRequest {
 	m0 := &GetUserRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Id = b.Id
-	x.Email = b.Email
-	x.ExternalId = b.ExternalId
+	x.xxx_hidden_Id = b.Id
+	x.xxx_hidden_Email = b.Email
+	x.xxx_hidden_ExternalId = b.ExternalId
 	return m0
 }
 
 type ListUsersRequest struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Limit         int64                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset        int64                  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Limit  int64                  `protobuf:"varint,1,opt,name=limit,proto3"`
+	xxx_hidden_Offset int64                  `protobuf:"varint,2,opt,name=offset,proto3"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ListUsersRequest) Reset() {
@@ -309,24 +309,24 @@ func (x *ListUsersRequest) ProtoReflect() protoreflect.Message {
 
 func (x *ListUsersRequest) GetLimit() int64 {
 	if x != nil {
-		return x.Limit
+		return x.xxx_hidden_Limit
 	}
 	return 0
 }
 
 func (x *ListUsersRequest) GetOffset() int64 {
 	if x != nil {
-		return x.Offset
+		return x.xxx_hidden_Offset
 	}
 	return 0
 }
 
 func (x *ListUsersRequest) SetLimit(v int64) {
-	x.Limit = v
+	x.xxx_hidden_Limit = v
 }
 
 func (x *ListUsersRequest) SetOffset(v int64) {
-	x.Offset = v
+	x.xxx_hidden_Offset = v
 }
 
 type ListUsersRequest_builder struct {
@@ -340,17 +340,17 @@ func (b0 ListUsersRequest_builder) Build() *ListUsersRequest {
 	m0 := &ListUsersRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Limit = b.Limit
-	x.Offset = b.Offset
+	x.xxx_hidden_Limit = b.Limit
+	x.xxx_hidden_Offset = b.Offset
 	return m0
 }
 
 type ListUsersResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Nodes         []*User                `protobuf:"bytes,1,rep,name=nodes,proto3" json:"nodes,omitempty"`
-	PageInfo      *PageInfo              `protobuf:"bytes,2,opt,name=page_info,json=pageInfo,proto3" json:"page_info,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Nodes    *[]*User               `protobuf:"bytes,1,rep,name=nodes,proto3"`
+	xxx_hidden_PageInfo *PageInfo              `protobuf:"bytes,2,opt,name=page_info,json=pageInfo,proto3"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ListUsersResponse) Reset() {
@@ -380,35 +380,37 @@ func (x *ListUsersResponse) ProtoReflect() protoreflect.Message {
 
 func (x *ListUsersResponse) GetNodes() []*User {
 	if x != nil {
-		return x.Nodes
+		if x.xxx_hidden_Nodes != nil {
+			return *x.xxx_hidden_Nodes
+		}
 	}
 	return nil
 }
 
 func (x *ListUsersResponse) GetPageInfo() *PageInfo {
 	if x != nil {
-		return x.PageInfo
+		return x.xxx_hidden_PageInfo
 	}
 	return nil
 }
 
 func (x *ListUsersResponse) SetNodes(v []*User) {
-	x.Nodes = v
+	x.xxx_hidden_Nodes = &v
 }
 
 func (x *ListUsersResponse) SetPageInfo(v *PageInfo) {
-	x.PageInfo = v
+	x.xxx_hidden_PageInfo = v
 }
 
 func (x *ListUsersResponse) HasPageInfo() bool {
 	if x == nil {
 		return false
 	}
-	return x.PageInfo != nil
+	return x.xxx_hidden_PageInfo != nil
 }
 
 func (x *ListUsersResponse) ClearPageInfo() {
-	x.PageInfo = nil
+	x.xxx_hidden_PageInfo = nil
 }
 
 type ListUsersResponse_builder struct {
@@ -422,8 +424,8 @@ func (b0 ListUsersResponse_builder) Build() *ListUsersResponse {
 	m0 := &ListUsersResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Nodes = b.Nodes
-	x.PageInfo = b.PageInfo
+	x.xxx_hidden_Nodes = &b.Nodes
+	x.xxx_hidden_PageInfo = b.PageInfo
 	return m0
 }
 

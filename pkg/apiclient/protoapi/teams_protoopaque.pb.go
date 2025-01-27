@@ -4,7 +4,7 @@
 // 	protoc        v5.29.3
 // source: teams.proto
 
-//go:build !protoopaque
+//go:build protoopaque
 
 package protoapi
 
@@ -24,18 +24,20 @@ const (
 )
 
 type Team struct {
-	state                protoimpl.MessageState `protogen:"hybrid.v1"`
-	Slug                 string                 `protobuf:"bytes,1,opt,name=slug,proto3" json:"slug,omitempty"`
-	Purpose              string                 `protobuf:"bytes,2,opt,name=purpose,proto3" json:"purpose,omitempty"`
-	SlackChannel         string                 `protobuf:"bytes,3,opt,name=slack_channel,json=slackChannel,proto3" json:"slack_channel,omitempty"`
-	EntraIdGroupId       *string                `protobuf:"bytes,4,opt,name=entra_id_group_id,json=entraIdGroupId,proto3,oneof" json:"entra_id_group_id,omitempty"`
-	GithubTeamSlug       *string                `protobuf:"bytes,5,opt,name=github_team_slug,json=githubTeamSlug,proto3,oneof" json:"github_team_slug,omitempty"`
-	GoogleGroupEmail     *string                `protobuf:"bytes,6,opt,name=google_group_email,json=googleGroupEmail,proto3,oneof" json:"google_group_email,omitempty"`
-	GarRepository        *string                `protobuf:"bytes,7,opt,name=gar_repository,json=garRepository,proto3,oneof" json:"gar_repository,omitempty"`
-	CdnBucket            *string                `protobuf:"bytes,8,opt,name=cdn_bucket,json=cdnBucket,proto3,oneof" json:"cdn_bucket,omitempty"`
-	DeleteKeyConfirmedAt *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=delete_key_confirmed_at,json=deleteKeyConfirmedAt,proto3,oneof" json:"delete_key_confirmed_at,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	state                           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Slug                 string                 `protobuf:"bytes,1,opt,name=slug,proto3"`
+	xxx_hidden_Purpose              string                 `protobuf:"bytes,2,opt,name=purpose,proto3"`
+	xxx_hidden_SlackChannel         string                 `protobuf:"bytes,3,opt,name=slack_channel,json=slackChannel,proto3"`
+	xxx_hidden_EntraIdGroupId       *string                `protobuf:"bytes,4,opt,name=entra_id_group_id,json=entraIdGroupId,proto3,oneof"`
+	xxx_hidden_GithubTeamSlug       *string                `protobuf:"bytes,5,opt,name=github_team_slug,json=githubTeamSlug,proto3,oneof"`
+	xxx_hidden_GoogleGroupEmail     *string                `protobuf:"bytes,6,opt,name=google_group_email,json=googleGroupEmail,proto3,oneof"`
+	xxx_hidden_GarRepository        *string                `protobuf:"bytes,7,opt,name=gar_repository,json=garRepository,proto3,oneof"`
+	xxx_hidden_CdnBucket            *string                `protobuf:"bytes,8,opt,name=cdn_bucket,json=cdnBucket,proto3,oneof"`
+	xxx_hidden_DeleteKeyConfirmedAt *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=delete_key_confirmed_at,json=deleteKeyConfirmedAt,proto3,oneof"`
+	XXX_raceDetectHookData          protoimpl.RaceDetectHookData
+	XXX_presence                    [1]uint32
+	unknownFields                   protoimpl.UnknownFields
+	sizeCache                       protoimpl.SizeCache
 }
 
 func (x *Team) Reset() {
@@ -65,167 +67,192 @@ func (x *Team) ProtoReflect() protoreflect.Message {
 
 func (x *Team) GetSlug() string {
 	if x != nil {
-		return x.Slug
+		return x.xxx_hidden_Slug
 	}
 	return ""
 }
 
 func (x *Team) GetPurpose() string {
 	if x != nil {
-		return x.Purpose
+		return x.xxx_hidden_Purpose
 	}
 	return ""
 }
 
 func (x *Team) GetSlackChannel() string {
 	if x != nil {
-		return x.SlackChannel
+		return x.xxx_hidden_SlackChannel
 	}
 	return ""
 }
 
 func (x *Team) GetEntraIdGroupId() string {
-	if x != nil && x.EntraIdGroupId != nil {
-		return *x.EntraIdGroupId
+	if x != nil {
+		if x.xxx_hidden_EntraIdGroupId != nil {
+			return *x.xxx_hidden_EntraIdGroupId
+		}
+		return ""
 	}
 	return ""
 }
 
 func (x *Team) GetGithubTeamSlug() string {
-	if x != nil && x.GithubTeamSlug != nil {
-		return *x.GithubTeamSlug
+	if x != nil {
+		if x.xxx_hidden_GithubTeamSlug != nil {
+			return *x.xxx_hidden_GithubTeamSlug
+		}
+		return ""
 	}
 	return ""
 }
 
 func (x *Team) GetGoogleGroupEmail() string {
-	if x != nil && x.GoogleGroupEmail != nil {
-		return *x.GoogleGroupEmail
+	if x != nil {
+		if x.xxx_hidden_GoogleGroupEmail != nil {
+			return *x.xxx_hidden_GoogleGroupEmail
+		}
+		return ""
 	}
 	return ""
 }
 
 func (x *Team) GetGarRepository() string {
-	if x != nil && x.GarRepository != nil {
-		return *x.GarRepository
+	if x != nil {
+		if x.xxx_hidden_GarRepository != nil {
+			return *x.xxx_hidden_GarRepository
+		}
+		return ""
 	}
 	return ""
 }
 
 func (x *Team) GetCdnBucket() string {
-	if x != nil && x.CdnBucket != nil {
-		return *x.CdnBucket
+	if x != nil {
+		if x.xxx_hidden_CdnBucket != nil {
+			return *x.xxx_hidden_CdnBucket
+		}
+		return ""
 	}
 	return ""
 }
 
 func (x *Team) GetDeleteKeyConfirmedAt() *timestamppb.Timestamp {
 	if x != nil {
-		return x.DeleteKeyConfirmedAt
+		return x.xxx_hidden_DeleteKeyConfirmedAt
 	}
 	return nil
 }
 
 func (x *Team) SetSlug(v string) {
-	x.Slug = v
+	x.xxx_hidden_Slug = v
 }
 
 func (x *Team) SetPurpose(v string) {
-	x.Purpose = v
+	x.xxx_hidden_Purpose = v
 }
 
 func (x *Team) SetSlackChannel(v string) {
-	x.SlackChannel = v
+	x.xxx_hidden_SlackChannel = v
 }
 
 func (x *Team) SetEntraIdGroupId(v string) {
-	x.EntraIdGroupId = &v
+	x.xxx_hidden_EntraIdGroupId = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 9)
 }
 
 func (x *Team) SetGithubTeamSlug(v string) {
-	x.GithubTeamSlug = &v
+	x.xxx_hidden_GithubTeamSlug = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 9)
 }
 
 func (x *Team) SetGoogleGroupEmail(v string) {
-	x.GoogleGroupEmail = &v
+	x.xxx_hidden_GoogleGroupEmail = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 9)
 }
 
 func (x *Team) SetGarRepository(v string) {
-	x.GarRepository = &v
+	x.xxx_hidden_GarRepository = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 9)
 }
 
 func (x *Team) SetCdnBucket(v string) {
-	x.CdnBucket = &v
+	x.xxx_hidden_CdnBucket = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 9)
 }
 
 func (x *Team) SetDeleteKeyConfirmedAt(v *timestamppb.Timestamp) {
-	x.DeleteKeyConfirmedAt = v
+	x.xxx_hidden_DeleteKeyConfirmedAt = v
 }
 
 func (x *Team) HasEntraIdGroupId() bool {
 	if x == nil {
 		return false
 	}
-	return x.EntraIdGroupId != nil
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
 func (x *Team) HasGithubTeamSlug() bool {
 	if x == nil {
 		return false
 	}
-	return x.GithubTeamSlug != nil
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
 func (x *Team) HasGoogleGroupEmail() bool {
 	if x == nil {
 		return false
 	}
-	return x.GoogleGroupEmail != nil
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
 func (x *Team) HasGarRepository() bool {
 	if x == nil {
 		return false
 	}
-	return x.GarRepository != nil
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
 }
 
 func (x *Team) HasCdnBucket() bool {
 	if x == nil {
 		return false
 	}
-	return x.CdnBucket != nil
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
 }
 
 func (x *Team) HasDeleteKeyConfirmedAt() bool {
 	if x == nil {
 		return false
 	}
-	return x.DeleteKeyConfirmedAt != nil
+	return x.xxx_hidden_DeleteKeyConfirmedAt != nil
 }
 
 func (x *Team) ClearEntraIdGroupId() {
-	x.EntraIdGroupId = nil
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_EntraIdGroupId = nil
 }
 
 func (x *Team) ClearGithubTeamSlug() {
-	x.GithubTeamSlug = nil
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_GithubTeamSlug = nil
 }
 
 func (x *Team) ClearGoogleGroupEmail() {
-	x.GoogleGroupEmail = nil
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	x.xxx_hidden_GoogleGroupEmail = nil
 }
 
 func (x *Team) ClearGarRepository() {
-	x.GarRepository = nil
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
+	x.xxx_hidden_GarRepository = nil
 }
 
 func (x *Team) ClearCdnBucket() {
-	x.CdnBucket = nil
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
+	x.xxx_hidden_CdnBucket = nil
 }
 
 func (x *Team) ClearDeleteKeyConfirmedAt() {
-	x.DeleteKeyConfirmedAt = nil
+	x.xxx_hidden_DeleteKeyConfirmedAt = nil
 }
 
 type Team_builder struct {
@@ -246,23 +273,38 @@ func (b0 Team_builder) Build() *Team {
 	m0 := &Team{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Slug = b.Slug
-	x.Purpose = b.Purpose
-	x.SlackChannel = b.SlackChannel
-	x.EntraIdGroupId = b.EntraIdGroupId
-	x.GithubTeamSlug = b.GithubTeamSlug
-	x.GoogleGroupEmail = b.GoogleGroupEmail
-	x.GarRepository = b.GarRepository
-	x.CdnBucket = b.CdnBucket
-	x.DeleteKeyConfirmedAt = b.DeleteKeyConfirmedAt
+	x.xxx_hidden_Slug = b.Slug
+	x.xxx_hidden_Purpose = b.Purpose
+	x.xxx_hidden_SlackChannel = b.SlackChannel
+	if b.EntraIdGroupId != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 9)
+		x.xxx_hidden_EntraIdGroupId = b.EntraIdGroupId
+	}
+	if b.GithubTeamSlug != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 9)
+		x.xxx_hidden_GithubTeamSlug = b.GithubTeamSlug
+	}
+	if b.GoogleGroupEmail != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 9)
+		x.xxx_hidden_GoogleGroupEmail = b.GoogleGroupEmail
+	}
+	if b.GarRepository != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 9)
+		x.xxx_hidden_GarRepository = b.GarRepository
+	}
+	if b.CdnBucket != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 9)
+		x.xxx_hidden_CdnBucket = b.CdnBucket
+	}
+	x.xxx_hidden_DeleteKeyConfirmedAt = b.DeleteKeyConfirmedAt
 	return m0
 }
 
 type ListAuthorizedRepositoriesRequest struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	TeamSlug      string                 `protobuf:"bytes,1,opt,name=teamSlug,proto3" json:"teamSlug,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_TeamSlug string                 `protobuf:"bytes,1,opt,name=teamSlug,proto3"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ListAuthorizedRepositoriesRequest) Reset() {
@@ -292,13 +334,13 @@ func (x *ListAuthorizedRepositoriesRequest) ProtoReflect() protoreflect.Message 
 
 func (x *ListAuthorizedRepositoriesRequest) GetTeamSlug() string {
 	if x != nil {
-		return x.TeamSlug
+		return x.xxx_hidden_TeamSlug
 	}
 	return ""
 }
 
 func (x *ListAuthorizedRepositoriesRequest) SetTeamSlug(v string) {
-	x.TeamSlug = v
+	x.xxx_hidden_TeamSlug = v
 }
 
 type ListAuthorizedRepositoriesRequest_builder struct {
@@ -311,15 +353,15 @@ func (b0 ListAuthorizedRepositoriesRequest_builder) Build() *ListAuthorizedRepos
 	m0 := &ListAuthorizedRepositoriesRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.TeamSlug = b.TeamSlug
+	x.xxx_hidden_TeamSlug = b.TeamSlug
 	return m0
 }
 
 type ListAuthorizedRepositoriesResponse struct {
-	state              protoimpl.MessageState `protogen:"hybrid.v1"`
-	GithubRepositories []string               `protobuf:"bytes,1,rep,name=github_repositories,json=githubRepositories,proto3" json:"github_repositories,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	state                         protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_GithubRepositories []string               `protobuf:"bytes,1,rep,name=github_repositories,json=githubRepositories,proto3"`
+	unknownFields                 protoimpl.UnknownFields
+	sizeCache                     protoimpl.SizeCache
 }
 
 func (x *ListAuthorizedRepositoriesResponse) Reset() {
@@ -349,13 +391,13 @@ func (x *ListAuthorizedRepositoriesResponse) ProtoReflect() protoreflect.Message
 
 func (x *ListAuthorizedRepositoriesResponse) GetGithubRepositories() []string {
 	if x != nil {
-		return x.GithubRepositories
+		return x.xxx_hidden_GithubRepositories
 	}
 	return nil
 }
 
 func (x *ListAuthorizedRepositoriesResponse) SetGithubRepositories(v []string) {
-	x.GithubRepositories = v
+	x.xxx_hidden_GithubRepositories = v
 }
 
 type ListAuthorizedRepositoriesResponse_builder struct {
@@ -368,15 +410,15 @@ func (b0 ListAuthorizedRepositoriesResponse_builder) Build() *ListAuthorizedRepo
 	m0 := &ListAuthorizedRepositoriesResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.GithubRepositories = b.GithubRepositories
+	x.xxx_hidden_GithubRepositories = b.GithubRepositories
 	return m0
 }
 
 type DeleteTeamRequest struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Slug          string                 `protobuf:"bytes,1,opt,name=slug,proto3" json:"slug,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Slug string                 `protobuf:"bytes,1,opt,name=slug,proto3"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *DeleteTeamRequest) Reset() {
@@ -406,13 +448,13 @@ func (x *DeleteTeamRequest) ProtoReflect() protoreflect.Message {
 
 func (x *DeleteTeamRequest) GetSlug() string {
 	if x != nil {
-		return x.Slug
+		return x.xxx_hidden_Slug
 	}
 	return ""
 }
 
 func (x *DeleteTeamRequest) SetSlug(v string) {
-	x.Slug = v
+	x.xxx_hidden_Slug = v
 }
 
 type DeleteTeamRequest_builder struct {
@@ -425,12 +467,12 @@ func (b0 DeleteTeamRequest_builder) Build() *DeleteTeamRequest {
 	m0 := &DeleteTeamRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Slug = b.Slug
+	x.xxx_hidden_Slug = b.Slug
 	return m0
 }
 
 type DeleteTeamResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -473,15 +515,17 @@ func (b0 DeleteTeamResponse_builder) Build() *DeleteTeamResponse {
 }
 
 type SetTeamExternalReferencesRequest struct {
-	state            protoimpl.MessageState `protogen:"hybrid.v1"`
-	Slug             string                 `protobuf:"bytes,1,opt,name=slug,proto3" json:"slug,omitempty"`
-	EntraIdGroupId   *string                `protobuf:"bytes,2,opt,name=entra_id_group_id,json=entraIdGroupId,proto3,oneof" json:"entra_id_group_id,omitempty"`
-	GithubTeamSlug   *string                `protobuf:"bytes,3,opt,name=github_team_slug,json=githubTeamSlug,proto3,oneof" json:"github_team_slug,omitempty"`
-	GoogleGroupEmail *string                `protobuf:"bytes,4,opt,name=google_group_email,json=googleGroupEmail,proto3,oneof" json:"google_group_email,omitempty"`
-	GarRepository    *string                `protobuf:"bytes,5,opt,name=gar_repository,json=garRepository,proto3,oneof" json:"gar_repository,omitempty"`
-	CdnBucket        *string                `protobuf:"bytes,6,opt,name=cdn_bucket,json=cdnBucket,proto3,oneof" json:"cdn_bucket,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state                       protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Slug             string                 `protobuf:"bytes,1,opt,name=slug,proto3"`
+	xxx_hidden_EntraIdGroupId   *string                `protobuf:"bytes,2,opt,name=entra_id_group_id,json=entraIdGroupId,proto3,oneof"`
+	xxx_hidden_GithubTeamSlug   *string                `protobuf:"bytes,3,opt,name=github_team_slug,json=githubTeamSlug,proto3,oneof"`
+	xxx_hidden_GoogleGroupEmail *string                `protobuf:"bytes,4,opt,name=google_group_email,json=googleGroupEmail,proto3,oneof"`
+	xxx_hidden_GarRepository    *string                `protobuf:"bytes,5,opt,name=gar_repository,json=garRepository,proto3,oneof"`
+	xxx_hidden_CdnBucket        *string                `protobuf:"bytes,6,opt,name=cdn_bucket,json=cdnBucket,proto3,oneof"`
+	XXX_raceDetectHookData      protoimpl.RaceDetectHookData
+	XXX_presence                [1]uint32
+	unknownFields               protoimpl.UnknownFields
+	sizeCache                   protoimpl.SizeCache
 }
 
 func (x *SetTeamExternalReferencesRequest) Reset() {
@@ -511,123 +555,148 @@ func (x *SetTeamExternalReferencesRequest) ProtoReflect() protoreflect.Message {
 
 func (x *SetTeamExternalReferencesRequest) GetSlug() string {
 	if x != nil {
-		return x.Slug
+		return x.xxx_hidden_Slug
 	}
 	return ""
 }
 
 func (x *SetTeamExternalReferencesRequest) GetEntraIdGroupId() string {
-	if x != nil && x.EntraIdGroupId != nil {
-		return *x.EntraIdGroupId
+	if x != nil {
+		if x.xxx_hidden_EntraIdGroupId != nil {
+			return *x.xxx_hidden_EntraIdGroupId
+		}
+		return ""
 	}
 	return ""
 }
 
 func (x *SetTeamExternalReferencesRequest) GetGithubTeamSlug() string {
-	if x != nil && x.GithubTeamSlug != nil {
-		return *x.GithubTeamSlug
+	if x != nil {
+		if x.xxx_hidden_GithubTeamSlug != nil {
+			return *x.xxx_hidden_GithubTeamSlug
+		}
+		return ""
 	}
 	return ""
 }
 
 func (x *SetTeamExternalReferencesRequest) GetGoogleGroupEmail() string {
-	if x != nil && x.GoogleGroupEmail != nil {
-		return *x.GoogleGroupEmail
+	if x != nil {
+		if x.xxx_hidden_GoogleGroupEmail != nil {
+			return *x.xxx_hidden_GoogleGroupEmail
+		}
+		return ""
 	}
 	return ""
 }
 
 func (x *SetTeamExternalReferencesRequest) GetGarRepository() string {
-	if x != nil && x.GarRepository != nil {
-		return *x.GarRepository
+	if x != nil {
+		if x.xxx_hidden_GarRepository != nil {
+			return *x.xxx_hidden_GarRepository
+		}
+		return ""
 	}
 	return ""
 }
 
 func (x *SetTeamExternalReferencesRequest) GetCdnBucket() string {
-	if x != nil && x.CdnBucket != nil {
-		return *x.CdnBucket
+	if x != nil {
+		if x.xxx_hidden_CdnBucket != nil {
+			return *x.xxx_hidden_CdnBucket
+		}
+		return ""
 	}
 	return ""
 }
 
 func (x *SetTeamExternalReferencesRequest) SetSlug(v string) {
-	x.Slug = v
+	x.xxx_hidden_Slug = v
 }
 
 func (x *SetTeamExternalReferencesRequest) SetEntraIdGroupId(v string) {
-	x.EntraIdGroupId = &v
+	x.xxx_hidden_EntraIdGroupId = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 6)
 }
 
 func (x *SetTeamExternalReferencesRequest) SetGithubTeamSlug(v string) {
-	x.GithubTeamSlug = &v
+	x.xxx_hidden_GithubTeamSlug = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 6)
 }
 
 func (x *SetTeamExternalReferencesRequest) SetGoogleGroupEmail(v string) {
-	x.GoogleGroupEmail = &v
+	x.xxx_hidden_GoogleGroupEmail = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 6)
 }
 
 func (x *SetTeamExternalReferencesRequest) SetGarRepository(v string) {
-	x.GarRepository = &v
+	x.xxx_hidden_GarRepository = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 6)
 }
 
 func (x *SetTeamExternalReferencesRequest) SetCdnBucket(v string) {
-	x.CdnBucket = &v
+	x.xxx_hidden_CdnBucket = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 6)
 }
 
 func (x *SetTeamExternalReferencesRequest) HasEntraIdGroupId() bool {
 	if x == nil {
 		return false
 	}
-	return x.EntraIdGroupId != nil
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
 }
 
 func (x *SetTeamExternalReferencesRequest) HasGithubTeamSlug() bool {
 	if x == nil {
 		return false
 	}
-	return x.GithubTeamSlug != nil
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
 func (x *SetTeamExternalReferencesRequest) HasGoogleGroupEmail() bool {
 	if x == nil {
 		return false
 	}
-	return x.GoogleGroupEmail != nil
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
 func (x *SetTeamExternalReferencesRequest) HasGarRepository() bool {
 	if x == nil {
 		return false
 	}
-	return x.GarRepository != nil
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
 func (x *SetTeamExternalReferencesRequest) HasCdnBucket() bool {
 	if x == nil {
 		return false
 	}
-	return x.CdnBucket != nil
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
 func (x *SetTeamExternalReferencesRequest) ClearEntraIdGroupId() {
-	x.EntraIdGroupId = nil
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_EntraIdGroupId = nil
 }
 
 func (x *SetTeamExternalReferencesRequest) ClearGithubTeamSlug() {
-	x.GithubTeamSlug = nil
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_GithubTeamSlug = nil
 }
 
 func (x *SetTeamExternalReferencesRequest) ClearGoogleGroupEmail() {
-	x.GoogleGroupEmail = nil
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_GoogleGroupEmail = nil
 }
 
 func (x *SetTeamExternalReferencesRequest) ClearGarRepository() {
-	x.GarRepository = nil
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_GarRepository = nil
 }
 
 func (x *SetTeamExternalReferencesRequest) ClearCdnBucket() {
-	x.CdnBucket = nil
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	x.xxx_hidden_CdnBucket = nil
 }
 
 type SetTeamExternalReferencesRequest_builder struct {
@@ -645,17 +714,32 @@ func (b0 SetTeamExternalReferencesRequest_builder) Build() *SetTeamExternalRefer
 	m0 := &SetTeamExternalReferencesRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Slug = b.Slug
-	x.EntraIdGroupId = b.EntraIdGroupId
-	x.GithubTeamSlug = b.GithubTeamSlug
-	x.GoogleGroupEmail = b.GoogleGroupEmail
-	x.GarRepository = b.GarRepository
-	x.CdnBucket = b.CdnBucket
+	x.xxx_hidden_Slug = b.Slug
+	if b.EntraIdGroupId != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 6)
+		x.xxx_hidden_EntraIdGroupId = b.EntraIdGroupId
+	}
+	if b.GithubTeamSlug != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 6)
+		x.xxx_hidden_GithubTeamSlug = b.GithubTeamSlug
+	}
+	if b.GoogleGroupEmail != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 6)
+		x.xxx_hidden_GoogleGroupEmail = b.GoogleGroupEmail
+	}
+	if b.GarRepository != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 6)
+		x.xxx_hidden_GarRepository = b.GarRepository
+	}
+	if b.CdnBucket != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 6)
+		x.xxx_hidden_CdnBucket = b.CdnBucket
+	}
 	return m0
 }
 
 type SetTeamExternalReferencesResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -698,13 +782,14 @@ func (b0 SetTeamExternalReferencesResponse_builder) Build() *SetTeamExternalRefe
 }
 
 type SetTeamEnvironmentExternalReferencesRequest struct {
-	state           protoimpl.MessageState `protogen:"hybrid.v1"`
-	Slug            string                 `protobuf:"bytes,1,opt,name=slug,proto3" json:"slug,omitempty"`
-	EnvironmentName string                 `protobuf:"bytes,2,opt,name=environment_name,json=environmentName,proto3" json:"environment_name,omitempty"`
-	// GCP project ID. If not set, no changes will be made. Set to empty string to remove the project ID.
-	GcpProjectId  *string `protobuf:"bytes,3,opt,name=gcp_project_id,json=gcpProjectId,proto3,oneof" json:"gcp_project_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                      protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Slug            string                 `protobuf:"bytes,1,opt,name=slug,proto3"`
+	xxx_hidden_EnvironmentName string                 `protobuf:"bytes,2,opt,name=environment_name,json=environmentName,proto3"`
+	xxx_hidden_GcpProjectId    *string                `protobuf:"bytes,3,opt,name=gcp_project_id,json=gcpProjectId,proto3,oneof"`
+	XXX_raceDetectHookData     protoimpl.RaceDetectHookData
+	XXX_presence               [1]uint32
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
 }
 
 func (x *SetTeamEnvironmentExternalReferencesRequest) Reset() {
@@ -734,46 +819,51 @@ func (x *SetTeamEnvironmentExternalReferencesRequest) ProtoReflect() protoreflec
 
 func (x *SetTeamEnvironmentExternalReferencesRequest) GetSlug() string {
 	if x != nil {
-		return x.Slug
+		return x.xxx_hidden_Slug
 	}
 	return ""
 }
 
 func (x *SetTeamEnvironmentExternalReferencesRequest) GetEnvironmentName() string {
 	if x != nil {
-		return x.EnvironmentName
+		return x.xxx_hidden_EnvironmentName
 	}
 	return ""
 }
 
 func (x *SetTeamEnvironmentExternalReferencesRequest) GetGcpProjectId() string {
-	if x != nil && x.GcpProjectId != nil {
-		return *x.GcpProjectId
+	if x != nil {
+		if x.xxx_hidden_GcpProjectId != nil {
+			return *x.xxx_hidden_GcpProjectId
+		}
+		return ""
 	}
 	return ""
 }
 
 func (x *SetTeamEnvironmentExternalReferencesRequest) SetSlug(v string) {
-	x.Slug = v
+	x.xxx_hidden_Slug = v
 }
 
 func (x *SetTeamEnvironmentExternalReferencesRequest) SetEnvironmentName(v string) {
-	x.EnvironmentName = v
+	x.xxx_hidden_EnvironmentName = v
 }
 
 func (x *SetTeamEnvironmentExternalReferencesRequest) SetGcpProjectId(v string) {
-	x.GcpProjectId = &v
+	x.xxx_hidden_GcpProjectId = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
 }
 
 func (x *SetTeamEnvironmentExternalReferencesRequest) HasGcpProjectId() bool {
 	if x == nil {
 		return false
 	}
-	return x.GcpProjectId != nil
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
 func (x *SetTeamEnvironmentExternalReferencesRequest) ClearGcpProjectId() {
-	x.GcpProjectId = nil
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_GcpProjectId = nil
 }
 
 type SetTeamEnvironmentExternalReferencesRequest_builder struct {
@@ -789,14 +879,17 @@ func (b0 SetTeamEnvironmentExternalReferencesRequest_builder) Build() *SetTeamEn
 	m0 := &SetTeamEnvironmentExternalReferencesRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Slug = b.Slug
-	x.EnvironmentName = b.EnvironmentName
-	x.GcpProjectId = b.GcpProjectId
+	x.xxx_hidden_Slug = b.Slug
+	x.xxx_hidden_EnvironmentName = b.EnvironmentName
+	if b.GcpProjectId != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 3)
+		x.xxx_hidden_GcpProjectId = b.GcpProjectId
+	}
 	return m0
 }
 
 type SetTeamEnvironmentExternalReferencesResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -839,12 +932,12 @@ func (b0 SetTeamEnvironmentExternalReferencesResponse_builder) Build() *SetTeamE
 }
 
 type ListTeamEnvironmentsRequest struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Limit         int64                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset        int64                  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
-	Slug          string                 `protobuf:"bytes,3,opt,name=slug,proto3" json:"slug,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Limit  int64                  `protobuf:"varint,1,opt,name=limit,proto3"`
+	xxx_hidden_Offset int64                  `protobuf:"varint,2,opt,name=offset,proto3"`
+	xxx_hidden_Slug   string                 `protobuf:"bytes,3,opt,name=slug,proto3"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ListTeamEnvironmentsRequest) Reset() {
@@ -874,35 +967,35 @@ func (x *ListTeamEnvironmentsRequest) ProtoReflect() protoreflect.Message {
 
 func (x *ListTeamEnvironmentsRequest) GetLimit() int64 {
 	if x != nil {
-		return x.Limit
+		return x.xxx_hidden_Limit
 	}
 	return 0
 }
 
 func (x *ListTeamEnvironmentsRequest) GetOffset() int64 {
 	if x != nil {
-		return x.Offset
+		return x.xxx_hidden_Offset
 	}
 	return 0
 }
 
 func (x *ListTeamEnvironmentsRequest) GetSlug() string {
 	if x != nil {
-		return x.Slug
+		return x.xxx_hidden_Slug
 	}
 	return ""
 }
 
 func (x *ListTeamEnvironmentsRequest) SetLimit(v int64) {
-	x.Limit = v
+	x.xxx_hidden_Limit = v
 }
 
 func (x *ListTeamEnvironmentsRequest) SetOffset(v int64) {
-	x.Offset = v
+	x.xxx_hidden_Offset = v
 }
 
 func (x *ListTeamEnvironmentsRequest) SetSlug(v string) {
-	x.Slug = v
+	x.xxx_hidden_Slug = v
 }
 
 type ListTeamEnvironmentsRequest_builder struct {
@@ -917,18 +1010,18 @@ func (b0 ListTeamEnvironmentsRequest_builder) Build() *ListTeamEnvironmentsReque
 	m0 := &ListTeamEnvironmentsRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Limit = b.Limit
-	x.Offset = b.Offset
-	x.Slug = b.Slug
+	x.xxx_hidden_Limit = b.Limit
+	x.xxx_hidden_Offset = b.Offset
+	x.xxx_hidden_Slug = b.Slug
 	return m0
 }
 
 type ListTeamEnvironmentsResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Nodes         []*TeamEnvironment     `protobuf:"bytes,1,rep,name=nodes,proto3" json:"nodes,omitempty"`
-	PageInfo      *PageInfo              `protobuf:"bytes,2,opt,name=page_info,json=pageInfo,proto3" json:"page_info,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Nodes    *[]*TeamEnvironment    `protobuf:"bytes,1,rep,name=nodes,proto3"`
+	xxx_hidden_PageInfo *PageInfo              `protobuf:"bytes,2,opt,name=page_info,json=pageInfo,proto3"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ListTeamEnvironmentsResponse) Reset() {
@@ -958,35 +1051,37 @@ func (x *ListTeamEnvironmentsResponse) ProtoReflect() protoreflect.Message {
 
 func (x *ListTeamEnvironmentsResponse) GetNodes() []*TeamEnvironment {
 	if x != nil {
-		return x.Nodes
+		if x.xxx_hidden_Nodes != nil {
+			return *x.xxx_hidden_Nodes
+		}
 	}
 	return nil
 }
 
 func (x *ListTeamEnvironmentsResponse) GetPageInfo() *PageInfo {
 	if x != nil {
-		return x.PageInfo
+		return x.xxx_hidden_PageInfo
 	}
 	return nil
 }
 
 func (x *ListTeamEnvironmentsResponse) SetNodes(v []*TeamEnvironment) {
-	x.Nodes = v
+	x.xxx_hidden_Nodes = &v
 }
 
 func (x *ListTeamEnvironmentsResponse) SetPageInfo(v *PageInfo) {
-	x.PageInfo = v
+	x.xxx_hidden_PageInfo = v
 }
 
 func (x *ListTeamEnvironmentsResponse) HasPageInfo() bool {
 	if x == nil {
 		return false
 	}
-	return x.PageInfo != nil
+	return x.xxx_hidden_PageInfo != nil
 }
 
 func (x *ListTeamEnvironmentsResponse) ClearPageInfo() {
-	x.PageInfo = nil
+	x.xxx_hidden_PageInfo = nil
 }
 
 type ListTeamEnvironmentsResponse_builder struct {
@@ -1000,21 +1095,23 @@ func (b0 ListTeamEnvironmentsResponse_builder) Build() *ListTeamEnvironmentsResp
 	m0 := &ListTeamEnvironmentsResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Nodes = b.Nodes
-	x.PageInfo = b.PageInfo
+	x.xxx_hidden_Nodes = &b.Nodes
+	x.xxx_hidden_PageInfo = b.PageInfo
 	return m0
 }
 
 type TeamEnvironment struct {
-	state              protoimpl.MessageState `protogen:"hybrid.v1"`
-	Id                 string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Slug               string                 `protobuf:"bytes,2,opt,name=slug,proto3" json:"slug,omitempty"`
-	Gcp                bool                   `protobuf:"varint,3,opt,name=gcp,proto3" json:"gcp,omitempty"`
-	EnvironmentName    string                 `protobuf:"bytes,4,opt,name=environment_name,json=environmentName,proto3" json:"environment_name,omitempty"`
-	GcpProjectId       *string                `protobuf:"bytes,5,opt,name=gcp_project_id,json=gcpProjectId,proto3,oneof" json:"gcp_project_id,omitempty"`
-	SlackAlertsChannel string                 `protobuf:"bytes,6,opt,name=slack_alerts_channel,json=slackAlertsChannel,proto3" json:"slack_alerts_channel,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	state                         protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id                 string                 `protobuf:"bytes,1,opt,name=id,proto3"`
+	xxx_hidden_Slug               string                 `protobuf:"bytes,2,opt,name=slug,proto3"`
+	xxx_hidden_Gcp                bool                   `protobuf:"varint,3,opt,name=gcp,proto3"`
+	xxx_hidden_EnvironmentName    string                 `protobuf:"bytes,4,opt,name=environment_name,json=environmentName,proto3"`
+	xxx_hidden_GcpProjectId       *string                `protobuf:"bytes,5,opt,name=gcp_project_id,json=gcpProjectId,proto3,oneof"`
+	xxx_hidden_SlackAlertsChannel string                 `protobuf:"bytes,6,opt,name=slack_alerts_channel,json=slackAlertsChannel,proto3"`
+	XXX_raceDetectHookData        protoimpl.RaceDetectHookData
+	XXX_presence                  [1]uint32
+	unknownFields                 protoimpl.UnknownFields
+	sizeCache                     protoimpl.SizeCache
 }
 
 func (x *TeamEnvironment) Reset() {
@@ -1044,79 +1141,84 @@ func (x *TeamEnvironment) ProtoReflect() protoreflect.Message {
 
 func (x *TeamEnvironment) GetId() string {
 	if x != nil {
-		return x.Id
+		return x.xxx_hidden_Id
 	}
 	return ""
 }
 
 func (x *TeamEnvironment) GetSlug() string {
 	if x != nil {
-		return x.Slug
+		return x.xxx_hidden_Slug
 	}
 	return ""
 }
 
 func (x *TeamEnvironment) GetGcp() bool {
 	if x != nil {
-		return x.Gcp
+		return x.xxx_hidden_Gcp
 	}
 	return false
 }
 
 func (x *TeamEnvironment) GetEnvironmentName() string {
 	if x != nil {
-		return x.EnvironmentName
+		return x.xxx_hidden_EnvironmentName
 	}
 	return ""
 }
 
 func (x *TeamEnvironment) GetGcpProjectId() string {
-	if x != nil && x.GcpProjectId != nil {
-		return *x.GcpProjectId
+	if x != nil {
+		if x.xxx_hidden_GcpProjectId != nil {
+			return *x.xxx_hidden_GcpProjectId
+		}
+		return ""
 	}
 	return ""
 }
 
 func (x *TeamEnvironment) GetSlackAlertsChannel() string {
 	if x != nil {
-		return x.SlackAlertsChannel
+		return x.xxx_hidden_SlackAlertsChannel
 	}
 	return ""
 }
 
 func (x *TeamEnvironment) SetId(v string) {
-	x.Id = v
+	x.xxx_hidden_Id = v
 }
 
 func (x *TeamEnvironment) SetSlug(v string) {
-	x.Slug = v
+	x.xxx_hidden_Slug = v
 }
 
 func (x *TeamEnvironment) SetGcp(v bool) {
-	x.Gcp = v
+	x.xxx_hidden_Gcp = v
 }
 
 func (x *TeamEnvironment) SetEnvironmentName(v string) {
-	x.EnvironmentName = v
+	x.xxx_hidden_EnvironmentName = v
 }
 
 func (x *TeamEnvironment) SetGcpProjectId(v string) {
-	x.GcpProjectId = &v
+	x.xxx_hidden_GcpProjectId = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 6)
 }
 
 func (x *TeamEnvironment) SetSlackAlertsChannel(v string) {
-	x.SlackAlertsChannel = v
+	x.xxx_hidden_SlackAlertsChannel = v
 }
 
 func (x *TeamEnvironment) HasGcpProjectId() bool {
 	if x == nil {
 		return false
 	}
-	return x.GcpProjectId != nil
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
 func (x *TeamEnvironment) ClearGcpProjectId() {
-	x.GcpProjectId = nil
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_GcpProjectId = nil
 }
 
 type TeamEnvironment_builder struct {
@@ -1134,20 +1236,23 @@ func (b0 TeamEnvironment_builder) Build() *TeamEnvironment {
 	m0 := &TeamEnvironment{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Id = b.Id
-	x.Slug = b.Slug
-	x.Gcp = b.Gcp
-	x.EnvironmentName = b.EnvironmentName
-	x.GcpProjectId = b.GcpProjectId
-	x.SlackAlertsChannel = b.SlackAlertsChannel
+	x.xxx_hidden_Id = b.Id
+	x.xxx_hidden_Slug = b.Slug
+	x.xxx_hidden_Gcp = b.Gcp
+	x.xxx_hidden_EnvironmentName = b.EnvironmentName
+	if b.GcpProjectId != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 6)
+		x.xxx_hidden_GcpProjectId = b.GcpProjectId
+	}
+	x.xxx_hidden_SlackAlertsChannel = b.SlackAlertsChannel
 	return m0
 }
 
 type GetTeamResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Team          *Team                  `protobuf:"bytes,1,opt,name=team,proto3" json:"team,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Team *Team                  `protobuf:"bytes,1,opt,name=team,proto3"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *GetTeamResponse) Reset() {
@@ -1177,24 +1282,24 @@ func (x *GetTeamResponse) ProtoReflect() protoreflect.Message {
 
 func (x *GetTeamResponse) GetTeam() *Team {
 	if x != nil {
-		return x.Team
+		return x.xxx_hidden_Team
 	}
 	return nil
 }
 
 func (x *GetTeamResponse) SetTeam(v *Team) {
-	x.Team = v
+	x.xxx_hidden_Team = v
 }
 
 func (x *GetTeamResponse) HasTeam() bool {
 	if x == nil {
 		return false
 	}
-	return x.Team != nil
+	return x.xxx_hidden_Team != nil
 }
 
 func (x *GetTeamResponse) ClearTeam() {
-	x.Team = nil
+	x.xxx_hidden_Team = nil
 }
 
 type GetTeamResponse_builder struct {
@@ -1207,15 +1312,15 @@ func (b0 GetTeamResponse_builder) Build() *GetTeamResponse {
 	m0 := &GetTeamResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Team = b.Team
+	x.xxx_hidden_Team = b.Team
 	return m0
 }
 
 type GetTeamRequest struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Slug          string                 `protobuf:"bytes,1,opt,name=slug,proto3" json:"slug,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Slug string                 `protobuf:"bytes,1,opt,name=slug,proto3"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *GetTeamRequest) Reset() {
@@ -1245,13 +1350,13 @@ func (x *GetTeamRequest) ProtoReflect() protoreflect.Message {
 
 func (x *GetTeamRequest) GetSlug() string {
 	if x != nil {
-		return x.Slug
+		return x.xxx_hidden_Slug
 	}
 	return ""
 }
 
 func (x *GetTeamRequest) SetSlug(v string) {
-	x.Slug = v
+	x.xxx_hidden_Slug = v
 }
 
 type GetTeamRequest_builder struct {
@@ -1264,16 +1369,16 @@ func (b0 GetTeamRequest_builder) Build() *GetTeamRequest {
 	m0 := &GetTeamRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Slug = b.Slug
+	x.xxx_hidden_Slug = b.Slug
 	return m0
 }
 
 type ListTeamsRequest struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Limit         int64                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset        int64                  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Limit  int64                  `protobuf:"varint,1,opt,name=limit,proto3"`
+	xxx_hidden_Offset int64                  `protobuf:"varint,2,opt,name=offset,proto3"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ListTeamsRequest) Reset() {
@@ -1303,24 +1408,24 @@ func (x *ListTeamsRequest) ProtoReflect() protoreflect.Message {
 
 func (x *ListTeamsRequest) GetLimit() int64 {
 	if x != nil {
-		return x.Limit
+		return x.xxx_hidden_Limit
 	}
 	return 0
 }
 
 func (x *ListTeamsRequest) GetOffset() int64 {
 	if x != nil {
-		return x.Offset
+		return x.xxx_hidden_Offset
 	}
 	return 0
 }
 
 func (x *ListTeamsRequest) SetLimit(v int64) {
-	x.Limit = v
+	x.xxx_hidden_Limit = v
 }
 
 func (x *ListTeamsRequest) SetOffset(v int64) {
-	x.Offset = v
+	x.xxx_hidden_Offset = v
 }
 
 type ListTeamsRequest_builder struct {
@@ -1334,17 +1439,17 @@ func (b0 ListTeamsRequest_builder) Build() *ListTeamsRequest {
 	m0 := &ListTeamsRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Limit = b.Limit
-	x.Offset = b.Offset
+	x.xxx_hidden_Limit = b.Limit
+	x.xxx_hidden_Offset = b.Offset
 	return m0
 }
 
 type ListTeamsResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Nodes         []*Team                `protobuf:"bytes,1,rep,name=nodes,proto3" json:"nodes,omitempty"`
-	PageInfo      *PageInfo              `protobuf:"bytes,2,opt,name=page_info,json=pageInfo,proto3" json:"page_info,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Nodes    *[]*Team               `protobuf:"bytes,1,rep,name=nodes,proto3"`
+	xxx_hidden_PageInfo *PageInfo              `protobuf:"bytes,2,opt,name=page_info,json=pageInfo,proto3"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ListTeamsResponse) Reset() {
@@ -1374,35 +1479,37 @@ func (x *ListTeamsResponse) ProtoReflect() protoreflect.Message {
 
 func (x *ListTeamsResponse) GetNodes() []*Team {
 	if x != nil {
-		return x.Nodes
+		if x.xxx_hidden_Nodes != nil {
+			return *x.xxx_hidden_Nodes
+		}
 	}
 	return nil
 }
 
 func (x *ListTeamsResponse) GetPageInfo() *PageInfo {
 	if x != nil {
-		return x.PageInfo
+		return x.xxx_hidden_PageInfo
 	}
 	return nil
 }
 
 func (x *ListTeamsResponse) SetNodes(v []*Team) {
-	x.Nodes = v
+	x.xxx_hidden_Nodes = &v
 }
 
 func (x *ListTeamsResponse) SetPageInfo(v *PageInfo) {
-	x.PageInfo = v
+	x.xxx_hidden_PageInfo = v
 }
 
 func (x *ListTeamsResponse) HasPageInfo() bool {
 	if x == nil {
 		return false
 	}
-	return x.PageInfo != nil
+	return x.xxx_hidden_PageInfo != nil
 }
 
 func (x *ListTeamsResponse) ClearPageInfo() {
-	x.PageInfo = nil
+	x.xxx_hidden_PageInfo = nil
 }
 
 type ListTeamsResponse_builder struct {
@@ -1416,18 +1523,18 @@ func (b0 ListTeamsResponse_builder) Build() *ListTeamsResponse {
 	m0 := &ListTeamsResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Nodes = b.Nodes
-	x.PageInfo = b.PageInfo
+	x.xxx_hidden_Nodes = &b.Nodes
+	x.xxx_hidden_PageInfo = b.PageInfo
 	return m0
 }
 
 type ListTeamMembersRequest struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Limit         int64                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset        int64                  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
-	Slug          string                 `protobuf:"bytes,3,opt,name=slug,proto3" json:"slug,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Limit  int64                  `protobuf:"varint,1,opt,name=limit,proto3"`
+	xxx_hidden_Offset int64                  `protobuf:"varint,2,opt,name=offset,proto3"`
+	xxx_hidden_Slug   string                 `protobuf:"bytes,3,opt,name=slug,proto3"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ListTeamMembersRequest) Reset() {
@@ -1457,35 +1564,35 @@ func (x *ListTeamMembersRequest) ProtoReflect() protoreflect.Message {
 
 func (x *ListTeamMembersRequest) GetLimit() int64 {
 	if x != nil {
-		return x.Limit
+		return x.xxx_hidden_Limit
 	}
 	return 0
 }
 
 func (x *ListTeamMembersRequest) GetOffset() int64 {
 	if x != nil {
-		return x.Offset
+		return x.xxx_hidden_Offset
 	}
 	return 0
 }
 
 func (x *ListTeamMembersRequest) GetSlug() string {
 	if x != nil {
-		return x.Slug
+		return x.xxx_hidden_Slug
 	}
 	return ""
 }
 
 func (x *ListTeamMembersRequest) SetLimit(v int64) {
-	x.Limit = v
+	x.xxx_hidden_Limit = v
 }
 
 func (x *ListTeamMembersRequest) SetOffset(v int64) {
-	x.Offset = v
+	x.xxx_hidden_Offset = v
 }
 
 func (x *ListTeamMembersRequest) SetSlug(v string) {
-	x.Slug = v
+	x.xxx_hidden_Slug = v
 }
 
 type ListTeamMembersRequest_builder struct {
@@ -1500,18 +1607,18 @@ func (b0 ListTeamMembersRequest_builder) Build() *ListTeamMembersRequest {
 	m0 := &ListTeamMembersRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Limit = b.Limit
-	x.Offset = b.Offset
-	x.Slug = b.Slug
+	x.xxx_hidden_Limit = b.Limit
+	x.xxx_hidden_Offset = b.Offset
+	x.xxx_hidden_Slug = b.Slug
 	return m0
 }
 
 type ListTeamMembersResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	Nodes         []*TeamMember          `protobuf:"bytes,1,rep,name=nodes,proto3" json:"nodes,omitempty"`
-	PageInfo      *PageInfo              `protobuf:"bytes,2,opt,name=page_info,json=pageInfo,proto3" json:"page_info,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Nodes    *[]*TeamMember         `protobuf:"bytes,1,rep,name=nodes,proto3"`
+	xxx_hidden_PageInfo *PageInfo              `protobuf:"bytes,2,opt,name=page_info,json=pageInfo,proto3"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ListTeamMembersResponse) Reset() {
@@ -1541,35 +1648,37 @@ func (x *ListTeamMembersResponse) ProtoReflect() protoreflect.Message {
 
 func (x *ListTeamMembersResponse) GetNodes() []*TeamMember {
 	if x != nil {
-		return x.Nodes
+		if x.xxx_hidden_Nodes != nil {
+			return *x.xxx_hidden_Nodes
+		}
 	}
 	return nil
 }
 
 func (x *ListTeamMembersResponse) GetPageInfo() *PageInfo {
 	if x != nil {
-		return x.PageInfo
+		return x.xxx_hidden_PageInfo
 	}
 	return nil
 }
 
 func (x *ListTeamMembersResponse) SetNodes(v []*TeamMember) {
-	x.Nodes = v
+	x.xxx_hidden_Nodes = &v
 }
 
 func (x *ListTeamMembersResponse) SetPageInfo(v *PageInfo) {
-	x.PageInfo = v
+	x.xxx_hidden_PageInfo = v
 }
 
 func (x *ListTeamMembersResponse) HasPageInfo() bool {
 	if x == nil {
 		return false
 	}
-	return x.PageInfo != nil
+	return x.xxx_hidden_PageInfo != nil
 }
 
 func (x *ListTeamMembersResponse) ClearPageInfo() {
-	x.PageInfo = nil
+	x.xxx_hidden_PageInfo = nil
 }
 
 type ListTeamMembersResponse_builder struct {
@@ -1583,16 +1692,16 @@ func (b0 ListTeamMembersResponse_builder) Build() *ListTeamMembersResponse {
 	m0 := &ListTeamMembersResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.Nodes = b.Nodes
-	x.PageInfo = b.PageInfo
+	x.xxx_hidden_Nodes = &b.Nodes
+	x.xxx_hidden_PageInfo = b.PageInfo
 	return m0
 }
 
 type TeamMember struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	User          *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_User *User                  `protobuf:"bytes,1,opt,name=user,proto3"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *TeamMember) Reset() {
@@ -1622,24 +1731,24 @@ func (x *TeamMember) ProtoReflect() protoreflect.Message {
 
 func (x *TeamMember) GetUser() *User {
 	if x != nil {
-		return x.User
+		return x.xxx_hidden_User
 	}
 	return nil
 }
 
 func (x *TeamMember) SetUser(v *User) {
-	x.User = v
+	x.xxx_hidden_User = v
 }
 
 func (x *TeamMember) HasUser() bool {
 	if x == nil {
 		return false
 	}
-	return x.User != nil
+	return x.xxx_hidden_User != nil
 }
 
 func (x *TeamMember) ClearUser() {
-	x.User = nil
+	x.xxx_hidden_User = nil
 }
 
 type TeamMember_builder struct {
@@ -1652,16 +1761,16 @@ func (b0 TeamMember_builder) Build() *TeamMember {
 	m0 := &TeamMember{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.User = b.User
+	x.xxx_hidden_User = b.User
 	return m0
 }
 
 type IsRepositoryAuthorizedRequest struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	TeamSlug      string                 `protobuf:"bytes,1,opt,name=team_slug,json=teamSlug,proto3" json:"team_slug,omitempty"`
-	Repository    string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_TeamSlug   string                 `protobuf:"bytes,1,opt,name=team_slug,json=teamSlug,proto3"`
+	xxx_hidden_Repository string                 `protobuf:"bytes,2,opt,name=repository,proto3"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *IsRepositoryAuthorizedRequest) Reset() {
@@ -1691,24 +1800,24 @@ func (x *IsRepositoryAuthorizedRequest) ProtoReflect() protoreflect.Message {
 
 func (x *IsRepositoryAuthorizedRequest) GetTeamSlug() string {
 	if x != nil {
-		return x.TeamSlug
+		return x.xxx_hidden_TeamSlug
 	}
 	return ""
 }
 
 func (x *IsRepositoryAuthorizedRequest) GetRepository() string {
 	if x != nil {
-		return x.Repository
+		return x.xxx_hidden_Repository
 	}
 	return ""
 }
 
 func (x *IsRepositoryAuthorizedRequest) SetTeamSlug(v string) {
-	x.TeamSlug = v
+	x.xxx_hidden_TeamSlug = v
 }
 
 func (x *IsRepositoryAuthorizedRequest) SetRepository(v string) {
-	x.Repository = v
+	x.xxx_hidden_Repository = v
 }
 
 type IsRepositoryAuthorizedRequest_builder struct {
@@ -1722,16 +1831,16 @@ func (b0 IsRepositoryAuthorizedRequest_builder) Build() *IsRepositoryAuthorizedR
 	m0 := &IsRepositoryAuthorizedRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.TeamSlug = b.TeamSlug
-	x.Repository = b.Repository
+	x.xxx_hidden_TeamSlug = b.TeamSlug
+	x.xxx_hidden_Repository = b.Repository
 	return m0
 }
 
 type IsRepositoryAuthorizedResponse struct {
-	state         protoimpl.MessageState `protogen:"hybrid.v1"`
-	IsAuthorized  bool                   `protobuf:"varint,1,opt,name=is_authorized,json=isAuthorized,proto3" json:"is_authorized,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_IsAuthorized bool                   `protobuf:"varint,1,opt,name=is_authorized,json=isAuthorized,proto3"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *IsRepositoryAuthorizedResponse) Reset() {
@@ -1761,13 +1870,13 @@ func (x *IsRepositoryAuthorizedResponse) ProtoReflect() protoreflect.Message {
 
 func (x *IsRepositoryAuthorizedResponse) GetIsAuthorized() bool {
 	if x != nil {
-		return x.IsAuthorized
+		return x.xxx_hidden_IsAuthorized
 	}
 	return false
 }
 
 func (x *IsRepositoryAuthorizedResponse) SetIsAuthorized(v bool) {
-	x.IsAuthorized = v
+	x.xxx_hidden_IsAuthorized = v
 }
 
 type IsRepositoryAuthorizedResponse_builder struct {
@@ -1780,7 +1889,7 @@ func (b0 IsRepositoryAuthorizedResponse_builder) Build() *IsRepositoryAuthorized
 	m0 := &IsRepositoryAuthorizedResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.IsAuthorized = b.IsAuthorized
+	x.xxx_hidden_IsAuthorized = b.IsAuthorized
 	return m0
 }
 

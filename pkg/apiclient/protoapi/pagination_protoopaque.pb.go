@@ -4,7 +4,7 @@
 // 	protoc        v5.29.3
 // source: pagination.proto
 
-//go:build !protoopaque
+//go:build protoopaque
 
 package protoapi
 
@@ -23,12 +23,12 @@ const (
 )
 
 type PageInfo struct {
-	state           protoimpl.MessageState `protogen:"hybrid.v1"`
-	TotalCount      int64                  `protobuf:"varint,1,opt,name=total_count,json=totalCount,proto3" json:"total_count,omitempty"`
-	HasNextPage     bool                   `protobuf:"varint,2,opt,name=has_next_page,json=hasNextPage,proto3" json:"has_next_page,omitempty"`
-	HasPreviousPage bool                   `protobuf:"varint,3,opt,name=has_previous_page,json=hasPreviousPage,proto3" json:"has_previous_page,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state                      protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_TotalCount      int64                  `protobuf:"varint,1,opt,name=total_count,json=totalCount,proto3"`
+	xxx_hidden_HasNextPage     bool                   `protobuf:"varint,2,opt,name=has_next_page,json=hasNextPage,proto3"`
+	xxx_hidden_HasPreviousPage bool                   `protobuf:"varint,3,opt,name=has_previous_page,json=hasPreviousPage,proto3"`
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
 }
 
 func (x *PageInfo) Reset() {
@@ -58,35 +58,35 @@ func (x *PageInfo) ProtoReflect() protoreflect.Message {
 
 func (x *PageInfo) GetTotalCount() int64 {
 	if x != nil {
-		return x.TotalCount
+		return x.xxx_hidden_TotalCount
 	}
 	return 0
 }
 
 func (x *PageInfo) GetHasNextPage() bool {
 	if x != nil {
-		return x.HasNextPage
+		return x.xxx_hidden_HasNextPage
 	}
 	return false
 }
 
 func (x *PageInfo) GetHasPreviousPage() bool {
 	if x != nil {
-		return x.HasPreviousPage
+		return x.xxx_hidden_HasPreviousPage
 	}
 	return false
 }
 
 func (x *PageInfo) SetTotalCount(v int64) {
-	x.TotalCount = v
+	x.xxx_hidden_TotalCount = v
 }
 
 func (x *PageInfo) SetHasNextPage(v bool) {
-	x.HasNextPage = v
+	x.xxx_hidden_HasNextPage = v
 }
 
 func (x *PageInfo) SetHasPreviousPage(v bool) {
-	x.HasPreviousPage = v
+	x.xxx_hidden_HasPreviousPage = v
 }
 
 type PageInfo_builder struct {
@@ -101,9 +101,9 @@ func (b0 PageInfo_builder) Build() *PageInfo {
 	m0 := &PageInfo{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.TotalCount = b.TotalCount
-	x.HasNextPage = b.HasNextPage
-	x.HasPreviousPage = b.HasPreviousPage
+	x.xxx_hidden_TotalCount = b.TotalCount
+	x.xxx_hidden_HasNextPage = b.HasNextPage
+	x.xxx_hidden_HasPreviousPage = b.HasPreviousPage
 	return m0
 }
 
