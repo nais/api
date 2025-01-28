@@ -26,11 +26,14 @@ type (
 )
 
 type Deployment struct {
-	CreatedAt       time.Time `json:"createdAt"`
-	Repository      *string   `json:"repository"`
-	UUID            uuid.UUID `json:"-"`
-	TeamSlug        slug.Slug `json:"-"`
-	EnvironmentName string    `json:"-"`
+	CreatedAt        time.Time `json:"createdAt"`
+	Repository       *string   `json:"repository,omitempty"`
+	DeployerUsername *string   `json:"deployerUsername,omitempty"`
+	CommitSha        *string   `json:"commitSha,omitempty"`
+	TriggerUrl       *string   `json:"triggerUrl,omitempty"`
+	UUID             uuid.UUID `json:"-"`
+	TeamSlug         slug.Slug `json:"-"`
+	EnvironmentName  string    `json:"-"`
 }
 
 func (Deployment) IsNode() {}
@@ -159,11 +162,14 @@ func (DeploymentKey) IsNode() {}
 
 func toGraphDeployment(row *deploymentsql.Deployment) *Deployment {
 	return &Deployment{
-		CreatedAt:       row.CreatedAt.Time,
-		Repository:      row.Repository,
-		UUID:            row.ID,
-		TeamSlug:        row.TeamSlug,
-		EnvironmentName: row.EnvironmentName,
+		CreatedAt:        row.CreatedAt.Time,
+		Repository:       row.Repository,
+		UUID:             row.ID,
+		TeamSlug:         row.TeamSlug,
+		EnvironmentName:  row.EnvironmentName,
+		DeployerUsername: row.DeployerUsername,
+		CommitSha:        row.CommitSha,
+		TriggerUrl:       row.TriggerUrl,
 	}
 }
 

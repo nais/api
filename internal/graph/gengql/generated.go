@@ -409,13 +409,16 @@ type ComplexityRoot struct {
 	}
 
 	Deployment struct {
-		CreatedAt   func(childComplexity int) int
-		Environment func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Repository  func(childComplexity int) int
-		Resources   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Statuses    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Team        func(childComplexity int) int
+		CommitSha        func(childComplexity int) int
+		CreatedAt        func(childComplexity int) int
+		DeployerUsername func(childComplexity int) int
+		Environment      func(childComplexity int) int
+		ID               func(childComplexity int) int
+		Repository       func(childComplexity int) int
+		Resources        func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Statuses         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Team             func(childComplexity int) int
+		TriggerUrl       func(childComplexity int) int
 	}
 
 	DeploymentConnection struct {
@@ -3515,12 +3518,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.DeleteSecretPayload.SecretDeleted(childComplexity), true
 
+	case "Deployment.commitSha":
+		if e.complexity.Deployment.CommitSha == nil {
+			break
+		}
+
+		return e.complexity.Deployment.CommitSha(childComplexity), true
+
 	case "Deployment.createdAt":
 		if e.complexity.Deployment.CreatedAt == nil {
 			break
 		}
 
 		return e.complexity.Deployment.CreatedAt(childComplexity), true
+
+	case "Deployment.deployerUsername":
+		if e.complexity.Deployment.DeployerUsername == nil {
+			break
+		}
+
+		return e.complexity.Deployment.DeployerUsername(childComplexity), true
 
 	case "Deployment.environment":
 		if e.complexity.Deployment.Environment == nil {
@@ -3573,6 +3590,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Deployment.Team(childComplexity), true
+
+	case "Deployment.triggerUrl":
+		if e.complexity.Deployment.TriggerUrl == nil {
+			break
+		}
+
+		return e.complexity.Deployment.TriggerUrl(childComplexity), true
 
 	case "DeploymentConnection.edges":
 		if e.complexity.DeploymentConnection.Edges == nil {
@@ -12148,6 +12172,21 @@ type Deployment implements Node {
 	The repository that triggered the deployment.
 	"""
 	repository: String
+
+	"""
+	Username of the actor who initiated the deployment.
+	"""
+	deployerUsername: String
+
+	"""
+	The git commit SHA that was deployed.
+	"""
+	commitSha: String
+
+	"""
+	The URL of the workflow that triggered the deployment.
+	"""
+	triggerUrl: String
 
 	"""
 	Resources that were deployed.
@@ -33428,6 +33467,129 @@ func (ec *executionContext) fieldContext_Deployment_repository(_ context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Deployment_deployerUsername(ctx context.Context, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Deployment_deployerUsername(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeployerUsername, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Deployment_deployerUsername(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Deployment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Deployment_commitSha(ctx context.Context, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Deployment_commitSha(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CommitSha, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Deployment_commitSha(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Deployment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Deployment_triggerUrl(ctx context.Context, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Deployment_triggerUrl(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TriggerUrl, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Deployment_triggerUrl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Deployment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Deployment_resources(ctx context.Context, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Deployment_resources(ctx, field)
 	if err != nil {
@@ -33663,6 +33825,12 @@ func (ec *executionContext) fieldContext_DeploymentConnection_nodes(_ context.Co
 				return ec.fieldContext_Deployment_environment(ctx, field)
 			case "repository":
 				return ec.fieldContext_Deployment_repository(ctx, field)
+			case "deployerUsername":
+				return ec.fieldContext_Deployment_deployerUsername(ctx, field)
+			case "commitSha":
+				return ec.fieldContext_Deployment_commitSha(ctx, field)
+			case "triggerUrl":
+				return ec.fieldContext_Deployment_triggerUrl(ctx, field)
 			case "resources":
 				return ec.fieldContext_Deployment_resources(ctx, field)
 			case "statuses":
@@ -33817,6 +33985,12 @@ func (ec *executionContext) fieldContext_DeploymentEdge_node(_ context.Context, 
 				return ec.fieldContext_Deployment_environment(ctx, field)
 			case "repository":
 				return ec.fieldContext_Deployment_repository(ctx, field)
+			case "deployerUsername":
+				return ec.fieldContext_Deployment_deployerUsername(ctx, field)
+			case "commitSha":
+				return ec.fieldContext_Deployment_commitSha(ctx, field)
+			case "triggerUrl":
+				return ec.fieldContext_Deployment_triggerUrl(ctx, field)
 			case "resources":
 				return ec.fieldContext_Deployment_resources(ctx, field)
 			case "statuses":
@@ -89262,6 +89436,12 @@ func (ec *executionContext) _Deployment(ctx context.Context, sel ast.SelectionSe
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "repository":
 			out.Values[i] = ec._Deployment_repository(ctx, field, obj)
+		case "deployerUsername":
+			out.Values[i] = ec._Deployment_deployerUsername(ctx, field, obj)
+		case "commitSha":
+			out.Values[i] = ec._Deployment_commitSha(ctx, field, obj)
+		case "triggerUrl":
+			out.Values[i] = ec._Deployment_triggerUrl(ctx, field, obj)
 		case "resources":
 			field := field
 

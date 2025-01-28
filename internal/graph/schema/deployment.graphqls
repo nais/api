@@ -247,6 +247,21 @@ type Deployment implements Node {
 	repository: String
 
 	"""
+	Username of the actor who initiated the deployment.
+	"""
+	deployerUsername: String
+
+	"""
+	The git commit SHA that was deployed.
+	"""
+	commitSha: String
+
+	"""
+	The URL of the workflow that triggered the deployment.
+	"""
+	triggerUrl: String
+
+	"""
 	Resources that were deployed.
 	"""
 	resources(
