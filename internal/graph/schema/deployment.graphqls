@@ -24,13 +24,6 @@ extend type Team {
 
 extend interface Workload {
 	"""
-	Deployment information for the job.
-	DO NOT USE
-	This is a work in progress, and will be changed in the future.
-	"""
-	deploymentInfo: DeploymentInfo!
-
-	"""
 	List of deployments for the workload.
 	"""
 	deployments(
@@ -50,13 +43,6 @@ extend interface Workload {
 
 extend type Application {
 	"""
-	Deployment information for the application.
-	DO NOT USE
-	This is a work in progress, and will be changed in the future.
-	"""
-	deploymentInfo: DeploymentInfo!
-
-	"""
 	List of deployments for the application.
 	"""
 	deployments(
@@ -75,13 +61,6 @@ extend type Application {
 }
 
 extend type Job {
-	"""
-	Deployment information for the job.
-	DO NOT USE
-	This is a work in progress, and will be changed in the future.
-	"""
-	deploymentInfo: DeploymentInfo!
-
 	"""
 	List of deployments for the job.
 	"""
@@ -352,31 +331,6 @@ enum DeploymentStatusState {
 	IN_PROGRESS
 	QUEUED
 	PENDING
-}
-
-"""
-Deployment information for a workload.
-DO NOT USE
-This is a work in progress, and will be changed in the future.
-"""
-type DeploymentInfo {
-	deployer: String
-	timestamp: Time
-	commitSha: String
-	url: String
-	history(
-		"Get the first n items in the connection. This can be used in combination with the after parameter."
-		first: Int
-
-		"Get items after this cursor."
-		after: Cursor
-
-		"Get the last n items in the connection. This can be used in combination with the before parameter."
-		last: Int
-
-		"Get items before this cursor."
-		before: Cursor
-	): DeploymentConnection!
 }
 
 extend enum ApplicationOrderField {

@@ -13,7 +13,6 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/hookd"
-	"github.com/nais/api/internal/workload"
 )
 
 type (
@@ -116,18 +115,6 @@ func (e *DeploymentStatusState) UnmarshalGQL(v interface{}) error {
 
 func (e DeploymentStatusState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type DeploymentInfo struct {
-	Deployer  *string    `json:"deployer,omitempty"`
-	Timestamp *time.Time `json:"timestamp,omitempty"`
-	CommitSha *string    `json:"commitSha,omitempty"`
-	URL       *string    `json:"url,omitempty"`
-
-	TeamSlug        slug.Slug     `json:"-"`
-	EnvironmentName string        `json:"-"`
-	WorkloadName    string        `json:"-"`
-	WorkloadType    workload.Type `json:"-"`
 }
 
 type ChangeDeploymentKeyInput struct {

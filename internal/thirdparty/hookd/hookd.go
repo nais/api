@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
@@ -24,48 +23,12 @@ type client struct {
 	log        logrus.FieldLogger
 }
 
-type DeploymentsResponse struct {
-	Deployments []Deploy `json:"deployments"`
-}
-
-type Deploy struct {
-	DeploymentInfo DeploymentInfo `json:"deployment"`
-	Statuses       []Status       `json:"statuses"`
-	Resources      []Resource     `json:"resources"`
-}
-
-type DeploymentInfo struct {
-	ID               string    `json:"id"`
-	Team             slug.Slug `json:"team"`
-	Cluster          string    `json:"cluster"`
-	Created          time.Time `json:"created"`
-	GithubRepository string    `json:"githubRepository"`
-}
-
-type Status struct {
-	ID      string    `json:"id"`
-	Status  string    `json:"status"`
-	Message string    `json:"message"`
-	Created time.Time `json:"created"`
-}
-
-type Resource struct {
-	ID        string `json:"id"`
-	Group     string `json:"group"`
-	Kind      string `json:"kind"`
-	Name      string `json:"name"`
-	Version   string `json:"version"`
-	Namespace string `json:"namespace"`
-}
-
 type DeployKey struct {
 	Team    string    `json:"team"`
 	Key     string    `json:"key"`
 	Expires time.Time `json:"expires"`
 	Created time.Time `json:"created"`
 }
-
-type RequestOption func(*http.Request)
 
 // New creates a new hookd client
 func New(endpoint, psk string, log logrus.FieldLogger) Client {

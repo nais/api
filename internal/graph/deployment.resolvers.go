@@ -15,10 +15,6 @@ import (
 	"github.com/nais/api/internal/workload/job"
 )
 
-func (r *applicationResolver) DeploymentInfo(ctx context.Context, obj *application.Application) (*deployment.DeploymentInfo, error) {
-	return deployment.InfoForWorkload(ctx, obj)
-}
-
 func (r *applicationResolver) Deployments(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -58,19 +54,6 @@ func (r *deploymentResolver) Statuses(ctx context.Context, obj *deployment.Deplo
 	}
 
 	return deployment.ListStatusesForDeployment(ctx, obj.UUID, page)
-}
-
-func (r *deploymentInfoResolver) History(ctx context.Context, obj *deployment.DeploymentInfo, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error) {
-	page, err := pagination.ParsePage(first, after, last, before)
-	if err != nil {
-		return nil, err
-	}
-
-	return deployment.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadName, obj.WorkloadType, page)
-}
-
-func (r *jobResolver) DeploymentInfo(ctx context.Context, obj *job.Job) (*deployment.DeploymentInfo, error) {
-	return deployment.InfoForWorkload(ctx, obj)
 }
 
 func (r *jobResolver) Deployments(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error) {
@@ -114,9 +97,4 @@ func (r *teamResolver) Deployments(ctx context.Context, obj *team.Team, first *i
 
 func (r *Resolver) Deployment() gengql.DeploymentResolver { return &deploymentResolver{r} }
 
-func (r *Resolver) DeploymentInfo() gengql.DeploymentInfoResolver { return &deploymentInfoResolver{r} }
-
-type (
-	deploymentResolver     struct{ *Resolver }
-	deploymentInfoResolver struct{ *Resolver }
-)
+type deploymentResolver struct{ *Resolver }

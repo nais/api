@@ -133,38 +133,6 @@ func ChangeDeploymentKey(ctx context.Context, teamSlug slug.Slug) (*DeploymentKe
 	return toGraphDeploymentKey(dk, teamSlug), nil
 }
 
-func InfoForWorkload(ctx context.Context, workload workload.Workload) (*DeploymentInfo, error) {
-	valPtr := func(m map[string]string, key string) *string {
-		if m == nil {
-			return nil
-		}
-
-		if v, ok := m[key]; ok {
-			return &v
-		}
-		return nil
-	}
-
-	an := workload.GetAnnotations()
-
-	var timestamp *time.Time
-	if ts := workload.GetRolloutCompleteTime(); ts > 0 {
-		t := time.Unix(0, ts)
-		timestamp = &t
-	}
-
-	return &DeploymentInfo{
-		Deployer:        valPtr(an, "deploy.nais.io/github-actor"),
-		CommitSha:       valPtr(an, "deploy.nais.io/github-sha"),
-		URL:             valPtr(an, "deploy.nais.io/github-workflow-run-url"),
-		Timestamp:       timestamp,
-		TeamSlug:        workload.GetTeamSlug(),
-		EnvironmentName: workload.GetEnvironmentName(),
-		WorkloadName:    workload.GetName(),
-		WorkloadType:    workload.GetType(),
-	}, nil
-}
-
 func getDeploymentKeyByIdent(ctx context.Context, id ident.Ident) (*DeploymentKey, error) {
 	teamSlug, err := parseDeploymentKeyIdent(id)
 	if err != nil {
@@ -223,4 +191,18 @@ func getDeploymentStatusByIdent(ctx context.Context, id ident.Ident) (*Deploymen
 		return nil, err
 	}
 	return getDeploymentStatus(ctx, uid)
+}
+
+func latestDeploymentTimestampForWorkload(ctx context.Context, wl workload.Workload) (time.Time, error) {
+	t, err := db(ctx).LatestDeploymentTimestampForWorkload(ctx, deploymentsql.LatestDeploymentTimestampForWorkloadParams{
+		TeamSlug:        wl.GetTeamSlug(),
+		EnvironmentName: wl.GetEnvironmentName(),
+		WorkloadName:    wl.GetName(),
+		WorkloadKind:    wl.GetType().String(),
+	})
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	return t.Time, nil
 }

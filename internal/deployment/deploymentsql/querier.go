@@ -6,6 +6,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -14,6 +15,7 @@ type Querier interface {
 	CountForWorkload(ctx context.Context, arg CountForWorkloadParams) (int64, error)
 	CountResourcesForDeployment(ctx context.Context, deploymentID uuid.UUID) (int64, error)
 	CountStatusesForDeployment(ctx context.Context, deploymentID uuid.UUID) (int64, error)
+	LatestDeploymentTimestampForWorkload(ctx context.Context, arg LatestDeploymentTimestampForWorkloadParams) (pgtype.Timestamptz, error)
 	ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*Deployment, error)
 	ListByTeamSlug(ctx context.Context, arg ListByTeamSlugParams) ([]*Deployment, error)
 	ListDeploymentResourcesByIDs(ctx context.Context, ids []uuid.UUID) ([]*DeploymentK8sResource, error)

@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -88,6 +89,42 @@ func (q *Queries) CountStatusesForDeployment(ctx context.Context, deploymentID u
 	var count int64
 	err := row.Scan(&count)
 	return count, err
+}
+
+const latestDeploymentTimestampForWorkload = `-- name: LatestDeploymentTimestampForWorkload :one
+SELECT
+	deployments.created_at
+FROM
+	deployments
+	JOIN deployment_k8s_resources ON deployments.id = deployment_k8s_resources.deployment_id
+WHERE
+	deployment_k8s_resources.name = $1
+	AND deployment_k8s_resources.kind = $2
+	AND deployments.environment_name = $3
+	AND deployments.team_slug = $4
+ORDER BY
+	deployments.created_at DESC
+LIMIT
+	1
+`
+
+type LatestDeploymentTimestampForWorkloadParams struct {
+	WorkloadName    string
+	WorkloadKind    string
+	EnvironmentName string
+	TeamSlug        slug.Slug
+}
+
+func (q *Queries) LatestDeploymentTimestampForWorkload(ctx context.Context, arg LatestDeploymentTimestampForWorkloadParams) (pgtype.Timestamptz, error) {
+	row := q.db.QueryRow(ctx, latestDeploymentTimestampForWorkload,
+		arg.WorkloadName,
+		arg.WorkloadKind,
+		arg.EnvironmentName,
+		arg.TeamSlug,
+	)
+	var created_at pgtype.Timestamptz
+	err := row.Scan(&created_at)
+	return created_at, err
 }
 
 const listByIDs = `-- name: ListByIDs :many
