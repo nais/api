@@ -50,15 +50,33 @@ func (s *Server) CreateDeployment(ctx context.Context, req *protoapi.CreateDeplo
 		externalID = ptr.To(id)
 	}
 
+	var commitSha *string
+	if sha := req.GetCommitSha(); sha != "" {
+		commitSha = ptr.To(sha)
+	}
+
+	var deployerUsername *string
+	if username := req.GetDeployerUsername(); username != "" {
+		deployerUsername = ptr.To(username)
+	}
+
+	var triggerUrl *string
+	if url := req.GetTriggerUrl(); url != "" {
+		triggerUrl = ptr.To(url)
+	}
+
 	id, err := s.querier.CreateDeployment(ctx, grpcdeploymentsql.CreateDeploymentParams{
 		ExternalID: externalID,
 		CreatedAt: pgtype.Timestamptz{
 			Time:  req.GetCreatedAt().AsTime(),
 			Valid: req.GetCreatedAt().IsValid(),
 		},
-		TeamSlug:        slug.Slug(req.GetTeamSlug()),
-		Repository:      repoName,
-		EnvironmentName: req.GetEnvironmentName(),
+		TeamSlug:         slug.Slug(req.GetTeamSlug()),
+		Repository:       repoName,
+		EnvironmentName:  req.GetEnvironmentName(),
+		CommitSha:        commitSha,
+		DeployerUsername: deployerUsername,
+		TriggerUrl:       triggerUrl,
 	})
 	if err != nil {
 		return nil, err

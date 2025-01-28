@@ -16,6 +16,9 @@ CREATE TABLE deployments (
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CLOCK_TIMESTAMP() NOT NULL,
 	team_slug slug NOT NULL,
 	repository TEXT,
+	commit_sha TEXT,
+	deployer_username TEXT,
+	trigger_url TEXT,
 	environment_name TEXT NOT NULL
 )
 ;

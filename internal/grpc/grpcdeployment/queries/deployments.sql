@@ -5,7 +5,10 @@ INSERT INTO
 		created_at,
 		team_slug,
 		repository,
-		environment_name
+		environment_name,
+		commit_sha,
+		deployer_username,
+		trigger_url
 	)
 VALUES
 	(
@@ -13,7 +16,10 @@ VALUES
 		COALESCE(@created_at, CLOCK_TIMESTAMP())::TIMESTAMPTZ,
 		@team_slug,
 		@repository,
-		@environment_name
+		@environment_name,
+		@commit_sha,
+		@deployer_username,
+		@trigger_url
 	)
 RETURNING
 	id

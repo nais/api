@@ -30,6 +30,9 @@ message CreateDeploymentRequest {
   string team_slug = 3;
   string repository = 4;
   string environment_name = 5;
+  string commit_sha = 6;
+  string deployer_username = 7;
+  string trigger_url = 8;
 }
 
 message CreateDeploymentResponse { string id = 1; }

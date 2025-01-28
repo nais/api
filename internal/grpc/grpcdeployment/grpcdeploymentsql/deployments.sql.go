@@ -18,7 +18,10 @@ INSERT INTO
 		created_at,
 		team_slug,
 		repository,
-		environment_name
+		environment_name,
+		commit_sha,
+		deployer_username,
+		trigger_url
 	)
 VALUES
 	(
@@ -26,18 +29,24 @@ VALUES
 		COALESCE($2, CLOCK_TIMESTAMP())::TIMESTAMPTZ,
 		$3,
 		$4,
-		$5
+		$5,
+		$6,
+		$7,
+		$8
 	)
 RETURNING
 	id
 `
 
 type CreateDeploymentParams struct {
-	ExternalID      *string
-	CreatedAt       pgtype.Timestamptz
-	TeamSlug        slug.Slug
-	Repository      *string
-	EnvironmentName string
+	ExternalID       *string
+	CreatedAt        pgtype.Timestamptz
+	TeamSlug         slug.Slug
+	Repository       *string
+	EnvironmentName  string
+	CommitSha        *string
+	DeployerUsername *string
+	TriggerUrl       *string
 }
 
 func (q *Queries) CreateDeployment(ctx context.Context, arg CreateDeploymentParams) (uuid.UUID, error) {
@@ -47,6 +56,9 @@ func (q *Queries) CreateDeployment(ctx context.Context, arg CreateDeploymentPara
 		arg.TeamSlug,
 		arg.Repository,
 		arg.EnvironmentName,
+		arg.CommitSha,
+		arg.DeployerUsername,
+		arg.TriggerUrl,
 	)
 	var id uuid.UUID
 	err := row.Scan(&id)

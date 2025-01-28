@@ -92,7 +92,7 @@ func (q *Queries) CountStatusesForDeployment(ctx context.Context, deploymentID u
 
 const listByIDs = `-- name: ListByIDs :many
 SELECT
-	id, external_id, created_at, team_slug, repository, environment_name
+	id, external_id, created_at, team_slug, repository, commit_sha, deployer_username, trigger_url, environment_name
 FROM
 	deployments
 WHERE
@@ -116,6 +116,9 @@ func (q *Queries) ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*Deployment
 			&i.CreatedAt,
 			&i.TeamSlug,
 			&i.Repository,
+			&i.CommitSha,
+			&i.DeployerUsername,
+			&i.TriggerUrl,
 			&i.EnvironmentName,
 		); err != nil {
 			return nil, err
@@ -130,7 +133,7 @@ func (q *Queries) ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*Deployment
 
 const listByTeamSlug = `-- name: ListByTeamSlug :many
 SELECT
-	id, external_id, created_at, team_slug, repository, environment_name
+	id, external_id, created_at, team_slug, repository, commit_sha, deployer_username, trigger_url, environment_name
 FROM
 	deployments
 WHERE
@@ -164,6 +167,9 @@ func (q *Queries) ListByTeamSlug(ctx context.Context, arg ListByTeamSlugParams) 
 			&i.CreatedAt,
 			&i.TeamSlug,
 			&i.Repository,
+			&i.CommitSha,
+			&i.DeployerUsername,
+			&i.TriggerUrl,
 			&i.EnvironmentName,
 		); err != nil {
 			return nil, err
@@ -255,7 +261,7 @@ func (q *Queries) ListDeploymentStatusesByIDs(ctx context.Context, ids []uuid.UU
 
 const listForWorkload = `-- name: ListForWorkload :many
 SELECT
-	deployments.id, deployments.external_id, deployments.created_at, deployments.team_slug, deployments.repository, deployments.environment_name
+	deployments.id, deployments.external_id, deployments.created_at, deployments.team_slug, deployments.repository, deployments.commit_sha, deployments.deployer_username, deployments.trigger_url, deployments.environment_name
 FROM
 	deployments
 	JOIN deployment_k8s_resources ON deployments.id = deployment_k8s_resources.deployment_id
@@ -303,6 +309,9 @@ func (q *Queries) ListForWorkload(ctx context.Context, arg ListForWorkloadParams
 			&i.CreatedAt,
 			&i.TeamSlug,
 			&i.Repository,
+			&i.CommitSha,
+			&i.DeployerUsername,
+			&i.TriggerUrl,
 			&i.EnvironmentName,
 		); err != nil {
 			return nil, err
