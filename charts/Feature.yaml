@@ -18,6 +18,12 @@ values:
       template: |
         {{ subdomain . "console" }}
 
+  ingressClassName:
+    displayName: Ingress class
+    description: Ingress class
+    config:
+      type: string
+
   hookd.psk:
     description: The pre-shared key used to authenticate against hookd
     displayName: hookd pre-shared key
