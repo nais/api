@@ -6,7 +6,7 @@ FROM
 WHERE
 	id = ANY (@ids::UUID[])
 ORDER BY
-	created_at
+	id
 ;
 
 -- name: ListDeploymentResourcesByIDs :many
@@ -17,7 +17,7 @@ FROM
 WHERE
 	id = ANY (@ids::UUID[])
 ORDER BY
-	created_at
+	id
 ;
 
 -- name: ListDeploymentStatusesByIDs :many
@@ -28,7 +28,7 @@ FROM
 WHERE
 	id = ANY (@ids::UUID[])
 ORDER BY
-	created_at
+	id
 ;
 
 -- name: ListByTeamSlug :many

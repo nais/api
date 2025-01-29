@@ -147,7 +147,7 @@ FROM
 WHERE
 	id = ANY ($1::UUID[])
 ORDER BY
-	created_at
+	id
 `
 
 func (q *Queries) ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*Deployment, error) {
@@ -239,7 +239,7 @@ FROM
 WHERE
 	id = ANY ($1::UUID[])
 ORDER BY
-	created_at
+	id
 `
 
 func (q *Queries) ListDeploymentResourcesByIDs(ctx context.Context, ids []uuid.UUID) ([]*DeploymentK8sResource, error) {
@@ -279,7 +279,7 @@ FROM
 WHERE
 	id = ANY ($1::UUID[])
 ORDER BY
-	created_at
+	id
 `
 
 func (q *Queries) ListDeploymentStatusesByIDs(ctx context.Context, ids []uuid.UUID) ([]*DeploymentStatus, error) {

@@ -55,12 +55,6 @@ ADD FOREIGN KEY (deployment_id) REFERENCES deployments (id) ON DELETE CASCADE
 CREATE INDEX ON deployments USING btree (created_at DESC)
 ;
 
-CREATE INDEX ON deployments USING btree (team_slug)
-;
-
-CREATE INDEX ON deployments USING btree (environment_name)
-;
-
 CREATE INDEX ON deployments USING btree (team_slug, environment_name)
 ;
 
