@@ -58,7 +58,7 @@ status:
       type: Reconciling
   correlationID: 54c600b1-c2a6-4018-9fb3-649df7a8920d
   deploymentRolloutStatus: complete
-  rolloutCompleteTime: 1736633557272567094
+  rolloutCompleteTime: 1736633557272567095
   synchronizationHash: 6e0cb332b94540ec
   synchronizationState: RolloutComplete
   synchronizationTime: 1704838351872468010
