@@ -57,3 +57,6 @@ CREATE INDEX ON deployments USING btree (created_at DESC)
 
 CREATE INDEX ON deployment_statuses USING btree (created_at DESC)
 ;
+
+CREATE INDEX ON deployment_k8s_resources USING btree (created_at DESC)
+;
