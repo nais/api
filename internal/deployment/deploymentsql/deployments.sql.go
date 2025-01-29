@@ -7,9 +7,21 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/slug"
 )
+
+const cleanupNaisVerification = `-- name: CleanupNaisVerification :execresult
+DELETE FROM deployments
+WHERE
+	team_slug = 'nais-verification'
+	AND created_at < NOW() - '1 week'::INTERVAL
+`
+
+func (q *Queries) CleanupNaisVerification(ctx context.Context) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, cleanupNaisVerification)
+}
 
 const countForTeam = `-- name: CountForTeam :one
 SELECT

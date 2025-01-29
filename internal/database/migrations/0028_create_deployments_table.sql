@@ -55,8 +55,26 @@ ADD FOREIGN KEY (deployment_id) REFERENCES deployments (id) ON DELETE CASCADE
 CREATE INDEX ON deployments USING btree (created_at DESC)
 ;
 
+CREATE INDEX ON deployments USING btree (team_slug)
+;
+
+CREATE INDEX ON deployments USING btree (environment_name)
+;
+
+CREATE INDEX ON deployments USING btree (team_slug, environment_name)
+;
+
 CREATE INDEX ON deployment_statuses USING btree (created_at DESC)
 ;
 
+CREATE INDEX ON deployment_statuses USING btree (deployment_id)
+;
+
 CREATE INDEX ON deployment_k8s_resources USING btree (created_at DESC)
+;
+
+CREATE INDEX ON deployment_k8s_resources USING btree (deployment_id)
+;
+
+CREATE INDEX ON deployment_k8s_resources USING btree (kind, name)
 ;

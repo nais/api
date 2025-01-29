@@ -6,11 +6,13 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/slug"
 )
 
 type Querier interface {
+	CleanupNaisVerification(ctx context.Context) (pgconn.CommandTag, error)
 	CountForTeam(ctx context.Context, teamSlug slug.Slug) (int64, error)
 	CountForWorkload(ctx context.Context, arg CountForWorkloadParams) (int64, error)
 	CountResourcesForDeployment(ctx context.Context, deploymentID uuid.UUID) (int64, error)

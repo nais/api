@@ -2,7 +2,6 @@ package graph
 
 import (
 	"context"
-	"log"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/deployment"
@@ -22,20 +21,6 @@ func (r *applicationResolver) Deployments(ctx context.Context, obj *application.
 	}
 
 	return deployment.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, workload.TypeApplication, page)
-}
-
-func (r *deploymentResolver) Team(ctx context.Context, obj *deployment.Deployment) (*team.Team, error) {
-	return team.Get(ctx, obj.TeamSlug)
-}
-
-func (r *deploymentResolver) Environment(ctx context.Context, obj *deployment.Deployment) (*team.TeamEnvironment, error) {
-	env, err := team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
-	if err != nil {
-		log.Println(err, obj.TeamSlug, obj.EnvironmentName)
-		return nil, err
-	}
-
-	return env, nil
 }
 
 func (r *deploymentResolver) Resources(ctx context.Context, obj *deployment.Deployment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.DeploymentResource], error) {

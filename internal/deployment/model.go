@@ -30,9 +30,9 @@ type Deployment struct {
 	DeployerUsername *string   `json:"deployerUsername,omitempty"`
 	CommitSha        *string   `json:"commitSha,omitempty"`
 	TriggerUrl       *string   `json:"triggerUrl,omitempty"`
+	TeamSlug         slug.Slug `json:"teamSlug"`
+	EnvironmentName  string    `json:"environmentName"`
 	UUID             uuid.UUID `json:"-"`
-	TeamSlug         slug.Slug `json:"-"`
-	EnvironmentName  string    `json:"-"`
 }
 
 func (Deployment) IsNode() {}

@@ -151,3 +151,10 @@ WHERE
 	AND deployments.environment_name = @environment_name
 	AND deployments.team_slug = @team_slug
 ;
+
+-- name: CleanupNaisVerification :execresult
+DELETE FROM deployments
+WHERE
+	team_slug = 'nais-verification'
+	AND created_at < NOW() - '1 week'::INTERVAL
+;

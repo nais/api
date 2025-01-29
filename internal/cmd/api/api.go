@@ -13,6 +13,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/deployment"
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/grpc"
@@ -226,6 +227,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	wg.Go(func() error {
 		return costUpdater(ctx, pool, cfg, log)
+	})
+
+	wg.Go(func() error {
+		deployment.RunCleaner(ctx, pool, log)
+		return nil
 	})
 
 	<-ctx.Done()

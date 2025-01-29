@@ -410,12 +410,12 @@ type ComplexityRoot struct {
 		CommitSha        func(childComplexity int) int
 		CreatedAt        func(childComplexity int) int
 		DeployerUsername func(childComplexity int) int
-		Environment      func(childComplexity int) int
+		EnvironmentName  func(childComplexity int) int
 		ID               func(childComplexity int) int
 		Repository       func(childComplexity int) int
 		Resources        func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Statuses         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Team             func(childComplexity int) int
+		TeamSlug         func(childComplexity int) int
 		TriggerUrl       func(childComplexity int) int
 	}
 
@@ -2123,9 +2123,6 @@ type DeleteJobPayloadResolver interface {
 	Team(ctx context.Context, obj *job.DeleteJobPayload) (*team.Team, error)
 }
 type DeploymentResolver interface {
-	Team(ctx context.Context, obj *deployment.Deployment) (*team.Team, error)
-	Environment(ctx context.Context, obj *deployment.Deployment) (*team.TeamEnvironment, error)
-
 	Resources(ctx context.Context, obj *deployment.Deployment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.DeploymentResource], error)
 	Statuses(ctx context.Context, obj *deployment.Deployment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.DeploymentStatus], error)
 }
@@ -3516,12 +3513,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Deployment.DeployerUsername(childComplexity), true
 
-	case "Deployment.environment":
-		if e.complexity.Deployment.Environment == nil {
+	case "Deployment.environmentName":
+		if e.complexity.Deployment.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.Deployment.Environment(childComplexity), true
+		return e.complexity.Deployment.EnvironmentName(childComplexity), true
 
 	case "Deployment.id":
 		if e.complexity.Deployment.ID == nil {
@@ -3561,12 +3558,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Deployment.Statuses(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
-	case "Deployment.team":
-		if e.complexity.Deployment.Team == nil {
+	case "Deployment.teamSlug":
+		if e.complexity.Deployment.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.Deployment.Team(childComplexity), true
+		return e.complexity.Deployment.TeamSlug(childComplexity), true
 
 	case "Deployment.triggerUrl":
 		if e.complexity.Deployment.TriggerUrl == nil {
@@ -12068,14 +12065,14 @@ type Deployment implements Node {
 	createdAt: Time!
 
 	"""
-	Team that the deployment belongs to.
+	Team slug that the deployment belongs to.
 	"""
-	team: Team!
+	teamSlug: Slug!
 
 	"""
-	Environment that the deployment belongs to.
+	Name of the environment that the deployment belongs to.
 	"""
-	environment: TeamEnvironment!
+	environmentName: String!
 
 	"""
 	The repository that triggered the deployment.
@@ -32941,8 +32938,8 @@ func (ec *executionContext) fieldContext_Deployment_createdAt(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _Deployment_team(ctx context.Context, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Deployment_team(ctx, field)
+func (ec *executionContext) _Deployment_teamSlug(ctx context.Context, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Deployment_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -32955,7 +32952,7 @@ func (ec *executionContext) _Deployment_team(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Deployment().Team(rctx, obj)
+		return obj.TeamSlug, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -32967,98 +32964,26 @@ func (ec *executionContext) _Deployment_team(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*team.Team)
+	res := resTmp.(slug.Slug)
 	fc.Result = res
-	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, field.Selections, res)
+	return ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Deployment_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Deployment_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Deployment",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Team_slug(ctx, field)
-			case "slackChannel":
-				return ec.fieldContext_Team_slackChannel(ctx, field)
-			case "purpose":
-				return ec.fieldContext_Team_purpose(ctx, field)
-			case "externalResources":
-				return ec.fieldContext_Team_externalResources(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "lastSuccessfulSync":
-				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
-			case "deletionInProgress":
-				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			case "environments":
-				return ec.fieldContext_Team_environments(ctx, field)
-			case "environment":
-				return ec.fieldContext_Team_environment(ctx, field)
-			case "deleteKey":
-				return ec.fieldContext_Team_deleteKey(ctx, field)
-			case "inventoryCounts":
-				return ec.fieldContext_Team_inventoryCounts(ctx, field)
-			case "activityLog":
-				return ec.fieldContext_Team_activityLog(ctx, field)
-			case "applications":
-				return ec.fieldContext_Team_applications(ctx, field)
-			case "bigQueryDatasets":
-				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
-			case "buckets":
-				return ec.fieldContext_Team_buckets(ctx, field)
-			case "cost":
-				return ec.fieldContext_Team_cost(ctx, field)
-			case "deploymentKey":
-				return ec.fieldContext_Team_deploymentKey(ctx, field)
-			case "deployments":
-				return ec.fieldContext_Team_deployments(ctx, field)
-			case "jobs":
-				return ec.fieldContext_Team_jobs(ctx, field)
-			case "kafkaTopics":
-				return ec.fieldContext_Team_kafkaTopics(ctx, field)
-			case "openSearchInstances":
-				return ec.fieldContext_Team_openSearchInstances(ctx, field)
-			case "redisInstances":
-				return ec.fieldContext_Team_redisInstances(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
-			case "secrets":
-				return ec.fieldContext_Team_secrets(ctx, field)
-			case "sqlInstances":
-				return ec.fieldContext_Team_sqlInstances(ctx, field)
-			case "unleash":
-				return ec.fieldContext_Team_unleash(ctx, field)
-			case "workloadUtilization":
-				return ec.fieldContext_Team_workloadUtilization(ctx, field)
-			case "serviceUtilization":
-				return ec.fieldContext_Team_serviceUtilization(ctx, field)
-			case "valkeyInstances":
-				return ec.fieldContext_Team_valkeyInstances(ctx, field)
-			case "vulnerabilitySummary":
-				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
-			case "workloads":
-				return ec.fieldContext_Team_workloads(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+			return nil, errors.New("field of type Slug does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Deployment_environment(ctx context.Context, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Deployment_environment(ctx, field)
+func (ec *executionContext) _Deployment_environmentName(ctx context.Context, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Deployment_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -33071,7 +32996,7 @@ func (ec *executionContext) _Deployment_environment(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Deployment().Environment(rctx, obj)
+		return obj.EnvironmentName, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -33083,55 +33008,19 @@ func (ec *executionContext) _Deployment_environment(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*team.TeamEnvironment)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Deployment_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Deployment_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Deployment",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_TeamEnvironment_id(ctx, field)
-			case "name":
-				return ec.fieldContext_TeamEnvironment_name(ctx, field)
-			case "gcpProjectID":
-				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
-			case "slackAlertsChannel":
-				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
-			case "team":
-				return ec.fieldContext_TeamEnvironment_team(ctx, field)
-			case "application":
-				return ec.fieldContext_TeamEnvironment_application(ctx, field)
-			case "bigQueryDataset":
-				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
-			case "bucket":
-				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
-			case "cost":
-				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
-			case "job":
-				return ec.fieldContext_TeamEnvironment_job(ctx, field)
-			case "kafkaTopic":
-				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
-			case "openSearchInstance":
-				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
-			case "redisInstance":
-				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
-			case "secret":
-				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
-			case "sqlInstance":
-				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
-			case "valkeyInstance":
-				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
-			case "workload":
-				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -33530,10 +33419,10 @@ func (ec *executionContext) fieldContext_DeploymentConnection_nodes(_ context.Co
 				return ec.fieldContext_Deployment_id(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Deployment_createdAt(ctx, field)
-			case "team":
-				return ec.fieldContext_Deployment_team(ctx, field)
-			case "environment":
-				return ec.fieldContext_Deployment_environment(ctx, field)
+			case "teamSlug":
+				return ec.fieldContext_Deployment_teamSlug(ctx, field)
+			case "environmentName":
+				return ec.fieldContext_Deployment_environmentName(ctx, field)
 			case "repository":
 				return ec.fieldContext_Deployment_repository(ctx, field)
 			case "deployerUsername":
@@ -33690,10 +33579,10 @@ func (ec *executionContext) fieldContext_DeploymentEdge_node(_ context.Context, 
 				return ec.fieldContext_Deployment_id(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Deployment_createdAt(ctx, field)
-			case "team":
-				return ec.fieldContext_Deployment_team(ctx, field)
-			case "environment":
-				return ec.fieldContext_Deployment_environment(ctx, field)
+			case "teamSlug":
+				return ec.fieldContext_Deployment_teamSlug(ctx, field)
+			case "environmentName":
+				return ec.fieldContext_Deployment_environmentName(ctx, field)
 			case "repository":
 				return ec.fieldContext_Deployment_repository(ctx, field)
 			case "deployerUsername":
@@ -88742,78 +88631,16 @@ func (ec *executionContext) _Deployment(ctx context.Context, sel ast.SelectionSe
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "team":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Deployment_team(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+		case "teamSlug":
+			out.Values[i] = ec._Deployment_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
+		case "environmentName":
+			out.Values[i] = ec._Deployment_environmentName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "environment":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Deployment_environment(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "repository":
 			out.Values[i] = ec._Deployment_repository(ctx, field, obj)
 		case "deployerUsername":

@@ -211,14 +211,14 @@ type Deployment implements Node {
 	createdAt: Time!
 
 	"""
-	Team that the deployment belongs to.
+	Team slug that the deployment belongs to.
 	"""
-	team: Team!
+	teamSlug: Slug!
 
 	"""
-	Environment that the deployment belongs to.
+	Name of the environment that the deployment belongs to.
 	"""
-	environment: TeamEnvironment!
+	environmentName: String!
 
 	"""
 	The repository that triggered the deployment.
