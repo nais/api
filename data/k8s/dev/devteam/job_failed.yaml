@@ -58,7 +58,7 @@ status:
       type: Reconciling
   correlationID: 54c600b1-c2a6-4018-9fb3-649df7a8920d
   deploymentRolloutStatus: complete
-  rolloutCompleteTime: 1704838357272567094
+  rolloutCompleteTime: 1736547157272567094
   synchronizationHash: 6e0cb332b94540ec
   synchronizationState: RolloutComplete
   synchronizationTime: 1704838351872468010
@@ -228,7 +228,7 @@ status:
       status: "True"
       type: Failed
   ready: 0
-  startTime: "2025-01-24T13:45:00Z"
+  startTime: "2025-01-24T13:46:00Z"
   succeeded: 1
   terminating: 0
   uncountedTerminatedPods: {}

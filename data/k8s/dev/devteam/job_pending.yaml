@@ -14,7 +14,7 @@ metadata:
   finalizers:
     - naiserator.nais.io/finalizer
   generation: 243
-  name: test-job
+  name: test-job-1
   resourceVersion: "4085586970"
   uid: 3152cb5a-95f5-4418-8bd2-13b6d9f6058f
 spec:
@@ -22,11 +22,11 @@ spec:
     application:
       enabled: true
   command:
-    - test-job
+    - test-job-1
   gcp:
     buckets:
       - name: dataproduct-apps-topics2
-  image: ghcr.io/nais/test-job:v1
+  image: ghcr.io/nais/test-job-1:v1
   liveness:
     path: /isHealthy
   readiness:
@@ -58,7 +58,7 @@ status:
       type: Reconciling
   correlationID: 54c600b1-c2a6-4018-9fb3-649df7a8920d
   deploymentRolloutStatus: complete
-  rolloutCompleteTime: 1704838357272567094
+  rolloutCompleteTime: 1736374357272567094
   synchronizationHash: 6e0cb332b94540ec
   synchronizationState: RolloutComplete
   synchronizationTime: 1704838351872468010
@@ -73,16 +73,16 @@ metadata:
   generation: 1
   labels:
     apiserver-access: enabled
-    app: test-job
+    app: test-job-1
     team: aura
-  name: test-job-28896705
+  name: test-job-1-28896705
   namespace: aura
   ownerReferences:
     - apiVersion: batch/v1
       blockOwnerDeletion: true
       controller: true
       kind: CronJob
-      name: test-job
+      name: test-job-1
       uid: 8b7674b8-7d9f-4cde-99e4-039f5261c51e
   resourceVersion: "5970222810"
   uid: baa385d3-59e7-49e9-881a-aa197ee37ffc
@@ -100,23 +100,23 @@ spec:
   template:
     metadata:
       annotations:
-        kubectl.kubernetes.io/default-container: test-job
+        kubectl.kubernetes.io/default-container: test-job-1
       creationTimestamp: null
       labels:
         apiserver-access: enabled
-        app: test-job
+        app: test-job-1
         batch.kubernetes.io/controller-uid: baa385d3-59e7-49e9-881a-aa197ee37ffc
-        batch.kubernetes.io/job-name: test-job-28896705
+        batch.kubernetes.io/job-name: test-job-1-28896705
         controller-uid: baa385d3-59e7-49e9-881a-aa197ee37ffc
-        job-name: test-job-28896705
+        job-name: test-job-1-28896705
         nais.io/naisjob: "true"
         team: aura
-      name: test-job
+      name: test-job-1
       namespace: aura
       ownerReferences:
         - apiVersion: nais.io/v1
           kind: Naisjob
-          name: test-job
+          name: test-job-1
           uid: 3152cb5a-95f5-4418-8bd2-13b6d9f6058f
     spec:
       affinity:
@@ -128,12 +128,12 @@ spec:
                     - key: app
                       operator: In
                       values:
-                        - test-job
+                        - test-job-1
                 topologyKey: kubernetes.io/hostname
               weight: 10
       containers:
         - command:
-            - test-job
+            - test-job-1
           env:
             - name: PORT
               value: "8080"
@@ -147,7 +147,7 @@ spec:
                 command:
                   - sleep
                   - "5"
-          name: test-job
+          name: test-job-1
           resources:
             limits:
               cpu: 500m
@@ -207,8 +207,8 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
         seccompProfile:
           type: RuntimeDefault
-      serviceAccount: test-job
-      serviceAccountName: test-job
+      serviceAccount: test-job-1
+      serviceAccountName: test-job-1
       terminationGracePeriodSeconds: 30
       volumes:
         - configMap:
