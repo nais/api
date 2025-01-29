@@ -70,9 +70,7 @@ Test.gql("team with deployments", function(t)
 					nodes {
 						id
 						createdAt
-						team {
-							slug
-						}
+						teamSlug
 						resources {
 							nodes {
 								id
@@ -89,16 +87,12 @@ Test.gql("team with deployments", function(t)
 							}
 						}
 						repository
-						environment {
-							name
-						}
+						environmentName
 					}
 					edges {
 						node {
 							repository
-							environment {
-								name
-							}
+							environmentName
 						}
 					}
 					pageInfo {
@@ -133,12 +127,12 @@ Test.gql("team with deployments", function(t)
 								},
 							},
 							repository = "org/repo-2",
-							environment = { name = "dev" },
-							team = { slug = "slug-2" },
+							environmentName = "dev",
+							teamSlug = "slug-2",
 						},
 					},
 					edges = {
-						{ node = { repository = "org/repo-2", environment = { name = "dev" } } },
+						{ node = { repository = "org/repo-2", environmentName = "dev" } },
 					},
 					pageInfo = {
 						hasNextPage = true,
