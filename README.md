@@ -18,6 +18,9 @@ user, or `admin.usersen@example.com` if you need an admin user, when interacting
 
 Locally, most external services are replaced with fake clients, and the Kubernetes client reads data from `data/k8s`.
 
+The test suite uses [testcontainers](https://testcontainers.com/), and if you are using Colima you might need to follow
+the guidelines in the [testcontainers documentation](https://golang.testcontainers.org/system_requirements/using_colima/).
+
 ## Development practices
 
 Check practices used in this project here: [docs/practices.md](docs/practices.md)
