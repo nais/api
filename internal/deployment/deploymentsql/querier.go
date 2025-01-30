@@ -16,7 +16,7 @@ type Querier interface {
 	CountForTeam(ctx context.Context, teamSlug slug.Slug) (int64, error)
 	CountForWorkload(ctx context.Context, arg CountForWorkloadParams) (int64, error)
 	CountResourcesForDeployment(ctx context.Context, deploymentID uuid.UUID) (int64, error)
-	CountStatusesForDeployment(ctx context.Context, deploymentID uuid.UUID) (int64, error)
+	CountStatusesForDeploymentIDs(ctx context.Context, deploymentIds []uuid.UUID) ([]*CountStatusesForDeploymentIDsRow, error)
 	LatestDeploymentTimestampForWorkload(ctx context.Context, arg LatestDeploymentTimestampForWorkloadParams) (pgtype.Timestamptz, error)
 	ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*Deployment, error)
 	ListByTeamSlug(ctx context.Context, arg ListByTeamSlugParams) ([]*Deployment, error)

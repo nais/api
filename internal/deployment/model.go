@@ -132,6 +132,11 @@ type DeploymentKey struct {
 	TeamSlug slug.Slug `json:"-"`
 }
 
+type deploymentStatusForDeploymentCount struct {
+	DeploymentID uuid.UUID
+	Count        int64
+}
+
 func toGraphDeploymentKey(d *hookd.DeployKey, teamSlug slug.Slug) *DeploymentKey {
 	return &DeploymentKey{
 		Key:      d.Key,

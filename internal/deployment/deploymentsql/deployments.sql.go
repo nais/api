@@ -87,20 +87,43 @@ func (q *Queries) CountResourcesForDeployment(ctx context.Context, deploymentID 
 	return count, err
 }
 
-const countStatusesForDeployment = `-- name: CountStatusesForDeployment :one
+const countStatusesForDeploymentIDs = `-- name: CountStatusesForDeploymentIDs :many
 SELECT
-	COUNT(*)
+	deployment_id,
+	COUNT(1)
 FROM
 	deployment_statuses
 WHERE
-	deployment_id = $1
+	deployment_id = ANY ($1::UUID[])
+GROUP BY
+	deployment_id
+ORDER BY
+	deployment_id
 `
 
-func (q *Queries) CountStatusesForDeployment(ctx context.Context, deploymentID uuid.UUID) (int64, error) {
-	row := q.db.QueryRow(ctx, countStatusesForDeployment, deploymentID)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
+type CountStatusesForDeploymentIDsRow struct {
+	DeploymentID uuid.UUID
+	Count        int64
+}
+
+func (q *Queries) CountStatusesForDeploymentIDs(ctx context.Context, deploymentIds []uuid.UUID) ([]*CountStatusesForDeploymentIDsRow, error) {
+	rows, err := q.db.Query(ctx, countStatusesForDeploymentIDs, deploymentIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*CountStatusesForDeploymentIDsRow{}
+	for rows.Next() {
+		var i CountStatusesForDeploymentIDsRow
+		if err := rows.Scan(&i.DeploymentID, &i.Count); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const latestDeploymentTimestampForWorkload = `-- name: LatestDeploymentTimestampForWorkload :one

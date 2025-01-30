@@ -94,13 +94,18 @@ OFFSET
 	sqlc.arg('offset')
 ;
 
--- name: CountStatusesForDeployment :one
+-- name: CountStatusesForDeploymentIDs :many
 SELECT
-	COUNT(*)
+	deployment_id,
+	COUNT(1)
 FROM
 	deployment_statuses
 WHERE
-	deployment_id = @deployment_id
+	deployment_id = ANY (@deployment_ids::UUID[])
+GROUP BY
+	deployment_id
+ORDER BY
+	deployment_id
 ;
 
 -- name: ListForWorkload :many

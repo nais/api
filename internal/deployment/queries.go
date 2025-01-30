@@ -68,12 +68,12 @@ func ListStatusesForDeployment(ctx context.Context, deploymentID uuid.UUID, page
 		return nil, err
 	}
 
-	total, err := q.CountStatusesForDeployment(ctx, deploymentID)
+	total, err := fromContext(ctx).deploymentStatusForDeploymentCountLoader.Load(ctx, deploymentID)
 	if err != nil {
 		return nil, err
 	}
 
-	return pagination.NewConvertConnection(ret, page, total, toGraphDeploymentStatus), nil
+	return pagination.NewConvertConnection(ret, page, total.Count, toGraphDeploymentStatus), nil
 }
 
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string, workloadType workload.Type, page *pagination.Pagination) (*DeploymentConnection, error) {
