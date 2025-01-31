@@ -225,7 +225,7 @@ func TestDeploymentServer_CreateDeploymentK8SResource(t *testing.T) {
 
 	t.Run("missing group", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
-		resp, err := grpcdeployment.NewServer(pool).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{})
+		resp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{})
 		if resp != nil {
 			t.Error("expected response to be nil")
 		}
@@ -239,7 +239,7 @@ func TestDeploymentServer_CreateDeploymentK8SResource(t *testing.T) {
 
 	t.Run("missing version", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
-		resp, err := grpcdeployment.NewServer(pool).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
+		resp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
 			Group: ptr.To("group"),
 		})
 		if resp != nil {
@@ -255,7 +255,7 @@ func TestDeploymentServer_CreateDeploymentK8SResource(t *testing.T) {
 
 	t.Run("missing kind", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
-		resp, err := grpcdeployment.NewServer(pool).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
+		resp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
 			Group:   ptr.To("group"),
 			Version: ptr.To("version"),
 		})
@@ -272,7 +272,7 @@ func TestDeploymentServer_CreateDeploymentK8SResource(t *testing.T) {
 
 	t.Run("missing name", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
-		resp, err := grpcdeployment.NewServer(pool).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
+		resp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
 			Group:   ptr.To("group"),
 			Version: ptr.To("version"),
 			Kind:    ptr.To("kind"),
@@ -290,7 +290,7 @@ func TestDeploymentServer_CreateDeploymentK8SResource(t *testing.T) {
 
 	t.Run("missing namespace", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
-		resp, err := grpcdeployment.NewServer(pool).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
+		resp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
 			Group:   ptr.To("group"),
 			Version: ptr.To("version"),
 			Kind:    ptr.To("kind"),
@@ -309,7 +309,7 @@ func TestDeploymentServer_CreateDeploymentK8SResource(t *testing.T) {
 
 	t.Run("missing reference", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
-		resp, err := grpcdeployment.NewServer(pool).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
+		resp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
 			Group:     ptr.To("group"),
 			Version:   ptr.To("version"),
 			Kind:      ptr.To("kind"),
@@ -329,7 +329,7 @@ func TestDeploymentServer_CreateDeploymentK8SResource(t *testing.T) {
 
 	t.Run("invalid deployment ID", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
-		resp, err := grpcdeployment.NewServer(pool).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
+		resp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
 			Group:     ptr.To("group"),
 			Version:   ptr.To("version"),
 			Kind:      ptr.To("kind"),
@@ -352,7 +352,7 @@ func TestDeploymentServer_CreateDeploymentK8SResource(t *testing.T) {
 
 	t.Run("empty external ID", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
-		resp, err := grpcdeployment.NewServer(pool).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
+		resp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
 			Group:     ptr.To("group"),
 			Version:   ptr.To("version"),
 			Kind:      ptr.To("kind"),
@@ -384,7 +384,7 @@ func TestDeploymentServer_CreateDeploymentK8SResource(t *testing.T) {
 		}
 
 		externalID := "ext-123"
-		deploymentResp, err := grpcdeployment.NewServer(pool).CreateDeployment(ctx, &protoapi.CreateDeploymentRequest{
+		deploymentResp, err := grpcdeployment.NewServer(pool, nil).CreateDeployment(ctx, &protoapi.CreateDeploymentRequest{
 			TeamSlug:        ptr.To("my-team"),
 			EnvironmentName: ptr.To("prod"),
 			ExternalId:      &externalID,
@@ -393,7 +393,7 @@ func TestDeploymentServer_CreateDeploymentK8SResource(t *testing.T) {
 			t.Fatalf("failed to create deployment: %v", err)
 		}
 
-		resourceResp, err := grpcdeployment.NewServer(pool).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
+		resourceResp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
 			Group:     ptr.To("group"),
 			Version:   ptr.To("version"),
 			Kind:      ptr.To("kind"),
@@ -428,7 +428,7 @@ func TestDeploymentServer_CreateDeploymentK8SResource(t *testing.T) {
 			t.Fatalf("failed to insert team: %v", err)
 		}
 
-		deploymentResp, err := grpcdeployment.NewServer(pool).CreateDeployment(ctx, &protoapi.CreateDeploymentRequest{
+		deploymentResp, err := grpcdeployment.NewServer(pool, nil).CreateDeployment(ctx, &protoapi.CreateDeploymentRequest{
 			TeamSlug:        ptr.To("my-team"),
 			EnvironmentName: ptr.To("prod"),
 		})
@@ -436,7 +436,7 @@ func TestDeploymentServer_CreateDeploymentK8SResource(t *testing.T) {
 			t.Fatalf("failed to create deployment: %v", err)
 		}
 
-		resourceResp, err := grpcdeployment.NewServer(pool).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
+		resourceResp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
 			Group:     ptr.To("group"),
 			Version:   ptr.To("version"),
 			Kind:      ptr.To("kind"),
@@ -456,7 +456,7 @@ func TestDeploymentServer_CreateDeploymentK8SResource(t *testing.T) {
 
 	t.Run("insert resource using unknown deployment ID", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
-		resp, err := grpcdeployment.NewServer(pool).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
+		resp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
 			Group:     ptr.To("group"),
 			Version:   ptr.To("version"),
 			Kind:      ptr.To("kind"),
@@ -491,7 +491,7 @@ func TestDeploymentServer_CreateDeploymentStatus(t *testing.T) {
 
 	t.Run("missing message", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
-		resp, err := grpcdeployment.NewServer(pool).CreateDeploymentStatus(ctx, &protoapi.CreateDeploymentStatusRequest{})
+		resp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentStatus(ctx, &protoapi.CreateDeploymentStatusRequest{})
 		if resp != nil {
 			t.Error("expected response to be nil")
 		}
@@ -505,7 +505,7 @@ func TestDeploymentServer_CreateDeploymentStatus(t *testing.T) {
 
 	t.Run("missing state", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
-		resp, err := grpcdeployment.NewServer(pool).CreateDeploymentStatus(ctx, &protoapi.CreateDeploymentStatusRequest{
+		resp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentStatus(ctx, &protoapi.CreateDeploymentStatusRequest{
 			Message: ptr.To("some message"),
 		})
 		if resp != nil {
@@ -521,7 +521,7 @@ func TestDeploymentServer_CreateDeploymentStatus(t *testing.T) {
 
 	t.Run("missing reference", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
-		resp, err := grpcdeployment.NewServer(pool).CreateDeploymentStatus(ctx, &protoapi.CreateDeploymentStatusRequest{
+		resp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentStatus(ctx, &protoapi.CreateDeploymentStatusRequest{
 			Message: ptr.To("some message"),
 			State:   ptr.To(protoapi.DeploymentState_success),
 		})
@@ -538,7 +538,7 @@ func TestDeploymentServer_CreateDeploymentStatus(t *testing.T) {
 
 	t.Run("invalid deployment ID", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
-		resp, err := grpcdeployment.NewServer(pool).CreateDeploymentStatus(ctx, &protoapi.CreateDeploymentStatusRequest{
+		resp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentStatus(ctx, &protoapi.CreateDeploymentStatusRequest{
 			Message: ptr.To("some message"),
 			State:   ptr.To(protoapi.DeploymentState_success),
 			Reference: &protoapi.CreateDeploymentStatusRequest_DeploymentId{
@@ -558,7 +558,7 @@ func TestDeploymentServer_CreateDeploymentStatus(t *testing.T) {
 
 	t.Run("empty external ID", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
-		resp, err := grpcdeployment.NewServer(pool).CreateDeploymentStatus(ctx, &protoapi.CreateDeploymentStatusRequest{
+		resp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentStatus(ctx, &protoapi.CreateDeploymentStatusRequest{
 			Message: ptr.To("some message"),
 			State:   ptr.To(protoapi.DeploymentState_success),
 			Reference: &protoapi.CreateDeploymentStatusRequest_ExternalDeploymentId{
@@ -578,7 +578,7 @@ func TestDeploymentServer_CreateDeploymentStatus(t *testing.T) {
 
 	t.Run("invalid state", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
-		resp, err := grpcdeployment.NewServer(pool).CreateDeploymentStatus(ctx, &protoapi.CreateDeploymentStatusRequest{
+		resp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentStatus(ctx, &protoapi.CreateDeploymentStatusRequest{
 			Message: ptr.To("some message"),
 			State:   ptr.To(protoapi.DeploymentState(999)),
 			Reference: &protoapi.CreateDeploymentStatusRequest_ExternalDeploymentId{
@@ -607,7 +607,7 @@ func TestDeploymentServer_CreateDeploymentStatus(t *testing.T) {
 		}
 
 		externalID := "ext-123"
-		deploymentResp, err := grpcdeployment.NewServer(pool).CreateDeployment(ctx, &protoapi.CreateDeploymentRequest{
+		deploymentResp, err := grpcdeployment.NewServer(pool, nil).CreateDeployment(ctx, &protoapi.CreateDeploymentRequest{
 			TeamSlug:        ptr.To("my-team"),
 			EnvironmentName: ptr.To("prod"),
 			ExternalId:      &externalID,
@@ -616,7 +616,7 @@ func TestDeploymentServer_CreateDeploymentStatus(t *testing.T) {
 			t.Fatalf("failed to create deployment: %v", err)
 		}
 
-		statusResp, err := grpcdeployment.NewServer(pool).CreateDeploymentStatus(ctx, &protoapi.CreateDeploymentStatusRequest{
+		statusResp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentStatus(ctx, &protoapi.CreateDeploymentStatusRequest{
 			Message: ptr.To("some message"),
 			State:   ptr.To(protoapi.DeploymentState_success),
 			Reference: &protoapi.CreateDeploymentStatusRequest_ExternalDeploymentId{
@@ -648,7 +648,7 @@ func TestDeploymentServer_CreateDeploymentStatus(t *testing.T) {
 			t.Fatalf("failed to insert team: %v", err)
 		}
 
-		deploymentResp, err := grpcdeployment.NewServer(pool).CreateDeployment(ctx, &protoapi.CreateDeploymentRequest{
+		deploymentResp, err := grpcdeployment.NewServer(pool, nil).CreateDeployment(ctx, &protoapi.CreateDeploymentRequest{
 			TeamSlug:        ptr.To("my-team"),
 			EnvironmentName: ptr.To("prod"),
 		})
@@ -656,7 +656,7 @@ func TestDeploymentServer_CreateDeploymentStatus(t *testing.T) {
 			t.Fatalf("failed to create deployment: %v", err)
 		}
 
-		statusResp, err := grpcdeployment.NewServer(pool).CreateDeploymentStatus(ctx, &protoapi.CreateDeploymentStatusRequest{
+		statusResp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentStatus(ctx, &protoapi.CreateDeploymentStatusRequest{
 			Message: ptr.To("some message"),
 			State:   ptr.To(protoapi.DeploymentState_success),
 			Reference: &protoapi.CreateDeploymentStatusRequest_DeploymentId{
@@ -673,7 +673,7 @@ func TestDeploymentServer_CreateDeploymentStatus(t *testing.T) {
 
 	t.Run("insert status using unknown deployment ID", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
-		resp, err := grpcdeployment.NewServer(pool).CreateDeploymentStatus(ctx, &protoapi.CreateDeploymentStatusRequest{
+		resp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentStatus(ctx, &protoapi.CreateDeploymentStatusRequest{
 			Message: ptr.To("some message"),
 			State:   ptr.To(protoapi.DeploymentState_success),
 			Reference: &protoapi.CreateDeploymentStatusRequest_DeploymentId{
