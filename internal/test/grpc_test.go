@@ -9,7 +9,6 @@ import (
 
 	monitoring "cloud.google.com/go/monitoring/apiv3/v2"
 	"cloud.google.com/go/monitoring/apiv3/v2/monitoringpb"
-	"github.com/stretchr/testify/assert"
 	"google.golang.org/api/iterator"
 	"google.golang.org/genproto/googleapis/api/metric"
 	"google.golang.org/genproto/googleapis/api/monitoredres"
@@ -33,7 +32,9 @@ func TestExampleGoogleMonitoringFake(t *testing.T) {
 	defer cancel()
 
 	client, err := monitoring.NewMetricClient(ctx, server.ClientOptions()...)
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	it := client.ListTimeSeries(ctx, &monitoringpb.ListTimeSeriesRequest{
 		Name:   "project123/instance1",
@@ -45,12 +46,22 @@ func TestExampleGoogleMonitoringFake(t *testing.T) {
 		if errors.Is(err, iterator.Done) {
 			break
 		}
-		assert.NoError(t, err)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
 		timeSeries = append(timeSeries, met)
 	}
-	assert.Len(t, timeSeries, 1)
-	assert.Equal(t, "cloudsql.googleapis.com/database/cpu/utilization", timeSeries[0].Metric.Type)
-	assert.Equal(t, 0.5, timeSeries[0].Points[0].Value.GetDoubleValue())
+	if len(timeSeries) != 1 {
+		t.Fatalf("expected 1 time series, got %d", len(timeSeries))
+	}
+
+	if expected := "cloudsql.googleapis.com/database/cpu/utilization"; timeSeries[0].Metric.Type != expected {
+		t.Fatalf("expected metric type %q, got %q", expected, timeSeries[0].Metric.Type)
+	}
+
+	if expected := 0.5; timeSeries[0].Points[0].Value.GetDoubleValue() != expected {
+		t.Fatalf("expected value %f, got %f", expected, timeSeries[0].Points[0].Value.GetDoubleValue())
+	}
 }
 
 func (g *googleMonitoringFake) ListTimeSeries(_ context.Context, request *monitoringpb.ListTimeSeriesRequest) (*monitoringpb.ListTimeSeriesResponse, error) {
