@@ -79,7 +79,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	dbSettings := []database.OptFunc{}
 	if cfg.WithFakeClients {
 		log.Warn("using fake clients")
-		dbSettings = append(dbSettings, database.WithSlowQueryLogger(100*time.Millisecond))
+		dbSettings = append(dbSettings, database.WithSlowQueryLogger(10*time.Millisecond))
 	}
 
 	_, promReg, err := newMeterProvider(ctx)

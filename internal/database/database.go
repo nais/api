@@ -47,6 +47,9 @@ func New(ctx context.Context, dsn string, log logrus.FieldLogger, opts ...OptFun
 
 func NewPool(ctx context.Context, dsn string, log logrus.FieldLogger, migrate bool, opts ...OptFunc) (*pgxpool.Pool, error) {
 	settings := &settings{}
+	for _, o := range opts {
+		o(settings)
+	}
 
 	if migrate {
 		if err := migrateDatabaseSchema("pgx", dsn, log); err != nil {
