@@ -27,12 +27,9 @@ func NewServer(pool *pgxpool.Pool) *Server {
 }
 
 func (s *Server) CreateDeployment(ctx context.Context, req *protoapi.CreateDeploymentRequest) (*protoapi.CreateDeploymentResponse, error) {
-	exists, err := s.querier.TeamExists(ctx, slug.Slug(req.GetTeamSlug()))
-	if err != nil {
+	if exists, err := s.querier.TeamExists(ctx, slug.Slug(req.GetTeamSlug())); err != nil {
 		return nil, err
-	}
-
-	if !exists {
+	} else if !exists {
 		return nil, status.Errorf(codes.NotFound, "team does not exist")
 	}
 
