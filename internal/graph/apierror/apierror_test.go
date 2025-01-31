@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -11,7 +12,6 @@ import (
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestError(t *testing.T) {
@@ -27,7 +27,9 @@ func TestError(t *testing.T) {
 		defer hook.Reset()
 
 		err := testWithError(apierror.Errorf("some error"))
-		assert.ErrorContains(t, err, "some error")
+		if contains := "some error"; !strings.Contains(err.Error(), contains) {
+			t.Errorf("expected error message to contain %q, got %q", contains, err)
+		}
 	})
 
 	t.Run("database error", func(t *testing.T) {
@@ -35,34 +37,54 @@ func TestError(t *testing.T) {
 
 		databaseError := &pgconn.PgError{Message: "some database error"}
 		err := testWithError(databaseError)
-		assert.ErrorContains(t, err, "The database encountered an error")
+		if contains := "The database encountered an error"; !strings.Contains(err.Error(), contains) {
+			t.Errorf("expected error message to contain %q, got %q", contains, err)
+		}
 
-		assert.Equal(t, 1, len(hook.Entries))
-		assert.Equal(t, logrus.ErrorLevel, hook.LastEntry().Level)
-		assert.Contains(t, hook.LastEntry().Message, "some database error")
+		if len(hook.Entries) != 1 {
+			t.Errorf("expected 1 log entry, got %d", len(hook.Entries))
+		}
+
+		if hook.LastEntry().Level != logrus.ErrorLevel {
+			t.Errorf("expected log level to be %q, got %q", logrus.ErrorLevel, hook.LastEntry().Level)
+		}
+
+		if contains := "some database error"; !strings.Contains(hook.LastEntry().Message, contains) {
+			t.Errorf("expected log message to contain %q, got %q", contains, hook.LastEntry().Message)
+		}
 
 		e := hook.LastEntry()
 		fieldData, exists := e.Data[logrus.ErrorKey]
-		assert.True(t, exists)
+		if !exists {
+			t.Fatalf("expected log entry to contain error field")
+		}
 
 		attachedErr, ok := fieldData.(error)
-		assert.True(t, ok)
+		if !ok {
+			t.Fatalf("unable to cast to error")
+		}
 
-		assert.ErrorIs(t, attachedErr, databaseError)
+		if !errors.Is(attachedErr, databaseError) {
+			t.Fatalf("invalid error type: expected %T, got %T", databaseError, attachedErr)
+		}
 	})
 
 	t.Run("no rows from SQL query", func(t *testing.T) {
 		defer hook.Reset()
 
 		err := testWithError(sql.ErrNoRows)
-		assert.ErrorContains(t, err, "Object was not found")
+		if contains := "Object was not found"; !strings.Contains(err.Error(), contains) {
+			t.Errorf("expected error message to contain %q, got %q", contains, err)
+		}
 	})
 
 	t.Run("context canceled", func(t *testing.T) {
 		defer hook.Reset()
 
 		err := testWithError(context.Canceled)
-		assert.ErrorContains(t, err, "Request canceled")
+		if contains := "Request canceled"; !strings.Contains(err.Error(), contains) {
+			t.Errorf("expected error message to contain %q, got %q", contains, err)
+		}
 	})
 
 	t.Run("unhandled error", func(t *testing.T) {
@@ -70,17 +92,34 @@ func TestError(t *testing.T) {
 
 		unhandlerError := errors.New("some unhandled error")
 		err := testWithError(unhandlerError)
-		assert.ErrorContains(t, err, "we didn't write a suitable error message")
-		assert.Equal(t, 1, len(hook.Entries))
-		assert.Equal(t, logrus.ErrorLevel, hook.LastEntry().Level)
-		assert.Contains(t, hook.LastEntry().Message, "some unhandled error")
+		if contains := "we didn't write a suitable error message"; !strings.Contains(err.Error(), contains) {
+			t.Errorf("expected error message to contain %q, got %q", contains, err)
+		}
+
+		if len(hook.Entries) != 1 {
+			t.Errorf("expected 1 log entry, got %d", len(hook.Entries))
+		}
+
+		if hook.LastEntry().Level != logrus.ErrorLevel {
+			t.Errorf("expected log level to be %q, got %q", logrus.ErrorLevel, hook.LastEntry().Level)
+		}
+
+		if contains := "some unhandled error"; !strings.Contains(hook.LastEntry().Message, contains) {
+			t.Errorf("expected log message to contain %q, got %q", contains, hook.LastEntry().Message)
+		}
 
 		fieldData, exists := hook.LastEntry().Data[logrus.ErrorKey]
-		assert.True(t, exists)
+		if !exists {
+			t.Fatalf("expected log entry to contain error field")
+		}
 
 		attachedErr, ok := fieldData.(error)
-		assert.True(t, ok)
+		if !ok {
+			t.Fatalf("unable to cast to error")
+		}
 
-		assert.ErrorIs(t, attachedErr, unhandlerError)
+		if !errors.Is(attachedErr, unhandlerError) {
+			t.Fatalf("invalid error type: expected %T, got %T", unhandlerError, attachedErr)
+		}
 	})
 }
