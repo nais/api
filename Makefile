@@ -27,6 +27,7 @@ generate-proto:
 	protoc \
 		-I pkg/apiclient/protoapi/schema/ \
 		./pkg/apiclient/protoapi/schema/*.proto \
+		--go_opt=default_api_level=API_HYBRID \
 		--go_out=. \
 		--go-grpc_out=.
 

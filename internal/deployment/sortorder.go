@@ -18,15 +18,12 @@ func init() {
 	job.AllJobOrderField = append(job.AllJobOrderField, JobOrderFieldDeploymentTime)
 
 	sortByTimestamp := func(ctx context.Context, wl workload.Workload) int {
-		info, err := InfoForWorkload(ctx, wl)
+		ts, err := latestDeploymentTimestampForWorkload(ctx, wl)
 		if err != nil {
 			return -1
 		}
 
-		if info.Timestamp == nil {
-			return -1
-		}
-		return int(info.Timestamp.Unix())
+		return int(ts.Unix())
 	}
 
 	application.SortFilter.RegisterConcurrentOrderBy(ApplicationOrderFieldDeploymentTime, func(ctx context.Context, a *application.Application) int {

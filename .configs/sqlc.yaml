@@ -50,6 +50,15 @@ sql:
         out: "../internal/serviceaccount/serviceaccountsql"
 
   - <<: *default_domain
+    name: "Deployments SQL"
+    queries: "../internal/deployment/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "deploymentsql"
+        out: "../internal/deployment/deploymentsql"
+
+  - <<: *default_domain
     name: "Teams SQL"
     queries: "../internal/team/queries"
     gen:
@@ -138,6 +147,15 @@ sql:
         <<: *default_go
         package: "grpcreconcilersql"
         out: "../internal/grpc/grpcreconciler/grpcreconcilersql"
+
+  - <<: *default_domain
+    name: "Deployments SQL for gRPC"
+    queries: "../internal/grpc/grpcdeployment/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "grpcdeploymentsql"
+        out: "../internal/grpc/grpcdeployment/grpcdeploymentsql"
 
   - <<: *default_domain
     name: "Usersync SQL"

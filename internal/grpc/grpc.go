@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/grpc/grpcdeployment"
 	"github.com/nais/api/internal/grpc/grpcreconciler"
 	"github.com/nais/api/internal/grpc/grpcteam"
 	"github.com/nais/api/internal/grpc/grpcuser"
@@ -32,6 +33,7 @@ func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, log logr
 	protoapi.RegisterTeamsServer(s, grpcteam.NewServer(pool))
 	protoapi.RegisterUsersServer(s, grpcuser.NewServer(pool))
 	protoapi.RegisterReconcilersServer(s, grpcreconciler.NewServer(pool))
+	protoapi.RegisterDeploymentsServer(s, grpcdeployment.NewServer(pool))
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error { return s.Serve(lis) })

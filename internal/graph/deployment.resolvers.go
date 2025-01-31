@@ -2,7 +2,6 @@ package graph
 
 import (
 	"context"
-	"log"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/deployment"
@@ -10,39 +9,45 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
 )
 
-func (r *applicationResolver) DeploymentInfo(ctx context.Context, obj *application.Application) (*deployment.DeploymentInfo, error) {
-	return deployment.InfoForWorkload(ctx, obj)
-}
-
-func (r *deploymentResolver) Team(ctx context.Context, obj *deployment.Deployment) (*team.Team, error) {
-	return team.Get(ctx, obj.TeamSlug)
-}
-
-func (r *deploymentResolver) Environment(ctx context.Context, obj *deployment.Deployment) (*team.TeamEnvironment, error) {
-	env, err := team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
-	if err != nil {
-		log.Println(err, obj.TeamSlug, obj.EnvironmentName)
-		return nil, err
-	}
-
-	return env, nil
-}
-
-func (r *deploymentInfoResolver) History(ctx context.Context, obj *deployment.DeploymentInfo, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error) {
+func (r *applicationResolver) Deployments(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	return deployment.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadName, obj.WorkloadType, page)
+	return deployment.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, workload.TypeApplication, page)
 }
 
-func (r *jobResolver) DeploymentInfo(ctx context.Context, obj *job.Job) (*deployment.DeploymentInfo, error) {
-	return deployment.InfoForWorkload(ctx, obj)
+func (r *deploymentResolver) Resources(ctx context.Context, obj *deployment.Deployment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.DeploymentResource], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return deployment.ListResourcesForDeployment(ctx, obj.UUID, page)
+}
+
+func (r *deploymentResolver) Statuses(ctx context.Context, obj *deployment.Deployment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.DeploymentStatus], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return deployment.ListStatusesForDeployment(ctx, obj.UUID, page)
+}
+
+func (r *jobResolver) Deployments(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return deployment.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, workload.TypeJob, page)
 }
 
 func (r *mutationResolver) ChangeDeploymentKey(ctx context.Context, input deployment.ChangeDeploymentKeyInput) (*deployment.ChangeDeploymentKeyPayload, error) {
@@ -77,9 +82,4 @@ func (r *teamResolver) Deployments(ctx context.Context, obj *team.Team, first *i
 
 func (r *Resolver) Deployment() gengql.DeploymentResolver { return &deploymentResolver{r} }
 
-func (r *Resolver) DeploymentInfo() gengql.DeploymentInfoResolver { return &deploymentInfoResolver{r} }
-
-type (
-	deploymentResolver     struct{ *Resolver }
-	deploymentInfoResolver struct{ *Resolver }
-)
+type deploymentResolver struct{ *Resolver }
