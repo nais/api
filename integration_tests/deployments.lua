@@ -314,3 +314,50 @@ Test.gql("application with no deployments", function(t)
 		},
 	}
 end)
+
+Helper.SQLExec([[
+	INSERT INTO deployments (team_slug, repository, environment_name)
+	VALUES ('slug-1', 'org/repo', 'dev')
+]])
+
+Test.gql("team deployment without resources and statuses", function(t)
+	t.query([[
+		{
+			team(slug: "slug-1") {
+				deployments(first: 1) {
+					nodes {
+						id
+						resources {
+							nodes {
+								id
+							}
+						}
+						statuses {
+							nodes {
+								id
+							}
+						}
+						environmentName
+					}
+				}
+			}
+		}
+	]])
+
+	t.check {
+		data = {
+			team = {
+				deployments = {
+					nodes = {
+						{
+							id = NotNull(),
+							resources = { nodes = {} },
+							statuses = { nodes = {} },
+							environmentName = "dev",
+						},
+					},
+				},
+			},
+		},
+	}
+end)

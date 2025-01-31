@@ -71,7 +71,9 @@ func ListStatusesForDeployment(ctx context.Context, deploymentID uuid.UUID, page
 	}
 
 	total, err := fromContext(ctx).deploymentStatusForDeploymentCountLoader.Load(ctx, deploymentID)
-	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+	if errors.Is(err, pgx.ErrNoRows) {
+		total = &deploymentStatusForDeploymentCount{}
+	} else if err != nil {
 		return nil, err
 	}
 
