@@ -137,6 +137,8 @@ func (s *Server) CreateDeploymentK8SResource(ctx context.Context, req *protoapi.
 func (s *Server) CreateDeploymentStatus(ctx context.Context, req *protoapi.CreateDeploymentStatusRequest) (*protoapi.CreateDeploymentStatusResponse, error) {
 	if req.GetMessage() == "" {
 		return nil, status.Errorf(codes.InvalidArgument, "message is required")
+	} else if !req.HasState() {
+		return nil, status.Errorf(codes.InvalidArgument, "state is required")
 	}
 
 	var uid uuid.UUID
