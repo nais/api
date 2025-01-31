@@ -35,7 +35,7 @@ func TestDeploymentServer_CreateDeployment(t *testing.T) {
 
 	t.Run("team not found", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
-		resp, err := grpcdeployment.NewServer(pool).CreateDeployment(ctx, &protoapi.CreateDeploymentRequest{
+		resp, err := grpcdeployment.NewServer(pool, nil).CreateDeployment(ctx, &protoapi.CreateDeploymentRequest{
 			TeamSlug: ptr.To("team-does-not-exist"),
 		})
 		if resp != nil {
@@ -57,7 +57,7 @@ func TestDeploymentServer_CreateDeployment(t *testing.T) {
 			t.Fatalf("failed to insert team: %v", err)
 		}
 
-		resp, err := grpcdeployment.NewServer(pool).CreateDeployment(ctx, &protoapi.CreateDeploymentRequest{
+		resp, err := grpcdeployment.NewServer(pool, nil).CreateDeployment(ctx, &protoapi.CreateDeploymentRequest{
 			TeamSlug: &teamSlug,
 		})
 		if resp != nil {
@@ -74,6 +74,7 @@ func TestDeploymentServer_CreateDeployment(t *testing.T) {
 	t.Run("only required", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
 		environmentName, teamSlug := "prod", "my-team"
+		expectedEnvironmentName := "prod-gcp"
 		stmt := `
 			INSERT INTO teams (slug, purpose, slack_channel) VALUES
 			($1, $2, $3)`
@@ -81,7 +82,7 @@ func TestDeploymentServer_CreateDeployment(t *testing.T) {
 			t.Fatalf("failed to insert team: %v", err)
 		}
 
-		resp, err := grpcdeployment.NewServer(pool).CreateDeployment(ctx, &protoapi.CreateDeploymentRequest{
+		resp, err := grpcdeployment.NewServer(pool, map[string]string{environmentName: expectedEnvironmentName}).CreateDeployment(ctx, &protoapi.CreateDeploymentRequest{
 			TeamSlug:        &teamSlug,
 			EnvironmentName: &environmentName,
 		})
@@ -129,8 +130,8 @@ func TestDeploymentServer_CreateDeployment(t *testing.T) {
 			t.Errorf("expected trigger URL to be nil, got %q", *d.TriggerUrl)
 		}
 
-		if d.EnvironmentName != environmentName {
-			t.Errorf("expected environment name to be %q, got %q", environmentName, d.EnvironmentName)
+		if d.EnvironmentName != expectedEnvironmentName {
+			t.Errorf("expected environment name to be %q, got %q", expectedEnvironmentName, d.EnvironmentName)
 		}
 	})
 
@@ -153,7 +154,7 @@ func TestDeploymentServer_CreateDeployment(t *testing.T) {
 			t.Fatalf("failed to insert team: %v", err)
 		}
 
-		resp, err := grpcdeployment.NewServer(pool).CreateDeployment(ctx, &protoapi.CreateDeploymentRequest{
+		resp, err := grpcdeployment.NewServer(pool, nil).CreateDeployment(ctx, &protoapi.CreateDeploymentRequest{
 			CreatedAt:        timestamppb.New(createdAt),
 			ExternalId:       &externalID,
 			TeamSlug:         &teamSlug,

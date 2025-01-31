@@ -16,13 +16,15 @@ import (
 )
 
 type Server struct {
-	querier grpcdeploymentsql.Querier
+	querier                grpcdeploymentsql.Querier
+	mappedEnvironmentNames map[string]string
 	protoapi.UnimplementedDeploymentsServer
 }
 
-func NewServer(pool *pgxpool.Pool) *Server {
+func NewServer(pool *pgxpool.Pool, mappedEnvironmentNames map[string]string) *Server {
 	return &Server{
-		querier: grpcdeploymentsql.New(pool),
+		querier:                grpcdeploymentsql.New(pool),
+		mappedEnvironmentNames: mappedEnvironmentNames,
 	}
 }
 
@@ -70,7 +72,7 @@ func (s *Server) CreateDeployment(ctx context.Context, req *protoapi.CreateDeplo
 		},
 		TeamSlug:         slug.Slug(req.GetTeamSlug()),
 		Repository:       repoName,
-		EnvironmentName:  req.GetEnvironmentName(),
+		EnvironmentName:  s.mapEnvironmentName(req.GetEnvironmentName()),
 		CommitSha:        commitSha,
 		DeployerUsername: deployerUsername,
 		TriggerUrl:       triggerUrl,
@@ -190,4 +192,16 @@ func toSQLStateEnum(gs protoapi.DeploymentState) (grpcdeploymentsql.DeploymentSt
 	}
 
 	return mapped, true
+}
+
+func (s *Server) mapEnvironmentName(name string) string {
+	if s.mappedEnvironmentNames == nil {
+		return name
+	}
+
+	if mapped, ok := s.mappedEnvironmentNames[name]; ok {
+		return mapped
+	}
+
+	return name
 }
