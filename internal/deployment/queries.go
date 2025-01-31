@@ -2,9 +2,11 @@ package deployment
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/deployment/deploymentsql"
@@ -69,7 +71,7 @@ func ListStatusesForDeployment(ctx context.Context, deploymentID uuid.UUID, page
 	}
 
 	total, err := fromContext(ctx).deploymentStatusForDeploymentCountLoader.Load(ctx, deploymentID)
-	if err != nil {
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return nil, err
 	}
 
