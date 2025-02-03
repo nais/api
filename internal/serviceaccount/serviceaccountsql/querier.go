@@ -9,13 +9,14 @@ import (
 )
 
 type Querier interface {
+	Count(ctx context.Context) (int64, error)
 	Create(ctx context.Context, name string) (*ServiceAccount, error)
-	CreateAPIKey(ctx context.Context, arg CreateAPIKeyParams) error
+	CreateToken(ctx context.Context, arg CreateTokenParams) error
 	Delete(ctx context.Context, id uuid.UUID) error
-	GetByApiKey(ctx context.Context, apiKey string) (*ServiceAccount, error)
 	GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccount, error)
 	GetByName(ctx context.Context, name string) (*ServiceAccount, error)
-	List(ctx context.Context) ([]*ServiceAccount, error)
+	GetByToken(ctx context.Context, token string) (*ServiceAccount, error)
+	List(ctx context.Context, arg ListParams) ([]*ServiceAccount, error)
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
 }
 

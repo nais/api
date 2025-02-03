@@ -7,7 +7,22 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const count = `-- name: Count :one
+SELECT
+	COUNT(*)
+FROM
+	service_accounts
+`
+
+func (q *Queries) Count(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, count)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
 
 const create = `-- name: Create :one
 INSERT INTO
@@ -15,30 +30,43 @@ INSERT INTO
 VALUES
 	($1)
 RETURNING
-	id, name
+	id, created_at, name, description, team_slug
 `
 
 func (q *Queries) Create(ctx context.Context, name string) (*ServiceAccount, error) {
 	row := q.db.QueryRow(ctx, create, name)
 	var i ServiceAccount
-	err := row.Scan(&i.ID, &i.Name)
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.Name,
+		&i.Description,
+		&i.TeamSlug,
+	)
 	return &i, err
 }
 
-const createAPIKey = `-- name: CreateAPIKey :exec
+const createToken = `-- name: CreateToken :exec
 INSERT INTO
-	api_keys (api_key, service_account_id)
+	service_account_tokens (expires_at, note, token, service_account_id)
 VALUES
-	($1, $2)
+	($1, $2, $3, $4)
 `
 
-type CreateAPIKeyParams struct {
-	ApiKey           string
+type CreateTokenParams struct {
+	ExpiresAt        pgtype.Date
+	Note             string
+	Token            string
 	ServiceAccountID uuid.UUID
 }
 
-func (q *Queries) CreateAPIKey(ctx context.Context, arg CreateAPIKeyParams) error {
-	_, err := q.db.Exec(ctx, createAPIKey, arg.ApiKey, arg.ServiceAccountID)
+func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) error {
+	_, err := q.db.Exec(ctx, createToken,
+		arg.ExpiresAt,
+		arg.Note,
+		arg.Token,
+		arg.ServiceAccountID,
+	)
 	return err
 }
 
@@ -53,26 +81,9 @@ func (q *Queries) Delete(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
-const getByApiKey = `-- name: GetByApiKey :one
-SELECT
-	service_accounts.id, service_accounts.name
-FROM
-	api_keys
-	JOIN service_accounts ON service_accounts.id = api_keys.service_account_id
-WHERE
-	api_keys.api_key = $1
-`
-
-func (q *Queries) GetByApiKey(ctx context.Context, apiKey string) (*ServiceAccount, error) {
-	row := q.db.QueryRow(ctx, getByApiKey, apiKey)
-	var i ServiceAccount
-	err := row.Scan(&i.ID, &i.Name)
-	return &i, err
-}
-
 const getByIDs = `-- name: GetByIDs :many
 SELECT
-	id, name
+	id, created_at, name, description, team_slug
 FROM
 	service_accounts
 WHERE
@@ -90,7 +101,13 @@ func (q *Queries) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAcco
 	items := []*ServiceAccount{}
 	for rows.Next() {
 		var i ServiceAccount
-		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.Name,
+			&i.Description,
+			&i.TeamSlug,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, &i)
@@ -103,7 +120,7 @@ func (q *Queries) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAcco
 
 const getByName = `-- name: GetByName :one
 SELECT
-	id, name
+	id, created_at, name, description, team_slug
 FROM
 	service_accounts
 WHERE
@@ -113,21 +130,59 @@ WHERE
 func (q *Queries) GetByName(ctx context.Context, name string) (*ServiceAccount, error) {
 	row := q.db.QueryRow(ctx, getByName, name)
 	var i ServiceAccount
-	err := row.Scan(&i.ID, &i.Name)
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.Name,
+		&i.Description,
+		&i.TeamSlug,
+	)
+	return &i, err
+}
+
+const getByToken = `-- name: GetByToken :one
+SELECT
+	service_accounts.id, service_accounts.created_at, service_accounts.name, service_accounts.description, service_accounts.team_slug
+FROM
+	service_account_tokens
+	JOIN service_accounts ON service_accounts.id = service_account_tokens.service_account_id
+WHERE
+	service_account_tokens.token = $1
+`
+
+func (q *Queries) GetByToken(ctx context.Context, token string) (*ServiceAccount, error) {
+	row := q.db.QueryRow(ctx, getByToken, token)
+	var i ServiceAccount
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.Name,
+		&i.Description,
+		&i.TeamSlug,
+	)
 	return &i, err
 }
 
 const list = `-- name: List :many
 SELECT
-	id, name
+	id, created_at, name, description, team_slug
 FROM
 	service_accounts
 ORDER BY
 	name ASC
+LIMIT
+	$2
+OFFSET
+	$1
 `
 
-func (q *Queries) List(ctx context.Context) ([]*ServiceAccount, error) {
-	rows, err := q.db.Query(ctx, list)
+type ListParams struct {
+	Offset int32
+	Limit  int32
+}
+
+func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ServiceAccount, error) {
+	rows, err := q.db.Query(ctx, list, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +190,13 @@ func (q *Queries) List(ctx context.Context) ([]*ServiceAccount, error) {
 	items := []*ServiceAccount{}
 	for rows.Next() {
 		var i ServiceAccount
-		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.Name,
+			&i.Description,
+			&i.TeamSlug,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, &i)
@@ -147,7 +208,7 @@ func (q *Queries) List(ctx context.Context) ([]*ServiceAccount, error) {
 }
 
 const removeApiKeysFromServiceAccount = `-- name: RemoveApiKeysFromServiceAccount :exec
-DELETE FROM api_keys
+DELETE FROM service_account_tokens
 WHERE
 	service_account_id = $1
 `

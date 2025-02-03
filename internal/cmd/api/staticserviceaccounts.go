@@ -9,9 +9,11 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/role/rolesql"
 	"github.com/nais/api/internal/serviceaccount"
+	"k8s.io/utils/ptr"
 )
 
 type StaticServiceAccount struct {
@@ -102,18 +104,23 @@ func setupStaticServiceAccounts(ctx context.Context, pool *pgxpool.Pool, service
 				}
 			}
 
-			if err := serviceaccount.CreateAPIKey(ctx, serviceAccountFromInput.APIKey, sa.UUID); err != nil {
+			if err := serviceaccount.CreateToken(ctx, serviceAccountFromInput.APIKey, sa.UUID); err != nil {
 				return err
 			}
 		}
 
-		// remove all NAIS service accounts that is not present in the JSON input
-		all, err := serviceaccount.List(ctx)
+		page, err := pagination.ParsePage(ptr.To(4000), nil, nil, nil)
 		if err != nil {
 			return err
 		}
 
-		for _, sa := range all {
+		// remove all NAIS service accounts that is not present in the JSON input
+		all, err := serviceaccount.List(ctx, page)
+		if err != nil {
+			return err
+		}
+
+		for _, sa := range all.Nodes() {
 			if !strings.HasPrefix(sa.Name, naisServiceAccountPrefix) {
 				continue
 			}

@@ -2,9 +2,9 @@ package serviceaccount
 
 import (
 	"context"
-
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/serviceaccount/serviceaccountsql"
 )
 
@@ -16,8 +16,8 @@ func Get(ctx context.Context, serviceAccountID uuid.UUID) (*ServiceAccount, erro
 	return sa, nil
 }
 
-func GetByApiKey(ctx context.Context, apiKey string) (*ServiceAccount, error) {
-	sa, err := db(ctx).GetByApiKey(ctx, apiKey)
+func GetByToken(ctx context.Context, token string) (*ServiceAccount, error) {
+	sa, err := db(ctx).GetByToken(ctx, token)
 	if err != nil {
 		return nil, err
 	}
@@ -55,25 +55,31 @@ func RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.
 	return db(ctx).RemoveApiKeysFromServiceAccount(ctx, serviceAccountID)
 }
 
-func CreateAPIKey(ctx context.Context, apiKey string, serviceAccountID uuid.UUID) error {
-	return db(ctx).CreateAPIKey(ctx, serviceaccountsql.CreateAPIKeyParams{
-		ApiKey:           apiKey,
+func CreateToken(ctx context.Context, token string, serviceAccountID uuid.UUID) error {
+	return db(ctx).CreateToken(ctx, serviceaccountsql.CreateTokenParams{
+		// ExpiresAt: ...,
+		Note:             "some note",
+		Token:            token,
 		ServiceAccountID: serviceAccountID,
 	})
 }
 
-func List(ctx context.Context) ([]*ServiceAccount, error) {
-	rows, err := db(ctx).List(ctx)
+func List(ctx context.Context, page *pagination.Pagination) (*ServiceAccountConnection, error) {
+	q := db(ctx)
+
+	ret, err := q.List(ctx, serviceaccountsql.ListParams{
+		Offset: page.Offset(),
+		Limit:  page.Limit(),
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	ret := make([]*ServiceAccount, len(rows))
-	for i, row := range rows {
-		ret[i] = toGraphServiceAccount(row)
+	total, err := q.Count(ctx)
+	if err != nil {
+		return nil, err
 	}
-
-	return ret, nil
+	return pagination.NewConvertConnection(ret, page, total, toGraphServiceAccount), nil
 }
 
 func Delete(ctx context.Context, id uuid.UUID) error {

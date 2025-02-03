@@ -21,7 +21,7 @@ func ApiKeyAuthentication() func(next http.Handler) http.Handler {
 			}
 
 			ctx := r.Context()
-			sa, err := serviceaccount.GetByApiKey(ctx, authHeader[7:])
+			sa, err := serviceaccount.GetByToken(ctx, authHeader[7:])
 			if err != nil {
 				next.ServeHTTP(w, r)
 				return

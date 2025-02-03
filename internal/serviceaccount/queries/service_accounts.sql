@@ -5,16 +5,27 @@ FROM
 	service_accounts
 ORDER BY
 	name ASC
+LIMIT
+	sqlc.arg('limit')
+OFFSET
+	sqlc.arg('offset')
 ;
 
--- name: GetByApiKey :one
+-- name: Count :one
+SELECT
+	COUNT(*)
+FROM
+	service_accounts
+;
+
+-- name: GetByToken :one
 SELECT
 	service_accounts.*
 FROM
-	api_keys
-	JOIN service_accounts ON service_accounts.id = api_keys.service_account_id
+	service_account_tokens
+	JOIN service_accounts ON service_accounts.id = service_account_tokens.service_account_id
 WHERE
-	api_keys.api_key = @api_key
+	service_account_tokens.token = @token
 ;
 
 -- name: GetByName :one
@@ -36,16 +47,16 @@ RETURNING
 ;
 
 -- name: RemoveApiKeysFromServiceAccount :exec
-DELETE FROM api_keys
+DELETE FROM service_account_tokens
 WHERE
 	service_account_id = @service_account_id
 ;
 
--- name: CreateAPIKey :exec
+-- name: CreateToken :exec
 INSERT INTO
-	api_keys (api_key, service_account_id)
+	service_account_tokens (expires_at, note, token, service_account_id)
 VALUES
-	(@api_key, @service_account_id)
+	(@expires_at, @note, @token, @service_account_id)
 ;
 
 -- name: Delete :exec
