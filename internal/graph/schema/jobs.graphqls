@@ -125,9 +125,9 @@ enum TriggerType {
 	MANUAL
 }
 
-type Trigger {
+type JobRunTrigger {
 	"The type of trigger that started the job."
-	type: TriggerType!
+	type: JobRunTriggerType!
 
 	"The actor/user who triggered the job run manually, if applicable."
 	actor: String
@@ -170,7 +170,7 @@ type JobRun implements Node {
 		before: Cursor
 	): JobRunInstanceConnection!
 
-	trigger: Trigger!
+	trigger: JobRunTrigger!
 }
 
 type JobRunInstance implements Node {
