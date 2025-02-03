@@ -118,6 +118,21 @@ type JobResources implements WorkloadResources {
 	requests: WorkloadResourceQuantity!
 }
 
+enum TriggerType {
+	# Triggered by a cron job or schedule
+	AUTOMATIC
+	# Triggered by a user
+	MANUAL
+}
+
+type Trigger {
+	"The type of trigger that started the job."
+	type: TriggerType!
+
+	"The actor/user who triggered the job run manually, if applicable."
+	actor: String
+}
+
 type JobRun implements Node {
 	"The globally unique ID of the job run."
 	id: ID!
@@ -154,6 +169,8 @@ type JobRun implements Node {
 		"Get items before this cursor."
 		before: Cursor
 	): JobRunInstanceConnection!
+
+	trigger: Trigger!
 }
 
 type JobRunInstance implements Node {
