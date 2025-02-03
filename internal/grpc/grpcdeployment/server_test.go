@@ -478,6 +478,42 @@ func TestDeploymentServer_CreateDeploymentK8SResource(t *testing.T) {
 			t.Fatalf("expected error to contain %q, got %q", contains, e)
 		}
 	})
+
+	t.Run("allow empty group", func(t *testing.T) {
+		pool := getConnection(ctx, t, container, dsn, log)
+
+		stmt := `
+			INSERT INTO teams (slug, purpose, slack_channel) VALUES
+			($1, $2, $3)`
+		if _, err = pool.Exec(ctx, stmt, "my-team", "my-purpose", "#channel"); err != nil {
+			t.Fatalf("failed to insert team: %v", err)
+		}
+
+		deploymentResp, err := grpcdeployment.NewServer(pool, nil).CreateDeployment(ctx, &protoapi.CreateDeploymentRequest{
+			TeamSlug:        ptr.To("my-team"),
+			EnvironmentName: ptr.To("prod"),
+		})
+		if err != nil {
+			t.Fatalf("failed to create deployment: %v", err)
+		}
+
+		resourceResp, err := grpcdeployment.NewServer(pool, nil).CreateDeploymentK8SResource(ctx, &protoapi.CreateDeploymentK8SResourceRequest{
+			Group:     ptr.To(""),
+			Version:   ptr.To("version"),
+			Kind:      ptr.To("kind"),
+			Name:      ptr.To("name"),
+			Namespace: ptr.To("namespace"),
+			Reference: &protoapi.CreateDeploymentK8SResourceRequest_DeploymentId{
+				DeploymentId: *deploymentResp.Id,
+			},
+		})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if resourceResp.Id == nil {
+			t.Fatalf("expected response to have ID")
+		}
+	})
 }
 
 func TestDeploymentServer_CreateDeploymentStatus(t *testing.T) {

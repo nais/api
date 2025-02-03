@@ -88,7 +88,7 @@ func (s *Server) CreateDeployment(ctx context.Context, req *protoapi.CreateDeplo
 
 func (s *Server) CreateDeploymentK8SResource(ctx context.Context, req *protoapi.CreateDeploymentK8SResourceRequest) (*protoapi.CreateDeploymentK8SResourceResponse, error) {
 	switch {
-	case req.GetGroup() == "":
+	case !req.HasGroup():
 		return nil, status.Errorf(codes.InvalidArgument, "group is required")
 	case req.GetVersion() == "":
 		return nil, status.Errorf(codes.InvalidArgument, "version is required")
