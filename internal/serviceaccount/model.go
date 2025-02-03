@@ -1,14 +1,26 @@
 package serviceaccount
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/serviceaccount/serviceaccountsql"
+	"github.com/nais/api/internal/slug"
+)
+
+type (
+	ServiceAccountConnection = pagination.Connection[*ServiceAccount]
+	ServiceAccountEdge       = pagination.Edge[*ServiceAccount]
 )
 
 type ServiceAccount struct {
-	UUID uuid.UUID `json:"-"`
-	Name string    `json:"name"`
+	UUID        uuid.UUID `json:"-"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
+	TeamSlug    slug.Slug `json:"-"`
 }
 
 func (ServiceAccount) IsNode()                   {}
