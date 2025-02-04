@@ -60,7 +60,7 @@ func (b *BigQueryDataset) DeepCopyObject() runtime.Object {
 }
 
 func (b BigQueryDataset) ID() ident.Ident {
-	return newIdent(b.TeamSlug, b.EnvironmentName, b.Name)
+	return newIdent(b.TeamSlug, b.EnvironmentName, b.K8sResourceName)
 }
 
 type BigQueryDatasetAccess struct {
