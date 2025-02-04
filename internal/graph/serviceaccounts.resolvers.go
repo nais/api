@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
@@ -12,7 +13,7 @@ import (
 	"github.com/nais/api/internal/team"
 )
 
-func (r *mutationResolver) CreateServiceAccount(ctx context.Context, input serviceaccount.CreateServiceAccountInput) (*serviceaccount.ServiceAccount, error) {
+func (r *mutationResolver) CreateServiceAccount(ctx context.Context, input serviceaccount.CreateServiceAccountInput) (*serviceaccount.CreateServiceAccountPayload, error) {
 	actor := authz.ActorFromContext(ctx)
 
 	if input.TeamSlug == nil {
@@ -27,7 +28,40 @@ func (r *mutationResolver) CreateServiceAccount(ctx context.Context, input servi
 		}
 	}
 
-	return serviceaccount.Create(ctx, input)
+	sa, err := serviceaccount.Create(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return &serviceaccount.CreateServiceAccountPayload{ServiceAccount: sa}, nil
+}
+
+func (r *mutationResolver) UpdateServiceAccount(ctx context.Context, input serviceaccount.UpdateServiceAccountInput) (*serviceaccount.UpdateServiceAccountPayload, error) {
+	panic(fmt.Errorf("not implemented: UpdateServiceAccount - updateServiceAccount"))
+}
+
+func (r *mutationResolver) DeleteServiceAccount(ctx context.Context, input serviceaccount.DeleteServiceAccountInput) (*serviceaccount.DeleteServiceAccountPayload, error) {
+	panic(fmt.Errorf("not implemented: DeleteServiceAccount - deleteServiceAccount"))
+}
+
+func (r *mutationResolver) AddRoleToServiceAccount(ctx context.Context, input serviceaccount.AddRoleToServiceAccountInput) (*serviceaccount.AddRoleToServiceAccountPayload, error) {
+	panic(fmt.Errorf("not implemented: AddRoleToServiceAccount - addRoleToServiceAccount"))
+}
+
+func (r *mutationResolver) RemoveRoleFromServiceAccount(ctx context.Context, input serviceaccount.RemoveRoleFromServiceAccountInput) (*serviceaccount.RemoveRoleFromServiceAccountPayload, error) {
+	panic(fmt.Errorf("not implemented: RemoveRoleFromServiceAccount - removeRoleFromServiceAccount"))
+}
+
+func (r *mutationResolver) CreateServiceAccountToken(ctx context.Context, input serviceaccount.CreateServiceAccountTokenInput) (*serviceaccount.CreateServiceAccountTokenPayload, error) {
+	panic(fmt.Errorf("not implemented: CreateServiceAccountToken - createServiceAccountToken"))
+}
+
+func (r *mutationResolver) UpdateServiceAccountToken(ctx context.Context, input serviceaccount.UpdateServiceAccountTokenInput) (*serviceaccount.UpdateServiceAccountTokenPayload, error) {
+	panic(fmt.Errorf("not implemented: UpdateServiceAccountToken - updateServiceAccountToken"))
+}
+
+func (r *mutationResolver) DeleteServiceAccountToken(ctx context.Context, input serviceaccount.DeleteServiceAccountTokenInput) (*serviceaccount.DeleteServiceAccountTokenPayload, error) {
+	panic(fmt.Errorf("not implemented: DeleteServiceAccountToken - deleteServiceAccountToken"))
 }
 
 func (r *queryResolver) ServiceAccounts(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*serviceaccount.ServiceAccount], error) {

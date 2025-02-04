@@ -151,6 +151,10 @@ type ComplexityRoot struct {
 		Repository func(childComplexity int) int
 	}
 
+	AddRoleToServiceAccountPayload struct {
+		ServiceAccount func(childComplexity int) int
+	}
+
 	AddSecretValuePayload struct {
 		Secret func(childComplexity int) int
 	}
@@ -386,6 +390,15 @@ type ComplexityRoot struct {
 		Secret func(childComplexity int) int
 	}
 
+	CreateServiceAccountPayload struct {
+		ServiceAccount func(childComplexity int) int
+	}
+
+	CreateServiceAccountTokenPayload struct {
+		ServiceAccountToken func(childComplexity int) int
+		Token               func(childComplexity int) int
+	}
+
 	CreateTeamPayload struct {
 		Team func(childComplexity int) int
 	}
@@ -406,6 +419,14 @@ type ComplexityRoot struct {
 
 	DeleteSecretPayload struct {
 		SecretDeleted func(childComplexity int) int
+	}
+
+	DeleteServiceAccountPayload struct {
+		ServiceAccountDeleted func(childComplexity int) int
+	}
+
+	DeleteServiceAccountTokenPayload struct {
+		ServiceAccountTokenDeleted func(childComplexity int) int
 	}
 
 	Deployment struct {
@@ -775,34 +796,41 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AddRepositoryToTeam       func(childComplexity int, input repository.AddRepositoryToTeamInput) int
-		AddSecretValue            func(childComplexity int, input secret.AddSecretValueInput) int
-		AddTeamMember             func(childComplexity int, input team.AddTeamMemberInput) int
-		AllowTeamAccessToUnleash  func(childComplexity int, input unleash.AllowTeamAccessToUnleashInput) int
-		ChangeDeploymentKey       func(childComplexity int, input deployment.ChangeDeploymentKeyInput) int
-		ConfigureReconciler       func(childComplexity int, input reconciler.ConfigureReconcilerInput) int
-		ConfirmTeamDeletion       func(childComplexity int, input team.ConfirmTeamDeletionInput) int
-		CreateSecret              func(childComplexity int, input secret.CreateSecretInput) int
-		CreateServiceAccount      func(childComplexity int, input serviceaccount.CreateServiceAccountInput) int
-		CreateTeam                func(childComplexity int, input team.CreateTeamInput) int
-		CreateUnleashForTeam      func(childComplexity int, input unleash.CreateUnleashForTeamInput) int
-		DeleteApplication         func(childComplexity int, input application.DeleteApplicationInput) int
-		DeleteJob                 func(childComplexity int, input job.DeleteJobInput) int
-		DeleteSecret              func(childComplexity int, input secret.DeleteSecretInput) int
-		DisableReconciler         func(childComplexity int, input reconciler.DisableReconcilerInput) int
-		EnableReconciler          func(childComplexity int, input reconciler.EnableReconcilerInput) int
-		RemoveRepositoryFromTeam  func(childComplexity int, input repository.RemoveRepositoryFromTeamInput) int
-		RemoveSecretValue         func(childComplexity int, input secret.RemoveSecretValueInput) int
-		RemoveTeamMember          func(childComplexity int, input team.RemoveTeamMemberInput) int
-		RequestTeamDeletion       func(childComplexity int, input team.RequestTeamDeletionInput) int
-		RestartApplication        func(childComplexity int, input application.RestartApplicationInput) int
-		RevokeTeamAccessToUnleash func(childComplexity int, input unleash.RevokeTeamAccessToUnleashInput) int
-		SetTeamMemberRole         func(childComplexity int, input team.SetTeamMemberRoleInput) int
-		TriggerJob                func(childComplexity int, input job.TriggerJobInput) int
-		UpdateImageVulnerability  func(childComplexity int, input vulnerability.UpdateImageVulnerabilityInput) int
-		UpdateSecretValue         func(childComplexity int, input secret.UpdateSecretValueInput) int
-		UpdateTeam                func(childComplexity int, input team.UpdateTeamInput) int
-		UpdateTeamEnvironment     func(childComplexity int, input team.UpdateTeamEnvironmentInput) int
+		AddRepositoryToTeam          func(childComplexity int, input repository.AddRepositoryToTeamInput) int
+		AddRoleToServiceAccount      func(childComplexity int, input serviceaccount.AddRoleToServiceAccountInput) int
+		AddSecretValue               func(childComplexity int, input secret.AddSecretValueInput) int
+		AddTeamMember                func(childComplexity int, input team.AddTeamMemberInput) int
+		AllowTeamAccessToUnleash     func(childComplexity int, input unleash.AllowTeamAccessToUnleashInput) int
+		ChangeDeploymentKey          func(childComplexity int, input deployment.ChangeDeploymentKeyInput) int
+		ConfigureReconciler          func(childComplexity int, input reconciler.ConfigureReconcilerInput) int
+		ConfirmTeamDeletion          func(childComplexity int, input team.ConfirmTeamDeletionInput) int
+		CreateSecret                 func(childComplexity int, input secret.CreateSecretInput) int
+		CreateServiceAccount         func(childComplexity int, input serviceaccount.CreateServiceAccountInput) int
+		CreateServiceAccountToken    func(childComplexity int, input serviceaccount.CreateServiceAccountTokenInput) int
+		CreateTeam                   func(childComplexity int, input team.CreateTeamInput) int
+		CreateUnleashForTeam         func(childComplexity int, input unleash.CreateUnleashForTeamInput) int
+		DeleteApplication            func(childComplexity int, input application.DeleteApplicationInput) int
+		DeleteJob                    func(childComplexity int, input job.DeleteJobInput) int
+		DeleteSecret                 func(childComplexity int, input secret.DeleteSecretInput) int
+		DeleteServiceAccount         func(childComplexity int, input serviceaccount.DeleteServiceAccountInput) int
+		DeleteServiceAccountToken    func(childComplexity int, input serviceaccount.DeleteServiceAccountTokenInput) int
+		DisableReconciler            func(childComplexity int, input reconciler.DisableReconcilerInput) int
+		EnableReconciler             func(childComplexity int, input reconciler.EnableReconcilerInput) int
+		RemoveRepositoryFromTeam     func(childComplexity int, input repository.RemoveRepositoryFromTeamInput) int
+		RemoveRoleFromServiceAccount func(childComplexity int, input serviceaccount.RemoveRoleFromServiceAccountInput) int
+		RemoveSecretValue            func(childComplexity int, input secret.RemoveSecretValueInput) int
+		RemoveTeamMember             func(childComplexity int, input team.RemoveTeamMemberInput) int
+		RequestTeamDeletion          func(childComplexity int, input team.RequestTeamDeletionInput) int
+		RestartApplication           func(childComplexity int, input application.RestartApplicationInput) int
+		RevokeTeamAccessToUnleash    func(childComplexity int, input unleash.RevokeTeamAccessToUnleashInput) int
+		SetTeamMemberRole            func(childComplexity int, input team.SetTeamMemberRoleInput) int
+		TriggerJob                   func(childComplexity int, input job.TriggerJobInput) int
+		UpdateImageVulnerability     func(childComplexity int, input vulnerability.UpdateImageVulnerabilityInput) int
+		UpdateSecretValue            func(childComplexity int, input secret.UpdateSecretValueInput) int
+		UpdateServiceAccount         func(childComplexity int, input serviceaccount.UpdateServiceAccountInput) int
+		UpdateServiceAccountToken    func(childComplexity int, input serviceaccount.UpdateServiceAccountTokenInput) int
+		UpdateTeam                   func(childComplexity int, input team.UpdateTeamInput) int
+		UpdateTeamEnvironment        func(childComplexity int, input team.UpdateTeamEnvironmentInput) int
 	}
 
 	NetworkPolicy struct {
@@ -1034,6 +1062,10 @@ type ComplexityRoot struct {
 		Success func(childComplexity int) int
 	}
 
+	RemoveRoleFromServiceAccountPayload struct {
+		ServiceAccount func(childComplexity int) int
+	}
+
 	RemoveSecretValuePayload struct {
 		Secret func(childComplexity int) int
 	}
@@ -1257,6 +1289,14 @@ type ComplexityRoot struct {
 	ServiceAccountEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	ServiceAccountToken struct {
+		CreatedAt func(childComplexity int) int
+		ExpiresAt func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Note      func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
 	}
 
 	ServiceCostSample struct {
@@ -1864,6 +1904,14 @@ type ComplexityRoot struct {
 		Secret func(childComplexity int) int
 	}
 
+	UpdateServiceAccountPayload struct {
+		ServiceAccount func(childComplexity int) int
+	}
+
+	UpdateServiceAccountTokenPayload struct {
+		ServiceAccountToken func(childComplexity int) int
+	}
+
 	UpdateTeamEnvironmentPayload struct {
 		Environment func(childComplexity int) int
 	}
@@ -2228,7 +2276,14 @@ type MutationResolver interface {
 	UpdateSecretValue(ctx context.Context, input secret.UpdateSecretValueInput) (*secret.UpdateSecretValuePayload, error)
 	RemoveSecretValue(ctx context.Context, input secret.RemoveSecretValueInput) (*secret.RemoveSecretValuePayload, error)
 	DeleteSecret(ctx context.Context, input secret.DeleteSecretInput) (*secret.DeleteSecretPayload, error)
-	CreateServiceAccount(ctx context.Context, input serviceaccount.CreateServiceAccountInput) (*serviceaccount.ServiceAccount, error)
+	CreateServiceAccount(ctx context.Context, input serviceaccount.CreateServiceAccountInput) (*serviceaccount.CreateServiceAccountPayload, error)
+	UpdateServiceAccount(ctx context.Context, input serviceaccount.UpdateServiceAccountInput) (*serviceaccount.UpdateServiceAccountPayload, error)
+	DeleteServiceAccount(ctx context.Context, input serviceaccount.DeleteServiceAccountInput) (*serviceaccount.DeleteServiceAccountPayload, error)
+	AddRoleToServiceAccount(ctx context.Context, input serviceaccount.AddRoleToServiceAccountInput) (*serviceaccount.AddRoleToServiceAccountPayload, error)
+	RemoveRoleFromServiceAccount(ctx context.Context, input serviceaccount.RemoveRoleFromServiceAccountInput) (*serviceaccount.RemoveRoleFromServiceAccountPayload, error)
+	CreateServiceAccountToken(ctx context.Context, input serviceaccount.CreateServiceAccountTokenInput) (*serviceaccount.CreateServiceAccountTokenPayload, error)
+	UpdateServiceAccountToken(ctx context.Context, input serviceaccount.UpdateServiceAccountTokenInput) (*serviceaccount.UpdateServiceAccountTokenPayload, error)
+	DeleteServiceAccountToken(ctx context.Context, input serviceaccount.DeleteServiceAccountTokenInput) (*serviceaccount.DeleteServiceAccountTokenPayload, error)
 	CreateTeam(ctx context.Context, input team.CreateTeamInput) (*team.CreateTeamPayload, error)
 	UpdateTeam(ctx context.Context, input team.UpdateTeamInput) (*team.UpdateTeamPayload, error)
 	UpdateTeamEnvironment(ctx context.Context, input team.UpdateTeamEnvironmentInput) (*team.UpdateTeamEnvironmentPayload, error)
@@ -2542,6 +2597,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AddRepositoryToTeamPayload.Repository(childComplexity), true
+
+	case "AddRoleToServiceAccountPayload.serviceAccount":
+		if e.complexity.AddRoleToServiceAccountPayload.ServiceAccount == nil {
+			break
+		}
+
+		return e.complexity.AddRoleToServiceAccountPayload.ServiceAccount(childComplexity), true
 
 	case "AddSecretValuePayload.secret":
 		if e.complexity.AddSecretValuePayload.Secret == nil {
@@ -3492,6 +3554,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CreateSecretPayload.Secret(childComplexity), true
 
+	case "CreateServiceAccountPayload.serviceAccount":
+		if e.complexity.CreateServiceAccountPayload.ServiceAccount == nil {
+			break
+		}
+
+		return e.complexity.CreateServiceAccountPayload.ServiceAccount(childComplexity), true
+
+	case "CreateServiceAccountTokenPayload.serviceAccountToken":
+		if e.complexity.CreateServiceAccountTokenPayload.ServiceAccountToken == nil {
+			break
+		}
+
+		return e.complexity.CreateServiceAccountTokenPayload.ServiceAccountToken(childComplexity), true
+
+	case "CreateServiceAccountTokenPayload.token":
+		if e.complexity.CreateServiceAccountTokenPayload.Token == nil {
+			break
+		}
+
+		return e.complexity.CreateServiceAccountTokenPayload.Token(childComplexity), true
+
 	case "CreateTeamPayload.team":
 		if e.complexity.CreateTeamPayload.Team == nil {
 			break
@@ -3540,6 +3623,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.DeleteSecretPayload.SecretDeleted(childComplexity), true
+
+	case "DeleteServiceAccountPayload.serviceAccountDeleted":
+		if e.complexity.DeleteServiceAccountPayload.ServiceAccountDeleted == nil {
+			break
+		}
+
+		return e.complexity.DeleteServiceAccountPayload.ServiceAccountDeleted(childComplexity), true
+
+	case "DeleteServiceAccountTokenPayload.serviceAccountTokenDeleted":
+		if e.complexity.DeleteServiceAccountTokenPayload.ServiceAccountTokenDeleted == nil {
+			break
+		}
+
+		return e.complexity.DeleteServiceAccountTokenPayload.ServiceAccountTokenDeleted(childComplexity), true
 
 	case "Deployment.commitSha":
 		if e.complexity.Deployment.CommitSha == nil {
@@ -5030,6 +5127,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.AddRepositoryToTeam(childComplexity, args["input"].(repository.AddRepositoryToTeamInput)), true
 
+	case "Mutation.addRoleToServiceAccount":
+		if e.complexity.Mutation.AddRoleToServiceAccount == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_addRoleToServiceAccount_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AddRoleToServiceAccount(childComplexity, args["input"].(serviceaccount.AddRoleToServiceAccountInput)), true
+
 	case "Mutation.addSecretValue":
 		if e.complexity.Mutation.AddSecretValue == nil {
 			break
@@ -5126,6 +5235,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateServiceAccount(childComplexity, args["input"].(serviceaccount.CreateServiceAccountInput)), true
 
+	case "Mutation.createServiceAccountToken":
+		if e.complexity.Mutation.CreateServiceAccountToken == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createServiceAccountToken_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateServiceAccountToken(childComplexity, args["input"].(serviceaccount.CreateServiceAccountTokenInput)), true
+
 	case "Mutation.createTeam":
 		if e.complexity.Mutation.CreateTeam == nil {
 			break
@@ -5186,6 +5307,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteSecret(childComplexity, args["input"].(secret.DeleteSecretInput)), true
 
+	case "Mutation.deleteServiceAccount":
+		if e.complexity.Mutation.DeleteServiceAccount == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteServiceAccount_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteServiceAccount(childComplexity, args["input"].(serviceaccount.DeleteServiceAccountInput)), true
+
+	case "Mutation.deleteServiceAccountToken":
+		if e.complexity.Mutation.DeleteServiceAccountToken == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteServiceAccountToken_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteServiceAccountToken(childComplexity, args["input"].(serviceaccount.DeleteServiceAccountTokenInput)), true
+
 	case "Mutation.disableReconciler":
 		if e.complexity.Mutation.DisableReconciler == nil {
 			break
@@ -5221,6 +5366,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.RemoveRepositoryFromTeam(childComplexity, args["input"].(repository.RemoveRepositoryFromTeamInput)), true
+
+	case "Mutation.removeRoleFromServiceAccount":
+		if e.complexity.Mutation.RemoveRoleFromServiceAccount == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_removeRoleFromServiceAccount_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RemoveRoleFromServiceAccount(childComplexity, args["input"].(serviceaccount.RemoveRoleFromServiceAccountInput)), true
 
 	case "Mutation.removeSecretValue":
 		if e.complexity.Mutation.RemoveSecretValue == nil {
@@ -5329,6 +5486,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateSecretValue(childComplexity, args["input"].(secret.UpdateSecretValueInput)), true
+
+	case "Mutation.updateServiceAccount":
+		if e.complexity.Mutation.UpdateServiceAccount == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateServiceAccount_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateServiceAccount(childComplexity, args["input"].(serviceaccount.UpdateServiceAccountInput)), true
+
+	case "Mutation.updateServiceAccountToken":
+		if e.complexity.Mutation.UpdateServiceAccountToken == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateServiceAccountToken_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateServiceAccountToken(childComplexity, args["input"].(serviceaccount.UpdateServiceAccountTokenInput)), true
 
 	case "Mutation.updateTeam":
 		if e.complexity.Mutation.UpdateTeam == nil {
@@ -6344,6 +6525,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RemoveRepositoryFromTeamPayload.Success(childComplexity), true
 
+	case "RemoveRoleFromServiceAccountPayload.serviceAccount":
+		if e.complexity.RemoveRoleFromServiceAccountPayload.ServiceAccount == nil {
+			break
+		}
+
+		return e.complexity.RemoveRoleFromServiceAccountPayload.ServiceAccount(childComplexity), true
+
 	case "RemoveSecretValuePayload.secret":
 		if e.complexity.RemoveSecretValuePayload.Secret == nil {
 			break
@@ -7261,6 +7449,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ServiceAccountEdge.Node(childComplexity), true
+
+	case "ServiceAccountToken.createdAt":
+		if e.complexity.ServiceAccountToken.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.ServiceAccountToken.CreatedAt(childComplexity), true
+
+	case "ServiceAccountToken.expiresAt":
+		if e.complexity.ServiceAccountToken.ExpiresAt == nil {
+			break
+		}
+
+		return e.complexity.ServiceAccountToken.ExpiresAt(childComplexity), true
+
+	case "ServiceAccountToken.id":
+		if e.complexity.ServiceAccountToken.ID == nil {
+			break
+		}
+
+		return e.complexity.ServiceAccountToken.ID(childComplexity), true
+
+	case "ServiceAccountToken.note":
+		if e.complexity.ServiceAccountToken.Note == nil {
+			break
+		}
+
+		return e.complexity.ServiceAccountToken.Note(childComplexity), true
+
+	case "ServiceAccountToken.updatedAt":
+		if e.complexity.ServiceAccountToken.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.ServiceAccountToken.UpdatedAt(childComplexity), true
 
 	case "ServiceCostSample.cost":
 		if e.complexity.ServiceCostSample.Cost == nil {
@@ -9897,6 +10120,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UpdateSecretValuePayload.Secret(childComplexity), true
 
+	case "UpdateServiceAccountPayload.serviceAccount":
+		if e.complexity.UpdateServiceAccountPayload.ServiceAccount == nil {
+			break
+		}
+
+		return e.complexity.UpdateServiceAccountPayload.ServiceAccount(childComplexity), true
+
+	case "UpdateServiceAccountTokenPayload.serviceAccountToken":
+		if e.complexity.UpdateServiceAccountTokenPayload.ServiceAccountToken == nil {
+			break
+		}
+
+		return e.complexity.UpdateServiceAccountTokenPayload.ServiceAccountToken(childComplexity), true
+
 	case "UpdateTeamEnvironmentPayload.environment":
 		if e.complexity.UpdateTeamEnvironmentPayload.Environment == nil {
 			break
@@ -10790,6 +11027,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputAddRepositoryToTeamInput,
+		ec.unmarshalInputAddRoleToServiceAccountInput,
 		ec.unmarshalInputAddSecretValueInput,
 		ec.unmarshalInputAddTeamMemberInput,
 		ec.unmarshalInputAllowTeamAccessToUnleashInput,
@@ -10802,11 +11040,14 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputConfirmTeamDeletionInput,
 		ec.unmarshalInputCreateSecretInput,
 		ec.unmarshalInputCreateServiceAccountInput,
+		ec.unmarshalInputCreateServiceAccountTokenInput,
 		ec.unmarshalInputCreateTeamInput,
 		ec.unmarshalInputCreateUnleashForTeamInput,
 		ec.unmarshalInputDeleteApplicationInput,
 		ec.unmarshalInputDeleteJobInput,
 		ec.unmarshalInputDeleteSecretInput,
+		ec.unmarshalInputDeleteServiceAccountInput,
+		ec.unmarshalInputDeleteServiceAccountTokenInput,
 		ec.unmarshalInputDisableReconcilerInput,
 		ec.unmarshalInputEnableReconcilerInput,
 		ec.unmarshalInputImageVulnerabilityOrder,
@@ -10820,6 +11061,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRedisInstanceAccessOrder,
 		ec.unmarshalInputRedisInstanceOrder,
 		ec.unmarshalInputRemoveRepositoryFromTeamInput,
+		ec.unmarshalInputRemoveRoleFromServiceAccountInput,
 		ec.unmarshalInputRemoveSecretValueInput,
 		ec.unmarshalInputRemoveTeamMemberInput,
 		ec.unmarshalInputRepositoryOrder,
@@ -10844,6 +11086,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTriggerJobInput,
 		ec.unmarshalInputUpdateImageVulnerabilityInput,
 		ec.unmarshalInputUpdateSecretValueInput,
+		ec.unmarshalInputUpdateServiceAccountInput,
+		ec.unmarshalInputUpdateServiceAccountTokenExpiresAtInput,
+		ec.unmarshalInputUpdateServiceAccountTokenInput,
 		ec.unmarshalInputUpdateTeamEnvironmentInput,
 		ec.unmarshalInputUpdateTeamInput,
 		ec.unmarshalInputUserOrder,
@@ -14637,13 +14882,69 @@ type SecretDeletedActivityLogEntry implements ActivityLogEntry & Node {
 }
 
 extend type Mutation {
-	createServiceAccount(input: CreateServiceAccountInput!): ServiceAccount!
+	createServiceAccount(input: CreateServiceAccountInput!): CreateServiceAccountPayload!
+	updateServiceAccount(input: UpdateServiceAccountInput!): UpdateServiceAccountPayload!
+	deleteServiceAccount(input: DeleteServiceAccountInput!): DeleteServiceAccountPayload!
+	addRoleToServiceAccount(input: AddRoleToServiceAccountInput!): AddRoleToServiceAccountPayload!
+	removeRoleFromServiceAccount(
+		input: RemoveRoleFromServiceAccountInput!
+	): RemoveRoleFromServiceAccountPayload!
+	createServiceAccountToken(
+		input: CreateServiceAccountTokenInput!
+	): CreateServiceAccountTokenPayload!
+	updateServiceAccountToken(
+		input: UpdateServiceAccountTokenInput!
+	): UpdateServiceAccountTokenPayload!
+	deleteServiceAccountToken(
+		input: DeleteServiceAccountTokenInput!
+	): DeleteServiceAccountTokenPayload!
 }
 
 input CreateServiceAccountInput {
 	name: String!
 	description: String!
 	teamSlug: Slug
+}
+
+input UpdateServiceAccountInput {
+	id: ID!
+	name: String
+	description: String
+}
+
+input DeleteServiceAccountInput {
+	id: ID!
+}
+
+input AddRoleToServiceAccountInput {
+	serviceAccountID: ID!
+	roleName: String!
+}
+
+input RemoveRoleFromServiceAccountInput {
+	serviceAccountID: ID!
+	roleName: String!
+}
+
+input CreateServiceAccountTokenInput {
+	serviceAccountID: ID!
+	note: String!
+	expiresAt: Date
+}
+
+input UpdateServiceAccountTokenInput {
+	serviceAccountTokenID: ID!
+	note: String
+	expiresAt: UpdateServiceAccountTokenExpiresAtInput
+}
+
+input UpdateServiceAccountTokenExpiresAtInput @oneOf {
+	expiresAt: Date
+	removeExpiry: Boolean
+}
+
+input DeleteServiceAccountTokenInput {
+	serviceAccountTokenID: ID!
 }
 
 """
@@ -14674,6 +14975,66 @@ type ServiceAccount implements Node {
 	The team that the service account belongs to.
 	"""
 	team: Team
+}
+
+type CreateServiceAccountPayload {
+	serviceAccount: ServiceAccount
+}
+
+type UpdateServiceAccountPayload {
+	serviceAccount: ServiceAccount
+}
+
+type DeleteServiceAccountPayload {
+	serviceAccountDeleted: Boolean
+}
+
+type AddRoleToServiceAccountPayload {
+	serviceAccount: ServiceAccount
+}
+
+type RemoveRoleFromServiceAccountPayload {
+	serviceAccount: ServiceAccount
+}
+
+type CreateServiceAccountTokenPayload {
+	serviceAccountToken: ServiceAccountToken
+	token: String
+}
+
+type UpdateServiceAccountTokenPayload {
+	serviceAccountToken: ServiceAccountToken
+}
+
+type DeleteServiceAccountTokenPayload {
+	serviceAccountTokenDeleted: Boolean
+}
+
+type ServiceAccountToken {
+	"""
+	The globally unique ID of the service account token.
+	"""
+	id: ID!
+
+	"""
+	The note of the service account token.
+	"""
+	note: String!
+
+	"""
+	When the service account token was created.
+	"""
+	createdAt: Time!
+
+	"""
+	When the service account token was last updated.
+	"""
+	updatedAt: Time
+
+	"""
+	When the service account token expires.
+	"""
+	expiresAt: Date
 }
 
 type ServiceAccountConnection {
@@ -19201,6 +19562,34 @@ func (ec *executionContext) field_Mutation_addRepositoryToTeam_argsInput(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Mutation_addRoleToServiceAccount_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_addRoleToServiceAccount_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_addRoleToServiceAccount_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (serviceaccount.AddRoleToServiceAccountInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal serviceaccount.AddRoleToServiceAccountInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNAddRoleToServiceAccountInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐAddRoleToServiceAccountInput(ctx, tmp)
+	}
+
+	var zeroVal serviceaccount.AddRoleToServiceAccountInput
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Mutation_addSecretValue_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -19397,6 +19786,34 @@ func (ec *executionContext) field_Mutation_createSecret_argsInput(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Mutation_createServiceAccountToken_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_createServiceAccountToken_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_createServiceAccountToken_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (serviceaccount.CreateServiceAccountTokenInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal serviceaccount.CreateServiceAccountTokenInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreateServiceAccountTokenInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐCreateServiceAccountTokenInput(ctx, tmp)
+	}
+
+	var zeroVal serviceaccount.CreateServiceAccountTokenInput
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Mutation_createServiceAccount_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -19565,6 +19982,62 @@ func (ec *executionContext) field_Mutation_deleteSecret_argsInput(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Mutation_deleteServiceAccountToken_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_deleteServiceAccountToken_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_deleteServiceAccountToken_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (serviceaccount.DeleteServiceAccountTokenInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal serviceaccount.DeleteServiceAccountTokenInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNDeleteServiceAccountTokenInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐDeleteServiceAccountTokenInput(ctx, tmp)
+	}
+
+	var zeroVal serviceaccount.DeleteServiceAccountTokenInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteServiceAccount_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_deleteServiceAccount_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_deleteServiceAccount_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (serviceaccount.DeleteServiceAccountInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal serviceaccount.DeleteServiceAccountInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNDeleteServiceAccountInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐDeleteServiceAccountInput(ctx, tmp)
+	}
+
+	var zeroVal serviceaccount.DeleteServiceAccountInput
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Mutation_disableReconciler_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -19646,6 +20119,34 @@ func (ec *executionContext) field_Mutation_removeRepositoryFromTeam_argsInput(
 	}
 
 	var zeroVal repository.RemoveRepositoryFromTeamInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_removeRoleFromServiceAccount_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_removeRoleFromServiceAccount_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_removeRoleFromServiceAccount_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (serviceaccount.RemoveRoleFromServiceAccountInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal serviceaccount.RemoveRoleFromServiceAccountInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNRemoveRoleFromServiceAccountInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRemoveRoleFromServiceAccountInput(ctx, tmp)
+	}
+
+	var zeroVal serviceaccount.RemoveRoleFromServiceAccountInput
 	return zeroVal, nil
 }
 
@@ -19898,6 +20399,62 @@ func (ec *executionContext) field_Mutation_updateSecretValue_argsInput(
 	}
 
 	var zeroVal secret.UpdateSecretValueInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateServiceAccountToken_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_updateServiceAccountToken_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_updateServiceAccountToken_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (serviceaccount.UpdateServiceAccountTokenInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal serviceaccount.UpdateServiceAccountTokenInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateServiceAccountTokenInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐUpdateServiceAccountTokenInput(ctx, tmp)
+	}
+
+	var zeroVal serviceaccount.UpdateServiceAccountTokenInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateServiceAccount_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_updateServiceAccount_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_updateServiceAccount_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (serviceaccount.UpdateServiceAccountInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal serviceaccount.UpdateServiceAccountInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateServiceAccountInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐUpdateServiceAccountInput(ctx, tmp)
+	}
+
+	var zeroVal serviceaccount.UpdateServiceAccountInput
 	return zeroVal, nil
 }
 
@@ -25163,6 +25720,59 @@ func (ec *executionContext) fieldContext_AddRepositoryToTeamPayload_repository(_
 				return ec.fieldContext_Repository_team(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Repository", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AddRoleToServiceAccountPayload_serviceAccount(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.AddRoleToServiceAccountPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AddRoleToServiceAccountPayload_serviceAccount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ServiceAccount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*serviceaccount.ServiceAccount)
+	fc.Result = res
+	return ec.marshalOServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccount(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AddRoleToServiceAccountPayload_serviceAccount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AddRoleToServiceAccountPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ServiceAccount_id(ctx, field)
+			case "name":
+				return ec.fieldContext_ServiceAccount_name(ctx, field)
+			case "description":
+				return ec.fieldContext_ServiceAccount_description(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
+			case "team":
+				return ec.fieldContext_ServiceAccount_team(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ServiceAccount", field.Name)
 		},
 	}
 	return fc, nil
@@ -31861,6 +32471,153 @@ func (ec *executionContext) fieldContext_CreateSecretPayload_secret(_ context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _CreateServiceAccountPayload_serviceAccount(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.CreateServiceAccountPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateServiceAccountPayload_serviceAccount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ServiceAccount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*serviceaccount.ServiceAccount)
+	fc.Result = res
+	return ec.marshalOServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccount(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateServiceAccountPayload_serviceAccount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateServiceAccountPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ServiceAccount_id(ctx, field)
+			case "name":
+				return ec.fieldContext_ServiceAccount_name(ctx, field)
+			case "description":
+				return ec.fieldContext_ServiceAccount_description(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
+			case "team":
+				return ec.fieldContext_ServiceAccount_team(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ServiceAccount", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CreateServiceAccountTokenPayload_serviceAccountToken(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.CreateServiceAccountTokenPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateServiceAccountTokenPayload_serviceAccountToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ServiceAccountToken, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*serviceaccount.ServiceAccountToken)
+	fc.Result = res
+	return ec.marshalOServiceAccountToken2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountToken(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateServiceAccountTokenPayload_serviceAccountToken(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateServiceAccountTokenPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ServiceAccountToken_id(ctx, field)
+			case "note":
+				return ec.fieldContext_ServiceAccountToken_note(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_ServiceAccountToken_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_ServiceAccountToken_updatedAt(ctx, field)
+			case "expiresAt":
+				return ec.fieldContext_ServiceAccountToken_expiresAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ServiceAccountToken", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CreateServiceAccountTokenPayload_token(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.CreateServiceAccountTokenPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateServiceAccountTokenPayload_token(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Token, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateServiceAccountTokenPayload_token(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateServiceAccountTokenPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CreateTeamPayload_team(ctx context.Context, field graphql.CollectedField, obj *team.CreateTeamPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CreateTeamPayload_team(ctx, field)
 	if err != nil {
@@ -32372,6 +33129,88 @@ func (ec *executionContext) _DeleteSecretPayload_secretDeleted(ctx context.Conte
 func (ec *executionContext) fieldContext_DeleteSecretPayload_secretDeleted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeleteSecretPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DeleteServiceAccountPayload_serviceAccountDeleted(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.DeleteServiceAccountPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteServiceAccountPayload_serviceAccountDeleted(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ServiceAccountDeleted, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeleteServiceAccountPayload_serviceAccountDeleted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteServiceAccountPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DeleteServiceAccountTokenPayload_serviceAccountTokenDeleted(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.DeleteServiceAccountTokenPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteServiceAccountTokenPayload_serviceAccountTokenDeleted(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ServiceAccountTokenDeleted, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeleteServiceAccountTokenPayload_serviceAccountTokenDeleted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteServiceAccountTokenPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -43431,9 +44270,9 @@ func (ec *executionContext) _Mutation_createServiceAccount(ctx context.Context, 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*serviceaccount.ServiceAccount)
+	res := resTmp.(*serviceaccount.CreateServiceAccountPayload)
 	fc.Result = res
-	return ec.marshalNServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccount(ctx, field.Selections, res)
+	return ec.marshalNCreateServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐCreateServiceAccountPayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createServiceAccount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -43444,18 +44283,10 @@ func (ec *executionContext) fieldContext_Mutation_createServiceAccount(ctx conte
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_ServiceAccount_id(ctx, field)
-			case "name":
-				return ec.fieldContext_ServiceAccount_name(ctx, field)
-			case "description":
-				return ec.fieldContext_ServiceAccount_description(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
-			case "team":
-				return ec.fieldContext_ServiceAccount_team(ctx, field)
+			case "serviceAccount":
+				return ec.fieldContext_CreateServiceAccountPayload_serviceAccount(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ServiceAccount", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type CreateServiceAccountPayload", field.Name)
 		},
 	}
 	defer func() {
@@ -43466,6 +44297,421 @@ func (ec *executionContext) fieldContext_Mutation_createServiceAccount(ctx conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createServiceAccount_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateServiceAccount(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateServiceAccount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateServiceAccount(rctx, fc.Args["input"].(serviceaccount.UpdateServiceAccountInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*serviceaccount.UpdateServiceAccountPayload)
+	fc.Result = res
+	return ec.marshalNUpdateServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐUpdateServiceAccountPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateServiceAccount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "serviceAccount":
+				return ec.fieldContext_UpdateServiceAccountPayload_serviceAccount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UpdateServiceAccountPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateServiceAccount_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteServiceAccount(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteServiceAccount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteServiceAccount(rctx, fc.Args["input"].(serviceaccount.DeleteServiceAccountInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*serviceaccount.DeleteServiceAccountPayload)
+	fc.Result = res
+	return ec.marshalNDeleteServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐDeleteServiceAccountPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteServiceAccount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "serviceAccountDeleted":
+				return ec.fieldContext_DeleteServiceAccountPayload_serviceAccountDeleted(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeleteServiceAccountPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteServiceAccount_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_addRoleToServiceAccount(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_addRoleToServiceAccount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().AddRoleToServiceAccount(rctx, fc.Args["input"].(serviceaccount.AddRoleToServiceAccountInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*serviceaccount.AddRoleToServiceAccountPayload)
+	fc.Result = res
+	return ec.marshalNAddRoleToServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐAddRoleToServiceAccountPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_addRoleToServiceAccount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "serviceAccount":
+				return ec.fieldContext_AddRoleToServiceAccountPayload_serviceAccount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AddRoleToServiceAccountPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_addRoleToServiceAccount_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_removeRoleFromServiceAccount(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_removeRoleFromServiceAccount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RemoveRoleFromServiceAccount(rctx, fc.Args["input"].(serviceaccount.RemoveRoleFromServiceAccountInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*serviceaccount.RemoveRoleFromServiceAccountPayload)
+	fc.Result = res
+	return ec.marshalNRemoveRoleFromServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRemoveRoleFromServiceAccountPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_removeRoleFromServiceAccount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "serviceAccount":
+				return ec.fieldContext_RemoveRoleFromServiceAccountPayload_serviceAccount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RemoveRoleFromServiceAccountPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_removeRoleFromServiceAccount_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createServiceAccountToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createServiceAccountToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateServiceAccountToken(rctx, fc.Args["input"].(serviceaccount.CreateServiceAccountTokenInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*serviceaccount.CreateServiceAccountTokenPayload)
+	fc.Result = res
+	return ec.marshalNCreateServiceAccountTokenPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐCreateServiceAccountTokenPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createServiceAccountToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "serviceAccountToken":
+				return ec.fieldContext_CreateServiceAccountTokenPayload_serviceAccountToken(ctx, field)
+			case "token":
+				return ec.fieldContext_CreateServiceAccountTokenPayload_token(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CreateServiceAccountTokenPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createServiceAccountToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateServiceAccountToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateServiceAccountToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateServiceAccountToken(rctx, fc.Args["input"].(serviceaccount.UpdateServiceAccountTokenInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*serviceaccount.UpdateServiceAccountTokenPayload)
+	fc.Result = res
+	return ec.marshalNUpdateServiceAccountTokenPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐUpdateServiceAccountTokenPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateServiceAccountToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "serviceAccountToken":
+				return ec.fieldContext_UpdateServiceAccountTokenPayload_serviceAccountToken(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UpdateServiceAccountTokenPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateServiceAccountToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteServiceAccountToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteServiceAccountToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteServiceAccountToken(rctx, fc.Args["input"].(serviceaccount.DeleteServiceAccountTokenInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*serviceaccount.DeleteServiceAccountTokenPayload)
+	fc.Result = res
+	return ec.marshalNDeleteServiceAccountTokenPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐDeleteServiceAccountTokenPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteServiceAccountToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "serviceAccountTokenDeleted":
+				return ec.fieldContext_DeleteServiceAccountTokenPayload_serviceAccountTokenDeleted(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeleteServiceAccountTokenPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteServiceAccountToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -51087,6 +52333,59 @@ func (ec *executionContext) fieldContext_RemoveRepositoryFromTeamPayload_success
 	return fc, nil
 }
 
+func (ec *executionContext) _RemoveRoleFromServiceAccountPayload_serviceAccount(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RemoveRoleFromServiceAccountPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RemoveRoleFromServiceAccountPayload_serviceAccount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ServiceAccount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*serviceaccount.ServiceAccount)
+	fc.Result = res
+	return ec.marshalOServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccount(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RemoveRoleFromServiceAccountPayload_serviceAccount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RemoveRoleFromServiceAccountPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ServiceAccount_id(ctx, field)
+			case "name":
+				return ec.fieldContext_ServiceAccount_name(ctx, field)
+			case "description":
+				return ec.fieldContext_ServiceAccount_description(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
+			case "team":
+				return ec.fieldContext_ServiceAccount_team(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ServiceAccount", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _RemoveSecretValuePayload_secret(ctx context.Context, field graphql.CollectedField, obj *secret.RemoveSecretValuePayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_RemoveSecretValuePayload_secret(ctx, field)
 	if err != nil {
@@ -57443,6 +58742,220 @@ func (ec *executionContext) fieldContext_ServiceAccountEdge_cursor(_ context.Con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Cursor does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ServiceAccountToken_id(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountToken) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceAccountToken_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceAccountToken_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceAccountToken",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ServiceAccountToken_note(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountToken) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceAccountToken_note(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Note, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceAccountToken_note(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceAccountToken",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ServiceAccountToken_createdAt(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountToken) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceAccountToken_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceAccountToken_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceAccountToken",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ServiceAccountToken_updatedAt(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountToken) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceAccountToken_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceAccountToken_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceAccountToken",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ServiceAccountToken_expiresAt(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountToken) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceAccountToken_expiresAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExpiresAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*scalar.Date)
+	fc.Result = res
+	return ec.marshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceAccountToken_expiresAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceAccountToken",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Date does not have child fields")
 		},
 	}
 	return fc, nil
@@ -75105,6 +76618,112 @@ func (ec *executionContext) fieldContext_UpdateSecretValuePayload_secret(_ conte
 	return fc, nil
 }
 
+func (ec *executionContext) _UpdateServiceAccountPayload_serviceAccount(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.UpdateServiceAccountPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateServiceAccountPayload_serviceAccount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ServiceAccount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*serviceaccount.ServiceAccount)
+	fc.Result = res
+	return ec.marshalOServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccount(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateServiceAccountPayload_serviceAccount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateServiceAccountPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ServiceAccount_id(ctx, field)
+			case "name":
+				return ec.fieldContext_ServiceAccount_name(ctx, field)
+			case "description":
+				return ec.fieldContext_ServiceAccount_description(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
+			case "team":
+				return ec.fieldContext_ServiceAccount_team(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ServiceAccount", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UpdateServiceAccountTokenPayload_serviceAccountToken(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.UpdateServiceAccountTokenPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateServiceAccountTokenPayload_serviceAccountToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ServiceAccountToken, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*serviceaccount.ServiceAccountToken)
+	fc.Result = res
+	return ec.marshalOServiceAccountToken2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountToken(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateServiceAccountTokenPayload_serviceAccountToken(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateServiceAccountTokenPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ServiceAccountToken_id(ctx, field)
+			case "note":
+				return ec.fieldContext_ServiceAccountToken_note(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_ServiceAccountToken_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_ServiceAccountToken_updatedAt(ctx, field)
+			case "expiresAt":
+				return ec.fieldContext_ServiceAccountToken_expiresAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ServiceAccountToken", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _UpdateTeamEnvironmentPayload_environment(ctx context.Context, field graphql.CollectedField, obj *team.UpdateTeamEnvironmentPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UpdateTeamEnvironmentPayload_environment(ctx, field)
 	if err != nil {
@@ -83009,6 +84628,40 @@ func (ec *executionContext) unmarshalInputAddRepositoryToTeamInput(ctx context.C
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputAddRoleToServiceAccountInput(ctx context.Context, obj any) (serviceaccount.AddRoleToServiceAccountInput, error) {
+	var it serviceaccount.AddRoleToServiceAccountInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"serviceAccountID", "roleName"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "serviceAccountID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("serviceAccountID"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ServiceAccountID = data
+		case "roleName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roleName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RoleName = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputAddSecretValueInput(ctx context.Context, obj any) (secret.AddSecretValueInput, error) {
 	var it secret.AddSecretValueInput
 	asMap := map[string]any{}
@@ -83445,6 +85098,47 @@ func (ec *executionContext) unmarshalInputCreateServiceAccountInput(ctx context.
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateServiceAccountTokenInput(ctx context.Context, obj any) (serviceaccount.CreateServiceAccountTokenInput, error) {
+	var it serviceaccount.CreateServiceAccountTokenInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"serviceAccountID", "note", "expiresAt"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "serviceAccountID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("serviceAccountID"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ServiceAccountID = data
+		case "note":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("note"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Note = data
+		case "expiresAt":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAt"))
+			data, err := ec.unmarshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExpiresAt = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateTeamInput(ctx context.Context, obj any) (team.CreateTeamInput, error) {
 	var it team.CreateTeamInput
 	asMap := map[string]any{}
@@ -83630,6 +85324,60 @@ func (ec *executionContext) unmarshalInputDeleteSecretInput(ctx context.Context,
 				return it, err
 			}
 			it.Team = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputDeleteServiceAccountInput(ctx context.Context, obj any) (serviceaccount.DeleteServiceAccountInput, error) {
+	var it serviceaccount.DeleteServiceAccountInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputDeleteServiceAccountTokenInput(ctx context.Context, obj any) (serviceaccount.DeleteServiceAccountTokenInput, error) {
+	var it serviceaccount.DeleteServiceAccountTokenInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"serviceAccountTokenID"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "serviceAccountTokenID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("serviceAccountTokenID"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ServiceAccountTokenID = data
 		}
 	}
 
@@ -84058,6 +85806,40 @@ func (ec *executionContext) unmarshalInputRemoveRepositoryFromTeamInput(ctx cont
 				return it, err
 			}
 			it.RepositoryName = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputRemoveRoleFromServiceAccountInput(ctx context.Context, obj any) (serviceaccount.RemoveRoleFromServiceAccountInput, error) {
+	var it serviceaccount.RemoveRoleFromServiceAccountInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"serviceAccountID", "roleName"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "serviceAccountID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("serviceAccountID"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ServiceAccountID = data
+		case "roleName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roleName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RoleName = data
 		}
 	}
 
@@ -84902,6 +86684,122 @@ func (ec *executionContext) unmarshalInputUpdateSecretValueInput(ctx context.Con
 				return it, err
 			}
 			it.Value = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateServiceAccountInput(ctx context.Context, obj any) (serviceaccount.UpdateServiceAccountInput, error) {
+	var it serviceaccount.UpdateServiceAccountInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "name", "description"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "description":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Description = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateServiceAccountTokenExpiresAtInput(ctx context.Context, obj any) (serviceaccount.UpdateServiceAccountTokenExpiresAtInput, error) {
+	var it serviceaccount.UpdateServiceAccountTokenExpiresAtInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"expiresAt", "removeExpiry"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "expiresAt":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAt"))
+			data, err := ec.unmarshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExpiresAt = data
+		case "removeExpiry":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("removeExpiry"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RemoveExpiry = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateServiceAccountTokenInput(ctx context.Context, obj any) (serviceaccount.UpdateServiceAccountTokenInput, error) {
+	var it serviceaccount.UpdateServiceAccountTokenInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"serviceAccountTokenID", "note", "expiresAt"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "serviceAccountTokenID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("serviceAccountTokenID"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ServiceAccountTokenID = data
+		case "note":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("note"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Note = data
+		case "expiresAt":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAt"))
+			data, err := ec.unmarshalOUpdateServiceAccountTokenExpiresAtInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐUpdateServiceAccountTokenExpiresAtInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExpiresAt = data
 		}
 	}
 
@@ -86529,6 +88427,42 @@ func (ec *executionContext) _AddRepositoryToTeamPayload(ctx context.Context, sel
 			out.Values[i] = graphql.MarshalString("AddRepositoryToTeamPayload")
 		case "repository":
 			out.Values[i] = ec._AddRepositoryToTeamPayload_repository(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var addRoleToServiceAccountPayloadImplementors = []string{"AddRoleToServiceAccountPayload"}
+
+func (ec *executionContext) _AddRoleToServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.AddRoleToServiceAccountPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, addRoleToServiceAccountPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AddRoleToServiceAccountPayload")
+		case "serviceAccount":
+			out.Values[i] = ec._AddRoleToServiceAccountPayload_serviceAccount(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -89327,6 +91261,80 @@ func (ec *executionContext) _CreateSecretPayload(ctx context.Context, sel ast.Se
 	return out
 }
 
+var createServiceAccountPayloadImplementors = []string{"CreateServiceAccountPayload"}
+
+func (ec *executionContext) _CreateServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.CreateServiceAccountPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createServiceAccountPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CreateServiceAccountPayload")
+		case "serviceAccount":
+			out.Values[i] = ec._CreateServiceAccountPayload_serviceAccount(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var createServiceAccountTokenPayloadImplementors = []string{"CreateServiceAccountTokenPayload"}
+
+func (ec *executionContext) _CreateServiceAccountTokenPayload(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.CreateServiceAccountTokenPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createServiceAccountTokenPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CreateServiceAccountTokenPayload")
+		case "serviceAccountToken":
+			out.Values[i] = ec._CreateServiceAccountTokenPayload_serviceAccountToken(ctx, field, obj)
+		case "token":
+			out.Values[i] = ec._CreateServiceAccountTokenPayload_token(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var createTeamPayloadImplementors = []string{"CreateTeamPayload"}
 
 func (ec *executionContext) _CreateTeamPayload(ctx context.Context, sel ast.SelectionSet, obj *team.CreateTeamPayload) graphql.Marshaler {
@@ -89550,6 +91558,78 @@ func (ec *executionContext) _DeleteSecretPayload(ctx context.Context, sel ast.Se
 			out.Values[i] = graphql.MarshalString("DeleteSecretPayload")
 		case "secretDeleted":
 			out.Values[i] = ec._DeleteSecretPayload_secretDeleted(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var deleteServiceAccountPayloadImplementors = []string{"DeleteServiceAccountPayload"}
+
+func (ec *executionContext) _DeleteServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.DeleteServiceAccountPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deleteServiceAccountPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeleteServiceAccountPayload")
+		case "serviceAccountDeleted":
+			out.Values[i] = ec._DeleteServiceAccountPayload_serviceAccountDeleted(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var deleteServiceAccountTokenPayloadImplementors = []string{"DeleteServiceAccountTokenPayload"}
+
+func (ec *executionContext) _DeleteServiceAccountTokenPayload(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.DeleteServiceAccountTokenPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deleteServiceAccountTokenPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeleteServiceAccountTokenPayload")
+		case "serviceAccountTokenDeleted":
+			out.Values[i] = ec._DeleteServiceAccountTokenPayload_serviceAccountTokenDeleted(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -93443,6 +95523,55 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "updateServiceAccount":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateServiceAccount(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteServiceAccount":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteServiceAccount(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "addRoleToServiceAccount":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_addRoleToServiceAccount(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "removeRoleFromServiceAccount":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_removeRoleFromServiceAccount(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createServiceAccountToken":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createServiceAccountToken(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateServiceAccountToken":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateServiceAccountToken(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteServiceAccountToken":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteServiceAccountToken(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createTeam":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createTeam(ctx, field)
@@ -96160,6 +98289,42 @@ func (ec *executionContext) _RemoveRepositoryFromTeamPayload(ctx context.Context
 	return out
 }
 
+var removeRoleFromServiceAccountPayloadImplementors = []string{"RemoveRoleFromServiceAccountPayload"}
+
+func (ec *executionContext) _RemoveRoleFromServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.RemoveRoleFromServiceAccountPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, removeRoleFromServiceAccountPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RemoveRoleFromServiceAccountPayload")
+		case "serviceAccount":
+			out.Values[i] = ec._RemoveRoleFromServiceAccountPayload_serviceAccount(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var removeSecretValuePayloadImplementors = []string{"RemoveSecretValuePayload"}
 
 func (ec *executionContext) _RemoveSecretValuePayload(ctx context.Context, sel ast.SelectionSet, obj *secret.RemoveSecretValuePayload) graphql.Marshaler {
@@ -98194,6 +100359,59 @@ func (ec *executionContext) _ServiceAccountEdge(ctx context.Context, sel ast.Sel
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var serviceAccountTokenImplementors = []string{"ServiceAccountToken"}
+
+func (ec *executionContext) _ServiceAccountToken(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.ServiceAccountToken) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, serviceAccountTokenImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ServiceAccountToken")
+		case "id":
+			out.Values[i] = ec._ServiceAccountToken_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "note":
+			out.Values[i] = ec._ServiceAccountToken_note(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._ServiceAccountToken_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._ServiceAccountToken_updatedAt(ctx, field, obj)
+		case "expiresAt":
+			out.Values[i] = ec._ServiceAccountToken_expiresAt(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -105416,6 +107634,78 @@ func (ec *executionContext) _UpdateSecretValuePayload(ctx context.Context, sel a
 	return out
 }
 
+var updateServiceAccountPayloadImplementors = []string{"UpdateServiceAccountPayload"}
+
+func (ec *executionContext) _UpdateServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.UpdateServiceAccountPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, updateServiceAccountPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UpdateServiceAccountPayload")
+		case "serviceAccount":
+			out.Values[i] = ec._UpdateServiceAccountPayload_serviceAccount(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var updateServiceAccountTokenPayloadImplementors = []string{"UpdateServiceAccountTokenPayload"}
+
+func (ec *executionContext) _UpdateServiceAccountTokenPayload(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.UpdateServiceAccountTokenPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, updateServiceAccountTokenPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UpdateServiceAccountTokenPayload")
+		case "serviceAccountToken":
+			out.Values[i] = ec._UpdateServiceAccountTokenPayload_serviceAccountToken(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var updateTeamEnvironmentPayloadImplementors = []string{"UpdateTeamEnvironmentPayload"}
 
 func (ec *executionContext) _UpdateTeamEnvironmentPayload(ctx context.Context, sel ast.SelectionSet, obj *team.UpdateTeamEnvironmentPayload) graphql.Marshaler {
@@ -108390,6 +110680,25 @@ func (ec *executionContext) marshalNAddRepositoryToTeamPayload2ᚖgithubᚗcom�
 	return ec._AddRepositoryToTeamPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNAddRoleToServiceAccountInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐAddRoleToServiceAccountInput(ctx context.Context, v any) (serviceaccount.AddRoleToServiceAccountInput, error) {
+	res, err := ec.unmarshalInputAddRoleToServiceAccountInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAddRoleToServiceAccountPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐAddRoleToServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, v serviceaccount.AddRoleToServiceAccountPayload) graphql.Marshaler {
+	return ec._AddRoleToServiceAccountPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAddRoleToServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐAddRoleToServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.AddRoleToServiceAccountPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AddRoleToServiceAccountPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNAddSecretValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐAddSecretValueInput(ctx context.Context, v any) (secret.AddSecretValueInput, error) {
 	res, err := ec.unmarshalInputAddSecretValueInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -109503,6 +111812,39 @@ func (ec *executionContext) unmarshalNCreateServiceAccountInput2githubᚗcomᚋn
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNCreateServiceAccountPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐCreateServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, v serviceaccount.CreateServiceAccountPayload) graphql.Marshaler {
+	return ec._CreateServiceAccountPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCreateServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐCreateServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.CreateServiceAccountPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CreateServiceAccountPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNCreateServiceAccountTokenInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐCreateServiceAccountTokenInput(ctx context.Context, v any) (serviceaccount.CreateServiceAccountTokenInput, error) {
+	res, err := ec.unmarshalInputCreateServiceAccountTokenInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCreateServiceAccountTokenPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐCreateServiceAccountTokenPayload(ctx context.Context, sel ast.SelectionSet, v serviceaccount.CreateServiceAccountTokenPayload) graphql.Marshaler {
+	return ec._CreateServiceAccountTokenPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCreateServiceAccountTokenPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐCreateServiceAccountTokenPayload(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.CreateServiceAccountTokenPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CreateServiceAccountTokenPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNCreateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐCreateTeamInput(ctx context.Context, v any) (team.CreateTeamInput, error) {
 	res, err := ec.unmarshalInputCreateTeamInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -109616,6 +111958,44 @@ func (ec *executionContext) marshalNDeleteSecretPayload2ᚖgithubᚗcomᚋnais�
 		return graphql.Null
 	}
 	return ec._DeleteSecretPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNDeleteServiceAccountInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐDeleteServiceAccountInput(ctx context.Context, v any) (serviceaccount.DeleteServiceAccountInput, error) {
+	res, err := ec.unmarshalInputDeleteServiceAccountInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNDeleteServiceAccountPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐDeleteServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, v serviceaccount.DeleteServiceAccountPayload) graphql.Marshaler {
+	return ec._DeleteServiceAccountPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNDeleteServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐDeleteServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.DeleteServiceAccountPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DeleteServiceAccountPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNDeleteServiceAccountTokenInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐDeleteServiceAccountTokenInput(ctx context.Context, v any) (serviceaccount.DeleteServiceAccountTokenInput, error) {
+	res, err := ec.unmarshalInputDeleteServiceAccountTokenInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNDeleteServiceAccountTokenPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐDeleteServiceAccountTokenPayload(ctx context.Context, sel ast.SelectionSet, v serviceaccount.DeleteServiceAccountTokenPayload) graphql.Marshaler {
+	return ec._DeleteServiceAccountTokenPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNDeleteServiceAccountTokenPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐDeleteServiceAccountTokenPayload(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.DeleteServiceAccountTokenPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DeleteServiceAccountTokenPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNDeployment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentᚄ(ctx context.Context, sel ast.SelectionSet, v []*deployment.Deployment) graphql.Marshaler {
@@ -112260,6 +114640,25 @@ func (ec *executionContext) marshalNRemoveRepositoryFromTeamPayload2ᚖgithubᚗ
 	return ec._RemoveRepositoryFromTeamPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNRemoveRoleFromServiceAccountInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRemoveRoleFromServiceAccountInput(ctx context.Context, v any) (serviceaccount.RemoveRoleFromServiceAccountInput, error) {
+	res, err := ec.unmarshalInputRemoveRoleFromServiceAccountInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRemoveRoleFromServiceAccountPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRemoveRoleFromServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, v serviceaccount.RemoveRoleFromServiceAccountPayload) graphql.Marshaler {
+	return ec._RemoveRoleFromServiceAccountPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRemoveRoleFromServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRemoveRoleFromServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.RemoveRoleFromServiceAccountPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RemoveRoleFromServiceAccountPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNRemoveSecretValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐRemoveSecretValueInput(ctx context.Context, v any) (secret.RemoveSecretValueInput, error) {
 	res, err := ec.unmarshalInputRemoveSecretValueInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -114867,6 +117266,44 @@ func (ec *executionContext) marshalNUpdateSecretValuePayload2ᚖgithubᚗcomᚋn
 	return ec._UpdateSecretValuePayload(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNUpdateServiceAccountInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐUpdateServiceAccountInput(ctx context.Context, v any) (serviceaccount.UpdateServiceAccountInput, error) {
+	res, err := ec.unmarshalInputUpdateServiceAccountInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateServiceAccountPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐUpdateServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, v serviceaccount.UpdateServiceAccountPayload) graphql.Marshaler {
+	return ec._UpdateServiceAccountPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUpdateServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐUpdateServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.UpdateServiceAccountPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UpdateServiceAccountPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUpdateServiceAccountTokenInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐUpdateServiceAccountTokenInput(ctx context.Context, v any) (serviceaccount.UpdateServiceAccountTokenInput, error) {
+	res, err := ec.unmarshalInputUpdateServiceAccountTokenInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateServiceAccountTokenPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐUpdateServiceAccountTokenPayload(ctx context.Context, sel ast.SelectionSet, v serviceaccount.UpdateServiceAccountTokenPayload) graphql.Marshaler {
+	return ec._UpdateServiceAccountTokenPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUpdateServiceAccountTokenPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐUpdateServiceAccountTokenPayload(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.UpdateServiceAccountTokenPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UpdateServiceAccountTokenPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNUpdateTeamEnvironmentInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUpdateTeamEnvironmentInput(ctx context.Context, v any) (team.UpdateTeamEnvironmentInput, error) {
 	res, err := ec.unmarshalInputUpdateTeamEnvironmentInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -116275,6 +118712,22 @@ func (ec *executionContext) marshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
+func (ec *executionContext) unmarshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx context.Context, v any) (*scalar.Date, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(scalar.Date)
+	err := res.UnmarshalGQLContext(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx context.Context, sel ast.SelectionSet, v *scalar.Date) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return graphql.WrapContextMarshaler(ctx, v)
+}
+
 func (ec *executionContext) marshalODeploymentKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentKey(ctx context.Context, sel ast.SelectionSet, v *deployment.DeploymentKey) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -116494,6 +118947,20 @@ func (ec *executionContext) unmarshalOSecretOrder2ᚖgithubᚗcomᚋnaisᚋapi�
 	}
 	res, err := ec.unmarshalInputSecretOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccount(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.ServiceAccount) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ServiceAccount(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOServiceAccountToken2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountToken(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.ServiceAccountToken) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ServiceAccountToken(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, v any) (*slug.Slug, error) {
@@ -116761,6 +119228,14 @@ func (ec *executionContext) marshalOUnleashInstance2ᚖgithubᚗcomᚋnaisᚋapi
 		return graphql.Null
 	}
 	return ec._UnleashInstance(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOUpdateServiceAccountTokenExpiresAtInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐUpdateServiceAccountTokenExpiresAtInput(ctx context.Context, v any) (*serviceaccount.UpdateServiceAccountTokenExpiresAtInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputUpdateServiceAccountTokenExpiresAtInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser(ctx context.Context, sel ast.SelectionSet, v *user.User) graphql.Marshaler {
