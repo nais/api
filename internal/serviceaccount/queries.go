@@ -4,6 +4,9 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/serviceaccount/serviceaccountsql"
@@ -44,16 +47,34 @@ func GetByIdent(ctx context.Context, ident ident.Ident) (*ServiceAccount, error)
 }
 
 func Create(ctx context.Context, input CreateServiceAccountInput) (*ServiceAccount, error) {
-	sa, err := db(ctx).Create(ctx, serviceaccountsql.CreateParams{
-		Name:        input.Name,
-		Description: input.Description,
-		TeamSlug:    input.TeamSlug,
+	var sa *ServiceAccount
+	err := database.Transaction(ctx, func(ctx context.Context) error {
+		dbSA, err := db(ctx).Create(ctx, serviceaccountsql.CreateParams{
+			Name:        input.Name,
+			Description: input.Description,
+			TeamSlug:    input.TeamSlug,
+		})
+		if err != nil {
+			return err
+		}
+
+		sa = toGraphServiceAccount(dbSA)
+
+		actor := authz.ActorFromContext(ctx)
+
+		return activitylog.Create(ctx, activitylog.CreateInput{
+			Action:       activitylog.ActivityLogEntryActionCreated,
+			Actor:        actor.User,
+			ResourceType: activityLogEntryResourceTypeServiceAccount,
+			ResourceName: dbSA.Name,
+			TeamSlug:     dbSA.TeamSlug,
+		})
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return toGraphServiceAccount(sa), nil
+	return sa, nil
 }
 
 func RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error {

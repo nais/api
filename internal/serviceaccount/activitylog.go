@@ -1,6 +1,8 @@
 package serviceaccount
 
 import (
+	"fmt"
+
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/graph/scalar"
 )
@@ -11,86 +13,14 @@ const (
 
 func init() {
 	activitylog.RegisterTransformer(activityLogEntryResourceTypeServiceAccount, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
-		/*
-			switch entry.Action {
-			case activitylog.ActivityLogEntryActionCreated:
-				return TeamCreatedActivityLogEntry{
-					GenericActivityLogEntry: entry.WithMessage("Created team"),
-				}, nil
-			case activitylog.ActivityLogEntryActionUpdated:
-				data, err := activitylog.TransformData(entry, func(data *TeamUpdatedActivityLogEntryData) *TeamUpdatedActivityLogEntryData {
-					if len(data.UpdatedFields) == 0 {
-						return &TeamUpdatedActivityLogEntryData{}
-					}
-					return data
-				})
-				if err != nil {
-					return nil, err
-				}
-
-				return TeamUpdatedActivityLogEntry{
-					GenericActivityLogEntry: entry.WithMessage("Updated team"),
-					Data:                    data,
-				}, nil
-			case activityLogEntryActionCreateDeleteKey:
-				return TeamCreateDeleteKeyActivityLogEntry{
-					GenericActivityLogEntry: entry.WithMessage("Create delete key"),
-				}, nil
-			case activityLogEntryActionConfirmDeleteKey:
-				return TeamConfirmDeleteKeyActivityLogEntry{
-					GenericActivityLogEntry: entry.WithMessage("Confirm delete key"),
-				}, nil
-			case activitylog.ActivityLogEntryActionAdded:
-				data, err := activitylog.TransformData(entry, func(data *TeamMemberAddedActivityLogEntryData) *TeamMemberAddedActivityLogEntryData {
-					return data
-				})
-				if err != nil {
-					return nil, err
-				}
-				return TeamMemberAddedActivityLogEntry{
-					GenericActivityLogEntry: entry.WithMessage("Add member"),
-					Data:                    data,
-				}, nil
-			case activitylog.ActivityLogEntryActionRemoved:
-				data, err := activitylog.TransformData(entry, func(data *TeamMemberRemovedActivityLogEntryData) *TeamMemberRemovedActivityLogEntryData {
-					return data
-				})
-				if err != nil {
-					return nil, err
-				}
-				return TeamMemberRemovedActivityLogEntry{
-					GenericActivityLogEntry: entry.WithMessage("Remove member"),
-					Data:                    data,
-				}, nil
-			case activityLogEntryActionSetMemberRole:
-				data, err := activitylog.TransformData(entry, func(data *TeamMemberSetRoleActivityLogEntryData) *TeamMemberSetRoleActivityLogEntryData {
-					return data
-				})
-				if err != nil {
-					return nil, err
-				}
-				return TeamMemberSetRoleActivityLogEntry{
-					GenericActivityLogEntry: entry.WithMessage("Set member role"),
-					Data:                    data,
-				}, nil
-			case activityLogEntryActionUpdateEnvironment:
-				data, err := activitylog.TransformData(entry, func(data *TeamEnvironmentUpdatedActivityLogEntryData) *TeamEnvironmentUpdatedActivityLogEntryData {
-					return data
-				})
-				if err != nil {
-					return nil, err
-				}
-
-				return TeamEnvironmentUpdatedActivityLogEntry{
-					GenericActivityLogEntry: entry.WithMessage("Update environment"),
-					Data:                    data,
-				}, nil
-			default:
-				return nil, fmt.Errorf("unsupported team activity log entry action: %q", entry.Action)
-			}
-
-		*/
-		panic("implement")
+		switch entry.Action {
+		case activitylog.ActivityLogEntryActionCreated:
+			return ServiceAccountCreatedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage("Created service account"),
+			}, nil
+		default:
+			return nil, fmt.Errorf("unsupported service account activity log entry action: %q", entry.Action)
+		}
 	})
 }
 

@@ -64,3 +64,8 @@ CREATE UNIQUE INDEX ON service_account_roles USING btree (service_account_id, ro
 WHERE
 	target_team_slug IS NOT NULL
 ;
+
+DELETE FROM user_roles
+WHERE
+	role_name = 'Service account creator'
+;

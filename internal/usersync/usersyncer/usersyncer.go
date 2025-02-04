@@ -47,7 +47,6 @@ var DefaultRoleNames = []usersyncsql.RoleName{
 	usersyncsql.RoleNameTeamcreator,
 	usersyncsql.RoleNameTeamviewer,
 	usersyncsql.RoleNameUserviewer,
-	usersyncsql.RoleNameServiceaccountcreator,
 }
 
 func New(pool *pgxpool.Pool, adminGroupPrefix, tenantDomain string, service *admindirectoryv1.Service, log logrus.FieldLogger) *Usersynchronizer {

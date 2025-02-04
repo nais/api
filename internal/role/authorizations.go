@@ -45,6 +45,15 @@ var roles = map[rolesql.RoleName][]Authorization{
 	rolesql.RoleNameTeamcreator: {
 		AuthorizationTeamsCreate,
 	},
+	rolesql.RoleNameServiceaccountcreator: {
+		AuthorizationServiceAccountsCreate,
+	},
+	rolesql.RoleNameServiceaccountowner: {
+		AuthorizationServiceAccountsCreate,
+		AuthorizationServiceAccountsDelete,
+		AuthorizationServiceAccountsRead,
+		AuthorizationServiceAccountsUpdate,
+	},
 	rolesql.RoleNameTeammember: {
 		AuthorizationActivityLogsRead,
 		AuthorizationTeamsRead,
