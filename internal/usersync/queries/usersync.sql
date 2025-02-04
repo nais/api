@@ -16,8 +16,7 @@ SELECT
 	id,
 	role_name,
 	user_id,
-	target_team_slug,
-	target_service_account_id
+	target_team_slug
 FROM
 	user_roles
 ORDER BY
@@ -65,7 +64,6 @@ DELETE FROM user_roles
 WHERE
 	user_id = @user_id
 	AND target_team_slug IS NULL
-	AND target_service_account_id IS NULL
 	AND role_name = @role_name
 ;
 

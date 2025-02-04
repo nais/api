@@ -144,7 +144,7 @@ func (q *Queries) GetMemberByEmail(ctx context.Context, arg GetMemberByEmailPara
 const listForUser = `-- name: ListForUser :many
 SELECT
 	users.id, users.email, users.name, users.external_id,
-	user_roles.id, user_roles.role_name, user_roles.user_id, user_roles.target_team_slug, user_roles.target_service_account_id
+	user_roles.id, user_roles.role_name, user_roles.user_id, user_roles.target_team_slug
 FROM
 	user_roles
 	JOIN teams ON teams.slug = user_roles.target_team_slug
@@ -200,7 +200,6 @@ func (q *Queries) ListForUser(ctx context.Context, arg ListForUserParams) ([]*Li
 			&i.UserRole.RoleName,
 			&i.UserRole.UserID,
 			&i.UserRole.TargetTeamSlug,
-			&i.UserRole.TargetServiceAccountID,
 		); err != nil {
 			return nil, err
 		}
@@ -215,7 +214,7 @@ func (q *Queries) ListForUser(ctx context.Context, arg ListForUserParams) ([]*Li
 const listMembers = `-- name: ListMembers :many
 SELECT
 	users.id, users.email, users.name, users.external_id,
-	user_roles.id, user_roles.role_name, user_roles.user_id, user_roles.target_team_slug, user_roles.target_service_account_id
+	user_roles.id, user_roles.role_name, user_roles.user_id, user_roles.target_team_slug
 FROM
 	user_roles
 	JOIN teams ON teams.slug = user_roles.target_team_slug
@@ -284,7 +283,6 @@ func (q *Queries) ListMembers(ctx context.Context, arg ListMembersParams) ([]*Li
 			&i.UserRole.RoleName,
 			&i.UserRole.UserID,
 			&i.UserRole.TargetTeamSlug,
-			&i.UserRole.TargetServiceAccountID,
 		); err != nil {
 			return nil, err
 		}

@@ -260,8 +260,7 @@ SELECT
 	id,
 	role_name,
 	user_id,
-	target_team_slug,
-	target_service_account_id
+	target_team_slug
 FROM
 	user_roles
 ORDER BY
@@ -282,7 +281,6 @@ func (q *Queries) ListRoles(ctx context.Context) ([]*UserRole, error) {
 			&i.RoleName,
 			&i.UserID,
 			&i.TargetTeamSlug,
-			&i.TargetServiceAccountID,
 		); err != nil {
 			return nil, err
 		}
@@ -299,7 +297,6 @@ DELETE FROM user_roles
 WHERE
 	user_id = $1
 	AND target_team_slug IS NULL
-	AND target_service_account_id IS NULL
 	AND role_name = $2
 `
 

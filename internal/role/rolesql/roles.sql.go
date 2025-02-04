@@ -96,9 +96,7 @@ SELECT
 			'role_name',
 			role_name,
 			'target_team_slug',
-			target_team_slug,
-			'target_service_account_id',
-			target_service_account_id
+			target_team_slug
 		)
 	) AS roles
 FROM
@@ -144,9 +142,7 @@ SELECT
 			'role_name',
 			role_name,
 			'target_team_slug',
-			target_team_slug,
-			'target_service_account_id',
-			target_service_account_id
+			target_team_slug
 		)
 	) AS roles
 FROM

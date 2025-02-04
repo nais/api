@@ -14629,7 +14629,7 @@ type ServiceAccount implements Node {
 
 extend type Query {
 	"""
-	Returns a service account by its ID.
+	Get a list of service accounts.
 	"""
 	serviceAccounts(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."

@@ -171,11 +171,10 @@ type User struct {
 }
 
 type UserRole struct {
-	ID                     int32
-	RoleName               RoleName
-	UserID                 uuid.UUID
-	TargetTeamSlug         *slug.Slug
-	TargetServiceAccountID *uuid.UUID
+	ID             int32
+	RoleName       RoleName
+	UserID         uuid.UUID
+	TargetTeamSlug *slug.Slug
 }
 
 type UsersyncLogEntry struct {
