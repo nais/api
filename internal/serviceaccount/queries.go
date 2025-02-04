@@ -48,6 +48,20 @@ func GetByIdent(ctx context.Context, ident ident.Ident) (*ServiceAccount, error)
 }
 
 func Create(ctx context.Context, input CreateServiceAccountInput) (*ServiceAccount, error) {
+	actor := authz.ActorFromContext(ctx)
+
+	if input.TeamSlug == nil {
+		err := authz.RequireGlobalAuthorization(actor, role.AuthorizationServiceAccountsCreate)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		err := authz.RequireTeamAuthorization(actor, role.AuthorizationServiceAccountsCreate, *input.TeamSlug)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	var sa *ServiceAccount
 	err := database.Transaction(ctx, func(ctx context.Context) error {
 		dbSA, err := db(ctx).Create(ctx, serviceaccountsql.CreateParams{
@@ -142,6 +156,42 @@ func Update(ctx context.Context, input UpdateServiceAccountInput) (*ServiceAccou
 	return sa, nil
 }
 
+func Delete(ctx context.Context, input DeleteServiceAccountInput) error {
+	existingSA, err := GetByIdent(ctx, input.ID)
+	if err != nil {
+		return err
+	}
+
+	actor := authz.ActorFromContext(ctx)
+	if existingSA.TeamSlug == nil {
+		err := authz.RequireGlobalAuthorization(actor, role.AuthorizationServiceAccountsDelete)
+		if err != nil {
+			return err
+		}
+	} else {
+		err := authz.RequireTeamAuthorization(actor, role.AuthorizationServiceAccountsDelete, *existingSA.TeamSlug)
+		if err != nil {
+			return err
+		}
+	}
+
+	return database.Transaction(ctx, func(ctx context.Context) error {
+		if err := db(ctx).Delete(ctx, existingSA.UUID); err != nil {
+			return err
+		}
+
+		actor := authz.ActorFromContext(ctx)
+
+		return activitylog.Create(ctx, activitylog.CreateInput{
+			Action:       activitylog.ActivityLogEntryActionDeleted,
+			Actor:        actor.User,
+			ResourceType: activityLogEntryResourceTypeServiceAccount,
+			ResourceName: existingSA.Name,
+			TeamSlug:     existingSA.TeamSlug,
+		})
+	})
+}
+
 func RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error {
 	return db(ctx).RemoveApiKeysFromServiceAccount(ctx, serviceAccountID)
 }
@@ -173,6 +223,6 @@ func List(ctx context.Context, page *pagination.Pagination) (*ServiceAccountConn
 	return pagination.NewConvertConnection(ret, page, total, toGraphServiceAccount), nil
 }
 
-func Delete(ctx context.Context, id uuid.UUID) error {
+func DeleteStatic(ctx context.Context, id uuid.UUID) error {
 	return db(ctx).Delete(ctx, id)
 }

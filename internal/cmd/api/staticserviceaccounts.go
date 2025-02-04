@@ -132,7 +132,7 @@ func setupStaticServiceAccounts(ctx context.Context, pool *pgxpool.Pool, service
 				continue
 			}
 
-			if err := serviceaccount.Delete(ctx, sa.UUID); err != nil {
+			if err := serviceaccount.DeleteStatic(ctx, sa.UUID); err != nil {
 				return err
 			}
 		}

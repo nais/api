@@ -18,6 +18,25 @@ func init() {
 			return ServiceAccountCreatedActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Created service account"),
 			}, nil
+		case activitylog.ActivityLogEntryActionUpdated:
+			data, err := activitylog.TransformData(entry, func(data *ServiceAccountUpdatedActivityLogEntryData) *ServiceAccountUpdatedActivityLogEntryData {
+				if len(data.UpdatedFields) == 0 {
+					return &ServiceAccountUpdatedActivityLogEntryData{}
+				}
+				return data
+			})
+			if err != nil {
+				return nil, err
+			}
+
+			return ServiceAccountUpdatedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage("Updated service account"),
+				Data:                    data,
+			}, nil
+		case activitylog.ActivityLogEntryActionDeleted:
+			return ServiceAccountDeletedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage("Deleted service account"),
+			}, nil
 		default:
 			return nil, fmt.Errorf("unsupported service account activity log entry action: %q", entry.Action)
 		}

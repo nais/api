@@ -4,30 +4,15 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
-	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/serviceaccount"
 	"github.com/nais/api/internal/team"
+	"k8s.io/utils/ptr"
 )
 
 func (r *mutationResolver) CreateServiceAccount(ctx context.Context, input serviceaccount.CreateServiceAccountInput) (*serviceaccount.CreateServiceAccountPayload, error) {
-	actor := authz.ActorFromContext(ctx)
-
-	if input.TeamSlug == nil {
-		err := authz.RequireGlobalAuthorization(actor, role.AuthorizationServiceAccountsCreate)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		err := authz.RequireTeamAuthorization(actor, role.AuthorizationServiceAccountsCreate, *input.TeamSlug)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	sa, err := serviceaccount.Create(ctx, input)
 	if err != nil {
 		return nil, err
@@ -46,7 +31,12 @@ func (r *mutationResolver) UpdateServiceAccount(ctx context.Context, input servi
 }
 
 func (r *mutationResolver) DeleteServiceAccount(ctx context.Context, input serviceaccount.DeleteServiceAccountInput) (*serviceaccount.DeleteServiceAccountPayload, error) {
-	panic(fmt.Errorf("not implemented: DeleteServiceAccount - deleteServiceAccount"))
+	err := serviceaccount.Delete(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return &serviceaccount.DeleteServiceAccountPayload{ServiceAccountDeleted: ptr.To(true)}, nil
 }
 
 func (r *mutationResolver) AddRoleToServiceAccount(ctx context.Context, input serviceaccount.AddRoleToServiceAccountInput) (*serviceaccount.AddRoleToServiceAccountPayload, error) {
