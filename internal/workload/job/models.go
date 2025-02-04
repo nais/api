@@ -71,13 +71,14 @@ type JobSchedule struct {
 }
 
 type JobRun struct {
-	Name            string     `json:"name"`
-	StartTime       *time.Time `json:"startTime"`
-	CreationTime    time.Time  `json:"-"`
-	EnvironmentName string     `json:"-"`
-	TeamSlug        slug.Slug  `json:"-"`
-	Failed          bool       `json:"-"`
-	Message         string     `json:"-"`
+	Name            string         `json:"name"`
+	StartTime       *time.Time     `json:"startTime"`
+	Trigger         *JobRunTrigger `json:"-"`
+	CreationTime    time.Time      `json:"-"`
+	EnvironmentName string         `json:"-"`
+	TeamSlug        slug.Slug      `json:"-"`
+	Failed          bool           `json:"-"`
+	Message         string         `json:"-"`
 
 	spec *batchv1.Job
 }
@@ -350,9 +351,27 @@ func toGraphJobRun(run *batchv1.Job, environmentName string) *JobRun {
 		TeamSlug:        slug.Slug(run.Namespace),
 		StartTime:       startTime,
 		CreationTime:    run.CreationTimestamp.Time,
+		Trigger:         trigger(run),
 		Failed:          run.Status.Failed > 0,
 		Message:         statusMessage(run),
 		spec:            run,
+	}
+}
+
+func trigger(run *batchv1.Job) *JobRunTrigger {
+	triggerType := JobRunTriggerTypeAutomatic
+	actor := ""
+
+	annotations := run.GetAnnotations()
+	for k, v := range annotations {
+		if k == "cronjob.kubernetes.io/instantiate" && v == "manual" {
+			triggerType = JobRunTriggerTypeManual
+			actor = annotations["nais.io/instantiated-by"]
+		}
+	}
+	return &JobRunTrigger{
+		Type:  triggerType,
+		Actor: &actor,
 	}
 }
 
@@ -449,4 +468,52 @@ type JobRunStatus struct {
 type TeamJobsFilter struct {
 	Name         string   `json:"name"`
 	Environments []string `json:"environments"`
+}
+
+type JobRunTrigger struct {
+	// The type of trigger that started the job.
+	Type JobRunTriggerType `json:"type"`
+	// The actor/user who triggered the job run manually, if applicable.
+	Actor *string `json:"actor,omitempty"`
+}
+
+type JobRunTriggerType string
+
+const (
+	JobRunTriggerTypeAutomatic JobRunTriggerType = "AUTOMATIC"
+	JobRunTriggerTypeManual    JobRunTriggerType = "MANUAL"
+)
+
+var AllJobRunTriggerType = []JobRunTriggerType{
+	JobRunTriggerTypeAutomatic,
+	JobRunTriggerTypeManual,
+}
+
+func (e JobRunTriggerType) IsValid() bool {
+	switch e {
+	case JobRunTriggerTypeAutomatic, JobRunTriggerTypeManual:
+		return true
+	}
+	return false
+}
+
+func (e JobRunTriggerType) String() string {
+	return string(e)
+}
+
+func (e *JobRunTriggerType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = JobRunTriggerType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid JobRunTriggerType", str)
+	}
+	return nil
+}
+
+func (e JobRunTriggerType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

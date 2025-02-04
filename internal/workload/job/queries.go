@@ -220,7 +220,7 @@ func Trigger(ctx context.Context, teamSlug slug.Slug, environmentName, name, run
 		return nil, fmt.Errorf("getting cronjob: %w", err)
 	}
 
-	jobRun, err := createJobFromCronJob(runName, cronJob)
+	jobRun, err := createJobFromCronJob(authz.ActorFromContext(ctx).User, runName, cronJob)
 	if err != nil {
 		return nil, fmt.Errorf("creating job from cronjob: %w", err)
 	}
@@ -256,9 +256,10 @@ func Trigger(ctx context.Context, teamSlug slug.Slug, environmentName, name, run
 // createJobFromCronJob creates a Job from a CronJob.
 //
 // Copied from https://github.com/kubernetes/kubectl/blob/5f5894cd61c609d7b55aa0f9bc99967155c69a9f/pkg/cmd/create/create_job.go#L254
-func createJobFromCronJob(name string, cronJob *unstructured.Unstructured) (*unstructured.Unstructured, error) {
+func createJobFromCronJob(actor authz.AuthenticatedUser, name string, cronJob *unstructured.Unstructured) (*unstructured.Unstructured, error) {
 	annotations := make(map[string]string)
 	annotations["cronjob.kubernetes.io/instantiate"] = "manual"
+	annotations["nais.io/instantiated-by"] = actor.Identity()
 
 	mp, ok, err := unstructured.NestedStringMap(cronJob.Object, "spec", "jobTemplate", "annotations")
 	if err != nil {

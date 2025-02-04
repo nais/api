@@ -49,7 +49,6 @@ func transformJob(in any) (any, error) {
 		{"metadata", "creationTimestamp"},
 		{"metadata", "generateName"},
 		{"metadata", "ownerReferences"},
-		{"metadata", "annotations"},
 		{"metadata", "managedFields"},
 		{"status", "initContainerStatuses"},
 	}
