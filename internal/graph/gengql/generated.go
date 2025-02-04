@@ -654,6 +654,7 @@ type ComplexityRoot struct {
 		Name           func(childComplexity int) int
 		StartTime      func(childComplexity int) int
 		Status         func(childComplexity int) int
+		Trigger        func(childComplexity int) int
 	}
 
 	JobRunConnection struct {
@@ -686,6 +687,11 @@ type ComplexityRoot struct {
 	JobRunStatus struct {
 		Message func(childComplexity int) int
 		State   func(childComplexity int) int
+	}
+
+	JobRunTrigger struct {
+		Actor func(childComplexity int) int
+		Type  func(childComplexity int) int
 	}
 
 	JobSchedule struct {
@@ -4530,6 +4536,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.JobRun.Status(childComplexity), true
 
+	case "JobRun.trigger":
+		if e.complexity.JobRun.Trigger == nil {
+			break
+		}
+
+		return e.complexity.JobRun.Trigger(childComplexity), true
+
 	case "JobRunConnection.edges":
 		if e.complexity.JobRunConnection.Edges == nil {
 			break
@@ -4627,6 +4640,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.JobRunStatus.State(childComplexity), true
+
+	case "JobRunTrigger.actor":
+		if e.complexity.JobRunTrigger.Actor == nil {
+			break
+		}
+
+		return e.complexity.JobRunTrigger.Actor(childComplexity), true
+
+	case "JobRunTrigger.type":
+		if e.complexity.JobRunTrigger.Type == nil {
+			break
+		}
+
+		return e.complexity.JobRunTrigger.Type(childComplexity), true
 
 	case "JobSchedule.expression":
 		if e.complexity.JobSchedule.Expression == nil {
@@ -12447,6 +12474,21 @@ type JobResources implements WorkloadResources {
 	requests: WorkloadResourceQuantity!
 }
 
+enum JobRunTriggerType {
+	# Triggered by a cron job or schedule
+	AUTOMATIC
+	# Triggered by a user
+	MANUAL
+}
+
+type JobRunTrigger {
+	"The type of trigger that started the job."
+	type: JobRunTriggerType!
+
+	"The actor/user who triggered the job run manually, if applicable."
+	actor: String
+}
+
 type JobRun implements Node {
 	"The globally unique ID of the job run."
 	id: ID!
@@ -12483,6 +12525,8 @@ type JobRun implements Node {
 		"Get items before this cursor."
 		before: Cursor
 	): JobRunInstanceConnection!
+
+	trigger: JobRunTrigger!
 }
 
 type JobRunInstance implements Node {
@@ -38714,6 +38758,56 @@ func (ec *executionContext) fieldContext_JobRun_instances(ctx context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _JobRun_trigger(ctx context.Context, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobRun_trigger(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Trigger, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*job.JobRunTrigger)
+	fc.Result = res
+	return ec.marshalNJobRunTrigger2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunTrigger(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobRun_trigger(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobRun",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "type":
+				return ec.fieldContext_JobRunTrigger_type(ctx, field)
+			case "actor":
+				return ec.fieldContext_JobRunTrigger_actor(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type JobRunTrigger", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _JobRunConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*job.JobRun]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_JobRunConnection_pageInfo(ctx, field)
 	if err != nil {
@@ -38829,6 +38923,8 @@ func (ec *executionContext) fieldContext_JobRunConnection_nodes(_ context.Contex
 				return ec.fieldContext_JobRun_duration(ctx, field)
 			case "instances":
 				return ec.fieldContext_JobRun_instances(ctx, field)
+			case "trigger":
+				return ec.fieldContext_JobRun_trigger(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type JobRun", field.Name)
 		},
@@ -38985,6 +39081,8 @@ func (ec *executionContext) fieldContext_JobRunEdge_node(_ context.Context, fiel
 				return ec.fieldContext_JobRun_duration(ctx, field)
 			case "instances":
 				return ec.fieldContext_JobRun_instances(ctx, field)
+			case "trigger":
+				return ec.fieldContext_JobRun_trigger(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type JobRun", field.Name)
 		},
@@ -39412,6 +39510,91 @@ func (ec *executionContext) _JobRunStatus_message(ctx context.Context, field gra
 func (ec *executionContext) fieldContext_JobRunStatus_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobRunStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobRunTrigger_type(ctx context.Context, field graphql.CollectedField, obj *job.JobRunTrigger) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobRunTrigger_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(job.JobRunTriggerType)
+	fc.Result = res
+	return ec.marshalNJobRunTriggerType2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunTriggerType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobRunTrigger_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobRunTrigger",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type JobRunTriggerType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobRunTrigger_actor(ctx context.Context, field graphql.CollectedField, obj *job.JobRunTrigger) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobRunTrigger_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobRunTrigger_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobRunTrigger",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -71665,6 +71848,8 @@ func (ec *executionContext) fieldContext_TriggerJobPayload_jobRun(_ context.Cont
 				return ec.fieldContext_JobRun_duration(ctx, field)
 			case "instances":
 				return ec.fieldContext_JobRun_instances(ctx, field)
+			case "trigger":
+				return ec.fieldContext_JobRun_trigger(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type JobRun", field.Name)
 		},
@@ -90345,6 +90530,11 @@ func (ec *executionContext) _JobRun(ctx context.Context, sel ast.SelectionSet, o
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "trigger":
+			out.Values[i] = ec._JobRun_trigger(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -90619,6 +90809,47 @@ func (ec *executionContext) _JobRunStatus(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var jobRunTriggerImplementors = []string{"JobRunTrigger"}
+
+func (ec *executionContext) _JobRunTrigger(ctx context.Context, sel ast.SelectionSet, obj *job.JobRunTrigger) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jobRunTriggerImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("JobRunTrigger")
+		case "type":
+			out.Values[i] = ec._JobRunTrigger_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			out.Values[i] = ec._JobRunTrigger_actor(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -108717,6 +108948,26 @@ func (ec *executionContext) marshalNJobRunStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋ
 		return graphql.Null
 	}
 	return ec._JobRunStatus(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNJobRunTrigger2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunTrigger(ctx context.Context, sel ast.SelectionSet, v *job.JobRunTrigger) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._JobRunTrigger(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNJobRunTriggerType2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunTriggerType(ctx context.Context, v any) (job.JobRunTriggerType, error) {
+	var res job.JobRunTriggerType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNJobRunTriggerType2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunTriggerType(ctx context.Context, sel ast.SelectionSet, v job.JobRunTriggerType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNKafkaTopic2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx context.Context, sel ast.SelectionSet, v kafkatopic.KafkaTopic) graphql.Marshaler {

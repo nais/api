@@ -118,7 +118,7 @@ type JobResources implements WorkloadResources {
 	requests: WorkloadResourceQuantity!
 }
 
-enum TriggerType {
+enum JobRunTriggerType {
 	# Triggered by a cron job or schedule
 	AUTOMATIC
 	# Triggered by a user
