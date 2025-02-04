@@ -31,7 +31,7 @@ INSERT INTO
 VALUES
 	($1, $2, $3)
 RETURNING
-	id, created_at, name, description, team_slug
+	id, created_at, updated_at, name, description, team_slug
 `
 
 type CreateParams struct {
@@ -46,6 +46,7 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) (*ServiceAccount
 	err := row.Scan(
 		&i.ID,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 		&i.Name,
 		&i.Description,
 		&i.TeamSlug,
@@ -90,7 +91,7 @@ func (q *Queries) Delete(ctx context.Context, id uuid.UUID) error {
 
 const getByIDs = `-- name: GetByIDs :many
 SELECT
-	id, created_at, name, description, team_slug
+	id, created_at, updated_at, name, description, team_slug
 FROM
 	service_accounts
 WHERE
@@ -111,6 +112,7 @@ func (q *Queries) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAcco
 		if err := rows.Scan(
 			&i.ID,
 			&i.CreatedAt,
+			&i.UpdatedAt,
 			&i.Name,
 			&i.Description,
 			&i.TeamSlug,
@@ -127,7 +129,7 @@ func (q *Queries) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAcco
 
 const getByName = `-- name: GetByName :one
 SELECT
-	id, created_at, name, description, team_slug
+	id, created_at, updated_at, name, description, team_slug
 FROM
 	service_accounts
 WHERE
@@ -140,6 +142,7 @@ func (q *Queries) GetByName(ctx context.Context, name string) (*ServiceAccount, 
 	err := row.Scan(
 		&i.ID,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 		&i.Name,
 		&i.Description,
 		&i.TeamSlug,
@@ -149,7 +152,7 @@ func (q *Queries) GetByName(ctx context.Context, name string) (*ServiceAccount, 
 
 const getByToken = `-- name: GetByToken :one
 SELECT
-	service_accounts.id, service_accounts.created_at, service_accounts.name, service_accounts.description, service_accounts.team_slug
+	service_accounts.id, service_accounts.created_at, service_accounts.updated_at, service_accounts.name, service_accounts.description, service_accounts.team_slug
 FROM
 	service_account_tokens
 	JOIN service_accounts ON service_accounts.id = service_account_tokens.service_account_id
@@ -163,6 +166,7 @@ func (q *Queries) GetByToken(ctx context.Context, token string) (*ServiceAccount
 	err := row.Scan(
 		&i.ID,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 		&i.Name,
 		&i.Description,
 		&i.TeamSlug,
@@ -172,7 +176,7 @@ func (q *Queries) GetByToken(ctx context.Context, token string) (*ServiceAccount
 
 const list = `-- name: List :many
 SELECT
-	id, created_at, name, description, team_slug
+	id, created_at, updated_at, name, description, team_slug
 FROM
 	service_accounts
 ORDER BY
@@ -200,6 +204,7 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ServiceAccount, 
 		if err := rows.Scan(
 			&i.ID,
 			&i.CreatedAt,
+			&i.UpdatedAt,
 			&i.Name,
 			&i.Description,
 			&i.TeamSlug,
@@ -223,4 +228,33 @@ WHERE
 func (q *Queries) RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, removeApiKeysFromServiceAccount, serviceAccountID)
 	return err
+}
+
+const update = `-- name: Update :one
+UPDATE service_accounts
+SET
+	description = COALESCE($1, description)
+WHERE
+	id = $2
+RETURNING
+	id, created_at, updated_at, name, description, team_slug
+`
+
+type UpdateParams struct {
+	Description *string
+	ID          uuid.UUID
+}
+
+func (q *Queries) Update(ctx context.Context, arg UpdateParams) (*ServiceAccount, error) {
+	row := q.db.QueryRow(ctx, update, arg.Description, arg.ID)
+	var i ServiceAccount
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Name,
+		&i.Description,
+		&i.TeamSlug,
+	)
+	return &i, err
 }

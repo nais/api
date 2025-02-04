@@ -46,6 +46,16 @@ RETURNING
 	*
 ;
 
+-- name: Update :one
+UPDATE service_accounts
+SET
+	description = COALESCE(sqlc.narg('description'), description)
+WHERE
+	id = @id
+RETURNING
+	*
+;
+
 -- name: RemoveApiKeysFromServiceAccount :exec
 DELETE FROM service_account_tokens
 WHERE

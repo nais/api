@@ -37,7 +37,12 @@ func (r *mutationResolver) CreateServiceAccount(ctx context.Context, input servi
 }
 
 func (r *mutationResolver) UpdateServiceAccount(ctx context.Context, input serviceaccount.UpdateServiceAccountInput) (*serviceaccount.UpdateServiceAccountPayload, error) {
-	panic(fmt.Errorf("not implemented: UpdateServiceAccount - updateServiceAccount"))
+	sa, err := serviceaccount.Update(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return &serviceaccount.UpdateServiceAccountPayload{ServiceAccount: sa}, nil
 }
 
 func (r *mutationResolver) DeleteServiceAccount(ctx context.Context, input serviceaccount.DeleteServiceAccountInput) (*serviceaccount.DeleteServiceAccountPayload, error) {

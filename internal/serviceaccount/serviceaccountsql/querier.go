@@ -18,6 +18,7 @@ type Querier interface {
 	GetByToken(ctx context.Context, token string) (*ServiceAccount, error)
 	List(ctx context.Context, arg ListParams) ([]*ServiceAccount, error)
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
+	Update(ctx context.Context, arg UpdateParams) (*ServiceAccount, error)
 }
 
 var _ Querier = (*Queries)(nil)

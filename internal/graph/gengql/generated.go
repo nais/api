@@ -15620,7 +15620,6 @@ input CreateServiceAccountInput {
 
 input UpdateServiceAccountInput {
 	id: ID!
-	name: String
 	description: String
 }
 
@@ -91325,7 +91324,7 @@ func (ec *executionContext) unmarshalInputUpdateServiceAccountInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "name", "description"}
+	fieldsInOrder := [...]string{"id", "description"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -91339,13 +91338,6 @@ func (ec *executionContext) unmarshalInputUpdateServiceAccountInput(ctx context.
 				return it, err
 			}
 			it.ID = data
-		case "name":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Name = data
 		case "description":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)

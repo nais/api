@@ -11,6 +11,7 @@ import (
 type ServiceAccount struct {
 	ID          uuid.UUID
 	CreatedAt   pgtype.Timestamptz
+	UpdatedAt   pgtype.Timestamptz
 	Name        string
 	Description string
 	TeamSlug    *slug.Slug

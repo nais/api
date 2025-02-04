@@ -1,8 +1,9 @@
 package serviceaccount
 
 import (
-	"github.com/nais/api/internal/graph/scalar"
 	"time"
+
+	"github.com/nais/api/internal/graph/scalar"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/graph/ident"
@@ -97,7 +98,6 @@ type ServiceAccountToken struct {
 
 type UpdateServiceAccountInput struct {
 	ID          ident.Ident `json:"id"`
-	Name        *string     `json:"name,omitempty"`
 	Description *string     `json:"description,omitempty"`
 }
 
