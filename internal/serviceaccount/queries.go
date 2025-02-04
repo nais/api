@@ -43,8 +43,12 @@ func GetByIdent(ctx context.Context, ident ident.Ident) (*ServiceAccount, error)
 	return Get(ctx, uid)
 }
 
-func Create(ctx context.Context, name string) (*ServiceAccount, error) {
-	sa, err := db(ctx).Create(ctx, name)
+func Create(ctx context.Context, input CreateServiceAccountInput) (*ServiceAccount, error) {
+	sa, err := db(ctx).Create(ctx, serviceaccountsql.CreateParams{
+		Name:        input.Name,
+		Description: input.Description,
+		TeamSlug:    input.TeamSlug,
+	})
 	if err != nil {
 		return nil, err
 	}

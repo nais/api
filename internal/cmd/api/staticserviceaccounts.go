@@ -79,7 +79,10 @@ func setupStaticServiceAccounts(ctx context.Context, pool *pgxpool.Pool, service
 			names[serviceAccountFromInput.Name] = struct{}{}
 			sa, err := serviceaccount.GetByName(ctx, serviceAccountFromInput.Name)
 			if err != nil {
-				sa, err = serviceaccount.Create(ctx, serviceAccountFromInput.Name)
+				sa, err = serviceaccount.Create(ctx, serviceaccount.CreateServiceAccountInput{
+					Name:        serviceAccountFromInput.Name,
+					Description: "Static service account created by Nais",
+				})
 				if err != nil {
 					return err
 				}

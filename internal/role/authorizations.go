@@ -42,14 +42,6 @@ var roles = map[rolesql.RoleName][]Authorization{
 	rolesql.RoleNameAdmin: {
 		// Admins have all authorizations
 	},
-	rolesql.RoleNameServiceaccountcreator: {
-		AuthorizationServiceAccountsCreate,
-	},
-	rolesql.RoleNameServiceaccountowner: {
-		AuthorizationServiceAccountsDelete,
-		AuthorizationServiceAccountsRead,
-		AuthorizationServiceAccountsUpdate,
-	},
 	rolesql.RoleNameTeamcreator: {
 		AuthorizationTeamsCreate,
 	},
@@ -73,6 +65,10 @@ var roles = map[rolesql.RoleName][]Authorization{
 		AuthorizationApplicationsDelete,
 		AuthorizationRepositoriesCreate,
 		AuthorizationRepositoriesDelete,
+		AuthorizationServiceAccountsCreate,
+		AuthorizationServiceAccountsDelete,
+		AuthorizationServiceAccountsRead,
+		AuthorizationServiceAccountsUpdate,
 	},
 	rolesql.RoleNameTeamowner: {
 		AuthorizationActivityLogsRead,
@@ -96,6 +92,10 @@ var roles = map[rolesql.RoleName][]Authorization{
 		AuthorizationApplicationsDelete,
 		AuthorizationRepositoriesCreate,
 		AuthorizationRepositoriesDelete,
+		AuthorizationServiceAccountsCreate,
+		AuthorizationServiceAccountsDelete,
+		AuthorizationServiceAccountsRead,
+		AuthorizationServiceAccountsUpdate,
 	},
 	rolesql.RoleNameTeamviewer: {
 		AuthorizationActivityLogsRead,

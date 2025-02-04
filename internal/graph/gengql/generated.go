@@ -783,6 +783,7 @@ type ComplexityRoot struct {
 		ConfigureReconciler       func(childComplexity int, input reconciler.ConfigureReconcilerInput) int
 		ConfirmTeamDeletion       func(childComplexity int, input team.ConfirmTeamDeletionInput) int
 		CreateSecret              func(childComplexity int, input secret.CreateSecretInput) int
+		CreateServiceAccount      func(childComplexity int, input serviceaccount.CreateServiceAccountInput) int
 		CreateTeam                func(childComplexity int, input team.CreateTeamInput) int
 		CreateUnleashForTeam      func(childComplexity int, input unleash.CreateUnleashForTeamInput) int
 		DeleteApplication         func(childComplexity int, input application.DeleteApplicationInput) int
@@ -2227,6 +2228,7 @@ type MutationResolver interface {
 	UpdateSecretValue(ctx context.Context, input secret.UpdateSecretValueInput) (*secret.UpdateSecretValuePayload, error)
 	RemoveSecretValue(ctx context.Context, input secret.RemoveSecretValueInput) (*secret.RemoveSecretValuePayload, error)
 	DeleteSecret(ctx context.Context, input secret.DeleteSecretInput) (*secret.DeleteSecretPayload, error)
+	CreateServiceAccount(ctx context.Context, input serviceaccount.CreateServiceAccountInput) (*serviceaccount.ServiceAccount, error)
 	CreateTeam(ctx context.Context, input team.CreateTeamInput) (*team.CreateTeamPayload, error)
 	UpdateTeam(ctx context.Context, input team.UpdateTeamInput) (*team.UpdateTeamPayload, error)
 	UpdateTeamEnvironment(ctx context.Context, input team.UpdateTeamEnvironmentInput) (*team.UpdateTeamEnvironmentPayload, error)
@@ -5111,6 +5113,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateSecret(childComplexity, args["input"].(secret.CreateSecretInput)), true
+
+	case "Mutation.createServiceAccount":
+		if e.complexity.Mutation.CreateServiceAccount == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createServiceAccount_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateServiceAccount(childComplexity, args["input"].(serviceaccount.CreateServiceAccountInput)), true
 
 	case "Mutation.createTeam":
 		if e.complexity.Mutation.CreateTeam == nil {
@@ -10787,6 +10801,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputConfigureReconcilerInput,
 		ec.unmarshalInputConfirmTeamDeletionInput,
 		ec.unmarshalInputCreateSecretInput,
+		ec.unmarshalInputCreateServiceAccountInput,
 		ec.unmarshalInputCreateTeamInput,
 		ec.unmarshalInputCreateUnleashForTeamInput,
 		ec.unmarshalInputDeleteApplicationInput,
@@ -14597,7 +14612,41 @@ type SecretDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 }
 `, BuiltIn: false},
-	{Name: "../schema/serviceaccounts.graphqls", Input: `"""
+	{Name: "../schema/serviceaccounts.graphqls", Input: `extend type Query {
+	"""
+	Get a list of service accounts.
+	"""
+	serviceAccounts(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): ServiceAccountConnection!
+
+	"""
+	Returns a service account by its ID.
+	"""
+	serviceAccount("ID of the service account." id: ID!): ServiceAccount!
+}
+
+extend type Mutation {
+	createServiceAccount(input: CreateServiceAccountInput!): ServiceAccount!
+}
+
+input CreateServiceAccountInput {
+	name: String!
+	description: String!
+	teamSlug: Slug
+}
+
+"""
 Service account type.
 """
 type ServiceAccount implements Node {
@@ -14625,30 +14674,6 @@ type ServiceAccount implements Node {
 	The team that the service account belongs to.
 	"""
 	team: Team
-}
-
-extend type Query {
-	"""
-	Get a list of service accounts.
-	"""
-	serviceAccounts(
-		"Get the first n items in the connection. This can be used in combination with the after parameter."
-		first: Int
-
-		"Get items after this cursor."
-		after: Cursor
-
-		"Get the last n items in the connection. This can be used in combination with the before parameter."
-		last: Int
-
-		"Get items before this cursor."
-		before: Cursor
-	): ServiceAccountConnection!
-
-	"""
-	Returns a service account by its ID.
-	"""
-	serviceAccount("ID of the service account." id: ID!): ServiceAccount!
 }
 
 type ServiceAccountConnection {
@@ -19369,6 +19394,34 @@ func (ec *executionContext) field_Mutation_createSecret_argsInput(
 	}
 
 	var zeroVal secret.CreateSecretInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createServiceAccount_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_createServiceAccount_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_createServiceAccount_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (serviceaccount.CreateServiceAccountInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal serviceaccount.CreateServiceAccountInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreateServiceAccountInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐCreateServiceAccountInput(ctx, tmp)
+	}
+
+	var zeroVal serviceaccount.CreateServiceAccountInput
 	return zeroVal, nil
 }
 
@@ -43346,6 +43399,73 @@ func (ec *executionContext) fieldContext_Mutation_deleteSecret(ctx context.Conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteSecret_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createServiceAccount(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createServiceAccount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateServiceAccount(rctx, fc.Args["input"].(serviceaccount.CreateServiceAccountInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*serviceaccount.ServiceAccount)
+	fc.Result = res
+	return ec.marshalNServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccount(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createServiceAccount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ServiceAccount_id(ctx, field)
+			case "name":
+				return ec.fieldContext_ServiceAccount_name(ctx, field)
+			case "description":
+				return ec.fieldContext_ServiceAccount_description(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
+			case "team":
+				return ec.fieldContext_ServiceAccount_team(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ServiceAccount", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createServiceAccount_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -83284,6 +83404,47 @@ func (ec *executionContext) unmarshalInputCreateSecretInput(ctx context.Context,
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateServiceAccountInput(ctx context.Context, obj any) (serviceaccount.CreateServiceAccountInput, error) {
+	var it serviceaccount.CreateServiceAccountInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "description", "teamSlug"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "description":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Description = data
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateTeamInput(ctx context.Context, obj any) (team.CreateTeamInput, error) {
 	var it team.CreateTeamInput
 	asMap := map[string]any{}
@@ -93271,6 +93432,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "deleteSecret":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteSecret(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createServiceAccount":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createServiceAccount(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -109328,6 +109496,11 @@ func (ec *executionContext) marshalNCreateSecretPayload2ᚖgithubᚗcomᚋnais�
 		return graphql.Null
 	}
 	return ec._CreateSecretPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNCreateServiceAccountInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐCreateServiceAccountInput(ctx context.Context, v any) (serviceaccount.CreateServiceAccountInput, error) {
+	res, err := ec.unmarshalInputCreateServiceAccountInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNCreateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐCreateTeamInput(ctx context.Context, v any) (team.CreateTeamInput, error) {

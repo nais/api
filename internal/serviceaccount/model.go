@@ -16,11 +16,11 @@ type (
 )
 
 type ServiceAccount struct {
-	UUID        uuid.UUID `json:"-"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	CreatedAt   time.Time `json:"created_at"`
-	TeamSlug    slug.Slug `json:"-"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UUID        uuid.UUID  `json:"-"`
+	TeamSlug    *slug.Slug `json:"-"`
 }
 
 func (ServiceAccount) IsNode()                   {}
@@ -31,9 +31,18 @@ func (s *ServiceAccount) ID() ident.Ident {
 	return NewIdent(s.UUID)
 }
 
+type CreateServiceAccountInput struct {
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	TeamSlug    *slug.Slug `json:"teamSlug,omitempty"`
+}
+
 func toGraphServiceAccount(s *serviceaccountsql.ServiceAccount) *ServiceAccount {
 	return &ServiceAccount{
-		UUID: s.ID,
-		Name: s.Name,
+		UUID:        s.ID,
+		CreatedAt:   s.CreatedAt.Time,
+		TeamSlug:    s.TeamSlug,
+		Name:        s.Name,
+		Description: s.Description,
 	}
 }

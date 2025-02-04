@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/nais/api/internal/slug"
 )
 
 const count = `-- name: Count :one
@@ -26,15 +27,21 @@ func (q *Queries) Count(ctx context.Context) (int64, error) {
 
 const create = `-- name: Create :one
 INSERT INTO
-	service_accounts (name)
+	service_accounts (name, description, team_slug)
 VALUES
-	($1)
+	($1, $2, $3)
 RETURNING
 	id, created_at, name, description, team_slug
 `
 
-func (q *Queries) Create(ctx context.Context, name string) (*ServiceAccount, error) {
-	row := q.db.QueryRow(ctx, create, name)
+type CreateParams struct {
+	Name        string
+	Description string
+	TeamSlug    *slug.Slug
+}
+
+func (q *Queries) Create(ctx context.Context, arg CreateParams) (*ServiceAccount, error) {
+	row := q.db.QueryRow(ctx, create, arg.Name, arg.Description, arg.TeamSlug)
 	var i ServiceAccount
 	err := row.Scan(
 		&i.ID,

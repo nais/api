@@ -10,7 +10,7 @@ import (
 
 type Querier interface {
 	Count(ctx context.Context) (int64, error)
-	Create(ctx context.Context, name string) (*ServiceAccount, error)
+	Create(ctx context.Context, arg CreateParams) (*ServiceAccount, error)
 	CreateToken(ctx context.Context, arg CreateTokenParams) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccount, error)

@@ -39,9 +39,9 @@ WHERE
 
 -- name: Create :one
 INSERT INTO
-	service_accounts (name)
+	service_accounts (name, description, team_slug)
 VALUES
-	(@name)
+	(@name, @description, @team_slug)
 RETURNING
 	*
 ;
