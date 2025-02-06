@@ -159,3 +159,506 @@ status:
   loadBalancer:
     ingress:
       - ip: 192.169.69.70
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+    kubectl.kubernetes.io/default-container: app-w-all-storage
+    prometheus.io/path: /metrics
+    prometheus.io/port: "8080"
+    prometheus.io/scrape: "true"
+  creationTimestamp: "2025-02-05T09:13:32Z"
+  generateName: app-w-all-storage-6c65685f6c-
+  labels:
+    app: app-w-all-storage
+    kafka: enabled
+    pod-template-hash: 6c65685f6c
+    team: team-tolk
+    tokenx: enabled
+  name: app-w-all-storage-6c65685f6c-58sfd
+  namespace: team-tolk
+  ownerReferences:
+  - apiVersion: apps/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: ReplicaSet
+    name: app-w-all-storage-6c65685f6c
+    uid: 65925c85-4881-484f-83b2-ed260e923e00
+  resourceVersion: "478965706"
+  uid: 6ed645fd-2478-4096-9f59-0a035cd99058
+spec:
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app
+              operator: In
+              values:
+              - app-w-all-storage
+          topologyKey: kubernetes.io/hostname
+        weight: 10
+  containers:
+  - env:
+    - name: AIVEN_SECRET_UPDATED
+      valueFrom:
+        secretKeyRef:
+          key: AIVEN_SECRET_UPDATED
+          name: aiven-app-w-all-storage-e6bb10a2-2024-51-0
+    - name: AIVEN_CA
+      valueFrom:
+        secretKeyRef:
+          key: AIVEN_CA
+          name: aiven-app-w-all-storage-e6bb10a2-2024-51-0
+          optional: true
+    - name: KAFKA_CERTIFICATE
+      valueFrom:
+        secretKeyRef:
+          key: KAFKA_CERTIFICATE
+          name: aiven-app-w-all-storage-e6bb10a2-2024-51-0
+    - name: KAFKA_PRIVATE_KEY
+      valueFrom:
+        secretKeyRef:
+          key: KAFKA_PRIVATE_KEY
+          name: aiven-app-w-all-storage-e6bb10a2-2024-51-0
+    - name: KAFKA_BROKERS
+      valueFrom:
+        secretKeyRef:
+          key: KAFKA_BROKERS
+          name: aiven-app-w-all-storage-e6bb10a2-2024-51-0
+    - name: KAFKA_SCHEMA_REGISTRY
+      valueFrom:
+        secretKeyRef:
+          key: KAFKA_SCHEMA_REGISTRY
+          name: aiven-app-w-all-storage-e6bb10a2-2024-51-0
+    - name: KAFKA_SCHEMA_REGISTRY_USER
+      valueFrom:
+        secretKeyRef:
+          key: KAFKA_SCHEMA_REGISTRY_USER
+          name: aiven-app-w-all-storage-e6bb10a2-2024-51-0
+    - name: KAFKA_SCHEMA_REGISTRY_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          key: KAFKA_SCHEMA_REGISTRY_PASSWORD
+          name: aiven-app-w-all-storage-e6bb10a2-2024-51-0
+    - name: KAFKA_CA
+      valueFrom:
+        secretKeyRef:
+          key: KAFKA_CA
+          name: aiven-app-w-all-storage-e6bb10a2-2024-51-0
+    - name: KAFKA_CREDSTORE_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          key: KAFKA_CREDSTORE_PASSWORD
+          name: aiven-app-w-all-storage-e6bb10a2-2024-51-0
+    - name: KAFKA_CERTIFICATE_PATH
+      value: /var/run/secrets/nais.io/kafka/kafka.crt
+    - name: KAFKA_PRIVATE_KEY_PATH
+      value: /var/run/secrets/nais.io/kafka/kafka.key
+    - name: KAFKA_CA_PATH
+      value: /var/run/secrets/nais.io/kafka/ca.crt
+    - name: KAFKA_KEYSTORE_PATH
+      value: /var/run/secrets/nais.io/kafka/client.keystore.p12
+    - name: KAFKA_TRUSTSTORE_PATH
+      value: /var/run/secrets/nais.io/kafka/client.truststore.jks
+    - name: NAV_TRUSTSTORE_PATH
+      value: /etc/ssl/certs/java/cacerts
+    - name: NAV_TRUSTSTORE_PASSWORD
+      value: changeme
+    - name: NODE_EXTRA_CA_CERTS
+      value: /etc/pki/tls/certs/ca-bundle.crt
+    - name: GOOGLE_CLOUD_PROJECT
+      value: team-tolk-dev-2c5c
+    - name: GCP_TEAM_PROJECT_ID
+      value: team-tolk-dev-2c5c
+    - name: ELECTOR_PATH
+      value: localhost:4040
+    - name: ELECTOR_GET_URL
+      value: http://localhost:4040/
+    - name: ELECTOR_SSE_URL
+      value: http://localhost:4040/sse
+    - name: NAIS_APP_NAME
+      value: app-w-all-storage
+    - name: NAIS_NAMESPACE
+      value: team-tolk
+    - name: NAIS_APP_IMAGE
+      value: docker.pkg.github.com/navikt/pensjon-etterlatte-tolk/innsendt-soeknad:d426932313446cfb3f844be8bea40702abae27db
+    - name: NAIS_CLUSTER_NAME
+      value: dev-gcp
+    - name: NAIS_CLIENT_ID
+      value: dev-gcp:team-tolk:app-w-all-storage
+    - name: LOG4J_FORMAT_MSG_NO_LOOKUPS
+      value: "true"
+    - name: PORT
+      value: "8080"
+    - name: BIND_ADDRESS
+      value: 0.0.0.0:8080
+    - name: KAFKA_RAPID_TOPIC
+      value: etterlatte.dodsmelding
+    envFrom:
+    - secretRef:
+        name: google-sql-app-w-all-storage
+    - secretRef:
+        name: tokenx-app-w-all-storage-v0ahm5py
+    image: ghcr.io/navikt/pensjon-etterlatte-tolk/innsendt-soeknad:d426932313446cfb3f844be8bea40702abae27db
+    imagePullPolicy: IfNotPresent
+    lifecycle:
+      preStop:
+        sleep:
+          seconds: 5
+    livenessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /isalive
+        port: 8080
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 1
+    name: app-w-all-storage
+    ports:
+    - containerPort: 8080
+      name: http
+      protocol: TCP
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /isready
+        port: 8080
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 1
+    resources:
+      limits:
+        memory: 512Mi
+      requests:
+        cpu: 200m
+        memory: 256Mi
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      privileged: false
+      readOnlyRootFilesystem: true
+      runAsGroup: 1069
+      runAsNonRoot: true
+      runAsUser: 1069
+      seccompProfile:
+        type: RuntimeDefault
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /etc/ssl/certs/java/cacerts
+      name: ca-bundle-jks
+      readOnly: true
+      subPath: ca-bundle.jks
+    - mountPath: /etc/ssl/certs/ca-certificates.crt
+      name: ca-bundle-pem
+      readOnly: true
+      subPath: ca-bundle.pem
+    - mountPath: /etc/pki/tls/certs/ca-bundle.crt
+      name: ca-bundle-pem
+      readOnly: true
+      subPath: ca-bundle.pem
+    - mountPath: /etc/ssl/ca-bundle.pem
+      name: ca-bundle-pem
+      readOnly: true
+      subPath: ca-bundle.pem
+    - mountPath: /etc/pki/tls/cacert.pem
+      name: ca-bundle-pem
+      readOnly: true
+      subPath: ca-bundle.pem
+    - mountPath: /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
+      name: ca-bundle-pem
+      readOnly: true
+      subPath: ca-bundle.pem
+    - mountPath: /var/run/secrets/nais.io/jwker
+      name: tokenx-app-w-all-storage-v0ahm5py
+      readOnly: true
+    - mountPath: /var/run/secrets/nais.io/kafka
+      name: aiven-credentials
+      readOnly: true
+    - mountPath: /tmp
+      name: writable-tmp
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-sc4nn
+      readOnly: true
+  - args:
+    - --election=app-w-all-storage
+    - --http=localhost:4040
+    - --election-namespace=team-tolk
+    env:
+    - name: ELECTOR_LOG_FORMAT
+      value: json
+    image: europe-north1-docker.pkg.dev/nais-io/nais/images/elector:2024-08-22-114330-415bd00
+    imagePullPolicy: IfNotPresent
+    name: elector
+    ports:
+    - containerPort: 4040
+      protocol: TCP
+    resources:
+      requests:
+        cpu: 100m
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      privileged: false
+      readOnlyRootFilesystem: true
+      runAsGroup: 1069
+      runAsNonRoot: true
+      runAsUser: 1069
+      seccompProfile:
+        type: RuntimeDefault
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-sc4nn
+      readOnly: true
+  - command:
+    - /cloud-sql-proxy
+    - --max-sigterm-delay
+    - 30s
+    - --port
+    - "5432"
+    - --quitquitquit
+    - team-tolk-dev-2c5c:europe-north1:innsendt-soeknad-v2-tolk
+    image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.8-alpine
+    imagePullPolicy: IfNotPresent
+    name: cloudsql-proxy
+    ports:
+    - containerPort: 5432
+      protocol: TCP
+    resources:
+      limits:
+        memory: 256Mi
+      requests:
+        cpu: 50m
+        memory: 32Mi
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      privileged: false
+      readOnlyRootFilesystem: true
+      runAsGroup: 2
+      runAsNonRoot: true
+      runAsUser: 2
+      seccompProfile:
+        type: RuntimeDefault
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-sc4nn
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  imagePullSecrets:
+  - name: gh-docker-credentials
+  - name: gar-docker-credentials
+  nodeName: gke-nais-dev-nap-e2-standard-16-1unuv-f08d74e3-anxy
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: gke.io/optimize-utilization-scheduler
+  securityContext:
+    fsGroup: 1069
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+  serviceAccount: app-w-all-storage
+  serviceAccountName: app-w-all-storage
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - configMap:
+      defaultMode: 420
+      name: ca-bundle-jks
+    name: ca-bundle-jks
+  - configMap:
+      defaultMode: 420
+      name: ca-bundle-pem
+    name: ca-bundle-pem
+  - name: tokenx-app-w-all-storage-v0ahm5py
+    secret:
+      defaultMode: 420
+      secretName: tokenx-app-w-all-storage-v0ahm5py
+  - name: aiven-credentials
+    secret:
+      defaultMode: 420
+      items:
+      - key: KAFKA_CERTIFICATE
+        path: kafka.crt
+      - key: KAFKA_PRIVATE_KEY
+        path: kafka.key
+      - key: KAFKA_CA
+        path: ca.crt
+      - key: client.keystore.p12
+        path: client.keystore.p12
+      - key: client.truststore.jks
+        path: client.truststore.jks
+      secretName: aiven-app-w-all-storage-e6bb10a2-2024-51-0
+  - emptyDir: {}
+    name: writable-tmp
+  - name: kube-api-access-sc4nn
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2025-02-05T09:16:19Z"
+    status: "True"
+    type: PodReadyToStartContainers
+  - lastProbeTime: null
+    lastTransitionTime: "2025-02-05T09:13:33Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2025-02-05T09:13:33Z"
+    message: 'containers with unready status: [app-w-all-storage]'
+    reason: ContainersNotReady
+    status: "False"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2025-02-05T09:13:33Z"
+    message: 'containers with unready status: [app-w-all-storage]'
+    reason: ContainersNotReady
+    status: "False"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2025-02-05T09:13:33Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: containerd://9173e1a7b89571ed11926b766a3b96c6bb336bb7a0a9dee353e7f8b8bb907b4a
+    image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.8-alpine
+    imageID: gcr.io/cloud-sql-connectors/cloud-sql-proxy@sha256:2ae72bc8c4613bb3bcc4d539f3207785358d22497e44913795b74d91d7ba7133
+    lastState: {}
+    name: cloudsql-proxy
+    ready: true
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: "2025-02-05T09:16:19Z"
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-sc4nn
+      readOnly: true
+      recursiveReadOnly: Disabled
+  - containerID: containerd://65d2ed192e624140e7ee1b6e659769d3683ea64fdb8e0c74a100e112de822bd3
+    image: europe-north1-docker.pkg.dev/nais-io/nais/images/elector:2024-08-22-114330-415bd00
+    imageID: europe-north1-docker.pkg.dev/nais-io/nais/images/elector@sha256:1bd20e0177451da969d84ca5b02bae4904fae011c973d68f07e26fdd4afe9f56
+    lastState: {}
+    name: elector
+    ready: true
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: "2025-02-05T09:16:18Z"
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-sc4nn
+      readOnly: true
+      recursiveReadOnly: Disabled
+  - containerID: containerd://e26b63ee441890a34487fe2a1c61244cbc1b55340d871e62d491df4664774811
+    image: ghcr.io/navikt/pensjon-etterlatte-tolk/innsendt-soeknad:d426932313446cfb3f844be8bea40702abae27db
+    imageID: ghcr.io/navikt/pensjon-etterlatte-tolk/innsendt-soeknad@sha256:24c320476f2bb56c4f6a37ef080dcf64c879196362068bb994d84c00a0467abc
+    lastState:
+      terminated:
+        containerID: containerd://e26b63ee441890a34487fe2a1c61244cbc1b55340d871e62d491df4664774811
+        exitCode: 1
+        finishedAt: "2025-02-06T11:42:50Z"
+        reason: Error
+        startedAt: "2025-02-06T11:42:49Z"
+    name: app-w-all-storage
+    ready: false
+    restartCount: 314
+    started: false
+    state:
+      waiting:
+        message: back-off 5m0s restarting failed container=app-w-all-storage pod=app-w-all-storage-6c65685f6c-58sfd_team-tolk(6ed645fd-2478-4096-9f59-0a035cd99058)
+        reason: CrashLoopBackOff
+    volumeMounts:
+    - mountPath: /etc/ssl/certs/java/cacerts
+      name: ca-bundle-jks
+      readOnly: true
+      recursiveReadOnly: Disabled
+    - mountPath: /etc/ssl/certs/ca-certificates.crt
+      name: ca-bundle-pem
+      readOnly: true
+      recursiveReadOnly: Disabled
+    - mountPath: /etc/pki/tls/certs/ca-bundle.crt
+      name: ca-bundle-pem
+      readOnly: true
+      recursiveReadOnly: Disabled
+    - mountPath: /etc/ssl/ca-bundle.pem
+      name: ca-bundle-pem
+      readOnly: true
+      recursiveReadOnly: Disabled
+    - mountPath: /etc/pki/tls/cacert.pem
+      name: ca-bundle-pem
+      readOnly: true
+      recursiveReadOnly: Disabled
+    - mountPath: /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
+      name: ca-bundle-pem
+      readOnly: true
+      recursiveReadOnly: Disabled
+    - mountPath: /var/run/secrets/nais.io/jwker
+      name: tokenx-app-w-all-storage-v0ahm5py
+      readOnly: true
+      recursiveReadOnly: Disabled
+    - mountPath: /var/run/secrets/nais.io/kafka
+      name: aiven-credentials
+      readOnly: true
+      recursiveReadOnly: Disabled
+    - mountPath: /tmp
+      name: writable-tmp
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-sc4nn
+      readOnly: true
+      recursiveReadOnly: Disabled
+  hostIP: 10.6.8.11
+  hostIPs:
+  - ip: 10.6.8.11
+  phase: Running
+  podIP: 10.6.98.20
+  podIPs:
+  - ip: 10.6.98.20
+  qosClass: Burstable
+  startTime: "2025-02-05T09:13:33Z"

@@ -40,13 +40,21 @@ spec:
     - mountPath: /var/run/secrets
       secret: my-secret
   accessPolicy:
-    inbound:
-      rules:
-        - application: app-w-all-storage
     outbound:
+      external:
+        - host: "slack.com"
+        - host: api.example.com
+          ports:
+          - port: 9200
+        - ipv4: 1.2.3.4
+          ports:
+          - port: 443
+          - port: 80
+        - ipv4: 127.0.0.1
       rules:
         - application: app-w-all-storage
-status:
+        - application: app-w-read-storage
+´status:
   conditions:
     - lastTransitionTime: "2024-01-05T22:35:39Z"
       message: complete
