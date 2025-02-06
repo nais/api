@@ -5,8 +5,6 @@ database: # mapped in fasit
   user:
   password:
 
-ingressClassName: nais-ingress
-
 image:
   repository: europe-north1-docker.pkg.dev/nais-io/nais/images
   name: nais-api
