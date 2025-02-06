@@ -12,6 +12,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/usersync/usersyncsql"
 	"github.com/sirupsen/logrus"
 	admindirectoryv1 "google.golang.org/api/admin/directory/v1"
@@ -35,8 +36,6 @@ type userMap struct {
 	byExternalID map[string]*usersyncsql.User
 	byEmail      map[string]*usersyncsql.User
 }
-
-type userRolesMap map[*usersyncsql.User]map[string]struct{}
 
 type googleUser struct {
 	ID    string
@@ -104,6 +103,9 @@ func (s *Usersynchronizer) Sync(ctx context.Context) error {
 		}
 	}()
 	querier := s.querier.WithTx(tx)
+
+	// TODO: Fix this
+	ctx = database.NewTransactionContext(ctx, tx)
 
 	users, err := getUsers(ctx, querier)
 	if err != nil {

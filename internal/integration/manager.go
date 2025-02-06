@@ -14,7 +14,6 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/auth/authz/authzsql"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/cmd/api"
 	"github.com/nais/api/internal/database"
@@ -25,11 +24,9 @@ import (
 	apiRunner "github.com/nais/api/internal/integration/runner"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
-	"github.com/nais/api/internal/role"
 	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/user"
-	"github.com/nais/api/internal/usersync/usersyncer"
 	"github.com/nais/api/internal/vulnerability"
 	testmanager "github.com/nais/tester/lua"
 	"github.com/nais/tester/lua/runner"
@@ -299,11 +296,9 @@ func newDB(ctx context.Context, container *postgres.PostgresContainer, connStr s
 		}
 
 		for _, usr := range users.Nodes() {
-			for _, roleName := range usersyncer.DefaultRoleNames {
-				if err := authz.AssignGlobalRoleToUser(ctx, usr.UUID, authzsql.RoleName(roleName)); err != nil {
-					cleanup()
-					return nil, nil, fmt.Errorf("attach default role %q to user %q: %w", roleName, usr.Email, err)
-				}
+			if err := authz.AssignDefaultPermissionsToUser(ctx, usr.UUID); err != nil {
+				cleanup()
+				return nil, nil, fmt.Errorf("attach default permissions to user %q: %w", usr.Email, err)
 			}
 		}
 	}

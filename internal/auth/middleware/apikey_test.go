@@ -9,11 +9,9 @@ import (
 	"testing"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/serviceaccount"
 	"github.com/sirupsen/logrus/hooks/test"
 )

@@ -8,11 +8,12 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/nais/api/internal/usersync/usersyncsql"
+
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/nais/api/internal/auth/authz/authzsql"
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/pagination"
-	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/test"
 	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/usersync/usersyncer"
@@ -78,6 +79,7 @@ func TestSync(t *testing.T) {
 
 	t.Run("Local users, no remote users", func(t *testing.T) {
 		ctx, pool := setup(t)
+		querier := usersyncsql.New(pool)
 
 		user1, err := user.Create(ctx, "User 1", "user1@example.com", "123")
 		if err != nil {
@@ -89,11 +91,17 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := authz.AssignGlobalRoleToUser(ctx, user1.UUID, authzsql.RoleNameTeamcreator); err != nil {
+		if err := querier.AssignGlobalRole(ctx, usersyncsql.AssignGlobalRoleParams{
+			UserID:   user1.UUID,
+			RoleName: "Team creator",
+		}); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := authz.AssignGlobalRoleToUser(ctx, user2.UUID, authzsql.RoleNameAdmin); err != nil {
+		if err := querier.AssignGlobalRole(ctx, usersyncsql.AssignGlobalRoleParams{
+			UserID:   user2.UUID,
+			RoleName: "Admin",
+		}); err != nil {
 			t.Fatal(err)
 		}
 
@@ -127,6 +135,7 @@ func TestSync(t *testing.T) {
 
 	t.Run("Create, update and delete users", func(t *testing.T) {
 		ctx, pool := setup(t)
+		querier := usersyncsql.New(pool)
 
 		userWithIncorrectName, err := user.Create(ctx, "Incorrect Name", "user1@example.com", "1")
 		if err != nil {
@@ -148,7 +157,10 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := authz.AssignGlobalRoleToUser(ctx, userThatShouldLoseAdminRole.UUID, authzsql.RoleNameAdmin); err != nil {
+		if err := querier.AssignGlobalRole(ctx, usersyncsql.AssignGlobalRoleParams{
+			UserID:   userThatShouldLoseAdminRole.UUID,
+			RoleName: "Admin",
+		}); err != nil {
 			t.Fatal(err)
 		}
 
@@ -215,7 +227,7 @@ func TestSync(t *testing.T) {
 		}
 
 		for _, r := range roles {
-			if r.Name == authzsql.RoleNameAdmin {
+			if r.Name == "Admin" {
 				t.Fatalf("expected user to lose admin role, but still has it")
 			}
 		}
@@ -227,7 +239,7 @@ func TestSync(t *testing.T) {
 
 		foundAdminRole := false
 		for _, r := range roles {
-			if r.Name == authzsql.RoleNameAdmin {
+			if r.Name == "Admin" {
 				foundAdminRole = true
 				break
 			}

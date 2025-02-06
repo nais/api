@@ -139,7 +139,7 @@ SELECT
 	user_id,
 	JSON_AGG(
 		JSON_BUILD_OBJECT(
-			'role_name',
+			'name',
 			role_name,
 			'target_team_slug',
 			target_team_slug
@@ -160,6 +160,7 @@ type GetRolesForUsersRow struct {
 	Roles  []byte
 }
 
+// TODO: This should be rewritten to fetch rows from the roles table instead as it uses the authz.Role struct, which reflects rows from the roles table.
 func (q *Queries) GetRolesForUsers(ctx context.Context, userIds []uuid.UUID) ([]*GetRolesForUsersRow, error) {
 	rows, err := q.db.Query(ctx, getRolesForUsers, userIds)
 	if err != nil {
@@ -178,4 +179,122 @@ func (q *Queries) GetRolesForUsers(ctx context.Context, userIds []uuid.UUID) ([]
 		return nil, err
 	}
 	return items, nil
+}
+
+const hasGlobalAuthorization = `-- name: HasGlobalAuthorization :one
+SELECT
+	(
+		EXISTS (
+			SELECT
+				a.name
+			FROM
+				authorizations a
+				INNER JOIN role_authorizations ra ON ra.authorization_name = a.name
+				INNER JOIN user_roles ur ON ur.role_name = ra.role_name
+			WHERE
+				ur.user_id = $1
+				AND a.name = $2
+				AND ur.target_team_slug IS NULL
+		)
+		OR EXISTS (
+			SELECT
+				id
+			FROM
+				user_roles
+			WHERE
+				user_id = $1
+				AND role_name = 'Admin'
+				AND target_team_slug IS NULL
+		)
+	)::BOOLEAN
+`
+
+type HasGlobalAuthorizationParams struct {
+	UserID            uuid.UUID
+	AuthorizationName string
+}
+
+func (q *Queries) HasGlobalAuthorization(ctx context.Context, arg HasGlobalAuthorizationParams) (bool, error) {
+	row := q.db.QueryRow(ctx, hasGlobalAuthorization, arg.UserID, arg.AuthorizationName)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
+const hasTeamAuthorization = `-- name: HasTeamAuthorization :one
+SELECT
+	(
+		EXISTS (
+			SELECT
+				a.name
+			FROM
+				authorizations a
+				INNER JOIN role_authorizations ra ON ra.authorization_name = a.name
+				INNER JOIN user_roles ur ON ur.role_name = ra.role_name
+			WHERE
+				ur.user_id = $1
+				AND a.name = $2
+				AND (
+					ur.target_team_slug = $3::slug
+					OR ur.target_team_slug IS NULL
+				)
+		)
+		OR EXISTS (
+			SELECT
+				1
+			FROM
+				user_roles
+			WHERE
+				user_id = $1
+				AND role_name = 'Admin'
+				AND target_team_slug IS NULL
+		)
+	)::BOOLEAN
+`
+
+type HasTeamAuthorizationParams struct {
+	UserID            uuid.UUID
+	AuthorizationName string
+	TeamSlug          slug.Slug
+}
+
+func (q *Queries) HasTeamAuthorization(ctx context.Context, arg HasTeamAuthorizationParams) (bool, error) {
+	row := q.db.QueryRow(ctx, hasTeamAuthorization, arg.UserID, arg.AuthorizationName, arg.TeamSlug)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
+const isAdmin = `-- name: IsAdmin :one
+SELECT
+	EXISTS (
+		SELECT
+			1
+		FROM
+			user_roles
+		WHERE
+			user_id = $1
+			AND role_name = 'Admin'
+			AND target_team_slug IS NULL
+	)
+`
+
+func (q *Queries) IsAdmin(ctx context.Context, userID uuid.UUID) (bool, error) {
+	row := q.db.QueryRow(ctx, isAdmin, userID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const revokeGlobalAdmin = `-- name: RevokeGlobalAdmin :exec
+DELETE FROM user_roles
+WHERE
+	user_id = $1
+	AND role_name = 'Admin'
+	AND target_team_slug IS NULL
+`
+
+func (q *Queries) RevokeGlobalAdmin(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, revokeGlobalAdmin, userID)
+	return err
 }

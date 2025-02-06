@@ -60,7 +60,10 @@ func AssignDefaultPermissionsToUser(ctx context.Context, userID uuid.UUID) error
 }
 
 func AssignGlobalAdmin(ctx context.Context, userID uuid.UUID) error {
-	panic("not implemented")
+	return db(ctx).AssignGlobalRoleToUser(ctx, authzsql.AssignGlobalRoleToUserParams{
+		UserID:   userID,
+		RoleName: "Admin",
+	})
 }
 
 func MakeUserTeamMember(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error {
@@ -72,117 +75,106 @@ func MakeUserTeamOwner(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug
 }
 
 func CanCreateServiceAccounts(ctx context.Context, teamSlug *slug.Slug) error {
-	// actor := authz.ActorFromContext(ctx)
 	panic("not implemented")
 }
 
 func CanUpdateServiceAccounts(ctx context.Context, teamSlug *slug.Slug) error {
-	// actor := authz.ActorFromContext(ctx)
 	panic("not implemented")
 }
 
 func CanDeleteServiceAccounts(ctx context.Context, teamSlug *slug.Slug) error {
-	// actor := authz.ActorFromContext(ctx)
 	panic("not implemented")
 }
 
 func CanReadDeployKey(ctx context.Context, teamSlug slug.Slug) error {
-	// actor := authz.ActorFromContext(ctx)
-	panic("not implemented")
+	return requireTeamAuthorization(ctx, teamSlug, "deploy_key:read")
 }
 
 func CanUpdateDeployKey(ctx context.Context, teamSlug slug.Slug) error {
-	// actor := authz.ActorFromContext(ctx)
-	panic("not implemented")
+	return requireTeamAuthorization(ctx, teamSlug, "deploy_key:update")
 }
 
 func CanDeleteApplications(ctx context.Context, teamSlug slug.Slug) error {
-	// actor := authz.ActorFromContext(ctx)
-	panic("not implemented")
+	return requireTeamAuthorization(ctx, teamSlug, "applications:delete")
 }
 
 func CanUpdateApplications(ctx context.Context, teamSlug slug.Slug) error {
-	// actor := authz.ActorFromContext(ctx)
-	panic("not implemented")
+	return requireTeamAuthorization(ctx, teamSlug, "applications:update")
 }
 
 func CanDeleteJobs(ctx context.Context, teamSlug slug.Slug) error {
-	// actor := authz.ActorFromContext(ctx)
-	panic("not implemented")
+	return requireTeamAuthorization(ctx, teamSlug, "jobs:delete")
 }
 
 func CanUpdateJobs(ctx context.Context, teamSlug slug.Slug) error {
-	// actor := authz.ActorFromContext(ctx)
-	panic("not implemented")
+	return requireTeamAuthorization(ctx, teamSlug, "jobs:update")
 }
 
 func CanCreateRepositories(ctx context.Context, teamSlug slug.Slug) error {
-	// actor := authz.ActorFromContext(ctx)
-	panic("not implemented")
+	return requireTeamAuthorization(ctx, teamSlug, "repositories:create")
 }
 
 func CanDeleteRepositories(ctx context.Context, teamSlug slug.Slug) error {
-	// actor := authz.ActorFromContext(ctx)
-	panic("not implemented")
+	return requireTeamAuthorization(ctx, teamSlug, "repositories:delete")
 }
 
 func CanCreateSecrets(ctx context.Context, teamSlug slug.Slug) error {
-	// actor := authz.ActorFromContext(ctx)
-	panic("not implemented")
+	return requireTeamAuthorization(ctx, teamSlug, "teams:secrets:create")
 }
 
 func CanReadSecrets(ctx context.Context, teamSlug slug.Slug) error {
-	// actor := authz.ActorFromContext(ctx)
-	panic("not implemented")
+	return requireTeamAuthorization(ctx, teamSlug, "teams:secrets:read")
 }
 
 func CanUpdateSecrets(ctx context.Context, teamSlug slug.Slug) error {
-	// actor := authz.ActorFromContext(ctx)
-	panic("not implemented")
+	return requireTeamAuthorization(ctx, teamSlug, "teams:secrets:update")
 }
 
 func CanDeleteSecrets(ctx context.Context, teamSlug slug.Slug) error {
-	// actor := authz.ActorFromContext(ctx)
-	panic("not implemented")
+	return requireTeamAuthorization(ctx, teamSlug, "teams:secrets:delete")
 }
 
 func CanCreateTeam(ctx context.Context) error {
-	// actor := authz.ActorFromContext(ctx)
-	panic("not implemented")
+	return requireGlobalAuthorization(ctx, "teams:create")
 }
 
 func CanUpdateTeam(ctx context.Context, teamSlug slug.Slug) error {
-	// actor := authz.ActorFromContext(ctx)
-	panic("not implemented")
+	// TODO: authorization does not yet exist, create, or check for team owner role for the team?
+	return requireTeamAuthorization(ctx, teamSlug, "teams:update")
 }
 
 func CanUpdateTeamMetadata(ctx context.Context, teamSlug slug.Slug) error {
-	// actor := authz.ActorFromContext(ctx)
-	panic("not implemented")
+	return requireTeamAuthorization(ctx, teamSlug, "teams:metadata:update")
 }
 
 func CanDeleteTeam(ctx context.Context, teamSlug slug.Slug) error {
-	// actor := authz.ActorFromContext(ctx)
-	panic("not implemented")
+	return requireTeamAuthorization(ctx, teamSlug, "teams:delete")
 }
 
 func CanCreateUnleash(ctx context.Context, teamSlug slug.Slug) error {
-	// actor := authz.ActorFromContext(ctx)
-	panic("not implemented")
+	return requireTeamAuthorization(ctx, teamSlug, "unleash:create")
 }
 
 func CanUpdateUnleash(ctx context.Context, teamSlug slug.Slug) error {
-	// actor := authz.ActorFromContext(ctx)
-	panic("not implemented")
+	return requireTeamAuthorization(ctx, teamSlug, "unleash:update")
 }
 
 func RevokeGlobalAdmin(ctx context.Context, userID uuid.UUID) error {
-	panic("not implemented")
+	return db(ctx).RevokeGlobalAdmin(ctx, userID)
 }
 
-func IsGlobalAdmin(ctx context.Context, userID uuid.UUID) (bool, error) {
-	// don't return error if user is not admin
-	panic("not implemented")
+func RequireGlobalAdminCtx(ctx context.Context) error {
+	return RequireGlobalAdmin(ctx, ActorFromContext(ctx).User.GetID())
+}
+
+func RequireGlobalAdmin(ctx context.Context, userID uuid.UUID) error {
+	if isAdmin, err := db(ctx).IsAdmin(ctx, userID); err != nil {
+		return err
+	} else if !isAdmin {
+		return ErrUnauthorized
+	}
+
+	return nil
 }
 
 func assignGlobalRoleToUser(ctx context.Context, userID uuid.UUID, roleName string) error {
@@ -192,10 +184,35 @@ func assignGlobalRoleToUser(ctx context.Context, userID uuid.UUID, roleName stri
 	})
 }
 
-func assignTeamRoleToUser(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, roleName string) error {
-	return db(ctx).AssignTeamRoleToUser(ctx, authzsql.AssignTeamRoleToUserParams{
-		UserID:         userID,
-		RoleName:       roleName,
-		TargetTeamSlug: teamSlug,
+func requireTeamAuthorization(ctx context.Context, teamSlug slug.Slug, authorizationName string) error {
+	hasAuthorization, err := db(ctx).HasTeamAuthorization(ctx, authzsql.HasTeamAuthorizationParams{
+		UserID:            ActorFromContext(ctx).User.GetID(),
+		AuthorizationName: authorizationName,
+		TeamSlug:          teamSlug,
 	})
+	if err != nil {
+		return err
+	}
+
+	if hasAuthorization {
+		return nil
+	}
+
+	return newMissingAuthorizationError(authorizationName)
+}
+
+func requireGlobalAuthorization(ctx context.Context, authorizationName string) error {
+	authorized, err := db(ctx).HasGlobalAuthorization(ctx, authzsql.HasGlobalAuthorizationParams{
+		UserID:            ActorFromContext(ctx).User.GetID(),
+		AuthorizationName: authorizationName,
+	})
+	if err != nil {
+		return err
+	}
+
+	if authorized {
+		return nil
+	}
+
+	return newMissingAuthorizationError(authorizationName)
 }

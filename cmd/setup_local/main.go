@@ -20,7 +20,6 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/logger"
-	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/user"
@@ -267,7 +266,6 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			users = append(users, u)
 			emails[email] = struct{}{}
 		}
-		usersCreated := len(users)
 
 		var devteam *team.Team
 		devteam, err = team.Get(ctx, "devteam")
@@ -344,14 +342,14 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			}
 
 			for o := 0; o < *cfg.NumOwnersPerTeam; o++ {
-				u := users[rand.IntN(usersCreated)]
+				u := users[rand.IntN(len(users))]
 				if err = authz.MakeUserTeamOwner(ctx, u.UUID, t.Slug); err != nil {
 					return fmt.Errorf("make user %q owner of team %q: %w", u.Email, t.Slug, err)
 				}
 			}
 
 			for o := 0; o < *cfg.NumMembersPerTeam; o++ {
-				u := users[rand.IntN(usersCreated)]
+				u := users[rand.IntN(len(users))]
 				if err = authz.MakeUserTeamMember(ctx, u.UUID, t.Slug); err != nil {
 					return fmt.Errorf("make user %q member of team %q: %w", u.Email, t.Slug, err)
 				}

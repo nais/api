@@ -20,16 +20,6 @@ type (
 	RoleEdge       = pagination.Edge[*Role]
 )
 
-// IsGlobal checks if the role is globally assigned.
-func (r *Role) IsGlobal() bool {
-	return r.TargetTeamSlug == nil
-}
-
-// TargetsTeam checks if the role targets a specific team.
-func (r *Role) TargetsTeam(targetsTeamSlug slug.Slug) bool {
-	return r.TargetTeamSlug != nil && *r.TargetTeamSlug == targetsTeamSlug
-}
-
 type UserRoles struct {
 	UserID uuid.UUID
 	Roles  []*Role

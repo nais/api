@@ -35,6 +35,11 @@ func Transaction(ctx context.Context, callback func(ctx context.Context) error) 
 	return tx.Commit(ctx)
 }
 
+// TODO: Reimplement. This is a hack to make the usersyncer tests pass
+func NewTransactionContext(ctx context.Context, tx pgx.Tx) context.Context {
+	return context.WithValue(ctx, databaseTransactionKey, tx)
+}
+
 // TransactionFromContext will return a potentially open transaction from the context, nil if none exists.
 func TransactionFromContext(ctx context.Context) pgx.Tx {
 	tx, _ := ctx.Value(databaseTransactionKey).(pgx.Tx)

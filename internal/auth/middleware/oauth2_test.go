@@ -15,7 +15,6 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/session"
 	"github.com/nais/api/internal/user"
 	"github.com/sirupsen/logrus/hooks/test"
