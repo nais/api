@@ -166,6 +166,45 @@ func (q *Queries) List(ctx context.Context) ([]*User, error) {
 	return items, nil
 }
 
+const listGlobalAdmins = `-- name: ListGlobalAdmins :many
+SELECT
+	u.id, u.email, u.name, u.external_id
+FROM
+	users u
+	INNER JOIN user_roles ur ON u.id = ur.user_id
+WHERE
+	ur.role_name = 'Admin'
+	AND ur.target_team_slug IS NULL
+ORDER BY
+	u.name,
+	u.email
+`
+
+func (q *Queries) ListGlobalAdmins(ctx context.Context) ([]*User, error) {
+	rows, err := q.db.Query(ctx, listGlobalAdmins)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*User{}
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.Name,
+			&i.ExternalID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listLogEntries = `-- name: ListLogEntries :many
 SELECT
 	id, created_at, action, user_id, user_name, user_email, old_user_name, old_user_email, role_name

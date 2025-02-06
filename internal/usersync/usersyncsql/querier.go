@@ -15,6 +15,7 @@ type Querier interface {
 	CreateLogEntry(ctx context.Context, arg CreateLogEntryParams) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	List(ctx context.Context) ([]*User, error)
+	ListGlobalAdmins(ctx context.Context) ([]*User, error)
 	ListLogEntries(ctx context.Context, arg ListLogEntriesParams) ([]*UsersyncLogEntry, error)
 	ListLogEntriesByIDs(ctx context.Context, ids []uuid.UUID) ([]*UsersyncLogEntry, error)
 	ListRoles(ctx context.Context) ([]*UserRole, error)

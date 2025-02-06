@@ -8,10 +8,9 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/pagination"
-	"github.com/nais/api/internal/role"
-	"github.com/nais/api/internal/role/rolesql"
 	"github.com/nais/api/internal/serviceaccount"
 	"k8s.io/utils/ptr"
 )
@@ -23,7 +22,7 @@ type StaticServiceAccount struct {
 }
 
 type StaticServiceAccountRole struct {
-	Name rolesql.RoleName `json:"name"`
+	Name string `json:"name"`
 }
 
 const naisServiceAccountPrefix = "nais-"
@@ -55,12 +54,6 @@ func (s *StaticServiceAccounts) UnmarshalJSON(value []byte) error {
 		if serviceAccount.APIKey == "" {
 			return fmt.Errorf("service account is missing an API key: %q", serviceAccount.Name)
 		}
-
-		for _, r := range serviceAccount.Roles {
-			if !r.Name.Valid() {
-				return fmt.Errorf("invalid role name: %q for service account %q", r.Name, serviceAccount.Name)
-			}
-		}
 	}
 
 	*s = serviceAccounts
@@ -71,7 +64,7 @@ func (s *StaticServiceAccounts) UnmarshalJSON(value []byte) error {
 func setupStaticServiceAccounts(ctx context.Context, pool *pgxpool.Pool, serviceAccounts StaticServiceAccounts) error {
 	ctx = database.NewLoaderContext(ctx, pool)
 	ctx = serviceaccount.NewLoaderContext(ctx, pool)
-	ctx = role.NewLoaderContext(ctx, pool)
+	ctx = authz.NewLoaderContext(ctx, pool)
 
 	return database.Transaction(ctx, func(ctx context.Context) error {
 		names := make(map[string]struct{})
@@ -92,7 +85,7 @@ func setupStaticServiceAccounts(ctx context.Context, pool *pgxpool.Pool, service
 				return err
 			}
 
-			existingRoles, err := role.ForServiceAccount(ctx, sa.UUID)
+			existingRoles, err := authz.ForServiceAccount(ctx, sa.UUID)
 			if err != nil {
 				return err
 			}
@@ -102,7 +95,7 @@ func setupStaticServiceAccounts(ctx context.Context, pool *pgxpool.Pool, service
 					continue
 				}
 
-				if err := role.AssignGlobalRoleToServiceAccount(ctx, sa.UUID, r.Name); err != nil {
+				if err := authz.AssignGlobalRoleToServiceAccount(ctx, sa.UUID, r.Name); err != nil {
 					return err
 				}
 			}
@@ -141,7 +134,7 @@ func setupStaticServiceAccounts(ctx context.Context, pool *pgxpool.Pool, service
 	})
 }
 
-func hasGlobalRoleRole(roleName rolesql.RoleName, existingRoles []*role.Role) bool {
+func hasGlobalRoleRole(roleName string, existingRoles []*authz.Role) bool {
 	for _, r := range existingRoles {
 		if r.TargetTeamSlug != nil {
 			continue

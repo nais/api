@@ -9,10 +9,10 @@ import (
 	"testing"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/auth/authz/authzsql"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/role"
-	"github.com/nais/api/internal/role/rolesql"
 	"github.com/nais/api/internal/test"
 	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/usersync/usersyncer"
@@ -41,7 +41,7 @@ func TestSync(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = user.NewLoaderContext(ctx, pool)
-		ctx = role.NewLoaderContext(ctx, pool)
+		ctx = authz.NewLoaderContext(ctx, pool)
 		return ctx, pool
 	}
 	t.Run("No local users, no remote users", func(t *testing.T) {
@@ -89,11 +89,11 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := role.AssignGlobalRoleToUser(ctx, user1.UUID, rolesql.RoleNameTeamcreator); err != nil {
+		if err := authz.AssignGlobalRoleToUser(ctx, user1.UUID, authzsql.RoleNameTeamcreator); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := role.AssignGlobalRoleToUser(ctx, user2.UUID, rolesql.RoleNameAdmin); err != nil {
+		if err := authz.AssignGlobalRoleToUser(ctx, user2.UUID, authzsql.RoleNameAdmin); err != nil {
 			t.Fatal(err)
 		}
 
@@ -148,7 +148,7 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := role.AssignGlobalRoleToUser(ctx, userThatShouldLoseAdminRole.UUID, rolesql.RoleNameAdmin); err != nil {
+		if err := authz.AssignGlobalRoleToUser(ctx, userThatShouldLoseAdminRole.UUID, authzsql.RoleNameAdmin); err != nil {
 			t.Fatal(err)
 		}
 
@@ -209,25 +209,25 @@ func TestSync(t *testing.T) {
 			t.Fatalf("expected name to be %q, got %q", correctName, u.Name)
 		}
 
-		roles, err := role.ForUser(ctx, userThatShouldLoseAdminRole.UUID)
+		roles, err := authz.ForUser(ctx, userThatShouldLoseAdminRole.UUID)
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		for _, r := range roles {
-			if r.Name == rolesql.RoleNameAdmin {
+			if r.Name == authzsql.RoleNameAdmin {
 				t.Fatalf("expected user to lose admin role, but still has it")
 			}
 		}
 
-		roles, err = role.ForUser(ctx, userWithIncorrectEmail.UUID)
+		roles, err = authz.ForUser(ctx, userWithIncorrectEmail.UUID)
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		foundAdminRole := false
 		for _, r := range roles {
-			if r.Name == rolesql.RoleNameAdmin {
+			if r.Name == authzsql.RoleNameAdmin {
 				foundAdminRole = true
 				break
 			}

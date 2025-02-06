@@ -68,13 +68,13 @@ sql:
         out: "../internal/team/teamsql"
 
   - <<: *default_domain
-    name: "Roles SQL"
-    queries: "../internal/role/queries"
+    name: "Authz SQL"
+    queries: "../internal/auth/authz/queries"
     gen:
       go:
         <<: *default_go
-        package: "rolesql"
-        out: "../internal/role/rolesql"
+        package: "authzsql"
+        out: "../internal/auth/authz/authzsql"
 
   - <<: *default_domain
     name: "Activity log SQL"

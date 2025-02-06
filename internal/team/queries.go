@@ -12,8 +12,6 @@ import (
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
-	"github.com/nais/api/internal/role"
-	"github.com/nais/api/internal/role/rolesql"
 	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team/teamsql"
@@ -38,9 +36,10 @@ func Create(ctx context.Context, input *CreateTeamInput, actor *authz.Actor) (*T
 		}
 
 		if actor.User.IsServiceAccount() {
-			err = role.AssignTeamRoleToServiceAccount(ctx, actor.User.GetID(), input.Slug, rolesql.RoleNameTeamowner)
+			// TODO: This is a temporary solution for "nais-verification"
+			err = authz.AssignTeamRoleToServiceAccount(ctx, actor.User.GetID(), input.Slug, "Team owner")
 		} else {
-			err = role.AssignTeamRoleToUser(ctx, actor.User.GetID(), input.Slug, rolesql.RoleNameTeamowner)
+			err = authz.MakeUserTeamOwner(ctx, actor.User.GetID(), input.Slug)
 		}
 		if err != nil {
 			return err

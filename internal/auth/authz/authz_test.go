@@ -6,9 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/role"
-	"github.com/nais/api/internal/role/rolesql"
+	"github.com/nais/api/internal/auth/authz/authzsql"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/user"
 )
@@ -29,7 +27,7 @@ func TestContextWithUser(t *testing.T) {
 		Email: "mail@example.com",
 	}
 
-	roles := make([]*role.Role, 0)
+	roles := make([]*authz.Role, 0)
 
 	ctx = authz.ContextWithActor(ctx, u, roles)
 
@@ -51,30 +49,30 @@ func TestRequireGlobalAuthorization(t *testing.T) {
 	}
 
 	t.Run("Nil user", func(t *testing.T) {
-		if !errors.Is(authz.RequireGlobalAuthorization(nil, role.AuthorizationTeamsCreate), authz.ErrNotAuthenticated) {
+		if !errors.Is(authz.RequireGlobalAuthorization(nil, authz.AuthorizationTeamsCreate), authz.ErrNotAuthenticated) {
 			t.Fatal("RequireGlobalAuthorization(ctx): expected ErrNotAuthenticated")
 		}
 	})
 
 	t.Run("User with no roles", func(t *testing.T) {
-		contextUser := authz.ActorFromContext(authz.ContextWithActor(context.Background(), u, []*role.Role{}))
-		if authz.RequireGlobalAuthorization(contextUser, role.AuthorizationTeamsCreate).Error() != authTeamCreateError {
+		contextUser := authz.ActorFromContext(authz.ContextWithActor(context.Background(), u, []*authz.Role{}))
+		if authz.RequireGlobalAuthorization(contextUser, authz.AuthorizationTeamsCreate).Error() != authTeamCreateError {
 			t.Fatalf("RequireGlobalAuthorization(ctx): expected error text to match %q", authTeamCreateError)
 		}
 	})
 
 	t.Run("User with insufficient roles", func(t *testing.T) {
-		userRoles := []*role.Role{{Name: rolesql.RoleNameTeamviewer}}
+		userRoles := []*authz.Role{{Name: authzsql.RoleNameTeamviewer}}
 		contextUser := authz.ActorFromContext(authz.ContextWithActor(context.Background(), u, userRoles))
-		if authz.RequireGlobalAuthorization(contextUser, role.AuthorizationTeamsCreate).Error() != authTeamCreateError {
+		if authz.RequireGlobalAuthorization(contextUser, authz.AuthorizationTeamsCreate).Error() != authTeamCreateError {
 			t.Fatalf("RequireGlobalAuthorization(ctx): expected error text to match %q", authTeamCreateError)
 		}
 	})
 
 	t.Run("User with sufficient role", func(t *testing.T) {
-		userRoles := []*role.Role{{Name: rolesql.RoleNameTeamcreator}}
+		userRoles := []*authz.Role{{Name: authzsql.RoleNameTeamcreator}}
 		contextUser := authz.ActorFromContext(authz.ContextWithActor(context.Background(), u, userRoles))
-		if authz.RequireGlobalAuthorization(contextUser, role.AuthorizationTeamsCreate) != nil {
+		if authz.RequireGlobalAuthorization(contextUser, authz.AuthorizationTeamsCreate) != nil {
 			t.Fatal("RequireGlobalAuthorization(ctx): expected nil error")
 		}
 	})
@@ -88,62 +86,62 @@ func TestRequireAuthorizationForTeamTarget(t *testing.T) {
 	targetTeamSlug := slug.Slug("slug")
 
 	t.Run("Nil user", func(t *testing.T) {
-		if !errors.Is(authz.RequireTeamAuthorization(nil, role.AuthorizationTeamsCreate, targetTeamSlug), authz.ErrNotAuthenticated) {
+		if !errors.Is(authz.RequireTeamAuthorization(nil, authz.AuthorizationTeamsCreate, targetTeamSlug), authz.ErrNotAuthenticated) {
 			t.Fatal("RequireTeamAuthorization(ctx): expected ErrNotAuthenticated")
 		}
 	})
 
 	t.Run("User with no roles", func(t *testing.T) {
-		contextUser := authz.ActorFromContext(authz.ContextWithActor(context.Background(), u, []*role.Role{}))
-		if authz.RequireTeamAuthorization(contextUser, role.AuthorizationTeamsCreate, targetTeamSlug).Error() != authTeamCreateError {
+		contextUser := authz.ActorFromContext(authz.ContextWithActor(context.Background(), u, []*authz.Role{}))
+		if authz.RequireTeamAuthorization(contextUser, authz.AuthorizationTeamsCreate, targetTeamSlug).Error() != authTeamCreateError {
 			t.Fatalf("RequireTeamAuthorization(ctx): expected error text to match %q", authTeamCreateError)
 		}
 	})
 
 	t.Run("User with insufficient roles", func(t *testing.T) {
-		userRoles := []*role.Role{{Name: rolesql.RoleNameTeamviewer}}
+		userRoles := []*authz.Role{{Name: authzsql.RoleNameTeamviewer}}
 		contextUser := authz.ActorFromContext(authz.ContextWithActor(context.Background(), u, userRoles))
-		err := authz.RequireTeamAuthorization(contextUser, role.AuthorizationTeamsMetadataUpdate, targetTeamSlug)
+		err := authz.RequireTeamAuthorization(contextUser, authz.AuthorizationTeamsMetadataUpdate, targetTeamSlug)
 		if err.Error() != authTeamUpdateError {
 			t.Fatalf("RequireTeamAuthorization(ctx): expected error text to match %q", authTeamUpdateError)
 		}
 	})
 
 	t.Run("User with targeted role", func(t *testing.T) {
-		userRoles := []*role.Role{
+		userRoles := []*authz.Role{
 			{
-				Name:           rolesql.RoleNameTeamowner,
+				Name:           authzsql.RoleNameTeamowner,
 				TargetTeamSlug: &targetTeamSlug,
 			},
 		}
 		contextUser := authz.ActorFromContext(authz.ContextWithActor(context.Background(), u, userRoles))
-		if authz.RequireTeamAuthorization(contextUser, role.AuthorizationTeamsMetadataUpdate, targetTeamSlug) != nil {
+		if authz.RequireTeamAuthorization(contextUser, authz.AuthorizationTeamsMetadataUpdate, targetTeamSlug) != nil {
 			t.Fatal("RequireTeamAuthorization(ctx): expected nil error")
 		}
 	})
 
 	t.Run("User with targeted role for wrong target", func(t *testing.T) {
 		wrongSlug := slug.Slug("other-team")
-		userRoles := []*role.Role{
+		userRoles := []*authz.Role{
 			{
-				Name:           rolesql.RoleNameTeamowner,
+				Name:           authzsql.RoleNameTeamowner,
 				TargetTeamSlug: &wrongSlug,
 			},
 		}
 		contextUser := authz.ActorFromContext(authz.ContextWithActor(context.Background(), u, userRoles))
-		if authz.RequireTeamAuthorization(contextUser, role.AuthorizationTeamsMetadataUpdate, targetTeamSlug).Error() != authTeamUpdateError {
+		if authz.RequireTeamAuthorization(contextUser, authz.AuthorizationTeamsMetadataUpdate, targetTeamSlug).Error() != authTeamUpdateError {
 			t.Fatalf("RequireTeamAuthorization(ctx): expected error text to match %q", authTeamUpdateError)
 		}
 	})
 
 	t.Run("User with global role", func(t *testing.T) {
-		userRoles := []*role.Role{
+		userRoles := []*authz.Role{
 			{
-				Name: rolesql.RoleNameAdmin,
+				Name: authzsql.RoleNameAdmin,
 			},
 		}
 		contextUser := authz.ActorFromContext(authz.ContextWithActor(context.Background(), u, userRoles))
-		if authz.RequireTeamAuthorization(contextUser, role.AuthorizationTeamsMetadataUpdate, targetTeamSlug) != nil {
+		if authz.RequireTeamAuthorization(contextUser, authz.AuthorizationTeamsMetadataUpdate, targetTeamSlug) != nil {
 			t.Fatal("RequireTeamAuthorization(ctx): expected nil error")
 		}
 	})

@@ -9,7 +9,6 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/validate"
 	"github.com/sirupsen/logrus"
@@ -88,18 +87,11 @@ func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
 		switch unwrappedError {
 		case sql.ErrNoRows, pgx.ErrNoRows, loader.ErrObjectNotFound:
 			err.Message = "Object was not found in the database. This usually means you specified a non-existing team identifier or e-mail address."
-		case authz.ErrNotAuthenticated:
-			err.Message = "Valid user required. You are not logged in."
 		case context.Canceled:
 			// This won't make it back to the caller if they have cancelled the request on their end
 			err.Message = "Request canceled"
 		default:
-			identity := "<unknown>"
-			actor := authz.ActorFromContext(ctx)
-			if actor != nil {
-				identity = actor.User.Identity()
-			}
-			log.WithError(err).WithField("actor", identity).Errorf("unhandled error: %q", err)
+			log.WithError(err).Errorf("unhandled error: %q", err)
 			err.Message = "The server errored out while processing your request, and we didn't write a suitable error message. You might consider that a bug on our side. Please try again, and if the error persists, contact the NAIS team."
 		}
 

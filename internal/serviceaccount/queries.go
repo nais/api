@@ -9,7 +9,6 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
-	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/serviceaccount/serviceaccountsql"
 )
 
@@ -48,18 +47,8 @@ func GetByIdent(ctx context.Context, ident ident.Ident) (*ServiceAccount, error)
 }
 
 func Create(ctx context.Context, input CreateServiceAccountInput) (*ServiceAccount, error) {
-	actor := authz.ActorFromContext(ctx)
-
-	if input.TeamSlug == nil {
-		err := authz.RequireGlobalAuthorization(actor, role.AuthorizationServiceAccountsCreate)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		err := authz.RequireTeamAuthorization(actor, role.AuthorizationServiceAccountsCreate, *input.TeamSlug)
-		if err != nil {
-			return nil, err
-		}
+	if err := authz.CanCreateServiceAccounts(ctx, input.TeamSlug); err != nil {
+		return nil, err
 	}
 
 	var sa *ServiceAccount
@@ -98,17 +87,8 @@ func Update(ctx context.Context, input UpdateServiceAccountInput) (*ServiceAccou
 		return nil, err
 	}
 
-	actor := authz.ActorFromContext(ctx)
-	if existingSA.TeamSlug == nil {
-		err := authz.RequireGlobalAuthorization(actor, role.AuthorizationServiceAccountsUpdate)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		err := authz.RequireTeamAuthorization(actor, role.AuthorizationServiceAccountsUpdate, *existingSA.TeamSlug)
-		if err != nil {
-			return nil, err
-		}
+	if err := authz.CanUpdateServiceAccounts(ctx, existingSA.TeamSlug); err != nil {
+		return nil, err
 	}
 
 	var sa *ServiceAccount
@@ -134,7 +114,7 @@ func Update(ctx context.Context, input UpdateServiceAccountInput) (*ServiceAccou
 
 		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:       activitylog.ActivityLogEntryActionUpdated,
-			Actor:        actor.User,
+			Actor:        authz.ActorFromContext(ctx).User,
 			ResourceType: activityLogEntryResourceTypeServiceAccount,
 			ResourceName: sa.Name,
 			TeamSlug:     sa.TeamSlug,
@@ -162,17 +142,8 @@ func Delete(ctx context.Context, input DeleteServiceAccountInput) error {
 		return err
 	}
 
-	actor := authz.ActorFromContext(ctx)
-	if existingSA.TeamSlug == nil {
-		err := authz.RequireGlobalAuthorization(actor, role.AuthorizationServiceAccountsDelete)
-		if err != nil {
-			return err
-		}
-	} else {
-		err := authz.RequireTeamAuthorization(actor, role.AuthorizationServiceAccountsDelete, *existingSA.TeamSlug)
-		if err != nil {
-			return err
-		}
+	if err := authz.CanDeleteServiceAccounts(ctx, existingSA.TeamSlug); err != nil {
+		return err
 	}
 
 	return database.Transaction(ctx, func(ctx context.Context) error {
@@ -180,11 +151,9 @@ func Delete(ctx context.Context, input DeleteServiceAccountInput) error {
 			return err
 		}
 
-		actor := authz.ActorFromContext(ctx)
-
 		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:       activitylog.ActivityLogEntryActionDeleted,
-			Actor:        actor.User,
+			Actor:        authz.ActorFromContext(ctx).User,
 			ResourceType: activityLogEntryResourceTypeServiceAccount,
 			ResourceName: existingSA.Name,
 			TeamSlug:     existingSA.TeamSlug,

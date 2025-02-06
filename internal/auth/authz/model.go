@@ -1,18 +1,24 @@
-package role
+package authz
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/role/rolesql"
+	"github.com/nais/api/internal/auth/authz/authzsql"
+	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
 )
 
 type Role struct {
-	Name           string     `json:"role_name"`
+	Name           string     `json:"name"`
+	Description    string     `json:"description"`
 	TargetTeamSlug *slug.Slug `json:"target_team_slug"`
 }
+
+type (
+	RoleConnection = pagination.Connection[*Role]
+	RoleEdge       = pagination.Edge[*Role]
+)
 
 // IsGlobal checks if the role is globally assigned.
 func (r *Role) IsGlobal() bool {
@@ -24,22 +30,12 @@ func (r *Role) TargetsTeam(targetsTeamSlug slug.Slug) bool {
 	return r.TargetTeamSlug != nil && *r.TargetTeamSlug == targetsTeamSlug
 }
 
-// Authorizations returns the authorizations for the role.
-func (r *Role) Authorizations() ([]Authorization, error) {
-	authorizations, exists := roles[r.Name]
-	if !exists {
-		return nil, fmt.Errorf("unknown role: %q", r.Name)
-	}
-
-	return authorizations, nil
-}
-
 type UserRoles struct {
 	UserID uuid.UUID
 	Roles  []*Role
 }
 
-func toUserRoles(row *rolesql.GetRolesForUsersRow) (*UserRoles, error) {
+func toUserRoles(row *authzsql.GetRolesForUsersRow) (*UserRoles, error) {
 	var roles []*Role
 	if err := json.Unmarshal(row.Roles, &roles); err != nil {
 		return nil, err
@@ -56,7 +52,7 @@ type ServiceAccountRoles struct {
 	Roles            []*Role
 }
 
-func toServiceAccountRoles(row *rolesql.GetRolesForServiceAccountsRow) (*ServiceAccountRoles, error) {
+func toServiceAccountRoles(row *authzsql.GetRolesForServiceAccountsRow) (*ServiceAccountRoles, error) {
 	var roles []*Role
 	if err := json.Unmarshal(row.Roles, &roles); err != nil {
 		return nil, err

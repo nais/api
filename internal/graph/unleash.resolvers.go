@@ -8,13 +8,12 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes/watcher"
-	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/unleash"
 )
 
 func (r *mutationResolver) CreateUnleashForTeam(ctx context.Context, input unleash.CreateUnleashForTeamInput) (*unleash.CreateUnleashForTeamPayload, error) {
-	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationUnleashCreate, input.TeamSlug); err != nil {
+	if err := authz.CanCreateUnleash(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
@@ -27,7 +26,7 @@ func (r *mutationResolver) CreateUnleashForTeam(ctx context.Context, input unlea
 }
 
 func (r *mutationResolver) AllowTeamAccessToUnleash(ctx context.Context, input unleash.AllowTeamAccessToUnleashInput) (*unleash.AllowTeamAccessToUnleashPayload, error) {
-	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationUnleashUpdate, input.TeamSlug); err != nil {
+	if err := authz.CanUpdateUnleash(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
@@ -40,7 +39,7 @@ func (r *mutationResolver) AllowTeamAccessToUnleash(ctx context.Context, input u
 }
 
 func (r *mutationResolver) RevokeTeamAccessToUnleash(ctx context.Context, input unleash.RevokeTeamAccessToUnleashInput) (*unleash.RevokeTeamAccessToUnleashPayload, error) {
-	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationUnleashUpdate, input.TeamSlug); err != nil {
+	if err := authz.CanUpdateUnleash(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 

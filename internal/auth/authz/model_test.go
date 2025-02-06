@@ -1,4 +1,4 @@
-package role_test
+package authz_test
 
 import (
 	"testing"
@@ -10,15 +10,15 @@ import (
 func TestRole_IsGlobal(t *testing.T) {
 	targetTeamSlug := slug.Slug("slug")
 	tests := map[string]struct {
-		role role.Role
+		role authz.Role
 		want bool
 	}{
 		"global role": {
-			role: role.Role{},
+			role: authz.Role{},
 			want: true,
 		},
 		"team targeted role": {
-			role: role.Role{TargetTeamSlug: &targetTeamSlug},
+			role: authz.Role{TargetTeamSlug: &targetTeamSlug},
 			want: false,
 		},
 	}
@@ -35,22 +35,22 @@ func TestRole_IsGlobal(t *testing.T) {
 func TestRole_Targets(t *testing.T) {
 	targetTeamSlug := slug.Slug("slug")
 	tests := map[string]struct {
-		role           role.Role
+		role           authz.Role
 		targetTeamSlug slug.Slug
 		want           bool
 	}{
 		"role with target team": {
-			role:           role.Role{TargetTeamSlug: &targetTeamSlug},
+			role:           authz.Role{TargetTeamSlug: &targetTeamSlug},
 			targetTeamSlug: slug.Slug("slug"),
 			want:           true,
 		},
 		"role with target team, wrong slug": {
-			role:           role.Role{TargetTeamSlug: &targetTeamSlug},
+			role:           authz.Role{TargetTeamSlug: &targetTeamSlug},
 			targetTeamSlug: slug.Slug("wrong"),
 			want:           false,
 		},
 		"role without target team": {
-			role:           role.Role{},
+			role:           authz.Role{},
 			targetTeamSlug: slug.Slug("slug"),
 			want:           false,
 		},

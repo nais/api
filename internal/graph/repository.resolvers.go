@@ -8,12 +8,11 @@ import (
 	"github.com/nais/api/internal/github/repository"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
-	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/team"
 )
 
 func (r *mutationResolver) AddRepositoryToTeam(ctx context.Context, input repository.AddRepositoryToTeamInput) (*repository.AddRepositoryToTeamPayload, error) {
-	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationRepositoriesCreate, input.TeamSlug); err != nil {
+	if err := authz.CanCreateRepositories(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
@@ -30,7 +29,7 @@ func (r *mutationResolver) AddRepositoryToTeam(ctx context.Context, input reposi
 }
 
 func (r *mutationResolver) RemoveRepositoryFromTeam(ctx context.Context, input repository.RemoveRepositoryFromTeamInput) (*repository.RemoveRepositoryFromTeamPayload, error) {
-	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationRepositoriesDelete, input.TeamSlug); err != nil {
+	if err := authz.CanDeleteRepositories(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 

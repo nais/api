@@ -2,12 +2,9 @@ package authz
 
 import (
 	"context"
-	"errors"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/role"
-	"github.com/nais/api/internal/role/rolesql"
-	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/graph/apierror"
 )
 
 type ContextKey string
@@ -20,10 +17,10 @@ type AuthenticatedUser interface {
 
 type Actor struct {
 	User  AuthenticatedUser
-	Roles []*role.Role
+	Roles []*Role
 }
 
-var ErrNotAuthenticated = errors.New("not authenticated")
+var ErrNotAuthenticated = apierror.Errorf("Valid user required. You are not logged in.")
 
 func (u *Actor) Authenticated() bool {
 	if u == nil || u.User == nil {
@@ -36,7 +33,7 @@ func (u *Actor) Authenticated() bool {
 const contextKeyUser ContextKey = "actor"
 
 // ContextWithActor Return a context with an actor attached to it.
-func ContextWithActor(ctx context.Context, user AuthenticatedUser, roles []*role.Role) context.Context {
+func ContextWithActor(ctx context.Context, user AuthenticatedUser, roles []*Role) context.Context {
 	return context.WithValue(ctx, contextKeyUser, &Actor{
 		User:  user,
 		Roles: roles,
@@ -50,19 +47,21 @@ func ActorFromContext(ctx context.Context) *Actor {
 	return actor
 }
 
-// RequireGlobalAuthorization Require an actor to have a specific authorization through a globally assigned role.
-func RequireGlobalAuthorization(actor *Actor, requiredAuthzName role.Authorization) error {
+/*
+// requireGlobalAuthorization Require an actor to have a specific authorization through a globally assigned role.
+func requireGlobalAuthorization(actor *Actor, requiredAuthzName string) error {
 	if !actor.Authenticated() {
 		return ErrNotAuthenticated
 	}
 
-	authorizations := make(map[role.Authorization]struct{})
+	authorizations := make(map[string]struct{})
 
 	for _, r := range actor.Roles {
-		if r.Name == rolesql.RoleNameAdmin {
+		if r.Name == "Admin" {
 			return nil
 		}
 
+		authorizations, err := ListAuthorizationsInRole(r.Name)
 		roleAuthz, err := r.Authorizations()
 		if err != nil {
 			return err
@@ -77,17 +76,19 @@ func RequireGlobalAuthorization(actor *Actor, requiredAuthzName role.Authorizati
 	return authorized(authorizations, requiredAuthzName)
 }
 
-// RequireTeamAuthorization Require an actor to have a specific authorization through a globally assigned or a correctly
+
+
+// requireTeamAuthorization Require an actor to have a specific authorization through a globally assigned or a correctly
 // targeted role.
-func RequireTeamAuthorization(actor *Actor, requiredAuthzName role.Authorization, targetTeamSlug slug.Slug) error {
+func requireTeamAuthorization(actor *Actor, requiredAuthzName string, targetTeamSlug slug.Slug) error {
 	if !actor.Authenticated() {
 		return ErrNotAuthenticated
 	}
 
-	authorizations := make(map[role.Authorization]struct{})
+	authorizations := make(map[string]struct{})
 
 	for _, r := range actor.Roles {
-		if r.Name == rolesql.RoleNameAdmin {
+		if r.Name == "Admin" {
 			return nil
 		}
 
@@ -106,12 +107,13 @@ func RequireTeamAuthorization(actor *Actor, requiredAuthzName role.Authorization
 }
 
 // RequireTeamAuthorizationCtx fetches the actor from the context and checks if it has the required authorization.
-func RequireTeamAuthorizationCtx(ctx context.Context, requiredAuthzName role.Authorization, targetTeamSlug slug.Slug) error {
+func RequireTeamAuthorizationCtx(ctx context.Context, requiredAuthzName string, targetTeamSlug slug.Slug) error {
 	return RequireTeamAuthorization(ActorFromContext(ctx), requiredAuthzName, targetTeamSlug)
 }
+*/
 
 // authorized Check if one of the authorizations in the map matches the required authorization.
-func authorized(authorizations map[role.Authorization]struct{}, requiredAuthzName role.Authorization) error {
+func authorized(authorizations map[string]struct{}, requiredAuthzName string) error {
 	for authorization := range authorizations {
 		if authorization == requiredAuthzName {
 			return nil
@@ -128,7 +130,7 @@ func RequireGlobalAdmin(ctx context.Context) error {
 	}
 
 	for _, r := range actor.Roles {
-		if r.Name == rolesql.RoleNameAdmin {
+		if r.Name == "Admin" {
 			return nil
 		}
 	}

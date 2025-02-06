@@ -14,6 +14,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/auth/authz/authzsql"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/cmd/api"
 	"github.com/nais/api/internal/database"
@@ -25,7 +26,6 @@ import (
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/role"
-	"github.com/nais/api/internal/role/rolesql"
 	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/user"
@@ -180,7 +180,7 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 				panic(fmt.Sprintf("User with email %q not found", email))
 			}
 
-			roles, err := role.ForUser(ctx, usr.UUID)
+			roles, err := authz.ForUser(ctx, usr.UUID)
 			if err != nil {
 				panic(fmt.Sprintf("Unable to get user roles for user with email: %q, %s", email, err))
 			}
@@ -275,7 +275,7 @@ func newDB(ctx context.Context, container *postgres.PostgresContainer, connStr s
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = environment.NewLoaderContext(ctx, pool)
 		ctx = user.NewLoaderContext(ctx, pool)
-		ctx = role.NewLoaderContext(ctx, pool)
+		ctx = authz.NewLoaderContext(ctx, pool)
 
 		c := clusters()
 		envs := make([]*environment.Environment, len(c))
@@ -300,7 +300,7 @@ func newDB(ctx context.Context, container *postgres.PostgresContainer, connStr s
 
 		for _, usr := range users.Nodes() {
 			for _, roleName := range usersyncer.DefaultRoleNames {
-				if err := role.AssignGlobalRoleToUser(ctx, usr.UUID, rolesql.RoleName(roleName)); err != nil {
+				if err := authz.AssignGlobalRoleToUser(ctx, usr.UUID, authzsql.RoleName(roleName)); err != nil {
 					cleanup()
 					return nil, nil, fmt.Errorf("attach default role %q to user %q: %w", roleName, usr.Email, err)
 				}

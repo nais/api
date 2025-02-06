@@ -7,7 +7,6 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
-	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/status"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
@@ -69,7 +68,7 @@ func (r *ingressResolver) Type(ctx context.Context, obj *application.Ingress) (a
 }
 
 func (r *mutationResolver) DeleteApplication(ctx context.Context, input application.DeleteApplicationInput) (*application.DeleteApplicationPayload, error) {
-	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationApplicationsDelete, input.TeamSlug); err != nil {
+	if err := authz.CanDeleteApplications(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
@@ -77,7 +76,7 @@ func (r *mutationResolver) DeleteApplication(ctx context.Context, input applicat
 }
 
 func (r *mutationResolver) RestartApplication(ctx context.Context, input application.RestartApplicationInput) (*application.RestartApplicationPayload, error) {
-	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationApplicationsUpdate, input.TeamSlug); err != nil {
+	if err := authz.CanUpdateApplications(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 

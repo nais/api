@@ -120,3 +120,17 @@ VALUES
 		@role_name
 	)
 ;
+
+-- name: ListGlobalAdmins :many
+SELECT
+	u.*
+FROM
+	users u
+	INNER JOIN user_roles ur ON u.id = ur.user_id
+WHERE
+	ur.role_name = 'Admin'
+	AND ur.target_team_slug IS NULL
+ORDER BY
+	u.name,
+	u.email
+;

@@ -31,7 +31,7 @@ func TestApiKeyAuthentication(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)
-		ctx = role.NewLoaderContext(ctx, pool)
+		ctx = authz.NewLoaderContext(ctx, pool)
 		return ctx, pool
 	}
 

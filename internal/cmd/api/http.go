@@ -13,6 +13,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authn"
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/database"
@@ -30,7 +31,6 @@ import (
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/reconciler"
-	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/serviceaccount"
 	"github.com/nais/api/internal/session"
 	"github.com/nais/api/internal/team"
@@ -237,7 +237,7 @@ func ConfigureGraph(
 		ctx = usersync.NewLoaderContext(ctx, pool)
 		ctx = cost.NewLoaderContext(ctx, pool, costOpts...)
 		ctx = repository.NewLoaderContext(ctx, pool)
-		ctx = role.NewLoaderContext(ctx, pool)
+		ctx = authz.NewLoaderContext(ctx, pool)
 		ctx = activitylog.NewLoaderContext(ctx, pool)
 		ctx = vulnerability.NewLoaderContext(ctx, vClient, tenantName, clusters, fakeClients, log)
 		ctx = reconciler.NewLoaderContext(ctx, pool)

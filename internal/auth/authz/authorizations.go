@@ -1,4 +1,4 @@
-package role
+package authz
 
 /*
 type Authorization string
@@ -35,23 +35,23 @@ const (
 	AuthorizationUnleashUpdate         Authorization = "unleash:update"
 )
 
-var roles = map[rolesql.RoleName][]Authorization{
-	rolesql.RoleNameAdmin: {
+var roles = map[authzsql.RoleName][]Authorization{
+	authzsql.RoleNameAdmin: {
 		// Admins have all authorizations
 	},
-	rolesql.RoleNameTeamcreator: {
+	authzsql.RoleNameTeamcreator: {
 		AuthorizationTeamsCreate,
 	},
-	rolesql.RoleNameServiceaccountcreator: {
+	authzsql.RoleNameServiceaccountcreator: {
 		AuthorizationServiceAccountsCreate,
 	},
-	rolesql.RoleNameServiceaccountowner: {
+	authzsql.RoleNameServiceaccountowner: {
 		AuthorizationServiceAccountsCreate,
 		AuthorizationServiceAccountsDelete,
 		AuthorizationServiceAccountsRead,
 		AuthorizationServiceAccountsUpdate,
 	},
-	rolesql.RoleNameTeammember: {
+	authzsql.RoleNameTeammember: {
 		AuthorizationActivityLogsRead,
 		AuthorizationTeamsRead,
 		AuthorizationTeamsMetadataUpdate,
@@ -76,7 +76,7 @@ var roles = map[rolesql.RoleName][]Authorization{
 		AuthorizationServiceAccountsRead,
 		AuthorizationServiceAccountsUpdate,
 	},
-	rolesql.RoleNameTeamowner: {
+	authzsql.RoleNameTeamowner: {
 		AuthorizationActivityLogsRead,
 		AuthorizationTeamsDelete,
 		AuthorizationTeamsRead,
@@ -103,22 +103,22 @@ var roles = map[rolesql.RoleName][]Authorization{
 		AuthorizationServiceAccountsRead,
 		AuthorizationServiceAccountsUpdate,
 	},
-	rolesql.RoleNameTeamviewer: {
+	authzsql.RoleNameTeamviewer: {
 		AuthorizationActivityLogsRead,
 		AuthorizationTeamsList,
 		AuthorizationTeamsRead,
 	},
-	rolesql.RoleNameUseradmin: {
+	authzsql.RoleNameUseradmin: {
 		AuthorizationUsersList,
 	},
-	rolesql.RoleNameUserviewer: {
+	authzsql.RoleNameUserviewer: {
 		AuthorizationUsersList,
 	},
-	rolesql.RoleNameSynchronizer: {
+	authzsql.RoleNameSynchronizer: {
 		AuthorizationTeamsSynchronize,
 		AuthorizationUsersyncSynchronize,
 	},
-	rolesql.RoleNameDeploykeyviewer: {
+	authzsql.RoleNameDeploykeyviewer: {
 		AuthorizationDeployKeyRead,
 	},
 }

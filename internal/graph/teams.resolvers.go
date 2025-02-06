@@ -9,7 +9,6 @@ import (
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
-	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/user"
@@ -17,8 +16,8 @@ import (
 
 func (r *mutationResolver) CreateTeam(ctx context.Context, input team.CreateTeamInput) (*team.CreateTeamPayload, error) {
 	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireGlobalAuthorization(actor, role.AuthorizationTeamsCreate)
-	if err != nil {
+
+	if err := authz.CanCreateTeam(ctx); err != nil {
 		return nil, err
 	}
 
@@ -45,8 +44,8 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input team.CreateTeam
 
 func (r *mutationResolver) UpdateTeam(ctx context.Context, input team.UpdateTeamInput) (*team.UpdateTeamPayload, error) {
 	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamAuthorization(actor, role.AuthorizationTeamsMetadataUpdate, input.Slug)
-	if err != nil {
+
+	if err := authz.CanUpdateTeamMetadata(ctx, input.Slug); err != nil {
 		return nil, err
 	}
 
@@ -65,7 +64,8 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, input team.UpdateTeam
 
 func (r *mutationResolver) UpdateTeamEnvironment(ctx context.Context, input team.UpdateTeamEnvironmentInput) (*team.UpdateTeamEnvironmentPayload, error) {
 	actor := authz.ActorFromContext(ctx)
-	if err := authz.RequireTeamAuthorization(actor, role.AuthorizationTeamsMetadataUpdate, input.Slug); err != nil {
+
+	if err := authz.CanUpdateTeamMetadata(ctx, input.Slug); err != nil {
 		return nil, err
 	}
 
@@ -84,7 +84,8 @@ func (r *mutationResolver) UpdateTeamEnvironment(ctx context.Context, input team
 
 func (r *mutationResolver) RequestTeamDeletion(ctx context.Context, input team.RequestTeamDeletionInput) (*team.RequestTeamDeletionPayload, error) {
 	actor := authz.ActorFromContext(ctx)
-	if err := authz.RequireTeamAuthorization(actor, role.AuthorizationTeamsDelete, input.Slug); err != nil {
+
+	if err := authz.CanDeleteTeam(ctx, input.Slug); err != nil {
 		return nil, err
 	}
 
@@ -114,7 +115,7 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, input team.C
 	}
 
 	actor := authz.ActorFromContext(ctx)
-	if err := authz.RequireTeamAuthorization(actor, role.AuthorizationTeamsDelete, deleteKey.TeamSlug); err != nil {
+	if err := authz.CanDeleteTeam(ctx, deleteKey.TeamSlug); err != nil {
 		return nil, err
 	}
 
@@ -144,12 +145,12 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, input team.C
 
 func (r *mutationResolver) AddTeamMember(ctx context.Context, input team.AddTeamMemberInput) (*team.AddTeamMemberPayload, error) {
 	actor := authz.ActorFromContext(ctx)
-	if err := authz.RequireTeamAuthorization(actor, role.AuthorizationTeamsMembersAdmin, input.TeamSlug); err != nil {
+
+	if err := authz.CanUpdateTeam(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
-	_, err := team.Get(ctx, input.TeamSlug)
-	if err != nil {
+	if _, err := team.Get(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
@@ -177,12 +178,12 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, input team.AddTeam
 
 func (r *mutationResolver) RemoveTeamMember(ctx context.Context, input team.RemoveTeamMemberInput) (*team.RemoveTeamMemberPayload, error) {
 	actor := authz.ActorFromContext(ctx)
-	if err := authz.RequireTeamAuthorization(actor, role.AuthorizationTeamsMembersAdmin, input.TeamSlug); err != nil {
+
+	if err := authz.CanUpdateTeam(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
-	_, err := team.Get(ctx, input.TeamSlug)
-	if err != nil {
+	if _, err := team.Get(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
@@ -207,12 +208,12 @@ func (r *mutationResolver) RemoveTeamMember(ctx context.Context, input team.Remo
 
 func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, input team.SetTeamMemberRoleInput) (*team.SetTeamMemberRolePayload, error) {
 	actor := authz.ActorFromContext(ctx)
-	if err := authz.RequireTeamAuthorization(actor, role.AuthorizationTeamsMembersAdmin, input.TeamSlug); err != nil {
+
+	if err := authz.CanUpdateTeam(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
-	_, err := team.Get(ctx, input.TeamSlug)
-	if err != nil {
+	if _, err := team.Get(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 

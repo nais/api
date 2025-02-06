@@ -16,6 +16,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/deployment"
 	"github.com/nais/api/internal/feature"
@@ -33,7 +34,6 @@ import (
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/reconciler"
-	"github.com/nais/api/internal/role/graphrole"
 	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/serviceaccount"
 	"github.com/nais/api/internal/slug"
@@ -2449,7 +2449,7 @@ type QueryResolver interface {
 	Node(ctx context.Context, id ident.Ident) (model.Node, error)
 	Features(ctx context.Context) (*feature.Features, error)
 	Reconcilers(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*reconciler.Reconciler], error)
-	Roles(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*graphrole.Role], error)
+	Roles(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*authz.Role], error)
 	Search(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) (*pagination.Connection[search.SearchNode], error)
 	ServiceAccounts(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*serviceaccount.ServiceAccount], error)
 	ServiceAccount(ctx context.Context, id ident.Ident) (*serviceaccount.ServiceAccount, error)
@@ -2457,7 +2457,7 @@ type QueryResolver interface {
 	Team(ctx context.Context, slug slug.Slug) (*team.Team, error)
 	Users(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) (*pagination.Connection[*user.User], error)
 	User(ctx context.Context, email *string) (*user.User, error)
-	Me(ctx context.Context) (user.AuthenticatedUser, error)
+	Me(ctx context.Context) (authz.AuthenticatedUser, error)
 	UserSyncLog(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[usersync.UserSyncLogEntry], error)
 	TeamsUtilization(ctx context.Context, resourceType utilization.UtilizationResourceType) ([]*utilization.TeamUtilizationData, error)
 }
@@ -48601,7 +48601,7 @@ func (ec *executionContext) _Query_roles(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*pagination.Connection[*graphrole.Role])
+	res := resTmp.(*pagination.Connection[*authz.Role])
 	fc.Result = res
 	return ec.marshalNRoleConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
 }
@@ -49179,9 +49179,9 @@ func (ec *executionContext) _Query_me(ctx context.Context, field graphql.Collect
 		}
 		return graphql.Null
 	}
-	res := resTmp.(user.AuthenticatedUser)
+	res := resTmp.(authz.AuthenticatedUser)
 	fc.Result = res
-	return ec.marshalNAuthenticatedUser2githubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐAuthenticatedUser(ctx, field.Selections, res)
+	return ec.marshalNAuthenticatedUser2githubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋauthzᚐAuthenticatedUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_me(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -54974,7 +54974,7 @@ func (ec *executionContext) fieldContext_RevokeTeamAccessToUnleashPayload_unleas
 	return fc, nil
 }
 
-func (ec *executionContext) _Role_name(ctx context.Context, field graphql.CollectedField, obj *graphrole.Role) (ret graphql.Marshaler) {
+func (ec *executionContext) _Role_name(ctx context.Context, field graphql.CollectedField, obj *authz.Role) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Role_name(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -55018,7 +55018,7 @@ func (ec *executionContext) fieldContext_Role_name(_ context.Context, field grap
 	return fc, nil
 }
 
-func (ec *executionContext) _Role_description(ctx context.Context, field graphql.CollectedField, obj *graphrole.Role) (ret graphql.Marshaler) {
+func (ec *executionContext) _Role_description(ctx context.Context, field graphql.CollectedField, obj *authz.Role) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Role_description(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -55808,7 +55808,7 @@ func (ec *executionContext) fieldContext_RoleAssignedUserSyncLogEntry_roleName(_
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*graphrole.Role]) (ret graphql.Marshaler) {
+func (ec *executionContext) _RoleConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*authz.Role]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_RoleConnection_nodes(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -55834,9 +55834,9 @@ func (ec *executionContext) _RoleConnection_nodes(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*graphrole.Role)
+	res := resTmp.([]*authz.Role)
 	fc.Result = res
-	return ec.marshalNRole2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋroleᚋgraphroleᚐRoleᚄ(ctx, field.Selections, res)
+	return ec.marshalNRole2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋauthzᚐRoleᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RoleConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -55858,7 +55858,7 @@ func (ec *executionContext) fieldContext_RoleConnection_nodes(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*graphrole.Role]) (ret graphql.Marshaler) {
+func (ec *executionContext) _RoleConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*authz.Role]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_RoleConnection_edges(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -55884,7 +55884,7 @@ func (ec *executionContext) _RoleConnection_edges(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]pagination.Edge[*graphrole.Role])
+	res := resTmp.([]pagination.Edge[*authz.Role])
 	fc.Result = res
 	return ec.marshalNRoleEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
 }
@@ -55908,7 +55908,7 @@ func (ec *executionContext) fieldContext_RoleConnection_edges(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*graphrole.Role]) (ret graphql.Marshaler) {
+func (ec *executionContext) _RoleConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*authz.Role]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_RoleConnection_pageInfo(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -55968,7 +55968,7 @@ func (ec *executionContext) fieldContext_RoleConnection_pageInfo(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*graphrole.Role]) (ret graphql.Marshaler) {
+func (ec *executionContext) _RoleEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*authz.Role]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_RoleEdge_node(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -55994,9 +55994,9 @@ func (ec *executionContext) _RoleEdge_node(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*graphrole.Role)
+	res := resTmp.(*authz.Role)
 	fc.Result = res
-	return ec.marshalNRole2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋroleᚋgraphroleᚐRole(ctx, field.Selections, res)
+	return ec.marshalNRole2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋauthzᚐRole(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RoleEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -56018,7 +56018,7 @@ func (ec *executionContext) fieldContext_RoleEdge_node(_ context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*graphrole.Role]) (ret graphql.Marshaler) {
+func (ec *executionContext) _RoleEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*authz.Role]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_RoleEdge_cursor(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -92099,7 +92099,7 @@ func (ec *executionContext) _AuthIntegration(ctx context.Context, sel ast.Select
 	}
 }
 
-func (ec *executionContext) _AuthenticatedUser(ctx context.Context, sel ast.SelectionSet, obj user.AuthenticatedUser) graphql.Marshaler {
+func (ec *executionContext) _AuthenticatedUser(ctx context.Context, sel ast.SelectionSet, obj authz.AuthenticatedUser) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
@@ -103649,7 +103649,7 @@ func (ec *executionContext) _RevokeTeamAccessToUnleashPayload(ctx context.Contex
 
 var roleImplementors = []string{"Role"}
 
-func (ec *executionContext) _Role(ctx context.Context, sel ast.SelectionSet, obj *graphrole.Role) graphql.Marshaler {
+func (ec *executionContext) _Role(ctx context.Context, sel ast.SelectionSet, obj *authz.Role) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, roleImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -103874,7 +103874,7 @@ func (ec *executionContext) _RoleAssignedUserSyncLogEntry(ctx context.Context, s
 
 var roleConnectionImplementors = []string{"RoleConnection"}
 
-func (ec *executionContext) _RoleConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*graphrole.Role]) graphql.Marshaler {
+func (ec *executionContext) _RoleConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*authz.Role]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, roleConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -103923,7 +103923,7 @@ func (ec *executionContext) _RoleConnection(ctx context.Context, sel ast.Selecti
 
 var roleEdgeImplementors = []string{"RoleEdge"}
 
-func (ec *executionContext) _RoleEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*graphrole.Role]) graphql.Marshaler {
+func (ec *executionContext) _RoleEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*authz.Role]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, roleEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -116738,7 +116738,7 @@ func (ec *executionContext) marshalNApplicationScaling2ᚖgithubᚗcomᚋnaisᚋ
 	return ec._ApplicationScaling(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAuthenticatedUser2githubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐAuthenticatedUser(ctx context.Context, sel ast.SelectionSet, v user.AuthenticatedUser) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthenticatedUser2githubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋauthzᚐAuthenticatedUser(ctx context.Context, sel ast.SelectionSet, v authz.AuthenticatedUser) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -120508,7 +120508,7 @@ func (ec *executionContext) marshalNRevokeTeamAccessToUnleashPayload2ᚖgithub�
 	return ec._RevokeTeamAccessToUnleashPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNRole2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋroleᚋgraphroleᚐRoleᚄ(ctx context.Context, sel ast.SelectionSet, v []*graphrole.Role) graphql.Marshaler {
+func (ec *executionContext) marshalNRole2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋauthzᚐRoleᚄ(ctx context.Context, sel ast.SelectionSet, v []*authz.Role) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -120532,7 +120532,7 @@ func (ec *executionContext) marshalNRole2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinter
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNRole2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋroleᚋgraphroleᚐRole(ctx, sel, v[i])
+			ret[i] = ec.marshalNRole2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋauthzᚐRole(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -120552,7 +120552,7 @@ func (ec *executionContext) marshalNRole2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinter
 	return ret
 }
 
-func (ec *executionContext) marshalNRole2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋroleᚋgraphroleᚐRole(ctx context.Context, sel ast.SelectionSet, v *graphrole.Role) graphql.Marshaler {
+func (ec *executionContext) marshalNRole2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋauthzᚐRole(ctx context.Context, sel ast.SelectionSet, v *authz.Role) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -120572,11 +120572,11 @@ func (ec *executionContext) marshalNRoleAddedToServiceAccountActivityLogEntryDat
 	return ec._RoleAddedToServiceAccountActivityLogEntryData(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNRoleConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*graphrole.Role]) graphql.Marshaler {
+func (ec *executionContext) marshalNRoleConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*authz.Role]) graphql.Marshaler {
 	return ec._RoleConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNRoleConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*graphrole.Role]) graphql.Marshaler {
+func (ec *executionContext) marshalNRoleConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*authz.Role]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -120586,11 +120586,11 @@ func (ec *executionContext) marshalNRoleConnection2ᚖgithubᚗcomᚋnaisᚋapi�
 	return ec._RoleConnection(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNRoleEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*graphrole.Role]) graphql.Marshaler {
+func (ec *executionContext) marshalNRoleEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*authz.Role]) graphql.Marshaler {
 	return ec._RoleEdge(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNRoleEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*graphrole.Role]) graphql.Marshaler {
+func (ec *executionContext) marshalNRoleEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*authz.Role]) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1

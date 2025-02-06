@@ -36,7 +36,7 @@ func TestOauth2Authentication(t *testing.T) {
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = session.NewLoaderContext(ctx, pool)
 		ctx = user.NewLoaderContext(ctx, pool)
-		ctx = role.NewLoaderContext(ctx, pool)
+		ctx = authz.NewLoaderContext(ctx, pool)
 		return ctx, pool
 	}
 
