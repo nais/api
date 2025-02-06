@@ -4,6 +4,7 @@ on:
     branches:
       - main
     paths-ignore: data/**
+  workflow_dispatch:
 env:
   NAME: nais-api
   IMAGE_REPOSITORY: oci://europe-north1-docker.pkg.dev/nais-io/nais
