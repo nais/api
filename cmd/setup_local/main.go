@@ -21,7 +21,6 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/role"
-	"github.com/nais/api/internal/role/rolesql"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/user"
@@ -218,11 +217,10 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			return fmt.Errorf("sync environments: %w", err)
 		}
 
-		defaultUserRoles := []rolesql.RoleName{
-			rolesql.RoleNameTeamcreator,
-			rolesql.RoleNameTeamviewer,
-			rolesql.RoleNameUserviewer,
-			rolesql.RoleNameServiceaccountcreator,
+		defaultUserRoles := []string{
+			"Team creator",
+			"Team viewer",
+			"User viewer",
 		}
 
 		var err error
@@ -235,7 +233,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 				return fmt.Errorf("create admin user: %w", err)
 			}
 		}
-		if err := role.AssignGlobalRoleToUser(ctx, adminUser.UUID, rolesql.RoleNameAdmin); err != nil {
+		if err := role.AssignGlobalRoleToUser(ctx, adminUser.UUID, "Admin"); err != nil {
 			return fmt.Errorf("assign global admin role to admin user: %w", err)
 		}
 		actor := &authz.Actor{User: adminUser}
@@ -304,7 +302,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			return fmt.Errorf("update external references for devteam: %w", err)
 		}
 
-		if err := role.AssignTeamRoleToUser(ctx, devUser.UUID, devteam.Slug, rolesql.RoleNameTeamowner); err != nil {
+		if err := role.AssignTeamRoleToUser(ctx, devUser.UUID, devteam.Slug, "Team owner"); err != nil {
 			return fmt.Errorf("assign team owner role to dev user: %w", err)
 		}
 
@@ -356,14 +354,14 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 
 			for o := 0; o < *cfg.NumOwnersPerTeam; o++ {
 				u := users[rand.IntN(usersCreated)]
-				if err = role.AssignTeamRoleToUser(ctx, u.UUID, t.Slug, rolesql.RoleNameTeamowner); err != nil {
+				if err = role.AssignTeamRoleToUser(ctx, u.UUID, t.Slug, "Team owner"); err != nil {
 					return fmt.Errorf("assign team owner role to user %q in team %q: %w", u.Email, t.Slug, err)
 				}
 			}
 
 			for o := 0; o < *cfg.NumMembersPerTeam; o++ {
 				u := users[rand.IntN(usersCreated)]
-				if err = role.AssignTeamRoleToUser(ctx, u.UUID, t.Slug, rolesql.RoleNameTeammember); err != nil {
+				if err = role.AssignTeamRoleToUser(ctx, u.UUID, t.Slug, "Team member"); err != nil {
 					return fmt.Errorf("assign team member role to user %q in team %q: %w", u.Email, t.Slug, err)
 				}
 			}

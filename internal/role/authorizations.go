@@ -1,9 +1,6 @@
 package role
 
-import (
-	"github.com/nais/api/internal/role/rolesql"
-)
-
+/*
 type Authorization string
 
 const (
@@ -125,3 +122,6 @@ var roles = map[rolesql.RoleName][]Authorization{
 		AuthorizationDeployKeyRead,
 	},
 }
+
+
+*/

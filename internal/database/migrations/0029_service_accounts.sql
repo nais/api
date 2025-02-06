@@ -212,3 +212,6 @@ ALTER TABLE user_roles
 ALTER COLUMN role_name TYPE TEXT,
 ADD CONSTRAINT user_roles_role_name_fkey FOREIGN KEY (role_name) REFERENCES roles (name) ON DELETE CASCADE ON UPDATE CASCADE
 ;
+
+DROP TYPE role_name
+;

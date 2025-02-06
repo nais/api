@@ -20,7 +20,7 @@ ON CONFLICT DO NOTHING
 
 type AssignGlobalRoleToServiceAccountParams struct {
 	ServiceAccountID uuid.UUID
-	RoleName         RoleName
+	RoleName         string
 }
 
 func (q *Queries) AssignGlobalRoleToServiceAccount(ctx context.Context, arg AssignGlobalRoleToServiceAccountParams) error {
@@ -38,7 +38,7 @@ ON CONFLICT DO NOTHING
 
 type AssignGlobalRoleToUserParams struct {
 	UserID   uuid.UUID
-	RoleName RoleName
+	RoleName string
 }
 
 func (q *Queries) AssignGlobalRoleToUser(ctx context.Context, arg AssignGlobalRoleToUserParams) error {
@@ -60,7 +60,7 @@ ON CONFLICT DO NOTHING
 
 type AssignTeamRoleToServiceAccountParams struct {
 	ServiceAccountID uuid.UUID
-	RoleName         RoleName
+	RoleName         string
 	TargetTeamSlug   slug.Slug
 }
 
@@ -79,7 +79,7 @@ ON CONFLICT DO NOTHING
 
 type AssignTeamRoleToUserParams struct {
 	UserID         uuid.UUID
-	RoleName       RoleName
+	RoleName       string
 	TargetTeamSlug slug.Slug
 }
 

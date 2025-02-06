@@ -34,7 +34,7 @@ type userMap struct {
 	byEmail      map[string]*usersyncsql.User
 }
 
-type userRolesMap map[*usersyncsql.User]map[usersyncsql.RoleName]struct{}
+type userRolesMap map[*usersyncsql.User]map[string]struct{}
 
 type googleUser struct {
 	ID    string
@@ -43,10 +43,10 @@ type googleUser struct {
 }
 
 // DefaultRoleNames are the default set of roles that will be assigned to all new users.
-var DefaultRoleNames = []usersyncsql.RoleName{
-	usersyncsql.RoleNameTeamcreator,
-	usersyncsql.RoleNameTeamviewer,
-	usersyncsql.RoleNameUserviewer,
+var DefaultRoleNames = []string{
+	"Team creator",
+	"Team viewer",
+	"User viewer",
 }
 
 func New(pool *pgxpool.Pool, adminGroupPrefix, tenantDomain string, service *admindirectoryv1.Service, log logrus.FieldLogger) *Usersynchronizer {
@@ -230,7 +230,7 @@ func assignAdmins(ctx context.Context, querier usersyncsql.Querier, membersServi
 			log.WithField("email", existingAdmin.Email).Debugf("revoke admin role")
 			if err := querier.RevokeGlobalRole(ctx, usersyncsql.RevokeGlobalRoleParams{
 				UserID:   existingAdmin.ID,
-				RoleName: usersyncsql.RoleNameAdmin,
+				RoleName: "Admin",
 			}); err != nil {
 				return err
 			}
@@ -240,7 +240,7 @@ func assignAdmins(ctx context.Context, querier usersyncsql.Querier, membersServi
 				UserID:    existingAdmin.ID,
 				UserName:  existingAdmin.Name,
 				UserEmail: existingAdmin.Email,
-				RoleName:  ptr.To(string(usersyncsql.RoleNameAdmin)),
+				RoleName:  ptr.To("Admin"),
 			}); err != nil {
 				log.WithError(err).Errorf("create user sync log entry")
 			}
@@ -252,7 +252,7 @@ func assignAdmins(ctx context.Context, querier usersyncsql.Querier, membersServi
 			log.WithField("email", admin.Email).Debugf("assign admin role")
 			if err := querier.AssignGlobalRole(ctx, usersyncsql.AssignGlobalRoleParams{
 				UserID:   admin.ID,
-				RoleName: usersyncsql.RoleNameAdmin,
+				RoleName: "Admin",
 			}); err != nil {
 				return err
 			}
@@ -267,7 +267,7 @@ func getExistingAdmins(userWithRoles userRolesMap) map[uuid.UUID]*usersyncsql.Us
 	admins := make(map[uuid.UUID]*usersyncsql.User)
 	for user, roles := range userWithRoles {
 		for roleName := range roles {
-			if roleName == usersyncsql.RoleNameAdmin {
+			if roleName == "Admin" {
 				admins[user.ID] = user
 			}
 		}
@@ -426,7 +426,7 @@ func getUserRoles(ctx context.Context, querier usersyncsql.Querier, users *userM
 	for _, role := range roles {
 		user := users.byID[role.UserID]
 		if _, exists := userRoles[user]; !exists {
-			userRoles[user] = make(map[usersyncsql.RoleName]struct{})
+			userRoles[user] = make(map[string]struct{})
 		}
 		userRoles[user][role.RoleName] = struct{}{}
 	}

@@ -10,8 +10,8 @@ import (
 )
 
 type Role struct {
-	Name           rolesql.RoleName `json:"role_name"`
-	TargetTeamSlug *slug.Slug       `json:"target_team_slug"`
+	Name           string     `json:"role_name"`
+	TargetTeamSlug *slug.Slug `json:"target_team_slug"`
 }
 
 // IsGlobal checks if the role is globally assigned.

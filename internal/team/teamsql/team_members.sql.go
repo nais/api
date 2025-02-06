@@ -20,7 +20,7 @@ ON CONFLICT DO NOTHING
 
 type AddMemberParams struct {
 	UserID   uuid.UUID
-	RoleName RoleName
+	RoleName string
 	TeamSlug slug.Slug
 }
 
@@ -86,7 +86,7 @@ type GetMemberRow struct {
 	Email      string
 	Name       string
 	ExternalID string
-	RoleName   RoleName
+	RoleName   string
 }
 
 func (q *Queries) GetMember(ctx context.Context, arg GetMemberParams) (*GetMemberRow, error) {
@@ -125,7 +125,7 @@ type GetMemberByEmailRow struct {
 	Email      string
 	Name       string
 	ExternalID string
-	RoleName   RoleName
+	RoleName   string
 }
 
 func (q *Queries) GetMemberByEmail(ctx context.Context, arg GetMemberByEmailParams) (*GetMemberByEmailRow, error) {

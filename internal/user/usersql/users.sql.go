@@ -278,7 +278,7 @@ type ListMembershipsParams struct {
 
 type ListMembershipsRow struct {
 	Team     Team
-	RoleName RoleName
+	RoleName string
 }
 
 func (q *Queries) ListMemberships(ctx context.Context, arg ListMembershipsParams) ([]*ListMembershipsRow, error) {

@@ -19,7 +19,7 @@ ON CONFLICT DO NOTHING
 
 type AssignGlobalRoleParams struct {
 	UserID   uuid.UUID
-	RoleName RoleName
+	RoleName string
 }
 
 func (q *Queries) AssignGlobalRole(ctx context.Context, arg AssignGlobalRoleParams) error {
@@ -302,7 +302,7 @@ WHERE
 
 type RevokeGlobalRoleParams struct {
 	UserID   uuid.UUID
-	RoleName RoleName
+	RoleName string
 }
 
 func (q *Queries) RevokeGlobalRole(ctx context.Context, arg RevokeGlobalRoleParams) error {
