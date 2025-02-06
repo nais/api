@@ -45,11 +45,11 @@ spec:
         - host: "slack.com"
         - host: api.example.com
           ports:
-          - port: 9200
+            - port: 9200
         - ipv4: 1.2.3.4
           ports:
-          - port: 443
-          - port: 80
+            - port: 443
+            - port: 80
         - ipv4: 127.0.0.1
       rules:
         - application: app-w-all-storage
