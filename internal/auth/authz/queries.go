@@ -67,11 +67,19 @@ func AssignGlobalAdmin(ctx context.Context, userID uuid.UUID) error {
 }
 
 func MakeUserTeamMember(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error {
-	panic("not implemented")
+	return db(ctx).AssignTeamRoleToUser(ctx, authzsql.AssignTeamRoleToUserParams{
+		UserID:         userID,
+		RoleName:       "Team member",
+		TargetTeamSlug: teamSlug,
+	})
 }
 
 func MakeUserTeamOwner(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error {
-	panic("not implemented")
+	return db(ctx).AssignTeamRoleToUser(ctx, authzsql.AssignTeamRoleToUserParams{
+		UserID:         userID,
+		RoleName:       "Team owner",
+		TargetTeamSlug: teamSlug,
+	})
 }
 
 func CanCreateServiceAccounts(ctx context.Context, teamSlug *slug.Slug) error {
@@ -138,9 +146,8 @@ func CanCreateTeam(ctx context.Context) error {
 	return requireGlobalAuthorization(ctx, "teams:create")
 }
 
-func CanUpdateTeam(ctx context.Context, teamSlug slug.Slug) error {
-	// TODO: authorization does not yet exist, create, or check for team owner role for the team?
-	return requireTeamAuthorization(ctx, teamSlug, "teams:update")
+func CanManageTeamMembers(ctx context.Context, teamSlug slug.Slug) error {
+	return requireTeamAuthorization(ctx, teamSlug, "teams:members:admin")
 }
 
 func CanUpdateTeamMetadata(ctx context.Context, teamSlug slug.Slug) error {

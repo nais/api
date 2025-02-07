@@ -5,7 +5,7 @@ Helper.SQLExec([[
 	INSERT INTO
 		user_roles (role_name, user_id, target_team_slug)
 	VALUES (
-		'Team member'::role_name,
+		'Team member',
 		(SELECT id FROM users WHERE email = 'authenticated@example.com'),
 		'slug-1'
 	)

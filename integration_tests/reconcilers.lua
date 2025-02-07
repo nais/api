@@ -76,11 +76,11 @@ Test.gql("list reconcilers with config as non-admin", function(t)
 		data = Null,
 		errors = {
 			{
-				message = Contains("you need the \"global:admin\""),
+				message = "You are authenticated, but your account is not authorized to perform this action.",
 				path = { "reconcilers", "nodes", Ignore(), "config" },
 			},
 			{
-				message = Contains("you need the \"global:admin\""),
+				message = "You are authenticated, but your account is not authorized to perform this action.",
 				path = { "reconcilers", "nodes", Ignore(), "config" },
 			},
 		},
@@ -100,7 +100,7 @@ Test.gql("enable reconciler as non-admin", function(t)
 		data = Null,
 		errors = {
 			{
-				message = Contains("you need the \"global:admin\""),
+				message = "You are authenticated, but your account is not authorized to perform this action.",
 				path = { "enableReconciler" },
 			},
 		},
@@ -120,7 +120,7 @@ Test.gql("disable reconciler as non-admin", function(t)
 		data = Null,
 		errors = {
 			{
-				message = Contains("you need the \"global:admin\""),
+				message = "You are authenticated, but your account is not authorized to perform this action.",
 				path = { "disableReconciler" },
 			},
 		},

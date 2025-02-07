@@ -13,9 +13,7 @@ FROM
 INSERT INTO
 	user_roles (role_name, user_id, target_team_slug)
 SELECT
-	(
-		ARRAY['Team owner'::role_name, 'Team member'::role_name]
-	) [ROUND(RANDOM()) + 1],
+	(ARRAY['Team owner', 'Team member']) [ROUND(RANDOM()) + 1],
 	u.id,
 	t.slug
 FROM

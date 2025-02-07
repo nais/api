@@ -146,7 +146,7 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, input team.C
 func (r *mutationResolver) AddTeamMember(ctx context.Context, input team.AddTeamMemberInput) (*team.AddTeamMemberPayload, error) {
 	actor := authz.ActorFromContext(ctx)
 
-	if err := authz.CanUpdateTeam(ctx, input.TeamSlug); err != nil {
+	if err := authz.CanManageTeamMembers(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
@@ -179,7 +179,7 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, input team.AddTeam
 func (r *mutationResolver) RemoveTeamMember(ctx context.Context, input team.RemoveTeamMemberInput) (*team.RemoveTeamMemberPayload, error) {
 	actor := authz.ActorFromContext(ctx)
 
-	if err := authz.CanUpdateTeam(ctx, input.TeamSlug); err != nil {
+	if err := authz.CanManageTeamMembers(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
@@ -209,7 +209,7 @@ func (r *mutationResolver) RemoveTeamMember(ctx context.Context, input team.Remo
 func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, input team.SetTeamMemberRoleInput) (*team.SetTeamMemberRolePayload, error) {
 	actor := authz.ActorFromContext(ctx)
 
-	if err := authz.CanUpdateTeam(ctx, input.TeamSlug); err != nil {
+	if err := authz.CanManageTeamMembers(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 

@@ -9,7 +9,6 @@ const (
 	AuthorizationTeamsCreate           Authorization = "teams:create"
 	AuthorizationTeamsList             Authorization = "teams:list"
 	AuthorizationTeamsRead             Authorization = "teams:read"
-	AuthorizationTeamsMembersAdmin     Authorization = "teams:members:admin"
 	AuthorizationSecretsList           Authorization = "teams:secrets:list"
 	AuthorizationUsersList             Authorization = "users:list"
 )
