@@ -83,7 +83,6 @@ func AssignDefaultPermissionsToUser(ctx context.Context, userID uuid.UUID) error
 	defaultUserRoles := []string{
 		"Team creator",
 		"Team viewer",
-		"User viewer",
 	}
 	for _, roleName := range defaultUserRoles {
 		if err := assignGlobalRoleToUser(ctx, userID, roleName); err != nil {

@@ -43,9 +43,6 @@ VALUES
 	('applications:delete', 'Some description'),
 	('jobs:update', 'Some description'),
 	('jobs:delete', 'Some description'),
-	('users:list', 'Some description'),
-	('teams:synchronize', 'Some description'),
-	('usersync:synchronize', 'Some description'),
 	('deploy_key:read', 'Some description'),
 	('deploy_key:update', 'Some description'),
 	('unleash:create', 'Some description'),
@@ -75,13 +72,10 @@ VALUES
 	('Admin', 'Some description'),
 	('Deploy key viewer', 'Some description'),
 	('Service account owner', 'Some description'),
-	('Synchronizer', 'Some description'),
 	('Team creator', 'Some description'),
 	('Team member', 'Some description'),
 	('Team owner', 'Some description'),
-	('Team viewer', 'Some description'),
-	('User admin', 'Some description'),
-	('User viewer', 'Some description')
+	('Team viewer', 'Some description')
 ;
 
 INSERT INTO
@@ -102,14 +96,11 @@ VALUES
 		'Service account owner',
 		'service_accounts:update'
 	),
-	('Synchronizer', 'teams:synchronize'),
-	('Synchronizer', 'usersync:synchronize'),
 	('Team creator', 'teams:create'),
 	('Team member', 'activity_logs:read'),
 	('Team member', 'teams:read'),
 	('Team member', 'teams:metadata:update'),
 	('Team member', 'deploy_key:read'),
-	('Team member', 'teams:synchronize'),
 	('Team member', 'jobs:delete'),
 	('Team member', 'jobs:update'),
 	('Team member', 'teams:secrets:create'),
@@ -132,7 +123,6 @@ VALUES
 	('Team owner', 'teams:delete'),
 	('Team owner', 'teams:read'),
 	('Team owner', 'teams:metadata:update'),
-	('Team owner', 'teams:synchronize'),
 	('Team owner', 'teams:members:admin'),
 	('Team owner', 'deploy_key:read'),
 	('Team owner', 'jobs:delete'),
@@ -155,9 +145,7 @@ VALUES
 	('Team owner', 'service_accounts:update'),
 	('Team viewer', 'activity_logs:read'),
 	('Team viewer', 'teams:list'),
-	('Team viewer', 'teams:read'),
-	('User admin', 'users:list'),
-	('User viewer', 'users:list')
+	('Team viewer', 'teams:read')
 ;
 
 CREATE UNIQUE INDEX ON service_accounts USING btree (name, team_slug) NULLS NOT DISTINCT
