@@ -29,6 +29,7 @@ func (ServiceAccount) IsNode()                   {}
 func (s *ServiceAccount) GetID() uuid.UUID       { return s.UUID }
 func (s *ServiceAccount) Identity() string       { return s.Name }
 func (s *ServiceAccount) IsServiceAccount() bool { return true }
+func (s *ServiceAccount) IsAdmin() bool          { return false }
 func (s *ServiceAccount) ID() ident.Ident {
 	return NewIdent(s.UUID)
 }

@@ -1,4 +1,23 @@
 -- +goose Up
+ALTER TABLE users
+ADD COLUMN admin BOOLEAN NOT NULL DEFAULT FALSE
+;
+
+UPDATE users
+SET
+	admin = TRUE
+WHERE
+	(
+		SELECT
+			COUNT(*)
+		FROM
+			user_roles
+		WHERE
+			user_id = users.id
+			AND role_name = 'Admin'
+	) > 0
+;
+
 ALTER TABLE user_roles
 DROP COLUMN target_service_account_id
 ;
@@ -69,7 +88,6 @@ CREATE TABLE service_accounts (
 INSERT INTO
 	roles (name, description)
 VALUES
-	('Admin', 'Some description'),
 	('Deploy key viewer', 'Some description'),
 	('Service account owner', 'Some description'),
 	('Team creator', 'Some description'),

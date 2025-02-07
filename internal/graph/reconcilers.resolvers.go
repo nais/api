@@ -12,7 +12,7 @@ import (
 )
 
 func (r *mutationResolver) EnableReconciler(ctx context.Context, input reconciler.EnableReconcilerInput) (*reconciler.Reconciler, error) {
-	if err := authz.RequireGlobalAdminCtx(ctx); err != nil {
+	if err := authz.RequireGlobalAdmin(ctx); err != nil {
 		return nil, err
 	}
 
@@ -26,7 +26,7 @@ func (r *mutationResolver) EnableReconciler(ctx context.Context, input reconcile
 }
 
 func (r *mutationResolver) DisableReconciler(ctx context.Context, input reconciler.DisableReconcilerInput) (*reconciler.Reconciler, error) {
-	if err := authz.RequireGlobalAdminCtx(ctx); err != nil {
+	if err := authz.RequireGlobalAdmin(ctx); err != nil {
 		return nil, err
 	}
 
@@ -40,7 +40,7 @@ func (r *mutationResolver) DisableReconciler(ctx context.Context, input reconcil
 }
 
 func (r *mutationResolver) ConfigureReconciler(ctx context.Context, input reconciler.ConfigureReconcilerInput) (*reconciler.Reconciler, error) {
-	if err := authz.RequireGlobalAdminCtx(ctx); err != nil {
+	if err := authz.RequireGlobalAdmin(ctx); err != nil {
 		return nil, err
 	}
 
@@ -63,7 +63,7 @@ func (r *queryResolver) Reconcilers(ctx context.Context, first *int, after *pagi
 }
 
 func (r *reconcilerResolver) Config(ctx context.Context, obj *reconciler.Reconciler) ([]*reconciler.ReconcilerConfig, error) {
-	if err := authz.RequireGlobalAdminCtx(ctx); err != nil {
+	if err := authz.RequireGlobalAdmin(ctx); err != nil {
 		return nil, err
 	}
 	return reconciler.GetConfig(ctx, obj.Name, false)
@@ -85,7 +85,7 @@ func (r *reconcilerResolver) Configured(ctx context.Context, obj *reconciler.Rec
 }
 
 func (r *reconcilerResolver) Errors(ctx context.Context, obj *reconciler.Reconciler, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*reconciler.ReconcilerError], error) {
-	if err := authz.RequireGlobalAdminCtx(ctx); err != nil {
+	if err := authz.RequireGlobalAdmin(ctx); err != nil {
 		return nil, err
 	}
 	page, err := pagination.ParsePage(first, after, last, before)

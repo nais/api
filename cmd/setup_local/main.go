@@ -23,6 +23,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/user"
+	"github.com/nais/api/internal/usersync/usersyncsql"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/text/runes"
@@ -219,21 +220,41 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 		var err error
 		var adminUser, devUser *user.User
 
+		usersyncq := usersyncsql.New(pool)
+
+		createUser := func(ctx context.Context, name, email string) (*user.User, error) {
+			usu, err := usersyncq.Create(ctx, usersyncsql.CreateParams{
+				Name:       name,
+				Email:      email,
+				ExternalID: uuid.New().String(),
+			})
+			if err != nil {
+				return nil, fmt.Errorf("create user: %w", err)
+			}
+
+			usr, err := user.GetByEmail(ctx, usu.Email)
+			if err != nil {
+				return nil, fmt.Errorf("get user: %w", err)
+			}
+
+			return usr, nil
+		}
+
 		adminUser, err = user.GetByEmail(ctx, nameToEmail(adminName, cfg.Domain))
 		if err != nil {
-			adminUser, err = user.Create(ctx, adminName, nameToEmail(adminName, cfg.Domain), uuid.New().String())
+			adminUser, err = createUser(ctx, adminName, nameToEmail(adminName, cfg.Domain))
 			if err != nil {
 				return fmt.Errorf("create admin user: %w", err)
 			}
 		}
-		if err := authz.AssignGlobalAdmin(ctx, adminUser.UUID); err != nil {
+		if err := user.AssignGlobalAdmin(ctx, adminUser.UUID); err != nil {
 			return fmt.Errorf("assign global admin role to admin user: %w", err)
 		}
 		actor := &authz.Actor{User: adminUser}
 
 		devUser, err = user.GetByEmail(ctx, nameToEmail(devName, cfg.Domain))
 		if err != nil {
-			devUser, err = user.Create(ctx, devName, nameToEmail(devName, cfg.Domain), uuid.New().String())
+			devUser, err = createUser(ctx, devName, nameToEmail(devName, cfg.Domain))
 			if err != nil {
 				return fmt.Errorf("create dev user: %w", err)
 			}
@@ -253,7 +274,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 				continue
 			}
 
-			u, err := user.Create(ctx, name, email, uuid.New().String())
+			u, err := createUser(ctx, name, email)
 			if err != nil {
 				return fmt.Errorf("create user %q: %w", email, err)
 			}

@@ -26,4 +26,5 @@ type User struct {
 	Email      string
 	Name       string
 	ExternalID string
+	Admin      bool
 }

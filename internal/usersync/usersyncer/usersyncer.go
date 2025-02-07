@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"slices"
 	"strings"
 	"time"
 
@@ -13,6 +12,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/usersync/usersyncsql"
 	"github.com/sirupsen/logrus"
 	admindirectoryv1 "google.golang.org/api/admin/directory/v1"
@@ -193,7 +193,7 @@ func assignAdmins(ctx context.Context, querier usersyncsql.Querier, membersServi
 	for _, existingAdmin := range existingAdmins {
 		if _, shouldBeAdmin := admins[existingAdmin.ID]; !shouldBeAdmin {
 			log.WithField("email", existingAdmin.Email).Debugf("revoke admin role")
-			if err := authz.RevokeGlobalAdmin(ctx, existingAdmin.ID); err != nil {
+			if err := user.RevokeGlobalAdmin(ctx, existingAdmin.ID); err != nil {
 				return err
 			}
 
@@ -210,12 +210,9 @@ func assignAdmins(ctx context.Context, querier usersyncsql.Querier, membersServi
 	}
 
 	for _, admin := range admins {
-		isAlreadyAdmin := slices.ContainsFunc(existingAdmins, func(existingAdmin *usersyncsql.User) bool {
-			return existingAdmin.ID == admin.ID
-		})
-		if !isAlreadyAdmin {
+		if !admin.Admin {
 			log.WithField("email", admin.Email).Debugf("assign admin role")
-			if err := authz.AssignGlobalAdmin(ctx, admin.ID); err != nil {
+			if err := user.AssignGlobalAdmin(ctx, admin.ID); err != nil {
 				return err
 			}
 

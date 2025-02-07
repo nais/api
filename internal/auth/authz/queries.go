@@ -92,12 +92,12 @@ func AssignDefaultPermissionsToUser(ctx context.Context, userID uuid.UUID) error
 	return nil
 }
 
-func AssignGlobalAdmin(ctx context.Context, userID uuid.UUID) error {
-	return db(ctx).AssignGlobalRoleToUser(ctx, authzsql.AssignGlobalRoleToUserParams{
-		UserID:   userID,
-		RoleName: "Admin",
-	})
-}
+// func AssignGlobalAdmin(ctx context.Context, userID uuid.UUID) error {
+// 	return db(ctx).AssignGlobalRoleToUser(ctx, authzsql.AssignGlobalRoleToUserParams{
+// 		UserID:   userID,
+// 		RoleName: "Admin",
+// 	})
+// }
 
 func MakeUserTeamMember(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error {
 	return db(ctx).AssignTeamRoleToUser(ctx, authzsql.AssignTeamRoleToUserParams{
@@ -199,22 +199,16 @@ func CanUpdateUnleash(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "unleash:update")
 }
 
-func RevokeGlobalAdmin(ctx context.Context, userID uuid.UUID) error {
-	return db(ctx).RevokeGlobalAdmin(ctx, userID)
-}
+// func RevokeGlobalAdmin(ctx context.Context, userID uuid.UUID) error {
+// 	return db(ctx).RevokeGlobalAdmin(ctx, userID)
+// }
 
-func RequireGlobalAdminCtx(ctx context.Context) error {
-	return RequireGlobalAdmin(ctx, ActorFromContext(ctx).User.GetID())
-}
-
-func RequireGlobalAdmin(ctx context.Context, userID uuid.UUID) error {
-	if isAdmin, err := db(ctx).IsAdmin(ctx, userID); err != nil {
-		return err
-	} else if !isAdmin {
-		return ErrUnauthorized
+func RequireGlobalAdmin(ctx context.Context) error {
+	if ActorFromContext(ctx).User.IsAdmin() {
+		return nil
 	}
 
-	return nil
+	return ErrUnauthorized
 }
 
 func assignGlobalRoleToUser(ctx context.Context, userID uuid.UUID, roleName string) error {

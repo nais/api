@@ -12,6 +12,7 @@ type AuthenticatedUser interface {
 	GetID() uuid.UUID
 	Identity() string
 	IsServiceAccount() bool
+	IsAdmin() bool
 }
 
 type Actor struct {

@@ -2,7 +2,6 @@ package graph
 
 import (
 	"context"
-	"errors"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
@@ -39,16 +38,6 @@ func (r *userResolver) Teams(ctx context.Context, obj *user.User, first *int, af
 	}
 
 	return team.ListForUser(ctx, obj.UUID, page, orderBy)
-}
-
-func (r *userResolver) IsAdmin(ctx context.Context, obj *user.User) (bool, error) {
-	if err := authz.RequireGlobalAdmin(ctx, obj.UUID); errors.Is(err, authz.ErrUnauthorized) {
-		return false, nil
-	} else if err != nil {
-		return false, err
-	}
-
-	return true, nil
 }
 
 func (r *Resolver) User() gengql.UserResolver { return &userResolver{r} }

@@ -43,14 +43,11 @@ func (q *Queries) CountLogEntries(ctx context.Context) (int64, error) {
 
 const create = `-- name: Create :one
 INSERT INTO
-	users (name, email, external_id)
+	users (name, email, external_id, admin)
 VALUES
-	($1, LOWER($2), $3)
+	($1, LOWER($2), $3, FALSE)
 RETURNING
-	id,
-	email,
-	name,
-	external_id
+	id, email, name, external_id, admin
 `
 
 type CreateParams struct {
@@ -67,6 +64,7 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) (*User, error) {
 		&i.Email,
 		&i.Name,
 		&i.ExternalID,
+		&i.Admin,
 	)
 	return &i, err
 }
@@ -130,10 +128,7 @@ func (q *Queries) Delete(ctx context.Context, id uuid.UUID) error {
 
 const list = `-- name: List :many
 SELECT
-	id,
-	email,
-	name,
-	external_id
+	id, email, name, external_id, admin
 FROM
 	users
 ORDER BY
@@ -155,6 +150,7 @@ func (q *Queries) List(ctx context.Context) ([]*User, error) {
 			&i.Email,
 			&i.Name,
 			&i.ExternalID,
+			&i.Admin,
 		); err != nil {
 			return nil, err
 		}
@@ -168,13 +164,11 @@ func (q *Queries) List(ctx context.Context) ([]*User, error) {
 
 const listGlobalAdmins = `-- name: ListGlobalAdmins :many
 SELECT
-	u.id, u.email, u.name, u.external_id
+	u.id, u.email, u.name, u.external_id, u.admin
 FROM
 	users u
-	INNER JOIN user_roles ur ON u.id = ur.user_id
 WHERE
-	ur.role_name = 'Admin'
-	AND ur.target_team_slug IS NULL
+	u.admin = TRUE
 ORDER BY
 	u.name,
 	u.email
@@ -194,6 +188,7 @@ func (q *Queries) ListGlobalAdmins(ctx context.Context) ([]*User, error) {
 			&i.Email,
 			&i.Name,
 			&i.ExternalID,
+			&i.Admin,
 		); err != nil {
 			return nil, err
 		}

@@ -1,9 +1,6 @@
 -- name: List :many
 SELECT
-	id,
-	email,
-	name,
-	external_id
+	*
 FROM
 	users
 ORDER BY
@@ -25,14 +22,11 @@ ORDER BY
 
 -- name: Create :one
 INSERT INTO
-	users (name, email, external_id)
+	users (name, email, external_id, admin)
 VALUES
-	(@name, LOWER(@email), @external_id)
+	(@name, LOWER(@email), @external_id, FALSE)
 RETURNING
-	id,
-	email,
-	name,
-	external_id
+	*
 ;
 
 -- name: Update :exec
@@ -126,10 +120,8 @@ SELECT
 	u.*
 FROM
 	users u
-	INNER JOIN user_roles ur ON u.id = ur.user_id
 WHERE
-	ur.role_name = 'Admin'
-	AND ur.target_team_slug IS NULL
+	u.admin = TRUE
 ORDER BY
 	u.name,
 	u.email
