@@ -112,6 +112,51 @@ func (_c *MockAuthenticatedUser_Identity_Call) RunAndReturn(run func() string) *
 	return _c
 }
 
+// IsAdmin provides a mock function with given fields:
+func (_m *MockAuthenticatedUser) IsAdmin() bool {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for IsAdmin")
+	}
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func() bool); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
+// MockAuthenticatedUser_IsAdmin_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsAdmin'
+type MockAuthenticatedUser_IsAdmin_Call struct {
+	*mock.Call
+}
+
+// IsAdmin is a helper method to define mock.On call
+func (_e *MockAuthenticatedUser_Expecter) IsAdmin() *MockAuthenticatedUser_IsAdmin_Call {
+	return &MockAuthenticatedUser_IsAdmin_Call{Call: _e.mock.On("IsAdmin")}
+}
+
+func (_c *MockAuthenticatedUser_IsAdmin_Call) Run(run func()) *MockAuthenticatedUser_IsAdmin_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockAuthenticatedUser_IsAdmin_Call) Return(_a0 bool) *MockAuthenticatedUser_IsAdmin_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockAuthenticatedUser_IsAdmin_Call) RunAndReturn(run func() bool) *MockAuthenticatedUser_IsAdmin_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // IsServiceAccount provides a mock function with given fields:
 func (_m *MockAuthenticatedUser) IsServiceAccount() bool {
 	ret := _m.Called()

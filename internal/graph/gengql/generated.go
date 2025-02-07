@@ -81855,7 +81855,7 @@ func (ec *executionContext) _User_isAdmin(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.IsAdmin, nil
+		return obj.IsAdmin(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -81876,7 +81876,7 @@ func (ec *executionContext) fieldContext_User_isAdmin(_ context.Context, field g
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
