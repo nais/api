@@ -75,15 +75,15 @@ func MakeUserTeamOwner(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug
 }
 
 func CanCreateServiceAccounts(ctx context.Context, teamSlug *slug.Slug) error {
-	panic("not implemented")
+	return requireAuthorization(ctx, "service_accounts:create", teamSlug)
 }
 
 func CanUpdateServiceAccounts(ctx context.Context, teamSlug *slug.Slug) error {
-	panic("not implemented")
+	return requireAuthorization(ctx, "service_accounts:update", teamSlug)
 }
 
 func CanDeleteServiceAccounts(ctx context.Context, teamSlug *slug.Slug) error {
-	panic("not implemented")
+	return requireAuthorization(ctx, "service_accounts:delete", teamSlug)
 }
 
 func CanReadDeployKey(ctx context.Context, teamSlug slug.Slug) error {
@@ -215,4 +215,12 @@ func requireGlobalAuthorization(ctx context.Context, authorizationName string) e
 	}
 
 	return newMissingAuthorizationError(authorizationName)
+}
+
+func requireAuthorization(ctx context.Context, authorizationName string, teamSlug *slug.Slug) error {
+	if teamSlug == nil {
+		return requireGlobalAuthorization(ctx, authorizationName)
+	}
+
+	return requireTeamAuthorization(ctx, *teamSlug, authorizationName)
 }

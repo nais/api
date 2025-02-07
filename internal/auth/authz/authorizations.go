@@ -5,10 +5,7 @@ type Authorization string
 
 const (
 	AuthorizationActivityLogsRead      Authorization = "activity_logs:read"
-	AuthorizationServiceAccountsCreate Authorization = "service_accounts:create"
-	AuthorizationServiceAccountsDelete Authorization = "service_accounts:delete"
 	AuthorizationServiceAccountsRead   Authorization = "service_accounts:read"
-	AuthorizationServiceAccountsUpdate Authorization = "service_accounts:update"
 	AuthorizationTeamsCreate           Authorization = "teams:create"
 	AuthorizationTeamsList             Authorization = "teams:list"
 	AuthorizationTeamsRead             Authorization = "teams:read"
