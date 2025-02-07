@@ -5,8 +5,14 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz/authzsql"
+	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
+)
+
+type (
+	RoleConnection = pagination.Connection[*Role]
+	RoleEdge       = pagination.Edge[*Role]
 )
 
 type Role struct {
@@ -15,10 +21,10 @@ type Role struct {
 	TargetTeamSlug *slug.Slug `json:"target_team_slug"`
 }
 
-type (
-	RoleConnection = pagination.Connection[*Role]
-	RoleEdge       = pagination.Edge[*Role]
-)
+func (r *Role) ID() ident.Ident {
+	return newRoleIdent(r.Name)
+}
+func (r *Role) IsNode() {}
 
 type UserRoles struct {
 	UserID uuid.UUID
@@ -52,4 +58,11 @@ func toServiceAccountRoles(row *authzsql.GetRolesForServiceAccountsRow) (*Servic
 		ServiceAccountID: row.ServiceAccountID,
 		Roles:            roles,
 	}, nil
+}
+
+func toGraphRole(row *authzsql.Role) *Role {
+	return &Role{
+		Name:        row.Name,
+		Description: row.Description,
+	}
 }

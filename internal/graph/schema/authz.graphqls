@@ -1,4 +1,9 @@
-type Role {
+type Role implements Node {
+	"""
+	The globally unique ID of the role.
+	"""
+	id: ID!
+
 	"""
 	Name of the role.
 	"""

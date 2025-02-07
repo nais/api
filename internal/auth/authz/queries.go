@@ -7,8 +7,42 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/auth/authz/authzsql"
+	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
 )
+
+func ListRoles(ctx context.Context, page *pagination.Pagination) (*RoleConnection, error) {
+	q := db(ctx)
+
+	ret, err := q.ListRoles(ctx, authzsql.ListRolesParams{
+		Offset: page.Offset(),
+		Limit:  page.Limit(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	total, err := q.CountRoles(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return pagination.NewConvertConnection(ret, page, total, toGraphRole), nil
+}
+
+func getRoleByIdent(ctx context.Context, id ident.Ident) (*Role, error) {
+	name, err := parseRoleIdent(id)
+	if err != nil {
+		return nil, err
+	}
+
+	row, err := db(ctx).GetRoleByName(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+
+	return toGraphRole(row), nil
+}
 
 func AssignTeamRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, teamSlug slug.Slug, roleName string) error {
 	return db(ctx).AssignTeamRoleToServiceAccount(ctx, authzsql.AssignTeamRoleToServiceAccountParams{

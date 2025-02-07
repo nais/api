@@ -88,6 +88,36 @@ func (q *Queries) AssignTeamRoleToUser(ctx context.Context, arg AssignTeamRoleTo
 	return err
 }
 
+const countRoles = `-- name: CountRoles :one
+SELECT
+	COUNT(*)
+FROM
+	roles
+`
+
+func (q *Queries) CountRoles(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countRoles)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const getRoleByName = `-- name: GetRoleByName :one
+SELECT
+	name, description
+FROM
+	roles
+WHERE
+	name = $1
+`
+
+func (q *Queries) GetRoleByName(ctx context.Context, name string) (*Role, error) {
+	row := q.db.QueryRow(ctx, getRoleByName, name)
+	var i Role
+	err := row.Scan(&i.Name, &i.Description)
+	return &i, err
+}
+
 const getRolesForServiceAccounts = `-- name: GetRolesForServiceAccounts :many
 SELECT
 	service_account_id,
@@ -284,6 +314,44 @@ func (q *Queries) IsAdmin(ctx context.Context, userID uuid.UUID) (bool, error) {
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
+}
+
+const listRoles = `-- name: ListRoles :many
+SELECT
+	name, description
+FROM
+	roles
+ORDER BY
+	name ASC
+OFFSET
+	$1
+LIMIT
+	$2
+`
+
+type ListRolesParams struct {
+	Offset int32
+	Limit  int32
+}
+
+func (q *Queries) ListRoles(ctx context.Context, arg ListRolesParams) ([]*Role, error) {
+	rows, err := q.db.Query(ctx, listRoles, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*Role{}
+	for rows.Next() {
+		var i Role
+		if err := rows.Scan(&i.Name, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const revokeGlobalAdmin = `-- name: RevokeGlobalAdmin :exec

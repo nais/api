@@ -13,12 +13,15 @@ type Querier interface {
 	AssignGlobalRoleToUser(ctx context.Context, arg AssignGlobalRoleToUserParams) error
 	AssignTeamRoleToServiceAccount(ctx context.Context, arg AssignTeamRoleToServiceAccountParams) error
 	AssignTeamRoleToUser(ctx context.Context, arg AssignTeamRoleToUserParams) error
+	CountRoles(ctx context.Context) (int64, error)
+	GetRoleByName(ctx context.Context, name string) (*Role, error)
 	GetRolesForServiceAccounts(ctx context.Context, serviceAccountIds []uuid.UUID) ([]*GetRolesForServiceAccountsRow, error)
 	// TODO: This should be rewritten to fetch rows from the roles table instead as it uses the authz.Role struct, which reflects rows from the roles table.
 	GetRolesForUsers(ctx context.Context, userIds []uuid.UUID) ([]*GetRolesForUsersRow, error)
 	HasGlobalAuthorization(ctx context.Context, arg HasGlobalAuthorizationParams) (bool, error)
 	HasTeamAuthorization(ctx context.Context, arg HasTeamAuthorizationParams) (bool, error)
 	IsAdmin(ctx context.Context, userID uuid.UUID) (bool, error)
+	ListRoles(ctx context.Context, arg ListRolesParams) ([]*Role, error)
 	RevokeGlobalAdmin(ctx context.Context, userID uuid.UUID) error
 }
 

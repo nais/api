@@ -1,3 +1,32 @@
+-- name: ListRoles :many
+SELECT
+	*
+FROM
+	roles
+ORDER BY
+	name ASC
+OFFSET
+	sqlc.arg('offset')
+LIMIT
+	sqlc.arg('limit')
+;
+
+-- name: CountRoles :one
+SELECT
+	COUNT(*)
+FROM
+	roles
+;
+
+-- name: GetRoleByName :one
+SELECT
+	*
+FROM
+	roles
+WHERE
+	name = @name
+;
+
 -- name: AssignTeamRoleToServiceAccount :exec
 INSERT INTO
 	service_account_roles (service_account_id, role_name, target_team_slug)
