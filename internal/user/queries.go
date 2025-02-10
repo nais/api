@@ -55,11 +55,3 @@ func GetByEmail(ctx context.Context, email string) (*User, error) {
 func ListGCPGroupsForUser(ctx context.Context, userID uuid.UUID) ([]string, error) {
 	return db(ctx).ListGCPGroupsForUser(ctx, userID)
 }
-
-func AssignGlobalAdmin(ctx context.Context, userID uuid.UUID) error {
-	return db(ctx).AssignGlobalAdmin(ctx, userID)
-}
-
-func RevokeGlobalAdmin(ctx context.Context, userID uuid.UUID) error {
-	return db(ctx).RevokeGlobalAdmin(ctx, userID)
-}

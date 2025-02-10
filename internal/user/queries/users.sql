@@ -125,19 +125,3 @@ WHERE
 	user_roles.user_id = @user_id
 	AND teams.google_group_email IS NOT NULL
 ;
-
--- name: AssignGlobalAdmin :exec
-UPDATE users
-SET
-	admin = TRUE
-WHERE
-	id = @id
-;
-
--- name: RevokeGlobalAdmin :exec
-UPDATE users
-SET
-	admin = FALSE
-WHERE
-	id = @id
-;

@@ -27,6 +27,8 @@ import (
 	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/user"
+	"github.com/nais/api/internal/usersync/usersyncer"
+	"github.com/nais/api/internal/usersync/usersyncsql"
 	"github.com/nais/api/internal/vulnerability"
 	testmanager "github.com/nais/tester/lua"
 	"github.com/nais/tester/lua/runner"
@@ -296,7 +298,7 @@ func newDB(ctx context.Context, container *postgres.PostgresContainer, connStr s
 		}
 
 		for _, usr := range users.Nodes() {
-			if err := authz.AssignDefaultPermissionsToUser(ctx, usr.UUID); err != nil {
+			if err := usersyncer.AssignDefaultPermissionsToUser(ctx, usersyncsql.New(pool), usr.UUID); err != nil {
 				cleanup()
 				return nil, nil, fmt.Errorf("attach default permissions to user %q: %w", usr.Email, err)
 			}

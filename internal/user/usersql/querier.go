@@ -9,7 +9,6 @@ import (
 )
 
 type Querier interface {
-	AssignGlobalAdmin(ctx context.Context, id uuid.UUID) error
 	Count(ctx context.Context) (int64, error)
 	CountMemberships(ctx context.Context, userID uuid.UUID) (int64, error)
 	Delete(ctx context.Context, id uuid.UUID) error
@@ -20,7 +19,6 @@ type Querier interface {
 	List(ctx context.Context, arg ListParams) ([]*User, error)
 	ListGCPGroupsForUser(ctx context.Context, userID uuid.UUID) ([]string, error)
 	ListMemberships(ctx context.Context, arg ListMembershipsParams) ([]*ListMembershipsRow, error)
-	RevokeGlobalAdmin(ctx context.Context, id uuid.UUID) error
 	Update(ctx context.Context, arg UpdateParams) (*User, error)
 }
 

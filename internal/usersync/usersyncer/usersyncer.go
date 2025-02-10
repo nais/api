@@ -10,9 +10,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/usersync/usersyncsql"
 	"github.com/sirupsen/logrus"
 	admindirectoryv1 "google.golang.org/api/admin/directory/v1"
@@ -104,9 +101,6 @@ func (s *Usersynchronizer) Sync(ctx context.Context) error {
 	}()
 	querier := s.querier.WithTx(tx)
 
-	// TODO: Fix this
-	ctx = database.NewTransactionContext(ctx, tx)
-
 	users, err := getUsers(ctx, querier)
 	if err != nil {
 		return fmt.Errorf("get existing users: %w", err)
@@ -158,6 +152,22 @@ func (s *Usersynchronizer) Sync(ctx context.Context) error {
 	return tx.Commit(ctx)
 }
 
+func AssignDefaultPermissionsToUser(ctx context.Context, querier usersyncsql.Querier, userID uuid.UUID) error {
+	defaultUserRoles := []string{
+		"Team creator",
+		"Team viewer",
+	}
+	for _, roleName := range defaultUserRoles {
+		if err := querier.AssignGlobalRole(ctx, usersyncsql.AssignGlobalRoleParams{
+			UserID:   userID,
+			RoleName: roleName,
+		}); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // deleteUnknownUsers will delete users from NAIS API that does not exist in the Google Directory.
 func deleteUnknownUsers(ctx context.Context, querier usersyncsql.Querier, unknownUsers map[uuid.UUID]*usersyncsql.User, log logrus.FieldLogger) error {
 	for _, user := range unknownUsers {
@@ -193,7 +203,7 @@ func assignAdmins(ctx context.Context, querier usersyncsql.Querier, membersServi
 	for _, existingAdmin := range existingAdmins {
 		if _, shouldBeAdmin := admins[existingAdmin.ID]; !shouldBeAdmin {
 			log.WithField("email", existingAdmin.Email).Debugf("revoke admin role")
-			if err := user.RevokeGlobalAdmin(ctx, existingAdmin.ID); err != nil {
+			if err := querier.RevokeGlobalAdmin(ctx, existingAdmin.ID); err != nil {
 				return err
 			}
 
@@ -212,7 +222,7 @@ func assignAdmins(ctx context.Context, querier usersyncsql.Querier, membersServi
 	for _, admin := range admins {
 		if !admin.Admin {
 			log.WithField("email", admin.Email).Debugf("assign admin role")
-			if err := user.AssignGlobalAdmin(ctx, admin.ID); err != nil {
+			if err := querier.AssignGlobalAdmin(ctx, admin.ID); err != nil {
 				return err
 			}
 
@@ -309,7 +319,7 @@ func getOrCreateUserFromGoogleUser(ctx context.Context, querier usersyncsql.Quer
 		return nil, err
 	}
 
-	if err := authz.AssignDefaultPermissionsToUser(ctx, createdUser.ID); err != nil {
+	if err := AssignDefaultPermissionsToUser(ctx, querier, createdUser.ID); err != nil {
 		return nil, err
 	}
 

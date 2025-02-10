@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	AssignGlobalAdmin(ctx context.Context, id uuid.UUID) error
 	AssignGlobalRole(ctx context.Context, arg AssignGlobalRoleParams) error
 	CountLogEntries(ctx context.Context) (int64, error)
 	Create(ctx context.Context, arg CreateParams) (*User, error)
@@ -19,6 +20,7 @@ type Querier interface {
 	ListLogEntries(ctx context.Context, arg ListLogEntriesParams) ([]*UsersyncLogEntry, error)
 	ListLogEntriesByIDs(ctx context.Context, ids []uuid.UUID) ([]*UsersyncLogEntry, error)
 	ListRoles(ctx context.Context) ([]*UserRole, error)
+	RevokeGlobalAdmin(ctx context.Context, id uuid.UUID) error
 	RevokeGlobalRole(ctx context.Context, arg RevokeGlobalRoleParams) error
 	Update(ctx context.Context, arg UpdateParams) error
 }

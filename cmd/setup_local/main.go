@@ -23,6 +23,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/user"
+	"github.com/nais/api/internal/usersync/usersyncer"
 	"github.com/nais/api/internal/usersync/usersyncsql"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
@@ -220,7 +221,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 		var err error
 		var adminUser, devUser *user.User
 
-		usersyncq := usersyncsql.New(pool)
+		usersyncq := usersyncsql.New(database.TransactionFromContext(ctx))
 
 		createUser := func(ctx context.Context, name, email string) (*user.User, error) {
 			usu, err := usersyncq.Create(ctx, usersyncsql.CreateParams{
@@ -247,7 +248,8 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 				return fmt.Errorf("create admin user: %w", err)
 			}
 		}
-		if err := user.AssignGlobalAdmin(ctx, adminUser.UUID); err != nil {
+
+		if err := usersyncq.AssignGlobalAdmin(ctx, adminUser.UUID); err != nil {
 			return fmt.Errorf("assign global admin role to admin user: %w", err)
 		}
 		actor := &authz.Actor{User: adminUser}
@@ -260,7 +262,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			}
 		}
 
-		if err := authz.AssignDefaultPermissionsToUser(ctx, devUser.UUID); err != nil {
+		if err := usersyncer.AssignDefaultPermissionsToUser(ctx, usersyncq, devUser.UUID); err != nil {
 			return fmt.Errorf("assign default permissions to dev user: %w", err)
 		}
 
@@ -279,7 +281,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 				return fmt.Errorf("create user %q: %w", email, err)
 			}
 
-			if err = authz.AssignDefaultPermissionsToUser(ctx, u.UUID); err != nil {
+			if err = usersyncer.AssignDefaultPermissionsToUser(ctx, usersyncq, u.UUID); err != nil {
 				return fmt.Errorf("assign default permissions to user %q: %w", u.Email, err)
 			}
 

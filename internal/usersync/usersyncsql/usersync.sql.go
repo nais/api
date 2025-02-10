@@ -9,6 +9,19 @@ import (
 	"github.com/google/uuid"
 )
 
+const assignGlobalAdmin = `-- name: AssignGlobalAdmin :exec
+UPDATE users
+SET
+	admin = TRUE
+WHERE
+	id = $1
+`
+
+func (q *Queries) AssignGlobalAdmin(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, assignGlobalAdmin, id)
+	return err
+}
+
 const assignGlobalRole = `-- name: AssignGlobalRole :exec
 INSERT INTO
 	user_roles (user_id, role_name)
@@ -324,6 +337,19 @@ func (q *Queries) ListRoles(ctx context.Context) ([]*UserRole, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const revokeGlobalAdmin = `-- name: RevokeGlobalAdmin :exec
+UPDATE users
+SET
+	admin = FALSE
+WHERE
+	id = $1
+`
+
+func (q *Queries) RevokeGlobalAdmin(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, revokeGlobalAdmin, id)
+	return err
 }
 
 const revokeGlobalRole = `-- name: RevokeGlobalRole :exec

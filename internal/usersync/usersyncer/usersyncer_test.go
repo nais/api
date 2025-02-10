@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/test"
@@ -41,7 +40,6 @@ func TestSync(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = user.NewLoaderContext(ctx, pool)
-		ctx = authz.NewLoaderContext(ctx, pool)
 		return ctx, pool
 	}
 	t.Run("No local users, no remote users", func(t *testing.T) {
@@ -105,7 +103,7 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := user.AssignGlobalAdmin(ctx, user2.ID); err != nil {
+		if err := querier.AssignGlobalAdmin(ctx, user2.ID); err != nil {
 			t.Fatal(err)
 		}
 
@@ -177,7 +175,7 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := user.AssignGlobalAdmin(ctx, userThatShouldLoseAdminRole.ID); err != nil {
+		if err := querier.AssignGlobalAdmin(ctx, userThatShouldLoseAdminRole.ID); err != nil {
 			t.Fatal(err)
 		}
 

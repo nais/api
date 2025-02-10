@@ -126,3 +126,19 @@ ORDER BY
 	u.name,
 	u.email
 ;
+
+-- name: AssignGlobalAdmin :exec
+UPDATE users
+SET
+	admin = TRUE
+WHERE
+	id = @id
+;
+
+-- name: RevokeGlobalAdmin :exec
+UPDATE users
+SET
+	admin = FALSE
+WHERE
+	id = @id
+;
