@@ -17,6 +17,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/cost"
+	"github.com/nais/api/internal/department"
 	"github.com/nais/api/internal/deployment"
 	"github.com/nais/api/internal/feature"
 	"github.com/nais/api/internal/github/repository"
@@ -380,6 +381,10 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	CreateDepartmentPayload struct {
+		Team func(childComplexity int) int
+	}
+
 	CreateSecretPayload struct {
 		Secret func(childComplexity int) int
 	}
@@ -404,6 +409,30 @@ type ComplexityRoot struct {
 
 	DeleteSecretPayload struct {
 		SecretDeleted func(childComplexity int) int
+	}
+
+	Department struct {
+		ID   func(childComplexity int) int
+		Slug func(childComplexity int) int
+	}
+
+	DepartmentConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	DepartmentEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	DepartmentEnvironment struct {
+		GCPProjectID       func(childComplexity int) int
+		ID                 func(childComplexity int) int
+		Name               func(childComplexity int) int
+		SlackAlertsChannel func(childComplexity int) int
+		Team               func(childComplexity int) int
 	}
 
 	Deployment struct {
@@ -780,6 +809,7 @@ type ComplexityRoot struct {
 		ChangeDeploymentKey       func(childComplexity int, input deployment.ChangeDeploymentKeyInput) int
 		ConfigureReconciler       func(childComplexity int, input reconciler.ConfigureReconcilerInput) int
 		ConfirmTeamDeletion       func(childComplexity int, input team.ConfirmTeamDeletionInput) int
+		CreateDepartment          func(childComplexity int, input department.CreateDepartmentInput) int
 		CreateSecret              func(childComplexity int, input secret.CreateSecretInput) int
 		CreateTeam                func(childComplexity int, input team.CreateTeamInput) int
 		CreateUnleashForTeam      func(childComplexity int, input unleash.CreateUnleashForTeamInput) int
@@ -877,6 +907,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		Departments      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Features         func(childComplexity int) int
 		Me               func(childComplexity int) int
 		Node             func(childComplexity int, id ident.Ident) int
@@ -2179,6 +2210,7 @@ type KafkaTopicAclResolver interface {
 type MutationResolver interface {
 	DeleteApplication(ctx context.Context, input application.DeleteApplicationInput) (*application.DeleteApplicationPayload, error)
 	RestartApplication(ctx context.Context, input application.RestartApplicationInput) (*application.RestartApplicationPayload, error)
+	CreateDepartment(ctx context.Context, input department.CreateDepartmentInput) (*department.CreateDepartmentPayload, error)
 	ChangeDeploymentKey(ctx context.Context, input deployment.ChangeDeploymentKeyInput) (*deployment.ChangeDeploymentKeyPayload, error)
 	DeleteJob(ctx context.Context, input job.DeleteJobInput) (*job.DeleteJobPayload, error)
 	TriggerJob(ctx context.Context, input job.TriggerJobInput) (*job.TriggerJobPayload, error)
@@ -2224,6 +2256,7 @@ type OpenSearchAccessResolver interface {
 }
 type QueryResolver interface {
 	Node(ctx context.Context, id ident.Ident) (model.Node, error)
+	Departments(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*department.DepartmentConnection, error)
 	Features(ctx context.Context) (*feature.Features, error)
 	Reconcilers(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*reconciler.Reconciler], error)
 	Search(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) (*pagination.Connection[search.SearchNode], error)
@@ -3442,6 +3475,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ContainerImageWorkloadReferenceEdge.Node(childComplexity), true
 
+	case "CreateDepartmentPayload.team":
+		if e.complexity.CreateDepartmentPayload.Team == nil {
+			break
+		}
+
+		return e.complexity.CreateDepartmentPayload.Team(childComplexity), true
+
 	case "CreateSecretPayload.secret":
 		if e.complexity.CreateSecretPayload.Secret == nil {
 			break
@@ -3497,6 +3537,90 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.DeleteSecretPayload.SecretDeleted(childComplexity), true
+
+	case "Department.id":
+		if e.complexity.Department.ID == nil {
+			break
+		}
+
+		return e.complexity.Department.ID(childComplexity), true
+
+	case "Department.slug":
+		if e.complexity.Department.Slug == nil {
+			break
+		}
+
+		return e.complexity.Department.Slug(childComplexity), true
+
+	case "DepartmentConnection.edges":
+		if e.complexity.DepartmentConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.DepartmentConnection.Edges(childComplexity), true
+
+	case "DepartmentConnection.nodes":
+		if e.complexity.DepartmentConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.DepartmentConnection.Nodes(childComplexity), true
+
+	case "DepartmentConnection.pageInfo":
+		if e.complexity.DepartmentConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.DepartmentConnection.PageInfo(childComplexity), true
+
+	case "DepartmentEdge.cursor":
+		if e.complexity.DepartmentEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.DepartmentEdge.Cursor(childComplexity), true
+
+	case "DepartmentEdge.node":
+		if e.complexity.DepartmentEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.DepartmentEdge.Node(childComplexity), true
+
+	case "DepartmentEnvironment.gcpProjectID":
+		if e.complexity.DepartmentEnvironment.GCPProjectID == nil {
+			break
+		}
+
+		return e.complexity.DepartmentEnvironment.GCPProjectID(childComplexity), true
+
+	case "DepartmentEnvironment.id":
+		if e.complexity.DepartmentEnvironment.ID == nil {
+			break
+		}
+
+		return e.complexity.DepartmentEnvironment.ID(childComplexity), true
+
+	case "DepartmentEnvironment.name":
+		if e.complexity.DepartmentEnvironment.Name == nil {
+			break
+		}
+
+		return e.complexity.DepartmentEnvironment.Name(childComplexity), true
+
+	case "DepartmentEnvironment.slackAlertsChannel":
+		if e.complexity.DepartmentEnvironment.SlackAlertsChannel == nil {
+			break
+		}
+
+		return e.complexity.DepartmentEnvironment.SlackAlertsChannel(childComplexity), true
+
+	case "DepartmentEnvironment.team":
+		if e.complexity.DepartmentEnvironment.Team == nil {
+			break
+		}
+
+		return e.complexity.DepartmentEnvironment.Team(childComplexity), true
 
 	case "Deployment.commitSha":
 		if e.complexity.Deployment.CommitSha == nil {
@@ -5059,6 +5183,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.ConfirmTeamDeletion(childComplexity, args["input"].(team.ConfirmTeamDeletionInput)), true
 
+	case "Mutation.createDepartment":
+		if e.complexity.Mutation.CreateDepartment == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createDepartment_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateDepartment(childComplexity, args["input"].(department.CreateDepartmentInput)), true
+
 	case "Mutation.createSecret":
 		if e.complexity.Mutation.CreateSecret == nil {
 			break
@@ -5569,6 +5705,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PageInfo.TotalCount(childComplexity), true
+
+	case "Query.departments":
+		if e.complexity.Query.Departments == nil {
+			break
+		}
+
+		args, err := ec.field_Query_departments_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Departments(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "Query.features":
 		if e.complexity.Query.Features == nil {
@@ -10604,6 +10752,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputChangeDeploymentKeyInput,
 		ec.unmarshalInputConfigureReconcilerInput,
 		ec.unmarshalInputConfirmTeamDeletionInput,
+		ec.unmarshalInputCreateDepartmentInput,
 		ec.unmarshalInputCreateSecretInput,
 		ec.unmarshalInputCreateTeamInput,
 		ec.unmarshalInputCreateUnleashForTeamInput,
@@ -11878,6 +12027,121 @@ extend type SqlInstance {
 type SqlInstanceCost {
 	sum: Float!
 }
+`, BuiltIn: false},
+	{Name: "../schema/departments.graphqls", Input: `extend type Query {
+	"Get a list of departments."
+	departments(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): DepartmentConnection!
+}
+
+extend type Mutation{
+	"""
+	Create a new department
+
+	The user creating the team will be granted team ownership, unless the user is a service account, in which case the
+	team will not get an initial owner. To add one or more owners to the team, refer to the ` + "`" + `addDepartmentOwners` + "`" + ` mutation.
+
+	Creation of a team will also create external resources for the team, which will be managed by the NAIS API
+	reconcilers. This will be done asynchronously.
+
+	Refer to the [official NAIS documentation](https://docs.nais.io/explanations/team/) for more information regarding
+	NAIS departments.
+	"""
+	createDepartment(input: CreateDepartmentInput!): CreateDepartmentPayload!
+}
+
+"""
+The team type represents a team on the [NAIS platform](https://nais.io/).
+
+Learn more about what NAIS departments are and what they can be used for in the [official NAIS documentation](https://docs.nais.io/explanations/team/).
+
+External resources (e.g. entraIDGroupID, gitHubdepartmentslug) are managed by [NAIS API reconcilers](https://github.com/nais/api-reconcilers).
+"""
+type Department implements Node {
+	"The globally unique ID of the team."
+	id: ID!
+
+	"Unique slug of the team."
+	slug: Slug!
+}
+
+type DepartmentEnvironment implements Node {
+	"The globally unique ID of the team environment."
+	id: ID!
+
+	"Name of the team environment."
+	name: String!
+
+	"The GCP project ID for the team environment."
+	gcpProjectID: String
+
+	"The Slack alerts channel for the team environment."
+	slackAlertsChannel: String!
+
+	"The connected team."
+	team: Department!
+}
+
+type CreateDepartmentPayload {
+	"The newly created team."
+	team: Department
+}
+
+type DepartmentConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+
+	"List of nodes."
+	nodes: [Department!]!
+
+	"List of edges."
+	edges: [DepartmentEdge!]!
+}
+
+type DepartmentEdge {
+	"Cursor for this edge that can be used for pagination."
+	cursor: Cursor!
+
+	"The team."
+	node: Department!
+}
+
+input CreateDepartmentInput {
+	"""
+	Unique team slug.
+
+	After creation, this value can not be changed. Also, after a potential deletion of the team, the slug can not be
+	reused, so please choose wisely.
+	"""
+	slug: Slug!
+
+	"""
+	The purpose / description of the team.
+
+	What is the team for? What is the team working on? This value is meant for human consumption, and should be enough
+	to give a newcomer an idea of what the team is about.
+	"""
+	purpose: String!
+
+	"""
+	The main Slack channel for the team.
+
+	Where does the team communicate? This value is used to link to the team's main Slack channel.
+	"""
+	slackChannel: String!
+}
+
 `, BuiltIn: false},
 	{Name: "../schema/deployment.graphqls", Input: `extend type Team {
 	"""
@@ -19039,6 +19303,34 @@ func (ec *executionContext) field_Mutation_confirmTeamDeletion_argsInput(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Mutation_createDepartment_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_createDepartment_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_createDepartment_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (department.CreateDepartmentInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal department.CreateDepartmentInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreateDepartmentInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋdepartmentᚐCreateDepartmentInput(ctx, tmp)
+	}
+
+	var zeroVal department.CreateDepartmentInput
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Mutation_createSecret_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -19744,6 +20036,103 @@ func (ec *executionContext) field_Query___type_argsName(
 	}
 
 	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_departments_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Query_departments_argsFirst(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := ec.field_Query_departments_argsAfter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := ec.field_Query_departments_argsLast(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := ec.field_Query_departments_argsBefore(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	return args, nil
+}
+func (ec *executionContext) field_Query_departments_argsFirst(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*int, error) {
+	if _, ok := rawArgs["first"]; !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+	if tmp, ok := rawArgs["first"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_departments_argsAfter(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*pagination.Cursor, error) {
+	if _, ok := rawArgs["after"]; !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+	if tmp, ok := rawArgs["after"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_departments_argsLast(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*int, error) {
+	if _, ok := rawArgs["last"]; !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+	if tmp, ok := rawArgs["last"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_departments_argsBefore(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*pagination.Cursor, error) {
+	if _, ok := rawArgs["before"]; !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+	if tmp, ok := rawArgs["before"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
 	return zeroVal, nil
 }
 
@@ -31218,6 +31607,53 @@ func (ec *executionContext) fieldContext_ContainerImageWorkloadReferenceEdge_nod
 	return fc, nil
 }
 
+func (ec *executionContext) _CreateDepartmentPayload_team(ctx context.Context, field graphql.CollectedField, obj *department.CreateDepartmentPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateDepartmentPayload_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Team, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*department.Department)
+	fc.Result = res
+	return ec.marshalODepartment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdepartmentᚐDepartment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateDepartmentPayload_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateDepartmentPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Department_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Department_slug(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Department", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CreateSecretPayload_secret(ctx context.Context, field graphql.CollectedField, obj *secret.CreateSecretPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CreateSecretPayload_secret(ctx, field)
 	if err != nil {
@@ -31797,6 +32233,571 @@ func (ec *executionContext) fieldContext_DeleteSecretPayload_secretDeleted(_ con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Department_id(ctx context.Context, field graphql.CollectedField, obj *department.Department) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Department_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Department_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Department",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Department_slug(ctx context.Context, field graphql.CollectedField, obj *department.Department) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Department_slug(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Slug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(slug.Slug)
+	fc.Result = res
+	return ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Department_slug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Department",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DepartmentConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *department.DepartmentConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DepartmentConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*pagination.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DepartmentConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DepartmentConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "endCursor":
+				return ec.fieldContext_PageInfo_endCursor(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			case "startCursor":
+				return ec.fieldContext_PageInfo_startCursor(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DepartmentConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *department.DepartmentConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DepartmentConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*department.Department)
+	fc.Result = res
+	return ec.marshalNDepartment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdepartmentᚐDepartmentᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DepartmentConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DepartmentConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Department_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Department_slug(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Department", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DepartmentConnection_edges(ctx context.Context, field graphql.CollectedField, obj *department.DepartmentConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DepartmentConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*department.DepartmentEdge)
+	fc.Result = res
+	return ec.marshalNDepartmentEdge2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdepartmentᚐDepartmentEdgeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DepartmentConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DepartmentConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cursor":
+				return ec.fieldContext_DepartmentEdge_cursor(ctx, field)
+			case "node":
+				return ec.fieldContext_DepartmentEdge_node(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DepartmentEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DepartmentEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *department.DepartmentEdge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DepartmentEdge_cursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.Cursor)
+	fc.Result = res
+	return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DepartmentEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DepartmentEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Cursor does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DepartmentEdge_node(ctx context.Context, field graphql.CollectedField, obj *department.DepartmentEdge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DepartmentEdge_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*department.Department)
+	fc.Result = res
+	return ec.marshalNDepartment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdepartmentᚐDepartment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DepartmentEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DepartmentEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Department_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Department_slug(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Department", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DepartmentEnvironment_id(ctx context.Context, field graphql.CollectedField, obj *department.DepartmentEnvironment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DepartmentEnvironment_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DepartmentEnvironment_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DepartmentEnvironment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DepartmentEnvironment_name(ctx context.Context, field graphql.CollectedField, obj *department.DepartmentEnvironment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DepartmentEnvironment_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DepartmentEnvironment_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DepartmentEnvironment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DepartmentEnvironment_gcpProjectID(ctx context.Context, field graphql.CollectedField, obj *department.DepartmentEnvironment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DepartmentEnvironment_gcpProjectID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GCPProjectID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DepartmentEnvironment_gcpProjectID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DepartmentEnvironment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DepartmentEnvironment_slackAlertsChannel(ctx context.Context, field graphql.CollectedField, obj *department.DepartmentEnvironment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DepartmentEnvironment_slackAlertsChannel(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SlackAlertsChannel, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DepartmentEnvironment_slackAlertsChannel(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DepartmentEnvironment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DepartmentEnvironment_team(ctx context.Context, field graphql.CollectedField, obj *department.DepartmentEnvironment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DepartmentEnvironment_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Team, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*department.Department)
+	fc.Result = res
+	return ec.marshalNDepartment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdepartmentᚐDepartment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DepartmentEnvironment_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DepartmentEnvironment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Department_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Department_slug(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Department", field.Name)
 		},
 	}
 	return fc, nil
@@ -42006,6 +43007,65 @@ func (ec *executionContext) fieldContext_Mutation_restartApplication(ctx context
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_createDepartment(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createDepartment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateDepartment(rctx, fc.Args["input"].(department.CreateDepartmentInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*department.CreateDepartmentPayload)
+	fc.Result = res
+	return ec.marshalNCreateDepartmentPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdepartmentᚐCreateDepartmentPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createDepartment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "team":
+				return ec.fieldContext_CreateDepartmentPayload_team(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CreateDepartmentPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createDepartment_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_changeDeploymentKey(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_changeDeploymentKey(ctx, field)
 	if err != nil {
@@ -45559,6 +46619,69 @@ func (ec *executionContext) fieldContext_Query_node(ctx context.Context, field g
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_node_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_departments(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_departments(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Departments(rctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*department.DepartmentConnection)
+	fc.Result = res
+	return ec.marshalNDepartmentConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdepartmentᚐDepartmentConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_departments(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pageInfo":
+				return ec.fieldContext_DepartmentConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_DepartmentConnection_nodes(ctx, field)
+			case "edges":
+				return ec.fieldContext_DepartmentConnection_edges(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DepartmentConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_departments_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -81714,6 +82837,47 @@ func (ec *executionContext) unmarshalInputConfirmTeamDeletionInput(ctx context.C
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateDepartmentInput(ctx context.Context, obj any) (department.CreateDepartmentInput, error) {
+	var it department.CreateDepartmentInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"slug", "purpose", "slackChannel"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "slug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Slug = data
+		case "purpose":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("purpose"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Purpose = data
+		case "slackChannel":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slackChannel"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SlackChannel = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateSecretInput(ctx context.Context, obj any) (secret.CreateSecretInput, error) {
 	var it secret.CreateSecretInput
 	asMap := map[string]any{}
@@ -83904,6 +85068,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
+	case team.TeamMemberAddedActivityLogEntry:
+		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamMemberAddedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, obj)
 	case team.TeamMemberSetRoleActivityLogEntry:
 		return ec._TeamMemberSetRoleActivityLogEntry(ctx, sel, &obj)
 	case *team.TeamMemberSetRoleActivityLogEntry:
@@ -83911,13 +85082,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamMemberSetRoleActivityLogEntry(ctx, sel, obj)
-	case job.JobDeletedActivityLogEntry:
-		return ec._JobDeletedActivityLogEntry(ctx, sel, &obj)
-	case *job.JobDeletedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._JobDeletedActivityLogEntry(ctx, sel, obj)
 	case vulnerability.VulnerabilityUpdatedActivityLogEntry:
 		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *vulnerability.VulnerabilityUpdatedActivityLogEntry:
@@ -83939,13 +85103,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, obj)
-	case bigquery.BigQueryDataset:
-		return ec._BigQueryDataset(ctx, sel, &obj)
-	case *bigquery.BigQueryDataset:
+	case repository.RepositoryRemovedActivityLogEntry:
+		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, &obj)
+	case *repository.RepositoryRemovedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._BigQueryDataset(ctx, sel, obj)
+		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, obj)
 	case bucket.Bucket:
 		return ec._Bucket(ctx, sel, &obj)
 	case *bucket.Bucket:
@@ -83981,13 +85145,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UserDeletedUserSyncLogEntry(ctx, sel, obj)
-	case deployment.TeamDeployKeyUpdatedActivityLogEntry:
-		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *deployment.TeamDeployKeyUpdatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, obj)
 	case usersync.UserUpdatedUserSyncLogEntry:
 		return ec._UserUpdatedUserSyncLogEntry(ctx, sel, &obj)
 	case *usersync.UserUpdatedUserSyncLogEntry:
@@ -83995,13 +85152,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UserUpdatedUserSyncLogEntry(ctx, sel, obj)
-	case repository.RepositoryRemovedActivityLogEntry:
-		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, &obj)
-	case *repository.RepositoryRemovedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, obj)
 	case usersync.UserCreatedUserSyncLogEntry:
 		return ec._UserCreatedUserSyncLogEntry(ctx, sel, &obj)
 	case *usersync.UserCreatedUserSyncLogEntry:
@@ -84009,6 +85159,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UserCreatedUserSyncLogEntry(ctx, sel, obj)
+	case deployment.TeamDeployKeyUpdatedActivityLogEntry:
+		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *deployment.TeamDeployKeyUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, obj)
 	case unleash.UnleashInstanceUpdatedActivityLogEntry:
 		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *unleash.UnleashInstanceUpdatedActivityLogEntry:
@@ -84016,13 +85173,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, obj)
-	case application.Application:
-		return ec._Application(ctx, sel, &obj)
-	case *application.Application:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Application(ctx, sel, obj)
 	case unleash.UnleashInstanceCreatedActivityLogEntry:
 		return ec._UnleashInstanceCreatedActivityLogEntry(ctx, sel, &obj)
 	case *unleash.UnleashInstanceCreatedActivityLogEntry:
@@ -84030,13 +85180,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UnleashInstanceCreatedActivityLogEntry(ctx, sel, obj)
-	case job.Job:
-		return ec._Job(ctx, sel, &obj)
-	case *job.Job:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Job(ctx, sel, obj)
 	case team.TeamEnvironmentUpdatedActivityLogEntry:
 		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *team.TeamEnvironmentUpdatedActivityLogEntry:
@@ -84044,6 +85187,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, obj)
+	case application.Application:
+		return ec._Application(ctx, sel, &obj)
+	case *application.Application:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Application(ctx, sel, obj)
 	case team.TeamMemberRemovedActivityLogEntry:
 		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, &obj)
 	case *team.TeamMemberRemovedActivityLogEntry:
@@ -84051,13 +85201,41 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, obj)
-	case sqlinstance.SQLDatabase:
-		return ec._SqlDatabase(ctx, sel, &obj)
-	case *sqlinstance.SQLDatabase:
+	case team.TeamConfirmDeleteKeyActivityLogEntry:
+		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamConfirmDeleteKeyActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SqlDatabase(ctx, sel, obj)
+		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, obj)
+	case job.Job:
+		return ec._Job(ctx, sel, &obj)
+	case *job.Job:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Job(ctx, sel, obj)
+	case team.TeamCreateDeleteKeyActivityLogEntry:
+		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamCreateDeleteKeyActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, obj)
+	case team.TeamUpdatedActivityLogEntry:
+		return ec._TeamUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamUpdatedActivityLogEntry(ctx, sel, obj)
+	case job.JobDeletedActivityLogEntry:
+		return ec._JobDeletedActivityLogEntry(ctx, sel, &obj)
+	case *job.JobDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._JobDeletedActivityLogEntry(ctx, sel, obj)
 	case job.JobTriggeredActivityLogEntry:
 		return ec._JobTriggeredActivityLogEntry(ctx, sel, &obj)
 	case *job.JobTriggeredActivityLogEntry:
@@ -84072,34 +85250,34 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._KafkaTopic(ctx, sel, obj)
-	case team.TeamMemberAddedActivityLogEntry:
-		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamMemberAddedActivityLogEntry:
+	case opensearch.OpenSearch:
+		return ec._OpenSearch(ctx, sel, &obj)
+	case *opensearch.OpenSearch:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, obj)
-	case team.TeamConfirmDeleteKeyActivityLogEntry:
-		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamConfirmDeleteKeyActivityLogEntry:
+		return ec._OpenSearch(ctx, sel, obj)
+	case team.TeamCreatedActivityLogEntry:
+		return ec._TeamCreatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, obj)
-	case team.TeamCreateDeleteKeyActivityLogEntry:
-		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamCreateDeleteKeyActivityLogEntry:
+		return ec._TeamCreatedActivityLogEntry(ctx, sel, obj)
+	case sqlinstance.SQLInstance:
+		return ec._SqlInstance(ctx, sel, &obj)
+	case *sqlinstance.SQLInstance:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, obj)
-	case reconciler.ReconcilerEnabledActivityLogEntry:
-		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, &obj)
-	case *reconciler.ReconcilerEnabledActivityLogEntry:
+		return ec._SqlInstance(ctx, sel, obj)
+	case repository.RepositoryAddedActivityLogEntry:
+		return ec._RepositoryAddedActivityLogEntry(ctx, sel, &obj)
+	case *repository.RepositoryAddedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, obj)
+		return ec._RepositoryAddedActivityLogEntry(ctx, sel, obj)
 	case reconciler.ReconcilerDisabledActivityLogEntry:
 		return ec._ReconcilerDisabledActivityLogEntry(ctx, sel, &obj)
 	case *reconciler.ReconcilerDisabledActivityLogEntry:
@@ -84121,34 +85299,34 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._RedisInstance(ctx, sel, obj)
-	case team.TeamUpdatedActivityLogEntry:
-		return ec._TeamUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamUpdatedActivityLogEntry:
+	case sqlinstance.SQLDatabase:
+		return ec._SqlDatabase(ctx, sel, &obj)
+	case *sqlinstance.SQLDatabase:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamUpdatedActivityLogEntry(ctx, sel, obj)
-	case team.TeamCreatedActivityLogEntry:
-		return ec._TeamCreatedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamCreatedActivityLogEntry:
+		return ec._SqlDatabase(ctx, sel, obj)
+	case reconciler.ReconcilerEnabledActivityLogEntry:
+		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, &obj)
+	case *reconciler.ReconcilerEnabledActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamCreatedActivityLogEntry(ctx, sel, obj)
-	case sqlinstance.SQLInstance:
-		return ec._SqlInstance(ctx, sel, &obj)
-	case *sqlinstance.SQLInstance:
+		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, obj)
+	case bigquery.BigQueryDataset:
+		return ec._BigQueryDataset(ctx, sel, &obj)
+	case *bigquery.BigQueryDataset:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SqlInstance(ctx, sel, obj)
-	case opensearch.OpenSearch:
-		return ec._OpenSearch(ctx, sel, &obj)
-	case *opensearch.OpenSearch:
+		return ec._BigQueryDataset(ctx, sel, obj)
+	case secret.SecretDeletedActivityLogEntry:
+		return ec._SecretDeletedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._OpenSearch(ctx, sel, obj)
+		return ec._SecretDeletedActivityLogEntry(ctx, sel, obj)
 	case secret.SecretCreatedActivityLogEntry:
 		return ec._SecretCreatedActivityLogEntry(ctx, sel, &obj)
 	case *secret.SecretCreatedActivityLogEntry:
@@ -84177,48 +85355,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, obj)
-	case secret.SecretDeletedActivityLogEntry:
-		return ec._SecretDeletedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretDeletedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SecretDeletedActivityLogEntry(ctx, sel, obj)
-	case repository.RepositoryAddedActivityLogEntry:
-		return ec._RepositoryAddedActivityLogEntry(ctx, sel, &obj)
-	case *repository.RepositoryAddedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._RepositoryAddedActivityLogEntry(ctx, sel, obj)
-	case feature.FeatureKafka:
-		return ec._FeatureKafka(ctx, sel, &obj)
-	case *feature.FeatureKafka:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._FeatureKafka(ctx, sel, obj)
-	case feature.FeatureUnleash:
-		return ec._FeatureUnleash(ctx, sel, &obj)
-	case *feature.FeatureUnleash:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._FeatureUnleash(ctx, sel, obj)
-	case team.Team:
-		return ec._Team(ctx, sel, &obj)
-	case *team.Team:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Team(ctx, sel, obj)
-	case team.TeamEnvironment:
-		return ec._TeamEnvironment(ctx, sel, &obj)
-	case *team.TeamEnvironment:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamEnvironment(ctx, sel, obj)
 	case serviceaccount.ServiceAccount:
 		return ec._ServiceAccount(ctx, sel, &obj)
 	case *serviceaccount.ServiceAccount:
@@ -84226,13 +85362,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ServiceAccount(ctx, sel, obj)
-	case repository.Repository:
-		return ec._Repository(ctx, sel, &obj)
-	case *repository.Repository:
+	case team.Team:
+		return ec._Team(ctx, sel, &obj)
+	case *team.Team:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Repository(ctx, sel, obj)
+		return ec._Team(ctx, sel, obj)
+	case deployment.Deployment:
+		return ec._Deployment(ctx, sel, &obj)
+	case *deployment.Deployment:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Deployment(ctx, sel, obj)
 	case reconciler.Reconciler:
 		return ec._Reconciler(ctx, sel, &obj)
 	case *reconciler.Reconciler:
@@ -84240,18 +85383,25 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Reconciler(ctx, sel, obj)
+	case feature.FeatureUnleash:
+		return ec._FeatureUnleash(ctx, sel, &obj)
+	case *feature.FeatureUnleash:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._FeatureUnleash(ctx, sel, obj)
+	case team.TeamEnvironment:
+		return ec._TeamEnvironment(ctx, sel, &obj)
+	case *team.TeamEnvironment:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamEnvironment(ctx, sel, obj)
 	case persistence.Persistence:
 		if obj == nil {
 			return graphql.Null
 		}
 		return ec._Persistence(ctx, sel, obj)
-	case secret.Secret:
-		return ec._Secret(ctx, sel, &obj)
-	case *secret.Secret:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Secret(ctx, sel, obj)
 	case job.JobRunInstance:
 		return ec._JobRunInstance(ctx, sel, &obj)
 	case *job.JobRunInstance:
@@ -84259,11 +85409,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._JobRunInstance(ctx, sel, obj)
-	case activitylog.ActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ActivityLogEntry(ctx, sel, obj)
 	case job.JobRun:
 		return ec._JobRun(ctx, sel, &obj)
 	case *job.JobRun:
@@ -84271,13 +85416,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._JobRun(ctx, sel, obj)
-	case unleash.UnleashInstance:
-		return ec._UnleashInstance(ctx, sel, &obj)
-	case *unleash.UnleashInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._UnleashInstance(ctx, sel, obj)
 	case feature.FeatureOpenSearch:
 		return ec._FeatureOpenSearch(ctx, sel, &obj)
 	case *feature.FeatureOpenSearch:
@@ -84285,6 +85423,18 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._FeatureOpenSearch(ctx, sel, obj)
+	case activitylog.ActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ActivityLogEntry(ctx, sel, obj)
+	case feature.Features:
+		return ec._Features(ctx, sel, &obj)
+	case *feature.Features:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Features(ctx, sel, obj)
 	case feature.FeatureValkey:
 		return ec._FeatureValkey(ctx, sel, &obj)
 	case *feature.FeatureValkey:
@@ -84292,6 +85442,34 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._FeatureValkey(ctx, sel, obj)
+	case workload.ContainerImage:
+		return ec._ContainerImage(ctx, sel, &obj)
+	case *workload.ContainerImage:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ContainerImage(ctx, sel, obj)
+	case repository.Repository:
+		return ec._Repository(ctx, sel, &obj)
+	case *repository.Repository:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Repository(ctx, sel, obj)
+	case unleash.UnleashInstance:
+		return ec._UnleashInstance(ctx, sel, &obj)
+	case *unleash.UnleashInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._UnleashInstance(ctx, sel, obj)
+	case feature.FeatureKafka:
+		return ec._FeatureKafka(ctx, sel, &obj)
+	case *feature.FeatureKafka:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._FeatureKafka(ctx, sel, obj)
 	case user.User:
 		return ec._User(ctx, sel, &obj)
 	case *user.User:
@@ -84304,20 +85482,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UserSyncLogEntry(ctx, sel, obj)
-	case feature.FeatureRedis:
-		return ec._FeatureRedis(ctx, sel, &obj)
-	case *feature.FeatureRedis:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._FeatureRedis(ctx, sel, obj)
-	case feature.Features:
-		return ec._Features(ctx, sel, &obj)
-	case *feature.Features:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Features(ctx, sel, obj)
 	case deployment.DeploymentStatus:
 		return ec._DeploymentStatus(ctx, sel, &obj)
 	case *deployment.DeploymentStatus:
@@ -84332,13 +85496,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._DeploymentResource(ctx, sel, obj)
-	case deployment.Deployment:
-		return ec._Deployment(ctx, sel, &obj)
-	case *deployment.Deployment:
+	case secret.Secret:
+		return ec._Secret(ctx, sel, &obj)
+	case *secret.Secret:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Deployment(ctx, sel, obj)
+		return ec._Secret(ctx, sel, obj)
 	case deployment.DeploymentKey:
 		return ec._DeploymentKey(ctx, sel, &obj)
 	case *deployment.DeploymentKey:
@@ -84346,6 +85510,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._DeploymentKey(ctx, sel, obj)
+	case department.DepartmentEnvironment:
+		return ec._DepartmentEnvironment(ctx, sel, &obj)
+	case *department.DepartmentEnvironment:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._DepartmentEnvironment(ctx, sel, obj)
+	case department.Department:
+		return ec._Department(ctx, sel, &obj)
+	case *department.Department:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Department(ctx, sel, obj)
 	case vulnerability.ImageVulnerability:
 		return ec._ImageVulnerability(ctx, sel, &obj)
 	case *vulnerability.ImageVulnerability:
@@ -84365,13 +85543,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Workload(ctx, sel, obj)
-	case workload.ContainerImage:
-		return ec._ContainerImage(ctx, sel, &obj)
-	case *workload.ContainerImage:
+	case feature.FeatureRedis:
+		return ec._FeatureRedis(ctx, sel, &obj)
+	case *feature.FeatureRedis:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ContainerImage(ctx, sel, obj)
+		return ec._FeatureRedis(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -87601,6 +88779,42 @@ func (ec *executionContext) _ContainerImageWorkloadReferenceEdge(ctx context.Con
 	return out
 }
 
+var createDepartmentPayloadImplementors = []string{"CreateDepartmentPayload"}
+
+func (ec *executionContext) _CreateDepartmentPayload(ctx context.Context, sel ast.SelectionSet, obj *department.CreateDepartmentPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createDepartmentPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CreateDepartmentPayload")
+		case "team":
+			out.Values[i] = ec._CreateDepartmentPayload_team(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var createSecretPayloadImplementors = []string{"CreateSecretPayload"}
 
 func (ec *executionContext) _CreateSecretPayload(ctx context.Context, sel ast.SelectionSet, obj *secret.CreateSecretPayload) graphql.Marshaler {
@@ -87860,6 +89074,199 @@ func (ec *executionContext) _DeleteSecretPayload(ctx context.Context, sel ast.Se
 			out.Values[i] = graphql.MarshalString("DeleteSecretPayload")
 		case "secretDeleted":
 			out.Values[i] = ec._DeleteSecretPayload_secretDeleted(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var departmentImplementors = []string{"Department", "Node"}
+
+func (ec *executionContext) _Department(ctx context.Context, sel ast.SelectionSet, obj *department.Department) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, departmentImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Department")
+		case "id":
+			out.Values[i] = ec._Department_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "slug":
+			out.Values[i] = ec._Department_slug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var departmentConnectionImplementors = []string{"DepartmentConnection"}
+
+func (ec *executionContext) _DepartmentConnection(ctx context.Context, sel ast.SelectionSet, obj *department.DepartmentConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, departmentConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DepartmentConnection")
+		case "pageInfo":
+			out.Values[i] = ec._DepartmentConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._DepartmentConnection_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._DepartmentConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var departmentEdgeImplementors = []string{"DepartmentEdge"}
+
+func (ec *executionContext) _DepartmentEdge(ctx context.Context, sel ast.SelectionSet, obj *department.DepartmentEdge) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, departmentEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DepartmentEdge")
+		case "cursor":
+			out.Values[i] = ec._DepartmentEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "node":
+			out.Values[i] = ec._DepartmentEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var departmentEnvironmentImplementors = []string{"DepartmentEnvironment", "Node"}
+
+func (ec *executionContext) _DepartmentEnvironment(ctx context.Context, sel ast.SelectionSet, obj *department.DepartmentEnvironment) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, departmentEnvironmentImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DepartmentEnvironment")
+		case "id":
+			out.Values[i] = ec._DepartmentEnvironment_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._DepartmentEnvironment_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "gcpProjectID":
+			out.Values[i] = ec._DepartmentEnvironment_gcpProjectID(ctx, field, obj)
+		case "slackAlertsChannel":
+			out.Values[i] = ec._DepartmentEnvironment_slackAlertsChannel(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "team":
+			out.Values[i] = ec._DepartmentEnvironment_team(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -91655,6 +93062,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "createDepartment":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createDepartment(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "changeDeploymentKey":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_changeDeploymentKey(ctx, field)
@@ -92744,6 +94158,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_node(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "departments":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_departments(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
@@ -107443,6 +108879,25 @@ func (ec *executionContext) marshalNContainerImageWorkloadReferenceEdge2ᚕgithu
 	return ret
 }
 
+func (ec *executionContext) unmarshalNCreateDepartmentInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋdepartmentᚐCreateDepartmentInput(ctx context.Context, v any) (department.CreateDepartmentInput, error) {
+	res, err := ec.unmarshalInputCreateDepartmentInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCreateDepartmentPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋdepartmentᚐCreateDepartmentPayload(ctx context.Context, sel ast.SelectionSet, v department.CreateDepartmentPayload) graphql.Marshaler {
+	return ec._CreateDepartmentPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCreateDepartmentPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdepartmentᚐCreateDepartmentPayload(ctx context.Context, sel ast.SelectionSet, v *department.CreateDepartmentPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CreateDepartmentPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNCreateSecretInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐCreateSecretInput(ctx context.Context, v any) (secret.CreateSecretInput, error) {
 	res, err := ec.unmarshalInputCreateSecretInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -107575,6 +109030,128 @@ func (ec *executionContext) marshalNDeleteSecretPayload2ᚖgithubᚗcomᚋnais�
 		return graphql.Null
 	}
 	return ec._DeleteSecretPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNDepartment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdepartmentᚐDepartmentᚄ(ctx context.Context, sel ast.SelectionSet, v []*department.Department) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNDepartment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdepartmentᚐDepartment(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNDepartment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdepartmentᚐDepartment(ctx context.Context, sel ast.SelectionSet, v *department.Department) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Department(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNDepartmentConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋdepartmentᚐDepartmentConnection(ctx context.Context, sel ast.SelectionSet, v department.DepartmentConnection) graphql.Marshaler {
+	return ec._DepartmentConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNDepartmentConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdepartmentᚐDepartmentConnection(ctx context.Context, sel ast.SelectionSet, v *department.DepartmentConnection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DepartmentConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNDepartmentEdge2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdepartmentᚐDepartmentEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []*department.DepartmentEdge) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNDepartmentEdge2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdepartmentᚐDepartmentEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNDepartmentEdge2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdepartmentᚐDepartmentEdge(ctx context.Context, sel ast.SelectionSet, v *department.DepartmentEdge) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DepartmentEdge(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNDeployment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentᚄ(ctx context.Context, sel ast.SelectionSet, v []*deployment.Deployment) graphql.Marshaler {
@@ -109596,6 +111173,16 @@ func (ec *executionContext) marshalNOutboundNetworkPolicy2ᚖgithubᚗcomᚋnais
 
 func (ec *executionContext) marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx context.Context, sel ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
 	return ec._PageInfo(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPageInfo2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx context.Context, sel ast.SelectionSet, v *pagination.PageInfo) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PageInfo(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNReconciler2githubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconciler(ctx context.Context, sel ast.SelectionSet, v reconciler.Reconciler) graphql.Marshaler {
@@ -113996,6 +115583,13 @@ func (ec *executionContext) marshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 		return graphql.Null
 	}
 	return graphql.WrapContextMarshaler(ctx, v)
+}
+
+func (ec *executionContext) marshalODepartment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdepartmentᚐDepartment(ctx context.Context, sel ast.SelectionSet, v *department.Department) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Department(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalODeploymentKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentKey(ctx context.Context, sel ast.SelectionSet, v *deployment.DeploymentKey) graphql.Marshaler {

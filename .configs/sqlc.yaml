@@ -68,6 +68,15 @@ sql:
         out: "../internal/team/teamsql"
 
   - <<: *default_domain
+    name: "Departments SQL"
+    queries: "../internal/department/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "departmentsql"
+        out: "../internal/department/departmentsql"
+
+  - <<: *default_domain
     name: "Roles SQL"
     queries: "../internal/role/queries"
     gen:

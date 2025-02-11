@@ -1,0 +1,114 @@
+extend type Query {
+	"Get a list of departments."
+	departments(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): DepartmentConnection!
+}
+
+extend type Mutation{
+	"""
+	Create a new department
+
+	The user creating the team will be granted team ownership, unless the user is a service account, in which case the
+	team will not get an initial owner. To add one or more owners to the team, refer to the `addDepartmentOwners` mutation.
+
+	Creation of a team will also create external resources for the team, which will be managed by the NAIS API
+	reconcilers. This will be done asynchronously.
+
+	Refer to the [official NAIS documentation](https://docs.nais.io/explanations/team/) for more information regarding
+	NAIS departments.
+	"""
+	createDepartment(input: CreateDepartmentInput!): CreateDepartmentPayload!
+}
+
+"""
+The team type represents a team on the [NAIS platform](https://nais.io/).
+
+Learn more about what NAIS departments are and what they can be used for in the [official NAIS documentation](https://docs.nais.io/explanations/team/).
+
+External resources (e.g. entraIDGroupID, gitHubdepartmentslug) are managed by [NAIS API reconcilers](https://github.com/nais/api-reconcilers).
+"""
+type Department implements Node {
+	"The globally unique ID of the team."
+	id: ID!
+
+	"Unique slug of the team."
+	slug: Slug!
+}
+
+type DepartmentEnvironment implements Node {
+	"The globally unique ID of the team environment."
+	id: ID!
+
+	"Name of the team environment."
+	name: String!
+
+	"The GCP project ID for the team environment."
+	gcpProjectID: String
+
+	"The Slack alerts channel for the team environment."
+	slackAlertsChannel: String!
+
+	"The connected team."
+	team: Department!
+}
+
+type CreateDepartmentPayload {
+	"The newly created team."
+	team: Department
+}
+
+type DepartmentConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+
+	"List of nodes."
+	nodes: [Department!]!
+
+	"List of edges."
+	edges: [DepartmentEdge!]!
+}
+
+type DepartmentEdge {
+	"Cursor for this edge that can be used for pagination."
+	cursor: Cursor!
+
+	"The team."
+	node: Department!
+}
+
+input CreateDepartmentInput {
+	"""
+	Unique team slug.
+
+	After creation, this value can not be changed. Also, after a potential deletion of the team, the slug can not be
+	reused, so please choose wisely.
+	"""
+	slug: Slug!
+
+	"""
+	The purpose / description of the team.
+
+	What is the team for? What is the team working on? This value is meant for human consumption, and should be enough
+	to give a newcomer an idea of what the team is about.
+	"""
+	purpose: String!
+
+	"""
+	The main Slack channel for the team.
+
+	Where does the team communicate? This value is used to link to the team's main Slack channel.
+	"""
+	slackChannel: String!
+}
+
