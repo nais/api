@@ -366,3 +366,45 @@ func (q *Queries) ListRolesForServiceAccount(ctx context.Context, arg ListRolesF
 	}
 	return items, nil
 }
+
+const revokeRoleFromServiceAccount = `-- name: RevokeRoleFromServiceAccount :exec
+DELETE FROM service_account_roles
+WHERE
+	service_account_id = $1
+	AND role_name = $2
+`
+
+type RevokeRoleFromServiceAccountParams struct {
+	ServiceAccountID uuid.UUID
+	RoleName         string
+}
+
+func (q *Queries) RevokeRoleFromServiceAccount(ctx context.Context, arg RevokeRoleFromServiceAccountParams) error {
+	_, err := q.db.Exec(ctx, revokeRoleFromServiceAccount, arg.ServiceAccountID, arg.RoleName)
+	return err
+}
+
+const serviceAccountHasRole = `-- name: ServiceAccountHasRole :one
+SELECT
+	EXISTS (
+		SELECT
+			1
+		FROM
+			service_account_roles
+		WHERE
+			service_account_id = $1
+			AND role_name = $2
+	)
+`
+
+type ServiceAccountHasRoleParams struct {
+	ServiceAccountID uuid.UUID
+	RoleName         string
+}
+
+func (q *Queries) ServiceAccountHasRole(ctx context.Context, arg ServiceAccountHasRoleParams) (bool, error) {
+	row := q.db.QueryRow(ctx, serviceAccountHasRole, arg.ServiceAccountID, arg.RoleName)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}

@@ -48,12 +48,12 @@ type DeleteServiceAccountPayload struct {
 	ServiceAccountDeleted *bool `json:"serviceAccountDeleted,omitempty"`
 }
 
-type AddRoleToServiceAccountInput struct {
+type AssignRoleToServiceAccountInput struct {
 	ServiceAccountID ident.Ident `json:"serviceAccountID"`
 	RoleName         string      `json:"roleName"`
 }
 
-type AddRoleToServiceAccountPayload struct {
+type AssignRoleToServiceAccountPayload struct {
 	ServiceAccount *ServiceAccount `json:"serviceAccount,omitempty"`
 }
 
@@ -80,12 +80,12 @@ type DeleteServiceAccountTokenPayload struct {
 	ServiceAccountTokenDeleted *bool `json:"serviceAccountTokenDeleted,omitempty"`
 }
 
-type RemoveRoleFromServiceAccountInput struct {
+type RevokeRoleFromServiceAccountInput struct {
 	ServiceAccountID ident.Ident `json:"serviceAccountID"`
 	RoleName         string      `json:"roleName"`
 }
 
-type RemoveRoleFromServiceAccountPayload struct {
+type RevokeRoleFromServiceAccountPayload struct {
 	ServiceAccount *ServiceAccount `json:"serviceAccount,omitempty"`
 }
 

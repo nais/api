@@ -1,10 +1,40 @@
-Test.gql("Create global service account as non-admin", function(t)
-	t.query [[
+Helper.SQLExec([[
+	INSERT INTO
+		user_roles (role_name, user_id, target_team_slug)
+	VALUES (
+		'Team member',
+		(SELECT id FROM users WHERE email = 'authenticated@example.com'),
+		'slug-1'
+	)
+	ON CONFLICT DO NOTHING;
+	;
+]])
+
+Helper.SQLExec [[
+	INSERT INTO users (name, email, external_id)
+	VALUES ('Non Member', 'non-member@example.com', '123')
+]]
+
+Helper.SQLExec([[
+	INSERT INTO
+		user_roles (role_name, user_id, target_team_slug)
+	VALUES (
+		'Team member',
+		(SELECT id FROM users WHERE email = 'non-member@example.com'),
+		'slug-2'
+	)
+	ON CONFLICT DO NOTHING;
+	;
+]])
+
+Test.gql("Create service account as non-member", function(t)
+	t.query([[
 		mutation {
 			createServiceAccount(
 				input: {
 					name: "my-sa"
 					description: "some description"
+					teamSlug: "slug-1"
 				}
 			) {
 				serviceAccount {
@@ -12,7 +42,7 @@ Test.gql("Create global service account as non-admin", function(t)
 				}
 			}
 		}
-	]]
+	]], { ["x-user-email"] = "non-member@example.com" })
 
 	t.check {
 		data = Null,
@@ -27,18 +57,14 @@ Test.gql("Create global service account as non-admin", function(t)
 	}
 end)
 
-Helper.SQLExec [[
-	INSERT INTO users (name, email, external_id, admin)
-	VALUES ('Admin User', 'admin@example.com', '123', true)
-]]
-
-Test.gql("Create global service account as admin", function(t)
-	t.query([[
+Test.gql("Create service account as member", function(t)
+	t.query [[
 		mutation {
 			createServiceAccount(
 				input: {
 					name: "my-sa"
 					description: "some description"
+					teamSlug: "slug-1"
 				}
 			) {
 				serviceAccount {
@@ -52,7 +78,7 @@ Test.gql("Create global service account as admin", function(t)
 				}
 			}
 		}
-	]], { ["x-user-email"] = "admin@example.com" })
+	]]
 
 	t.check {
 		data = {
@@ -69,45 +95,7 @@ Test.gql("Create global service account as admin", function(t)
 	}
 end)
 
-Test.gql("Create team service account as admin", function(t)
-	t.query([[
-		mutation {
-			createServiceAccount(
-				input: {
-					name: "team-sa"
-					description: "some description"
-					teamSlug: "slug-1"
-				}
-			) {
-				serviceAccount {
-					id
-					description
-					roles {
-						nodes {
-							name
-						}
-					}
-				}
-			}
-		}
-	]], { ["x-user-email"] = "admin@example.com" })
-
-	t.check {
-		data = {
-			createServiceAccount = {
-				serviceAccount = {
-					id = NotNull(),
-					description = "some description",
-					roles = {
-						nodes = {},
-					},
-				},
-			},
-		},
-	}
-end)
-
-Test.gql("Update service account as non-admin", function(t)
+Test.gql("Update service account as non-member", function(t)
 	t.query(string.format([[
 		mutation {
 			updateServiceAccount(
@@ -121,7 +109,7 @@ Test.gql("Update service account as non-admin", function(t)
 				}
 			}
 		}
-	]], State.saID))
+	]], State.saID), { ["x-user-email"] = "non-member@example.com" })
 
 	t.check {
 		data = Null,
@@ -136,7 +124,7 @@ Test.gql("Update service account as non-admin", function(t)
 	}
 end)
 
-Test.gql("Update service account as admin", function(t)
+Test.gql("Update service account as member", function(t)
 	t.query(string.format([[
 		mutation {
 			updateServiceAccount(
@@ -151,7 +139,7 @@ Test.gql("Update service account as admin", function(t)
 				}
 			}
 		}
-	]], State.saID), { ["x-user-email"] = "admin@example.com" })
+	]], State.saID))
 
 	t.check {
 		data = {
@@ -165,13 +153,13 @@ Test.gql("Update service account as admin", function(t)
 	}
 end)
 
-Test.gql("Assign role to service account as non-admin", function(t)
+Test.gql("Assign role to service account as non-member", function(t)
 	t.query(string.format([[
 		mutation {
 			assignRoleToServiceAccount(
 				input: {
 					serviceAccountID: "%s"
-					roleName: "Team creator"
+					roleName: "Team member"
 				}
 			) {
 				serviceAccount {
@@ -179,7 +167,7 @@ Test.gql("Assign role to service account as non-admin", function(t)
 				}
 			}
 		}
-	]], State.saID))
+	]], State.saID), { ["x-user-email"] = "non-member@example.com" })
 
 	t.check {
 		data = Null,
@@ -194,7 +182,41 @@ Test.gql("Assign role to service account as non-admin", function(t)
 	}
 end)
 
-Test.gql("Assign role to service account as admin", function(t)
+Test.gql("Assign global role to service account as member", function(t)
+	t.query(string.format([[
+		mutation {
+			assignRoleToServiceAccount(
+				input: {
+					serviceAccountID: "%s"
+					roleName: "Team creator"
+				}
+			) {
+				serviceAccount {
+					id
+					roles {
+						nodes {
+							name
+						}
+					}
+				}
+			}
+		}
+	]], State.saID))
+
+	t.check {
+		data = Null,
+		errors = {
+			{
+				message = "Role \"Team creator\" is only allowed on global service accounts.",
+				path = {
+					"assignRoleToServiceAccount",
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Assign role to service account as member", function(t)
 	t.query(string.format([[
 		mutation {
 			assignRoleToServiceAccount(
@@ -213,7 +235,7 @@ Test.gql("Assign role to service account as admin", function(t)
 				}
 			}
 		}
-	]], State.saID), { ["x-user-email"] = "admin@example.com" })
+	]], State.saID))
 
 	t.check {
 		data = {
@@ -233,7 +255,7 @@ Test.gql("Assign role to service account as admin", function(t)
 	}
 end)
 
-Test.gql("Assign duplicate role to service account as admin", function(t)
+Test.gql("Assign duplicate role to service account as member", function(t)
 	t.query(string.format([[
 		mutation {
 			assignRoleToServiceAccount(
@@ -252,7 +274,7 @@ Test.gql("Assign duplicate role to service account as admin", function(t)
 				}
 			}
 		}
-	]], State.saID), { ["x-user-email"] = "admin@example.com" })
+	]], State.saID))
 
 	t.check {
 		errors = {
@@ -267,13 +289,13 @@ Test.gql("Assign duplicate role to service account as admin", function(t)
 	}
 end)
 
-Test.gql("Assign another role to service account as admin", function(t)
+Test.gql("Assign another role to service account as member", function(t)
 	t.query(string.format([[
 		mutation {
 			assignRoleToServiceAccount(
 				input: {
 					serviceAccountID: "%s"
-					roleName: "Team creator"
+					roleName: "Team member"
 				}
 			) {
 				serviceAccount {
@@ -286,7 +308,7 @@ Test.gql("Assign another role to service account as admin", function(t)
 				}
 			}
 		}
-	]], State.saID), { ["x-user-email"] = "admin@example.com" })
+	]], State.saID))
 
 	t.check {
 		data = {
@@ -296,7 +318,7 @@ Test.gql("Assign another role to service account as admin", function(t)
 					roles = {
 						nodes = {
 							{
-								name = "Team creator",
+								name = "Team member",
 							},
 							{
 								name = "Team owner",
@@ -309,7 +331,7 @@ Test.gql("Assign another role to service account as admin", function(t)
 	}
 end)
 
-Test.gql("Revoke role from service account as non-admin", function(t)
+Test.gql("Revoke role from service account as non-member", function(t)
 	t.query(string.format([[
 		mutation {
 			revokeRoleFromServiceAccount(
@@ -323,7 +345,7 @@ Test.gql("Revoke role from service account as non-admin", function(t)
 				}
 			}
 		}
-	]], State.saID))
+	]], State.saID), { ["x-user-email"] = "non-member@example.com" })
 
 	t.check {
 		data = Null,
@@ -338,13 +360,13 @@ Test.gql("Revoke role from service account as non-admin", function(t)
 	}
 end)
 
-Test.gql("Revoke role from service account as admin", function(t)
+Test.gql("Revoke role from service account as member", function(t)
 	t.query(string.format([[
 		mutation {
 			revokeRoleFromServiceAccount(
 				input: {
 					serviceAccountID: "%s"
-					roleName: "Team creator"
+					roleName: "Team member"
 				}
 			) {
 				serviceAccount {
@@ -357,7 +379,7 @@ Test.gql("Revoke role from service account as admin", function(t)
 				}
 			}
 		}
-	]], State.saID), { ["x-user-email"] = "admin@example.com" })
+	]], State.saID))
 
 	t.check {
 		data = {
@@ -377,7 +399,7 @@ Test.gql("Revoke role from service account as admin", function(t)
 	}
 end)
 
-Test.gql("Revoke unassigned role from service account as admin", function(t)
+Test.gql("Revoke unassigned role from service account as member", function(t)
 	t.query(string.format([[
 		mutation {
 			revokeRoleFromServiceAccount(
@@ -396,7 +418,7 @@ Test.gql("Revoke unassigned role from service account as admin", function(t)
 				}
 			}
 		}
-	]], State.saID), { ["x-user-email"] = "admin@example.com" })
+	]], State.saID))
 
 	t.check {
 		data = Null,
@@ -411,7 +433,7 @@ Test.gql("Revoke unassigned role from service account as admin", function(t)
 	}
 end)
 
-Test.gql("Delete service account as non-admin", function(t)
+Test.gql("Delete service account as non-member", function(t)
 	t.query(string.format([[
 		mutation {
 			deleteServiceAccount(
@@ -422,7 +444,7 @@ Test.gql("Delete service account as non-admin", function(t)
 				serviceAccountDeleted
 			}
 		}
-	]], State.saID))
+	]], State.saID), { ["x-user-email"] = "non-member@example.com" })
 
 	t.check {
 		data = Null,
@@ -438,7 +460,7 @@ Test.gql("Delete service account as non-admin", function(t)
 end)
 
 
-Test.gql("Delete service account as admin", function(t)
+Test.gql("Delete service account as member", function(t)
 	t.query(string.format([[
 		mutation {
 			deleteServiceAccount(
@@ -449,7 +471,7 @@ Test.gql("Delete service account as admin", function(t)
 				serviceAccountDeleted
 			}
 		}
-	]], State.saID), { ["x-user-email"] = "admin@example.com" })
+	]], State.saID))
 
 	t.check {
 		data = {

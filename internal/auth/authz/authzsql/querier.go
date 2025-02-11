@@ -22,6 +22,8 @@ type Querier interface {
 	HasTeamAuthorization(ctx context.Context, arg HasTeamAuthorizationParams) (bool, error)
 	ListRoles(ctx context.Context, arg ListRolesParams) ([]*Role, error)
 	ListRolesForServiceAccount(ctx context.Context, arg ListRolesForServiceAccountParams) ([]*Role, error)
+	RevokeRoleFromServiceAccount(ctx context.Context, arg RevokeRoleFromServiceAccountParams) error
+	ServiceAccountHasRole(ctx context.Context, arg ServiceAccountHasRoleParams) (bool, error)
 }
 
 var _ Querier = (*Queries)(nil)

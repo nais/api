@@ -120,6 +120,13 @@ VALUES
 ON CONFLICT DO NOTHING
 ;
 
+-- name: RevokeRoleFromServiceAccount :exec
+DELETE FROM service_account_roles
+WHERE
+	service_account_id = @service_account_id
+	AND role_name = @role_name
+;
+
 -- name: HasTeamAuthorization :one
 SELECT
 	(
@@ -175,4 +182,17 @@ SELECT
 				AND admin = TRUE
 		)
 	)::BOOLEAN
+;
+
+-- name: ServiceAccountHasRole :one
+SELECT
+	EXISTS (
+		SELECT
+			1
+		FROM
+			service_account_roles
+		WHERE
+			service_account_id = @service_account_id
+			AND role_name = @role_name
+	)
 ;

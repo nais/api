@@ -197,7 +197,7 @@ func DeleteStatic(ctx context.Context, id uuid.UUID) error {
 	return db(ctx).Delete(ctx, id)
 }
 
-func AssignRole(ctx context.Context, input AddRoleToServiceAccountInput) (*ServiceAccount, error) {
+func AssignRole(ctx context.Context, input AssignRoleToServiceAccountInput) (*ServiceAccount, error) {
 	sa, err := GetByIdent(ctx, input.ServiceAccountID)
 	if err != nil {
 		return nil, err
@@ -213,11 +213,45 @@ func AssignRole(ctx context.Context, input AddRoleToServiceAccountInput) (*Servi
 		return nil, err
 	}
 
+	if hasRole, err := authz.ServiceAccountHasRole(ctx, sa.UUID, role.Name); err != nil {
+		return nil, err
+	} else if hasRole {
+		return nil, apierror.Errorf("Service account already has already been assigned the %q role.", role.Name)
+	}
+
 	if role.OnlyGlobal && sa.TeamSlug != nil {
-		return nil, apierror.Errorf("role %q is only allowed on global service accounts", input.RoleName)
+		return nil, apierror.Errorf("Role %q is only allowed on global service accounts.", input.RoleName)
 	}
 
 	if err := authz.AssignRoleToServiceAccount(ctx, sa.UUID, role.Name); err != nil {
+		return nil, err
+	}
+
+	return sa, nil
+}
+
+func RevokeRole(ctx context.Context, input RevokeRoleFromServiceAccountInput) (*ServiceAccount, error) {
+	sa, err := GetByIdent(ctx, input.ServiceAccountID)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := authz.CanUpdateServiceAccounts(ctx, sa.TeamSlug); err != nil {
+		return nil, err
+	}
+
+	role, err := authz.GetRole(ctx, input.RoleName)
+	if err != nil {
+		return nil, err
+	}
+
+	if hasRole, err := authz.ServiceAccountHasRole(ctx, sa.UUID, role.Name); err != nil {
+		return nil, err
+	} else if !hasRole {
+		return nil, apierror.Errorf("Service account does not have the %q role assigned.", role.Name)
+	}
+
+	if err := authz.RevokeRoleFromServiceAccount(ctx, sa.UUID, role.Name); err != nil {
 		return nil, err
 	}
 

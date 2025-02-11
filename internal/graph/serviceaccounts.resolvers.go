@@ -40,17 +40,22 @@ func (r *mutationResolver) DeleteServiceAccount(ctx context.Context, input servi
 	return &serviceaccount.DeleteServiceAccountPayload{ServiceAccountDeleted: ptr.To(true)}, nil
 }
 
-func (r *mutationResolver) AddRoleToServiceAccount(ctx context.Context, input serviceaccount.AddRoleToServiceAccountInput) (*serviceaccount.AddRoleToServiceAccountPayload, error) {
+func (r *mutationResolver) AssignRoleToServiceAccount(ctx context.Context, input serviceaccount.AssignRoleToServiceAccountInput) (*serviceaccount.AssignRoleToServiceAccountPayload, error) {
 	sa, err := serviceaccount.AssignRole(ctx, input)
 	if err != nil {
 		return nil, err
 	}
 
-	return &serviceaccount.AddRoleToServiceAccountPayload{ServiceAccount: sa}, nil
+	return &serviceaccount.AssignRoleToServiceAccountPayload{ServiceAccount: sa}, nil
 }
 
-func (r *mutationResolver) RemoveRoleFromServiceAccount(ctx context.Context, input serviceaccount.RemoveRoleFromServiceAccountInput) (*serviceaccount.RemoveRoleFromServiceAccountPayload, error) {
-	panic(fmt.Errorf("not implemented: RemoveRoleFromServiceAccount - removeRoleFromServiceAccount"))
+func (r *mutationResolver) RevokeRoleFromServiceAccount(ctx context.Context, input serviceaccount.RevokeRoleFromServiceAccountInput) (*serviceaccount.RevokeRoleFromServiceAccountPayload, error) {
+	sa, err := serviceaccount.RevokeRole(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return &serviceaccount.RevokeRoleFromServiceAccountPayload{ServiceAccount: sa}, nil
 }
 
 func (r *mutationResolver) CreateServiceAccountToken(ctx context.Context, input serviceaccount.CreateServiceAccountTokenInput) (*serviceaccount.CreateServiceAccountTokenPayload, error) {

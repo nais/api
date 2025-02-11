@@ -90,6 +90,13 @@ func AssignRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID,
 	})
 }
 
+func RevokeRoleFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, roleName string) error {
+	return db(ctx).RevokeRoleFromServiceAccount(ctx, authzsql.RevokeRoleFromServiceAccountParams{
+		ServiceAccountID: serviceAccountID,
+		RoleName:         roleName,
+	})
+}
+
 func MakeUserTeamMember(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error {
 	return db(ctx).AssignTeamRoleToUser(ctx, authzsql.AssignTeamRoleToUserParams{
 		UserID:         userID,
@@ -113,6 +120,13 @@ func GetRole(ctx context.Context, name string) (*Role, error) {
 	}
 
 	return toGraphRole(row), nil
+}
+
+func ServiceAccountHasRole(ctx context.Context, serviceAccountID uuid.UUID, roleName string) (bool, error) {
+	return db(ctx).ServiceAccountHasRole(ctx, authzsql.ServiceAccountHasRoleParams{
+		ServiceAccountID: serviceAccountID,
+		RoleName:         roleName,
+	})
 }
 
 func CanCreateServiceAccounts(ctx context.Context, teamSlug *slug.Slug) error {
