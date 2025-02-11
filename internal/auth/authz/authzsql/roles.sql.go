@@ -10,24 +10,6 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-const assignGlobalRoleToServiceAccount = `-- name: AssignGlobalRoleToServiceAccount :exec
-INSERT INTO
-	service_account_roles (service_account_id, role_name)
-VALUES
-	($1, $2)
-ON CONFLICT DO NOTHING
-`
-
-type AssignGlobalRoleToServiceAccountParams struct {
-	ServiceAccountID uuid.UUID
-	RoleName         string
-}
-
-func (q *Queries) AssignGlobalRoleToServiceAccount(ctx context.Context, arg AssignGlobalRoleToServiceAccountParams) error {
-	_, err := q.db.Exec(ctx, assignGlobalRoleToServiceAccount, arg.ServiceAccountID, arg.RoleName)
-	return err
-}
-
 const assignGlobalRoleToUser = `-- name: AssignGlobalRoleToUser :exec
 INSERT INTO
 	user_roles (user_id, role_name)
@@ -46,26 +28,21 @@ func (q *Queries) AssignGlobalRoleToUser(ctx context.Context, arg AssignGlobalRo
 	return err
 }
 
-const assignTeamRoleToServiceAccount = `-- name: AssignTeamRoleToServiceAccount :exec
+const assignRoleToServiceAccount = `-- name: AssignRoleToServiceAccount :exec
 INSERT INTO
-	service_account_roles (service_account_id, role_name, target_team_slug)
+	service_account_roles (service_account_id, role_name)
 VALUES
-	(
-		$1,
-		$2,
-		$3::slug
-	)
+	($1, $2)
 ON CONFLICT DO NOTHING
 `
 
-type AssignTeamRoleToServiceAccountParams struct {
+type AssignRoleToServiceAccountParams struct {
 	ServiceAccountID uuid.UUID
 	RoleName         string
-	TargetTeamSlug   slug.Slug
 }
 
-func (q *Queries) AssignTeamRoleToServiceAccount(ctx context.Context, arg AssignTeamRoleToServiceAccountParams) error {
-	_, err := q.db.Exec(ctx, assignTeamRoleToServiceAccount, arg.ServiceAccountID, arg.RoleName, arg.TargetTeamSlug)
+func (q *Queries) AssignRoleToServiceAccount(ctx context.Context, arg AssignRoleToServiceAccountParams) error {
+	_, err := q.db.Exec(ctx, assignRoleToServiceAccount, arg.ServiceAccountID, arg.RoleName)
 	return err
 }
 
@@ -104,7 +81,7 @@ func (q *Queries) CountRoles(ctx context.Context) (int64, error) {
 
 const getRoleByName = `-- name: GetRoleByName :one
 SELECT
-	name, description
+	name, description, is_only_global
 FROM
 	roles
 WHERE
@@ -114,7 +91,7 @@ WHERE
 func (q *Queries) GetRoleByName(ctx context.Context, name string) (*Role, error) {
 	row := q.db.QueryRow(ctx, getRoleByName, name)
 	var i Role
-	err := row.Scan(&i.Name, &i.Description)
+	err := row.Scan(&i.Name, &i.Description, &i.IsOnlyGlobal)
 	return &i, err
 }
 
@@ -318,7 +295,7 @@ func (q *Queries) IsAdmin(ctx context.Context, userID uuid.UUID) (bool, error) {
 
 const listRoles = `-- name: ListRoles :many
 SELECT
-	name, description
+	name, description, is_only_global
 FROM
 	roles
 ORDER BY
@@ -343,7 +320,7 @@ func (q *Queries) ListRoles(ctx context.Context, arg ListRolesParams) ([]*Role, 
 	items := []*Role{}
 	for rows.Next() {
 		var i Role
-		if err := rows.Scan(&i.Name, &i.Description); err != nil {
+		if err := rows.Scan(&i.Name, &i.Description, &i.IsOnlyGlobal); err != nil {
 			return nil, err
 		}
 		items = append(items, &i)

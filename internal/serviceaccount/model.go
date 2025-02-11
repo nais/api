@@ -51,7 +51,6 @@ type DeleteServiceAccountPayload struct {
 type AddRoleToServiceAccountInput struct {
 	ServiceAccountID ident.Ident `json:"serviceAccountID"`
 	RoleName         string      `json:"roleName"`
-	TeamSlug         *slug.Slug  `json:"teamSlug,omitempty"`
 }
 
 type AddRoleToServiceAccountPayload struct {

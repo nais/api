@@ -19,6 +19,7 @@ type Role struct {
 	Name           string     `json:"name"`
 	Description    string     `json:"description"`
 	TargetTeamSlug *slug.Slug `json:"target_team_slug"`
+	OnlyGlobal     bool       `json:"-"`
 }
 
 func (r *Role) ID() ident.Ident {
@@ -64,5 +65,6 @@ func toGraphRole(row *authzsql.Role) *Role {
 	return &Role{
 		Name:        row.Name,
 		Description: row.Description,
+		OnlyGlobal:  row.IsOnlyGlobal,
 	}
 }

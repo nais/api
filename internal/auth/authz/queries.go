@@ -44,14 +44,6 @@ func getRoleByIdent(ctx context.Context, id ident.Ident) (*Role, error) {
 	return toGraphRole(row), nil
 }
 
-func AssignTeamRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, teamSlug slug.Slug, roleName string) error {
-	return db(ctx).AssignTeamRoleToServiceAccount(ctx, authzsql.AssignTeamRoleToServiceAccountParams{
-		ServiceAccountID: serviceAccountID,
-		RoleName:         roleName,
-		TargetTeamSlug:   teamSlug,
-	})
-}
-
 func ForUser(ctx context.Context, userID uuid.UUID) ([]*Role, error) {
 	ur, err := fromContext(ctx).userRoles.Load(ctx, userID)
 	if err != nil && errors.Is(err, pgx.ErrNoRows) {
@@ -72,8 +64,8 @@ func ForServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) ([]*Role
 	return sar.Roles, nil
 }
 
-func AssignGlobalRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, roleName string) error {
-	return db(ctx).AssignGlobalRoleToServiceAccount(ctx, authzsql.AssignGlobalRoleToServiceAccountParams{
+func AssignRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, roleName string) error {
+	return db(ctx).AssignRoleToServiceAccount(ctx, authzsql.AssignRoleToServiceAccountParams{
 		ServiceAccountID: serviceAccountID,
 		RoleName:         roleName,
 	})
@@ -93,6 +85,15 @@ func MakeUserTeamOwner(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug
 		RoleName:       "Team owner",
 		TargetTeamSlug: teamSlug,
 	})
+}
+
+func GetRole(ctx context.Context, name string) (*Role, error) {
+	row, err := db(ctx).GetRoleByName(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+
+	return toGraphRole(row), nil
 }
 
 func CanCreateServiceAccounts(ctx context.Context, teamSlug *slug.Slug) error {

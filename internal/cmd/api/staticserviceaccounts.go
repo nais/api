@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -24,6 +25,8 @@ type StaticServiceAccount struct {
 type StaticServiceAccountRole struct {
 	Name string `json:"name"`
 }
+
+var deprecatedRoles = []string{"Team viewer", "User viewer"}
 
 const naisServiceAccountPrefix = "nais-"
 
@@ -91,11 +94,15 @@ func setupStaticServiceAccounts(ctx context.Context, pool *pgxpool.Pool, service
 			}
 
 			for _, r := range serviceAccountFromInput.Roles {
+				if slices.Contains(deprecatedRoles, r.Name) {
+					continue
+				}
+
 				if hasGlobalRoleRole(r.Name, existingRoles) {
 					continue
 				}
 
-				if err := authz.AssignGlobalRoleToServiceAccount(ctx, sa.UUID, r.Name); err != nil {
+				if err := authz.AssignRoleToServiceAccount(ctx, sa.UUID, r.Name); err != nil {
 					return err
 				}
 			}

@@ -27,18 +27,6 @@ WHERE
 	name = @name
 ;
 
--- name: AssignTeamRoleToServiceAccount :exec
-INSERT INTO
-	service_account_roles (service_account_id, role_name, target_team_slug)
-VALUES
-	(
-		@service_account_id,
-		@role_name,
-		@target_team_slug::slug
-	)
-ON CONFLICT DO NOTHING
-;
-
 -- name: AssignTeamRoleToUser :exec
 INSERT INTO
 	user_roles (user_id, role_name, target_team_slug)
@@ -77,11 +65,12 @@ SELECT
 			'role_name',
 			role_name,
 			'target_team_slug',
-			target_team_slug
+			service_accounts.team_slug
 		)
 	) AS roles
 FROM
 	service_account_roles
+	JOIN service_accounts ON service_accounts.id = service_account_roles.service_account_id
 WHERE
 	service_account_id = ANY (@service_account_ids::UUID[])
 GROUP BY
@@ -98,7 +87,7 @@ VALUES
 ON CONFLICT DO NOTHING
 ;
 
--- name: AssignGlobalRoleToServiceAccount :exec
+-- name: AssignRoleToServiceAccount :exec
 INSERT INTO
 	service_account_roles (service_account_id, role_name)
 VALUES

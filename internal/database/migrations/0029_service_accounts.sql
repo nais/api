@@ -31,7 +31,14 @@ DROP TABLE api_keys
 DROP TABLE service_accounts
 ;
 
-CREATE TABLE roles (name TEXT PRIMARY KEY, description TEXT NOT NULL)
+CREATE TABLE roles (
+	name TEXT PRIMARY KEY,
+	description TEXT NOT NULL,
+	is_only_global BOOLEAN NOT NULL DEFAULT FALSE
+)
+;
+
+COMMENT ON COLUMN roles.is_only_global IS 'If true, the role can only be assigned globally'
 ;
 
 CREATE TABLE authorizations (name TEXT PRIMARY KEY, description TEXT NOT NULL)
@@ -47,8 +54,6 @@ VALUES
 	('service_accounts:update', 'Some description'),
 	('teams:create', 'Some description'),
 	('teams:delete', 'Some description'),
-	('teams:list', 'Some description'),
-	('teams:read', 'Some description'),
 	('teams:metadata:update', 'Some description'),
 	('teams:members:admin', 'Some description'),
 	('teams:secrets:create', 'Some description'),
@@ -86,14 +91,17 @@ CREATE TABLE service_accounts (
 ;
 
 INSERT INTO
-	roles (name, description)
+	roles (name, description, is_only_global)
 VALUES
-	('Deploy key viewer', 'Some description'),
-	('Service account owner', 'Some description'),
-	('Team creator', 'Some description'),
-	('Team member', 'Some description'),
-	('Team owner', 'Some description'),
-	('Team viewer', 'Some description')
+	('Deploy key viewer', 'Some description', FALSE),
+	(
+		'Service account owner',
+		'Some description',
+		FALSE
+	),
+	('Team creator', 'Some description', TRUE),
+	('Team member', 'Some description', FALSE),
+	('Team owner', 'Some description', FALSE)
 ;
 
 INSERT INTO
@@ -115,8 +123,6 @@ VALUES
 		'service_accounts:update'
 	),
 	('Team creator', 'teams:create'),
-	('Team member', 'activity_logs:read'),
-	('Team member', 'teams:read'),
 	('Team member', 'teams:metadata:update'),
 	('Team member', 'deploy_key:read'),
 	('Team member', 'jobs:delete'),
@@ -137,9 +143,7 @@ VALUES
 	('Team member', 'service_accounts:delete'),
 	('Team member', 'service_accounts:read'),
 	('Team member', 'service_accounts:update'),
-	('Team owner', 'activity_logs:read'),
 	('Team owner', 'teams:delete'),
-	('Team owner', 'teams:read'),
 	('Team owner', 'teams:metadata:update'),
 	('Team owner', 'teams:members:admin'),
 	('Team owner', 'deploy_key:read'),
@@ -160,10 +164,7 @@ VALUES
 	('Team owner', 'service_accounts:create'),
 	('Team owner', 'service_accounts:delete'),
 	('Team owner', 'service_accounts:read'),
-	('Team owner', 'service_accounts:update'),
-	('Team viewer', 'activity_logs:read'),
-	('Team viewer', 'teams:list'),
-	('Team viewer', 'teams:read')
+	('Team owner', 'service_accounts:update')
 ;
 
 CREATE UNIQUE INDEX ON service_accounts USING btree (name, team_slug) NULLS NOT DISTINCT
@@ -194,19 +195,11 @@ CREATE TABLE service_account_roles (
 	id SERIAL PRIMARY KEY,
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CLOCK_TIMESTAMP() NOT NULL,
 	role_name TEXT NOT NULL REFERENCES roles (name) ON DELETE CASCADE ON UPDATE CASCADE,
-	service_account_id UUID NOT NULL REFERENCES service_accounts (id) ON DELETE CASCADE,
-	target_team_slug slug REFERENCES teams (slug) ON DELETE CASCADE
+	service_account_id UUID NOT NULL REFERENCES service_accounts (id) ON DELETE CASCADE
 )
 ;
 
 CREATE UNIQUE INDEX ON service_account_roles USING btree (service_account_id, role_name)
-WHERE
-	target_team_slug IS NULL
-;
-
-CREATE UNIQUE INDEX ON service_account_roles USING btree (service_account_id, role_name, target_team_slug)
-WHERE
-	target_team_slug IS NOT NULL
 ;
 
 DELETE FROM user_roles

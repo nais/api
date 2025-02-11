@@ -5,4 +5,6 @@ package authzsql
 type Role struct {
 	Name        string
 	Description string
+	// If true, the role can only be assigned globally
+	IsOnlyGlobal bool
 }

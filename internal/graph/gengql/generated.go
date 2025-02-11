@@ -15642,7 +15642,6 @@ input DeleteServiceAccountInput {
 input AddRoleToServiceAccountInput {
 	serviceAccountID: ID!
 	roleName: String!
-	teamSlug: Slug
 }
 
 input RemoveRoleFromServiceAccountInput {
@@ -89323,7 +89322,7 @@ func (ec *executionContext) unmarshalInputAddRoleToServiceAccountInput(ctx conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"serviceAccountID", "roleName", "teamSlug"}
+	fieldsInOrder := [...]string{"serviceAccountID", "roleName"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -89344,13 +89343,6 @@ func (ec *executionContext) unmarshalInputAddRoleToServiceAccountInput(ctx conte
 				return it, err
 			}
 			it.RoleName = data
-		case "teamSlug":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.TeamSlug = data
 		}
 	}
 

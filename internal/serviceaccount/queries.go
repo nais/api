@@ -7,6 +7,7 @@ import (
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/serviceaccount/serviceaccountsql"
@@ -194,4 +195,31 @@ func List(ctx context.Context, page *pagination.Pagination) (*ServiceAccountConn
 
 func DeleteStatic(ctx context.Context, id uuid.UUID) error {
 	return db(ctx).Delete(ctx, id)
+}
+
+func AssignRole(ctx context.Context, input AddRoleToServiceAccountInput) (*ServiceAccount, error) {
+	sa, err := GetByIdent(ctx, input.ServiceAccountID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if user has permission to update service account
+	if err := authz.CanUpdateServiceAccounts(ctx, sa.TeamSlug); err != nil {
+		return nil, err
+	}
+
+	role, err := authz.GetRole(ctx, input.RoleName)
+	if err != nil {
+		return nil, err
+	}
+
+	if role.OnlyGlobal && sa.TeamSlug != nil {
+		return nil, apierror.Errorf("role %q is only allowed on global service accounts", input.RoleName)
+	}
+
+	if err := authz.AssignRoleToServiceAccount(ctx, sa.UUID, role.Name); err != nil {
+		return nil, err
+	}
+
+	return sa, nil
 }

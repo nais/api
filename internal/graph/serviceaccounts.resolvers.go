@@ -40,13 +40,12 @@ func (r *mutationResolver) DeleteServiceAccount(ctx context.Context, input servi
 }
 
 func (r *mutationResolver) AddRoleToServiceAccount(ctx context.Context, input serviceaccount.AddRoleToServiceAccountInput) (*serviceaccount.AddRoleToServiceAccountPayload, error) {
-	// sa, err := serviceaccount.GetByIdent(ctx, input.ServiceAccountID)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	sa, err := serviceaccount.AssignRole(ctx, input)
+	if err != nil {
+		return nil, err
+	}
 
-	// authz.assign
-	panic("Not implemented")
+	return &serviceaccount.AddRoleToServiceAccountPayload{ServiceAccount: sa}, nil
 }
 
 func (r *mutationResolver) RemoveRoleFromServiceAccount(ctx context.Context, input serviceaccount.RemoveRoleFromServiceAccountInput) (*serviceaccount.RemoveRoleFromServiceAccountPayload, error) {

@@ -35,10 +35,7 @@ func Create(ctx context.Context, input *CreateTeamInput, actor *authz.Actor) (*T
 			return err
 		}
 
-		if actor.User.IsServiceAccount() {
-			// TODO: This is a temporary solution for "nais-verification"
-			err = authz.AssignTeamRoleToServiceAccount(ctx, actor.User.GetID(), input.Slug, "Team owner")
-		} else {
+		if !actor.User.IsServiceAccount() {
 			err = authz.MakeUserTeamOwner(ctx, actor.User.GetID(), input.Slug)
 		}
 		if err != nil {
