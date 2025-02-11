@@ -150,16 +150,18 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return err
 	}
 
-	vulnClient := vulnerability.NewDependencyTrackClient(
-		vulnerability.DependencyTrackConfig{
-			Endpoint:    cfg.DependencyTrack.Endpoint,
-			Username:    cfg.DependencyTrack.Username,
-			Password:    cfg.DependencyTrack.Password,
-			FrontendURL: cfg.DependencyTrack.Frontend,
-			EnableFakes: cfg.WithFakeClients,
-		},
-		log.WithField("client", "dependencytrack"),
+	vulnMgr, err := vulnerability.NewVulnerabilitiesManager(
+		ctx,
+		"localhost:50051",
+		"v13s-sa@nais-management-7178.iam.gserviceaccount.com",
+		log.WithField("mgr", "vulnerability"),
 	)
+
+	if err != nil {
+		return fmt.Errorf("create vulnerability manager: %w", err)
+	}
+
+	defer vulnMgr.Close()
 
 	var hookdClient hookd.Client
 	var mgmtK8sClient k8s.Interface
@@ -198,7 +200,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			mgmtWatcher,
 			authHandler,
 			graphHandler,
-			vulnClient,
+			vulnMgr,
 			hookdClient,
 			cfg.Unleash.BifrostApiUrl,
 			log,
