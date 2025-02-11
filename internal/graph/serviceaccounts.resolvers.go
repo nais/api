@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
@@ -83,6 +84,15 @@ func (r *serviceAccountResolver) Team(ctx context.Context, obj *serviceaccount.S
 	}
 
 	return team.Get(ctx, *obj.TeamSlug)
+}
+
+func (r *serviceAccountResolver) Roles(ctx context.Context, obj *serviceaccount.ServiceAccount, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*authz.Role], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return authz.ListRolesForServiceAccount(ctx, obj.UUID, page)
 }
 
 func (r *Resolver) ServiceAccount() gengql.ServiceAccountResolver { return &serviceAccountResolver{r} }

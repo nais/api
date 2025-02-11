@@ -18,6 +18,31 @@ FROM
 	roles
 ;
 
+-- name: ListRolesForServiceAccount :many
+SELECT
+	roles.*
+FROM
+	roles
+	JOIN service_account_roles sar ON roles.name = sar.role_name
+WHERE
+	sar.service_account_id = @service_account_id
+ORDER BY
+	roles.name
+OFFSET
+	sqlc.arg('offset')
+LIMIT
+	sqlc.arg('limit')
+;
+
+-- name: CountRolesForServiceAccount :one
+SELECT
+	COUNT(*)
+FROM
+	service_account_roles
+WHERE
+	service_account_id = @service_account_id
+;
+
 -- name: GetRoleByName :one
 SELECT
 	*
@@ -95,20 +120,12 @@ VALUES
 ON CONFLICT DO NOTHING
 ;
 
--- name: RevokeGlobalAdmin :exec
-DELETE FROM user_roles
-WHERE
-	user_id = @user_id
-	AND role_name = 'Admin'
-	AND target_team_slug IS NULL
-;
-
 -- name: HasTeamAuthorization :one
 SELECT
 	(
 		EXISTS (
 			SELECT
-				a.name
+				1
 			FROM
 				authorizations a
 				INNER JOIN role_authorizations ra ON ra.authorization_name = a.name
@@ -125,11 +142,10 @@ SELECT
 			SELECT
 				1
 			FROM
-				user_roles
+				users
 			WHERE
-				user_id = @user_id
-				AND role_name = 'Admin'
-				AND target_team_slug IS NULL
+				id = @user_id
+				AND admin = TRUE
 		)
 	)::BOOLEAN
 ;
@@ -139,7 +155,7 @@ SELECT
 	(
 		EXISTS (
 			SELECT
-				a.name
+				1
 			FROM
 				authorizations a
 				INNER JOIN role_authorizations ra ON ra.authorization_name = a.name
@@ -151,27 +167,12 @@ SELECT
 		)
 		OR EXISTS (
 			SELECT
-				id
+				1
 			FROM
-				user_roles
+				users
 			WHERE
-				user_id = @user_id
-				AND role_name = 'Admin'
-				AND target_team_slug IS NULL
+				id = @user_id
+				AND admin = TRUE
 		)
 	)::BOOLEAN
-;
-
--- name: IsAdmin :one
-SELECT
-	EXISTS (
-		SELECT
-			1
-		FROM
-			user_roles
-		WHERE
-			user_id = @user_id
-			AND role_name = 'Admin'
-			AND target_team_slug IS NULL
-	)
 ;

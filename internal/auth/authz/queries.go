@@ -30,6 +30,25 @@ func ListRoles(ctx context.Context, page *pagination.Pagination) (*RoleConnectio
 	return pagination.NewConvertConnection(ret, page, total, toGraphRole), nil
 }
 
+func ListRolesForServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, page *pagination.Pagination) (*RoleConnection, error) {
+	q := db(ctx)
+
+	ret, err := q.ListRolesForServiceAccount(ctx, authzsql.ListRolesForServiceAccountParams{
+		Offset:           page.Offset(),
+		Limit:            page.Limit(),
+		ServiceAccountID: serviceAccountID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	total, err := q.CountRolesForServiceAccount(ctx, serviceAccountID)
+	if err != nil {
+		return nil, err
+	}
+	return pagination.NewConvertConnection(ret, page, total, toGraphRole), nil
+}
+
 func getRoleByIdent(ctx context.Context, id ident.Ident) (*Role, error) {
 	name, err := parseRoleIdent(id)
 	if err != nil {

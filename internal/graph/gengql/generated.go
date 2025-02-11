@@ -1310,6 +1310,7 @@ type ComplexityRoot struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Name        func(childComplexity int) int
+		Roles       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Team        func(childComplexity int) int
 	}
 
@@ -2504,6 +2505,7 @@ type SecretResolver interface {
 }
 type ServiceAccountResolver interface {
 	Team(ctx context.Context, obj *serviceaccount.ServiceAccount) (*team.Team, error)
+	Roles(ctx context.Context, obj *serviceaccount.ServiceAccount, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*authz.Role], error)
 }
 type SqlDatabaseResolver interface {
 	Team(ctx context.Context, obj *sqlinstance.SQLDatabase) (*team.Team, error)
@@ -7685,6 +7687,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ServiceAccount.Name(childComplexity), true
+
+	case "ServiceAccount.roles":
+		if e.complexity.ServiceAccount.Roles == nil {
+			break
+		}
+
+		args, err := ec.field_ServiceAccount_roles_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.ServiceAccount.Roles(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "ServiceAccount.team":
 		if e.complexity.ServiceAccount.Team == nil {
@@ -15698,6 +15712,23 @@ type ServiceAccount implements Node {
 	The team that the service account belongs to.
 	"""
 	team: Team
+
+	"""
+	The roles that are assigned to the service account.
+	"""
+	roles(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): RoleConnection!
 }
 
 type CreateServiceAccountPayload {
@@ -23163,6 +23194,103 @@ func (ec *executionContext) field_Secret_workloads_argsBefore(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_ServiceAccount_roles_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_ServiceAccount_roles_argsFirst(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := ec.field_ServiceAccount_roles_argsAfter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := ec.field_ServiceAccount_roles_argsLast(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := ec.field_ServiceAccount_roles_argsBefore(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	return args, nil
+}
+func (ec *executionContext) field_ServiceAccount_roles_argsFirst(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*int, error) {
+	if _, ok := rawArgs["first"]; !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+	if tmp, ok := rawArgs["first"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_ServiceAccount_roles_argsAfter(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*pagination.Cursor, error) {
+	if _, ok := rawArgs["after"]; !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+	if tmp, ok := rawArgs["after"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_ServiceAccount_roles_argsLast(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*int, error) {
+	if _, ok := rawArgs["last"]; !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+	if tmp, ok := rawArgs["last"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_ServiceAccount_roles_argsBefore(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*pagination.Cursor, error) {
+	if _, ok := rawArgs["before"]; !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+	if tmp, ok := rawArgs["before"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_SqlInstance_flags_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -26779,6 +26907,8 @@ func (ec *executionContext) fieldContext_AddRoleToServiceAccountPayload_serviceA
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
+			case "roles":
+				return ec.fieldContext_ServiceAccount_roles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ServiceAccount", field.Name)
 		},
@@ -33525,6 +33655,8 @@ func (ec *executionContext) fieldContext_CreateServiceAccountPayload_serviceAcco
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
+			case "roles":
+				return ec.fieldContext_ServiceAccount_roles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ServiceAccount", field.Name)
 		},
@@ -48825,6 +48957,8 @@ func (ec *executionContext) fieldContext_Query_serviceAccount(ctx context.Contex
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
+			case "roles":
+				return ec.fieldContext_ServiceAccount_roles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ServiceAccount", field.Name)
 		},
@@ -53387,6 +53521,8 @@ func (ec *executionContext) fieldContext_RemoveRoleFromServiceAccountPayload_ser
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
+			case "roles":
+				return ec.fieldContext_ServiceAccount_roles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ServiceAccount", field.Name)
 		},
@@ -60413,6 +60549,69 @@ func (ec *executionContext) fieldContext_ServiceAccount_team(_ context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _ServiceAccount_roles(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccount) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceAccount_roles(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ServiceAccount().Roles(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*pagination.Connection[*authz.Role])
+	fc.Result = res
+	return ec.marshalNRoleConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceAccount_roles(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceAccount",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "nodes":
+				return ec.fieldContext_RoleConnection_nodes(ctx, field)
+			case "edges":
+				return ec.fieldContext_RoleConnection_edges(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_RoleConnection_pageInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RoleConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_ServiceAccount_roles_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ServiceAccountConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*serviceaccount.ServiceAccount]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ServiceAccountConnection_nodes(ctx, field)
 	if err != nil {
@@ -60462,6 +60661,8 @@ func (ec *executionContext) fieldContext_ServiceAccountConnection_nodes(_ contex
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
+			case "roles":
+				return ec.fieldContext_ServiceAccount_roles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ServiceAccount", field.Name)
 		},
@@ -61320,6 +61521,8 @@ func (ec *executionContext) fieldContext_ServiceAccountEdge_node(_ context.Conte
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
+			case "roles":
+				return ec.fieldContext_ServiceAccount_roles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ServiceAccount", field.Name)
 		},
@@ -81351,6 +81554,8 @@ func (ec *executionContext) fieldContext_UpdateServiceAccountPayload_serviceAcco
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
+			case "roles":
+				return ec.fieldContext_ServiceAccount_roles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ServiceAccount", field.Name)
 		},
@@ -105269,6 +105474,42 @@ func (ec *executionContext) _ServiceAccount(ctx context.Context, sel ast.Selecti
 					}
 				}()
 				res = ec._ServiceAccount_team(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "roles":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ServiceAccount_roles(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 

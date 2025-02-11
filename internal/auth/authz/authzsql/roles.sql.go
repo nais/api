@@ -79,6 +79,22 @@ func (q *Queries) CountRoles(ctx context.Context) (int64, error) {
 	return count, err
 }
 
+const countRolesForServiceAccount = `-- name: CountRolesForServiceAccount :one
+SELECT
+	COUNT(*)
+FROM
+	service_account_roles
+WHERE
+	service_account_id = $1
+`
+
+func (q *Queries) CountRolesForServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countRolesForServiceAccount, serviceAccountID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getRoleByName = `-- name: GetRoleByName :one
 SELECT
 	name, description, is_only_global
@@ -194,7 +210,7 @@ SELECT
 	(
 		EXISTS (
 			SELECT
-				a.name
+				1
 			FROM
 				authorizations a
 				INNER JOIN role_authorizations ra ON ra.authorization_name = a.name
@@ -206,13 +222,12 @@ SELECT
 		)
 		OR EXISTS (
 			SELECT
-				id
+				1
 			FROM
-				user_roles
+				users
 			WHERE
-				user_id = $1
-				AND role_name = 'Admin'
-				AND target_team_slug IS NULL
+				id = $1
+				AND admin = TRUE
 		)
 	)::BOOLEAN
 `
@@ -234,7 +249,7 @@ SELECT
 	(
 		EXISTS (
 			SELECT
-				a.name
+				1
 			FROM
 				authorizations a
 				INNER JOIN role_authorizations ra ON ra.authorization_name = a.name
@@ -251,11 +266,10 @@ SELECT
 			SELECT
 				1
 			FROM
-				user_roles
+				users
 			WHERE
-				user_id = $1
-				AND role_name = 'Admin'
-				AND target_team_slug IS NULL
+				id = $1
+				AND admin = TRUE
 		)
 	)::BOOLEAN
 `
@@ -271,27 +285,6 @@ func (q *Queries) HasTeamAuthorization(ctx context.Context, arg HasTeamAuthoriza
 	var column_1 bool
 	err := row.Scan(&column_1)
 	return column_1, err
-}
-
-const isAdmin = `-- name: IsAdmin :one
-SELECT
-	EXISTS (
-		SELECT
-			1
-		FROM
-			user_roles
-		WHERE
-			user_id = $1
-			AND role_name = 'Admin'
-			AND target_team_slug IS NULL
-	)
-`
-
-func (q *Queries) IsAdmin(ctx context.Context, userID uuid.UUID) (bool, error) {
-	row := q.db.QueryRow(ctx, isAdmin, userID)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
 }
 
 const listRoles = `-- name: ListRoles :many
@@ -332,15 +325,44 @@ func (q *Queries) ListRoles(ctx context.Context, arg ListRolesParams) ([]*Role, 
 	return items, nil
 }
 
-const revokeGlobalAdmin = `-- name: RevokeGlobalAdmin :exec
-DELETE FROM user_roles
+const listRolesForServiceAccount = `-- name: ListRolesForServiceAccount :many
+SELECT
+	roles.name, roles.description, roles.is_only_global
+FROM
+	roles
+	JOIN service_account_roles sar ON roles.name = sar.role_name
 WHERE
-	user_id = $1
-	AND role_name = 'Admin'
-	AND target_team_slug IS NULL
+	sar.service_account_id = $1
+ORDER BY
+	roles.name
+OFFSET
+	$2
+LIMIT
+	$3
 `
 
-func (q *Queries) RevokeGlobalAdmin(ctx context.Context, userID uuid.UUID) error {
-	_, err := q.db.Exec(ctx, revokeGlobalAdmin, userID)
-	return err
+type ListRolesForServiceAccountParams struct {
+	ServiceAccountID uuid.UUID
+	Offset           int32
+	Limit            int32
+}
+
+func (q *Queries) ListRolesForServiceAccount(ctx context.Context, arg ListRolesForServiceAccountParams) ([]*Role, error) {
+	rows, err := q.db.Query(ctx, listRolesForServiceAccount, arg.ServiceAccountID, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*Role{}
+	for rows.Next() {
+		var i Role
+		if err := rows.Scan(&i.Name, &i.Description, &i.IsOnlyGlobal); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
