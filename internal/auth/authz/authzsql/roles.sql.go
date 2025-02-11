@@ -103,11 +103,12 @@ SELECT
 			'role_name',
 			role_name,
 			'target_team_slug',
-			target_team_slug
+			service_accounts.team_slug
 		)
 	) AS roles
 FROM
 	service_account_roles
+	JOIN service_accounts ON service_accounts.id = service_account_roles.service_account_id
 WHERE
 	service_account_id = ANY ($1::UUID[])
 GROUP BY
