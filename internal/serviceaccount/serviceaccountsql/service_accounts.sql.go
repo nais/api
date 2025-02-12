@@ -180,7 +180,8 @@ SELECT
 FROM
 	service_accounts
 ORDER BY
-	name ASC
+	name,
+	team_slug
 LIMIT
 	$2
 OFFSET

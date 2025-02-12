@@ -4,7 +4,8 @@ SELECT
 FROM
 	service_accounts
 ORDER BY
-	name ASC
+	name,
+	team_slug
 LIMIT
 	sqlc.arg('limit')
 OFFSET
