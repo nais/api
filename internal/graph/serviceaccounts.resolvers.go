@@ -124,6 +124,15 @@ func (r *serviceAccountResolver) Roles(ctx context.Context, obj *serviceaccount.
 	return authz.ListRolesForServiceAccount(ctx, obj.UUID, page)
 }
 
+func (r *serviceAccountResolver) Tokens(ctx context.Context, obj *serviceaccount.ServiceAccount, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*serviceaccount.ServiceAccountToken], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return serviceaccount.ListTokensForServiceAccount(ctx, page, obj.UUID)
+}
+
 func (r *Resolver) ServiceAccount() gengql.ServiceAccountResolver { return &serviceAccountResolver{r} }
 
 type serviceAccountResolver struct{ *Resolver }

@@ -246,6 +246,14 @@ Test.gql("Update service account token set expiresAt", function(t)
 					}
 				}
 			) {
+				serviceAccount {
+					tokens {
+						nodes {
+							note
+							expiresAt
+						}
+					}
+				}
 				serviceAccountToken {
 					id
 					note
@@ -262,6 +270,16 @@ Test.gql("Update service account token set expiresAt", function(t)
 					id = State.tokenID,
 					note = "some other note",
 					expiresAt = "2029-04-04",
+				},
+				serviceAccount = {
+					tokens = {
+						nodes = {
+							{
+								note = "some other note",
+								expiresAt = "2029-04-04",
+							},
+						},
+					},
 				},
 			},
 		},

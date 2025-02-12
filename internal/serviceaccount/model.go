@@ -13,8 +13,10 @@ import (
 )
 
 type (
-	ServiceAccountConnection = pagination.Connection[*ServiceAccount]
-	ServiceAccountEdge       = pagination.Edge[*ServiceAccount]
+	ServiceAccountConnection      = pagination.Connection[*ServiceAccount]
+	ServiceAccountEdge            = pagination.Edge[*ServiceAccount]
+	ServiceAccountTokenConnection = pagination.Connection[*ServiceAccountToken]
+	ServiceAccountTokenEdge       = pagination.Edge[*ServiceAccountToken]
 )
 
 type ServiceAccount struct {

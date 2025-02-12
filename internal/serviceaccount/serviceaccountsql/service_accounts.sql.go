@@ -25,6 +25,22 @@ func (q *Queries) Count(ctx context.Context) (int64, error) {
 	return count, err
 }
 
+const countTokensForServiceAccount = `-- name: CountTokensForServiceAccount :one
+SELECT
+	COUNT(*)
+FROM
+	service_account_tokens
+WHERE
+	service_account_id = $1
+`
+
+func (q *Queries) CountTokensForServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countTokensForServiceAccount, serviceAccountID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const create = `-- name: Create :one
 INSERT INTO
 	service_accounts (name, description, team_slug)
@@ -287,6 +303,55 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ServiceAccount, 
 			&i.Name,
 			&i.Description,
 			&i.TeamSlug,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listTokensForServiceAccount = `-- name: ListTokensForServiceAccount :many
+SELECT
+	id, created_at, updated_at, expires_at, note, token, service_account_id
+FROM
+	service_account_tokens
+WHERE
+	service_account_id = $1
+ORDER BY
+	created_at DESC
+LIMIT
+	$3
+OFFSET
+	$2
+`
+
+type ListTokensForServiceAccountParams struct {
+	ServiceAccountID uuid.UUID
+	Offset           int32
+	Limit            int32
+}
+
+func (q *Queries) ListTokensForServiceAccount(ctx context.Context, arg ListTokensForServiceAccountParams) ([]*ServiceAccountToken, error) {
+	rows, err := q.db.Query(ctx, listTokensForServiceAccount, arg.ServiceAccountID, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ServiceAccountToken{}
+	for rows.Next() {
+		var i ServiceAccountToken
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.ExpiresAt,
+			&i.Note,
+			&i.Token,
+			&i.ServiceAccountID,
 		); err != nil {
 			return nil, err
 		}

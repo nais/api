@@ -33,6 +33,30 @@ WHERE
 	)
 ;
 
+-- name: ListTokensForServiceAccount :many
+SELECT
+	*
+FROM
+	service_account_tokens
+WHERE
+	service_account_id = @service_account_id
+ORDER BY
+	created_at DESC
+LIMIT
+	sqlc.arg('limit')
+OFFSET
+	sqlc.arg('offset')
+;
+
+-- name: CountTokensForServiceAccount :one
+SELECT
+	COUNT(*)
+FROM
+	service_account_tokens
+WHERE
+	service_account_id = @service_account_id
+;
+
 -- name: GetByName :one
 SELECT
 	*
