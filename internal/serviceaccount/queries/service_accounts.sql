@@ -27,6 +27,10 @@ FROM
 	JOIN service_accounts ON service_accounts.id = service_account_tokens.service_account_id
 WHERE
 	service_account_tokens.token = @token
+	AND (
+		service_account_tokens.expires_at IS NULL
+		OR service_account_tokens.expires_at >= CURRENT_DATE
+	)
 ;
 
 -- name: GetByName :one

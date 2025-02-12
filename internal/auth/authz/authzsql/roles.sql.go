@@ -116,8 +116,10 @@ SELECT
 	service_account_id,
 	JSON_AGG(
 		JSON_BUILD_OBJECT(
-			'role_name',
-			role_name,
+			'name',
+			role.name,
+			'description',
+			role.description,
 			'target_team_slug',
 			service_accounts.team_slug
 		)
@@ -125,6 +127,7 @@ SELECT
 FROM
 	service_account_roles
 	JOIN service_accounts ON service_accounts.id = service_account_roles.service_account_id
+	JOIN roles role ON role.name = service_account_roles.role_name
 WHERE
 	service_account_id = ANY ($1::UUID[])
 GROUP BY

@@ -193,6 +193,10 @@ FROM
 	JOIN service_accounts ON service_accounts.id = service_account_tokens.service_account_id
 WHERE
 	service_account_tokens.token = $1
+	AND (
+		service_account_tokens.expires_at IS NULL
+		OR service_account_tokens.expires_at >= CURRENT_DATE
+	)
 `
 
 func (q *Queries) GetByToken(ctx context.Context, token string) (*ServiceAccount, error) {
