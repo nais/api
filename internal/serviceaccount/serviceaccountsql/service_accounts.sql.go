@@ -101,6 +101,18 @@ func (q *Queries) Delete(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const deleteStaticServiceAccounts = `-- name: DeleteStaticServiceAccounts :exec
+DELETE FROM service_accounts
+WHERE
+	name LIKE 'nais-%'
+`
+
+// TODO: Remove once static service accounts has been removed
+func (q *Queries) DeleteStaticServiceAccounts(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, deleteStaticServiceAccounts)
+	return err
+}
+
 const deleteToken = `-- name: DeleteToken :exec
 DELETE FROM service_account_tokens
 WHERE
@@ -290,25 +302,6 @@ WHERE
 
 func (q *Queries) RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, removeApiKeysFromServiceAccount, serviceAccountID)
-	return err
-}
-
-const setTokenSecret = `-- name: SetTokenSecret :exec
-UPDATE service_account_tokens
-SET
-	token = $1
-WHERE
-	id = $2
-`
-
-type SetTokenSecretParams struct {
-	Token string
-	ID    uuid.UUID
-}
-
-// TODO: Remove once the static service accounts concept has been removed
-func (q *Queries) SetTokenSecret(ctx context.Context, arg SetTokenSecretParams) error {
-	_, err := q.db.Exec(ctx, setTokenSecret, arg.Token, arg.ID)
 	return err
 }
 

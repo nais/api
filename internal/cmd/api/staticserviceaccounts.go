@@ -11,9 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/serviceaccount"
-	"k8s.io/utils/ptr"
 )
 
 type StaticServiceAccount struct {
@@ -26,7 +24,7 @@ type StaticServiceAccountRole struct {
 	Name string `json:"name"`
 }
 
-var deprecatedRoles = []string{"Team viewer", "User viewer"}
+var deprecatedRoles = []string{"Admin", "Team viewer", "User viewer"}
 
 const naisServiceAccountPrefix = "nais-"
 
@@ -70,95 +68,25 @@ func setupStaticServiceAccounts(ctx context.Context, pool *pgxpool.Pool, service
 	ctx = authz.NewLoaderContext(ctx, pool)
 
 	return database.Transaction(ctx, func(ctx context.Context) error {
-		names := make(map[string]struct{})
+		if err := serviceaccount.DeleteStaticServiceAccounts(ctx); err != nil {
+			return err
+		}
+
 		for _, serviceAccountFromInput := range serviceAccounts {
-			names[serviceAccountFromInput.Name] = struct{}{}
-			sa, err := serviceaccount.GetByName(ctx, serviceAccountFromInput.Name)
-			if err != nil {
-				sa, err = serviceaccount.Create(ctx, serviceaccount.CreateServiceAccountInput{
-					Name:        serviceAccountFromInput.Name,
-					Description: "Static service account created by Nais",
-				})
-				if err != nil {
-					return err
-				}
-			}
-
-			if err := serviceaccount.RemoveApiKeysFromServiceAccount(ctx, sa.UUID); err != nil {
-				return err
-			}
-
-			existingRoles, err := authz.ForServiceAccount(ctx, sa.UUID)
-			if err != nil {
-				return err
-			}
-
+			roles := make([]string, 0)
 			for _, r := range serviceAccountFromInput.Roles {
 				if slices.Contains(deprecatedRoles, r.Name) {
 					continue
 				}
 
-				if hasGlobalRoleRole(r.Name, existingRoles) {
-					continue
-				}
-
-				if err := authz.AssignRoleToServiceAccount(ctx, sa.UUID, r.Name); err != nil {
-					return err
-				}
+				roles = append(roles, r.Name)
 			}
-
-			_, token, _, err := serviceaccount.CreateToken(ctx, serviceaccount.CreateServiceAccountTokenInput{
-				ServiceAccountID: sa.ID(),
-				Note:             "This token has been created by Nais",
-			})
+			err := serviceaccount.CreateStaticServiceAccount(ctx, serviceAccountFromInput.Name, roles, serviceAccountFromInput.APIKey)
 			if err != nil {
-				return err
-			}
-
-			if err := serviceaccount.SetTokenSecret(ctx, token.UUID, serviceAccountFromInput.APIKey); err != nil {
-				return err
-			}
-		}
-
-		page, err := pagination.ParsePage(ptr.To(4000), nil, nil, nil)
-		if err != nil {
-			return err
-		}
-
-		// remove all NAIS service accounts that is not present in the JSON input
-		all, err := serviceaccount.List(ctx, page)
-		if err != nil {
-			return err
-		}
-
-		for _, sa := range all.Nodes() {
-			if !strings.HasPrefix(sa.Name, naisServiceAccountPrefix) {
-				continue
-			}
-
-			if _, shouldExist := names[sa.Name]; shouldExist {
-				continue
-			}
-
-			if err := serviceaccount.DeleteStatic(ctx, sa.UUID); err != nil {
 				return err
 			}
 		}
 
 		return nil
 	})
-}
-
-func hasGlobalRoleRole(roleName string, existingRoles []*authz.Role) bool {
-	for _, r := range existingRoles {
-		if r.TargetTeamSlug != nil {
-			continue
-		}
-
-		if roleName == r.Name {
-			return true
-		}
-	}
-
-	return false
 }

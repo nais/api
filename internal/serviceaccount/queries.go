@@ -279,14 +279,6 @@ func DeleteToken(ctx context.Context, input DeleteServiceAccountTokenInput) (*Se
 	return sa, nil
 }
 
-// TODO: Remove once the static service accounts concept has been removed
-func SetTokenSecret(ctx context.Context, tokenID uuid.UUID, token string) error {
-	return db(ctx).SetTokenSecret(ctx, serviceaccountsql.SetTokenSecretParams{
-		Token: token,
-		ID:    tokenID,
-	})
-}
-
 func List(ctx context.Context, page *pagination.Pagination) (*ServiceAccountConnection, error) {
 	q := db(ctx)
 
@@ -305,8 +297,37 @@ func List(ctx context.Context, page *pagination.Pagination) (*ServiceAccountConn
 	return pagination.NewConvertConnection(ret, page, total, toGraphServiceAccount), nil
 }
 
-func DeleteStatic(ctx context.Context, id uuid.UUID) error {
-	return db(ctx).Delete(ctx, id)
+// TODO: Remove once static service accounts has been removed
+func DeleteStaticServiceAccounts(ctx context.Context) error {
+	return db(ctx).DeleteStaticServiceAccounts(ctx)
+}
+
+// TODO: Remove once static service accounts has been removed
+func CreateStaticServiceAccount(ctx context.Context, name string, roles []string, secret string) error {
+	sa, err := db(ctx).Create(ctx, serviceaccountsql.CreateParams{
+		Name:        name,
+		Description: "Static service account created by Nais",
+	})
+	if err != nil {
+		return err
+	}
+
+	for _, r := range roles {
+		if err := authz.AssignRoleToServiceAccount(ctx, sa.ID, r); err != nil {
+			return err
+		}
+	}
+
+	_, err = db(ctx).CreateToken(ctx, serviceaccountsql.CreateTokenParams{
+		Note:             "Token created by Nais",
+		Token:            secret,
+		ServiceAccountID: sa.ID,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func AssignRole(ctx context.Context, input AssignRoleToServiceAccountInput) (*ServiceAccount, error) {

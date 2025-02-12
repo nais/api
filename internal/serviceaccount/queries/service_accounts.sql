@@ -117,11 +117,9 @@ ORDER BY
 	created_at
 ;
 
--- TODO: Remove once the static service accounts concept has been removed
--- name: SetTokenSecret :exec
-UPDATE service_account_tokens
-SET
-	token = @token
+-- TODO: Remove once static service accounts has been removed
+-- name: DeleteStaticServiceAccounts :exec
+DELETE FROM service_accounts
 WHERE
-	id = @id
+	name LIKE 'nais-%'
 ;
