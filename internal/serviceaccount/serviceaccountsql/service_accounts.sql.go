@@ -54,11 +54,13 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) (*ServiceAccount
 	return &i, err
 }
 
-const createToken = `-- name: CreateToken :exec
+const createToken = `-- name: CreateToken :one
 INSERT INTO
 	service_account_tokens (expires_at, note, token, service_account_id)
 VALUES
 	($1, $2, $3, $4)
+RETURNING
+	id, created_at, updated_at, expires_at, note, token, service_account_id
 `
 
 type CreateTokenParams struct {
@@ -68,14 +70,24 @@ type CreateTokenParams struct {
 	ServiceAccountID uuid.UUID
 }
 
-func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) error {
-	_, err := q.db.Exec(ctx, createToken,
+func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (*ServiceAccountToken, error) {
+	row := q.db.QueryRow(ctx, createToken,
 		arg.ExpiresAt,
 		arg.Note,
 		arg.Token,
 		arg.ServiceAccountID,
 	)
-	return err
+	var i ServiceAccountToken
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.ExpiresAt,
+		&i.Note,
+		&i.Token,
+		&i.ServiceAccountID,
+	)
+	return &i, err
 }
 
 const delete = `-- name: Delete :exec
@@ -174,6 +186,45 @@ func (q *Queries) GetByToken(ctx context.Context, token string) (*ServiceAccount
 	return &i, err
 }
 
+const getTokensByIDs = `-- name: GetTokensByIDs :many
+SELECT
+	id, created_at, updated_at, expires_at, note, token, service_account_id
+FROM
+	service_account_tokens
+WHERE
+	id = ANY ($1::UUID[])
+ORDER BY
+	created_at
+`
+
+func (q *Queries) GetTokensByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccountToken, error) {
+	rows, err := q.db.Query(ctx, getTokensByIDs, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ServiceAccountToken{}
+	for rows.Next() {
+		var i ServiceAccountToken
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.ExpiresAt,
+			&i.Note,
+			&i.Token,
+			&i.ServiceAccountID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const list = `-- name: List :many
 SELECT
 	id, created_at, updated_at, name, description, team_slug
@@ -228,6 +279,25 @@ WHERE
 
 func (q *Queries) RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, removeApiKeysFromServiceAccount, serviceAccountID)
+	return err
+}
+
+const setTokenSecret = `-- name: SetTokenSecret :exec
+UPDATE service_account_tokens
+SET
+	token = $1
+WHERE
+	id = $2
+`
+
+type SetTokenSecretParams struct {
+	Token string
+	ID    uuid.UUID
+}
+
+// TODO: Remove once the static service accounts concept has been removed
+func (q *Queries) SetTokenSecret(ctx context.Context, arg SetTokenSecretParams) error {
+	_, err := q.db.Exec(ctx, setTokenSecret, arg.Token, arg.ID)
 	return err
 }
 

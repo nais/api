@@ -24,8 +24,9 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	internalQuerier      *serviceaccountsql.Queries
-	serviceAccountLoader *dataloadgen.Loader[uuid.UUID, *ServiceAccount]
+	internalQuerier           *serviceaccountsql.Queries
+	serviceAccountLoader      *dataloadgen.Loader[uuid.UUID, *ServiceAccount]
+	serviceAccountTokenLoader *dataloadgen.Loader[uuid.UUID, *ServiceAccountToken]
 }
 
 func newLoaders(dbConn *pgxpool.Pool) *loaders {
@@ -33,8 +34,9 @@ func newLoaders(dbConn *pgxpool.Pool) *loaders {
 	serviceAccountLoader := &dataloader{db: db}
 
 	return &loaders{
-		internalQuerier:      db,
-		serviceAccountLoader: dataloadgen.NewLoader(serviceAccountLoader.list, loader.DefaultDataLoaderOptions...),
+		internalQuerier:           db,
+		serviceAccountLoader:      dataloadgen.NewLoader(serviceAccountLoader.list, loader.DefaultDataLoaderOptions...),
+		serviceAccountTokenLoader: dataloadgen.NewLoader(serviceAccountLoader.listTokens, loader.DefaultDataLoaderOptions...),
 	}
 }
 
@@ -45,6 +47,11 @@ type dataloader struct {
 func (l dataloader) list(ctx context.Context, serviceAccountIDs []uuid.UUID) ([]*ServiceAccount, []error) {
 	makeKey := func(obj *ServiceAccount) uuid.UUID { return obj.UUID }
 	return loader.LoadModels(ctx, serviceAccountIDs, l.db.GetByIDs, toGraphServiceAccount, makeKey)
+}
+
+func (l dataloader) listTokens(ctx context.Context, serviceAccountTokenIDs []uuid.UUID) ([]*ServiceAccountToken, []error) {
+	makeKey := func(obj *ServiceAccountToken) uuid.UUID { return obj.UUID }
+	return loader.LoadModels(ctx, serviceAccountTokenIDs, l.db.GetTokensByIDs, toGraphServiceAccountToken, makeKey)
 }
 
 func db(ctx context.Context) *serviceaccountsql.Queries {

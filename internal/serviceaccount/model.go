@@ -3,13 +3,13 @@ package serviceaccount
 import (
 	"time"
 
-	"github.com/nais/api/internal/graph/scalar"
-
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/serviceaccount/serviceaccountsql"
 	"github.com/nais/api/internal/slug"
+	"k8s.io/utils/ptr"
 )
 
 type (
@@ -31,7 +31,7 @@ func (s *ServiceAccount) Identity() string       { return s.Name }
 func (s *ServiceAccount) IsServiceAccount() bool { return true }
 func (s *ServiceAccount) IsAdmin() bool          { return false }
 func (s *ServiceAccount) ID() ident.Ident {
-	return NewIdent(s.UUID)
+	return newIdent(s.UUID)
 }
 
 type CreateServiceAccountInput struct {
@@ -64,8 +64,9 @@ type CreateServiceAccountTokenInput struct {
 }
 
 type CreateServiceAccountTokenPayload struct {
+	Secret              *string              `json:"secret,omitempty"`
+	ServiceAccount      *ServiceAccount      `json:"serviceAccount,omitempty"`
 	ServiceAccountToken *ServiceAccountToken `json:"serviceAccountToken,omitempty"`
-	Token               *string              `json:"token,omitempty"`
 }
 
 type DeleteServiceAccountInput struct {
@@ -77,7 +78,8 @@ type DeleteServiceAccountTokenInput struct {
 }
 
 type DeleteServiceAccountTokenPayload struct {
-	ServiceAccountTokenDeleted *bool `json:"serviceAccountTokenDeleted,omitempty"`
+	ServiceAccountTokenDeleted *bool           `json:"serviceAccountTokenDeleted,omitempty"`
+	ServiceAccount             *ServiceAccount `json:"serviceAccount,omitempty"`
 }
 
 type RevokeRoleFromServiceAccountInput struct {
@@ -90,11 +92,16 @@ type RevokeRoleFromServiceAccountPayload struct {
 }
 
 type ServiceAccountToken struct {
-	ID        ident.Ident  `json:"id"`
 	Note      string       `json:"note"`
 	CreatedAt time.Time    `json:"createdAt"`
-	UpdatedAt *time.Time   `json:"updatedAt,omitempty"`
+	UpdatedAt time.Time    `json:"updatedAt,omitempty"`
 	ExpiresAt *scalar.Date `json:"expiresAt,omitempty"`
+	UUID      uuid.UUID    `json:"-"`
+}
+
+func (ServiceAccountToken) IsNode() {}
+func (t *ServiceAccountToken) ID() ident.Ident {
+	return newTokenIdent(t.UUID)
 }
 
 type UpdateServiceAccountInput struct {
@@ -118,6 +125,7 @@ type UpdateServiceAccountTokenInput struct {
 }
 
 type UpdateServiceAccountTokenPayload struct {
+	ServiceAccount      *ServiceAccount      `json:"serviceAccount,omitempty"`
 	ServiceAccountToken *ServiceAccountToken `json:"serviceAccountToken,omitempty"`
 }
 
@@ -128,5 +136,20 @@ func toGraphServiceAccount(s *serviceaccountsql.ServiceAccount) *ServiceAccount 
 		TeamSlug:    s.TeamSlug,
 		Name:        s.Name,
 		Description: s.Description,
+	}
+}
+
+func toGraphServiceAccountToken(t *serviceaccountsql.ServiceAccountToken) *ServiceAccountToken {
+	var expiresAt *scalar.Date
+	if t.ExpiresAt.Valid {
+		expiresAt = ptr.To(scalar.NewDate(t.ExpiresAt.Time))
+	}
+
+	return &ServiceAccountToken{
+		Note:      t.Note,
+		CreatedAt: t.CreatedAt.Time,
+		UpdatedAt: t.UpdatedAt.Time,
+		ExpiresAt: expiresAt,
+		UUID:      t.ID,
 	}
 }

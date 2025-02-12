@@ -63,11 +63,13 @@ WHERE
 	service_account_id = @service_account_id
 ;
 
--- name: CreateToken :exec
+-- name: CreateToken :one
 INSERT INTO
 	service_account_tokens (expires_at, note, token, service_account_id)
 VALUES
 	(@expires_at, @note, @token, @service_account_id)
+RETURNING
+	*
 ;
 
 -- name: Delete :exec
@@ -85,4 +87,24 @@ WHERE
 	id = ANY (@ids::UUID[])
 ORDER BY
 	name ASC
+;
+
+-- name: GetTokensByIDs :many
+SELECT
+	*
+FROM
+	service_account_tokens
+WHERE
+	id = ANY (@ids::UUID[])
+ORDER BY
+	created_at
+;
+
+-- TODO: Remove once the static service accounts concept has been removed
+-- name: SetTokenSecret :exec
+UPDATE service_account_tokens
+SET
+	token = @token
+WHERE
+	id = @id
 ;

@@ -107,7 +107,15 @@ func setupStaticServiceAccounts(ctx context.Context, pool *pgxpool.Pool, service
 				}
 			}
 
-			if err := serviceaccount.CreateToken(ctx, serviceAccountFromInput.APIKey, sa.UUID); err != nil {
+			_, token, _, err := serviceaccount.CreateToken(ctx, serviceaccount.CreateServiceAccountTokenInput{
+				ServiceAccountID: sa.ID(),
+				Note:             "This token has been created by Nais",
+			})
+			if err != nil {
+				return err
+			}
+
+			if err := serviceaccount.SetTokenSecret(ctx, token.UUID, serviceAccountFromInput.APIKey); err != nil {
 				return err
 			}
 		}

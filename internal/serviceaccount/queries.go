@@ -2,8 +2,11 @@ package serviceaccount
 
 import (
 	"context"
+	"crypto/rand"
 
+	"github.com/btcsuite/btcutil/base58"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
@@ -11,12 +14,21 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/serviceaccount/serviceaccountsql"
+	"k8s.io/utils/ptr"
 )
 
 func Get(ctx context.Context, serviceAccountID uuid.UUID) (*ServiceAccount, error) {
 	sa, err := fromContext(ctx).serviceAccountLoader.Load(ctx, serviceAccountID)
 	if err != nil {
 		return nil, handleError(err)
+	}
+	return sa, nil
+}
+
+func GetToken(ctx context.Context, serviceAccountTokenID uuid.UUID) (*ServiceAccountToken, error) {
+	sa, err := fromContext(ctx).serviceAccountTokenLoader.Load(ctx, serviceAccountTokenID)
+	if err != nil {
+		return nil, err
 	}
 	return sa, nil
 }
@@ -45,6 +57,14 @@ func GetByIdent(ctx context.Context, ident ident.Ident) (*ServiceAccount, error)
 		return nil, err
 	}
 	return Get(ctx, uid)
+}
+
+func GetTokenByIdent(ctx context.Context, ident ident.Ident) (*ServiceAccountToken, error) {
+	uid, err := parseTokenIdent(ident)
+	if err != nil {
+		return nil, err
+	}
+	return GetToken(ctx, uid)
 }
 
 func Create(ctx context.Context, input CreateServiceAccountInput) (*ServiceAccount, error) {
@@ -166,12 +186,45 @@ func RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.
 	return db(ctx).RemoveApiKeysFromServiceAccount(ctx, serviceAccountID)
 }
 
-func CreateToken(ctx context.Context, token string, serviceAccountID uuid.UUID) error {
-	return db(ctx).CreateToken(ctx, serviceaccountsql.CreateTokenParams{
-		// ExpiresAt: ...,
-		Note:             "some note",
-		Token:            token,
-		ServiceAccountID: serviceAccountID,
+func CreateToken(ctx context.Context, input CreateServiceAccountTokenInput) (*ServiceAccount, *ServiceAccountToken, *string, error) {
+	sa, err := GetByIdent(ctx, input.ServiceAccountID)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	if err := authz.CanUpdateServiceAccounts(ctx, sa.TeamSlug); err != nil {
+		return nil, nil, nil, err
+	}
+
+	secret, err := getToken()
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	expiresAt := pgtype.Date{}
+	if input.ExpiresAt != nil && !input.ExpiresAt.Time().IsZero() {
+		expiresAt.Time = input.ExpiresAt.Time()
+		expiresAt.Valid = true
+	}
+
+	saToken, err := db(ctx).CreateToken(ctx, serviceaccountsql.CreateTokenParams{
+		ExpiresAt:        expiresAt,
+		Note:             input.Note,
+		Token:            *secret,
+		ServiceAccountID: sa.UUID,
+	})
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	return sa, toGraphServiceAccountToken(saToken), secret, nil
+}
+
+// TODO: Remove once the static service accounts concept has been removed
+func SetTokenSecret(ctx context.Context, tokenID uuid.UUID, token string) error {
+	return db(ctx).SetTokenSecret(ctx, serviceaccountsql.SetTokenSecretParams{
+		Token: token,
+		ID:    tokenID,
 	})
 }
 
@@ -256,4 +309,13 @@ func RevokeRole(ctx context.Context, input RevokeRoleFromServiceAccountInput) (*
 	}
 
 	return sa, nil
+}
+
+func getToken() (*string, error) {
+	b := make([]byte, 64)
+	if _, err := rand.Read(b); err != nil {
+		return nil, err
+	}
+
+	return ptr.To("nais_console_" + base58.Encode(b)), nil
 }

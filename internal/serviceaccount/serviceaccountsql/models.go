@@ -16,3 +16,13 @@ type ServiceAccount struct {
 	Description string
 	TeamSlug    *slug.Slug
 }
+
+type ServiceAccountToken struct {
+	ID               uuid.UUID
+	CreatedAt        pgtype.Timestamptz
+	UpdatedAt        pgtype.Timestamptz
+	ExpiresAt        pgtype.Date
+	Note             string
+	Token            string
+	ServiceAccountID uuid.UUID
+}

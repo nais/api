@@ -59,7 +59,16 @@ func (r *mutationResolver) RevokeRoleFromServiceAccount(ctx context.Context, inp
 }
 
 func (r *mutationResolver) CreateServiceAccountToken(ctx context.Context, input serviceaccount.CreateServiceAccountTokenInput) (*serviceaccount.CreateServiceAccountTokenPayload, error) {
-	panic(fmt.Errorf("not implemented: CreateServiceAccountToken - createServiceAccountToken"))
+	sa, token, secret, err := serviceaccount.CreateToken(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return &serviceaccount.CreateServiceAccountTokenPayload{
+		ServiceAccountToken: token,
+		ServiceAccount:      sa,
+		Secret:              secret,
+	}, nil
 }
 
 func (r *mutationResolver) UpdateServiceAccountToken(ctx context.Context, input serviceaccount.UpdateServiceAccountTokenInput) (*serviceaccount.UpdateServiceAccountTokenPayload, error) {
