@@ -247,6 +247,7 @@ func UpdateToken(ctx context.Context, input UpdateServiceAccountTokenInput) (*Se
 	}
 
 	saToken, err := db(ctx).UpdateToken(ctx, serviceaccountsql.UpdateTokenParams{
+		ID:        token.UUID,
 		ExpiresAt: expiresAt,
 		Note:      input.Note,
 	})

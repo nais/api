@@ -172,3 +172,175 @@ Test.gql("Create service account token", function(t)
 		},
 	}
 end)
+
+Test.gql("Update service account token with empty expiresAt", function(t)
+	t.query(string.format([[
+		mutation {
+			updateServiceAccountToken(
+				input: {
+					serviceAccountTokenID: "%s"
+					expiresAt: {  }
+				}
+			) {
+				serviceAccountToken {
+					expiresAt
+				}
+			}
+		}
+	]], State.tokenID))
+
+	t.check {
+		data = Null,
+		errors = {
+			{
+				extensions = {
+					code = "GRAPHQL_VALIDATION_FAILED",
+				},
+				locations = NotNull(),
+				message = "OneOf Input Object \"UpdateServiceAccountTokenExpiresAtInput\" must specify exactly one key.",
+			},
+		},
+	}
+end)
+
+Test.gql("Update service account token", function(t)
+	t.query(string.format([[
+		mutation {
+			updateServiceAccountToken(
+				input: {
+					serviceAccountTokenID: "%s"
+					note: "some other note"
+					expiresAt: { removeExpiry: true }
+				}
+			) {
+				serviceAccountToken {
+					id
+					note
+					expiresAt
+				}
+			}
+		}
+	]], State.tokenID))
+
+	t.check {
+		data = {
+			updateServiceAccountToken = {
+				serviceAccountToken = {
+					id = State.tokenID,
+					note = "some other note",
+					expiresAt = Null,
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Update service account token set expiresAt", function(t)
+	t.query(string.format([[
+		mutation {
+			updateServiceAccountToken(
+				input: {
+					serviceAccountTokenID: "%s"
+					expiresAt: {
+						expiresAt: "2029-04-04"
+					}
+				}
+			) {
+				serviceAccountToken {
+					id
+					note
+					expiresAt
+				}
+			}
+		}
+	]], State.tokenID))
+
+	t.check {
+		data = {
+			updateServiceAccountToken = {
+				serviceAccountToken = {
+					id = State.tokenID,
+					note = "some other note",
+					expiresAt = "2029-04-04",
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Delete service account token", function(t)
+	t.query(string.format([[
+		mutation {
+			deleteServiceAccountToken(input: { serviceAccountTokenID: "%s" }) {
+				serviceAccount {
+					id
+				}
+			}
+		}
+	]], State.tokenID))
+
+	t.check {
+		data = {
+			deleteServiceAccountToken = {
+				serviceAccount = {
+					id = State.saID,
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Update service account token that does not exist", function(t)
+	t.query(string.format([[
+		mutation {
+			updateServiceAccountToken(
+				input: {
+					serviceAccountTokenID: "%s"
+					note: "some other note"
+				}
+			) {
+				serviceAccountToken {
+					id
+					note
+					expiresAt
+				}
+			}
+		}
+	]], State.tokenID))
+
+	t.check {
+		data = Null,
+		errors = {
+			{
+				message = Contains("Object was not found in the database."),
+				path = {
+					"updateServiceAccountToken",
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Delete service account token that does not exist", function(t)
+	t.query(string.format([[
+		mutation {
+			deleteServiceAccountToken(input: { serviceAccountTokenID: "%s" }) {
+				serviceAccount {
+					id
+				}
+			}
+		}
+	]], State.tokenID))
+
+	t.check {
+		data = Null,
+		errors = {
+			{
+				message = Contains("Object was not found in the database."),
+				path = {
+					"deleteServiceAccountToken",
+				},
+			},
+		},
+	}
+end)
