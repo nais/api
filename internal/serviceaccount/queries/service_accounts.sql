@@ -72,8 +72,25 @@ RETURNING
 	*
 ;
 
+-- name: UpdateToken :one
+UPDATE service_account_tokens
+SET
+	expires_at = @expires_at,
+	note = COALESCE(sqlc.narg('note'), note)
+WHERE
+	id = @id
+RETURNING
+	*
+;
+
 -- name: Delete :exec
 DELETE FROM service_accounts
+WHERE
+	id = @id
+;
+
+-- name: DeleteToken :exec
+DELETE FROM service_account_tokens
 WHERE
 	id = @id
 ;

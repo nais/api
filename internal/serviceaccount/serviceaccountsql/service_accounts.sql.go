@@ -101,6 +101,17 @@ func (q *Queries) Delete(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const deleteToken = `-- name: DeleteToken :exec
+DELETE FROM service_account_tokens
+WHERE
+	id = $1
+`
+
+func (q *Queries) DeleteToken(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteToken, id)
+	return err
+}
+
 const getByIDs = `-- name: GetByIDs :many
 SELECT
 	id, created_at, updated_at, name, description, team_slug
@@ -326,6 +337,38 @@ func (q *Queries) Update(ctx context.Context, arg UpdateParams) (*ServiceAccount
 		&i.Name,
 		&i.Description,
 		&i.TeamSlug,
+	)
+	return &i, err
+}
+
+const updateToken = `-- name: UpdateToken :one
+UPDATE service_account_tokens
+SET
+	expires_at = $1,
+	note = COALESCE($2, note)
+WHERE
+	id = $3
+RETURNING
+	id, created_at, updated_at, expires_at, note, token, service_account_id
+`
+
+type UpdateTokenParams struct {
+	ExpiresAt pgtype.Date
+	Note      *string
+	ID        uuid.UUID
+}
+
+func (q *Queries) UpdateToken(ctx context.Context, arg UpdateTokenParams) (*ServiceAccountToken, error) {
+	row := q.db.QueryRow(ctx, updateToken, arg.ExpiresAt, arg.Note, arg.ID)
+	var i ServiceAccountToken
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.ExpiresAt,
+		&i.Note,
+		&i.Token,
+		&i.ServiceAccountID,
 	)
 	return &i, err
 }

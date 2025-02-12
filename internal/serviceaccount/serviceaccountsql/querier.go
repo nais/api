@@ -13,6 +13,7 @@ type Querier interface {
 	Create(ctx context.Context, arg CreateParams) (*ServiceAccount, error)
 	CreateToken(ctx context.Context, arg CreateTokenParams) (*ServiceAccountToken, error)
 	Delete(ctx context.Context, id uuid.UUID) error
+	DeleteToken(ctx context.Context, id uuid.UUID) error
 	GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccount, error)
 	GetByName(ctx context.Context, name string) (*ServiceAccount, error)
 	GetByToken(ctx context.Context, token string) (*ServiceAccount, error)
@@ -22,6 +23,7 @@ type Querier interface {
 	// TODO: Remove once the static service accounts concept has been removed
 	SetTokenSecret(ctx context.Context, arg SetTokenSecretParams) error
 	Update(ctx context.Context, arg UpdateParams) (*ServiceAccount, error)
+	UpdateToken(ctx context.Context, arg UpdateTokenParams) (*ServiceAccountToken, error)
 }
 
 var _ Querier = (*Queries)(nil)

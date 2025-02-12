@@ -92,11 +92,12 @@ type RevokeRoleFromServiceAccountPayload struct {
 }
 
 type ServiceAccountToken struct {
-	Note      string       `json:"note"`
-	CreatedAt time.Time    `json:"createdAt"`
-	UpdatedAt time.Time    `json:"updatedAt,omitempty"`
-	ExpiresAt *scalar.Date `json:"expiresAt,omitempty"`
-	UUID      uuid.UUID    `json:"-"`
+	Note             string       `json:"note"`
+	CreatedAt        time.Time    `json:"createdAt"`
+	UpdatedAt        time.Time    `json:"updatedAt,omitempty"`
+	ExpiresAt        *scalar.Date `json:"expiresAt,omitempty"`
+	UUID             uuid.UUID    `json:"-"`
+	ServiceAccountID uuid.UUID    `json:"-"`
 }
 
 func (ServiceAccountToken) IsNode() {}
@@ -146,10 +147,11 @@ func toGraphServiceAccountToken(t *serviceaccountsql.ServiceAccountToken) *Servi
 	}
 
 	return &ServiceAccountToken{
-		Note:      t.Note,
-		CreatedAt: t.CreatedAt.Time,
-		UpdatedAt: t.UpdatedAt.Time,
-		ExpiresAt: expiresAt,
-		UUID:      t.ID,
+		Note:             t.Note,
+		CreatedAt:        t.CreatedAt.Time,
+		UpdatedAt:        t.UpdatedAt.Time,
+		ExpiresAt:        expiresAt,
+		UUID:             t.ID,
+		ServiceAccountID: t.ServiceAccountID,
 	}
 }

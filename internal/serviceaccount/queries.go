@@ -220,6 +220,65 @@ func CreateToken(ctx context.Context, input CreateServiceAccountTokenInput) (*Se
 	return sa, toGraphServiceAccountToken(saToken), secret, nil
 }
 
+func UpdateToken(ctx context.Context, input UpdateServiceAccountTokenInput) (*ServiceAccount, *ServiceAccountToken, error) {
+	token, err := GetTokenByIdent(ctx, input.ServiceAccountTokenID)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	sa, err := Get(ctx, token.ServiceAccountID)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if err := authz.CanUpdateServiceAccounts(ctx, sa.TeamSlug); err != nil {
+		return nil, nil, err
+	}
+
+	expiresAt := token.ExpiresAt.PgDate()
+	if e := input.ExpiresAt; e != nil {
+		if e.ExpiresAt == nil && e.RemoveExpiry == nil {
+			return nil, nil, apierror.Errorf("Either expiresAt or removeExpiry must be set.")
+		} else if e.ExpiresAt != nil {
+			expiresAt = e.ExpiresAt.PgDate()
+		} else if *e.RemoveExpiry {
+			expiresAt = pgtype.Date{}
+		}
+	}
+
+	saToken, err := db(ctx).UpdateToken(ctx, serviceaccountsql.UpdateTokenParams{
+		ExpiresAt: expiresAt,
+		Note:      input.Note,
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return sa, toGraphServiceAccountToken(saToken), nil
+}
+
+func DeleteToken(ctx context.Context, input DeleteServiceAccountTokenInput) (*ServiceAccount, error) {
+	token, err := GetTokenByIdent(ctx, input.ServiceAccountTokenID)
+	if err != nil {
+		return nil, err
+	}
+
+	sa, err := Get(ctx, token.ServiceAccountID)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := authz.CanUpdateServiceAccounts(ctx, sa.TeamSlug); err != nil {
+		return nil, err
+	}
+
+	if err := db(ctx).DeleteToken(ctx, token.UUID); err != nil {
+		return nil, err
+	}
+
+	return sa, nil
+}
+
 // TODO: Remove once the static service accounts concept has been removed
 func SetTokenSecret(ctx context.Context, tokenID uuid.UUID, token string) error {
 	return db(ctx).SetTokenSecret(ctx, serviceaccountsql.SetTokenSecretParams{

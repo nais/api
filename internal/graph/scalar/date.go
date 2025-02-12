@@ -6,6 +6,8 @@ import (
 	"io"
 	"strconv"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Date time.Time
@@ -50,4 +52,15 @@ func (d Date) String() string {
 // Time returns the Date as a time.Time instance
 func (d Date) Time() time.Time {
 	return time.Time(d)
+}
+
+func (d *Date) PgDate() pgtype.Date {
+	if d == nil {
+		return pgtype.Date{}
+	}
+
+	return pgtype.Date{
+		Time:  d.Time(),
+		Valid: !d.Time().IsZero(),
+	}
 }

@@ -2,7 +2,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
@@ -72,11 +71,27 @@ func (r *mutationResolver) CreateServiceAccountToken(ctx context.Context, input 
 }
 
 func (r *mutationResolver) UpdateServiceAccountToken(ctx context.Context, input serviceaccount.UpdateServiceAccountTokenInput) (*serviceaccount.UpdateServiceAccountTokenPayload, error) {
-	panic(fmt.Errorf("not implemented: UpdateServiceAccountToken - updateServiceAccountToken"))
+	sa, token, err := serviceaccount.UpdateToken(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return &serviceaccount.UpdateServiceAccountTokenPayload{
+		ServiceAccountToken: token,
+		ServiceAccount:      sa,
+	}, nil
 }
 
 func (r *mutationResolver) DeleteServiceAccountToken(ctx context.Context, input serviceaccount.DeleteServiceAccountTokenInput) (*serviceaccount.DeleteServiceAccountTokenPayload, error) {
-	panic(fmt.Errorf("not implemented: DeleteServiceAccountToken - deleteServiceAccountToken"))
+	sa, err := serviceaccount.DeleteToken(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return &serviceaccount.DeleteServiceAccountTokenPayload{
+		ServiceAccountTokenDeleted: ptr.To(true),
+		ServiceAccount:             sa,
+	}, nil
 }
 
 func (r *queryResolver) ServiceAccounts(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*serviceaccount.ServiceAccount], error) {
