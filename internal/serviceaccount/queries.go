@@ -42,15 +42,6 @@ func GetByToken(ctx context.Context, token string) (*ServiceAccount, error) {
 	return toGraphServiceAccount(sa), nil
 }
 
-func GetByName(ctx context.Context, name string) (*ServiceAccount, error) {
-	sa, err := db(ctx).GetByName(ctx, name)
-	if err != nil {
-		return nil, err
-	}
-
-	return toGraphServiceAccount(sa), nil
-}
-
 func GetByIdent(ctx context.Context, ident ident.Ident) (*ServiceAccount, error) {
 	uid, err := parseIdent(ident)
 	if err != nil {
@@ -180,10 +171,6 @@ func Delete(ctx context.Context, input DeleteServiceAccountInput) error {
 			TeamSlug:     existingSA.TeamSlug,
 		})
 	})
-}
-
-func RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error {
-	return db(ctx).RemoveApiKeysFromServiceAccount(ctx, serviceAccountID)
 }
 
 func CreateToken(ctx context.Context, input CreateServiceAccountTokenInput) (*ServiceAccount, *ServiceAccountToken, *string, error) {
