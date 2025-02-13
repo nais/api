@@ -437,7 +437,6 @@ Test.gql("Delete service account as non-admin", function(t)
 	}
 end)
 
-
 Test.gql("Delete service account as admin", function(t)
 	t.query(string.format([[
 		mutation {

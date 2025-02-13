@@ -187,6 +187,45 @@ SELECT
 	)::BOOLEAN
 ;
 
+-- name: ServiceAccountHasTeamAuthorization :one
+SELECT
+	(
+		EXISTS (
+			SELECT
+				1
+			FROM
+				role_authorizations ra
+				INNER JOIN service_account_roles sar ON sar.role_name = ra.role_name
+				INNER JOIN service_accounts sa ON sa.id = sar.service_account_id
+			WHERE
+				sa.id = @service_account_id
+				AND ra.authorization_name = @authorization_name
+				AND (
+					sa.team_slug IS NULL
+					OR sa.team_slug = @team_slug::slug
+				)
+		)
+	)::BOOLEAN
+;
+
+-- name: ServiceAccountHasGlobalAuthorization :one
+SELECT
+	(
+		EXISTS (
+			SELECT
+				1
+			FROM
+				role_authorizations ra
+				INNER JOIN service_account_roles sar ON sar.role_name = ra.role_name
+				INNER JOIN service_accounts sa ON sa.id = sar.service_account_id
+			WHERE
+				sa.id = @service_account_id
+				AND ra.authorization_name = @authorization_name
+				AND sa.team_slug IS NULL
+		)
+	)::BOOLEAN
+;
+
 -- name: ServiceAccountHasRole :one
 SELECT
 	EXISTS (

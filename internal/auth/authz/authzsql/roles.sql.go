@@ -442,6 +442,36 @@ func (q *Queries) ServiceAccountCanAssignRole(ctx context.Context, arg ServiceAc
 	return column_1, err
 }
 
+const serviceAccountHasGlobalAuthorization = `-- name: ServiceAccountHasGlobalAuthorization :one
+SELECT
+	(
+		EXISTS (
+			SELECT
+				1
+			FROM
+				role_authorizations ra
+				INNER JOIN service_account_roles sar ON sar.role_name = ra.role_name
+				INNER JOIN service_accounts sa ON sa.id = sar.service_account_id
+			WHERE
+				sa.id = $1
+				AND ra.authorization_name = $2
+				AND sa.team_slug IS NULL
+		)
+	)::BOOLEAN
+`
+
+type ServiceAccountHasGlobalAuthorizationParams struct {
+	ServiceAccountID  uuid.UUID
+	AuthorizationName string
+}
+
+func (q *Queries) ServiceAccountHasGlobalAuthorization(ctx context.Context, arg ServiceAccountHasGlobalAuthorizationParams) (bool, error) {
+	row := q.db.QueryRow(ctx, serviceAccountHasGlobalAuthorization, arg.ServiceAccountID, arg.AuthorizationName)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const serviceAccountHasRole = `-- name: ServiceAccountHasRole :one
 SELECT
 	EXISTS (
@@ -465,6 +495,40 @@ func (q *Queries) ServiceAccountHasRole(ctx context.Context, arg ServiceAccountH
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
+}
+
+const serviceAccountHasTeamAuthorization = `-- name: ServiceAccountHasTeamAuthorization :one
+SELECT
+	(
+		EXISTS (
+			SELECT
+				1
+			FROM
+				role_authorizations ra
+				INNER JOIN service_account_roles sar ON sar.role_name = ra.role_name
+				INNER JOIN service_accounts sa ON sa.id = sar.service_account_id
+			WHERE
+				sa.id = $1
+				AND ra.authorization_name = $2
+				AND (
+					sa.team_slug IS NULL
+					OR sa.team_slug = $3::slug
+				)
+		)
+	)::BOOLEAN
+`
+
+type ServiceAccountHasTeamAuthorizationParams struct {
+	ServiceAccountID  uuid.UUID
+	AuthorizationName string
+	TeamSlug          slug.Slug
+}
+
+func (q *Queries) ServiceAccountHasTeamAuthorization(ctx context.Context, arg ServiceAccountHasTeamAuthorizationParams) (bool, error) {
+	row := q.db.QueryRow(ctx, serviceAccountHasTeamAuthorization, arg.ServiceAccountID, arg.AuthorizationName, arg.TeamSlug)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
 }
 
 const userCanAssignRole = `-- name: UserCanAssignRole :one

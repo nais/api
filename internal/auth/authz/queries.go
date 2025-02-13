@@ -247,11 +247,24 @@ func RequireGlobalAdmin(ctx context.Context) error {
 }
 
 func requireTeamAuthorization(ctx context.Context, teamSlug slug.Slug, authorizationName string) error {
-	hasAuthorization, err := db(ctx).HasTeamAuthorization(ctx, authzsql.HasTeamAuthorizationParams{
-		UserID:            ActorFromContext(ctx).User.GetID(),
-		AuthorizationName: authorizationName,
-		TeamSlug:          teamSlug,
-	})
+	user := ActorFromContext(ctx).User
+	var (
+		hasAuthorization bool
+		err              error
+	)
+	if user.IsServiceAccount() {
+		hasAuthorization, err = db(ctx).ServiceAccountHasTeamAuthorization(ctx, authzsql.ServiceAccountHasTeamAuthorizationParams{
+			ServiceAccountID:  user.GetID(),
+			AuthorizationName: authorizationName,
+			TeamSlug:          teamSlug,
+		})
+	} else {
+		hasAuthorization, err = db(ctx).HasTeamAuthorization(ctx, authzsql.HasTeamAuthorizationParams{
+			UserID:            user.GetID(),
+			AuthorizationName: authorizationName,
+			TeamSlug:          teamSlug,
+		})
+	}
 	if err != nil {
 		return err
 	}
@@ -264,10 +277,22 @@ func requireTeamAuthorization(ctx context.Context, teamSlug slug.Slug, authoriza
 }
 
 func requireGlobalAuthorization(ctx context.Context, authorizationName string) error {
-	authorized, err := db(ctx).HasGlobalAuthorization(ctx, authzsql.HasGlobalAuthorizationParams{
-		UserID:            ActorFromContext(ctx).User.GetID(),
-		AuthorizationName: authorizationName,
-	})
+	user := ActorFromContext(ctx).User
+	var (
+		authorized bool
+		err        error
+	)
+	if user.IsServiceAccount() {
+		authorized, err = db(ctx).ServiceAccountHasGlobalAuthorization(ctx, authzsql.ServiceAccountHasGlobalAuthorizationParams{
+			ServiceAccountID:  user.GetID(),
+			AuthorizationName: authorizationName,
+		})
+	} else {
+		authorized, err = db(ctx).HasGlobalAuthorization(ctx, authzsql.HasGlobalAuthorizationParams{
+			UserID:            user.GetID(),
+			AuthorizationName: authorizationName,
+		})
+	}
 	if err != nil {
 		return err
 	}

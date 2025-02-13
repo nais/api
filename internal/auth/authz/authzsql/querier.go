@@ -24,7 +24,9 @@ type Querier interface {
 	ListRolesForServiceAccount(ctx context.Context, arg ListRolesForServiceAccountParams) ([]*Role, error)
 	RevokeRoleFromServiceAccount(ctx context.Context, arg RevokeRoleFromServiceAccountParams) error
 	ServiceAccountCanAssignRole(ctx context.Context, arg ServiceAccountCanAssignRoleParams) (bool, error)
+	ServiceAccountHasGlobalAuthorization(ctx context.Context, arg ServiceAccountHasGlobalAuthorizationParams) (bool, error)
 	ServiceAccountHasRole(ctx context.Context, arg ServiceAccountHasRoleParams) (bool, error)
+	ServiceAccountHasTeamAuthorization(ctx context.Context, arg ServiceAccountHasTeamAuthorizationParams) (bool, error)
 	UserCanAssignRole(ctx context.Context, arg UserCanAssignRoleParams) (bool, error)
 }
 
