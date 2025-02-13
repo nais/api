@@ -8,7 +8,12 @@ import (
 )
 
 const (
-	activityLogEntryResourceTypeServiceAccount activitylog.ActivityLogEntryResourceType = "SERVICE_ACCOUNT"
+	activityLogEntryResourceTypeServiceAccount      activitylog.ActivityLogEntryResourceType = "SERVICE_ACCOUNT"
+	activityLogEntryActionAssignServiceAccountRole  activitylog.ActivityLogEntryAction       = "ASSIGN_SERVICE_ACCOUNT_TOKEN_ROLE"
+	activityLogEntryActionRevokeServiceAccountRole  activitylog.ActivityLogEntryAction       = "REVOKE_SERVICE_ACCOUNT_TOKEN_ROLE"
+	activityLogEntryActionCreateServiceAccountToken activitylog.ActivityLogEntryAction       = "CREATE_SERVICE_ACCOUNT_TOKEN"
+	activityLogEntryActionUpdateServiceAccountToken activitylog.ActivityLogEntryAction       = "UPDATE_SERVICE_ACCOUNT_TOKEN"
+	activityLogEntryActionDeleteServiceAccountToken activitylog.ActivityLogEntryAction       = "DELETE_SERVICE_ACCOUNT_TOKEN"
 )
 
 func init() {

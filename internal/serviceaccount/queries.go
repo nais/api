@@ -63,9 +63,10 @@ func Create(ctx context.Context, input CreateServiceAccountInput) (*ServiceAccou
 		return nil, err
 	}
 
-	var sa *ServiceAccount
+	var sa *serviceaccountsql.ServiceAccount
 	err := database.Transaction(ctx, func(ctx context.Context) error {
-		dbSA, err := db(ctx).Create(ctx, serviceaccountsql.CreateParams{
+		var err error
+		sa, err = db(ctx).Create(ctx, serviceaccountsql.CreateParams{
 			Name:        input.Name,
 			Description: input.Description,
 			TeamSlug:    input.TeamSlug,
@@ -74,23 +75,19 @@ func Create(ctx context.Context, input CreateServiceAccountInput) (*ServiceAccou
 			return err
 		}
 
-		sa = toGraphServiceAccount(dbSA)
-
-		actor := authz.ActorFromContext(ctx)
-
 		return activitylog.Create(ctx, activitylog.CreateInput{
 			Action:       activitylog.ActivityLogEntryActionCreated,
-			Actor:        actor.User,
+			Actor:        authz.ActorFromContext(ctx).User,
 			ResourceType: activityLogEntryResourceTypeServiceAccount,
-			ResourceName: dbSA.Name,
-			TeamSlug:     dbSA.TeamSlug,
+			ResourceName: sa.Name,
+			TeamSlug:     sa.TeamSlug,
 		})
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return sa, nil
+	return toGraphServiceAccount(sa), nil
 }
 
 func Update(ctx context.Context, input UpdateServiceAccountInput) (*ServiceAccount, error) {
@@ -103,17 +100,16 @@ func Update(ctx context.Context, input UpdateServiceAccountInput) (*ServiceAccou
 		return nil, err
 	}
 
-	var sa *ServiceAccount
+	var sa *serviceaccountsql.ServiceAccount
 	err = database.Transaction(ctx, func(ctx context.Context) error {
-		dbSA, err := db(ctx).Update(ctx, serviceaccountsql.UpdateParams{
+		var err error
+		sa, err = db(ctx).Update(ctx, serviceaccountsql.UpdateParams{
 			ID:          existingSA.UUID,
 			Description: input.Description,
 		})
 		if err != nil {
 			return err
 		}
-
-		sa = toGraphServiceAccount(dbSA)
 
 		updatedFields := make([]*ServiceAccountUpdatedActivityLogEntryDataUpdatedField, 0)
 		if input.Description != nil && *input.Description != existingSA.Description {
@@ -145,7 +141,7 @@ func Update(ctx context.Context, input UpdateServiceAccountInput) (*ServiceAccou
 		return nil, err
 	}
 
-	return sa, nil
+	return toGraphServiceAccount(sa), nil
 }
 
 func Delete(ctx context.Context, input DeleteServiceAccountInput) error {
@@ -194,17 +190,30 @@ func CreateToken(ctx context.Context, input CreateServiceAccountTokenInput) (*Se
 		expiresAt.Valid = true
 	}
 
-	saToken, err := db(ctx).CreateToken(ctx, serviceaccountsql.CreateTokenParams{
-		ExpiresAt:        expiresAt,
-		Description:      input.Description,
-		Token:            *secret,
-		ServiceAccountID: sa.UUID,
+	var t *serviceaccountsql.ServiceAccountToken
+	err = database.Transaction(ctx, func(ctx context.Context) error {
+		t, err = db(ctx).CreateToken(ctx, serviceaccountsql.CreateTokenParams{
+			ExpiresAt:        expiresAt,
+			Description:      input.Description,
+			Token:            *secret,
+			ServiceAccountID: sa.UUID,
+		})
+		if err != nil {
+			return err
+		}
+
+		return nil
+
+		// TODO
+		return activitylog.Create(ctx, activitylog.CreateInput{
+			// ...
+		})
 	})
 	if err != nil {
 		return nil, nil, nil, err
 	}
 
-	return sa, toGraphServiceAccountToken(saToken), secret, nil
+	return sa, toGraphServiceAccountToken(t), secret, nil
 }
 
 func UpdateToken(ctx context.Context, input UpdateServiceAccountTokenInput) (*ServiceAccount, *ServiceAccountToken, error) {
@@ -233,16 +242,29 @@ func UpdateToken(ctx context.Context, input UpdateServiceAccountTokenInput) (*Se
 		}
 	}
 
-	saToken, err := db(ctx).UpdateToken(ctx, serviceaccountsql.UpdateTokenParams{
-		ID:          token.UUID,
-		ExpiresAt:   expiresAt,
-		Description: input.Description,
+	var t *serviceaccountsql.ServiceAccountToken
+	err = database.Transaction(ctx, func(ctx context.Context) error {
+		t, err = db(ctx).UpdateToken(ctx, serviceaccountsql.UpdateTokenParams{
+			ID:          token.UUID,
+			ExpiresAt:   expiresAt,
+			Description: input.Description,
+		})
+		if err != nil {
+			return err
+		}
+
+		return nil
+
+		// TODO
+		return activitylog.Create(ctx, activitylog.CreateInput{
+			// ...
+		})
 	})
 	if err != nil {
 		return nil, nil, err
 	}
 
-	return sa, toGraphServiceAccountToken(saToken), nil
+	return sa, toGraphServiceAccountToken(t), nil
 }
 
 func DeleteToken(ctx context.Context, input DeleteServiceAccountTokenInput) (*ServiceAccount, error) {
@@ -260,7 +282,19 @@ func DeleteToken(ctx context.Context, input DeleteServiceAccountTokenInput) (*Se
 		return nil, err
 	}
 
-	if err := db(ctx).DeleteToken(ctx, token.UUID); err != nil {
+	err = database.Transaction(ctx, func(ctx context.Context) error {
+		if err := db(ctx).DeleteToken(ctx, token.UUID); err != nil {
+			return err
+		}
+
+		return nil
+
+		// TODO
+		return activitylog.Create(ctx, activitylog.CreateInput{
+			// ...
+		})
+	})
+	if err != nil {
 		return nil, err
 	}
 
@@ -369,7 +403,19 @@ func AssignRole(ctx context.Context, input AssignRoleToServiceAccountInput) (*Se
 		return nil, apierror.Errorf("Role %q is only allowed on global service accounts.", input.RoleName)
 	}
 
-	if err := authz.AssignRoleToServiceAccount(ctx, sa.UUID, role.Name); err != nil {
+	err = database.Transaction(ctx, func(ctx context.Context) error {
+		if err := authz.AssignRoleToServiceAccount(ctx, sa.UUID, role.Name); err != nil {
+			return err
+		}
+
+		return nil
+
+		// TODO
+		return activitylog.Create(ctx, activitylog.CreateInput{
+			// ...
+		})
+	})
+	if err != nil {
 		return nil, err
 	}
 
@@ -403,7 +449,19 @@ func RevokeRole(ctx context.Context, input RevokeRoleFromServiceAccountInput) (*
 		return nil, apierror.Errorf("Service account does not have the %q role assigned.", role.Name)
 	}
 
-	if err := authz.RevokeRoleFromServiceAccount(ctx, sa.UUID, role.Name); err != nil {
+	err = database.Transaction(ctx, func(ctx context.Context) error {
+		if err := authz.RevokeRoleFromServiceAccount(ctx, sa.UUID, role.Name); err != nil {
+			return err
+		}
+
+		return nil
+
+		// TODO
+		return activitylog.Create(ctx, activitylog.CreateInput{
+			// ...
+		})
+	})
+	if err != nil {
 		return nil, err
 	}
 
