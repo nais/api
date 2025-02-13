@@ -43,21 +43,21 @@ func init() {
 	})
 }
 
-type RoleAddedToServiceAccountActivityLogEntry struct {
+type RoleAssignedToServiceAccountActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *RoleAddedToServiceAccountActivityLogEntryData `json:"data"`
+	Data *RoleAssignedToServiceAccountActivityLogEntryData `json:"data"`
 }
 
-type RoleAddedToServiceAccountActivityLogEntryData struct {
+type RoleAssignedToServiceAccountActivityLogEntryData struct {
 	RoleName string `json:"roleName"`
 }
 
-type RoleRemovedFromServiceAccountActivityLogEntry struct {
+type RoleRevokedFromServiceAccountActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *RoleRemovedFromServiceAccountActivityLogEntryData `json:"data"`
+	Data *RoleRevokedFromServiceAccountActivityLogEntryData `json:"data"`
 }
 
-type RoleRemovedFromServiceAccountActivityLogEntryData struct {
+type RoleRevokedFromServiceAccountActivityLogEntryData struct {
 	RoleName string `json:"roleName"`
 }
 
@@ -75,8 +75,9 @@ type ServiceAccountTokenCreatedActivityLogEntry struct {
 }
 
 type ServiceAccountTokenCreatedActivityLogEntryData struct {
-	Description string       `json:"description"`
-	ExpiresAt   *scalar.Date `json:"expiresAt,omitempty"`
+	TokenName        string       `json:"tokenName"`
+	TokenDescription string       `json:"tokenDescription"`
+	ExpiresAt        *scalar.Date `json:"expiresAt,omitempty"`
 }
 
 type ServiceAccountTokenDeletedActivityLogEntry struct {
@@ -85,7 +86,7 @@ type ServiceAccountTokenDeletedActivityLogEntry struct {
 }
 
 type ServiceAccountTokenDeletedActivityLogEntryData struct {
-	Description string `json:"description"`
+	TokenName string `json:"tokenName"`
 }
 
 type ServiceAccountTokenUpdatedActivityLogEntry struct {
@@ -94,6 +95,7 @@ type ServiceAccountTokenUpdatedActivityLogEntry struct {
 }
 
 type ServiceAccountTokenUpdatedActivityLogEntryData struct {
+	TokenName     string                                                        `json:"tokenName"`
 	UpdatedFields []*ServiceAccountTokenUpdatedActivityLogEntryDataUpdatedField `json:"updatedFields"`
 }
 

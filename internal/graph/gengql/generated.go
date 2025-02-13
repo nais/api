@@ -1134,7 +1134,7 @@ type ComplexityRoot struct {
 		Name        func(childComplexity int) int
 	}
 
-	RoleAddedToServiceAccountActivityLogEntry struct {
+	RoleAssignedToServiceAccountActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -1146,7 +1146,7 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
-	RoleAddedToServiceAccountActivityLogEntryData struct {
+	RoleAssignedToServiceAccountActivityLogEntryData struct {
 		RoleName func(childComplexity int) int
 	}
 
@@ -1171,7 +1171,7 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
-	RoleRemovedFromServiceAccountActivityLogEntry struct {
+	RoleRevokedFromServiceAccountActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -1183,7 +1183,7 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
-	RoleRemovedFromServiceAccountActivityLogEntryData struct {
+	RoleRevokedFromServiceAccountActivityLogEntryData struct {
 		RoleName func(childComplexity int) int
 	}
 
@@ -1378,8 +1378,9 @@ type ComplexityRoot struct {
 	}
 
 	ServiceAccountTokenCreatedActivityLogEntryData struct {
-		Description func(childComplexity int) int
-		ExpiresAt   func(childComplexity int) int
+		ExpiresAt        func(childComplexity int) int
+		TokenDescription func(childComplexity int) int
+		TokenName        func(childComplexity int) int
 	}
 
 	ServiceAccountTokenDeletedActivityLogEntry struct {
@@ -1395,7 +1396,7 @@ type ComplexityRoot struct {
 	}
 
 	ServiceAccountTokenDeletedActivityLogEntryData struct {
-		Description func(childComplexity int) int
+		TokenName func(childComplexity int) int
 	}
 
 	ServiceAccountTokenEdge struct {
@@ -1416,6 +1417,7 @@ type ComplexityRoot struct {
 	}
 
 	ServiceAccountTokenUpdatedActivityLogEntryData struct {
+		TokenName     func(childComplexity int) int
 		UpdatedFields func(childComplexity int) int
 	}
 
@@ -6927,75 +6929,75 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Role.Name(childComplexity), true
 
-	case "RoleAddedToServiceAccountActivityLogEntry.actor":
-		if e.complexity.RoleAddedToServiceAccountActivityLogEntry.Actor == nil {
+	case "RoleAssignedToServiceAccountActivityLogEntry.actor":
+		if e.complexity.RoleAssignedToServiceAccountActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.RoleAddedToServiceAccountActivityLogEntry.Actor(childComplexity), true
+		return e.complexity.RoleAssignedToServiceAccountActivityLogEntry.Actor(childComplexity), true
 
-	case "RoleAddedToServiceAccountActivityLogEntry.createdAt":
-		if e.complexity.RoleAddedToServiceAccountActivityLogEntry.CreatedAt == nil {
+	case "RoleAssignedToServiceAccountActivityLogEntry.createdAt":
+		if e.complexity.RoleAssignedToServiceAccountActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.RoleAddedToServiceAccountActivityLogEntry.CreatedAt(childComplexity), true
+		return e.complexity.RoleAssignedToServiceAccountActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "RoleAddedToServiceAccountActivityLogEntry.data":
-		if e.complexity.RoleAddedToServiceAccountActivityLogEntry.Data == nil {
+	case "RoleAssignedToServiceAccountActivityLogEntry.data":
+		if e.complexity.RoleAssignedToServiceAccountActivityLogEntry.Data == nil {
 			break
 		}
 
-		return e.complexity.RoleAddedToServiceAccountActivityLogEntry.Data(childComplexity), true
+		return e.complexity.RoleAssignedToServiceAccountActivityLogEntry.Data(childComplexity), true
 
-	case "RoleAddedToServiceAccountActivityLogEntry.environmentName":
-		if e.complexity.RoleAddedToServiceAccountActivityLogEntry.EnvironmentName == nil {
+	case "RoleAssignedToServiceAccountActivityLogEntry.environmentName":
+		if e.complexity.RoleAssignedToServiceAccountActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.RoleAddedToServiceAccountActivityLogEntry.EnvironmentName(childComplexity), true
+		return e.complexity.RoleAssignedToServiceAccountActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "RoleAddedToServiceAccountActivityLogEntry.id":
-		if e.complexity.RoleAddedToServiceAccountActivityLogEntry.ID == nil {
+	case "RoleAssignedToServiceAccountActivityLogEntry.id":
+		if e.complexity.RoleAssignedToServiceAccountActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.RoleAddedToServiceAccountActivityLogEntry.ID(childComplexity), true
+		return e.complexity.RoleAssignedToServiceAccountActivityLogEntry.ID(childComplexity), true
 
-	case "RoleAddedToServiceAccountActivityLogEntry.message":
-		if e.complexity.RoleAddedToServiceAccountActivityLogEntry.Message == nil {
+	case "RoleAssignedToServiceAccountActivityLogEntry.message":
+		if e.complexity.RoleAssignedToServiceAccountActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.RoleAddedToServiceAccountActivityLogEntry.Message(childComplexity), true
+		return e.complexity.RoleAssignedToServiceAccountActivityLogEntry.Message(childComplexity), true
 
-	case "RoleAddedToServiceAccountActivityLogEntry.resourceName":
-		if e.complexity.RoleAddedToServiceAccountActivityLogEntry.ResourceName == nil {
+	case "RoleAssignedToServiceAccountActivityLogEntry.resourceName":
+		if e.complexity.RoleAssignedToServiceAccountActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.RoleAddedToServiceAccountActivityLogEntry.ResourceName(childComplexity), true
+		return e.complexity.RoleAssignedToServiceAccountActivityLogEntry.ResourceName(childComplexity), true
 
-	case "RoleAddedToServiceAccountActivityLogEntry.resourceType":
-		if e.complexity.RoleAddedToServiceAccountActivityLogEntry.ResourceType == nil {
+	case "RoleAssignedToServiceAccountActivityLogEntry.resourceType":
+		if e.complexity.RoleAssignedToServiceAccountActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.RoleAddedToServiceAccountActivityLogEntry.ResourceType(childComplexity), true
+		return e.complexity.RoleAssignedToServiceAccountActivityLogEntry.ResourceType(childComplexity), true
 
-	case "RoleAddedToServiceAccountActivityLogEntry.teamSlug":
-		if e.complexity.RoleAddedToServiceAccountActivityLogEntry.TeamSlug == nil {
+	case "RoleAssignedToServiceAccountActivityLogEntry.teamSlug":
+		if e.complexity.RoleAssignedToServiceAccountActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.RoleAddedToServiceAccountActivityLogEntry.TeamSlug(childComplexity), true
+		return e.complexity.RoleAssignedToServiceAccountActivityLogEntry.TeamSlug(childComplexity), true
 
-	case "RoleAddedToServiceAccountActivityLogEntryData.roleName":
-		if e.complexity.RoleAddedToServiceAccountActivityLogEntryData.RoleName == nil {
+	case "RoleAssignedToServiceAccountActivityLogEntryData.roleName":
+		if e.complexity.RoleAssignedToServiceAccountActivityLogEntryData.RoleName == nil {
 			break
 		}
 
-		return e.complexity.RoleAddedToServiceAccountActivityLogEntryData.RoleName(childComplexity), true
+		return e.complexity.RoleAssignedToServiceAccountActivityLogEntryData.RoleName(childComplexity), true
 
 	case "RoleAssignedUserSyncLogEntry.createdAt":
 		if e.complexity.RoleAssignedUserSyncLogEntry.CreatedAt == nil {
@@ -7081,75 +7083,75 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RoleEdge.Node(childComplexity), true
 
-	case "RoleRemovedFromServiceAccountActivityLogEntry.actor":
-		if e.complexity.RoleRemovedFromServiceAccountActivityLogEntry.Actor == nil {
+	case "RoleRevokedFromServiceAccountActivityLogEntry.actor":
+		if e.complexity.RoleRevokedFromServiceAccountActivityLogEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.RoleRemovedFromServiceAccountActivityLogEntry.Actor(childComplexity), true
+		return e.complexity.RoleRevokedFromServiceAccountActivityLogEntry.Actor(childComplexity), true
 
-	case "RoleRemovedFromServiceAccountActivityLogEntry.createdAt":
-		if e.complexity.RoleRemovedFromServiceAccountActivityLogEntry.CreatedAt == nil {
+	case "RoleRevokedFromServiceAccountActivityLogEntry.createdAt":
+		if e.complexity.RoleRevokedFromServiceAccountActivityLogEntry.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.RoleRemovedFromServiceAccountActivityLogEntry.CreatedAt(childComplexity), true
+		return e.complexity.RoleRevokedFromServiceAccountActivityLogEntry.CreatedAt(childComplexity), true
 
-	case "RoleRemovedFromServiceAccountActivityLogEntry.data":
-		if e.complexity.RoleRemovedFromServiceAccountActivityLogEntry.Data == nil {
+	case "RoleRevokedFromServiceAccountActivityLogEntry.data":
+		if e.complexity.RoleRevokedFromServiceAccountActivityLogEntry.Data == nil {
 			break
 		}
 
-		return e.complexity.RoleRemovedFromServiceAccountActivityLogEntry.Data(childComplexity), true
+		return e.complexity.RoleRevokedFromServiceAccountActivityLogEntry.Data(childComplexity), true
 
-	case "RoleRemovedFromServiceAccountActivityLogEntry.environmentName":
-		if e.complexity.RoleRemovedFromServiceAccountActivityLogEntry.EnvironmentName == nil {
+	case "RoleRevokedFromServiceAccountActivityLogEntry.environmentName":
+		if e.complexity.RoleRevokedFromServiceAccountActivityLogEntry.EnvironmentName == nil {
 			break
 		}
 
-		return e.complexity.RoleRemovedFromServiceAccountActivityLogEntry.EnvironmentName(childComplexity), true
+		return e.complexity.RoleRevokedFromServiceAccountActivityLogEntry.EnvironmentName(childComplexity), true
 
-	case "RoleRemovedFromServiceAccountActivityLogEntry.id":
-		if e.complexity.RoleRemovedFromServiceAccountActivityLogEntry.ID == nil {
+	case "RoleRevokedFromServiceAccountActivityLogEntry.id":
+		if e.complexity.RoleRevokedFromServiceAccountActivityLogEntry.ID == nil {
 			break
 		}
 
-		return e.complexity.RoleRemovedFromServiceAccountActivityLogEntry.ID(childComplexity), true
+		return e.complexity.RoleRevokedFromServiceAccountActivityLogEntry.ID(childComplexity), true
 
-	case "RoleRemovedFromServiceAccountActivityLogEntry.message":
-		if e.complexity.RoleRemovedFromServiceAccountActivityLogEntry.Message == nil {
+	case "RoleRevokedFromServiceAccountActivityLogEntry.message":
+		if e.complexity.RoleRevokedFromServiceAccountActivityLogEntry.Message == nil {
 			break
 		}
 
-		return e.complexity.RoleRemovedFromServiceAccountActivityLogEntry.Message(childComplexity), true
+		return e.complexity.RoleRevokedFromServiceAccountActivityLogEntry.Message(childComplexity), true
 
-	case "RoleRemovedFromServiceAccountActivityLogEntry.resourceName":
-		if e.complexity.RoleRemovedFromServiceAccountActivityLogEntry.ResourceName == nil {
+	case "RoleRevokedFromServiceAccountActivityLogEntry.resourceName":
+		if e.complexity.RoleRevokedFromServiceAccountActivityLogEntry.ResourceName == nil {
 			break
 		}
 
-		return e.complexity.RoleRemovedFromServiceAccountActivityLogEntry.ResourceName(childComplexity), true
+		return e.complexity.RoleRevokedFromServiceAccountActivityLogEntry.ResourceName(childComplexity), true
 
-	case "RoleRemovedFromServiceAccountActivityLogEntry.resourceType":
-		if e.complexity.RoleRemovedFromServiceAccountActivityLogEntry.ResourceType == nil {
+	case "RoleRevokedFromServiceAccountActivityLogEntry.resourceType":
+		if e.complexity.RoleRevokedFromServiceAccountActivityLogEntry.ResourceType == nil {
 			break
 		}
 
-		return e.complexity.RoleRemovedFromServiceAccountActivityLogEntry.ResourceType(childComplexity), true
+		return e.complexity.RoleRevokedFromServiceAccountActivityLogEntry.ResourceType(childComplexity), true
 
-	case "RoleRemovedFromServiceAccountActivityLogEntry.teamSlug":
-		if e.complexity.RoleRemovedFromServiceAccountActivityLogEntry.TeamSlug == nil {
+	case "RoleRevokedFromServiceAccountActivityLogEntry.teamSlug":
+		if e.complexity.RoleRevokedFromServiceAccountActivityLogEntry.TeamSlug == nil {
 			break
 		}
 
-		return e.complexity.RoleRemovedFromServiceAccountActivityLogEntry.TeamSlug(childComplexity), true
+		return e.complexity.RoleRevokedFromServiceAccountActivityLogEntry.TeamSlug(childComplexity), true
 
-	case "RoleRemovedFromServiceAccountActivityLogEntryData.roleName":
-		if e.complexity.RoleRemovedFromServiceAccountActivityLogEntryData.RoleName == nil {
+	case "RoleRevokedFromServiceAccountActivityLogEntryData.roleName":
+		if e.complexity.RoleRevokedFromServiceAccountActivityLogEntryData.RoleName == nil {
 			break
 		}
 
-		return e.complexity.RoleRemovedFromServiceAccountActivityLogEntryData.RoleName(childComplexity), true
+		return e.complexity.RoleRevokedFromServiceAccountActivityLogEntryData.RoleName(childComplexity), true
 
 	case "RoleRevokedUserSyncLogEntry.createdAt":
 		if e.complexity.RoleRevokedUserSyncLogEntry.CreatedAt == nil {
@@ -8023,19 +8025,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ServiceAccountTokenCreatedActivityLogEntry.TeamSlug(childComplexity), true
 
-	case "ServiceAccountTokenCreatedActivityLogEntryData.description":
-		if e.complexity.ServiceAccountTokenCreatedActivityLogEntryData.Description == nil {
-			break
-		}
-
-		return e.complexity.ServiceAccountTokenCreatedActivityLogEntryData.Description(childComplexity), true
-
 	case "ServiceAccountTokenCreatedActivityLogEntryData.expiresAt":
 		if e.complexity.ServiceAccountTokenCreatedActivityLogEntryData.ExpiresAt == nil {
 			break
 		}
 
 		return e.complexity.ServiceAccountTokenCreatedActivityLogEntryData.ExpiresAt(childComplexity), true
+
+	case "ServiceAccountTokenCreatedActivityLogEntryData.tokenDescription":
+		if e.complexity.ServiceAccountTokenCreatedActivityLogEntryData.TokenDescription == nil {
+			break
+		}
+
+		return e.complexity.ServiceAccountTokenCreatedActivityLogEntryData.TokenDescription(childComplexity), true
+
+	case "ServiceAccountTokenCreatedActivityLogEntryData.tokenName":
+		if e.complexity.ServiceAccountTokenCreatedActivityLogEntryData.TokenName == nil {
+			break
+		}
+
+		return e.complexity.ServiceAccountTokenCreatedActivityLogEntryData.TokenName(childComplexity), true
 
 	case "ServiceAccountTokenDeletedActivityLogEntry.actor":
 		if e.complexity.ServiceAccountTokenDeletedActivityLogEntry.Actor == nil {
@@ -8100,12 +8109,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ServiceAccountTokenDeletedActivityLogEntry.TeamSlug(childComplexity), true
 
-	case "ServiceAccountTokenDeletedActivityLogEntryData.description":
-		if e.complexity.ServiceAccountTokenDeletedActivityLogEntryData.Description == nil {
+	case "ServiceAccountTokenDeletedActivityLogEntryData.tokenName":
+		if e.complexity.ServiceAccountTokenDeletedActivityLogEntryData.TokenName == nil {
 			break
 		}
 
-		return e.complexity.ServiceAccountTokenDeletedActivityLogEntryData.Description(childComplexity), true
+		return e.complexity.ServiceAccountTokenDeletedActivityLogEntryData.TokenName(childComplexity), true
 
 	case "ServiceAccountTokenEdge.cursor":
 		if e.complexity.ServiceAccountTokenEdge.Cursor == nil {
@@ -8183,6 +8192,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ServiceAccountTokenUpdatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "ServiceAccountTokenUpdatedActivityLogEntryData.tokenName":
+		if e.complexity.ServiceAccountTokenUpdatedActivityLogEntryData.TokenName == nil {
+			break
+		}
+
+		return e.complexity.ServiceAccountTokenUpdatedActivityLogEntryData.TokenName(childComplexity), true
 
 	case "ServiceAccountTokenUpdatedActivityLogEntryData.updatedFields":
 		if e.complexity.ServiceAccountTokenUpdatedActivityLogEntryData.UpdatedFields == nil {
@@ -16324,7 +16340,7 @@ type ServiceAccountDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 }
 
-type RoleAddedToServiceAccountActivityLogEntry implements ActivityLogEntry & Node {
+type RoleAssignedToServiceAccountActivityLogEntry implements ActivityLogEntry & Node {
 	"""
 	ID of the entry.
 	"""
@@ -16368,17 +16384,17 @@ type RoleAddedToServiceAccountActivityLogEntry implements ActivityLogEntry & Nod
 	"""
 	Data associated with the update.
 	"""
-	data: RoleAddedToServiceAccountActivityLogEntryData!
+	data: RoleAssignedToServiceAccountActivityLogEntryData!
 }
 
-type RoleAddedToServiceAccountActivityLogEntryData {
+type RoleAssignedToServiceAccountActivityLogEntryData {
 	"""
 	The added role.
 	"""
 	roleName: String!
 }
 
-type RoleRemovedFromServiceAccountActivityLogEntry implements ActivityLogEntry & Node {
+type RoleRevokedFromServiceAccountActivityLogEntry implements ActivityLogEntry & Node {
 	"""
 	ID of the entry.
 	"""
@@ -16422,10 +16438,10 @@ type RoleRemovedFromServiceAccountActivityLogEntry implements ActivityLogEntry &
 	"""
 	Data associated with the update.
 	"""
-	data: RoleRemovedFromServiceAccountActivityLogEntryData!
+	data: RoleRevokedFromServiceAccountActivityLogEntryData!
 }
 
-type RoleRemovedFromServiceAccountActivityLogEntryData {
+type RoleRevokedFromServiceAccountActivityLogEntryData {
 	"""
 	The removed role.
 	"""
@@ -16481,9 +16497,14 @@ type ServiceAccountTokenCreatedActivityLogEntry implements ActivityLogEntry & No
 
 type ServiceAccountTokenCreatedActivityLogEntryData {
 	"""
+	The name of the token.
+	"""
+	tokenName: String!
+
+	"""
 	The token description.
 	"""
-	description: String!
+	tokenDescription: String!
 
 	"""
 	The token expiry date.
@@ -16539,6 +16560,11 @@ type ServiceAccountTokenUpdatedActivityLogEntry implements ActivityLogEntry & No
 }
 
 type ServiceAccountTokenUpdatedActivityLogEntryData {
+	"""
+	The name of the token that was updated.
+	"""
+	tokenName: String!
+
 	"""
 	Fields that were updated.
 	"""
@@ -16611,9 +16637,9 @@ type ServiceAccountTokenDeletedActivityLogEntry implements ActivityLogEntry & No
 
 type ServiceAccountTokenDeletedActivityLogEntryData {
 	"""
-	The token description.
+	The name of the deleted token.
 	"""
-	description: String!
+	tokenName: String!
 }
 `, BuiltIn: false},
 	{Name: "../schema/sqlinstance.graphqls", Input: `extend type Team {
@@ -56002,8 +56028,8 @@ func (ec *executionContext) fieldContext_Role_description(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleAddedToServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RoleAddedToServiceAccountActivityLogEntry_id(ctx, field)
+func (ec *executionContext) _RoleAssignedToServiceAccountActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleAssignedToServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleAssignedToServiceAccountActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -56033,9 +56059,9 @@ func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntry_id(ctx co
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RoleAddedToServiceAccountActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RoleAssignedToServiceAccountActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RoleAddedToServiceAccountActivityLogEntry",
+		Object:     "RoleAssignedToServiceAccountActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -56046,8 +56072,8 @@ func (ec *executionContext) fieldContext_RoleAddedToServiceAccountActivityLogEnt
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleAddedToServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RoleAddedToServiceAccountActivityLogEntry_actor(ctx, field)
+func (ec *executionContext) _RoleAssignedToServiceAccountActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleAssignedToServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleAssignedToServiceAccountActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -56077,9 +56103,9 @@ func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntry_actor(ctx
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RoleAddedToServiceAccountActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RoleAssignedToServiceAccountActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RoleAddedToServiceAccountActivityLogEntry",
+		Object:     "RoleAssignedToServiceAccountActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -56090,8 +56116,8 @@ func (ec *executionContext) fieldContext_RoleAddedToServiceAccountActivityLogEnt
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleAddedToServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RoleAddedToServiceAccountActivityLogEntry_createdAt(ctx, field)
+func (ec *executionContext) _RoleAssignedToServiceAccountActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleAssignedToServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleAssignedToServiceAccountActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -56121,9 +56147,9 @@ func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntry_createdAt
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RoleAddedToServiceAccountActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RoleAssignedToServiceAccountActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RoleAddedToServiceAccountActivityLogEntry",
+		Object:     "RoleAssignedToServiceAccountActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -56134,8 +56160,8 @@ func (ec *executionContext) fieldContext_RoleAddedToServiceAccountActivityLogEnt
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleAddedToServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RoleAddedToServiceAccountActivityLogEntry_message(ctx, field)
+func (ec *executionContext) _RoleAssignedToServiceAccountActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleAssignedToServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleAssignedToServiceAccountActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -56165,9 +56191,9 @@ func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntry_message(c
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RoleAddedToServiceAccountActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RoleAssignedToServiceAccountActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RoleAddedToServiceAccountActivityLogEntry",
+		Object:     "RoleAssignedToServiceAccountActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -56178,8 +56204,8 @@ func (ec *executionContext) fieldContext_RoleAddedToServiceAccountActivityLogEnt
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleAddedToServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RoleAddedToServiceAccountActivityLogEntry_resourceType(ctx, field)
+func (ec *executionContext) _RoleAssignedToServiceAccountActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleAssignedToServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleAssignedToServiceAccountActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -56209,9 +56235,9 @@ func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntry_resourceT
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RoleAddedToServiceAccountActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RoleAssignedToServiceAccountActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RoleAddedToServiceAccountActivityLogEntry",
+		Object:     "RoleAssignedToServiceAccountActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -56222,8 +56248,8 @@ func (ec *executionContext) fieldContext_RoleAddedToServiceAccountActivityLogEnt
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleAddedToServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RoleAddedToServiceAccountActivityLogEntry_resourceName(ctx, field)
+func (ec *executionContext) _RoleAssignedToServiceAccountActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleAssignedToServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleAssignedToServiceAccountActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -56253,9 +56279,9 @@ func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntry_resourceN
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RoleAddedToServiceAccountActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RoleAssignedToServiceAccountActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RoleAddedToServiceAccountActivityLogEntry",
+		Object:     "RoleAssignedToServiceAccountActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -56266,8 +56292,8 @@ func (ec *executionContext) fieldContext_RoleAddedToServiceAccountActivityLogEnt
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleAddedToServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RoleAddedToServiceAccountActivityLogEntry_teamSlug(ctx, field)
+func (ec *executionContext) _RoleAssignedToServiceAccountActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleAssignedToServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleAssignedToServiceAccountActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -56294,9 +56320,9 @@ func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntry_teamSlug(
 	return ec.marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RoleAddedToServiceAccountActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RoleAssignedToServiceAccountActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RoleAddedToServiceAccountActivityLogEntry",
+		Object:     "RoleAssignedToServiceAccountActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -56307,8 +56333,8 @@ func (ec *executionContext) fieldContext_RoleAddedToServiceAccountActivityLogEnt
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleAddedToServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RoleAddedToServiceAccountActivityLogEntry_environmentName(ctx, field)
+func (ec *executionContext) _RoleAssignedToServiceAccountActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleAssignedToServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleAssignedToServiceAccountActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -56335,9 +56361,9 @@ func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntry_environme
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RoleAddedToServiceAccountActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RoleAssignedToServiceAccountActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RoleAddedToServiceAccountActivityLogEntry",
+		Object:     "RoleAssignedToServiceAccountActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -56348,8 +56374,8 @@ func (ec *executionContext) fieldContext_RoleAddedToServiceAccountActivityLogEnt
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleAddedToServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RoleAddedToServiceAccountActivityLogEntry_data(ctx, field)
+func (ec *executionContext) _RoleAssignedToServiceAccountActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleAssignedToServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleAssignedToServiceAccountActivityLogEntry_data(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -56374,30 +56400,30 @@ func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntry_data(ctx 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*serviceaccount.RoleAddedToServiceAccountActivityLogEntryData)
+	res := resTmp.(*serviceaccount.RoleAssignedToServiceAccountActivityLogEntryData)
 	fc.Result = res
-	return ec.marshalNRoleAddedToServiceAccountActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRoleAddedToServiceAccountActivityLogEntryData(ctx, field.Selections, res)
+	return ec.marshalNRoleAssignedToServiceAccountActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRoleAssignedToServiceAccountActivityLogEntryData(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RoleAddedToServiceAccountActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RoleAssignedToServiceAccountActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RoleAddedToServiceAccountActivityLogEntry",
+		Object:     "RoleAssignedToServiceAccountActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "roleName":
-				return ec.fieldContext_RoleAddedToServiceAccountActivityLogEntryData_roleName(ctx, field)
+				return ec.fieldContext_RoleAssignedToServiceAccountActivityLogEntryData_roleName(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type RoleAddedToServiceAccountActivityLogEntryData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type RoleAssignedToServiceAccountActivityLogEntryData", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntryData_roleName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleAddedToServiceAccountActivityLogEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RoleAddedToServiceAccountActivityLogEntryData_roleName(ctx, field)
+func (ec *executionContext) _RoleAssignedToServiceAccountActivityLogEntryData_roleName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleAssignedToServiceAccountActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleAssignedToServiceAccountActivityLogEntryData_roleName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -56427,9 +56453,9 @@ func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntryData_roleN
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RoleAddedToServiceAccountActivityLogEntryData_roleName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RoleAssignedToServiceAccountActivityLogEntryData_roleName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RoleAddedToServiceAccountActivityLogEntryData",
+		Object:     "RoleAssignedToServiceAccountActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -57006,8 +57032,8 @@ func (ec *executionContext) fieldContext_RoleEdge_cursor(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleRemovedFromServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RoleRemovedFromServiceAccountActivityLogEntry_id(ctx, field)
+func (ec *executionContext) _RoleRevokedFromServiceAccountActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleRevokedFromServiceAccountActivityLogEntry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -57037,9 +57063,9 @@ func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntry_id(ct
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RoleRemovedFromServiceAccountActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RoleRevokedFromServiceAccountActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RoleRemovedFromServiceAccountActivityLogEntry",
+		Object:     "RoleRevokedFromServiceAccountActivityLogEntry",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
@@ -57050,8 +57076,8 @@ func (ec *executionContext) fieldContext_RoleRemovedFromServiceAccountActivityLo
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleRemovedFromServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RoleRemovedFromServiceAccountActivityLogEntry_actor(ctx, field)
+func (ec *executionContext) _RoleRevokedFromServiceAccountActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleRevokedFromServiceAccountActivityLogEntry_actor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -57081,9 +57107,9 @@ func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntry_actor
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RoleRemovedFromServiceAccountActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RoleRevokedFromServiceAccountActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RoleRemovedFromServiceAccountActivityLogEntry",
+		Object:     "RoleRevokedFromServiceAccountActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -57094,8 +57120,8 @@ func (ec *executionContext) fieldContext_RoleRemovedFromServiceAccountActivityLo
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleRemovedFromServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RoleRemovedFromServiceAccountActivityLogEntry_createdAt(ctx, field)
+func (ec *executionContext) _RoleRevokedFromServiceAccountActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleRevokedFromServiceAccountActivityLogEntry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -57125,9 +57151,9 @@ func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntry_creat
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RoleRemovedFromServiceAccountActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RoleRevokedFromServiceAccountActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RoleRemovedFromServiceAccountActivityLogEntry",
+		Object:     "RoleRevokedFromServiceAccountActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -57138,8 +57164,8 @@ func (ec *executionContext) fieldContext_RoleRemovedFromServiceAccountActivityLo
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleRemovedFromServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RoleRemovedFromServiceAccountActivityLogEntry_message(ctx, field)
+func (ec *executionContext) _RoleRevokedFromServiceAccountActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleRevokedFromServiceAccountActivityLogEntry_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -57169,9 +57195,9 @@ func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntry_messa
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RoleRemovedFromServiceAccountActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RoleRevokedFromServiceAccountActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RoleRemovedFromServiceAccountActivityLogEntry",
+		Object:     "RoleRevokedFromServiceAccountActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -57182,8 +57208,8 @@ func (ec *executionContext) fieldContext_RoleRemovedFromServiceAccountActivityLo
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleRemovedFromServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RoleRemovedFromServiceAccountActivityLogEntry_resourceType(ctx, field)
+func (ec *executionContext) _RoleRevokedFromServiceAccountActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleRevokedFromServiceAccountActivityLogEntry_resourceType(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -57213,9 +57239,9 @@ func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntry_resou
 	return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RoleRemovedFromServiceAccountActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RoleRevokedFromServiceAccountActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RoleRemovedFromServiceAccountActivityLogEntry",
+		Object:     "RoleRevokedFromServiceAccountActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -57226,8 +57252,8 @@ func (ec *executionContext) fieldContext_RoleRemovedFromServiceAccountActivityLo
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleRemovedFromServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RoleRemovedFromServiceAccountActivityLogEntry_resourceName(ctx, field)
+func (ec *executionContext) _RoleRevokedFromServiceAccountActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleRevokedFromServiceAccountActivityLogEntry_resourceName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -57257,9 +57283,9 @@ func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntry_resou
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RoleRemovedFromServiceAccountActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RoleRevokedFromServiceAccountActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RoleRemovedFromServiceAccountActivityLogEntry",
+		Object:     "RoleRevokedFromServiceAccountActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -57270,8 +57296,8 @@ func (ec *executionContext) fieldContext_RoleRemovedFromServiceAccountActivityLo
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleRemovedFromServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RoleRemovedFromServiceAccountActivityLogEntry_teamSlug(ctx, field)
+func (ec *executionContext) _RoleRevokedFromServiceAccountActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleRevokedFromServiceAccountActivityLogEntry_teamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -57298,9 +57324,9 @@ func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntry_teamS
 	return ec.marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RoleRemovedFromServiceAccountActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RoleRevokedFromServiceAccountActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RoleRemovedFromServiceAccountActivityLogEntry",
+		Object:     "RoleRevokedFromServiceAccountActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -57311,8 +57337,8 @@ func (ec *executionContext) fieldContext_RoleRemovedFromServiceAccountActivityLo
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleRemovedFromServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RoleRemovedFromServiceAccountActivityLogEntry_environmentName(ctx, field)
+func (ec *executionContext) _RoleRevokedFromServiceAccountActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleRevokedFromServiceAccountActivityLogEntry_environmentName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -57339,9 +57365,9 @@ func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntry_envir
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RoleRemovedFromServiceAccountActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RoleRevokedFromServiceAccountActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RoleRemovedFromServiceAccountActivityLogEntry",
+		Object:     "RoleRevokedFromServiceAccountActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -57352,8 +57378,8 @@ func (ec *executionContext) fieldContext_RoleRemovedFromServiceAccountActivityLo
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleRemovedFromServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RoleRemovedFromServiceAccountActivityLogEntry_data(ctx, field)
+func (ec *executionContext) _RoleRevokedFromServiceAccountActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleRevokedFromServiceAccountActivityLogEntry_data(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -57378,30 +57404,30 @@ func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntry_data(
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*serviceaccount.RoleRemovedFromServiceAccountActivityLogEntryData)
+	res := resTmp.(*serviceaccount.RoleRevokedFromServiceAccountActivityLogEntryData)
 	fc.Result = res
-	return ec.marshalNRoleRemovedFromServiceAccountActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRoleRemovedFromServiceAccountActivityLogEntryData(ctx, field.Selections, res)
+	return ec.marshalNRoleRevokedFromServiceAccountActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRoleRevokedFromServiceAccountActivityLogEntryData(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RoleRemovedFromServiceAccountActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RoleRevokedFromServiceAccountActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RoleRemovedFromServiceAccountActivityLogEntry",
+		Object:     "RoleRevokedFromServiceAccountActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "roleName":
-				return ec.fieldContext_RoleRemovedFromServiceAccountActivityLogEntryData_roleName(ctx, field)
+				return ec.fieldContext_RoleRevokedFromServiceAccountActivityLogEntryData_roleName(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type RoleRemovedFromServiceAccountActivityLogEntryData", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type RoleRevokedFromServiceAccountActivityLogEntryData", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntryData_roleName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleRemovedFromServiceAccountActivityLogEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RoleRemovedFromServiceAccountActivityLogEntryData_roleName(ctx, field)
+func (ec *executionContext) _RoleRevokedFromServiceAccountActivityLogEntryData_roleName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RoleRevokedFromServiceAccountActivityLogEntryData_roleName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -57431,9 +57457,9 @@ func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntryData_r
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RoleRemovedFromServiceAccountActivityLogEntryData_roleName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RoleRevokedFromServiceAccountActivityLogEntryData_roleName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RoleRemovedFromServiceAccountActivityLogEntryData",
+		Object:     "RoleRevokedFromServiceAccountActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -63205,8 +63231,10 @@ func (ec *executionContext) fieldContext_ServiceAccountTokenCreatedActivityLogEn
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "description":
-				return ec.fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_description(ctx, field)
+			case "tokenName":
+				return ec.fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_tokenName(ctx, field)
+			case "tokenDescription":
+				return ec.fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_tokenDescription(ctx, field)
 			case "expiresAt":
 				return ec.fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_expiresAt(ctx, field)
 			}
@@ -63216,8 +63244,8 @@ func (ec *executionContext) fieldContext_ServiceAccountTokenCreatedActivityLogEn
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceAccountTokenCreatedActivityLogEntryData_description(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountTokenCreatedActivityLogEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_description(ctx, field)
+func (ec *executionContext) _ServiceAccountTokenCreatedActivityLogEntryData_tokenName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountTokenCreatedActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_tokenName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -63230,7 +63258,7 @@ func (ec *executionContext) _ServiceAccountTokenCreatedActivityLogEntryData_desc
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Description, nil
+		return obj.TokenName, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -63247,7 +63275,51 @@ func (ec *executionContext) _ServiceAccountTokenCreatedActivityLogEntryData_desc
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_tokenName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceAccountTokenCreatedActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ServiceAccountTokenCreatedActivityLogEntryData_tokenDescription(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountTokenCreatedActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_tokenDescription(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TokenDescription, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_tokenDescription(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServiceAccountTokenCreatedActivityLogEntryData",
 		Field:      field,
@@ -63686,8 +63758,8 @@ func (ec *executionContext) fieldContext_ServiceAccountTokenDeletedActivityLogEn
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "description":
-				return ec.fieldContext_ServiceAccountTokenDeletedActivityLogEntryData_description(ctx, field)
+			case "tokenName":
+				return ec.fieldContext_ServiceAccountTokenDeletedActivityLogEntryData_tokenName(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ServiceAccountTokenDeletedActivityLogEntryData", field.Name)
 		},
@@ -63695,8 +63767,8 @@ func (ec *executionContext) fieldContext_ServiceAccountTokenDeletedActivityLogEn
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceAccountTokenDeletedActivityLogEntryData_description(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountTokenDeletedActivityLogEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ServiceAccountTokenDeletedActivityLogEntryData_description(ctx, field)
+func (ec *executionContext) _ServiceAccountTokenDeletedActivityLogEntryData_tokenName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountTokenDeletedActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceAccountTokenDeletedActivityLogEntryData_tokenName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -63709,7 +63781,7 @@ func (ec *executionContext) _ServiceAccountTokenDeletedActivityLogEntryData_desc
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Description, nil
+		return obj.TokenName, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -63726,7 +63798,7 @@ func (ec *executionContext) _ServiceAccountTokenDeletedActivityLogEntryData_desc
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ServiceAccountTokenDeletedActivityLogEntryData_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ServiceAccountTokenDeletedActivityLogEntryData_tokenName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServiceAccountTokenDeletedActivityLogEntryData",
 		Field:      field,
@@ -64224,10 +64296,56 @@ func (ec *executionContext) fieldContext_ServiceAccountTokenUpdatedActivityLogEn
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "tokenName":
+				return ec.fieldContext_ServiceAccountTokenUpdatedActivityLogEntryData_tokenName(ctx, field)
 			case "updatedFields":
 				return ec.fieldContext_ServiceAccountTokenUpdatedActivityLogEntryData_updatedFields(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ServiceAccountTokenUpdatedActivityLogEntryData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ServiceAccountTokenUpdatedActivityLogEntryData_tokenName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountTokenUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceAccountTokenUpdatedActivityLogEntryData_tokenName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TokenName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceAccountTokenUpdatedActivityLogEntryData_tokenName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceAccountTokenUpdatedActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -93368,20 +93486,20 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._ServiceAccountDeletedActivityLogEntry(ctx, sel, obj)
-	case serviceaccount.RoleAddedToServiceAccountActivityLogEntry:
-		return ec._RoleAddedToServiceAccountActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.RoleAddedToServiceAccountActivityLogEntry:
+	case serviceaccount.RoleAssignedToServiceAccountActivityLogEntry:
+		return ec._RoleAssignedToServiceAccountActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.RoleAssignedToServiceAccountActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RoleAddedToServiceAccountActivityLogEntry(ctx, sel, obj)
-	case serviceaccount.RoleRemovedFromServiceAccountActivityLogEntry:
-		return ec._RoleRemovedFromServiceAccountActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.RoleRemovedFromServiceAccountActivityLogEntry:
+		return ec._RoleAssignedToServiceAccountActivityLogEntry(ctx, sel, obj)
+	case serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry:
+		return ec._RoleRevokedFromServiceAccountActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RoleRemovedFromServiceAccountActivityLogEntry(ctx, sel, obj)
+		return ec._RoleRevokedFromServiceAccountActivityLogEntry(ctx, sel, obj)
 	case serviceaccount.ServiceAccountTokenCreatedActivityLogEntry:
 		return ec._ServiceAccountTokenCreatedActivityLogEntry(ctx, sel, &obj)
 	case *serviceaccount.ServiceAccountTokenCreatedActivityLogEntry:
@@ -93950,20 +94068,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ServiceAccountDeletedActivityLogEntry(ctx, sel, obj)
-	case serviceaccount.RoleAddedToServiceAccountActivityLogEntry:
-		return ec._RoleAddedToServiceAccountActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.RoleAddedToServiceAccountActivityLogEntry:
+	case serviceaccount.RoleAssignedToServiceAccountActivityLogEntry:
+		return ec._RoleAssignedToServiceAccountActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.RoleAssignedToServiceAccountActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RoleAddedToServiceAccountActivityLogEntry(ctx, sel, obj)
-	case serviceaccount.RoleRemovedFromServiceAccountActivityLogEntry:
-		return ec._RoleRemovedFromServiceAccountActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.RoleRemovedFromServiceAccountActivityLogEntry:
+		return ec._RoleAssignedToServiceAccountActivityLogEntry(ctx, sel, obj)
+	case serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry:
+		return ec._RoleRevokedFromServiceAccountActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RoleRemovedFromServiceAccountActivityLogEntry(ctx, sel, obj)
+		return ec._RoleRevokedFromServiceAccountActivityLogEntry(ctx, sel, obj)
 	case serviceaccount.ServiceAccountTokenCreatedActivityLogEntry:
 		return ec._ServiceAccountTokenCreatedActivityLogEntry(ctx, sel, &obj)
 	case *serviceaccount.ServiceAccountTokenCreatedActivityLogEntry:
@@ -105172,53 +105290,53 @@ func (ec *executionContext) _Role(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
-var roleAddedToServiceAccountActivityLogEntryImplementors = []string{"RoleAddedToServiceAccountActivityLogEntry", "ActivityLogEntry", "Node"}
+var roleAssignedToServiceAccountActivityLogEntryImplementors = []string{"RoleAssignedToServiceAccountActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.RoleAddedToServiceAccountActivityLogEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, roleAddedToServiceAccountActivityLogEntryImplementors)
+func (ec *executionContext) _RoleAssignedToServiceAccountActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.RoleAssignedToServiceAccountActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, roleAssignedToServiceAccountActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("RoleAddedToServiceAccountActivityLogEntry")
+			out.Values[i] = graphql.MarshalString("RoleAssignedToServiceAccountActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._RoleAddedToServiceAccountActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = ec._RoleAssignedToServiceAccountActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._RoleAddedToServiceAccountActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._RoleAssignedToServiceAccountActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._RoleAddedToServiceAccountActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._RoleAssignedToServiceAccountActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._RoleAddedToServiceAccountActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = ec._RoleAssignedToServiceAccountActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._RoleAddedToServiceAccountActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._RoleAssignedToServiceAccountActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._RoleAddedToServiceAccountActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._RoleAssignedToServiceAccountActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._RoleAddedToServiceAccountActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._RoleAssignedToServiceAccountActivityLogEntry_teamSlug(ctx, field, obj)
 		case "environmentName":
-			out.Values[i] = ec._RoleAddedToServiceAccountActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._RoleAssignedToServiceAccountActivityLogEntry_environmentName(ctx, field, obj)
 		case "data":
-			out.Values[i] = ec._RoleAddedToServiceAccountActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = ec._RoleAssignedToServiceAccountActivityLogEntry_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -105245,19 +105363,19 @@ func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntry(ctx conte
 	return out
 }
 
-var roleAddedToServiceAccountActivityLogEntryDataImplementors = []string{"RoleAddedToServiceAccountActivityLogEntryData"}
+var roleAssignedToServiceAccountActivityLogEntryDataImplementors = []string{"RoleAssignedToServiceAccountActivityLogEntryData"}
 
-func (ec *executionContext) _RoleAddedToServiceAccountActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.RoleAddedToServiceAccountActivityLogEntryData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, roleAddedToServiceAccountActivityLogEntryDataImplementors)
+func (ec *executionContext) _RoleAssignedToServiceAccountActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.RoleAssignedToServiceAccountActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, roleAssignedToServiceAccountActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("RoleAddedToServiceAccountActivityLogEntryData")
+			out.Values[i] = graphql.MarshalString("RoleAssignedToServiceAccountActivityLogEntryData")
 		case "roleName":
-			out.Values[i] = ec._RoleAddedToServiceAccountActivityLogEntryData_roleName(ctx, field, obj)
+			out.Values[i] = ec._RoleAssignedToServiceAccountActivityLogEntryData_roleName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -105446,53 +105564,53 @@ func (ec *executionContext) _RoleEdge(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var roleRemovedFromServiceAccountActivityLogEntryImplementors = []string{"RoleRemovedFromServiceAccountActivityLogEntry", "ActivityLogEntry", "Node"}
+var roleRevokedFromServiceAccountActivityLogEntryImplementors = []string{"RoleRevokedFromServiceAccountActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.RoleRemovedFromServiceAccountActivityLogEntry) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, roleRemovedFromServiceAccountActivityLogEntryImplementors)
+func (ec *executionContext) _RoleRevokedFromServiceAccountActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, roleRevokedFromServiceAccountActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("RoleRemovedFromServiceAccountActivityLogEntry")
+			out.Values[i] = graphql.MarshalString("RoleRevokedFromServiceAccountActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._RoleRemovedFromServiceAccountActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = ec._RoleRevokedFromServiceAccountActivityLogEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._RoleRemovedFromServiceAccountActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = ec._RoleRevokedFromServiceAccountActivityLogEntry_actor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._RoleRemovedFromServiceAccountActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = ec._RoleRevokedFromServiceAccountActivityLogEntry_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._RoleRemovedFromServiceAccountActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = ec._RoleRevokedFromServiceAccountActivityLogEntry_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._RoleRemovedFromServiceAccountActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = ec._RoleRevokedFromServiceAccountActivityLogEntry_resourceType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._RoleRemovedFromServiceAccountActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = ec._RoleRevokedFromServiceAccountActivityLogEntry_resourceName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._RoleRemovedFromServiceAccountActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = ec._RoleRevokedFromServiceAccountActivityLogEntry_teamSlug(ctx, field, obj)
 		case "environmentName":
-			out.Values[i] = ec._RoleRemovedFromServiceAccountActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = ec._RoleRevokedFromServiceAccountActivityLogEntry_environmentName(ctx, field, obj)
 		case "data":
-			out.Values[i] = ec._RoleRemovedFromServiceAccountActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = ec._RoleRevokedFromServiceAccountActivityLogEntry_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -105519,19 +105637,19 @@ func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntry(ctx c
 	return out
 }
 
-var roleRemovedFromServiceAccountActivityLogEntryDataImplementors = []string{"RoleRemovedFromServiceAccountActivityLogEntryData"}
+var roleRevokedFromServiceAccountActivityLogEntryDataImplementors = []string{"RoleRevokedFromServiceAccountActivityLogEntryData"}
 
-func (ec *executionContext) _RoleRemovedFromServiceAccountActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.RoleRemovedFromServiceAccountActivityLogEntryData) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, roleRemovedFromServiceAccountActivityLogEntryDataImplementors)
+func (ec *executionContext) _RoleRevokedFromServiceAccountActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, roleRevokedFromServiceAccountActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("RoleRemovedFromServiceAccountActivityLogEntryData")
+			out.Values[i] = graphql.MarshalString("RoleRevokedFromServiceAccountActivityLogEntryData")
 		case "roleName":
-			out.Values[i] = ec._RoleRemovedFromServiceAccountActivityLogEntryData_roleName(ctx, field, obj)
+			out.Values[i] = ec._RoleRevokedFromServiceAccountActivityLogEntryData_roleName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -107221,8 +107339,13 @@ func (ec *executionContext) _ServiceAccountTokenCreatedActivityLogEntryData(ctx 
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ServiceAccountTokenCreatedActivityLogEntryData")
-		case "description":
-			out.Values[i] = ec._ServiceAccountTokenCreatedActivityLogEntryData_description(ctx, field, obj)
+		case "tokenName":
+			out.Values[i] = ec._ServiceAccountTokenCreatedActivityLogEntryData_tokenName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "tokenDescription":
+			out.Values[i] = ec._ServiceAccountTokenCreatedActivityLogEntryData_tokenDescription(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -107335,8 +107458,8 @@ func (ec *executionContext) _ServiceAccountTokenDeletedActivityLogEntryData(ctx 
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ServiceAccountTokenDeletedActivityLogEntryData")
-		case "description":
-			out.Values[i] = ec._ServiceAccountTokenDeletedActivityLogEntryData_description(ctx, field, obj)
+		case "tokenName":
+			out.Values[i] = ec._ServiceAccountTokenDeletedActivityLogEntryData_tokenName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -107491,6 +107614,11 @@ func (ec *executionContext) _ServiceAccountTokenUpdatedActivityLogEntryData(ctx 
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ServiceAccountTokenUpdatedActivityLogEntryData")
+		case "tokenName":
+			out.Values[i] = ec._ServiceAccountTokenUpdatedActivityLogEntryData_tokenName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "updatedFields":
 			out.Values[i] = ec._ServiceAccountTokenUpdatedActivityLogEntryData_updatedFields(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -122187,14 +122315,14 @@ func (ec *executionContext) marshalNRole2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 	return ec._Role(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNRoleAddedToServiceAccountActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRoleAddedToServiceAccountActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.RoleAddedToServiceAccountActivityLogEntryData) graphql.Marshaler {
+func (ec *executionContext) marshalNRoleAssignedToServiceAccountActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRoleAssignedToServiceAccountActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.RoleAssignedToServiceAccountActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._RoleAddedToServiceAccountActivityLogEntryData(ctx, sel, v)
+	return ec._RoleAssignedToServiceAccountActivityLogEntryData(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNRoleConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*authz.Role]) graphql.Marshaler {
@@ -122259,14 +122387,14 @@ func (ec *executionContext) marshalNRoleEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinte
 	return ret
 }
 
-func (ec *executionContext) marshalNRoleRemovedFromServiceAccountActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRoleRemovedFromServiceAccountActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.RoleRemovedFromServiceAccountActivityLogEntryData) graphql.Marshaler {
+func (ec *executionContext) marshalNRoleRevokedFromServiceAccountActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRoleRevokedFromServiceAccountActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._RoleRemovedFromServiceAccountActivityLogEntryData(ctx, sel, v)
+	return ec._RoleRevokedFromServiceAccountActivityLogEntryData(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNScalingStrategy2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐScalingStrategy(ctx context.Context, sel ast.SelectionSet, v application.ScalingStrategy) graphql.Marshaler {
