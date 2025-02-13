@@ -163,17 +163,20 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 	}
 
 	authProxy := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		email := ""
 		if !config.Unauthenticated {
-			ctx := r.Context()
-			email := "authenticated@example.com"
+			email = "authenticated@example.com"
 			if config.Admin {
 				email = "admin@example.com"
 			}
+		}
 
-			if xemail := r.Header.Get("x-user-email"); xemail != "" {
-				email = xemail
-			}
+		if xemail := r.Header.Get("x-user-email"); xemail != "" {
+			email = xemail
+		}
 
+		if email != "" {
 			usr, err := user.GetByEmail(ctx, email)
 			if err != nil {
 				panic(fmt.Sprintf("User with email %q not found", email))
@@ -187,7 +190,7 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 			r = r.WithContext(authz.ContextWithActor(ctx, usr, roles))
 		}
 
-		middleware.RequireAuthenticatedUser()(srv).ServeHTTP(w, r)
+		middleware.ApiKeyAuthentication()(middleware.RequireAuthenticatedUser()(srv)).ServeHTTP(w, r)
 	})
 
 	return runner.NewGQLRunner(graphMiddleware(authProxy)), nil

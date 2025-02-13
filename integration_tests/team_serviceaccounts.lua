@@ -222,7 +222,7 @@ Test.gql("Assign role to service account as member", function(t)
 			assignRoleToServiceAccount(
 				input: {
 					serviceAccountID: "%s"
-					roleName: "Team owner"
+					roleName: "Deploy key viewer"
 				}
 			) {
 				serviceAccount {
@@ -245,7 +245,7 @@ Test.gql("Assign role to service account as member", function(t)
 					roles = {
 						nodes = {
 							{
-								name = "Team owner",
+								name = "Deploy key viewer",
 							},
 						},
 					},
@@ -261,7 +261,7 @@ Test.gql("Assign duplicate role to service account as member", function(t)
 			assignRoleToServiceAccount(
 				input: {
 					serviceAccountID: "%s"
-					roleName: "Team owner"
+					roleName: "Deploy key viewer"
 				}
 			) {
 				serviceAccount {
@@ -279,7 +279,7 @@ Test.gql("Assign duplicate role to service account as member", function(t)
 	t.check {
 		errors = {
 			{
-				message = Contains("has already been assigned the \"Team owner\" role"),
+				message = Contains("has already been assigned the \"Deploy key viewer\" role"),
 				path = {
 					"assignRoleToServiceAccount",
 				},
@@ -318,13 +318,47 @@ Test.gql("Assign another role to service account as member", function(t)
 					roles = {
 						nodes = {
 							{
-								name = "Team member",
+								name = "Deploy key viewer",
 							},
 							{
-								name = "Team owner",
+								name = "Team member",
 							},
 						},
 					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Assign another role to service account as member that requires owner", function(t)
+	t.query(string.format([[
+		mutation {
+			assignRoleToServiceAccount(
+				input: {
+					serviceAccountID: "%s"
+					roleName: "Team owner"
+				}
+			) {
+				serviceAccount {
+					id
+					roles {
+						nodes {
+							name
+						}
+					}
+				}
+			}
+		}
+	]], State.saID))
+
+	t.check {
+		data = Null,
+		errors = {
+			{
+				message = "User does not have permission to assign the \"Team owner\" role.",
+				path = {
+					"assignRoleToServiceAccount",
 				},
 			},
 		},
@@ -389,7 +423,7 @@ Test.gql("Revoke role from service account as member", function(t)
 					roles = {
 						nodes = {
 							{
-								name = "Team owner",
+								name = "Deploy key viewer",
 							},
 						},
 					},
@@ -405,7 +439,7 @@ Test.gql("Revoke unassigned role from service account as member", function(t)
 			revokeRoleFromServiceAccount(
 				input: {
 					serviceAccountID: "%s"
-					roleName: "Deploy key viewer"
+					roleName: "Service account owner"
 				}
 			) {
 				serviceAccount {
@@ -424,7 +458,41 @@ Test.gql("Revoke unassigned role from service account as member", function(t)
 		data = Null,
 		errors = {
 			{
-				message = Contains("does not have the \"Deploy key viewer\" role assigned"),
+				message = "Service account does not have the \"Service account owner\" role assigned.",
+				path = {
+					"revokeRoleFromServiceAccount",
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Revoke role from service account as member that requires owner", function(t)
+	t.query(string.format([[
+		mutation {
+			revokeRoleFromServiceAccount(
+				input: {
+					serviceAccountID: "%s"
+					roleName: "Team owner"
+				}
+			) {
+				serviceAccount {
+					id
+					roles {
+						nodes {
+							name
+						}
+					}
+				}
+			}
+		}
+	]], State.saID))
+
+	t.check {
+		data = Null,
+		errors = {
+			{
+				message = "User does not have permission to revoke the \"Team owner\" role.",
 				path = {
 					"revokeRoleFromServiceAccount",
 				},

@@ -387,6 +387,61 @@ func (q *Queries) RevokeRoleFromServiceAccount(ctx context.Context, arg RevokeRo
 	return err
 }
 
+const serviceAccountCanAssignRole = `-- name: ServiceAccountCanAssignRole :one
+WITH
+	inner_role_authorizations AS (
+		SELECT
+			ARRAY_AGG(authorization_name) AS authorizations
+		FROM
+			role_authorizations ra
+		WHERE
+			ra.role_name = $1
+	),
+	user_authorizations AS (
+		SELECT
+			ARRAY_AGG(ra.authorization_name) AS authorizations
+		FROM
+			role_authorizations ra
+			JOIN service_account_roles sar ON sar.role_name = ra.role_name
+			JOIN service_accounts sa ON sa.id = sar.service_account_id
+		WHERE
+			sar.service_account_id = $2
+			AND (
+				sa.team_slug IS NULL
+				OR sa.team_slug = $3
+			)
+	)
+SELECT
+	(
+		EXISTS (
+			SELECT
+				1
+			FROM
+				inner_role_authorizations
+			WHERE
+				authorizations <@ (
+					SELECT
+						authorizations
+					FROM
+						user_authorizations
+				)
+		)
+	)::BOOLEAN
+`
+
+type ServiceAccountCanAssignRoleParams struct {
+	RoleName         string
+	ServiceAccountID uuid.UUID
+	TeamSlug         *slug.Slug
+}
+
+func (q *Queries) ServiceAccountCanAssignRole(ctx context.Context, arg ServiceAccountCanAssignRoleParams) (bool, error) {
+	row := q.db.QueryRow(ctx, serviceAccountCanAssignRole, arg.RoleName, arg.ServiceAccountID, arg.TeamSlug)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const serviceAccountHasRole = `-- name: ServiceAccountHasRole :one
 SELECT
 	EXISTS (
@@ -410,4 +465,67 @@ func (q *Queries) ServiceAccountHasRole(ctx context.Context, arg ServiceAccountH
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
+}
+
+const userCanAssignRole = `-- name: UserCanAssignRole :one
+WITH
+	inner_role_authorizations AS (
+		SELECT
+			ARRAY_AGG(authorization_name) AS authorizations
+		FROM
+			role_authorizations ra
+		WHERE
+			ra.role_name = $2
+	),
+	user_authorizations AS (
+		SELECT
+			ARRAY_AGG(ra.authorization_name) AS authorizations
+		FROM
+			role_authorizations ra
+			JOIN user_roles ur ON ur.role_name = ra.role_name
+		WHERE
+			ur.user_id = $1
+			AND (
+				ur.target_team_slug IS NULL
+				OR ur.target_team_slug = $3
+			)
+	)
+SELECT
+	(
+		EXISTS (
+			SELECT
+				1
+			FROM
+				inner_role_authorizations
+			WHERE
+				authorizations <@ (
+					SELECT
+						authorizations
+					FROM
+						user_authorizations
+				)
+		)
+		OR EXISTS (
+			SELECT
+				1
+			FROM
+				users
+			WHERE
+				users.id = $1
+				AND admin = TRUE
+		)
+	)::BOOLEAN
+`
+
+type UserCanAssignRoleParams struct {
+	UserID         uuid.UUID
+	RoleName       string
+	TargetTeamSlug *slug.Slug
+}
+
+func (q *Queries) UserCanAssignRole(ctx context.Context, arg UserCanAssignRoleParams) (bool, error) {
+	row := q.db.QueryRow(ctx, userCanAssignRole, arg.UserID, arg.RoleName, arg.TargetTeamSlug)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
 }

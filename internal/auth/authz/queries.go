@@ -129,6 +129,31 @@ func ServiceAccountHasRole(ctx context.Context, serviceAccountID uuid.UUID, role
 	})
 }
 
+func CanAssignRole(ctx context.Context, roleName string, targetTeamSlug *slug.Slug) (bool, error) {
+	actor := ActorFromContext(ctx)
+	if actor.User.IsServiceAccount() {
+		return serviceAccountCanAssignRole(ctx, actor.User.GetID(), roleName, targetTeamSlug)
+	}
+
+	return userCanAssignRole(ctx, actor.User.GetID(), roleName, targetTeamSlug)
+}
+
+func userCanAssignRole(ctx context.Context, userID uuid.UUID, roleName string, targetTeamSlug *slug.Slug) (bool, error) {
+	return db(ctx).UserCanAssignRole(ctx, authzsql.UserCanAssignRoleParams{
+		UserID:         userID,
+		RoleName:       roleName,
+		TargetTeamSlug: targetTeamSlug,
+	})
+}
+
+func serviceAccountCanAssignRole(ctx context.Context, serviceAccountID uuid.UUID, roleName string, targetTeamSlug *slug.Slug) (bool, error) {
+	return db(ctx).ServiceAccountCanAssignRole(ctx, authzsql.ServiceAccountCanAssignRoleParams{
+		ServiceAccountID: serviceAccountID,
+		RoleName:         roleName,
+		TeamSlug:         targetTeamSlug,
+	})
+}
+
 func CanCreateServiceAccounts(ctx context.Context, teamSlug *slug.Slug) error {
 	return requireAuthorization(ctx, "service_accounts:create", teamSlug)
 }

@@ -353,6 +353,12 @@ func AssignRole(ctx context.Context, input AssignRoleToServiceAccountInput) (*Se
 		return nil, err
 	}
 
+	if ok, err := authz.CanAssignRole(ctx, input.RoleName, sa.TeamSlug); err != nil {
+		return nil, err
+	} else if !ok {
+		return nil, apierror.Errorf("User does not have permission to assign the %q role.", role.Name)
+	}
+
 	if hasRole, err := authz.ServiceAccountHasRole(ctx, sa.UUID, role.Name); err != nil {
 		return nil, err
 	} else if hasRole {
@@ -383,6 +389,12 @@ func RevokeRole(ctx context.Context, input RevokeRoleFromServiceAccountInput) (*
 	role, err := authz.GetRole(ctx, input.RoleName)
 	if err != nil {
 		return nil, err
+	}
+
+	if ok, err := authz.CanAssignRole(ctx, input.RoleName, sa.TeamSlug); err != nil {
+		return nil, err
+	} else if !ok {
+		return nil, apierror.Errorf("User does not have permission to revoke the %q role.", role.Name)
 	}
 
 	if hasRole, err := authz.ServiceAccountHasRole(ctx, sa.UUID, role.Name); err != nil {

@@ -199,3 +199,95 @@ SELECT
 			AND role_name = @role_name
 	)
 ;
+
+-- name: UserCanAssignRole :one
+WITH
+	inner_role_authorizations AS (
+		SELECT
+			ARRAY_AGG(authorization_name) AS authorizations
+		FROM
+			role_authorizations ra
+		WHERE
+			ra.role_name = @role_name
+	),
+	user_authorizations AS (
+		SELECT
+			ARRAY_AGG(ra.authorization_name) AS authorizations
+		FROM
+			role_authorizations ra
+			JOIN user_roles ur ON ur.role_name = ra.role_name
+		WHERE
+			ur.user_id = @user_id
+			AND (
+				ur.target_team_slug IS NULL
+				OR ur.target_team_slug = @target_team_slug
+			)
+	)
+SELECT
+	(
+		EXISTS (
+			SELECT
+				1
+			FROM
+				inner_role_authorizations
+			WHERE
+				authorizations <@ (
+					SELECT
+						authorizations
+					FROM
+						user_authorizations
+				)
+		)
+		OR EXISTS (
+			SELECT
+				1
+			FROM
+				users
+			WHERE
+				users.id = @user_id
+				AND admin = TRUE
+		)
+	)::BOOLEAN
+;
+
+-- name: ServiceAccountCanAssignRole :one
+WITH
+	inner_role_authorizations AS (
+		SELECT
+			ARRAY_AGG(authorization_name) AS authorizations
+		FROM
+			role_authorizations ra
+		WHERE
+			ra.role_name = @role_name
+	),
+	user_authorizations AS (
+		SELECT
+			ARRAY_AGG(ra.authorization_name) AS authorizations
+		FROM
+			role_authorizations ra
+			JOIN service_account_roles sar ON sar.role_name = ra.role_name
+			JOIN service_accounts sa ON sa.id = sar.service_account_id
+		WHERE
+			sar.service_account_id = @service_account_id
+			AND (
+				sa.team_slug IS NULL
+				OR sa.team_slug = @team_slug
+			)
+	)
+SELECT
+	(
+		EXISTS (
+			SELECT
+				1
+			FROM
+				inner_role_authorizations
+			WHERE
+				authorizations <@ (
+					SELECT
+						authorizations
+					FROM
+						user_authorizations
+				)
+		)
+	)::BOOLEAN
+;
