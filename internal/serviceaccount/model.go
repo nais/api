@@ -23,6 +23,7 @@ type ServiceAccount struct {
 	Name        string     `json:"name"`
 	Description string     `json:"description"`
 	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
 	UUID        uuid.UUID  `json:"-"`
 	TeamSlug    *slug.Slug `json:"-"`
 }
@@ -61,7 +62,7 @@ type AssignRoleToServiceAccountPayload struct {
 
 type CreateServiceAccountTokenInput struct {
 	ServiceAccountID ident.Ident  `json:"serviceAccountID"`
-	Note             string       `json:"note"`
+	Description      string       `json:"description"`
 	ExpiresAt        *scalar.Date `json:"expiresAt,omitempty"`
 }
 
@@ -72,7 +73,7 @@ type CreateServiceAccountTokenPayload struct {
 }
 
 type DeleteServiceAccountInput struct {
-	ID ident.Ident `json:"id"`
+	ServiceAccountID ident.Ident `json:"serviceAccountID"`
 }
 
 type DeleteServiceAccountTokenInput struct {
@@ -94,7 +95,7 @@ type RevokeRoleFromServiceAccountPayload struct {
 }
 
 type ServiceAccountToken struct {
-	Note             string       `json:"note"`
+	Description      string       `json:"description"`
 	CreatedAt        time.Time    `json:"createdAt"`
 	UpdatedAt        time.Time    `json:"updatedAt,omitempty"`
 	ExpiresAt        *scalar.Date `json:"expiresAt,omitempty"`
@@ -108,8 +109,8 @@ func (t *ServiceAccountToken) ID() ident.Ident {
 }
 
 type UpdateServiceAccountInput struct {
-	ID          ident.Ident `json:"id"`
-	Description *string     `json:"description,omitempty"`
+	ServiceAccountID ident.Ident `json:"serviceAccountID"`
+	Description      *string     `json:"description,omitempty"`
 }
 
 type UpdateServiceAccountPayload struct {
@@ -123,7 +124,7 @@ type UpdateServiceAccountTokenExpiresAtInput struct {
 
 type UpdateServiceAccountTokenInput struct {
 	ServiceAccountTokenID ident.Ident                              `json:"serviceAccountTokenID"`
-	Note                  *string                                  `json:"note,omitempty"`
+	Description           *string                                  `json:"description,omitempty"`
 	ExpiresAt             *UpdateServiceAccountTokenExpiresAtInput `json:"expiresAt,omitempty"`
 }
 
@@ -136,6 +137,7 @@ func toGraphServiceAccount(s *serviceaccountsql.ServiceAccount) *ServiceAccount 
 	return &ServiceAccount{
 		UUID:        s.ID,
 		CreatedAt:   s.CreatedAt.Time,
+		UpdatedAt:   s.UpdatedAt.Time,
 		TeamSlug:    s.TeamSlug,
 		Name:        s.Name,
 		Description: s.Description,
@@ -149,7 +151,7 @@ func toGraphServiceAccountToken(t *serviceaccountsql.ServiceAccountToken) *Servi
 	}
 
 	return &ServiceAccountToken{
-		Note:             t.Note,
+		Description:      t.Description,
 		CreatedAt:        t.CreatedAt.Time,
 		UpdatedAt:        t.UpdatedAt.Time,
 		ExpiresAt:        expiresAt,

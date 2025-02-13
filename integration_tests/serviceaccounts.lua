@@ -112,7 +112,7 @@ Test.gql("Update service account as non-admin", function(t)
 		mutation {
 			updateServiceAccount(
 				input: {
-					id: "%s"
+					serviceAccountID: "%s"
 					description: "new description"
 				}
 			) {
@@ -141,7 +141,7 @@ Test.gql("Update service account as admin", function(t)
 		mutation {
 			updateServiceAccount(
 				input: {
-					id: "%s"
+					serviceAccountID: "%s"
 					description: "new description"
 				}
 			) {
@@ -416,7 +416,7 @@ Test.gql("Delete service account as non-admin", function(t)
 		mutation {
 			deleteServiceAccount(
 				input: {
-					id: "%s"
+					serviceAccountID: "%s"
 				}
 			) {
 				serviceAccountDeleted
@@ -442,7 +442,7 @@ Test.gql("Delete service account as admin", function(t)
 		mutation {
 			deleteServiceAccount(
 				input: {
-					id: "%s"
+					serviceAccountID: "%s"
 				}
 			) {
 				serviceAccountDeleted

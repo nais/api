@@ -94,7 +94,7 @@ func Create(ctx context.Context, input CreateServiceAccountInput) (*ServiceAccou
 }
 
 func Update(ctx context.Context, input UpdateServiceAccountInput) (*ServiceAccount, error) {
-	existingSA, err := GetByIdent(ctx, input.ID)
+	existingSA, err := GetByIdent(ctx, input.ServiceAccountID)
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +149,7 @@ func Update(ctx context.Context, input UpdateServiceAccountInput) (*ServiceAccou
 }
 
 func Delete(ctx context.Context, input DeleteServiceAccountInput) error {
-	existingSA, err := GetByIdent(ctx, input.ID)
+	existingSA, err := GetByIdent(ctx, input.ServiceAccountID)
 	if err != nil {
 		return err
 	}
@@ -196,7 +196,7 @@ func CreateToken(ctx context.Context, input CreateServiceAccountTokenInput) (*Se
 
 	saToken, err := db(ctx).CreateToken(ctx, serviceaccountsql.CreateTokenParams{
 		ExpiresAt:        expiresAt,
-		Note:             input.Note,
+		Description:      input.Description,
 		Token:            *secret,
 		ServiceAccountID: sa.UUID,
 	})
@@ -234,9 +234,9 @@ func UpdateToken(ctx context.Context, input UpdateServiceAccountTokenInput) (*Se
 	}
 
 	saToken, err := db(ctx).UpdateToken(ctx, serviceaccountsql.UpdateTokenParams{
-		ID:        token.UUID,
-		ExpiresAt: expiresAt,
-		Note:      input.Note,
+		ID:          token.UUID,
+		ExpiresAt:   expiresAt,
+		Description: input.Description,
 	})
 	if err != nil {
 		return nil, nil, err
@@ -326,7 +326,7 @@ func CreateStaticServiceAccount(ctx context.Context, name string, roles []string
 	}
 
 	_, err = db(ctx).CreateToken(ctx, serviceaccountsql.CreateTokenParams{
-		Note:             "Token created by Nais",
+		Description:      "Token created by Nais",
 		Token:            secret,
 		ServiceAccountID: sa.ID,
 	})

@@ -93,9 +93,19 @@ WHERE
 
 -- name: CreateToken :one
 INSERT INTO
-	service_account_tokens (expires_at, note, token, service_account_id)
+	service_account_tokens (
+		expires_at,
+		description,
+		token,
+		service_account_id
+	)
 VALUES
-	(@expires_at, @note, @token, @service_account_id)
+	(
+		@expires_at,
+		@description,
+		@token,
+		@service_account_id
+	)
 RETURNING
 	*
 ;
@@ -104,7 +114,7 @@ RETURNING
 UPDATE service_account_tokens
 SET
 	expires_at = @expires_at,
-	note = COALESCE(sqlc.narg('note'), note)
+	description = COALESCE(sqlc.narg('description'), description)
 WHERE
 	id = @id
 RETURNING

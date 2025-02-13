@@ -180,7 +180,7 @@ CREATE TABLE service_account_tokens (
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CLOCK_TIMESTAMP() NOT NULL,
 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT CLOCK_TIMESTAMP() NOT NULL,
 	expires_at DATE,
-	note TEXT NOT NULL,
+	description TEXT NOT NULL,
 	token TEXT NOT NULL UNIQUE,
 	service_account_id UUID NOT NULL REFERENCES service_accounts (id) ON DELETE CASCADE
 )

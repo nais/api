@@ -1315,6 +1315,7 @@ type ComplexityRoot struct {
 		Roles       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Team        func(childComplexity int) int
 		Tokens      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		UpdatedAt   func(childComplexity int) int
 	}
 
 	ServiceAccountConnection struct {
@@ -1351,11 +1352,11 @@ type ComplexityRoot struct {
 	}
 
 	ServiceAccountToken struct {
-		CreatedAt func(childComplexity int) int
-		ExpiresAt func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Note      func(childComplexity int) int
-		UpdatedAt func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
+		Description func(childComplexity int) int
+		ExpiresAt   func(childComplexity int) int
+		ID          func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
 	}
 
 	ServiceAccountTokenConnection struct {
@@ -1377,8 +1378,8 @@ type ComplexityRoot struct {
 	}
 
 	ServiceAccountTokenCreatedActivityLogEntryData struct {
-		ExpiresAt func(childComplexity int) int
-		Note      func(childComplexity int) int
+		Description func(childComplexity int) int
+		ExpiresAt   func(childComplexity int) int
 	}
 
 	ServiceAccountTokenDeletedActivityLogEntry struct {
@@ -1394,7 +1395,7 @@ type ComplexityRoot struct {
 	}
 
 	ServiceAccountTokenDeletedActivityLogEntryData struct {
-		Note func(childComplexity int) int
+		Description func(childComplexity int) int
 	}
 
 	ServiceAccountTokenEdge struct {
@@ -7749,6 +7750,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ServiceAccount.Tokens(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
+	case "ServiceAccount.updatedAt":
+		if e.complexity.ServiceAccount.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.ServiceAccount.UpdatedAt(childComplexity), true
+
 	case "ServiceAccountConnection.edges":
 		if e.complexity.ServiceAccountConnection.Edges == nil {
 			break
@@ -7903,6 +7911,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ServiceAccountToken.CreatedAt(childComplexity), true
 
+	case "ServiceAccountToken.description":
+		if e.complexity.ServiceAccountToken.Description == nil {
+			break
+		}
+
+		return e.complexity.ServiceAccountToken.Description(childComplexity), true
+
 	case "ServiceAccountToken.expiresAt":
 		if e.complexity.ServiceAccountToken.ExpiresAt == nil {
 			break
@@ -7916,13 +7931,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ServiceAccountToken.ID(childComplexity), true
-
-	case "ServiceAccountToken.note":
-		if e.complexity.ServiceAccountToken.Note == nil {
-			break
-		}
-
-		return e.complexity.ServiceAccountToken.Note(childComplexity), true
 
 	case "ServiceAccountToken.updatedAt":
 		if e.complexity.ServiceAccountToken.UpdatedAt == nil {
@@ -8015,19 +8023,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ServiceAccountTokenCreatedActivityLogEntry.TeamSlug(childComplexity), true
 
+	case "ServiceAccountTokenCreatedActivityLogEntryData.description":
+		if e.complexity.ServiceAccountTokenCreatedActivityLogEntryData.Description == nil {
+			break
+		}
+
+		return e.complexity.ServiceAccountTokenCreatedActivityLogEntryData.Description(childComplexity), true
+
 	case "ServiceAccountTokenCreatedActivityLogEntryData.expiresAt":
 		if e.complexity.ServiceAccountTokenCreatedActivityLogEntryData.ExpiresAt == nil {
 			break
 		}
 
 		return e.complexity.ServiceAccountTokenCreatedActivityLogEntryData.ExpiresAt(childComplexity), true
-
-	case "ServiceAccountTokenCreatedActivityLogEntryData.note":
-		if e.complexity.ServiceAccountTokenCreatedActivityLogEntryData.Note == nil {
-			break
-		}
-
-		return e.complexity.ServiceAccountTokenCreatedActivityLogEntryData.Note(childComplexity), true
 
 	case "ServiceAccountTokenDeletedActivityLogEntry.actor":
 		if e.complexity.ServiceAccountTokenDeletedActivityLogEntry.Actor == nil {
@@ -8092,12 +8100,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ServiceAccountTokenDeletedActivityLogEntry.TeamSlug(childComplexity), true
 
-	case "ServiceAccountTokenDeletedActivityLogEntryData.note":
-		if e.complexity.ServiceAccountTokenDeletedActivityLogEntryData.Note == nil {
+	case "ServiceAccountTokenDeletedActivityLogEntryData.description":
+		if e.complexity.ServiceAccountTokenDeletedActivityLogEntryData.Description == nil {
 			break
 		}
 
-		return e.complexity.ServiceAccountTokenDeletedActivityLogEntryData.Note(childComplexity), true
+		return e.complexity.ServiceAccountTokenDeletedActivityLogEntryData.Description(childComplexity), true
 
 	case "ServiceAccountTokenEdge.cursor":
 		if e.complexity.ServiceAccountTokenEdge.Cursor == nil {
@@ -12175,7 +12183,7 @@ type ActivityLogEntryEdge {
 `, BuiltIn: false},
 	{Name: "../schema/applications.graphqls", Input: `extend type Team {
 	"""
-	NAIS applications owned by the team.
+	Nais applications owned by the team.
 	"""
 	applications(
 		"""
@@ -12212,7 +12220,7 @@ type ActivityLogEntryEdge {
 
 extend type TeamEnvironment {
 	"""
-	NAIS application in the team environment.
+	Nais application in the team environment.
 	"""
 	application(
 		"""
@@ -12262,15 +12270,15 @@ type TeamInventoryCountApplications {
 
 	"""
 	Number of applications considered "not nais". When an application is considered "not nais", it means that the
-	application might not be working as expected, or that it is not following the NAIS guidelines.
+	application might not be working as expected, or that it is not following the Nais guidelines.
 	"""
 	notNais: Int!
 }
 
 """
-An application lets you run one or more instances of a container image on the [NAIS platform](https://nais.io/).
+An application lets you run one or more instances of a container image on the [Nais platform](https://nais.io/).
 
-Learn more about how to create and configure your applications in the [NAIS documentation](https://docs.nais.io/workloads/application/).
+Learn more about how to create and configure your applications in the [Nais documentation](https://docs.nais.io/workloads/application/).
 """
 type Application implements Node & Workload {
 	"""
@@ -13676,7 +13684,7 @@ type FeatureOpenSearch implements Node {
 }
 `, BuiltIn: false},
 	{Name: "../schema/jobs.graphqls", Input: `extend type Team {
-	"NAIS jobs owned by the team."
+	"Nais jobs owned by the team."
 	jobs(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
@@ -13707,7 +13715,7 @@ extend type Mutation {
 }
 
 extend type TeamEnvironment {
-	"NAIS job in the team environment."
+	"Nais job in the team environment."
 	job(name: String!): Job!
 }
 
@@ -15019,7 +15027,7 @@ Cursors are opaque strings that are returned by the server for paginated results
 scalar Cursor
 `, BuiltIn: false},
 	{Name: "../schema/schema.graphqls", Input: `"""
-The query root for the NAIS GraphQL API.
+The query root for the Nais GraphQL API.
 """
 type Query {
 	"""
@@ -15034,7 +15042,7 @@ type Query {
 }
 
 """
-The mutation root for the NAIS GraphQL API.
+The mutation root for the Nais GraphQL API.
 """
 type Mutation
 
@@ -15684,94 +15692,227 @@ type SecretDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	Get a list of service accounts.
 	"""
 	serviceAccounts(
-		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
 		first: Int
 
-		"Get items after this cursor."
+		"""
+		Get items after this cursor.
+		"""
 		after: Cursor
 
-		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
 		last: Int
 
-		"Get items before this cursor."
+		"""
+		Get items before this cursor.
+		"""
 		before: Cursor
 	): ServiceAccountConnection!
 
 	"""
 	Returns a service account by its ID.
 	"""
-	serviceAccount("ID of the service account." id: ID!): ServiceAccount!
+	serviceAccount(
+		"""
+		ID of the service account.
+		"""
+		id: ID!
+	): ServiceAccount!
 }
 
 extend type Mutation {
+	"""
+	Create a service account.
+	"""
 	createServiceAccount(input: CreateServiceAccountInput!): CreateServiceAccountPayload!
+
+	"""
+	Update a service account.
+	"""
 	updateServiceAccount(input: UpdateServiceAccountInput!): UpdateServiceAccountPayload!
+
+	"""
+	Delete a service account.
+	"""
 	deleteServiceAccount(input: DeleteServiceAccountInput!): DeleteServiceAccountPayload!
+
+	"""
+	Assign a role to a service account.
+	"""
 	assignRoleToServiceAccount(
 		input: AssignRoleToServiceAccountInput!
 	): AssignRoleToServiceAccountPayload!
+
+	"""
+	Revoke a role from a service account.
+	"""
 	revokeRoleFromServiceAccount(
 		input: RevokeRoleFromServiceAccountInput!
 	): RevokeRoleFromServiceAccountPayload!
+
+	"""
+	Create a service account token.
+
+	The secret is automatically generated, and is returned as a part of the payload for this mutation. The secret can
+	not be retrieved at a later stage.
+
+	A service account can have multiple active tokens at the same time.
+	"""
 	createServiceAccountToken(
 		input: CreateServiceAccountTokenInput!
 	): CreateServiceAccountTokenPayload!
+
+	"""
+	Update a service account token.
+
+	Note that the secret itself can not be updated, only the metadata.
+	"""
 	updateServiceAccountToken(
 		input: UpdateServiceAccountTokenInput!
 	): UpdateServiceAccountTokenPayload!
+
+	"""
+	Delete a service account token.
+	"""
 	deleteServiceAccountToken(
 		input: DeleteServiceAccountTokenInput!
 	): DeleteServiceAccountTokenPayload!
 }
 
 input CreateServiceAccountInput {
+	"""
+	The name of the service account.
+	"""
 	name: String!
+
+	"""
+	A description of the service account.
+	"""
 	description: String!
+
+	"""
+	The team slug that the service account belongs to.
+	"""
 	teamSlug: Slug
 }
 
 input UpdateServiceAccountInput {
-	id: ID!
+	"""
+	The ID of the service account to update.
+	"""
+	serviceAccountID: ID!
+
+	"""
+	The new description of the service account.
+
+	If not specified, the description will remain unchanged.
+	"""
 	description: String
 }
 
 input DeleteServiceAccountInput {
-	id: ID!
+	"""
+	The ID of the service account to delete.
+	"""
+	serviceAccountID: ID!
 }
 
 input AssignRoleToServiceAccountInput {
+	"""
+	The ID of the service account to assign the role to.
+	"""
 	serviceAccountID: ID!
+
+	"""
+	The name of the role to assign.
+	"""
 	roleName: String!
 }
 
 input RevokeRoleFromServiceAccountInput {
+	"""
+	The ID of the service account to revoke the role from.
+	"""
 	serviceAccountID: ID!
+
+	"""
+	The name of the role to revoke.
+	"""
 	roleName: String!
 }
 
 input CreateServiceAccountTokenInput {
+	"""
+	The ID of the service account to create the token for.
+	"""
 	serviceAccountID: ID!
-	note: String!
+
+	"""
+	The description of the service account token.
+	"""
+	description: String!
+
+	"""
+	Optional expiry date of the token.
+
+	If not specified, the token will never expire.
+	"""
 	expiresAt: Date
 }
 
 input UpdateServiceAccountTokenInput {
+	"""
+	The ID of the service account token to update.
+	"""
 	serviceAccountTokenID: ID!
-	note: String
+
+	"""
+	The new description of the service account token.
+
+	If not specified, the description will remain unchanged.
+	"""
+	description: String
+
+	"""
+	The new expiry date of the token.
+	"""
 	expiresAt: UpdateServiceAccountTokenExpiresAtInput
 }
 
+"""
+Input type for the expiresAt field.
+
+Only one of the fields must be specified.
+"""
 input UpdateServiceAccountTokenExpiresAtInput @oneOf {
+	"""
+	The new expiry date of the token.
+	"""
 	expiresAt: Date
+
+	"""
+	Remove the existing expiry date of the token, causing the token to never expire.
+	"""
 	removeExpiry: Boolean
 }
 
 input DeleteServiceAccountTokenInput {
+	"""
+	The ID of the service account token to delete.
+	"""
 	serviceAccountTokenID: ID!
 }
 
 """
-Service account type.
+The service account type represents machine-users of the Nais API.
+
+These types of users can be used to automate certain parts of the API, for instance team creation and managing team members.
+
+Service accounts are created using the ` + "`" + `createServiceAccount` + "`" + ` mutation, and authenticate using tokens generated by the ` + "`" + `createServiceAccountToken` + "`" + ` mutation.
 """
 type ServiceAccount implements Node {
 	"""
@@ -15790,9 +15931,14 @@ type ServiceAccount implements Node {
 	description: String!
 
 	"""
-	When the service account was created.
+	Creation time of the service account.
 	"""
 	createdAt: Time!
+
+	"""
+	When the service account was last updated.
+	"""
+	updatedAt: Time!
 
 	"""
 	The team that the service account belongs to.
@@ -15803,16 +15949,24 @@ type ServiceAccount implements Node {
 	The roles that are assigned to the service account.
 	"""
 	roles(
-		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
 		first: Int
 
-		"Get items after this cursor."
+		"""
+		Get items after this cursor.
+		"""
 		after: Cursor
 
-		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
 		last: Int
 
-		"Get items before this cursor."
+		"""
+		Get items before this cursor.
+		"""
 		before: Cursor
 	): RoleConnection!
 
@@ -15820,53 +15974,109 @@ type ServiceAccount implements Node {
 	The service account tokens.
 	"""
 	tokens(
-		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
 		first: Int
 
-		"Get items after this cursor."
+		"""
+		Get items after this cursor.
+		"""
 		after: Cursor
 
-		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
 		last: Int
 
-		"Get items before this cursor."
+		"""
+		Get items before this cursor.
+		"""
 		before: Cursor
 	): ServiceAccountTokenConnection!
 }
 
 type CreateServiceAccountPayload {
+	"""
+	The created service account.
+	"""
 	serviceAccount: ServiceAccount
 }
 
 type UpdateServiceAccountPayload {
+	"""
+	The updated service account.
+	"""
 	serviceAccount: ServiceAccount
 }
 
 type DeleteServiceAccountPayload {
+	"""
+	Whether or not the service account was deleted.
+	"""
 	serviceAccountDeleted: Boolean
 }
 
 type AssignRoleToServiceAccountPayload {
+	"""
+	The service account that had a role assigned.
+	"""
 	serviceAccount: ServiceAccount
 }
 
 type RevokeRoleFromServiceAccountPayload {
+	"""
+	The service account that had a role revoked.
+	"""
 	serviceAccount: ServiceAccount
 }
 
 type CreateServiceAccountTokenPayload {
+	"""
+	The service account that the token belongs to.
+	"""
 	serviceAccount: ServiceAccount
+
+	"""
+	The created service account token.
+	"""
 	serviceAccountToken: ServiceAccountToken
+
+	"""
+	The secret of the service account token.
+
+	This value is only returned once, and can not be retrieved at a later stage. If the secret is lost, a new token must be created.
+
+	Once obtained, the secret can be used to authenticate as the service account using the HTTP ` + "`" + `Authorization` + "`" + ` request header:
+
+	` + "`" + `` + "`" + `` + "`" + `
+	Authorization: Bearer <secret>
+	` + "`" + `` + "`" + `` + "`" + `
+	"""
 	secret: String
 }
 
 type UpdateServiceAccountTokenPayload {
+	"""
+	The service account that the token belongs to.
+	"""
 	serviceAccount: ServiceAccount
+
+	"""
+	The updated service account token.
+	"""
 	serviceAccountToken: ServiceAccountToken
 }
 
 type DeleteServiceAccountTokenPayload {
+	"""
+	The service account that the token belonged to.
+	"""
 	serviceAccount: ServiceAccount
+
+	"""
+	Whether or not the service account token was deleted.
+	"""
 	serviceAccountTokenDeleted: Boolean
 }
 
@@ -15877,9 +16087,9 @@ type ServiceAccountToken implements Node {
 	id: ID!
 
 	"""
-	The note of the service account token.
+	The description of the service account token.
 	"""
-	note: String!
+	description: String!
 
 	"""
 	When the service account token was created.
@@ -15889,10 +16099,10 @@ type ServiceAccountToken implements Node {
 	"""
 	When the service account token was last updated.
 	"""
-	updatedAt: Time
+	updatedAt: Time!
 
 	"""
-	When the service account token expires.
+	Expiry date of the token. If this value is empty the token never expires.
 	"""
 	expiresAt: Date
 }
@@ -15960,284 +16170,450 @@ extend enum ActivityLogEntryResourceType {
 }
 
 type ServiceAccountCreatedActivityLogEntry implements ActivityLogEntry & Node {
-	"ID of the entry."
+	"""
+	ID of the entry.
+	"""
 	id: ID!
 
-	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	"""
+	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
+	"""
 	actor: String!
 
-	"Creation time of the entry."
+	"""
+	Creation time of the entry.
+	"""
 	createdAt: Time!
 
-	"Message that summarizes the entry."
+	"""
+	Message that summarizes the entry.
+	"""
 	message: String!
 
-	"Type of the resource that was affected by the action."
+	"""
+	Type of the resource that was affected by the action.
+	"""
 	resourceType: ActivityLogEntryResourceType!
 
-	"Name of the resource that was affected by the action."
+	"""
+	Name of the resource that was affected by the action.
+	"""
 	resourceName: String!
 
-	"The team slug that the entry belongs to."
+	"""
+	The team slug that the entry belongs to.
+	"""
 	teamSlug: Slug
 
-	"The environment name that the entry belongs to."
+	"""
+	The environment name that the entry belongs to.
+	"""
 	environmentName: String
 }
 
 type ServiceAccountUpdatedActivityLogEntry implements ActivityLogEntry & Node {
-	"ID of the entry."
+	"""
+	ID of the entry.
+	"""
 	id: ID!
 
-	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	"""
+	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
+	"""
 	actor: String!
 
-	"Creation time of the entry."
+	"""
+	Creation time of the entry.
+	"""
 	createdAt: Time!
 
-	"Message that summarizes the entry."
+	"""
+	Message that summarizes the entry.
+	"""
 	message: String!
 
-	"Type of the resource that was affected by the action."
+	"""
+	Type of the resource that was affected by the action.
+	"""
 	resourceType: ActivityLogEntryResourceType!
 
-	"Name of the resource that was affected by the action."
+	"""
+	Name of the resource that was affected by the action.
+	"""
 	resourceName: String!
 
-	"The team slug that the entry belongs to."
+	"""
+	The team slug that the entry belongs to.
+	"""
 	teamSlug: Slug
 
-	"The environment name that the entry belongs to."
+	"""
+	The environment name that the entry belongs to.
+	"""
 	environmentName: String
 
-	"Data associated with the update."
+	"""
+	Data associated with the update.
+	"""
 	data: ServiceAccountUpdatedActivityLogEntryData!
 }
 
 type ServiceAccountUpdatedActivityLogEntryData {
-	"Fields that were updated."
+	"""
+	Fields that were updated.
+	"""
 	updatedFields: [ServiceAccountUpdatedActivityLogEntryDataUpdatedField!]!
 }
 
 type ServiceAccountUpdatedActivityLogEntryDataUpdatedField {
-	"The name of the field."
+	"""
+	The name of the field.
+	"""
 	field: String!
 
-	"The old value of the field."
+	"""
+	The old value of the field.
+	"""
 	oldValue: String
 
-	"The new value of the field."
+	"""
+	The new value of the field.
+	"""
 	newValue: String
 }
 
 type ServiceAccountDeletedActivityLogEntry implements ActivityLogEntry & Node {
-	"ID of the entry."
+	"""
+	ID of the entry.
+	"""
 	id: ID!
 
-	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	"""
+	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
+	"""
 	actor: String!
 
-	"Creation time of the entry."
+	"""
+	Creation time of the entry.
+	"""
 	createdAt: Time!
 
-	"Message that summarizes the entry."
+	"""
+	Message that summarizes the entry.
+	"""
 	message: String!
 
-	"Type of the resource that was affected by the action."
+	"""
+	Type of the resource that was affected by the action.
+	"""
 	resourceType: ActivityLogEntryResourceType!
 
-	"Name of the resource that was affected by the action."
+	"""
+	Name of the resource that was affected by the action.
+	"""
 	resourceName: String!
 
-	"The team slug that the entry belongs to."
+	"""
+	The team slug that the entry belongs to.
+	"""
 	teamSlug: Slug
 
-	"The environment name that the entry belongs to."
+	"""
+	The environment name that the entry belongs to.
+	"""
 	environmentName: String
 }
 
 type RoleAddedToServiceAccountActivityLogEntry implements ActivityLogEntry & Node {
-	"ID of the entry."
+	"""
+	ID of the entry.
+	"""
 	id: ID!
 
-	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	"""
+	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
+	"""
 	actor: String!
 
-	"Creation time of the entry."
+	"""
+	Creation time of the entry.
+	"""
 	createdAt: Time!
 
-	"Message that summarizes the entry."
+	"""
+	Message that summarizes the entry.
+	"""
 	message: String!
 
-	"Type of the resource that was affected by the action."
+	"""
+	Type of the resource that was affected by the action.
+	"""
 	resourceType: ActivityLogEntryResourceType!
 
-	"Name of the resource that was affected by the action."
+	"""
+	Name of the resource that was affected by the action.
+	"""
 	resourceName: String!
 
-	"The team slug that the entry belongs to."
+	"""
+	The team slug that the entry belongs to.
+	"""
 	teamSlug: Slug
 
-	"The environment name that the entry belongs to."
+	"""
+	The environment name that the entry belongs to.
+	"""
 	environmentName: String
 
-	"Data associated with the update."
+	"""
+	Data associated with the update.
+	"""
 	data: RoleAddedToServiceAccountActivityLogEntryData!
 }
 
 type RoleAddedToServiceAccountActivityLogEntryData {
-	"The added role."
+	"""
+	The added role.
+	"""
 	roleName: String!
 }
 
 type RoleRemovedFromServiceAccountActivityLogEntry implements ActivityLogEntry & Node {
-	"ID of the entry."
+	"""
+	ID of the entry.
+	"""
 	id: ID!
 
-	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	"""
+	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
+	"""
 	actor: String!
 
-	"Creation time of the entry."
+	"""
+	Creation time of the entry.
+	"""
 	createdAt: Time!
 
-	"Message that summarizes the entry."
+	"""
+	Message that summarizes the entry.
+	"""
 	message: String!
 
-	"Type of the resource that was affected by the action."
+	"""
+	Type of the resource that was affected by the action.
+	"""
 	resourceType: ActivityLogEntryResourceType!
 
-	"Name of the resource that was affected by the action."
+	"""
+	Name of the resource that was affected by the action.
+	"""
 	resourceName: String!
 
-	"The team slug that the entry belongs to."
+	"""
+	The team slug that the entry belongs to.
+	"""
 	teamSlug: Slug
 
-	"The environment name that the entry belongs to."
+	"""
+	The environment name that the entry belongs to.
+	"""
 	environmentName: String
 
-	"Data associated with the update."
+	"""
+	Data associated with the update.
+	"""
 	data: RoleRemovedFromServiceAccountActivityLogEntryData!
 }
 
 type RoleRemovedFromServiceAccountActivityLogEntryData {
-	"The removed role."
+	"""
+	The removed role.
+	"""
 	roleName: String!
 }
 
 type ServiceAccountTokenCreatedActivityLogEntry implements ActivityLogEntry & Node {
-	"ID of the entry."
+	"""
+	ID of the entry.
+	"""
 	id: ID!
 
-	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	"""
+	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
+	"""
 	actor: String!
 
-	"Creation time of the entry."
+	"""
+	Creation time of the entry.
+	"""
 	createdAt: Time!
 
-	"Message that summarizes the entry."
+	"""
+	Message that summarizes the entry.
+	"""
 	message: String!
 
-	"Type of the resource that was affected by the action."
+	"""
+	Type of the resource that was affected by the action.
+	"""
 	resourceType: ActivityLogEntryResourceType!
 
-	"Name of the resource that was affected by the action."
+	"""
+	Name of the resource that was affected by the action.
+	"""
 	resourceName: String!
 
-	"The team slug that the entry belongs to."
+	"""
+	The team slug that the entry belongs to.
+	"""
 	teamSlug: Slug
 
-	"The environment name that the entry belongs to."
+	"""
+	The environment name that the entry belongs to.
+	"""
 	environmentName: String
 
-	"Data associated with the update."
+	"""
+	Data associated with the update.
+	"""
 	data: ServiceAccountTokenCreatedActivityLogEntryData!
 }
 
 type ServiceAccountTokenCreatedActivityLogEntryData {
-	"The token note."
-	note: String!
+	"""
+	The token description.
+	"""
+	description: String!
 
-	"The token expiry date."
+	"""
+	The token expiry date.
+	"""
 	expiresAt: Date
 }
 
 type ServiceAccountTokenUpdatedActivityLogEntry implements ActivityLogEntry & Node {
-	"ID of the entry."
+	"""
+	ID of the entry.
+	"""
 	id: ID!
 
-	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	"""
+	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
+	"""
 	actor: String!
 
-	"Creation time of the entry."
+	"""
+	Creation time of the entry.
+	"""
 	createdAt: Time!
 
-	"Message that summarizes the entry."
+	"""
+	Message that summarizes the entry.
+	"""
 	message: String!
 
-	"Type of the resource that was affected by the action."
+	"""
+	Type of the resource that was affected by the action.
+	"""
 	resourceType: ActivityLogEntryResourceType!
 
-	"Name of the resource that was affected by the action."
+	"""
+	Name of the resource that was affected by the action.
+	"""
 	resourceName: String!
 
-	"The team slug that the entry belongs to."
+	"""
+	The team slug that the entry belongs to.
+	"""
 	teamSlug: Slug
 
-	"The environment name that the entry belongs to."
+	"""
+	The environment name that the entry belongs to.
+	"""
 	environmentName: String
 
-	"Data associated with the update."
+	"""
+	Data associated with the update.
+	"""
 	data: ServiceAccountTokenUpdatedActivityLogEntryData!
 }
 
 type ServiceAccountTokenUpdatedActivityLogEntryData {
-	"Fields that were updated."
+	"""
+	Fields that were updated.
+	"""
 	updatedFields: [ServiceAccountTokenUpdatedActivityLogEntryDataUpdatedField!]!
 }
 
 type ServiceAccountTokenUpdatedActivityLogEntryDataUpdatedField {
-	"The name of the field."
+	"""
+	The name of the field.
+	"""
 	field: String!
 
-	"The old value of the field."
+	"""
+	The old value of the field.
+	"""
 	oldValue: String
 
-	"The new value of the field."
+	"""
+	The new value of the field.
+	"""
 	newValue: String
 }
 
 type ServiceAccountTokenDeletedActivityLogEntry implements ActivityLogEntry & Node {
-	"ID of the entry."
+	"""
+	ID of the entry.
+	"""
 	id: ID!
 
-	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	"""
+	The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
+	"""
 	actor: String!
 
-	"Creation time of the entry."
+	"""
+	Creation time of the entry.
+	"""
 	createdAt: Time!
 
-	"Message that summarizes the entry."
+	"""
+	Message that summarizes the entry.
+	"""
 	message: String!
 
-	"Type of the resource that was affected by the action."
+	"""
+	Type of the resource that was affected by the action.
+	"""
 	resourceType: ActivityLogEntryResourceType!
 
-	"Name of the resource that was affected by the action."
+	"""
+	Name of the resource that was affected by the action.
+	"""
 	resourceName: String!
 
-	"The team slug that the entry belongs to."
+	"""
+	The team slug that the entry belongs to.
+	"""
 	teamSlug: Slug
 
-	"The environment name that the entry belongs to."
+	"""
+	The environment name that the entry belongs to.
+	"""
 	environmentName: String
 
-	"Data associated with the update."
+	"""
+	Data associated with the update.
+	"""
 	data: ServiceAccountTokenDeletedActivityLogEntryData!
 }
 
 type ServiceAccountTokenDeletedActivityLogEntryData {
-	"The token note."
-	note: String!
+	"""
+	The token description.
+	"""
+	description: String!
 }
 `, BuiltIn: false},
 	{Name: "../schema/sqlinstance.graphqls", Input: `extend type Team {
@@ -16670,21 +17046,21 @@ extend enum JobOrderField {
 
 extend type Mutation {
 	"""
-	Create a new NAIS team
+	Create a new Nais team
 
 	The user creating the team will be granted team ownership, unless the user is a service account, in which case the
 	team will not get an initial owner. To add one or more owners to the team, refer to the ` + "`" + `addTeamOwners` + "`" + ` mutation.
 
-	Creation of a team will also create external resources for the team, which will be managed by the NAIS API
+	Creation of a team will also create external resources for the team, which will be managed by the Nais API
 	reconcilers. This will be done asynchronously.
 
-	Refer to the [official NAIS documentation](https://docs.nais.io/explanations/team/) for more information regarding
-	NAIS teams.
+	Refer to the [official Nais documentation](https://docs.nais.io/explanations/team/) for more information regarding
+	Nais teams.
 	"""
 	createTeam(input: CreateTeamInput!): CreateTeamPayload!
 
 	"""
-	Update an existing NAIS team
+	Update an existing Nais team
 
 	This mutation can be used to update the team purpose and the main Slack channel. It is not possible to update the
 	team slug.
@@ -16712,7 +17088,7 @@ extend type Mutation {
 	Confirm a team deletion
 
 	This will start the actual team deletion process, which will be done in an asynchronous manner. All external
-	entities controlled by NAIS will also be deleted.
+	entities controlled by Nais will also be deleted.
 
 	WARNING: There is no going back after starting this process.
 
@@ -16743,11 +17119,11 @@ extend type Mutation {
 }
 
 """
-The team type represents a team on the [NAIS platform](https://nais.io/).
+The team type represents a team on the [Nais platform](https://nais.io/).
 
-Learn more about what NAIS teams are and what they can be used for in the [official NAIS documentation](https://docs.nais.io/explanations/team/).
+Learn more about what Nais teams are and what they can be used for in the [official Nais documentation](https://docs.nais.io/explanations/team/).
 
-External resources (e.g. entraIDGroupID, gitHubTeamSlug) are managed by [NAIS API reconcilers](https://github.com/nais/api-reconcilers).
+External resources (e.g. entraIDGroupID, gitHubTeamSlug) are managed by [Nais API reconcilers](https://github.com/nais/api-reconcilers).
 """
 type Team implements Node {
 	"The globally unique ID of the team."
@@ -17609,7 +17985,7 @@ type UnleashInstanceUpdatedActivityLogEntryData {
 }
 
 """
-The user type represents a user of the NAIS platform and the NAIS GraphQL API.
+The user type represents a user of the Nais platform and the Nais GraphQL API.
 """
 type User implements Node {
 	"""
@@ -17628,7 +18004,7 @@ type User implements Node {
 	name: String!
 
 	"""
-	The external ID of the user. This value is managed by the NAIS API user synchronization.
+	The external ID of the user. This value is managed by the Nais API user synchronization.
 	"""
 	externalID: String!
 
@@ -18623,7 +18999,7 @@ type VulnerabilityUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 `, BuiltIn: false},
 	{Name: "../schema/workloads.graphqls", Input: `extend type Team {
 	"""
-	NAIS Workloads owned by the team.
+	Nais workloads owned by the team.
 	"""
 	workloads(
 		"""
@@ -18773,7 +19149,7 @@ type WorkloadResourceQuantity {
 """
 Interface for authentication and authorization integrations.
 
-Read more about this topic in the [NAIS documentation](https://docs.nais.io/auth/).
+Read more about this topic in the [Nais documentation](https://docs.nais.io/auth/).
 """
 interface AuthIntegration {
 	"""
@@ -30682,6 +31058,8 @@ func (ec *executionContext) fieldContext_AssignRoleToServiceAccountPayload_servi
 				return ec.fieldContext_ServiceAccount_description(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
 			case "roles":
@@ -33887,6 +34265,8 @@ func (ec *executionContext) fieldContext_CreateServiceAccountPayload_serviceAcco
 				return ec.fieldContext_ServiceAccount_description(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
 			case "roles":
@@ -33944,6 +34324,8 @@ func (ec *executionContext) fieldContext_CreateServiceAccountTokenPayload_servic
 				return ec.fieldContext_ServiceAccount_description(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
 			case "roles":
@@ -33995,8 +34377,8 @@ func (ec *executionContext) fieldContext_CreateServiceAccountTokenPayload_servic
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_ServiceAccountToken_id(ctx, field)
-			case "note":
-				return ec.fieldContext_ServiceAccountToken_note(ctx, field)
+			case "description":
+				return ec.fieldContext_ServiceAccountToken_description(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_ServiceAccountToken_createdAt(ctx, field)
 			case "updatedAt":
@@ -34657,6 +35039,8 @@ func (ec *executionContext) fieldContext_DeleteServiceAccountTokenPayload_servic
 				return ec.fieldContext_ServiceAccount_description(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
 			case "roles":
@@ -49311,6 +49695,8 @@ func (ec *executionContext) fieldContext_Query_serviceAccount(ctx context.Contex
 				return ec.fieldContext_ServiceAccount_description(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
 			case "roles":
@@ -55410,6 +55796,8 @@ func (ec *executionContext) fieldContext_RevokeRoleFromServiceAccountPayload_ser
 				return ec.fieldContext_ServiceAccount_description(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
 			case "roles":
@@ -60796,6 +61184,50 @@ func (ec *executionContext) fieldContext_ServiceAccount_createdAt(_ context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _ServiceAccount_updatedAt(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccount) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceAccount_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceAccount",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ServiceAccount_team(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccount) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ServiceAccount_team(ctx, field)
 	if err != nil {
@@ -61082,6 +61514,8 @@ func (ec *executionContext) fieldContext_ServiceAccountConnection_nodes(_ contex
 				return ec.fieldContext_ServiceAccount_description(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
 			case "roles":
@@ -61944,6 +62378,8 @@ func (ec *executionContext) fieldContext_ServiceAccountEdge_node(_ context.Conte
 				return ec.fieldContext_ServiceAccount_description(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
 			case "roles":
@@ -62045,8 +62481,8 @@ func (ec *executionContext) fieldContext_ServiceAccountToken_id(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceAccountToken_note(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountToken) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ServiceAccountToken_note(ctx, field)
+func (ec *executionContext) _ServiceAccountToken_description(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountToken) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceAccountToken_description(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -62059,7 +62495,7 @@ func (ec *executionContext) _ServiceAccountToken_note(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Note, nil
+		return obj.Description, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -62076,7 +62512,7 @@ func (ec *executionContext) _ServiceAccountToken_note(ctx context.Context, field
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ServiceAccountToken_note(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ServiceAccountToken_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServiceAccountToken",
 		Field:      field,
@@ -62154,11 +62590,14 @@ func (ec *executionContext) _ServiceAccountToken_updatedAt(ctx context.Context, 
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalOTime2timeᚐTime(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ServiceAccountToken_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -62256,8 +62695,8 @@ func (ec *executionContext) fieldContext_ServiceAccountTokenConnection_nodes(_ c
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_ServiceAccountToken_id(ctx, field)
-			case "note":
-				return ec.fieldContext_ServiceAccountToken_note(ctx, field)
+			case "description":
+				return ec.fieldContext_ServiceAccountToken_description(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_ServiceAccountToken_createdAt(ctx, field)
 			case "updatedAt":
@@ -62766,8 +63205,8 @@ func (ec *executionContext) fieldContext_ServiceAccountTokenCreatedActivityLogEn
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "note":
-				return ec.fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_note(ctx, field)
+			case "description":
+				return ec.fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_description(ctx, field)
 			case "expiresAt":
 				return ec.fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_expiresAt(ctx, field)
 			}
@@ -62777,8 +63216,8 @@ func (ec *executionContext) fieldContext_ServiceAccountTokenCreatedActivityLogEn
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceAccountTokenCreatedActivityLogEntryData_note(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountTokenCreatedActivityLogEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_note(ctx, field)
+func (ec *executionContext) _ServiceAccountTokenCreatedActivityLogEntryData_description(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountTokenCreatedActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_description(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -62791,7 +63230,7 @@ func (ec *executionContext) _ServiceAccountTokenCreatedActivityLogEntryData_note
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Note, nil
+		return obj.Description, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -62808,7 +63247,7 @@ func (ec *executionContext) _ServiceAccountTokenCreatedActivityLogEntryData_note
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_note(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServiceAccountTokenCreatedActivityLogEntryData",
 		Field:      field,
@@ -63247,8 +63686,8 @@ func (ec *executionContext) fieldContext_ServiceAccountTokenDeletedActivityLogEn
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "note":
-				return ec.fieldContext_ServiceAccountTokenDeletedActivityLogEntryData_note(ctx, field)
+			case "description":
+				return ec.fieldContext_ServiceAccountTokenDeletedActivityLogEntryData_description(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ServiceAccountTokenDeletedActivityLogEntryData", field.Name)
 		},
@@ -63256,8 +63695,8 @@ func (ec *executionContext) fieldContext_ServiceAccountTokenDeletedActivityLogEn
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceAccountTokenDeletedActivityLogEntryData_note(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountTokenDeletedActivityLogEntryData) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ServiceAccountTokenDeletedActivityLogEntryData_note(ctx, field)
+func (ec *executionContext) _ServiceAccountTokenDeletedActivityLogEntryData_description(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountTokenDeletedActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceAccountTokenDeletedActivityLogEntryData_description(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -63270,7 +63709,7 @@ func (ec *executionContext) _ServiceAccountTokenDeletedActivityLogEntryData_note
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Note, nil
+		return obj.Description, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -63287,7 +63726,7 @@ func (ec *executionContext) _ServiceAccountTokenDeletedActivityLogEntryData_note
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ServiceAccountTokenDeletedActivityLogEntryData_note(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ServiceAccountTokenDeletedActivityLogEntryData_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServiceAccountTokenDeletedActivityLogEntryData",
 		Field:      field,
@@ -63341,8 +63780,8 @@ func (ec *executionContext) fieldContext_ServiceAccountTokenEdge_node(_ context.
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_ServiceAccountToken_id(ctx, field)
-			case "note":
-				return ec.fieldContext_ServiceAccountToken_note(ctx, field)
+			case "description":
+				return ec.fieldContext_ServiceAccountToken_description(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_ServiceAccountToken_createdAt(ctx, field)
 			case "updatedAt":
@@ -82245,6 +82684,8 @@ func (ec *executionContext) fieldContext_UpdateServiceAccountPayload_serviceAcco
 				return ec.fieldContext_ServiceAccount_description(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
 			case "roles":
@@ -82302,6 +82743,8 @@ func (ec *executionContext) fieldContext_UpdateServiceAccountTokenPayload_servic
 				return ec.fieldContext_ServiceAccount_description(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
 			case "roles":
@@ -82353,8 +82796,8 @@ func (ec *executionContext) fieldContext_UpdateServiceAccountTokenPayload_servic
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_ServiceAccountToken_id(ctx, field)
-			case "note":
-				return ec.fieldContext_ServiceAccountToken_note(ctx, field)
+			case "description":
+				return ec.fieldContext_ServiceAccountToken_description(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_ServiceAccountToken_createdAt(ctx, field)
 			case "updatedAt":
@@ -90749,7 +91192,7 @@ func (ec *executionContext) unmarshalInputCreateServiceAccountTokenInput(ctx con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"serviceAccountID", "note", "expiresAt"}
+	fieldsInOrder := [...]string{"serviceAccountID", "description", "expiresAt"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -90763,13 +91206,13 @@ func (ec *executionContext) unmarshalInputCreateServiceAccountTokenInput(ctx con
 				return it, err
 			}
 			it.ServiceAccountID = data
-		case "note":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("note"))
+		case "description":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Note = data
+			it.Description = data
 		case "expiresAt":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAt"))
 			data, err := ec.unmarshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
@@ -90981,20 +91424,20 @@ func (ec *executionContext) unmarshalInputDeleteServiceAccountInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id"}
+	fieldsInOrder := [...]string{"serviceAccountID"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "id":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		case "serviceAccountID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("serviceAccountID"))
 			data, err := ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.ID = data
+			it.ServiceAccountID = data
 		}
 	}
 
@@ -92341,20 +92784,20 @@ func (ec *executionContext) unmarshalInputUpdateServiceAccountInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "description"}
+	fieldsInOrder := [...]string{"serviceAccountID", "description"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "id":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		case "serviceAccountID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("serviceAccountID"))
 			data, err := ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.ID = data
+			it.ServiceAccountID = data
 		case "description":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -92409,7 +92852,7 @@ func (ec *executionContext) unmarshalInputUpdateServiceAccountTokenInput(ctx con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"serviceAccountTokenID", "note", "expiresAt"}
+	fieldsInOrder := [...]string{"serviceAccountTokenID", "description", "expiresAt"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -92423,13 +92866,13 @@ func (ec *executionContext) unmarshalInputUpdateServiceAccountTokenInput(ctx con
 				return it, err
 			}
 			it.ServiceAccountTokenID = data
-		case "note":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("note"))
+		case "description":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Note = data
+			it.Description = data
 		case "expiresAt":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAt"))
 			data, err := ec.unmarshalOUpdateServiceAccountTokenExpiresAtInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐUpdateServiceAccountTokenExpiresAtInput(ctx, v)
@@ -106227,6 +106670,11 @@ func (ec *executionContext) _ServiceAccount(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "updatedAt":
+			out.Values[i] = ec._ServiceAccount_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "team":
 			field := field
 
@@ -106600,8 +107048,8 @@ func (ec *executionContext) _ServiceAccountToken(ctx context.Context, sel ast.Se
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "note":
-			out.Values[i] = ec._ServiceAccountToken_note(ctx, field, obj)
+		case "description":
+			out.Values[i] = ec._ServiceAccountToken_description(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -106612,6 +107060,9 @@ func (ec *executionContext) _ServiceAccountToken(ctx context.Context, sel ast.Se
 			}
 		case "updatedAt":
 			out.Values[i] = ec._ServiceAccountToken_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "expiresAt":
 			out.Values[i] = ec._ServiceAccountToken_expiresAt(ctx, field, obj)
 		default:
@@ -106770,8 +107221,8 @@ func (ec *executionContext) _ServiceAccountTokenCreatedActivityLogEntryData(ctx 
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ServiceAccountTokenCreatedActivityLogEntryData")
-		case "note":
-			out.Values[i] = ec._ServiceAccountTokenCreatedActivityLogEntryData_note(ctx, field, obj)
+		case "description":
+			out.Values[i] = ec._ServiceAccountTokenCreatedActivityLogEntryData_description(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -106884,8 +107335,8 @@ func (ec *executionContext) _ServiceAccountTokenDeletedActivityLogEntryData(ctx 
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ServiceAccountTokenDeletedActivityLogEntryData")
-		case "note":
-			out.Values[i] = ec._ServiceAccountTokenDeletedActivityLogEntryData_note(ctx, field, obj)
+		case "description":
+			out.Values[i] = ec._ServiceAccountTokenDeletedActivityLogEntryData_description(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -126291,16 +126742,6 @@ func (ec *executionContext) unmarshalOTeamWorkloadsFilter2ᚖgithubᚗcomᚋnais
 	}
 	res, err := ec.unmarshalInputTeamWorkloadsFilter(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOTime2timeᚐTime(ctx context.Context, v any) (time.Time, error) {
-	res, err := scalar.UnmarshalTime(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
-	res := scalar.MarshalTime(v)
-	return res
 }
 
 func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v any) (*time.Time, error) {

@@ -75,8 +75,8 @@ type ServiceAccountTokenCreatedActivityLogEntry struct {
 }
 
 type ServiceAccountTokenCreatedActivityLogEntryData struct {
-	Note      string       `json:"note"`
-	ExpiresAt *scalar.Date `json:"expiresAt,omitempty"`
+	Description string       `json:"description"`
+	ExpiresAt   *scalar.Date `json:"expiresAt,omitempty"`
 }
 
 type ServiceAccountTokenDeletedActivityLogEntry struct {
@@ -85,7 +85,7 @@ type ServiceAccountTokenDeletedActivityLogEntry struct {
 }
 
 type ServiceAccountTokenDeletedActivityLogEntryData struct {
-	Note string `json:"note"`
+	Description string `json:"description"`
 }
 
 type ServiceAccountTokenUpdatedActivityLogEntry struct {

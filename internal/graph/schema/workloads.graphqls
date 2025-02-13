@@ -1,6 +1,6 @@
 extend type Team {
 	"""
-	NAIS Workloads owned by the team.
+	Nais workloads owned by the team.
 	"""
 	workloads(
 		"""
@@ -150,7 +150,7 @@ type WorkloadResourceQuantity {
 """
 Interface for authentication and authorization integrations.
 
-Read more about this topic in the [NAIS documentation](https://docs.nais.io/auth/).
+Read more about this topic in the [Nais documentation](https://docs.nais.io/auth/).
 """
 interface AuthIntegration {
 	"""

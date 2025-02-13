@@ -1,6 +1,6 @@
 extend type Team {
 	"""
-	NAIS applications owned by the team.
+	Nais applications owned by the team.
 	"""
 	applications(
 		"""
@@ -37,7 +37,7 @@ extend type Team {
 
 extend type TeamEnvironment {
 	"""
-	NAIS application in the team environment.
+	Nais application in the team environment.
 	"""
 	application(
 		"""
@@ -87,15 +87,15 @@ type TeamInventoryCountApplications {
 
 	"""
 	Number of applications considered "not nais". When an application is considered "not nais", it means that the
-	application might not be working as expected, or that it is not following the NAIS guidelines.
+	application might not be working as expected, or that it is not following the Nais guidelines.
 	"""
 	notNais: Int!
 }
 
 """
-An application lets you run one or more instances of a container image on the [NAIS platform](https://nais.io/).
+An application lets you run one or more instances of a container image on the [Nais platform](https://nais.io/).
 
-Learn more about how to create and configure your applications in the [NAIS documentation](https://docs.nais.io/workloads/application/).
+Learn more about how to create and configure your applications in the [Nais documentation](https://docs.nais.io/workloads/application/).
 """
 type Application implements Node & Workload {
 	"""

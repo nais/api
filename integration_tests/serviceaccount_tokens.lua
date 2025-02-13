@@ -34,7 +34,7 @@ Test.gql("Delete dummy service account", function(t)
 		mutation {
 			deleteServiceAccount(
 				input: {
-					id: "%s"
+					serviceAccountID: "%s"
 				}
 			) {
 				serviceAccountDeleted
@@ -57,7 +57,7 @@ Test.gql("Create token for service account that does not exist", function(t)
 			createServiceAccountToken(
 				input: {
 					serviceAccountID: "%s"
-					note: "some note"
+					description: "some description"
 				}
 			) {
 				serviceAccountToken {
@@ -113,7 +113,7 @@ Test.gql("Create service account token without permission", function(t)
 			createServiceAccountToken(
 				input: {
 					serviceAccountID: "%s"
-					note: "some note"
+					description: "some description"
 				}
 			) {
 				serviceAccountToken {
@@ -142,7 +142,7 @@ Test.gql("Create service account token", function(t)
 			createServiceAccountToken(
 				input: {
 					serviceAccountID: "%s"
-					note: "some note"
+					description: "some description"
 				}
 			) {
 				secret
@@ -151,7 +151,7 @@ Test.gql("Create service account token", function(t)
 				}
 				serviceAccountToken {
 					id
-					note
+					description
 				}
 			}
 		}
@@ -166,7 +166,7 @@ Test.gql("Create service account token", function(t)
 				},
 				serviceAccountToken = {
 					id = Save("tokenID"),
-					note = "some note",
+					description = "some description",
 				},
 			},
 		},
@@ -209,13 +209,13 @@ Test.gql("Update service account token", function(t)
 			updateServiceAccountToken(
 				input: {
 					serviceAccountTokenID: "%s"
-					note: "some other note"
+					description: "some other description"
 					expiresAt: { removeExpiry: true }
 				}
 			) {
 				serviceAccountToken {
 					id
-					note
+					description
 					expiresAt
 				}
 			}
@@ -227,7 +227,7 @@ Test.gql("Update service account token", function(t)
 			updateServiceAccountToken = {
 				serviceAccountToken = {
 					id = State.tokenID,
-					note = "some other note",
+					description = "some other description",
 					expiresAt = Null,
 				},
 			},
@@ -249,14 +249,14 @@ Test.gql("Update service account token set expiresAt", function(t)
 				serviceAccount {
 					tokens {
 						nodes {
-							note
+							description
 							expiresAt
 						}
 					}
 				}
 				serviceAccountToken {
 					id
-					note
+					description
 					expiresAt
 				}
 			}
@@ -268,14 +268,14 @@ Test.gql("Update service account token set expiresAt", function(t)
 			updateServiceAccountToken = {
 				serviceAccountToken = {
 					id = State.tokenID,
-					note = "some other note",
+					description = "some other description",
 					expiresAt = "2029-04-04",
 				},
 				serviceAccount = {
 					tokens = {
 						nodes = {
 							{
-								note = "some other note",
+								description = "some other description",
 								expiresAt = "2029-04-04",
 							},
 						},
@@ -314,12 +314,12 @@ Test.gql("Update service account token that does not exist", function(t)
 			updateServiceAccountToken(
 				input: {
 					serviceAccountTokenID: "%s"
-					note: "some other note"
+					description: "some other description"
 				}
 			) {
 				serviceAccountToken {
 					id
-					note
+					description
 					expiresAt
 				}
 			}

@@ -41,7 +41,7 @@ extend type Query {
 }
 
 """
-The user type represents a user of the NAIS platform and the NAIS GraphQL API.
+The user type represents a user of the Nais platform and the Nais GraphQL API.
 """
 type User implements Node {
 	"""
@@ -60,7 +60,7 @@ type User implements Node {
 	name: String!
 
 	"""
-	The external ID of the user. This value is managed by the NAIS API user synchronization.
+	The external ID of the user. This value is managed by the Nais API user synchronization.
 	"""
 	externalID: String!
 

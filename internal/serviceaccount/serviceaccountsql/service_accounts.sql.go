@@ -72,16 +72,26 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) (*ServiceAccount
 
 const createToken = `-- name: CreateToken :one
 INSERT INTO
-	service_account_tokens (expires_at, note, token, service_account_id)
+	service_account_tokens (
+		expires_at,
+		description,
+		token,
+		service_account_id
+	)
 VALUES
-	($1, $2, $3, $4)
+	(
+		$1,
+		$2,
+		$3,
+		$4
+	)
 RETURNING
-	id, created_at, updated_at, expires_at, note, token, service_account_id
+	id, created_at, updated_at, expires_at, description, token, service_account_id
 `
 
 type CreateTokenParams struct {
 	ExpiresAt        pgtype.Date
-	Note             string
+	Description      string
 	Token            string
 	ServiceAccountID uuid.UUID
 }
@@ -89,7 +99,7 @@ type CreateTokenParams struct {
 func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (*ServiceAccountToken, error) {
 	row := q.db.QueryRow(ctx, createToken,
 		arg.ExpiresAt,
-		arg.Note,
+		arg.Description,
 		arg.Token,
 		arg.ServiceAccountID,
 	)
@@ -99,7 +109,7 @@ func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (*Serv
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.ExpiresAt,
-		&i.Note,
+		&i.Description,
 		&i.Token,
 		&i.ServiceAccountID,
 	)
@@ -231,7 +241,7 @@ func (q *Queries) GetByToken(ctx context.Context, token string) (*ServiceAccount
 
 const getTokensByIDs = `-- name: GetTokensByIDs :many
 SELECT
-	id, created_at, updated_at, expires_at, note, token, service_account_id
+	id, created_at, updated_at, expires_at, description, token, service_account_id
 FROM
 	service_account_tokens
 WHERE
@@ -254,7 +264,7 @@ func (q *Queries) GetTokensByIDs(ctx context.Context, ids []uuid.UUID) ([]*Servi
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.ExpiresAt,
-			&i.Note,
+			&i.Description,
 			&i.Token,
 			&i.ServiceAccountID,
 		); err != nil {
@@ -316,7 +326,7 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ServiceAccount, 
 
 const listTokensForServiceAccount = `-- name: ListTokensForServiceAccount :many
 SELECT
-	id, created_at, updated_at, expires_at, note, token, service_account_id
+	id, created_at, updated_at, expires_at, description, token, service_account_id
 FROM
 	service_account_tokens
 WHERE
@@ -349,7 +359,7 @@ func (q *Queries) ListTokensForServiceAccount(ctx context.Context, arg ListToken
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.ExpiresAt,
-			&i.Note,
+			&i.Description,
 			&i.Token,
 			&i.ServiceAccountID,
 		); err != nil {
@@ -407,28 +417,28 @@ const updateToken = `-- name: UpdateToken :one
 UPDATE service_account_tokens
 SET
 	expires_at = $1,
-	note = COALESCE($2, note)
+	description = COALESCE($2, description)
 WHERE
 	id = $3
 RETURNING
-	id, created_at, updated_at, expires_at, note, token, service_account_id
+	id, created_at, updated_at, expires_at, description, token, service_account_id
 `
 
 type UpdateTokenParams struct {
-	ExpiresAt pgtype.Date
-	Note      *string
-	ID        uuid.UUID
+	ExpiresAt   pgtype.Date
+	Description *string
+	ID          uuid.UUID
 }
 
 func (q *Queries) UpdateToken(ctx context.Context, arg UpdateTokenParams) (*ServiceAccountToken, error) {
-	row := q.db.QueryRow(ctx, updateToken, arg.ExpiresAt, arg.Note, arg.ID)
+	row := q.db.QueryRow(ctx, updateToken, arg.ExpiresAt, arg.Description, arg.ID)
 	var i ServiceAccountToken
 	err := row.Scan(
 		&i.ID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.ExpiresAt,
-		&i.Note,
+		&i.Description,
 		&i.Token,
 		&i.ServiceAccountID,
 	)
