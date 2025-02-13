@@ -204,7 +204,12 @@ CREATE UNIQUE INDEX ON service_account_roles USING btree (service_account_id, ro
 
 DELETE FROM user_roles
 WHERE
-	role_name = 'Service account creator'
+	role_name IN (
+		'Service account creator',
+		'Admin',
+		'User viewer',
+		'Team viewer'
+	)
 ;
 
 ALTER TABLE user_roles
