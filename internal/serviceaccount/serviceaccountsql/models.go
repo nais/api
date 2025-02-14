@@ -21,6 +21,7 @@ type ServiceAccountToken struct {
 	ID               uuid.UUID
 	CreatedAt        pgtype.Timestamptz
 	UpdatedAt        pgtype.Timestamptz
+	LastUsedAt       pgtype.Timestamptz
 	ExpiresAt        pgtype.Date
 	Name             string
 	Description      string

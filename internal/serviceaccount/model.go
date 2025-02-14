@@ -100,6 +100,7 @@ type ServiceAccountToken struct {
 	Description      string       `json:"description"`
 	CreatedAt        time.Time    `json:"createdAt"`
 	UpdatedAt        time.Time    `json:"updatedAt,omitempty"`
+	LastUsedAt       *time.Time   `json:"lastUsedAt,omitempty"`
 	ExpiresAt        *scalar.Date `json:"expiresAt,omitempty"`
 	UUID             uuid.UUID    `json:"-"`
 	ServiceAccountID uuid.UUID    `json:"-"`
@@ -153,11 +154,17 @@ func toGraphServiceAccountToken(t *serviceaccountsql.ServiceAccountToken) *Servi
 		expiresAt = ptr.To(scalar.NewDate(t.ExpiresAt.Time))
 	}
 
+	var lastUsedAt *time.Time
+	if t.LastUsedAt.Valid {
+		lastUsedAt = &t.LastUsedAt.Time
+	}
+
 	return &ServiceAccountToken{
 		Name:             t.Name,
 		Description:      t.Description,
 		CreatedAt:        t.CreatedAt.Time,
 		UpdatedAt:        t.UpdatedAt.Time,
+		LastUsedAt:       lastUsedAt,
 		ExpiresAt:        expiresAt,
 		UUID:             t.ID,
 		ServiceAccountID: t.ServiceAccountID,

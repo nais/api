@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"time"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
@@ -105,6 +106,10 @@ func (r *queryResolver) ServiceAccounts(ctx context.Context, first *int, after *
 
 func (r *queryResolver) ServiceAccount(ctx context.Context, id ident.Ident) (*serviceaccount.ServiceAccount, error) {
 	return serviceaccount.GetByIdent(ctx, id)
+}
+
+func (r *serviceAccountResolver) LastUsedAt(ctx context.Context, obj *serviceaccount.ServiceAccount) (*time.Time, error) {
+	return serviceaccount.LastUsedAt(ctx, obj.UUID)
 }
 
 func (r *serviceAccountResolver) Team(ctx context.Context, obj *serviceaccount.ServiceAccount) (*team.Team, error) {

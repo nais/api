@@ -158,6 +158,23 @@ ORDER BY
 	created_at
 ;
 
+-- name: UpdateSecretLastUsedAt :exec
+UPDATE service_account_tokens
+SET
+	last_used_at = CLOCK_TIMESTAMP()
+WHERE
+	token = @token
+;
+
+-- name: LastUsedAt :one
+SELECT
+	MAX(last_used_at)::TIMESTAMPTZ AS last_used_at
+FROM
+	service_account_tokens
+WHERE
+	service_account_id = @service_account_id
+;
+
 -- TODO: Remove once static service accounts has been removed
 -- name: DeleteStaticServiceAccounts :exec
 DELETE FROM service_accounts

@@ -3,6 +3,7 @@ package serviceaccount
 import (
 	"context"
 	"crypto/rand"
+	"time"
 
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/google/uuid"
@@ -40,6 +41,10 @@ func GetByToken(ctx context.Context, token string) (*ServiceAccount, error) {
 	}
 
 	return toGraphServiceAccount(sa), nil
+}
+
+func UpdateSecretLastUsedAt(ctx context.Context, secret string) error {
+	return db(ctx).UpdateSecretLastUsedAt(ctx, secret)
 }
 
 func GetByIdent(ctx context.Context, ident ident.Ident) (*ServiceAccount, error) {
@@ -470,6 +475,19 @@ func RevokeRole(ctx context.Context, input RevokeRoleFromServiceAccountInput) (*
 	}
 
 	return sa, nil
+}
+
+func LastUsedAt(ctx context.Context, id uuid.UUID) (*time.Time, error) {
+	ts, err := db(ctx).LastUsedAt(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if !ts.Valid {
+		return nil, nil
+	}
+
+	return &ts.Time, nil
 }
 
 func getToken() (*string, error) {

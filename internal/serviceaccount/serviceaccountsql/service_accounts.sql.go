@@ -88,7 +88,7 @@ VALUES
 		$5
 	)
 RETURNING
-	id, created_at, updated_at, expires_at, name, description, token, service_account_id
+	id, created_at, updated_at, last_used_at, expires_at, name, description, token, service_account_id
 `
 
 type CreateTokenParams struct {
@@ -112,6 +112,7 @@ func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (*Serv
 		&i.ID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.LastUsedAt,
 		&i.ExpiresAt,
 		&i.Name,
 		&i.Description,
@@ -246,7 +247,7 @@ func (q *Queries) GetByToken(ctx context.Context, token string) (*ServiceAccount
 
 const getTokensByIDs = `-- name: GetTokensByIDs :many
 SELECT
-	id, created_at, updated_at, expires_at, name, description, token, service_account_id
+	id, created_at, updated_at, last_used_at, expires_at, name, description, token, service_account_id
 FROM
 	service_account_tokens
 WHERE
@@ -268,6 +269,7 @@ func (q *Queries) GetTokensByIDs(ctx context.Context, ids []uuid.UUID) ([]*Servi
 			&i.ID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.LastUsedAt,
 			&i.ExpiresAt,
 			&i.Name,
 			&i.Description,
@@ -282,6 +284,22 @@ func (q *Queries) GetTokensByIDs(ctx context.Context, ids []uuid.UUID) ([]*Servi
 		return nil, err
 	}
 	return items, nil
+}
+
+const lastUsedAt = `-- name: LastUsedAt :one
+SELECT
+	MAX(last_used_at)::TIMESTAMPTZ AS last_used_at
+FROM
+	service_account_tokens
+WHERE
+	service_account_id = $1
+`
+
+func (q *Queries) LastUsedAt(ctx context.Context, serviceAccountID uuid.UUID) (pgtype.Timestamptz, error) {
+	row := q.db.QueryRow(ctx, lastUsedAt, serviceAccountID)
+	var last_used_at pgtype.Timestamptz
+	err := row.Scan(&last_used_at)
+	return last_used_at, err
 }
 
 const list = `-- name: List :many
@@ -332,7 +350,7 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ServiceAccount, 
 
 const listTokensForServiceAccount = `-- name: ListTokensForServiceAccount :many
 SELECT
-	id, created_at, updated_at, expires_at, name, description, token, service_account_id
+	id, created_at, updated_at, last_used_at, expires_at, name, description, token, service_account_id
 FROM
 	service_account_tokens
 WHERE
@@ -364,6 +382,7 @@ func (q *Queries) ListTokensForServiceAccount(ctx context.Context, arg ListToken
 			&i.ID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.LastUsedAt,
 			&i.ExpiresAt,
 			&i.Name,
 			&i.Description,
@@ -420,6 +439,19 @@ func (q *Queries) Update(ctx context.Context, arg UpdateParams) (*ServiceAccount
 	return &i, err
 }
 
+const updateSecretLastUsedAt = `-- name: UpdateSecretLastUsedAt :exec
+UPDATE service_account_tokens
+SET
+	last_used_at = CLOCK_TIMESTAMP()
+WHERE
+	token = $1
+`
+
+func (q *Queries) UpdateSecretLastUsedAt(ctx context.Context, token string) error {
+	_, err := q.db.Exec(ctx, updateSecretLastUsedAt, token)
+	return err
+}
+
 const updateToken = `-- name: UpdateToken :one
 UPDATE service_account_tokens
 SET
@@ -429,7 +461,7 @@ SET
 WHERE
 	id = $4
 RETURNING
-	id, created_at, updated_at, expires_at, name, description, token, service_account_id
+	id, created_at, updated_at, last_used_at, expires_at, name, description, token, service_account_id
 `
 
 type UpdateTokenParams struct {
@@ -451,6 +483,7 @@ func (q *Queries) UpdateToken(ctx context.Context, arg UpdateTokenParams) (*Serv
 		&i.ID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.LastUsedAt,
 		&i.ExpiresAt,
 		&i.Name,
 		&i.Description,

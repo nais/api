@@ -1311,6 +1311,7 @@ type ComplexityRoot struct {
 		CreatedAt   func(childComplexity int) int
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
+		LastUsedAt  func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Roles       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Team        func(childComplexity int) int
@@ -1356,6 +1357,7 @@ type ComplexityRoot struct {
 		Description func(childComplexity int) int
 		ExpiresAt   func(childComplexity int) int
 		ID          func(childComplexity int) int
+		LastUsedAt  func(childComplexity int) int
 		Name        func(childComplexity int) int
 		UpdatedAt   func(childComplexity int) int
 	}
@@ -2510,6 +2512,7 @@ type SecretResolver interface {
 	LastModifiedBy(ctx context.Context, obj *secret.Secret) (*user.User, error)
 }
 type ServiceAccountResolver interface {
+	LastUsedAt(ctx context.Context, obj *serviceaccount.ServiceAccount) (*time.Time, error)
 	Team(ctx context.Context, obj *serviceaccount.ServiceAccount) (*team.Team, error)
 	Roles(ctx context.Context, obj *serviceaccount.ServiceAccount, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*authz.Role], error)
 	Tokens(ctx context.Context, obj *serviceaccount.ServiceAccount, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*serviceaccount.ServiceAccountToken], error)
@@ -7702,6 +7705,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ServiceAccount.ID(childComplexity), true
 
+	case "ServiceAccount.lastUsedAt":
+		if e.complexity.ServiceAccount.LastUsedAt == nil {
+			break
+		}
+
+		return e.complexity.ServiceAccount.LastUsedAt(childComplexity), true
+
 	case "ServiceAccount.name":
 		if e.complexity.ServiceAccount.Name == nil {
 			break
@@ -7921,6 +7931,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ServiceAccountToken.ID(childComplexity), true
+
+	case "ServiceAccountToken.lastUsedAt":
+		if e.complexity.ServiceAccountToken.LastUsedAt == nil {
+			break
+		}
+
+		return e.complexity.ServiceAccountToken.LastUsedAt(childComplexity), true
 
 	case "ServiceAccountToken.name":
 		if e.complexity.ServiceAccountToken.Name == nil {
@@ -15915,6 +15932,11 @@ type ServiceAccount implements Node {
 	updatedAt: Time!
 
 	"""
+	When the service account was last used for authentication.
+	"""
+	lastUsedAt: Time
+
+	"""
 	The team that the service account belongs to.
 	"""
 	team: Team
@@ -16079,6 +16101,11 @@ type ServiceAccountToken implements Node {
 	When the service account token was last updated.
 	"""
 	updatedAt: Time!
+
+	"""
+	When the service account token was last used for authentication.
+	"""
+	lastUsedAt: Time
 
 	"""
 	Expiry date of the token. If this value is empty the token never expires.
@@ -31011,6 +31038,8 @@ func (ec *executionContext) fieldContext_AssignRoleToServiceAccountPayload_servi
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
+			case "lastUsedAt":
+				return ec.fieldContext_ServiceAccount_lastUsedAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
 			case "roles":
@@ -34218,6 +34247,8 @@ func (ec *executionContext) fieldContext_CreateServiceAccountPayload_serviceAcco
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
+			case "lastUsedAt":
+				return ec.fieldContext_ServiceAccount_lastUsedAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
 			case "roles":
@@ -34277,6 +34308,8 @@ func (ec *executionContext) fieldContext_CreateServiceAccountTokenPayload_servic
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
+			case "lastUsedAt":
+				return ec.fieldContext_ServiceAccount_lastUsedAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
 			case "roles":
@@ -34336,6 +34369,8 @@ func (ec *executionContext) fieldContext_CreateServiceAccountTokenPayload_servic
 				return ec.fieldContext_ServiceAccountToken_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_ServiceAccountToken_updatedAt(ctx, field)
+			case "lastUsedAt":
+				return ec.fieldContext_ServiceAccountToken_lastUsedAt(ctx, field)
 			case "expiresAt":
 				return ec.fieldContext_ServiceAccountToken_expiresAt(ctx, field)
 			}
@@ -34994,6 +35029,8 @@ func (ec *executionContext) fieldContext_DeleteServiceAccountTokenPayload_servic
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
+			case "lastUsedAt":
+				return ec.fieldContext_ServiceAccount_lastUsedAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
 			case "roles":
@@ -49650,6 +49687,8 @@ func (ec *executionContext) fieldContext_Query_serviceAccount(ctx context.Contex
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
+			case "lastUsedAt":
+				return ec.fieldContext_ServiceAccount_lastUsedAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
 			case "roles":
@@ -55751,6 +55790,8 @@ func (ec *executionContext) fieldContext_RevokeRoleFromServiceAccountPayload_ser
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
+			case "lastUsedAt":
+				return ec.fieldContext_ServiceAccount_lastUsedAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
 			case "roles":
@@ -61181,6 +61222,47 @@ func (ec *executionContext) fieldContext_ServiceAccount_updatedAt(_ context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _ServiceAccount_lastUsedAt(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccount) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceAccount_lastUsedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ServiceAccount().LastUsedAt(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceAccount_lastUsedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceAccount",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ServiceAccount_team(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccount) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ServiceAccount_team(ctx, field)
 	if err != nil {
@@ -61469,6 +61551,8 @@ func (ec *executionContext) fieldContext_ServiceAccountConnection_nodes(_ contex
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
+			case "lastUsedAt":
+				return ec.fieldContext_ServiceAccount_lastUsedAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
 			case "roles":
@@ -62333,6 +62417,8 @@ func (ec *executionContext) fieldContext_ServiceAccountEdge_node(_ context.Conte
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
+			case "lastUsedAt":
+				return ec.fieldContext_ServiceAccount_lastUsedAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
 			case "roles":
@@ -62610,6 +62696,47 @@ func (ec *executionContext) fieldContext_ServiceAccountToken_updatedAt(_ context
 	return fc, nil
 }
 
+func (ec *executionContext) _ServiceAccountToken_lastUsedAt(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountToken) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceAccountToken_lastUsedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LastUsedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceAccountToken_lastUsedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceAccountToken",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ServiceAccountToken_expiresAt(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountToken) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ServiceAccountToken_expiresAt(ctx, field)
 	if err != nil {
@@ -62700,6 +62827,8 @@ func (ec *executionContext) fieldContext_ServiceAccountTokenConnection_nodes(_ c
 				return ec.fieldContext_ServiceAccountToken_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_ServiceAccountToken_updatedAt(ctx, field)
+			case "lastUsedAt":
+				return ec.fieldContext_ServiceAccountToken_lastUsedAt(ctx, field)
 			case "expiresAt":
 				return ec.fieldContext_ServiceAccountToken_expiresAt(ctx, field)
 			}
@@ -63560,6 +63689,8 @@ func (ec *executionContext) fieldContext_ServiceAccountTokenEdge_node(_ context.
 				return ec.fieldContext_ServiceAccountToken_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_ServiceAccountToken_updatedAt(ctx, field)
+			case "lastUsedAt":
+				return ec.fieldContext_ServiceAccountToken_lastUsedAt(ctx, field)
 			case "expiresAt":
 				return ec.fieldContext_ServiceAccountToken_expiresAt(ctx, field)
 			}
@@ -82460,6 +82591,8 @@ func (ec *executionContext) fieldContext_UpdateServiceAccountPayload_serviceAcco
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
+			case "lastUsedAt":
+				return ec.fieldContext_ServiceAccount_lastUsedAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
 			case "roles":
@@ -82519,6 +82652,8 @@ func (ec *executionContext) fieldContext_UpdateServiceAccountTokenPayload_servic
 				return ec.fieldContext_ServiceAccount_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_ServiceAccount_updatedAt(ctx, field)
+			case "lastUsedAt":
+				return ec.fieldContext_ServiceAccount_lastUsedAt(ctx, field)
 			case "team":
 				return ec.fieldContext_ServiceAccount_team(ctx, field)
 			case "roles":
@@ -82578,6 +82713,8 @@ func (ec *executionContext) fieldContext_UpdateServiceAccountTokenPayload_servic
 				return ec.fieldContext_ServiceAccountToken_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_ServiceAccountToken_updatedAt(ctx, field)
+			case "lastUsedAt":
+				return ec.fieldContext_ServiceAccountToken_lastUsedAt(ctx, field)
 			case "expiresAt":
 				return ec.fieldContext_ServiceAccountToken_expiresAt(ctx, field)
 			}
@@ -106465,6 +106602,39 @@ func (ec *executionContext) _ServiceAccount(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "lastUsedAt":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ServiceAccount_lastUsedAt(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "team":
 			field := field
 
@@ -106858,6 +107028,8 @@ func (ec *executionContext) _ServiceAccountToken(ctx context.Context, sel ast.Se
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "lastUsedAt":
+			out.Values[i] = ec._ServiceAccountToken_lastUsedAt(ctx, field, obj)
 		case "expiresAt":
 			out.Values[i] = ec._ServiceAccountToken_expiresAt(ctx, field, obj)
 		default:

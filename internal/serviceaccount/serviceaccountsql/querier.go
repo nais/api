@@ -6,6 +6,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
@@ -21,10 +22,12 @@ type Querier interface {
 	GetByName(ctx context.Context, name string) (*ServiceAccount, error)
 	GetByToken(ctx context.Context, token string) (*ServiceAccount, error)
 	GetTokensByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccountToken, error)
+	LastUsedAt(ctx context.Context, serviceAccountID uuid.UUID) (pgtype.Timestamptz, error)
 	List(ctx context.Context, arg ListParams) ([]*ServiceAccount, error)
 	ListTokensForServiceAccount(ctx context.Context, arg ListTokensForServiceAccountParams) ([]*ServiceAccountToken, error)
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
 	Update(ctx context.Context, arg UpdateParams) (*ServiceAccount, error)
+	UpdateSecretLastUsedAt(ctx context.Context, token string) error
 	UpdateToken(ctx context.Context, arg UpdateTokenParams) (*ServiceAccountToken, error)
 }
 
