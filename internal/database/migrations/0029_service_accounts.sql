@@ -47,30 +47,90 @@ CREATE TABLE authorizations (name TEXT PRIMARY KEY, description TEXT NOT NULL)
 INSERT INTO
 	authorizations (name, description)
 VALUES
-	('activity_logs:read', 'Some description'),
-	('service_accounts:create', 'Some description'),
-	('service_accounts:delete', 'Some description'),
-	('service_accounts:read', 'Some description'),
-	('service_accounts:update', 'Some description'),
-	('teams:create', 'Some description'),
-	('teams:delete', 'Some description'),
-	('teams:metadata:update', 'Some description'),
-	('teams:members:admin', 'Some description'),
-	('teams:secrets:create', 'Some description'),
-	('teams:secrets:delete', 'Some description'),
-	('teams:secrets:update', 'Some description'),
-	('teams:secrets:read', 'Some description'),
-	('teams:secrets:list', 'Some description'),
-	('repositories:create', 'Some description'),
-	('repositories:delete', 'Some description'),
-	('applications:update', 'Some description'),
-	('applications:delete', 'Some description'),
-	('jobs:update', 'Some description'),
-	('jobs:delete', 'Some description'),
-	('deploy_key:read', 'Some description'),
-	('deploy_key:update', 'Some description'),
-	('unleash:create', 'Some description'),
-	('unleash:update', 'Some description')
+	(
+		'activity_logs:read',
+		'Permission to read activity logs.'
+	),
+	(
+		'service_accounts:create',
+		'Permission to create service accounts.'
+	),
+	(
+		'service_accounts:delete',
+		'Permission to delete service accounts.'
+	),
+	(
+		'service_accounts:read',
+		'Permission to read service accounts.'
+	),
+	(
+		'service_accounts:update',
+		'Permission to update service accounts.'
+	),
+	('teams:create', 'Permission to create teams.'),
+	('teams:delete', 'Permission to delete teams.'),
+	(
+		'teams:metadata:update',
+		'Permission to update team metadata.'
+	),
+	(
+		'teams:members:admin',
+		'Permission to administer team members.'
+	),
+	(
+		'teams:secrets:create',
+		'Permission to create team secrets.'
+	),
+	(
+		'teams:secrets:delete',
+		'Permission to delete team secrets.'
+	),
+	(
+		'teams:secrets:update',
+		'Permission to update team secrets.'
+	),
+	(
+		'teams:secrets:read',
+		'Permission to read team secrets.'
+	),
+	(
+		'teams:secrets:list',
+		'Permission to list team secrets.'
+	),
+	(
+		'repositories:create',
+		'Permission to create team repositories.'
+	),
+	(
+		'repositories:delete',
+		'Permission to delete team repositories.'
+	),
+	(
+		'applications:update',
+		'Permission to update applications.'
+	),
+	(
+		'applications:delete',
+		'Permission to delete applications.'
+	),
+	('jobs:update', 'Permission to update jobs.'),
+	('jobs:delete', 'Permission to delete jobs.'),
+	(
+		'deploy_key:read',
+		'Permission to read deploy keys.'
+	),
+	(
+		'deploy_key:update',
+		'Permission to update deploy keys.'
+	),
+	(
+		'unleash:create',
+		'Permission to create unleash instances.'
+	),
+	(
+		'unleash:update',
+		'Permission to update unleash instances.'
+	)
 ;
 
 CREATE TABLE role_authorizations (
@@ -93,15 +153,31 @@ CREATE TABLE service_accounts (
 INSERT INTO
 	roles (name, description, is_only_global)
 VALUES
-	('Deploy key viewer', 'Some description', FALSE),
 	(
-		'Service account owner',
-		'Some description',
+		'Deploy key viewer',
+		'Permits the actor to view deploy keys.',
 		FALSE
 	),
-	('Team creator', 'Some description', TRUE),
-	('Team member', 'Some description', FALSE),
-	('Team owner', 'Some description', FALSE)
+	(
+		'Service account owner',
+		'Permits the actor to manage service accounts.',
+		FALSE
+	),
+	(
+		'Team creator',
+		'Permits the actor to create teams.',
+		TRUE
+	),
+	(
+		'Team member',
+		'Permits the actor to do actions on behalf of a team. Also includes managing most team resources except members.',
+		FALSE
+	),
+	(
+		'Team owner',
+		'Permits the actor to do actions on behalf of a team. Also includes managing all team resources, including members.',
+		FALSE
+	)
 ;
 
 INSERT INTO
