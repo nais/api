@@ -9,6 +9,19 @@ import (
 	"github.com/google/uuid"
 )
 
+const assignGlobalAdmin = `-- name: AssignGlobalAdmin :exec
+UPDATE users
+SET
+	admin = TRUE
+WHERE
+	id = $1
+`
+
+func (q *Queries) AssignGlobalAdmin(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, assignGlobalAdmin, id)
+	return err
+}
+
 const assignGlobalRole = `-- name: AssignGlobalRole :exec
 INSERT INTO
 	user_roles (user_id, role_name)
@@ -19,7 +32,7 @@ ON CONFLICT DO NOTHING
 
 type AssignGlobalRoleParams struct {
 	UserID   uuid.UUID
-	RoleName RoleName
+	RoleName string
 }
 
 func (q *Queries) AssignGlobalRole(ctx context.Context, arg AssignGlobalRoleParams) error {
@@ -43,14 +56,11 @@ func (q *Queries) CountLogEntries(ctx context.Context) (int64, error) {
 
 const create = `-- name: Create :one
 INSERT INTO
-	users (name, email, external_id)
+	users (name, email, external_id, admin)
 VALUES
-	($1, LOWER($2), $3)
+	($1, LOWER($2), $3, FALSE)
 RETURNING
-	id,
-	email,
-	name,
-	external_id
+	id, email, name, external_id, admin
 `
 
 type CreateParams struct {
@@ -67,6 +77,7 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) (*User, error) {
 		&i.Email,
 		&i.Name,
 		&i.ExternalID,
+		&i.Admin,
 	)
 	return &i, err
 }
@@ -130,10 +141,7 @@ func (q *Queries) Delete(ctx context.Context, id uuid.UUID) error {
 
 const list = `-- name: List :many
 SELECT
-	id,
-	email,
-	name,
-	external_id
+	id, email, name, external_id, admin
 FROM
 	users
 ORDER BY
@@ -155,6 +163,45 @@ func (q *Queries) List(ctx context.Context) ([]*User, error) {
 			&i.Email,
 			&i.Name,
 			&i.ExternalID,
+			&i.Admin,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listGlobalAdmins = `-- name: ListGlobalAdmins :many
+SELECT
+	u.id, u.email, u.name, u.external_id, u.admin
+FROM
+	users u
+WHERE
+	u.admin = TRUE
+ORDER BY
+	u.name,
+	u.email
+`
+
+func (q *Queries) ListGlobalAdmins(ctx context.Context) ([]*User, error) {
+	rows, err := q.db.Query(ctx, listGlobalAdmins)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*User{}
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.Name,
+			&i.ExternalID,
+			&i.Admin,
 		); err != nil {
 			return nil, err
 		}
@@ -260,8 +307,7 @@ SELECT
 	id,
 	role_name,
 	user_id,
-	target_team_slug,
-	target_service_account_id
+	target_team_slug
 FROM
 	user_roles
 ORDER BY
@@ -282,7 +328,6 @@ func (q *Queries) ListRoles(ctx context.Context) ([]*UserRole, error) {
 			&i.RoleName,
 			&i.UserID,
 			&i.TargetTeamSlug,
-			&i.TargetServiceAccountID,
 		); err != nil {
 			return nil, err
 		}
@@ -294,18 +339,30 @@ func (q *Queries) ListRoles(ctx context.Context) ([]*UserRole, error) {
 	return items, nil
 }
 
+const revokeGlobalAdmin = `-- name: RevokeGlobalAdmin :exec
+UPDATE users
+SET
+	admin = FALSE
+WHERE
+	id = $1
+`
+
+func (q *Queries) RevokeGlobalAdmin(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, revokeGlobalAdmin, id)
+	return err
+}
+
 const revokeGlobalRole = `-- name: RevokeGlobalRole :exec
 DELETE FROM user_roles
 WHERE
 	user_id = $1
 	AND target_team_slug IS NULL
-	AND target_service_account_id IS NULL
 	AND role_name = $2
 `
 
 type RevokeGlobalRoleParams struct {
 	UserID   uuid.UUID
-	RoleName RoleName
+	RoleName string
 }
 
 func (q *Queries) RevokeGlobalRole(ctx context.Context, arg RevokeGlobalRoleParams) error {

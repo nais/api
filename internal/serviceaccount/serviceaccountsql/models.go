@@ -4,9 +4,27 @@ package serviceaccountsql
 
 import (
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/nais/api/internal/slug"
 )
 
 type ServiceAccount struct {
-	ID   uuid.UUID
-	Name string
+	ID          uuid.UUID
+	CreatedAt   pgtype.Timestamptz
+	UpdatedAt   pgtype.Timestamptz
+	Name        string
+	Description string
+	TeamSlug    *slug.Slug
+}
+
+type ServiceAccountToken struct {
+	ID               uuid.UUID
+	CreatedAt        pgtype.Timestamptz
+	UpdatedAt        pgtype.Timestamptz
+	LastUsedAt       pgtype.Timestamptz
+	ExpiresAt        pgtype.Date
+	Name             string
+	Description      string
+	Token            string
+	ServiceAccountID uuid.UUID
 }

@@ -20,11 +20,11 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/logger"
-	"github.com/nais/api/internal/role"
-	"github.com/nais/api/internal/role/rolesql"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/user"
+	"github.com/nais/api/internal/usersync/usersyncer"
+	"github.com/nais/api/internal/usersync/usersyncsql"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/text/runes"
@@ -154,7 +154,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 	ctx = activitylog.NewLoaderContext(ctx, pool)
 	ctx = user.NewLoaderContext(ctx, pool)
 	ctx = team.NewLoaderContext(ctx, pool, nil)
-	ctx = role.NewLoaderContext(ctx, pool)
+	ctx = authz.NewLoaderContext(ctx, pool)
 	ctx = environment.NewLoaderContext(ctx, pool)
 
 	emails := map[string]struct{}{}
@@ -218,39 +218,52 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			return fmt.Errorf("sync environments: %w", err)
 		}
 
-		defaultUserRoles := []rolesql.RoleName{
-			rolesql.RoleNameTeamcreator,
-			rolesql.RoleNameTeamviewer,
-			rolesql.RoleNameUserviewer,
-			rolesql.RoleNameServiceaccountcreator,
-		}
-
 		var err error
 		var adminUser, devUser *user.User
 
+		usersyncq := usersyncsql.New(database.TransactionFromContext(ctx))
+
+		createUser := func(ctx context.Context, name, email string) (*user.User, error) {
+			usu, err := usersyncq.Create(ctx, usersyncsql.CreateParams{
+				Name:       name,
+				Email:      email,
+				ExternalID: uuid.New().String(),
+			})
+			if err != nil {
+				return nil, fmt.Errorf("create user: %w", err)
+			}
+
+			usr, err := user.GetByEmail(ctx, usu.Email)
+			if err != nil {
+				return nil, fmt.Errorf("get user: %w", err)
+			}
+
+			return usr, nil
+		}
+
 		adminUser, err = user.GetByEmail(ctx, nameToEmail(adminName, cfg.Domain))
 		if err != nil {
-			adminUser, err = user.Create(ctx, adminName, nameToEmail(adminName, cfg.Domain), uuid.New().String())
+			adminUser, err = createUser(ctx, adminName, nameToEmail(adminName, cfg.Domain))
 			if err != nil {
 				return fmt.Errorf("create admin user: %w", err)
 			}
 		}
-		if err := role.AssignGlobalRoleToUser(ctx, adminUser.UUID, rolesql.RoleNameAdmin); err != nil {
+
+		if err := usersyncq.AssignGlobalAdmin(ctx, adminUser.UUID); err != nil {
 			return fmt.Errorf("assign global admin role to admin user: %w", err)
 		}
 		actor := &authz.Actor{User: adminUser}
 
 		devUser, err = user.GetByEmail(ctx, nameToEmail(devName, cfg.Domain))
 		if err != nil {
-			devUser, err = user.Create(ctx, devName, nameToEmail(devName, cfg.Domain), uuid.New().String())
+			devUser, err = createUser(ctx, devName, nameToEmail(devName, cfg.Domain))
 			if err != nil {
 				return fmt.Errorf("create dev user: %w", err)
 			}
 		}
-		for _, roleName := range defaultUserRoles {
-			if err := role.AssignGlobalRoleToUser(ctx, devUser.UUID, roleName); err != nil {
-				return fmt.Errorf("assign globla role %q to dev user: %w", roleName, err)
-			}
+
+		if err := usersyncer.AssignDefaultPermissionsToUser(ctx, usersyncq, devUser.UUID); err != nil {
+			return fmt.Errorf("assign default permissions to dev user: %w", err)
 		}
 
 		users := []*user.User{devUser}
@@ -263,22 +276,19 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 				continue
 			}
 
-			u, err := user.Create(ctx, name, email, uuid.New().String())
+			u, err := createUser(ctx, name, email)
 			if err != nil {
 				return fmt.Errorf("create user %q: %w", email, err)
 			}
 
-			for _, roleName := range defaultUserRoles {
-				if err = role.AssignGlobalRoleToUser(ctx, u.UUID, roleName); err != nil {
-					return fmt.Errorf("assign global role %q to user %q: %w", roleName, u.Email, err)
-				}
+			if err = usersyncer.AssignDefaultPermissionsToUser(ctx, usersyncq, u.UUID); err != nil {
+				return fmt.Errorf("assign default permissions to user %q: %w", u.Email, err)
 			}
 
 			log.Infof("%d/%d users created", i, *cfg.NumUsers)
 			users = append(users, u)
 			emails[email] = struct{}{}
 		}
-		usersCreated := len(users)
 
 		var devteam *team.Team
 		devteam, err = team.Get(ctx, "devteam")
@@ -304,8 +314,8 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			return fmt.Errorf("update external references for devteam: %w", err)
 		}
 
-		if err := role.AssignTeamRoleToUser(ctx, devUser.UUID, devteam.Slug, rolesql.RoleNameTeamowner); err != nil {
-			return fmt.Errorf("assign team owner role to dev user: %w", err)
+		if err := authz.MakeUserTeamOwner(ctx, devUser.UUID, devteam.Slug); err != nil {
+			return fmt.Errorf("make user %q owner of team %q: %w", devUser.Email, devteam.Slug, err)
 		}
 
 		input := &team.UpdateTeamEnvironmentInput{
@@ -355,16 +365,16 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			}
 
 			for o := 0; o < *cfg.NumOwnersPerTeam; o++ {
-				u := users[rand.IntN(usersCreated)]
-				if err = role.AssignTeamRoleToUser(ctx, u.UUID, t.Slug, rolesql.RoleNameTeamowner); err != nil {
-					return fmt.Errorf("assign team owner role to user %q in team %q: %w", u.Email, t.Slug, err)
+				u := users[rand.IntN(len(users))]
+				if err = authz.MakeUserTeamOwner(ctx, u.UUID, t.Slug); err != nil {
+					return fmt.Errorf("make user %q owner of team %q: %w", u.Email, t.Slug, err)
 				}
 			}
 
 			for o := 0; o < *cfg.NumMembersPerTeam; o++ {
-				u := users[rand.IntN(usersCreated)]
-				if err = role.AssignTeamRoleToUser(ctx, u.UUID, t.Slug, rolesql.RoleNameTeammember); err != nil {
-					return fmt.Errorf("assign team member role to user %q in team %q: %w", u.Email, t.Slug, err)
+				u := users[rand.IntN(len(users))]
+				if err = authz.MakeUserTeamMember(ctx, u.UUID, t.Slug); err != nil {
+					return fmt.Errorf("make user %q member of team %q: %w", u.Email, t.Slug, err)
 				}
 			}
 

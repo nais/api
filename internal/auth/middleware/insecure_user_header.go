@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/user"
 )
 
@@ -44,7 +43,7 @@ func InsecureUserHeader() func(next http.Handler) http.Handler {
 				return
 			}
 
-			roles, err := role.ForUser(ctx, u.UUID)
+			roles, err := authz.ForUser(ctx, u.UUID)
 			if err != nil {
 				http.Error(w, jsonError(fmt.Sprintf("Unable to get user roles for user with email %q", email)), http.StatusUnauthorized)
 				return

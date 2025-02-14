@@ -8,7 +8,6 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
-	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/workload"
@@ -38,7 +37,7 @@ func (r *jobResolver) Secrets(ctx context.Context, obj *job.Job, first *int, aft
 }
 
 func (r *mutationResolver) CreateSecret(ctx context.Context, input secret.CreateSecretInput) (*secret.CreateSecretPayload, error) {
-	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationSecretsCreate, input.Team); err != nil {
+	if err := authz.CanCreateSecrets(ctx, input.Team); err != nil {
 		return nil, err
 	}
 
@@ -54,7 +53,7 @@ func (r *mutationResolver) CreateSecret(ctx context.Context, input secret.Create
 }
 
 func (r *mutationResolver) AddSecretValue(ctx context.Context, input secret.AddSecretValueInput) (*secret.AddSecretValuePayload, error) {
-	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationSecretsUpdate, input.Team); err != nil {
+	if err := authz.CanUpdateSecrets(ctx, input.Team); err != nil {
 		return nil, err
 	}
 
@@ -70,7 +69,7 @@ func (r *mutationResolver) AddSecretValue(ctx context.Context, input secret.AddS
 }
 
 func (r *mutationResolver) UpdateSecretValue(ctx context.Context, input secret.UpdateSecretValueInput) (*secret.UpdateSecretValuePayload, error) {
-	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationSecretsUpdate, input.Team); err != nil {
+	if err := authz.CanUpdateSecrets(ctx, input.Team); err != nil {
 		return nil, err
 	}
 
@@ -86,7 +85,7 @@ func (r *mutationResolver) UpdateSecretValue(ctx context.Context, input secret.U
 }
 
 func (r *mutationResolver) RemoveSecretValue(ctx context.Context, input secret.RemoveSecretValueInput) (*secret.RemoveSecretValuePayload, error) {
-	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationSecretsUpdate, input.Team); err != nil {
+	if err := authz.CanUpdateSecrets(ctx, input.Team); err != nil {
 		return nil, err
 	}
 
@@ -102,7 +101,7 @@ func (r *mutationResolver) RemoveSecretValue(ctx context.Context, input secret.R
 }
 
 func (r *mutationResolver) DeleteSecret(ctx context.Context, input secret.DeleteSecretInput) (*secret.DeleteSecretPayload, error) {
-	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationSecretsDelete, input.Team); err != nil {
+	if err := authz.CanDeleteSecrets(ctx, input.Team); err != nil {
 		return nil, err
 	}
 
@@ -125,7 +124,7 @@ func (r *secretResolver) Team(ctx context.Context, obj *secret.Secret) (*team.Te
 }
 
 func (r *secretResolver) Values(ctx context.Context, obj *secret.Secret) ([]*secret.SecretValue, error) {
-	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationSecretsRead, obj.TeamSlug); err != nil {
+	if err := authz.CanReadSecrets(ctx, obj.TeamSlug); err != nil {
 		return nil, err
 	}
 
@@ -209,7 +208,7 @@ func (r *secretResolver) LastModifiedBy(ctx context.Context, obj *secret.Secret)
 }
 
 func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder, filter *secret.SecretFilter) (*pagination.Connection[*secret.Secret], error) {
-	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationSecretsList, obj.Slug); err != nil {
+	if err := authz.CanReadSecrets(ctx, obj.Slug); err != nil {
 		return nil, nil
 	}
 
@@ -222,7 +221,7 @@ func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, 
 }
 
 func (r *teamEnvironmentResolver) Secret(ctx context.Context, obj *team.TeamEnvironment, name string) (*secret.Secret, error) {
-	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationSecretsRead, obj.TeamSlug); err != nil {
+	if err := authz.CanReadSecrets(ctx, obj.TeamSlug); err != nil {
 		return nil, nil
 	}
 

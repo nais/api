@@ -76,11 +76,11 @@ Test.gql("list reconcilers with config as non-admin", function(t)
 		data = Null,
 		errors = {
 			{
-				message = Contains("you need the \"global:admin\""),
+				message = "You are authenticated, but your account is not authorized to perform this action.",
 				path = { "reconcilers", "nodes", Ignore(), "config" },
 			},
 			{
-				message = Contains("you need the \"global:admin\""),
+				message = "You are authenticated, but your account is not authorized to perform this action.",
 				path = { "reconcilers", "nodes", Ignore(), "config" },
 			},
 		},
@@ -100,7 +100,7 @@ Test.gql("enable reconciler as non-admin", function(t)
 		data = Null,
 		errors = {
 			{
-				message = Contains("you need the \"global:admin\""),
+				message = "You are authenticated, but your account is not authorized to perform this action.",
 				path = { "enableReconciler" },
 			},
 		},
@@ -120,7 +120,7 @@ Test.gql("disable reconciler as non-admin", function(t)
 		data = Null,
 		errors = {
 			{
-				message = Contains("you need the \"global:admin\""),
+				message = "You are authenticated, but your account is not authorized to perform this action.",
 				path = { "disableReconciler" },
 			},
 		},
@@ -128,7 +128,7 @@ Test.gql("disable reconciler as non-admin", function(t)
 end)
 
 -- Make the authenticated user an admin
-Helper.SQLExec("INSERT INTO user_roles (role_name, user_id) VALUES ('Admin', (SELECT id FROM users WHERE email = $1))",
+Helper.SQLExec("UPDATE users SET admin = true WHERE email = $1",
 	'authenticated@example.com')
 
 Test.gql("enable non-configured reconciler as admin", function(t)

@@ -23,21 +23,21 @@ extend type Query {
 
 extend type Mutation {
 	"""
-	Create a new NAIS team
+	Create a new Nais team
 
 	The user creating the team will be granted team ownership, unless the user is a service account, in which case the
 	team will not get an initial owner. To add one or more owners to the team, refer to the `addTeamOwners` mutation.
 
-	Creation of a team will also create external resources for the team, which will be managed by the NAIS API
+	Creation of a team will also create external resources for the team, which will be managed by the Nais API
 	reconcilers. This will be done asynchronously.
 
-	Refer to the [official NAIS documentation](https://docs.nais.io/explanations/team/) for more information regarding
-	NAIS teams.
+	Refer to the [official Nais documentation](https://docs.nais.io/explanations/team/) for more information regarding
+	Nais teams.
 	"""
 	createTeam(input: CreateTeamInput!): CreateTeamPayload!
 
 	"""
-	Update an existing NAIS team
+	Update an existing Nais team
 
 	This mutation can be used to update the team purpose and the main Slack channel. It is not possible to update the
 	team slug.
@@ -65,7 +65,7 @@ extend type Mutation {
 	Confirm a team deletion
 
 	This will start the actual team deletion process, which will be done in an asynchronous manner. All external
-	entities controlled by NAIS will also be deleted.
+	entities controlled by Nais will also be deleted.
 
 	WARNING: There is no going back after starting this process.
 
@@ -96,11 +96,11 @@ extend type Mutation {
 }
 
 """
-The team type represents a team on the [NAIS platform](https://nais.io/).
+The team type represents a team on the [Nais platform](https://nais.io/).
 
-Learn more about what NAIS teams are and what they can be used for in the [official NAIS documentation](https://docs.nais.io/explanations/team/).
+Learn more about what Nais teams are and what they can be used for in the [official Nais documentation](https://docs.nais.io/explanations/team/).
 
-External resources (e.g. entraIDGroupID, gitHubTeamSlug) are managed by [NAIS API reconcilers](https://github.com/nais/api-reconcilers).
+External resources (e.g. entraIDGroupID, gitHubTeamSlug) are managed by [Nais API reconcilers](https://github.com/nais/api-reconcilers).
 """
 type Team implements Node {
 	"The globally unique ID of the team."

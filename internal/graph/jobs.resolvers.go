@@ -8,7 +8,6 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
-	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/status"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
@@ -71,7 +70,7 @@ func (r *jobRunResolver) Instances(ctx context.Context, obj *job.JobRun, first *
 }
 
 func (r *mutationResolver) DeleteJob(ctx context.Context, input job.DeleteJobInput) (*job.DeleteJobPayload, error) {
-	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationJobsDelete, input.TeamSlug); err != nil {
+	if err := authz.CanDeleteJobs(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
@@ -79,7 +78,7 @@ func (r *mutationResolver) DeleteJob(ctx context.Context, input job.DeleteJobInp
 }
 
 func (r *mutationResolver) TriggerJob(ctx context.Context, input job.TriggerJobInput) (*job.TriggerJobPayload, error) {
-	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationJobsUpdate, input.TeamSlug); err != nil {
+	if err := authz.CanUpdateJobs(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 

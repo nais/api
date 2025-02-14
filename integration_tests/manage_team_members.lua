@@ -241,3 +241,55 @@ Test.gql("Add owner", function(t)
 		},
 	}
 end)
+
+Test.gql("Remove owner", function(t)
+	t.query(string.format([[
+		mutation {
+			removeTeamMember(
+				input: {
+					teamSlug: "%s"
+					userEmail: "%s"
+				}
+			) {
+				team {
+					members {
+						nodes {
+							role
+							user {
+								email
+								name
+							}
+						}
+					}
+				}
+			}
+		}
+	]], TeamSlug, OwnerToAdd))
+
+	t.check {
+		data = {
+			removeTeamMember = {
+				team = {
+					members = {
+						nodes = {
+							{
+								role = "OWNER",
+								user = {
+									email = "authenticated@example.com",
+									name = "Authenticated User",
+								},
+							},
+							{
+								role = "OWNER",
+								user = {
+									email = "email-1@example.com",
+									name = "name-1",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)

@@ -15,7 +15,6 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/session"
 	"github.com/nais/api/internal/user"
 	"github.com/sirupsen/logrus/hooks/test"
@@ -36,7 +35,7 @@ func TestOauth2Authentication(t *testing.T) {
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = session.NewLoaderContext(ctx, pool)
 		ctx = user.NewLoaderContext(ctx, pool)
-		ctx = role.NewLoaderContext(ctx, pool)
+		ctx = authz.NewLoaderContext(ctx, pool)
 		return ctx, pool
 	}
 
@@ -103,7 +102,7 @@ func TestOauth2Authentication(t *testing.T) {
 			t.Fatalf("failed to insert user: %v", err)
 		}
 
-		stmt = "INSERT INTO user_roles (role_name, user_id) VALUES ('Admin', $1)"
+		stmt = "INSERT INTO user_roles (role_name, user_id) VALUES ('Team creator', $1)"
 		if _, err = pool.Exec(ctx, stmt, userID); err != nil {
 			t.Fatalf("failed to insert user roles: %v", err)
 		}
@@ -132,8 +131,8 @@ func TestOauth2Authentication(t *testing.T) {
 				t.Errorf("expected user ID %q, got %q", userID.String(), actor.User.GetID().String())
 			}
 
-			if len(actor.Roles) != 1 || actor.Roles[0].Name != "Admin" {
-				t.Errorf("expected Admin role, got %#v", actor.Roles[0])
+			if len(actor.Roles) != 1 || actor.Roles[0].Name != "Team creator" {
+				t.Errorf("expected Team creator role, got %#v", actor.Roles[0])
 			}
 		})
 		req := getRequest(ctx)

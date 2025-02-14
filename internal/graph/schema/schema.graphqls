@@ -1,5 +1,5 @@
 """
-The query root for the NAIS GraphQL API.
+The query root for the Nais GraphQL API.
 """
 type Query {
 	"""
@@ -14,7 +14,7 @@ type Query {
 }
 
 """
-The mutation root for the NAIS GraphQL API.
+The mutation root for the Nais GraphQL API.
 """
 type Mutation
 

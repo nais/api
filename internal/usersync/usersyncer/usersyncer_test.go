@@ -11,11 +11,10 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/pagination"
-	"github.com/nais/api/internal/role"
-	"github.com/nais/api/internal/role/rolesql"
 	"github.com/nais/api/internal/test"
 	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/usersync/usersyncer"
+	"github.com/nais/api/internal/usersync/usersyncsql"
 	"github.com/sirupsen/logrus"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
@@ -41,7 +40,6 @@ func TestSync(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = user.NewLoaderContext(ctx, pool)
-		ctx = role.NewLoaderContext(ctx, pool)
 		return ctx, pool
 	}
 	t.Run("No local users, no remote users", func(t *testing.T) {
@@ -78,22 +76,34 @@ func TestSync(t *testing.T) {
 
 	t.Run("Local users, no remote users", func(t *testing.T) {
 		ctx, pool := setup(t)
+		querier := usersyncsql.New(pool)
 
-		user1, err := user.Create(ctx, "User 1", "user1@example.com", "123")
+		user1, err := querier.Create(ctx, usersyncsql.CreateParams{
+			Name:       "User 1",
+			Email:      "user1@example.com",
+			ExternalID: "123",
+		})
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		user2, err := user.Create(ctx, "User 2", "user2@example.com", "456")
+		user2, err := querier.Create(ctx, usersyncsql.CreateParams{
+			Name:       "User 2",
+			Email:      "user2@example.com",
+			ExternalID: "456",
+		})
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if err := role.AssignGlobalRoleToUser(ctx, user1.UUID, rolesql.RoleNameTeamcreator); err != nil {
+		if err := querier.AssignGlobalRole(ctx, usersyncsql.AssignGlobalRoleParams{
+			UserID:   user1.ID,
+			RoleName: "Team creator",
+		}); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := role.AssignGlobalRoleToUser(ctx, user2.UUID, rolesql.RoleNameAdmin); err != nil {
+		if err := querier.AssignGlobalAdmin(ctx, user2.ID); err != nil {
 			t.Fatal(err)
 		}
 
@@ -127,28 +137,45 @@ func TestSync(t *testing.T) {
 
 	t.Run("Create, update and delete users", func(t *testing.T) {
 		ctx, pool := setup(t)
+		querier := usersyncsql.New(pool)
 
-		userWithIncorrectName, err := user.Create(ctx, "Incorrect Name", "user1@example.com", "1")
+		userWithIncorrectName, err := querier.Create(ctx, usersyncsql.CreateParams{
+			Name:       "Incorrect Name",
+			Email:      "user1@example.com",
+			ExternalID: "1",
+		})
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		userWithIncorrectEmail, err := user.Create(ctx, "Some Name", "incorrect@example.com", "2")
+		userWithIncorrectEmail, err := querier.Create(ctx, usersyncsql.CreateParams{
+			Name:       "Some Name",
+			Email:      "incorrect@example.com",
+			ExternalID: "2",
+		})
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		userThatWillBeDeleted, err := user.Create(ctx, "Delete Me", "delete-me@example.com", "3")
+		userThatWillBeDeleted, err := querier.Create(ctx, usersyncsql.CreateParams{
+			Name:       "Delete Me",
+			Email:      "delete-me@example.com",
+			ExternalID: "3",
+		})
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		userThatShouldLoseAdminRole, err := user.Create(ctx, "Should Lose Admin", "should-lose-admin@example.com", "4")
+		userThatShouldLoseAdminRole, err := querier.Create(ctx, usersyncsql.CreateParams{
+			Name:       "Should Lose Admin",
+			Email:      "should-lose-admin@example.com",
+			ExternalID: "4",
+		})
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if err := role.AssignGlobalRoleToUser(ctx, userThatShouldLoseAdminRole.UUID, rolesql.RoleNameAdmin); err != nil {
+		if err := querier.AssignGlobalAdmin(ctx, userThatShouldLoseAdminRole.ID); err != nil {
 			t.Fatal(err)
 		}
 
@@ -187,19 +214,19 @@ func TestSync(t *testing.T) {
 			t.Fatalf("expected 3 users, got %d", total)
 		}
 
-		if u, err := user.Get(ctx, userWithIncorrectName.UUID); err != nil {
+		if u, err := user.Get(ctx, userWithIncorrectName.ID); err != nil {
 			t.Fatal(err)
 		} else if correctName := "Correct Name"; u.Name != correctName {
 			t.Fatalf("expected name to be %q, got %q", correctName, u.Name)
 		}
 
-		if u, err := user.Get(ctx, userWithIncorrectEmail.UUID); err != nil {
+		if u, err := user.Get(ctx, userWithIncorrectEmail.ID); err != nil {
 			t.Fatal(err)
 		} else if correctEmail := "user2@example.com"; u.Email != correctEmail {
 			t.Fatalf("expected email to be %q, got %q", correctEmail, u.Email)
 		}
 
-		if u, err := user.Get(ctx, userThatWillBeDeleted.UUID); err == nil {
+		if u, err := user.Get(ctx, userThatWillBeDeleted.ID); err == nil {
 			t.Fatalf("expected user to be deleted, got %v", u)
 		}
 
@@ -209,30 +236,20 @@ func TestSync(t *testing.T) {
 			t.Fatalf("expected name to be %q, got %q", correctName, u.Name)
 		}
 
-		roles, err := role.ForUser(ctx, userThatShouldLoseAdminRole.UUID)
+		updatedUserThatShouldLoseAdmin, err := user.Get(ctx, userThatShouldLoseAdminRole.ID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if updatedUserThatShouldLoseAdmin.Admin {
+			t.Fatalf("expected user to lose admin role, but still has it")
+		}
+
+		updatedUserWithIncorrectEmail, err := user.Get(ctx, userWithIncorrectEmail.ID)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		for _, r := range roles {
-			if r.Name == rolesql.RoleNameAdmin {
-				t.Fatalf("expected user to lose admin role, but still has it")
-			}
-		}
-
-		roles, err = role.ForUser(ctx, userWithIncorrectEmail.UUID)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		foundAdminRole := false
-		for _, r := range roles {
-			if r.Name == rolesql.RoleNameAdmin {
-				foundAdminRole = true
-				break
-			}
-		}
-		if !foundAdminRole {
+		if !updatedUserWithIncorrectEmail.Admin {
 			t.Fatalf("expected user to be granted admin role, but doesn't have it")
 		}
 	})

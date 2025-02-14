@@ -1,9 +1,6 @@
 -- name: List :many
 SELECT
-	id,
-	email,
-	name,
-	external_id
+	*
 FROM
 	users
 ORDER BY
@@ -16,8 +13,7 @@ SELECT
 	id,
 	role_name,
 	user_id,
-	target_team_slug,
-	target_service_account_id
+	target_team_slug
 FROM
 	user_roles
 ORDER BY
@@ -26,14 +22,11 @@ ORDER BY
 
 -- name: Create :one
 INSERT INTO
-	users (name, email, external_id)
+	users (name, email, external_id, admin)
 VALUES
-	(@name, LOWER(@email), @external_id)
+	(@name, LOWER(@email), @external_id, FALSE)
 RETURNING
-	id,
-	email,
-	name,
-	external_id
+	*
 ;
 
 -- name: Update :exec
@@ -65,7 +58,6 @@ DELETE FROM user_roles
 WHERE
 	user_id = @user_id
 	AND target_team_slug IS NULL
-	AND target_service_account_id IS NULL
 	AND role_name = @role_name
 ;
 
@@ -121,4 +113,32 @@ VALUES
 		@old_user_email,
 		@role_name
 	)
+;
+
+-- name: ListGlobalAdmins :many
+SELECT
+	u.*
+FROM
+	users u
+WHERE
+	u.admin = TRUE
+ORDER BY
+	u.name,
+	u.email
+;
+
+-- name: AssignGlobalAdmin :exec
+UPDATE users
+SET
+	admin = TRUE
+WHERE
+	id = @id
+;
+
+-- name: RevokeGlobalAdmin :exec
+UPDATE users
+SET
+	admin = FALSE
+WHERE
+	id = @id
 ;

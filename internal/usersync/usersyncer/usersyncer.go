@@ -34,20 +34,10 @@ type userMap struct {
 	byEmail      map[string]*usersyncsql.User
 }
 
-type userRolesMap map[*usersyncsql.User]map[usersyncsql.RoleName]struct{}
-
 type googleUser struct {
 	ID    string
 	Email string
 	Name  string
-}
-
-// DefaultRoleNames are the default set of roles that will be assigned to all new users.
-var DefaultRoleNames = []usersyncsql.RoleName{
-	usersyncsql.RoleNameTeamcreator,
-	usersyncsql.RoleNameTeamviewer,
-	usersyncsql.RoleNameUserviewer,
-	usersyncsql.RoleNameServiceaccountcreator,
 }
 
 func New(pool *pgxpool.Pool, adminGroupPrefix, tenantDomain string, service *admindirectoryv1.Service, log logrus.FieldLogger) *Usersynchronizer {
@@ -116,11 +106,6 @@ func (s *Usersynchronizer) Sync(ctx context.Context) error {
 		return fmt.Errorf("get existing users: %w", err)
 	}
 
-	userRoles, err := getUserRoles(ctx, querier, users)
-	if err != nil {
-		return fmt.Errorf("get existing user roles: %w", err)
-	}
-
 	googleUserMap := make(map[string]*usersyncsql.User)
 	for _, gu := range googleUsers {
 		user, err := getOrCreateUserFromGoogleUser(ctx, querier, gu, users, s.log)
@@ -150,60 +135,44 @@ func (s *Usersynchronizer) Sync(ctx context.Context) error {
 			}
 		}
 
-		for _, roleName := range DefaultRoleNames {
-			if globalRoles, userHasGlobalRoles := userRoles[user]; userHasGlobalRoles {
-				if _, userHasDefaultRole := globalRoles[roleName]; userHasDefaultRole {
-					continue
-				}
-			}
-			if err := querier.AssignGlobalRole(ctx, usersyncsql.AssignGlobalRoleParams{
-				UserID:   user.ID,
-				RoleName: roleName,
-			}); err != nil {
-				return fmt.Errorf("attach default role %q to user %q: %w", roleName, user.Email, err)
-			}
-
-			if err := querier.CreateLogEntry(ctx, usersyncsql.CreateLogEntryParams{
-				Action:    usersyncsql.UsersyncLogEntryActionAssignRole,
-				UserID:    user.ID,
-				UserName:  user.Name,
-				UserEmail: user.Email,
-				RoleName:  ptr.To(string(roleName)),
-			}); err != nil {
-				s.log.WithError(err).Errorf("create user sync log entry")
-			}
-		}
-
 		googleUserMap[gu.ID] = user
 
 		// remove user from map to keep track of users that no longer exist in the Google Directory
 		delete(users.byID, user.ID)
 	}
 
-	deletedUsers, err := deleteUnknownUsers(ctx, querier, users.byID, s.log)
-	if err != nil {
+	if err := deleteUnknownUsers(ctx, querier, users.byID, s.log); err != nil {
 		return err
 	}
 
-	for _, deletedUser := range deletedUsers {
-		delete(userRoles, deletedUser)
-	}
-
-	if err := assignAdmins(ctx, querier, s.service.Members, s.adminGroupPrefix, s.tenantDomain, googleUserMap, userRoles, s.log); err != nil {
+	if err := assignAdmins(ctx, querier, s.service.Members, s.adminGroupPrefix, s.tenantDomain, googleUserMap, s.log); err != nil {
 		return err
 	}
 
 	return tx.Commit(ctx)
 }
 
+func AssignDefaultPermissionsToUser(ctx context.Context, querier usersyncsql.Querier, userID uuid.UUID) error {
+	defaultUserRoles := []string{
+		"Team creator",
+	}
+	for _, roleName := range defaultUserRoles {
+		if err := querier.AssignGlobalRole(ctx, usersyncsql.AssignGlobalRoleParams{
+			UserID:   userID,
+			RoleName: roleName,
+		}); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // deleteUnknownUsers will delete users from NAIS API that does not exist in the Google Directory.
-func deleteUnknownUsers(ctx context.Context, querier usersyncsql.Querier, unknownUsers map[uuid.UUID]*usersyncsql.User, log logrus.FieldLogger) ([]*usersyncsql.User, error) {
-	ret := make([]*usersyncsql.User, 0)
+func deleteUnknownUsers(ctx context.Context, querier usersyncsql.Querier, unknownUsers map[uuid.UUID]*usersyncsql.User, log logrus.FieldLogger) error {
 	for _, user := range unknownUsers {
 		if err := querier.Delete(ctx, user.ID); err != nil {
-			return nil, fmt.Errorf("delete user %q: %w", user.Email, err)
+			return fmt.Errorf("delete user %q: %w", user.Email, err)
 		}
-		ret = append(ret, user)
 		if err := querier.CreateLogEntry(ctx, usersyncsql.CreateLogEntryParams{
 			Action:    usersyncsql.UsersyncLogEntryActionDeleteUser,
 			UserID:    user.ID,
@@ -214,25 +183,26 @@ func deleteUnknownUsers(ctx context.Context, querier usersyncsql.Querier, unknow
 		}
 	}
 
-	return ret, nil
+	return nil
 }
 
 // assignAdmins assigns the global admin role to members of the admin group in the Google Directory of the tenant.
 // Existing admins that is no longer a member of the admin group will have the admin role revoked.
-func assignAdmins(ctx context.Context, querier usersyncsql.Querier, membersService *admindirectoryv1.MembersService, adminGroupPrefix, tenantDomain string, googleUsers map[string]*usersyncsql.User, userRoles userRolesMap, log logrus.FieldLogger) error {
+func assignAdmins(ctx context.Context, querier usersyncsql.Querier, membersService *admindirectoryv1.MembersService, adminGroupPrefix, tenantDomain string, googleUsers map[string]*usersyncsql.User, log logrus.FieldLogger) error {
 	admins, err := getAdminGroupMembers(ctx, membersService, adminGroupPrefix, tenantDomain, googleUsers, log)
 	if err != nil {
 		return err
 	}
 
-	existingAdmins := getExistingAdmins(userRoles)
+	existingAdmins, err := querier.ListGlobalAdmins(ctx)
+	if err != nil {
+		return err
+	}
+
 	for _, existingAdmin := range existingAdmins {
 		if _, shouldBeAdmin := admins[existingAdmin.ID]; !shouldBeAdmin {
 			log.WithField("email", existingAdmin.Email).Debugf("revoke admin role")
-			if err := querier.RevokeGlobalRole(ctx, usersyncsql.RevokeGlobalRoleParams{
-				UserID:   existingAdmin.ID,
-				RoleName: usersyncsql.RoleNameAdmin,
-			}); err != nil {
+			if err := querier.RevokeGlobalAdmin(ctx, existingAdmin.ID); err != nil {
 				return err
 			}
 
@@ -241,7 +211,7 @@ func assignAdmins(ctx context.Context, querier usersyncsql.Querier, membersServi
 				UserID:    existingAdmin.ID,
 				UserName:  existingAdmin.Name,
 				UserEmail: existingAdmin.Email,
-				RoleName:  ptr.To(string(usersyncsql.RoleNameAdmin)),
+				RoleName:  ptr.To("Admin"),
 			}); err != nil {
 				log.WithError(err).Errorf("create user sync log entry")
 			}
@@ -249,31 +219,25 @@ func assignAdmins(ctx context.Context, querier usersyncsql.Querier, membersServi
 	}
 
 	for _, admin := range admins {
-		if _, isAlreadyAdmin := existingAdmins[admin.ID]; !isAlreadyAdmin {
+		if !admin.Admin {
 			log.WithField("email", admin.Email).Debugf("assign admin role")
-			if err := querier.AssignGlobalRole(ctx, usersyncsql.AssignGlobalRoleParams{
-				UserID:   admin.ID,
-				RoleName: usersyncsql.RoleNameAdmin,
-			}); err != nil {
+			if err := querier.AssignGlobalAdmin(ctx, admin.ID); err != nil {
 				return err
+			}
+
+			if err := querier.CreateLogEntry(ctx, usersyncsql.CreateLogEntryParams{
+				Action:    usersyncsql.UsersyncLogEntryActionAssignRole,
+				UserID:    admin.ID,
+				UserName:  admin.Name,
+				UserEmail: admin.Email,
+				RoleName:  ptr.To("Admin"),
+			}); err != nil {
+				log.WithError(err).Errorf("create user sync log entry")
 			}
 		}
 	}
 
 	return nil
-}
-
-// getExistingAdmins returns all users with a globally assigned admin role.
-func getExistingAdmins(userWithRoles userRolesMap) map[uuid.UUID]*usersyncsql.User {
-	admins := make(map[uuid.UUID]*usersyncsql.User)
-	for user, roles := range userWithRoles {
-		for roleName := range roles {
-			if roleName == usersyncsql.RoleNameAdmin {
-				admins[user.ID] = user
-			}
-		}
-	}
-	return admins
 }
 
 // getAdminGroupMembers fetches all users in the admin group from the Google Directory of the tenant.
@@ -354,6 +318,10 @@ func getOrCreateUserFromGoogleUser(ctx context.Context, querier usersyncsql.Quer
 		return nil, err
 	}
 
+	if err := AssignDefaultPermissionsToUser(ctx, querier, createdUser.ID); err != nil {
+		return nil, err
+	}
+
 	if err := querier.CreateLogEntry(ctx, usersyncsql.CreateLogEntryParams{
 		Action:    usersyncsql.UsersyncLogEntryActionCreateUser,
 		UserID:    createdUser.ID,
@@ -414,23 +382,4 @@ func getUsers(ctx context.Context, querier usersyncsql.Querier) (*userMap, error
 	}
 
 	return ret, nil
-}
-
-// getUserRoles returns a map of users and their roles.
-func getUserRoles(ctx context.Context, querier usersyncsql.Querier, users *userMap) (userRolesMap, error) {
-	roles, err := querier.ListRoles(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	userRoles := make(userRolesMap)
-	for _, role := range roles {
-		user := users.byID[role.UserID]
-		if _, exists := userRoles[user]; !exists {
-			userRoles[user] = make(map[usersyncsql.RoleName]struct{})
-		}
-		userRoles[user][role.RoleName] = struct{}{}
-	}
-
-	return userRoles, nil
 }

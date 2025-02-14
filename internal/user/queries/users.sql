@@ -1,12 +1,3 @@
--- name: Create :one
-INSERT INTO
-	users (name, email, external_id)
-VALUES
-	(@name, LOWER(@email), @external_id)
-RETURNING
-	*
-;
-
 -- name: Count :one
 SELECT
 	COUNT(*)

@@ -40,33 +40,6 @@ func (q *Queries) CountMemberships(ctx context.Context, userID uuid.UUID) (int64
 	return count, err
 }
 
-const create = `-- name: Create :one
-INSERT INTO
-	users (name, email, external_id)
-VALUES
-	($1, LOWER($2), $3)
-RETURNING
-	id, email, name, external_id
-`
-
-type CreateParams struct {
-	Name       string
-	Email      string
-	ExternalID string
-}
-
-func (q *Queries) Create(ctx context.Context, arg CreateParams) (*User, error) {
-	row := q.db.QueryRow(ctx, create, arg.Name, arg.Email, arg.ExternalID)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Email,
-		&i.Name,
-		&i.ExternalID,
-	)
-	return &i, err
-}
-
 const delete = `-- name: Delete :exec
 DELETE FROM users
 WHERE
@@ -80,7 +53,7 @@ func (q *Queries) Delete(ctx context.Context, id uuid.UUID) error {
 
 const get = `-- name: Get :one
 SELECT
-	id, email, name, external_id
+	id, email, name, external_id, admin
 FROM
 	users
 WHERE
@@ -95,13 +68,14 @@ func (q *Queries) Get(ctx context.Context, id uuid.UUID) (*User, error) {
 		&i.Email,
 		&i.Name,
 		&i.ExternalID,
+		&i.Admin,
 	)
 	return &i, err
 }
 
 const getByEmail = `-- name: GetByEmail :one
 SELECT
-	id, email, name, external_id
+	id, email, name, external_id, admin
 FROM
 	users
 WHERE
@@ -116,13 +90,14 @@ func (q *Queries) GetByEmail(ctx context.Context, email string) (*User, error) {
 		&i.Email,
 		&i.Name,
 		&i.ExternalID,
+		&i.Admin,
 	)
 	return &i, err
 }
 
 const getByExternalID = `-- name: GetByExternalID :one
 SELECT
-	id, email, name, external_id
+	id, email, name, external_id, admin
 FROM
 	users
 WHERE
@@ -137,13 +112,14 @@ func (q *Queries) GetByExternalID(ctx context.Context, externalID string) (*User
 		&i.Email,
 		&i.Name,
 		&i.ExternalID,
+		&i.Admin,
 	)
 	return &i, err
 }
 
 const getByIDs = `-- name: GetByIDs :many
 SELECT
-	id, email, name, external_id
+	id, email, name, external_id, admin
 FROM
 	users
 WHERE
@@ -167,6 +143,7 @@ func (q *Queries) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error
 			&i.Email,
 			&i.Name,
 			&i.ExternalID,
+			&i.Admin,
 		); err != nil {
 			return nil, err
 		}
@@ -180,7 +157,7 @@ func (q *Queries) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error
 
 const list = `-- name: List :many
 SELECT
-	id, email, name, external_id
+	id, email, name, external_id, admin
 FROM
 	users
 ORDER BY
@@ -224,6 +201,7 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]*User, error) {
 			&i.Email,
 			&i.Name,
 			&i.ExternalID,
+			&i.Admin,
 		); err != nil {
 			return nil, err
 		}
@@ -278,7 +256,7 @@ type ListMembershipsParams struct {
 
 type ListMembershipsRow struct {
 	Team     Team
-	RoleName RoleName
+	RoleName string
 }
 
 func (q *Queries) ListMemberships(ctx context.Context, arg ListMembershipsParams) ([]*ListMembershipsRow, error) {
@@ -322,7 +300,7 @@ SET
 WHERE
 	id = $4
 RETURNING
-	id, email, name, external_id
+	id, email, name, external_id, admin
 `
 
 type UpdateParams struct {
@@ -345,6 +323,7 @@ func (q *Queries) Update(ctx context.Context, arg UpdateParams) (*User, error) {
 		&i.Email,
 		&i.Name,
 		&i.ExternalID,
+		&i.Admin,
 	)
 	return &i, err
 }

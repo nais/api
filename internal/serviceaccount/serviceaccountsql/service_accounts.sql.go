@@ -7,39 +7,119 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/nais/api/internal/slug"
 )
+
+const count = `-- name: Count :one
+SELECT
+	COUNT(*)
+FROM
+	service_accounts
+`
+
+func (q *Queries) Count(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, count)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countTokensForServiceAccount = `-- name: CountTokensForServiceAccount :one
+SELECT
+	COUNT(*)
+FROM
+	service_account_tokens
+WHERE
+	service_account_id = $1
+`
+
+func (q *Queries) CountTokensForServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countTokensForServiceAccount, serviceAccountID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
 
 const create = `-- name: Create :one
 INSERT INTO
-	service_accounts (name)
+	service_accounts (name, description, team_slug)
 VALUES
-	($1)
+	($1, $2, $3)
 RETURNING
-	id, name
+	id, created_at, updated_at, name, description, team_slug
 `
 
-func (q *Queries) Create(ctx context.Context, name string) (*ServiceAccount, error) {
-	row := q.db.QueryRow(ctx, create, name)
+type CreateParams struct {
+	Name        string
+	Description string
+	TeamSlug    *slug.Slug
+}
+
+func (q *Queries) Create(ctx context.Context, arg CreateParams) (*ServiceAccount, error) {
+	row := q.db.QueryRow(ctx, create, arg.Name, arg.Description, arg.TeamSlug)
 	var i ServiceAccount
-	err := row.Scan(&i.ID, &i.Name)
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Name,
+		&i.Description,
+		&i.TeamSlug,
+	)
 	return &i, err
 }
 
-const createAPIKey = `-- name: CreateAPIKey :exec
+const createToken = `-- name: CreateToken :one
 INSERT INTO
-	api_keys (api_key, service_account_id)
+	service_account_tokens (
+		expires_at,
+		name,
+		description,
+		token,
+		service_account_id
+	)
 VALUES
-	($1, $2)
+	(
+		$1,
+		$2,
+		$3,
+		$4,
+		$5
+	)
+RETURNING
+	id, created_at, updated_at, last_used_at, expires_at, name, description, token, service_account_id
 `
 
-type CreateAPIKeyParams struct {
-	ApiKey           string
+type CreateTokenParams struct {
+	ExpiresAt        pgtype.Date
+	Name             string
+	Description      string
+	Token            string
 	ServiceAccountID uuid.UUID
 }
 
-func (q *Queries) CreateAPIKey(ctx context.Context, arg CreateAPIKeyParams) error {
-	_, err := q.db.Exec(ctx, createAPIKey, arg.ApiKey, arg.ServiceAccountID)
-	return err
+func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (*ServiceAccountToken, error) {
+	row := q.db.QueryRow(ctx, createToken,
+		arg.ExpiresAt,
+		arg.Name,
+		arg.Description,
+		arg.Token,
+		arg.ServiceAccountID,
+	)
+	var i ServiceAccountToken
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.LastUsedAt,
+		&i.ExpiresAt,
+		&i.Name,
+		&i.Description,
+		&i.Token,
+		&i.ServiceAccountID,
+	)
+	return &i, err
 }
 
 const delete = `-- name: Delete :exec
@@ -53,26 +133,32 @@ func (q *Queries) Delete(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
-const getByApiKey = `-- name: GetByApiKey :one
-SELECT
-	service_accounts.id, service_accounts.name
-FROM
-	api_keys
-	JOIN service_accounts ON service_accounts.id = api_keys.service_account_id
+const deleteStaticServiceAccounts = `-- name: DeleteStaticServiceAccounts :exec
+DELETE FROM service_accounts
 WHERE
-	api_keys.api_key = $1
+	name LIKE 'nais-%'
 `
 
-func (q *Queries) GetByApiKey(ctx context.Context, apiKey string) (*ServiceAccount, error) {
-	row := q.db.QueryRow(ctx, getByApiKey, apiKey)
-	var i ServiceAccount
-	err := row.Scan(&i.ID, &i.Name)
-	return &i, err
+// TODO: Remove once static service accounts has been removed
+func (q *Queries) DeleteStaticServiceAccounts(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, deleteStaticServiceAccounts)
+	return err
+}
+
+const deleteToken = `-- name: DeleteToken :exec
+DELETE FROM service_account_tokens
+WHERE
+	id = $1
+`
+
+func (q *Queries) DeleteToken(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteToken, id)
+	return err
 }
 
 const getByIDs = `-- name: GetByIDs :many
 SELECT
-	id, name
+	id, created_at, updated_at, name, description, team_slug
 FROM
 	service_accounts
 WHERE
@@ -90,7 +176,14 @@ func (q *Queries) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAcco
 	items := []*ServiceAccount{}
 	for rows.Next() {
 		var i ServiceAccount
-		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Name,
+			&i.Description,
+			&i.TeamSlug,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, &i)
@@ -103,7 +196,7 @@ func (q *Queries) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAcco
 
 const getByName = `-- name: GetByName :one
 SELECT
-	id, name
+	id, created_at, updated_at, name, description, team_slug
 FROM
 	service_accounts
 WHERE
@@ -113,21 +206,138 @@ WHERE
 func (q *Queries) GetByName(ctx context.Context, name string) (*ServiceAccount, error) {
 	row := q.db.QueryRow(ctx, getByName, name)
 	var i ServiceAccount
-	err := row.Scan(&i.ID, &i.Name)
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Name,
+		&i.Description,
+		&i.TeamSlug,
+	)
 	return &i, err
+}
+
+const getServiceAccountAndTokenBySecret = `-- name: GetServiceAccountAndTokenBySecret :one
+SELECT
+	service_accounts.id, service_accounts.created_at, service_accounts.updated_at, service_accounts.name, service_accounts.description, service_accounts.team_slug,
+	service_account_tokens.id, service_account_tokens.created_at, service_account_tokens.updated_at, service_account_tokens.last_used_at, service_account_tokens.expires_at, service_account_tokens.name, service_account_tokens.description, service_account_tokens.token, service_account_tokens.service_account_id
+FROM
+	service_account_tokens
+	JOIN service_accounts ON service_accounts.id = service_account_tokens.service_account_id
+WHERE
+	service_account_tokens.token = $1
+	AND (
+		service_account_tokens.expires_at IS NULL
+		OR service_account_tokens.expires_at >= CURRENT_DATE
+	)
+`
+
+type GetServiceAccountAndTokenBySecretRow struct {
+	ServiceAccount      ServiceAccount
+	ServiceAccountToken ServiceAccountToken
+}
+
+func (q *Queries) GetServiceAccountAndTokenBySecret(ctx context.Context, token string) (*GetServiceAccountAndTokenBySecretRow, error) {
+	row := q.db.QueryRow(ctx, getServiceAccountAndTokenBySecret, token)
+	var i GetServiceAccountAndTokenBySecretRow
+	err := row.Scan(
+		&i.ServiceAccount.ID,
+		&i.ServiceAccount.CreatedAt,
+		&i.ServiceAccount.UpdatedAt,
+		&i.ServiceAccount.Name,
+		&i.ServiceAccount.Description,
+		&i.ServiceAccount.TeamSlug,
+		&i.ServiceAccountToken.ID,
+		&i.ServiceAccountToken.CreatedAt,
+		&i.ServiceAccountToken.UpdatedAt,
+		&i.ServiceAccountToken.LastUsedAt,
+		&i.ServiceAccountToken.ExpiresAt,
+		&i.ServiceAccountToken.Name,
+		&i.ServiceAccountToken.Description,
+		&i.ServiceAccountToken.Token,
+		&i.ServiceAccountToken.ServiceAccountID,
+	)
+	return &i, err
+}
+
+const getTokensByIDs = `-- name: GetTokensByIDs :many
+SELECT
+	id, created_at, updated_at, last_used_at, expires_at, name, description, token, service_account_id
+FROM
+	service_account_tokens
+WHERE
+	id = ANY ($1::UUID[])
+ORDER BY
+	created_at
+`
+
+func (q *Queries) GetTokensByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccountToken, error) {
+	rows, err := q.db.Query(ctx, getTokensByIDs, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ServiceAccountToken{}
+	for rows.Next() {
+		var i ServiceAccountToken
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.LastUsedAt,
+			&i.ExpiresAt,
+			&i.Name,
+			&i.Description,
+			&i.Token,
+			&i.ServiceAccountID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const lastUsedAt = `-- name: LastUsedAt :one
+SELECT
+	MAX(last_used_at)::TIMESTAMPTZ AS last_used_at
+FROM
+	service_account_tokens
+WHERE
+	service_account_id = $1
+`
+
+func (q *Queries) LastUsedAt(ctx context.Context, serviceAccountID uuid.UUID) (pgtype.Timestamptz, error) {
+	row := q.db.QueryRow(ctx, lastUsedAt, serviceAccountID)
+	var last_used_at pgtype.Timestamptz
+	err := row.Scan(&last_used_at)
+	return last_used_at, err
 }
 
 const list = `-- name: List :many
 SELECT
-	id, name
+	id, created_at, updated_at, name, description, team_slug
 FROM
 	service_accounts
 ORDER BY
-	name ASC
+	name,
+	team_slug
+LIMIT
+	$2
+OFFSET
+	$1
 `
 
-func (q *Queries) List(ctx context.Context) ([]*ServiceAccount, error) {
-	rows, err := q.db.Query(ctx, list)
+type ListParams struct {
+	Offset int32
+	Limit  int32
+}
+
+func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ServiceAccount, error) {
+	rows, err := q.db.Query(ctx, list, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +345,65 @@ func (q *Queries) List(ctx context.Context) ([]*ServiceAccount, error) {
 	items := []*ServiceAccount{}
 	for rows.Next() {
 		var i ServiceAccount
-		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Name,
+			&i.Description,
+			&i.TeamSlug,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listTokensForServiceAccount = `-- name: ListTokensForServiceAccount :many
+SELECT
+	id, created_at, updated_at, last_used_at, expires_at, name, description, token, service_account_id
+FROM
+	service_account_tokens
+WHERE
+	service_account_id = $1
+ORDER BY
+	name
+LIMIT
+	$3
+OFFSET
+	$2
+`
+
+type ListTokensForServiceAccountParams struct {
+	ServiceAccountID uuid.UUID
+	Offset           int32
+	Limit            int32
+}
+
+func (q *Queries) ListTokensForServiceAccount(ctx context.Context, arg ListTokensForServiceAccountParams) ([]*ServiceAccountToken, error) {
+	rows, err := q.db.Query(ctx, listTokensForServiceAccount, arg.ServiceAccountID, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ServiceAccountToken{}
+	for rows.Next() {
+		var i ServiceAccountToken
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.LastUsedAt,
+			&i.ExpiresAt,
+			&i.Name,
+			&i.Description,
+			&i.Token,
+			&i.ServiceAccountID,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, &i)
@@ -147,12 +415,88 @@ func (q *Queries) List(ctx context.Context) ([]*ServiceAccount, error) {
 }
 
 const removeApiKeysFromServiceAccount = `-- name: RemoveApiKeysFromServiceAccount :exec
-DELETE FROM api_keys
+DELETE FROM service_account_tokens
 WHERE
 	service_account_id = $1
 `
 
 func (q *Queries) RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, removeApiKeysFromServiceAccount, serviceAccountID)
+	return err
+}
+
+const update = `-- name: Update :one
+UPDATE service_accounts
+SET
+	description = COALESCE($1, description)
+WHERE
+	id = $2
+RETURNING
+	id, created_at, updated_at, name, description, team_slug
+`
+
+type UpdateParams struct {
+	Description *string
+	ID          uuid.UUID
+}
+
+func (q *Queries) Update(ctx context.Context, arg UpdateParams) (*ServiceAccount, error) {
+	row := q.db.QueryRow(ctx, update, arg.Description, arg.ID)
+	var i ServiceAccount
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Name,
+		&i.Description,
+		&i.TeamSlug,
+	)
+	return &i, err
+}
+
+const updateToken = `-- name: UpdateToken :one
+UPDATE service_account_tokens
+SET
+	name = COALESCE($1, name),
+	description = COALESCE($2, description)
+WHERE
+	id = $3
+RETURNING
+	id, created_at, updated_at, last_used_at, expires_at, name, description, token, service_account_id
+`
+
+type UpdateTokenParams struct {
+	Name        *string
+	Description *string
+	ID          uuid.UUID
+}
+
+func (q *Queries) UpdateToken(ctx context.Context, arg UpdateTokenParams) (*ServiceAccountToken, error) {
+	row := q.db.QueryRow(ctx, updateToken, arg.Name, arg.Description, arg.ID)
+	var i ServiceAccountToken
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.LastUsedAt,
+		&i.ExpiresAt,
+		&i.Name,
+		&i.Description,
+		&i.Token,
+		&i.ServiceAccountID,
+	)
+	return &i, err
+}
+
+const updateTokenLastUsedAt = `-- name: UpdateTokenLastUsedAt :exec
+UPDATE service_account_tokens
+SET
+	last_used_at = CLOCK_TIMESTAMP()
+WHERE
+	id = $1
+`
+
+func (q *Queries) UpdateTokenLastUsedAt(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, updateTokenLastUsedAt, id)
 	return err
 }

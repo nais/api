@@ -4,17 +4,58 @@ SELECT
 FROM
 	service_accounts
 ORDER BY
-	name ASC
+	name,
+	team_slug
+LIMIT
+	sqlc.arg('limit')
+OFFSET
+	sqlc.arg('offset')
 ;
 
--- name: GetByApiKey :one
+-- name: Count :one
 SELECT
-	service_accounts.*
+	COUNT(*)
 FROM
-	api_keys
-	JOIN service_accounts ON service_accounts.id = api_keys.service_account_id
+	service_accounts
+;
+
+-- name: GetServiceAccountAndTokenBySecret :one
+SELECT
+	sqlc.embed(service_accounts),
+	sqlc.embed(service_account_tokens)
+FROM
+	service_account_tokens
+	JOIN service_accounts ON service_accounts.id = service_account_tokens.service_account_id
 WHERE
-	api_keys.api_key = @api_key
+	service_account_tokens.token = @token
+	AND (
+		service_account_tokens.expires_at IS NULL
+		OR service_account_tokens.expires_at >= CURRENT_DATE
+	)
+;
+
+-- name: ListTokensForServiceAccount :many
+SELECT
+	*
+FROM
+	service_account_tokens
+WHERE
+	service_account_id = @service_account_id
+ORDER BY
+	name
+LIMIT
+	sqlc.arg('limit')
+OFFSET
+	sqlc.arg('offset')
+;
+
+-- name: CountTokensForServiceAccount :one
+SELECT
+	COUNT(*)
+FROM
+	service_account_tokens
+WHERE
+	service_account_id = @service_account_id
 ;
 
 -- name: GetByName :one
@@ -28,28 +69,69 @@ WHERE
 
 -- name: Create :one
 INSERT INTO
-	service_accounts (name)
+	service_accounts (name, description, team_slug)
 VALUES
-	(@name)
+	(@name, @description, @team_slug)
+RETURNING
+	*
+;
+
+-- name: Update :one
+UPDATE service_accounts
+SET
+	description = COALESCE(sqlc.narg('description'), description)
+WHERE
+	id = @id
 RETURNING
 	*
 ;
 
 -- name: RemoveApiKeysFromServiceAccount :exec
-DELETE FROM api_keys
+DELETE FROM service_account_tokens
 WHERE
 	service_account_id = @service_account_id
 ;
 
--- name: CreateAPIKey :exec
+-- name: CreateToken :one
 INSERT INTO
-	api_keys (api_key, service_account_id)
+	service_account_tokens (
+		expires_at,
+		name,
+		description,
+		token,
+		service_account_id
+	)
 VALUES
-	(@api_key, @service_account_id)
+	(
+		@expires_at,
+		@name,
+		@description,
+		@token,
+		@service_account_id
+	)
+RETURNING
+	*
+;
+
+-- name: UpdateToken :one
+UPDATE service_account_tokens
+SET
+	name = COALESCE(sqlc.narg('name'), name),
+	description = COALESCE(sqlc.narg('description'), description)
+WHERE
+	id = @id
+RETURNING
+	*
 ;
 
 -- name: Delete :exec
 DELETE FROM service_accounts
+WHERE
+	id = @id
+;
+
+-- name: DeleteToken :exec
+DELETE FROM service_account_tokens
 WHERE
 	id = @id
 ;
@@ -63,4 +145,39 @@ WHERE
 	id = ANY (@ids::UUID[])
 ORDER BY
 	name ASC
+;
+
+-- name: GetTokensByIDs :many
+SELECT
+	*
+FROM
+	service_account_tokens
+WHERE
+	id = ANY (@ids::UUID[])
+ORDER BY
+	created_at
+;
+
+-- name: UpdateTokenLastUsedAt :exec
+UPDATE service_account_tokens
+SET
+	last_used_at = CLOCK_TIMESTAMP()
+WHERE
+	id = @id
+;
+
+-- name: LastUsedAt :one
+SELECT
+	MAX(last_used_at)::TIMESTAMPTZ AS last_used_at
+FROM
+	service_account_tokens
+WHERE
+	service_account_id = @service_account_id
+;
+
+-- TODO: Remove once static service accounts has been removed
+-- name: DeleteStaticServiceAccounts :exec
+DELETE FROM service_accounts
+WHERE
+	name LIKE 'nais-%'
 ;

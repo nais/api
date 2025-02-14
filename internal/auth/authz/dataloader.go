@@ -1,13 +1,13 @@
-package role
+package authz
 
 import (
 	"context"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/auth/authz/authzsql"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/loader"
-	"github.com/nais/api/internal/role/rolesql"
 	"github.com/vikstrous/dataloadgen"
 )
 
@@ -24,13 +24,13 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	internalQuerier     *rolesql.Queries
+	internalQuerier     *authzsql.Queries
 	userRoles           *dataloadgen.Loader[uuid.UUID, *UserRoles]
 	serviceAccountRoles *dataloadgen.Loader[uuid.UUID, *ServiceAccountRoles]
 }
 
 func newLoaders(dbConn *pgxpool.Pool) *loaders {
-	db := rolesql.New(dbConn)
+	db := authzsql.New(dbConn)
 	dataloader := &dataloader{db: db}
 
 	return &loaders{
@@ -40,7 +40,7 @@ func newLoaders(dbConn *pgxpool.Pool) *loaders {
 	}
 }
 
-func db(ctx context.Context) *rolesql.Queries {
+func db(ctx context.Context) *authzsql.Queries {
 	l := fromContext(ctx)
 
 	if tx := database.TransactionFromContext(ctx); tx != nil {
@@ -51,7 +51,7 @@ func db(ctx context.Context) *rolesql.Queries {
 }
 
 type dataloader struct {
-	db *rolesql.Queries
+	db *authzsql.Queries
 }
 
 func (l dataloader) listUserRoles(ctx context.Context, userIDs []uuid.UUID) ([]*UserRoles, []error) {

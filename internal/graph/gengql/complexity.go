@@ -73,7 +73,13 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Query.Reconcilers = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
+	c.Query.Roles = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
 	c.Query.Search = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.Query.ServiceAccounts = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Query.Teams = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) int {
@@ -101,6 +107,12 @@ func NewComplexityRoot() ComplexityRoot {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Secret.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.ServiceAccount.Roles = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.ServiceAccount.Tokens = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.SqlInstance.Flags = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {

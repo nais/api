@@ -5,12 +5,10 @@ import (
 	"strings"
 
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/serviceaccount"
 )
 
-// ApiKeyAuthentication If the request has an authorization header, we will try to pull the service account who owns it
-// from the database and put the account into the context.
+// ApiKeyAuthentication will authenticate a service account from a token found in the authorization header
 func ApiKeyAuthentication() func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
@@ -21,14 +19,20 @@ func ApiKeyAuthentication() func(next http.Handler) http.Handler {
 			}
 
 			ctx := r.Context()
-			sa, err := serviceaccount.GetByApiKey(ctx, authHeader[7:])
+			secret := authHeader[7:]
+			sa, saToken, err := serviceaccount.GetBySecret(ctx, secret)
 			if err != nil {
 				next.ServeHTTP(w, r)
 				return
 			}
 
-			roles, err := role.ForServiceAccount(ctx, sa.UUID)
+			roles, err := authz.ForServiceAccount(ctx, sa.UUID)
 			if err != nil {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			if err := serviceaccount.UpdateTokenLastUsedAt(ctx, saToken.UUID); err != nil {
 				next.ServeHTTP(w, r)
 				return
 			}

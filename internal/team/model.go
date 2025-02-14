@@ -176,16 +176,16 @@ func (e TeamMemberRole) IsValid() bool {
 	return false
 }
 
-func teamMemberRoleToSqlRole(role TeamMemberRole) teamsql.RoleName {
+func teamMemberRoleToSqlRole(role TeamMemberRole) string {
 	if role == TeamMemberRoleMember {
-		return teamsql.RoleNameTeammember
+		return "Team member"
 	}
 
-	return teamsql.RoleNameTeamowner
+	return "Team owner"
 }
 
-func teamMemberRoleFromSqlTeamRole(t teamsql.RoleName) TeamMemberRole {
-	if t == teamsql.RoleNameTeamowner {
+func teamMemberRoleFromSqlTeamRole(t string) TeamMemberRole {
+	if t == "Team owner" {
 		return TeamMemberRoleOwner
 	}
 	return TeamMemberRoleMember

@@ -6,7 +6,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/session"
 	"github.com/nais/api/internal/user"
 )
@@ -49,7 +48,7 @@ func Oauth2Authentication(authHandler authn.Handler) func(next http.Handler) htt
 				return
 			}
 
-			roles, err := role.ForUser(ctx, u.UUID)
+			roles, err := authz.ForUser(ctx, u.UUID)
 			if err != nil {
 				next.ServeHTTP(w, r)
 				return

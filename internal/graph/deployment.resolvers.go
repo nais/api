@@ -7,7 +7,6 @@ import (
 	"github.com/nais/api/internal/deployment"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
-	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
@@ -51,7 +50,7 @@ func (r *jobResolver) Deployments(ctx context.Context, obj *job.Job, first *int,
 }
 
 func (r *mutationResolver) ChangeDeploymentKey(ctx context.Context, input deployment.ChangeDeploymentKeyInput) (*deployment.ChangeDeploymentKeyPayload, error) {
-	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationDeployKeyUpdate, input.TeamSlug); err != nil {
+	if err := authz.CanUpdateDeployKey(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
 
@@ -64,7 +63,7 @@ func (r *mutationResolver) ChangeDeploymentKey(ctx context.Context, input deploy
 }
 
 func (r *teamResolver) DeploymentKey(ctx context.Context, obj *team.Team) (*deployment.DeploymentKey, error) {
-	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationDeployKeyRead, obj.Slug); err != nil {
+	if err := authz.CanReadDeployKey(ctx, obj.Slug); err != nil {
 		return nil, err
 	}
 

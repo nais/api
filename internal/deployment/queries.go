@@ -12,7 +12,6 @@ import (
 	"github.com/nais/api/internal/deployment/deploymentsql"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
-	"github.com/nais/api/internal/role"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
 	"k8s.io/utils/ptr"
@@ -143,7 +142,7 @@ func getDeploymentKeyByIdent(ctx context.Context, id ident.Ident) (*DeploymentKe
 		return nil, err
 	}
 	// We ensure that the authenticated user has access to the deployment key first
-	if err := authz.RequireTeamAuthorizationCtx(ctx, role.AuthorizationDeployKeyRead, teamSlug); err != nil {
+	if err := authz.CanReadDeployKey(ctx, teamSlug); err != nil {
 		return nil, err
 	}
 	return KeyForTeam(ctx, teamSlug)
