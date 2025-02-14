@@ -11891,7 +11891,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateImageVulnerabilityInput,
 		ec.unmarshalInputUpdateSecretValueInput,
 		ec.unmarshalInputUpdateServiceAccountInput,
-		ec.unmarshalInputUpdateServiceAccountTokenExpiresAtInput,
 		ec.unmarshalInputUpdateServiceAccountTokenInput,
 		ec.unmarshalInputUpdateTeamEnvironmentInput,
 		ec.unmarshalInputUpdateTeamInput,
@@ -15867,28 +15866,6 @@ input UpdateServiceAccountTokenInput {
 	If not specified, the description will remain unchanged.
 	"""
 	description: String
-
-	"""
-	The new expiry date of the token.
-	"""
-	expiresAt: UpdateServiceAccountTokenExpiresAtInput
-}
-
-"""
-Input type for the expiresAt field.
-
-Only one of the fields must be specified.
-"""
-input UpdateServiceAccountTokenExpiresAtInput @oneOf {
-	"""
-	The new expiry date of the token.
-	"""
-	expiresAt: Date
-
-	"""
-	Remove the existing expiry date of the token, causing the token to never expire.
-	"""
-	removeExpiry: Boolean
 }
 
 input DeleteServiceAccountTokenInput {
@@ -92731,40 +92708,6 @@ func (ec *executionContext) unmarshalInputUpdateServiceAccountInput(ctx context.
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateServiceAccountTokenExpiresAtInput(ctx context.Context, obj any) (serviceaccount.UpdateServiceAccountTokenExpiresAtInput, error) {
-	var it serviceaccount.UpdateServiceAccountTokenExpiresAtInput
-	asMap := map[string]any{}
-	for k, v := range obj.(map[string]any) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"expiresAt", "removeExpiry"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "expiresAt":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAt"))
-			data, err := ec.unmarshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ExpiresAt = data
-		case "removeExpiry":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("removeExpiry"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.RemoveExpiry = data
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputUpdateServiceAccountTokenInput(ctx context.Context, obj any) (serviceaccount.UpdateServiceAccountTokenInput, error) {
 	var it serviceaccount.UpdateServiceAccountTokenInput
 	asMap := map[string]any{}
@@ -92772,7 +92715,7 @@ func (ec *executionContext) unmarshalInputUpdateServiceAccountTokenInput(ctx con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"serviceAccountTokenID", "name", "description", "expiresAt"}
+	fieldsInOrder := [...]string{"serviceAccountTokenID", "name", "description"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -92800,13 +92743,6 @@ func (ec *executionContext) unmarshalInputUpdateServiceAccountTokenInput(ctx con
 				return it, err
 			}
 			it.Description = data
-		case "expiresAt":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAt"))
-			data, err := ec.unmarshalOUpdateServiceAccountTokenExpiresAtInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐUpdateServiceAccountTokenExpiresAtInput(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ExpiresAt = data
 		}
 	}
 
@@ -126622,14 +126558,6 @@ func (ec *executionContext) marshalOUnleashInstance2ᚖgithubᚗcomᚋnaisᚋapi
 		return graphql.Null
 	}
 	return ec._UnleashInstance(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOUpdateServiceAccountTokenExpiresAtInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐUpdateServiceAccountTokenExpiresAtInput(ctx context.Context, v any) (*serviceaccount.UpdateServiceAccountTokenExpiresAtInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputUpdateServiceAccountTokenExpiresAtInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser(ctx context.Context, sel ast.SelectionSet, v *user.User) graphql.Marshaler {

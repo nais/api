@@ -120,16 +120,10 @@ type UpdateServiceAccountPayload struct {
 	ServiceAccount *ServiceAccount `json:"serviceAccount,omitempty"`
 }
 
-type UpdateServiceAccountTokenExpiresAtInput struct {
-	ExpiresAt    *scalar.Date `json:"expiresAt,omitempty"`
-	RemoveExpiry *bool        `json:"removeExpiry,omitempty"`
-}
-
 type UpdateServiceAccountTokenInput struct {
-	ServiceAccountTokenID ident.Ident                              `json:"serviceAccountTokenID"`
-	Name                  *string                                  `json:"name,omitempty"`
-	Description           *string                                  `json:"description,omitempty"`
-	ExpiresAt             *UpdateServiceAccountTokenExpiresAtInput `json:"expiresAt,omitempty"`
+	ServiceAccountTokenID ident.Ident `json:"serviceAccountTokenID"`
+	Name                  *string     `json:"name,omitempty"`
+	Description           *string     `json:"description,omitempty"`
 }
 
 type UpdateServiceAccountTokenPayload struct {

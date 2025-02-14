@@ -455,29 +455,22 @@ func (q *Queries) UpdateSecretLastUsedAt(ctx context.Context, token string) erro
 const updateToken = `-- name: UpdateToken :one
 UPDATE service_account_tokens
 SET
-	expires_at = $1,
-	name = COALESCE($2, name),
-	description = COALESCE($3, description)
+	name = COALESCE($1, name),
+	description = COALESCE($2, description)
 WHERE
-	id = $4
+	id = $3
 RETURNING
 	id, created_at, updated_at, last_used_at, expires_at, name, description, token, service_account_id
 `
 
 type UpdateTokenParams struct {
-	ExpiresAt   pgtype.Date
 	Name        *string
 	Description *string
 	ID          uuid.UUID
 }
 
 func (q *Queries) UpdateToken(ctx context.Context, arg UpdateTokenParams) (*ServiceAccountToken, error) {
-	row := q.db.QueryRow(ctx, updateToken,
-		arg.ExpiresAt,
-		arg.Name,
-		arg.Description,
-		arg.ID,
-	)
+	row := q.db.QueryRow(ctx, updateToken, arg.Name, arg.Description, arg.ID)
 	var i ServiceAccountToken
 	err := row.Scan(
 		&i.ID,

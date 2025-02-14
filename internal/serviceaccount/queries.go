@@ -249,22 +249,10 @@ func UpdateToken(ctx context.Context, input UpdateServiceAccountTokenInput) (*Se
 		return nil, nil, err
 	}
 
-	expiresAt := token.ExpiresAt.PgDate()
-	if e := input.ExpiresAt; e != nil {
-		if e.ExpiresAt == nil && e.RemoveExpiry == nil {
-			return nil, nil, apierror.Errorf("Either expiresAt or removeExpiry must be set.")
-		} else if e.ExpiresAt != nil {
-			expiresAt = e.ExpiresAt.PgDate()
-		} else if *e.RemoveExpiry {
-			expiresAt = pgtype.Date{}
-		}
-	}
-
 	var t *serviceaccountsql.ServiceAccountToken
 	err = database.Transaction(ctx, func(ctx context.Context) error {
 		t, err = db(ctx).UpdateToken(ctx, serviceaccountsql.UpdateTokenParams{
 			ID:          token.UUID,
-			ExpiresAt:   expiresAt,
 			Name:        input.Name,
 			Description: input.Description,
 		})

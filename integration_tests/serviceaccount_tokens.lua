@@ -146,6 +146,7 @@ Test.gql("Create service account token", function(t)
 					serviceAccountID: "%s"
 					name: "my-token"
 					description: "some description"
+					expiresAt: "2029-01-01"
 				}
 			) {
 				secret
@@ -156,6 +157,7 @@ Test.gql("Create service account token", function(t)
 					id
 					name
 					description
+					expiresAt
 				}
 			}
 		}
@@ -172,37 +174,8 @@ Test.gql("Create service account token", function(t)
 					id = Save("tokenID"),
 					name = "my-token",
 					description = "some description",
+					expiresAt = "2029-01-01",
 				},
-			},
-		},
-	}
-end)
-
-Test.gql("Update service account token with empty expiresAt", function(t)
-	t.query(string.format([[
-		mutation {
-			updateServiceAccountToken(
-				input: {
-					serviceAccountTokenID: "%s"
-					expiresAt: {  }
-				}
-			) {
-				serviceAccountToken {
-					expiresAt
-				}
-			}
-		}
-	]], State.tokenID))
-
-	t.check {
-		data = Null,
-		errors = {
-			{
-				extensions = {
-					code = "GRAPHQL_VALIDATION_FAILED",
-				},
-				locations = NotNull(),
-				message = "OneOf Input Object \"UpdateServiceAccountTokenExpiresAtInput\" must specify exactly one key.",
 			},
 		},
 	}
@@ -215,7 +188,6 @@ Test.gql("Update service account token", function(t)
 				input: {
 					serviceAccountTokenID: "%s"
 					description: "some other description"
-					expiresAt: { removeExpiry: true }
 				}
 			) {
 				serviceAccountToken {
@@ -233,58 +205,7 @@ Test.gql("Update service account token", function(t)
 				serviceAccountToken = {
 					id = State.tokenID,
 					description = "some other description",
-					expiresAt = Null,
-				},
-			},
-		},
-	}
-end)
-
-Test.gql("Update service account token set expiresAt", function(t)
-	t.query(string.format([[
-		mutation {
-			updateServiceAccountToken(
-				input: {
-					serviceAccountTokenID: "%s"
-					expiresAt: {
-						expiresAt: "2029-04-04"
-					}
-				}
-			) {
-				serviceAccount {
-					tokens {
-						nodes {
-							description
-							expiresAt
-						}
-					}
-				}
-				serviceAccountToken {
-					id
-					description
-					expiresAt
-				}
-			}
-		}
-	]], State.tokenID))
-
-	t.check {
-		data = {
-			updateServiceAccountToken = {
-				serviceAccountToken = {
-					id = State.tokenID,
-					description = "some other description",
-					expiresAt = "2029-04-04",
-				},
-				serviceAccount = {
-					tokens = {
-						nodes = {
-							{
-								description = "some other description",
-								expiresAt = "2029-04-04",
-							},
-						},
-					},
+					expiresAt = "2029-01-01",
 				},
 			},
 		},

@@ -115,7 +115,6 @@ RETURNING
 -- name: UpdateToken :one
 UPDATE service_account_tokens
 SET
-	expires_at = @expires_at,
 	name = COALESCE(sqlc.narg('name'), name),
 	description = COALESCE(sqlc.narg('description'), description)
 WHERE
