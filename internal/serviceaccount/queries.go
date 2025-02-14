@@ -194,6 +194,7 @@ func CreateToken(ctx context.Context, input CreateServiceAccountTokenInput) (*Se
 	err = database.Transaction(ctx, func(ctx context.Context) error {
 		t, err = db(ctx).CreateToken(ctx, serviceaccountsql.CreateTokenParams{
 			ExpiresAt:        expiresAt,
+			Name:             input.Name,
 			Description:      input.Description,
 			Token:            *secret,
 			ServiceAccountID: sa.UUID,
@@ -247,6 +248,7 @@ func UpdateToken(ctx context.Context, input UpdateServiceAccountTokenInput) (*Se
 		t, err = db(ctx).UpdateToken(ctx, serviceaccountsql.UpdateTokenParams{
 			ID:          token.UUID,
 			ExpiresAt:   expiresAt,
+			Name:        input.Name,
 			Description: input.Description,
 		})
 		if err != nil {
@@ -345,30 +347,33 @@ func DeleteStaticServiceAccounts(ctx context.Context) error {
 
 // TODO: Remove once static service accounts has been removed
 func CreateStaticServiceAccount(ctx context.Context, name string, roles []string, secret string) error {
-	sa, err := db(ctx).Create(ctx, serviceaccountsql.CreateParams{
-		Name:        name,
-		Description: "Static service account created by Nais",
-	})
-	if err != nil {
-		return err
-	}
-
-	for _, r := range roles {
-		if err := authz.AssignRoleToServiceAccount(ctx, sa.ID, r); err != nil {
+	return database.Transaction(ctx, func(ctx context.Context) error {
+		sa, err := db(ctx).Create(ctx, serviceaccountsql.CreateParams{
+			Name:        name,
+			Description: "Static service account created by Nais",
+		})
+		if err != nil {
 			return err
 		}
-	}
 
-	_, err = db(ctx).CreateToken(ctx, serviceaccountsql.CreateTokenParams{
-		Description:      "Token created by Nais",
-		Token:            secret,
-		ServiceAccountID: sa.ID,
+		for _, r := range roles {
+			if err := authz.AssignRoleToServiceAccount(ctx, sa.ID, r); err != nil {
+				return err
+			}
+		}
+
+		_, err = db(ctx).CreateToken(ctx, serviceaccountsql.CreateTokenParams{
+			Name:             "Static service account token",
+			Description:      "Token created by Nais",
+			Token:            secret,
+			ServiceAccountID: sa.ID,
+		})
+		if err != nil {
+			return err
+		}
+
+		return nil
 	})
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func AssignRole(ctx context.Context, input AssignRoleToServiceAccountInput) (*ServiceAccount, error) {
@@ -377,7 +382,6 @@ func AssignRole(ctx context.Context, input AssignRoleToServiceAccountInput) (*Se
 		return nil, err
 	}
 
-	// Check if user has permission to update service account
 	if err := authz.CanUpdateServiceAccounts(ctx, sa.TeamSlug); err != nil {
 		return nil, err
 	}

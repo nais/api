@@ -41,7 +41,7 @@ FROM
 WHERE
 	service_account_id = @service_account_id
 ORDER BY
-	created_at DESC
+	name
 LIMIT
 	sqlc.arg('limit')
 OFFSET
@@ -95,6 +95,7 @@ WHERE
 INSERT INTO
 	service_account_tokens (
 		expires_at,
+		name,
 		description,
 		token,
 		service_account_id
@@ -102,6 +103,7 @@ INSERT INTO
 VALUES
 	(
 		@expires_at,
+		@name,
 		@description,
 		@token,
 		@service_account_id
@@ -114,6 +116,7 @@ RETURNING
 UPDATE service_account_tokens
 SET
 	expires_at = @expires_at,
+	name = COALESCE(sqlc.narg('name'), name),
 	description = COALESCE(sqlc.narg('description'), description)
 WHERE
 	id = @id

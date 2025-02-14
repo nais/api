@@ -62,6 +62,7 @@ type AssignRoleToServiceAccountPayload struct {
 
 type CreateServiceAccountTokenInput struct {
 	ServiceAccountID ident.Ident  `json:"serviceAccountID"`
+	Name             string       `json:"name"`
 	Description      string       `json:"description"`
 	ExpiresAt        *scalar.Date `json:"expiresAt,omitempty"`
 }
@@ -95,6 +96,7 @@ type RevokeRoleFromServiceAccountPayload struct {
 }
 
 type ServiceAccountToken struct {
+	Name             string       `json:"name"`
 	Description      string       `json:"description"`
 	CreatedAt        time.Time    `json:"createdAt"`
 	UpdatedAt        time.Time    `json:"updatedAt,omitempty"`
@@ -124,6 +126,7 @@ type UpdateServiceAccountTokenExpiresAtInput struct {
 
 type UpdateServiceAccountTokenInput struct {
 	ServiceAccountTokenID ident.Ident                              `json:"serviceAccountTokenID"`
+	Name                  *string                                  `json:"name,omitempty"`
 	Description           *string                                  `json:"description,omitempty"`
 	ExpiresAt             *UpdateServiceAccountTokenExpiresAtInput `json:"expiresAt,omitempty"`
 }
@@ -151,6 +154,7 @@ func toGraphServiceAccountToken(t *serviceaccountsql.ServiceAccountToken) *Servi
 	}
 
 	return &ServiceAccountToken{
+		Name:             t.Name,
 		Description:      t.Description,
 		CreatedAt:        t.CreatedAt.Time,
 		UpdatedAt:        t.UpdatedAt.Time,

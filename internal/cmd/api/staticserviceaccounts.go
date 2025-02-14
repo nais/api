@@ -48,10 +48,6 @@ func (s *StaticServiceAccounts) UnmarshalJSON(value []byte) error {
 			return fmt.Errorf("service account is missing required %q prefix: %q", naisServiceAccountPrefix, serviceAccount.Name)
 		}
 
-		if len(serviceAccount.Roles) == 0 {
-			return fmt.Errorf("service account must have at least one role: %q", serviceAccount.Name)
-		}
-
 		if serviceAccount.APIKey == "" {
 			return fmt.Errorf("service account is missing an API key: %q", serviceAccount.Name)
 		}

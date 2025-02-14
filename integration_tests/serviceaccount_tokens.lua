@@ -57,6 +57,7 @@ Test.gql("Create token for service account that does not exist", function(t)
 			createServiceAccountToken(
 				input: {
 					serviceAccountID: "%s"
+					name: "my-token"
 					description: "some description"
 				}
 			) {
@@ -113,6 +114,7 @@ Test.gql("Create service account token without permission", function(t)
 			createServiceAccountToken(
 				input: {
 					serviceAccountID: "%s"
+					name: "my-token"
 					description: "some description"
 				}
 			) {
@@ -142,6 +144,7 @@ Test.gql("Create service account token", function(t)
 			createServiceAccountToken(
 				input: {
 					serviceAccountID: "%s"
+					name: "my-token"
 					description: "some description"
 				}
 			) {
@@ -151,6 +154,7 @@ Test.gql("Create service account token", function(t)
 				}
 				serviceAccountToken {
 					id
+					name
 					description
 				}
 			}
@@ -166,6 +170,7 @@ Test.gql("Create service account token", function(t)
 				},
 				serviceAccountToken = {
 					id = Save("tokenID"),
+					name = "my-token",
 					description = "some description",
 				},
 			},

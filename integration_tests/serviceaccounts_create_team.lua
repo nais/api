@@ -51,6 +51,7 @@ Test.gql("Create service account token", function(t)
 			createServiceAccountToken(
 				input: {
 					serviceAccountID: "%s"
+					name: "my-token"
 					description: "some description"
 				}
 			) {

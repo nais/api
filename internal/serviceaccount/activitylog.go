@@ -4,16 +4,13 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/activitylog"
-	"github.com/nais/api/internal/graph/scalar"
 )
 
 const (
 	activityLogEntryResourceTypeServiceAccount      activitylog.ActivityLogEntryResourceType = "SERVICE_ACCOUNT"
+	activityLogEntryResourceTypeServiceAccountToken activitylog.ActivityLogEntryResourceType = "SERVICE_ACCOUNT_TOKEN"
 	activityLogEntryActionAssignServiceAccountRole  activitylog.ActivityLogEntryAction       = "ASSIGN_SERVICE_ACCOUNT_TOKEN_ROLE"
 	activityLogEntryActionRevokeServiceAccountRole  activitylog.ActivityLogEntryAction       = "REVOKE_SERVICE_ACCOUNT_TOKEN_ROLE"
-	activityLogEntryActionCreateServiceAccountToken activitylog.ActivityLogEntryAction       = "CREATE_SERVICE_ACCOUNT_TOKEN"
-	activityLogEntryActionUpdateServiceAccountToken activitylog.ActivityLogEntryAction       = "UPDATE_SERVICE_ACCOUNT_TOKEN"
-	activityLogEntryActionDeleteServiceAccountToken activitylog.ActivityLogEntryAction       = "DELETE_SERVICE_ACCOUNT_TOKEN"
 )
 
 func init() {
@@ -76,22 +73,10 @@ type ServiceAccountDeletedActivityLogEntry struct {
 
 type ServiceAccountTokenCreatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *ServiceAccountTokenCreatedActivityLogEntryData `json:"data"`
-}
-
-type ServiceAccountTokenCreatedActivityLogEntryData struct {
-	TokenName        string       `json:"tokenName"`
-	TokenDescription string       `json:"tokenDescription"`
-	ExpiresAt        *scalar.Date `json:"expiresAt,omitempty"`
 }
 
 type ServiceAccountTokenDeletedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *ServiceAccountTokenDeletedActivityLogEntryData `json:"data"`
-}
-
-type ServiceAccountTokenDeletedActivityLogEntryData struct {
-	TokenName string `json:"tokenName"`
 }
 
 type ServiceAccountTokenUpdatedActivityLogEntry struct {

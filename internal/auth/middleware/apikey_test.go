@@ -73,9 +73,9 @@ func TestApiKeyAuthentication(t *testing.T) {
 		}
 
 		stmt = `
-			INSERT INTO service_account_tokens (token, service_account_id, description) VALUES
-		   ('key1', (SELECT id FROM service_accounts WHERE name = 'sa1'), 'description'),
-		   ('key2', (SELECT id FROM service_accounts WHERE name = 'sa2'), 'description')`
+			INSERT INTO service_account_tokens (token, service_account_id, name, description) VALUES
+		   ('key1', (SELECT id FROM service_accounts WHERE name = 'sa1'), 'name', 'description'),
+		   ('key2', (SELECT id FROM service_accounts WHERE name = 'sa2'), 'name', 'description')`
 		if _, err = pool.Exec(ctx, stmt); err != nil {
 			t.Fatalf("failed to insert service accounts: %v", err)
 		}
@@ -136,8 +136,8 @@ func TestApiKeyAuthentication(t *testing.T) {
 		}
 
 		stmt = `
-			INSERT INTO service_account_tokens (token, service_account_id, expires_at, description) VALUES
-		   ('key1', (SELECT id FROM service_accounts WHERE name = 'sa1'), '2021-01-01', 'description')`
+			INSERT INTO service_account_tokens (token, service_account_id, expires_at, name, description) VALUES
+		   ('key1', (SELECT id FROM service_accounts WHERE name = 'sa1'), '2021-01-01', 'token', 'description')`
 		if _, err = pool.Exec(ctx, stmt); err != nil {
 			t.Fatalf("failed to insert service accounts: %v", err)
 		}
