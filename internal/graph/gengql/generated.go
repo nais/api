@@ -1371,6 +1371,7 @@ type ComplexityRoot struct {
 	ServiceAccountTokenCreatedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
@@ -1379,15 +1380,24 @@ type ComplexityRoot struct {
 		TeamSlug        func(childComplexity int) int
 	}
 
+	ServiceAccountTokenCreatedActivityLogEntryData struct {
+		TokenName func(childComplexity int) int
+	}
+
 	ServiceAccountTokenDeletedActivityLogEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
 		ResourceName    func(childComplexity int) int
 		ResourceType    func(childComplexity int) int
 		TeamSlug        func(childComplexity int) int
+	}
+
+	ServiceAccountTokenDeletedActivityLogEntryData struct {
+		TokenName func(childComplexity int) int
 	}
 
 	ServiceAccountTokenEdge struct {
@@ -7988,6 +7998,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ServiceAccountTokenCreatedActivityLogEntry.CreatedAt(childComplexity), true
 
+	case "ServiceAccountTokenCreatedActivityLogEntry.data":
+		if e.complexity.ServiceAccountTokenCreatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.complexity.ServiceAccountTokenCreatedActivityLogEntry.Data(childComplexity), true
+
 	case "ServiceAccountTokenCreatedActivityLogEntry.environmentName":
 		if e.complexity.ServiceAccountTokenCreatedActivityLogEntry.EnvironmentName == nil {
 			break
@@ -8030,6 +8047,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ServiceAccountTokenCreatedActivityLogEntry.TeamSlug(childComplexity), true
 
+	case "ServiceAccountTokenCreatedActivityLogEntryData.tokenName":
+		if e.complexity.ServiceAccountTokenCreatedActivityLogEntryData.TokenName == nil {
+			break
+		}
+
+		return e.complexity.ServiceAccountTokenCreatedActivityLogEntryData.TokenName(childComplexity), true
+
 	case "ServiceAccountTokenDeletedActivityLogEntry.actor":
 		if e.complexity.ServiceAccountTokenDeletedActivityLogEntry.Actor == nil {
 			break
@@ -8043,6 +8067,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ServiceAccountTokenDeletedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "ServiceAccountTokenDeletedActivityLogEntry.data":
+		if e.complexity.ServiceAccountTokenDeletedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.complexity.ServiceAccountTokenDeletedActivityLogEntry.Data(childComplexity), true
 
 	case "ServiceAccountTokenDeletedActivityLogEntry.environmentName":
 		if e.complexity.ServiceAccountTokenDeletedActivityLogEntry.EnvironmentName == nil {
@@ -8085,6 +8116,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ServiceAccountTokenDeletedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "ServiceAccountTokenDeletedActivityLogEntryData.tokenName":
+		if e.complexity.ServiceAccountTokenDeletedActivityLogEntryData.TokenName == nil {
+			break
+		}
+
+		return e.complexity.ServiceAccountTokenDeletedActivityLogEntryData.TokenName(childComplexity), true
 
 	case "ServiceAccountTokenEdge.cursor":
 		if e.complexity.ServiceAccountTokenEdge.Cursor == nil {
@@ -16150,7 +16188,6 @@ type ServiceAccountTokenEdge {
 
 extend enum ActivityLogEntryResourceType {
 	SERVICE_ACCOUNT
-	SERVICE_ACCOUNT_TOKEN
 }
 
 type ServiceAccountCreatedActivityLogEntry implements ActivityLogEntry & Node {
@@ -16237,7 +16274,7 @@ type ServiceAccountUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 
 	"""
-	Data associated with the update.
+	Data associated with the entry.
 	"""
 	data: ServiceAccountUpdatedActivityLogEntryData!
 }
@@ -16350,7 +16387,7 @@ type RoleAssignedToServiceAccountActivityLogEntry implements ActivityLogEntry & 
 	environmentName: String
 
 	"""
-	Data associated with the update.
+	Data associated with the entry.
 	"""
 	data: RoleAssignedToServiceAccountActivityLogEntryData!
 }
@@ -16404,7 +16441,7 @@ type RoleRevokedFromServiceAccountActivityLogEntry implements ActivityLogEntry &
 	environmentName: String
 
 	"""
-	Data associated with the update.
+	Data associated with the entry.
 	"""
 	data: RoleRevokedFromServiceAccountActivityLogEntryData!
 }
@@ -16456,6 +16493,18 @@ type ServiceAccountTokenCreatedActivityLogEntry implements ActivityLogEntry & No
 	The environment name that the entry belongs to.
 	"""
 	environmentName: String
+
+	"""
+	Data associated with the entry.
+	"""
+	data: ServiceAccountTokenCreatedActivityLogEntryData!
+}
+
+type ServiceAccountTokenCreatedActivityLogEntryData {
+	"""
+	The name of the service account token.
+	"""
+	tokenName: String!
 }
 
 type ServiceAccountTokenUpdatedActivityLogEntry implements ActivityLogEntry & Node {
@@ -16500,7 +16549,7 @@ type ServiceAccountTokenUpdatedActivityLogEntry implements ActivityLogEntry & No
 	environmentName: String
 
 	"""
-	Data associated with the update.
+	Data associated with the entry.
 	"""
 	data: ServiceAccountTokenUpdatedActivityLogEntryData!
 }
@@ -16569,6 +16618,18 @@ type ServiceAccountTokenDeletedActivityLogEntry implements ActivityLogEntry & No
 	The environment name that the entry belongs to.
 	"""
 	environmentName: String
+
+	"""
+	Data associated with the entry.
+	"""
+	data: ServiceAccountTokenDeletedActivityLogEntryData!
+}
+
+type ServiceAccountTokenDeletedActivityLogEntryData {
+	"""
+	The name of the service account token.
+	"""
+	tokenName: String!
 }
 `, BuiltIn: false},
 	{Name: "../schema/sqlinstance.graphqls", Input: `extend type Team {
@@ -63271,6 +63332,98 @@ func (ec *executionContext) fieldContext_ServiceAccountTokenCreatedActivityLogEn
 	return fc, nil
 }
 
+func (ec *executionContext) _ServiceAccountTokenCreatedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountTokenCreatedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceAccountTokenCreatedActivityLogEntry_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*serviceaccount.ServiceAccountTokenCreatedActivityLogEntryData)
+	fc.Result = res
+	return ec.marshalNServiceAccountTokenCreatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountTokenCreatedActivityLogEntryData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceAccountTokenCreatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceAccountTokenCreatedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "tokenName":
+				return ec.fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_tokenName(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ServiceAccountTokenCreatedActivityLogEntryData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ServiceAccountTokenCreatedActivityLogEntryData_tokenName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountTokenCreatedActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_tokenName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TokenName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceAccountTokenCreatedActivityLogEntryData_tokenName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceAccountTokenCreatedActivityLogEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ServiceAccountTokenDeletedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountTokenDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ServiceAccountTokenDeletedActivityLogEntry_id(ctx, field)
 	if err != nil {
@@ -63607,6 +63760,98 @@ func (ec *executionContext) _ServiceAccountTokenDeletedActivityLogEntry_environm
 func (ec *executionContext) fieldContext_ServiceAccountTokenDeletedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServiceAccountTokenDeletedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ServiceAccountTokenDeletedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountTokenDeletedActivityLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceAccountTokenDeletedActivityLogEntry_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*serviceaccount.ServiceAccountTokenDeletedActivityLogEntryData)
+	fc.Result = res
+	return ec.marshalNServiceAccountTokenDeletedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountTokenDeletedActivityLogEntryData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceAccountTokenDeletedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceAccountTokenDeletedActivityLogEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "tokenName":
+				return ec.fieldContext_ServiceAccountTokenDeletedActivityLogEntryData_tokenName(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ServiceAccountTokenDeletedActivityLogEntryData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ServiceAccountTokenDeletedActivityLogEntryData_tokenName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountTokenDeletedActivityLogEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceAccountTokenDeletedActivityLogEntryData_tokenName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TokenName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceAccountTokenDeletedActivityLogEntryData_tokenName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceAccountTokenDeletedActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -107085,6 +107330,50 @@ func (ec *executionContext) _ServiceAccountTokenCreatedActivityLogEntry(ctx cont
 			out.Values[i] = ec._ServiceAccountTokenCreatedActivityLogEntry_teamSlug(ctx, field, obj)
 		case "environmentName":
 			out.Values[i] = ec._ServiceAccountTokenCreatedActivityLogEntry_environmentName(ctx, field, obj)
+		case "data":
+			out.Values[i] = ec._ServiceAccountTokenCreatedActivityLogEntry_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var serviceAccountTokenCreatedActivityLogEntryDataImplementors = []string{"ServiceAccountTokenCreatedActivityLogEntryData"}
+
+func (ec *executionContext) _ServiceAccountTokenCreatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.ServiceAccountTokenCreatedActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, serviceAccountTokenCreatedActivityLogEntryDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ServiceAccountTokenCreatedActivityLogEntryData")
+		case "tokenName":
+			out.Values[i] = ec._ServiceAccountTokenCreatedActivityLogEntryData_tokenName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -107153,6 +107442,50 @@ func (ec *executionContext) _ServiceAccountTokenDeletedActivityLogEntry(ctx cont
 			out.Values[i] = ec._ServiceAccountTokenDeletedActivityLogEntry_teamSlug(ctx, field, obj)
 		case "environmentName":
 			out.Values[i] = ec._ServiceAccountTokenDeletedActivityLogEntry_environmentName(ctx, field, obj)
+		case "data":
+			out.Values[i] = ec._ServiceAccountTokenDeletedActivityLogEntry_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var serviceAccountTokenDeletedActivityLogEntryDataImplementors = []string{"ServiceAccountTokenDeletedActivityLogEntryData"}
+
+func (ec *executionContext) _ServiceAccountTokenDeletedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.ServiceAccountTokenDeletedActivityLogEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, serviceAccountTokenDeletedActivityLogEntryDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ServiceAccountTokenDeletedActivityLogEntryData")
+		case "tokenName":
+			out.Values[i] = ec._ServiceAccountTokenDeletedActivityLogEntryData_tokenName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -122662,6 +122995,26 @@ func (ec *executionContext) marshalNServiceAccountTokenConnection2ᚖgithubᚗco
 		return graphql.Null
 	}
 	return ec._ServiceAccountTokenConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNServiceAccountTokenCreatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountTokenCreatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.ServiceAccountTokenCreatedActivityLogEntryData) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ServiceAccountTokenCreatedActivityLogEntryData(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNServiceAccountTokenDeletedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountTokenDeletedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.ServiceAccountTokenDeletedActivityLogEntryData) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ServiceAccountTokenDeletedActivityLogEntryData(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNServiceAccountTokenEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*serviceaccount.ServiceAccountToken]) graphql.Marshaler {

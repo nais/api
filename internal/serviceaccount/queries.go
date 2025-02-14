@@ -216,11 +216,15 @@ func CreateToken(ctx context.Context, input CreateServiceAccountTokenInput) (*Se
 			return err
 		}
 
-		return nil
-
-		// TODO
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			// ...
+			Action:       activityLogEntryActionCreateServiceAccountToken,
+			Actor:        authz.ActorFromContext(ctx).User,
+			ResourceType: activityLogEntryResourceTypeServiceAccount,
+			ResourceName: sa.Name,
+			TeamSlug:     sa.TeamSlug,
+			Data: &ServiceAccountTokenCreatedActivityLogEntryData{
+				TokenName: input.Name,
+			},
 		})
 	})
 	if err != nil {
@@ -231,12 +235,12 @@ func CreateToken(ctx context.Context, input CreateServiceAccountTokenInput) (*Se
 }
 
 func UpdateToken(ctx context.Context, input UpdateServiceAccountTokenInput) (*ServiceAccount, *ServiceAccountToken, error) {
-	token, err := GetTokenByIdent(ctx, input.ServiceAccountTokenID)
+	existingToken, err := GetTokenByIdent(ctx, input.ServiceAccountTokenID)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	sa, err := Get(ctx, token.ServiceAccountID)
+	sa, err := Get(ctx, existingToken.ServiceAccountID)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -248,7 +252,7 @@ func UpdateToken(ctx context.Context, input UpdateServiceAccountTokenInput) (*Se
 	var t *serviceaccountsql.ServiceAccountToken
 	err = database.Transaction(ctx, func(ctx context.Context) error {
 		t, err = db(ctx).UpdateToken(ctx, serviceaccountsql.UpdateTokenParams{
-			ID:          token.UUID,
+			ID:          existingToken.UUID,
 			Name:        input.Name,
 			Description: input.Description,
 		})
@@ -256,11 +260,38 @@ func UpdateToken(ctx context.Context, input UpdateServiceAccountTokenInput) (*Se
 			return err
 		}
 
-		return nil
+		updatedFields := make([]*ServiceAccountTokenUpdatedActivityLogEntryDataUpdatedField, 0)
+		if input.Name != nil && *input.Name != existingToken.Name {
+			updatedFields = append(updatedFields, &ServiceAccountTokenUpdatedActivityLogEntryDataUpdatedField{
+				Field:    "name",
+				OldValue: &existingToken.Name,
+				NewValue: input.Name,
+			})
+		}
 
-		// TODO
+		if input.Description != nil && *input.Description != existingToken.Description {
+			updatedFields = append(updatedFields, &ServiceAccountTokenUpdatedActivityLogEntryDataUpdatedField{
+				Field:    "description",
+				OldValue: &existingToken.Description,
+				NewValue: input.Description,
+			})
+		}
+
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			// ...
+			Action:       activityLogEntryActionUpdateServiceAccountToken,
+			Actor:        authz.ActorFromContext(ctx).User,
+			ResourceType: activityLogEntryResourceTypeServiceAccount,
+			ResourceName: sa.Name,
+			TeamSlug:     sa.TeamSlug,
+			Data: func(fields []*ServiceAccountTokenUpdatedActivityLogEntryDataUpdatedField) *ServiceAccountTokenUpdatedActivityLogEntryData {
+				if len(fields) == 0 {
+					return nil
+				}
+
+				return &ServiceAccountTokenUpdatedActivityLogEntryData{
+					UpdatedFields: fields,
+				}
+			}(updatedFields),
 		})
 	})
 	if err != nil {
@@ -290,11 +321,15 @@ func DeleteToken(ctx context.Context, input DeleteServiceAccountTokenInput) (*Se
 			return err
 		}
 
-		return nil
-
-		// TODO
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			// ...
+			Action:       activityLogEntryActionDeleteServiceAccountToken,
+			Actor:        authz.ActorFromContext(ctx).User,
+			ResourceType: activityLogEntryResourceTypeServiceAccount,
+			ResourceName: sa.Name,
+			TeamSlug:     sa.TeamSlug,
+			Data: &ServiceAccountTokenDeletedActivityLogEntryData{
+				TokenName: token.Name,
+			},
 		})
 	})
 	if err != nil {
@@ -418,11 +453,15 @@ func AssignRole(ctx context.Context, input AssignRoleToServiceAccountInput) (*Se
 			return err
 		}
 
-		return nil
-
-		// TODO
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			// ...
+			Action:       activityLogEntryActionAssignServiceAccountRole,
+			Actor:        authz.ActorFromContext(ctx).User,
+			ResourceType: activityLogEntryResourceTypeServiceAccount,
+			ResourceName: sa.Name,
+			TeamSlug:     sa.TeamSlug,
+			Data: &RoleAssignedToServiceAccountActivityLogEntryData{
+				RoleName: role.Name,
+			},
 		})
 	})
 	if err != nil {
@@ -464,11 +503,15 @@ func RevokeRole(ctx context.Context, input RevokeRoleFromServiceAccountInput) (*
 			return err
 		}
 
-		return nil
-
-		// TODO
 		return activitylog.Create(ctx, activitylog.CreateInput{
-			// ...
+			Action:       activityLogEntryActionRevokeServiceAccountRole,
+			Actor:        authz.ActorFromContext(ctx).User,
+			ResourceType: activityLogEntryResourceTypeServiceAccount,
+			ResourceName: sa.Name,
+			TeamSlug:     sa.TeamSlug,
+			Data: &RoleRevokedFromServiceAccountActivityLogEntryData{
+				RoleName: role.Name,
+			},
 		})
 	})
 	if err != nil {
