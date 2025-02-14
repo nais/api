@@ -3,6 +3,7 @@ package serviceaccount
 import (
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
 	"time"
 
 	"github.com/btcsuite/btcutil/base58"
@@ -35,7 +36,12 @@ func GetToken(ctx context.Context, serviceAccountTokenID uuid.UUID) (*ServiceAcc
 }
 
 func GetByToken(ctx context.Context, token string) (*ServiceAccount, error) {
-	sa, err := db(ctx).GetByToken(ctx, token)
+	encryptedToken, err := encryptToken(token)
+	if err != nil {
+		return nil, err
+	}
+
+	sa, err := db(ctx).GetByToken(ctx, encryptedToken)
 	if err != nil {
 		return nil, err
 	}
@@ -196,12 +202,18 @@ func CreateToken(ctx context.Context, input CreateServiceAccountTokenInput) (*Se
 	}
 
 	var t *serviceaccountsql.ServiceAccountToken
+
+	encryptedToken, err := encryptToken(*secret)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
 	err = database.Transaction(ctx, func(ctx context.Context) error {
 		t, err = db(ctx).CreateToken(ctx, serviceaccountsql.CreateTokenParams{
 			ExpiresAt:        expiresAt,
 			Name:             input.Name,
 			Description:      input.Description,
-			Token:            *secret,
+			Token:            encryptedToken,
 			ServiceAccountID: sa.UUID,
 		})
 		if err != nil {
@@ -367,10 +379,15 @@ func CreateStaticServiceAccount(ctx context.Context, name string, roles []string
 			}
 		}
 
+		encryptedToken, err := encryptToken(secret)
+		if err != nil {
+			return err
+		}
+
 		_, err = db(ctx).CreateToken(ctx, serviceaccountsql.CreateTokenParams{
 			Name:             "Static service account token",
 			Description:      "Token created by Nais",
-			Token:            secret,
+			Token:            encryptedToken,
 			ServiceAccountID: sa.ID,
 		})
 		if err != nil {
@@ -497,4 +514,14 @@ func getToken() (*string, error) {
 	}
 
 	return ptr.To("nais_console_" + base58.Encode(b)), nil
+}
+
+func encryptToken(token string) (string, error) {
+	sha256Hash := sha256.New()
+	_, err := sha256Hash.Write([]byte(token))
+	if err != nil {
+		return "", err
+	}
+
+	return base58.Encode(sha256Hash.Sum(nil)), nil
 }
