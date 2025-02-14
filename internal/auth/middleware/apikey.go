@@ -20,7 +20,7 @@ func ApiKeyAuthentication() func(next http.Handler) http.Handler {
 
 			ctx := r.Context()
 			secret := authHeader[7:]
-			sa, err := serviceaccount.GetByToken(ctx, secret)
+			sa, saToken, err := serviceaccount.GetBySecret(ctx, secret)
 			if err != nil {
 				next.ServeHTTP(w, r)
 				return
@@ -32,7 +32,7 @@ func ApiKeyAuthentication() func(next http.Handler) http.Handler {
 				return
 			}
 
-			if err := serviceaccount.UpdateSecretLastUsedAt(ctx, secret); err != nil {
+			if err := serviceaccount.UpdateTokenLastUsedAt(ctx, saToken.UUID); err != nil {
 				next.ServeHTTP(w, r)
 				return
 			}

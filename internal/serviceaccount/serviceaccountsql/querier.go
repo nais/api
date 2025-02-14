@@ -20,15 +20,15 @@ type Querier interface {
 	DeleteToken(ctx context.Context, id uuid.UUID) error
 	GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccount, error)
 	GetByName(ctx context.Context, name string) (*ServiceAccount, error)
-	GetByToken(ctx context.Context, token string) (*ServiceAccount, error)
+	GetServiceAccountAndTokenBySecret(ctx context.Context, token string) (*GetServiceAccountAndTokenBySecretRow, error)
 	GetTokensByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccountToken, error)
 	LastUsedAt(ctx context.Context, serviceAccountID uuid.UUID) (pgtype.Timestamptz, error)
 	List(ctx context.Context, arg ListParams) ([]*ServiceAccount, error)
 	ListTokensForServiceAccount(ctx context.Context, arg ListTokensForServiceAccountParams) ([]*ServiceAccountToken, error)
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
 	Update(ctx context.Context, arg UpdateParams) (*ServiceAccount, error)
-	UpdateSecretLastUsedAt(ctx context.Context, token string) error
 	UpdateToken(ctx context.Context, arg UpdateTokenParams) (*ServiceAccountToken, error)
+	UpdateTokenLastUsedAt(ctx context.Context, id uuid.UUID) error
 }
 
 var _ Querier = (*Queries)(nil)

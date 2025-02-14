@@ -2,11 +2,8 @@ package serviceaccount
 
 import (
 	"context"
-	"crypto/rand"
-	"crypto/sha256"
 	"time"
 
-	"github.com/btcsuite/btcutil/base58"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/activitylog"
@@ -16,7 +13,6 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/serviceaccount/serviceaccountsql"
-	"k8s.io/utils/ptr"
 )
 
 func Get(ctx context.Context, serviceAccountID uuid.UUID) (*ServiceAccount, error) {
@@ -35,22 +31,22 @@ func GetToken(ctx context.Context, serviceAccountTokenID uuid.UUID) (*ServiceAcc
 	return sa, nil
 }
 
-func GetByToken(ctx context.Context, token string) (*ServiceAccount, error) {
-	encryptedToken, err := encryptToken(token)
+func GetBySecret(ctx context.Context, token string) (*ServiceAccount, *ServiceAccountToken, error) {
+	hashedToken, err := HashToken(token)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	sa, err := db(ctx).GetByToken(ctx, encryptedToken)
+	row, err := db(ctx).GetServiceAccountAndTokenBySecret(ctx, hashedToken)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return toGraphServiceAccount(sa), nil
+	return toGraphServiceAccount(&row.ServiceAccount), toGraphServiceAccountToken(&row.ServiceAccountToken), nil
 }
 
-func UpdateSecretLastUsedAt(ctx context.Context, secret string) error {
-	return db(ctx).UpdateSecretLastUsedAt(ctx, secret)
+func UpdateTokenLastUsedAt(ctx context.Context, id uuid.UUID) error {
+	return db(ctx).UpdateTokenLastUsedAt(ctx, id)
 }
 
 func GetByIdent(ctx context.Context, ident ident.Ident) (*ServiceAccount, error) {
@@ -190,7 +186,7 @@ func CreateToken(ctx context.Context, input CreateServiceAccountTokenInput) (*Se
 		return nil, nil, nil, err
 	}
 
-	secret, err := getToken()
+	secret, err := generateToken()
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -203,7 +199,7 @@ func CreateToken(ctx context.Context, input CreateServiceAccountTokenInput) (*Se
 
 	var t *serviceaccountsql.ServiceAccountToken
 
-	encryptedToken, err := encryptToken(*secret)
+	hashedToken, err := HashToken(secret)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -213,7 +209,7 @@ func CreateToken(ctx context.Context, input CreateServiceAccountTokenInput) (*Se
 			ExpiresAt:        expiresAt,
 			Name:             input.Name,
 			Description:      input.Description,
-			Token:            encryptedToken,
+			Token:            hashedToken,
 			ServiceAccountID: sa.UUID,
 		})
 		if err != nil {
@@ -231,7 +227,7 @@ func CreateToken(ctx context.Context, input CreateServiceAccountTokenInput) (*Se
 		return nil, nil, nil, err
 	}
 
-	return sa, toGraphServiceAccountToken(t), secret, nil
+	return sa, toGraphServiceAccountToken(t), &secret, nil
 }
 
 func UpdateToken(ctx context.Context, input UpdateServiceAccountTokenInput) (*ServiceAccount, *ServiceAccountToken, error) {
@@ -367,7 +363,7 @@ func CreateStaticServiceAccount(ctx context.Context, name string, roles []string
 			}
 		}
 
-		encryptedToken, err := encryptToken(secret)
+		hashedToken, err := HashToken(secret)
 		if err != nil {
 			return err
 		}
@@ -375,7 +371,7 @@ func CreateStaticServiceAccount(ctx context.Context, name string, roles []string
 		_, err = db(ctx).CreateToken(ctx, serviceaccountsql.CreateTokenParams{
 			Name:             "Static service account token",
 			Description:      "Token created by Nais",
-			Token:            encryptedToken,
+			Token:            hashedToken,
 			ServiceAccountID: sa.ID,
 		})
 		if err != nil {
@@ -493,23 +489,4 @@ func LastUsedAt(ctx context.Context, id uuid.UUID) (*time.Time, error) {
 	}
 
 	return &ts.Time, nil
-}
-
-func getToken() (*string, error) {
-	b := make([]byte, 64)
-	if _, err := rand.Read(b); err != nil {
-		return nil, err
-	}
-
-	return ptr.To("nais_console_" + base58.Encode(b)), nil
-}
-
-func encryptToken(token string) (string, error) {
-	sha256Hash := sha256.New()
-	_, err := sha256Hash.Write([]byte(token))
-	if err != nil {
-		return "", err
-	}
-
-	return base58.Encode(sha256Hash.Sum(nil)), nil
 }

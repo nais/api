@@ -217,9 +217,10 @@ func (q *Queries) GetByName(ctx context.Context, name string) (*ServiceAccount, 
 	return &i, err
 }
 
-const getByToken = `-- name: GetByToken :one
+const getServiceAccountAndTokenBySecret = `-- name: GetServiceAccountAndTokenBySecret :one
 SELECT
-	service_accounts.id, service_accounts.created_at, service_accounts.updated_at, service_accounts.name, service_accounts.description, service_accounts.team_slug
+	service_accounts.id, service_accounts.created_at, service_accounts.updated_at, service_accounts.name, service_accounts.description, service_accounts.team_slug,
+	service_account_tokens.id, service_account_tokens.created_at, service_account_tokens.updated_at, service_account_tokens.last_used_at, service_account_tokens.expires_at, service_account_tokens.name, service_account_tokens.description, service_account_tokens.token, service_account_tokens.service_account_id
 FROM
 	service_account_tokens
 	JOIN service_accounts ON service_accounts.id = service_account_tokens.service_account_id
@@ -231,16 +232,30 @@ WHERE
 	)
 `
 
-func (q *Queries) GetByToken(ctx context.Context, token string) (*ServiceAccount, error) {
-	row := q.db.QueryRow(ctx, getByToken, token)
-	var i ServiceAccount
+type GetServiceAccountAndTokenBySecretRow struct {
+	ServiceAccount      ServiceAccount
+	ServiceAccountToken ServiceAccountToken
+}
+
+func (q *Queries) GetServiceAccountAndTokenBySecret(ctx context.Context, token string) (*GetServiceAccountAndTokenBySecretRow, error) {
+	row := q.db.QueryRow(ctx, getServiceAccountAndTokenBySecret, token)
+	var i GetServiceAccountAndTokenBySecretRow
 	err := row.Scan(
-		&i.ID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.Name,
-		&i.Description,
-		&i.TeamSlug,
+		&i.ServiceAccount.ID,
+		&i.ServiceAccount.CreatedAt,
+		&i.ServiceAccount.UpdatedAt,
+		&i.ServiceAccount.Name,
+		&i.ServiceAccount.Description,
+		&i.ServiceAccount.TeamSlug,
+		&i.ServiceAccountToken.ID,
+		&i.ServiceAccountToken.CreatedAt,
+		&i.ServiceAccountToken.UpdatedAt,
+		&i.ServiceAccountToken.LastUsedAt,
+		&i.ServiceAccountToken.ExpiresAt,
+		&i.ServiceAccountToken.Name,
+		&i.ServiceAccountToken.Description,
+		&i.ServiceAccountToken.Token,
+		&i.ServiceAccountToken.ServiceAccountID,
 	)
 	return &i, err
 }
@@ -439,19 +454,6 @@ func (q *Queries) Update(ctx context.Context, arg UpdateParams) (*ServiceAccount
 	return &i, err
 }
 
-const updateSecretLastUsedAt = `-- name: UpdateSecretLastUsedAt :exec
-UPDATE service_account_tokens
-SET
-	last_used_at = CLOCK_TIMESTAMP()
-WHERE
-	token = $1
-`
-
-func (q *Queries) UpdateSecretLastUsedAt(ctx context.Context, token string) error {
-	_, err := q.db.Exec(ctx, updateSecretLastUsedAt, token)
-	return err
-}
-
 const updateToken = `-- name: UpdateToken :one
 UPDATE service_account_tokens
 SET
@@ -484,4 +486,17 @@ func (q *Queries) UpdateToken(ctx context.Context, arg UpdateTokenParams) (*Serv
 		&i.ServiceAccountID,
 	)
 	return &i, err
+}
+
+const updateTokenLastUsedAt = `-- name: UpdateTokenLastUsedAt :exec
+UPDATE service_account_tokens
+SET
+	last_used_at = CLOCK_TIMESTAMP()
+WHERE
+	id = $1
+`
+
+func (q *Queries) UpdateTokenLastUsedAt(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, updateTokenLastUsedAt, id)
+	return err
 }

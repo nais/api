@@ -19,9 +19,10 @@ FROM
 	service_accounts
 ;
 
--- name: GetByToken :one
+-- name: GetServiceAccountAndTokenBySecret :one
 SELECT
-	service_accounts.*
+	sqlc.embed(service_accounts),
+	sqlc.embed(service_account_tokens)
 FROM
 	service_account_tokens
 	JOIN service_accounts ON service_accounts.id = service_account_tokens.service_account_id
@@ -157,12 +158,12 @@ ORDER BY
 	created_at
 ;
 
--- name: UpdateSecretLastUsedAt :exec
+-- name: UpdateTokenLastUsedAt :exec
 UPDATE service_account_tokens
 SET
 	last_used_at = CLOCK_TIMESTAMP()
 WHERE
-	token = @token
+	id = @id
 ;
 
 -- name: LastUsedAt :one

@@ -72,11 +72,13 @@ func TestApiKeyAuthentication(t *testing.T) {
 			t.Fatalf("failed to insert service accounts: %v", err)
 		}
 
+		token1, _ := serviceaccount.HashToken("key1")
+		token2, _ := serviceaccount.HashToken("key2")
 		stmt = `
 			INSERT INTO service_account_tokens (token, service_account_id, name, description) VALUES
-		   ('key1', (SELECT id FROM service_accounts WHERE name = 'sa1'), 'name', 'description'),
-		   ('key2', (SELECT id FROM service_accounts WHERE name = 'sa2'), 'name', 'description')`
-		if _, err = pool.Exec(ctx, stmt); err != nil {
+		   ($1, (SELECT id FROM service_accounts WHERE name = 'sa1'), 'name', 'description'),
+		   ($2, (SELECT id FROM service_accounts WHERE name = 'sa2'), 'name', 'description')`
+		if _, err = pool.Exec(ctx, stmt, token1, token2); err != nil {
 			t.Fatalf("failed to insert service accounts: %v", err)
 		}
 
@@ -98,7 +100,7 @@ func TestApiKeyAuthentication(t *testing.T) {
 				t.Fatalf("expected %q, got %q", expected, actor.User.Identity())
 			} else if len(actor.Roles) != 1 {
 				t.Fatal("expected one role")
-			} else if expected := "Deploy key viewer"; string(actor.Roles[0].Name) != expected {
+			} else if expected := "Deploy key viewer"; actor.Roles[0].Name != expected {
 				t.Fatalf("expected role to be %q, got: %#v", expected, actor.Roles[0])
 			}
 		})
@@ -111,7 +113,7 @@ func TestApiKeyAuthentication(t *testing.T) {
 				t.Fatalf("expected %q, got %q", expected, actor.User.Identity())
 			} else if len(actor.Roles) != 1 {
 				t.Fatal("expected one role")
-			} else if expected := "Team creator"; string(actor.Roles[0].Name) != expected {
+			} else if expected := "Team creator"; actor.Roles[0].Name != expected {
 				t.Fatalf("expected role to be %q, got: %#v", expected, actor.Roles[0])
 			}
 		})
@@ -135,10 +137,11 @@ func TestApiKeyAuthentication(t *testing.T) {
 			t.Fatalf("failed to insert service accounts: %v", err)
 		}
 
+		token1, _ := serviceaccount.HashToken("key1")
 		stmt = `
 			INSERT INTO service_account_tokens (token, service_account_id, expires_at, name, description) VALUES
-		   ('key1', (SELECT id FROM service_accounts WHERE name = 'sa1'), '2021-01-01', 'token', 'description')`
-		if _, err = pool.Exec(ctx, stmt); err != nil {
+		   ($1, (SELECT id FROM service_accounts WHERE name = 'sa1'), '2021-01-01', 'token', 'description')`
+		if _, err = pool.Exec(ctx, stmt, token1); err != nil {
 			t.Fatalf("failed to insert service accounts: %v", err)
 		}
 
