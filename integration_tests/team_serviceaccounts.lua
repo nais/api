@@ -1,4 +1,8 @@
 Helper.SQLExec([[
+	DELETE FROM user_roles WHERE role_name = 'Team owner';
+]])
+
+Helper.SQLExec([[
 	INSERT INTO
 		user_roles (role_name, user_id, target_team_slug)
 	VALUES (
