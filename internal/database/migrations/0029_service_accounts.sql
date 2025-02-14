@@ -84,7 +84,7 @@ CREATE TABLE service_accounts (
 	id UUID DEFAULT gen_random_uuid () PRIMARY KEY,
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CLOCK_TIMESTAMP() NOT NULL,
 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT CLOCK_TIMESTAMP() NOT NULL,
-	name TEXT NOT NULL,
+	name TEXT NOT NULL CONSTRAINT name_length CHECK (CHAR_LENGTH(name) <= 80),
 	description TEXT NOT NULL,
 	team_slug slug REFERENCES teams (slug) ON DELETE CASCADE
 )
@@ -181,7 +181,7 @@ CREATE TABLE service_account_tokens (
 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT CLOCK_TIMESTAMP() NOT NULL,
 	last_used_at TIMESTAMP WITH TIME ZONE,
 	expires_at DATE,
-	name TEXT NOT NULL,
+	name TEXT NOT NULL CONSTRAINT name_length CHECK (CHAR_LENGTH(name) <= 80),
 	description TEXT NOT NULL,
 	token TEXT NOT NULL UNIQUE,
 	service_account_id UUID NOT NULL REFERENCES service_accounts (id) ON DELETE CASCADE
