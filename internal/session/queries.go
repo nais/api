@@ -6,7 +6,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/session/sessionsql"
 )
 
@@ -39,14 +38,11 @@ func Get(ctx context.Context, sessionID uuid.UUID) (*Session, error) {
 		return nil, err
 	}
 
-	if time.Since(r.CreatedAt.Time) > maxSessionLength {
-		return nil, apierror.Errorf("Session is expired, please log in again.")
-	}
-
 	return &Session{
-		ID:      r.ID,
-		UserID:  r.UserID,
-		Expires: r.Expires.Time,
+		ID:        r.ID,
+		UserID:    r.UserID,
+		Expires:   r.Expires.Time,
+		CreatedAt: r.CreatedAt.Time,
 	}, nil
 }
 
