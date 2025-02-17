@@ -9,7 +9,10 @@ import (
 	"github.com/nais/api/internal/session/sessionsql"
 )
 
-const sessionLength = time.Minute * 30
+const (
+	sessionLength    = time.Minute * 30
+	maxSessionLength = time.Hour * 8
+)
 
 func Create(ctx context.Context, userID uuid.UUID) (*Session, error) {
 	r, err := db(ctx).Create(ctx, sessionsql.CreateParams{
@@ -34,10 +37,12 @@ func Get(ctx context.Context, sessionID uuid.UUID) (*Session, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &Session{
-		ID:      r.ID,
-		UserID:  r.UserID,
-		Expires: r.Expires.Time,
+		ID:        r.ID,
+		UserID:    r.UserID,
+		Expires:   r.Expires.Time,
+		CreatedAt: r.CreatedAt.Time,
 	}, nil
 }
 

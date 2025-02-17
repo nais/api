@@ -11,7 +11,8 @@ RETURNING
 SELECT
 	id,
 	user_id,
-	expires
+	expires,
+	created_at
 FROM
 	sessions
 WHERE
