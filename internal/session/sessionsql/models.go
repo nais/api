@@ -8,7 +8,8 @@ import (
 )
 
 type Session struct {
-	ID      uuid.UUID
-	UserID  uuid.UUID
-	Expires pgtype.Timestamptz
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	Expires   pgtype.Timestamptz
+	CreatedAt pgtype.Timestamptz
 }

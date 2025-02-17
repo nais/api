@@ -16,7 +16,7 @@ INSERT INTO
 VALUES
 	($1, $2)
 RETURNING
-	id, user_id, expires
+	id, user_id, expires, created_at
 `
 
 type CreateParams struct {
@@ -27,7 +27,12 @@ type CreateParams struct {
 func (q *Queries) Create(ctx context.Context, arg CreateParams) (*Session, error) {
 	row := q.db.QueryRow(ctx, create, arg.UserID, arg.Expires)
 	var i Session
-	err := row.Scan(&i.ID, &i.UserID, &i.Expires)
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Expires,
+		&i.CreatedAt,
+	)
 	return &i, err
 }
 
@@ -46,7 +51,8 @@ const get = `-- name: Get :one
 SELECT
 	id,
 	user_id,
-	expires
+	expires,
+	created_at
 FROM
 	sessions
 WHERE
@@ -56,7 +62,12 @@ WHERE
 func (q *Queries) Get(ctx context.Context, id uuid.UUID) (*Session, error) {
 	row := q.db.QueryRow(ctx, get, id)
 	var i Session
-	err := row.Scan(&i.ID, &i.UserID, &i.Expires)
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Expires,
+		&i.CreatedAt,
+	)
 	return &i, err
 }
 
@@ -67,7 +78,7 @@ SET
 WHERE
 	id = $2
 RETURNING
-	id, user_id, expires
+	id, user_id, expires, created_at
 `
 
 type SetExpiresParams struct {
@@ -78,6 +89,11 @@ type SetExpiresParams struct {
 func (q *Queries) SetExpires(ctx context.Context, arg SetExpiresParams) (*Session, error) {
 	row := q.db.QueryRow(ctx, setExpires, arg.Expires, arg.ID)
 	var i Session
-	err := row.Scan(&i.ID, &i.UserID, &i.Expires)
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Expires,
+		&i.CreatedAt,
+	)
 	return &i, err
 }
