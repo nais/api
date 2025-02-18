@@ -57,8 +57,8 @@ func clusters() []string {
 
 func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
 	if skipSetup {
-		return func(_ context.Context, _ string, _ any) (runners []spec.Runner, close func(), err error) {
-			return nil, func() {}, nil
+		return func(ctx context.Context, _ string, _ any) (retCtx context.Context, runners []spec.Runner, close func(), err error) {
+			return ctx, nil, func() {}, nil
 		}
 	}
 
@@ -67,7 +67,7 @@ func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
 		panic(err)
 	}
 
-	return func(ctx context.Context, dir string, configInput any) ([]spec.Runner, func(), error) {
+	return func(ctx context.Context, dir string, configInput any) (context.Context, []spec.Runner, func(), error) {
 		config, ok := configInput.(*Config)
 		if !ok {
 			config = &Config{}
@@ -79,13 +79,13 @@ func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
 		scheme, err := kubernetes.NewScheme()
 		if err != nil {
 			done()
-			return nil, nil, fmt.Errorf("failed to create k8s scheme: %w", err)
+			return ctx, nil, nil, fmt.Errorf("failed to create k8s scheme: %w", err)
 		}
 
 		pool, cleanup, err := newDB(ctx, container, connStr, !config.SkipSeed, filepath.Join(dir, "seeds"))
 		if err != nil {
 			done()
-			return nil, nil, err
+			return ctx, nil, nil, err
 		}
 		cleanups = append(cleanups, cleanup)
 
@@ -102,7 +102,7 @@ func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
 		gqlRunner, err := newGQLRunner(ctx, config, pool, topic, k8sRunner)
 		if err != nil {
 			done()
-			return nil, nil, err
+			return ctx, nil, nil, err
 		}
 
 		runners := []spec.Runner{
@@ -112,7 +112,7 @@ func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
 			k8sRunner,
 		}
 
-		return runners, func() {
+		return ctx, runners, func() {
 			for _, cleanup := range cleanups {
 				cleanup()
 			}
