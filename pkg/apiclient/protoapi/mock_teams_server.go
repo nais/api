@@ -552,7 +552,7 @@ func (_c *MockTeamsServer_SetTeamExternalReferences_Call) RunAndReturn(run func(
 	return _c
 }
 
-// mustEmbedUnimplementedTeamsServer provides a mock function with given fields:
+// mustEmbedUnimplementedTeamsServer provides a mock function with no fields
 func (_m *MockTeamsServer) mustEmbedUnimplementedTeamsServer() {
 	_m.Called()
 }
@@ -580,7 +580,7 @@ func (_c *MockTeamsServer_mustEmbedUnimplementedTeamsServer_Call) Return() *Mock
 }
 
 func (_c *MockTeamsServer_mustEmbedUnimplementedTeamsServer_Call) RunAndReturn(run func()) *MockTeamsServer_mustEmbedUnimplementedTeamsServer_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 

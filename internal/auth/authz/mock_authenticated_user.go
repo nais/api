@@ -20,7 +20,7 @@ func (_m *MockAuthenticatedUser) EXPECT() *MockAuthenticatedUser_Expecter {
 	return &MockAuthenticatedUser_Expecter{mock: &_m.Mock}
 }
 
-// GetID provides a mock function with given fields:
+// GetID provides a mock function with no fields
 func (_m *MockAuthenticatedUser) GetID() uuid.UUID {
 	ret := _m.Called()
 
@@ -67,7 +67,7 @@ func (_c *MockAuthenticatedUser_GetID_Call) RunAndReturn(run func() uuid.UUID) *
 	return _c
 }
 
-// Identity provides a mock function with given fields:
+// Identity provides a mock function with no fields
 func (_m *MockAuthenticatedUser) Identity() string {
 	ret := _m.Called()
 
@@ -112,7 +112,7 @@ func (_c *MockAuthenticatedUser_Identity_Call) RunAndReturn(run func() string) *
 	return _c
 }
 
-// IsAdmin provides a mock function with given fields:
+// IsAdmin provides a mock function with no fields
 func (_m *MockAuthenticatedUser) IsAdmin() bool {
 	ret := _m.Called()
 
@@ -157,7 +157,7 @@ func (_c *MockAuthenticatedUser_IsAdmin_Call) RunAndReturn(run func() bool) *Moc
 	return _c
 }
 
-// IsServiceAccount provides a mock function with given fields:
+// IsServiceAccount provides a mock function with no fields
 func (_m *MockAuthenticatedUser) IsServiceAccount() bool {
 	ret := _m.Called()
 

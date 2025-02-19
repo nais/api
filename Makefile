@@ -9,19 +9,19 @@ all: generate fmt test check build helm-lint
 generate: generate-sql generate-graphql generate-proto generate-mocks
 
 generate-sql:
-	go run github.com/sqlc-dev/sqlc/cmd/sqlc generate -f .configs/sqlc.yaml
-	go run github.com/sqlc-dev/sqlc/cmd/sqlc vet -f .configs/sqlc.yaml
-	go run mvdan.cc/gofumpt@latest -w ./
+	go tool github.com/sqlc-dev/sqlc/cmd/sqlc generate -f .configs/sqlc.yaml
+	go tool github.com/sqlc-dev/sqlc/cmd/sqlc vet -f .configs/sqlc.yaml
+	go tool mvdan.cc/gofumpt -w ./
 
 generate-graphql:
-	go run github.com/99designs/gqlgen generate --config .configs/gqlgen.yaml
+	go tool github.com/99designs/gqlgen generate --config .configs/gqlgen.yaml
 	go run ./cmd/gen_complexity
-	go run mvdan.cc/gofumpt@latest -w ./internal/graph
+	go tool mvdan.cc/gofumpt -w ./internal/graph
 
 generate-mocks:
 	find internal pkg -type f -name "mock_*.go" -delete
-	go run github.com/vektra/mockery/v2 --config ./.configs/mockery.yaml
-	find internal pkg -type f -name "mock_*.go" -exec go run mvdan.cc/gofumpt@latest -w {} \;
+	go tool github.com/vektra/mockery/v2 --config ./.configs/mockery.yaml
+	find internal pkg -type f -name "mock_*.go" -exec go tool mvdan.cc/gofumpt -w {} \;
 
 generate-proto:
 	protoc \
@@ -50,16 +50,16 @@ unit-test:
 check: staticcheck vulncheck deadcode gosec
 
 staticcheck:
-	go run honnef.co/go/tools/cmd/staticcheck@latest ./...
+	go tool honnef.co/go/tools/cmd/staticcheck ./...
 
 vulncheck:
-	go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+	go tool golang.org/x/vuln/cmd/govulncheck ./...
 
 deadcode:
-	go run golang.org/x/tools/cmd/deadcode@latest -test ./...
+	go tool golang.org/x/tools/cmd/deadcode -test ./...
 
 gosec:
-	go run github.com/securego/gosec/v2/cmd/gosec@latest --exclude G404,G101 --exclude-generated -terse ./...
+	go tool github.com/securego/gosec/v2/cmd/gosec --exclude G404,G101 --exclude-generated -terse ./...
 # We've disabled G404 and G101 as they are not relevant for our use case
 # G404: Use of weak random number generator (math/rand instead of crypto/rand).
 #    We don't use random numbers for security purposes.
@@ -68,7 +68,7 @@ gosec:
 #    the word `secret`. We depend on GitHub to find possible credentials in our code.
 
 fmt: prettier install-lua-formatter
-	go run mvdan.cc/gofumpt@latest -w ./
+	go tool mvdan.cc/gofumpt -w ./
 	$(LUAFMT)/bin/CodeFormat format -w . --ignores-file ".gitignore" -c ./integration_tests/.editorconfig
 
 prettier:
