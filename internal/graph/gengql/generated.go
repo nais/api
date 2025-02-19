@@ -47,6 +47,7 @@ import (
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
+	"github.com/nais/api/internal/workload/logging"
 	"github.com/nais/api/internal/workload/netpol"
 	"github.com/nais/api/internal/workload/podlog"
 	"github.com/nais/api/internal/workload/secret"
@@ -175,6 +176,7 @@ type ComplexityRoot struct {
 		Ingresses        func(childComplexity int) int
 		Instances        func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		KafkaTopicAcls   func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
+		LogDestinations  func(childComplexity int) int
 		Manifest         func(childComplexity int) int
 		Name             func(childComplexity int) int
 		NetworkPolicy    func(childComplexity int) int
@@ -624,6 +626,7 @@ type ComplexityRoot struct {
 		ID               func(childComplexity int) int
 		Image            func(childComplexity int) int
 		KafkaTopicAcls   func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
+		LogDestinations  func(childComplexity int) int
 		Manifest         func(childComplexity int) int
 		Name             func(childComplexity int) int
 		NetworkPolicy    func(childComplexity int) int
@@ -791,6 +794,15 @@ type ComplexityRoot struct {
 	KafkaTopicEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	LogDestinationLoki struct {
+		GrafanaURL func(childComplexity int) int
+		ID         func(childComplexity int) int
+	}
+
+	LogDestinationSecureLogs struct {
+		ID func(childComplexity int) int
 	}
 
 	MaskinportenAuthIntegration struct {
@@ -2324,6 +2336,7 @@ type ApplicationResolver interface {
 	Cost(ctx context.Context, obj *application.Application) (*cost.WorkloadCost, error)
 	Deployments(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error)
 	KafkaTopicAcls(ctx context.Context, obj *application.Application, orderBy *kafkatopic.KafkaTopicACLOrder) (*pagination.Connection[*kafkatopic.KafkaTopicACL], error)
+	LogDestinations(ctx context.Context, obj *application.Application) ([]logging.LogDestination, error)
 	NetworkPolicy(ctx context.Context, obj *application.Application) (*netpol.NetworkPolicy, error)
 	OpenSearch(ctx context.Context, obj *application.Application) (*opensearch.OpenSearch, error)
 	RedisInstances(ctx context.Context, obj *application.Application, orderBy *redis.RedisInstanceOrder) (*pagination.Connection[*redis.RedisInstance], error)
@@ -2389,6 +2402,7 @@ type JobResolver interface {
 	Cost(ctx context.Context, obj *job.Job) (*cost.WorkloadCost, error)
 	Deployments(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.Deployment], error)
 	KafkaTopicAcls(ctx context.Context, obj *job.Job, orderBy *kafkatopic.KafkaTopicACLOrder) (*pagination.Connection[*kafkatopic.KafkaTopicACL], error)
+	LogDestinations(ctx context.Context, obj *job.Job) ([]logging.LogDestination, error)
 	NetworkPolicy(ctx context.Context, obj *job.Job) (*netpol.NetworkPolicy, error)
 	OpenSearch(ctx context.Context, obj *job.Job) (*opensearch.OpenSearch, error)
 	RedisInstances(ctx context.Context, obj *job.Job, orderBy *redis.RedisInstanceOrder) (*pagination.Connection[*redis.RedisInstance], error)
@@ -2873,6 +2887,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Application.KafkaTopicAcls(childComplexity, args["orderBy"].(*kafkatopic.KafkaTopicACLOrder)), true
+
+	case "Application.logDestinations":
+		if e.complexity.Application.LogDestinations == nil {
+			break
+		}
+
+		return e.complexity.Application.LogDestinations(childComplexity), true
 
 	case "Application.manifest":
 		if e.complexity.Application.Manifest == nil {
@@ -4554,6 +4575,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Job.KafkaTopicAcls(childComplexity, args["orderBy"].(*kafkatopic.KafkaTopicACLOrder)), true
 
+	case "Job.logDestinations":
+		if e.complexity.Job.LogDestinations == nil {
+			break
+		}
+
+		return e.complexity.Job.LogDestinations(childComplexity), true
+
 	case "Job.manifest":
 		if e.complexity.Job.Manifest == nil {
 			break
@@ -5274,6 +5302,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.KafkaTopicEdge.Node(childComplexity), true
+
+	case "LogDestinationLoki.grafanaURL":
+		if e.complexity.LogDestinationLoki.GrafanaURL == nil {
+			break
+		}
+
+		return e.complexity.LogDestinationLoki.GrafanaURL(childComplexity), true
+
+	case "LogDestinationLoki.id":
+		if e.complexity.LogDestinationLoki.ID == nil {
+			break
+		}
+
+		return e.complexity.LogDestinationLoki.ID(childComplexity), true
+
+	case "LogDestinationSecureLogs.id":
+		if e.complexity.LogDestinationSecureLogs.ID == nil {
+			break
+		}
+
+		return e.complexity.LogDestinationSecureLogs.ID(childComplexity), true
 
 	case "MaskinportenAuthIntegration.name":
 		if e.complexity.MaskinportenAuthIntegration.Name == nil {
@@ -14234,6 +14283,38 @@ extend union SearchNode = KafkaTopic
 
 extend enum SearchType {
 	KAFKA_TOPIC
+}
+`, BuiltIn: false},
+	{Name: "../schema/logging.graphqls", Input: `extend interface Workload {
+	"List of log destinations for the workload."
+	logDestinations: [LogDestination!]!
+}
+
+extend type Application {
+	"List of log destinations for the application."
+	logDestinations: [LogDestination!]!
+}
+
+extend type Job {
+	"List of log destinations for the job."
+	logDestinations: [LogDestination!]!
+}
+
+interface LogDestination implements Node {
+	"The globally unique ID of the log destination."
+	id: ID!
+}
+
+type LogDestinationLoki implements LogDestination & Node {
+	"The globally unique ID of the log destination."
+	id: ID!
+	"Grafana URL to view the logs."
+	grafanaURL: String!
+}
+
+type LogDestinationSecureLogs implements LogDestination & Node {
+	"The globally unique ID of the log destination."
+	id: ID!
 }
 `, BuiltIn: false},
 	{Name: "../schema/netpol.graphqls", Input: `extend interface Workload {
@@ -28559,6 +28640,50 @@ func (ec *executionContext) fieldContext_Application_kafkaTopicAcls(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _Application_logDestinations(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Application_logDestinations(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Application().LogDestinations(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]logging.LogDestination)
+	fc.Result = res
+	return ec.marshalNLogDestination2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋloggingᚐLogDestinationᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Application_logDestinations(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Application",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Application_networkPolicy(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Application_networkPolicy(ctx, field)
 	if err != nil {
@@ -29151,6 +29276,8 @@ func (ec *executionContext) fieldContext_ApplicationConnection_nodes(_ context.C
 				return ec.fieldContext_Application_deployments(ctx, field)
 			case "kafkaTopicAcls":
 				return ec.fieldContext_Application_kafkaTopicAcls(ctx, field)
+			case "logDestinations":
+				return ec.fieldContext_Application_logDestinations(ctx, field)
 			case "networkPolicy":
 				return ec.fieldContext_Application_networkPolicy(ctx, field)
 			case "openSearch":
@@ -29686,6 +29813,8 @@ func (ec *executionContext) fieldContext_ApplicationEdge_node(_ context.Context,
 				return ec.fieldContext_Application_deployments(ctx, field)
 			case "kafkaTopicAcls":
 				return ec.fieldContext_Application_kafkaTopicAcls(ctx, field)
+			case "logDestinations":
+				return ec.fieldContext_Application_logDestinations(ctx, field)
 			case "networkPolicy":
 				return ec.fieldContext_Application_networkPolicy(ctx, field)
 			case "openSearch":
@@ -40454,6 +40583,50 @@ func (ec *executionContext) fieldContext_Job_kafkaTopicAcls(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Job_logDestinations(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Job_logDestinations(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Job().LogDestinations(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]logging.LogDestination)
+	fc.Result = res
+	return ec.marshalNLogDestination2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋloggingᚐLogDestinationᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Job_logDestinations(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Job_networkPolicy(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Job_networkPolicy(ctx, field)
 	if err != nil {
@@ -40994,6 +41167,8 @@ func (ec *executionContext) fieldContext_JobConnection_nodes(_ context.Context, 
 				return ec.fieldContext_Job_deployments(ctx, field)
 			case "kafkaTopicAcls":
 				return ec.fieldContext_Job_kafkaTopicAcls(ctx, field)
+			case "logDestinations":
+				return ec.fieldContext_Job_logDestinations(ctx, field)
 			case "networkPolicy":
 				return ec.fieldContext_Job_networkPolicy(ctx, field)
 			case "openSearch":
@@ -41527,6 +41702,8 @@ func (ec *executionContext) fieldContext_JobEdge_node(_ context.Context, field g
 				return ec.fieldContext_Job_deployments(ctx, field)
 			case "kafkaTopicAcls":
 				return ec.fieldContext_Job_kafkaTopicAcls(ctx, field)
+			case "logDestinations":
+				return ec.fieldContext_Job_logDestinations(ctx, field)
 			case "networkPolicy":
 				return ec.fieldContext_Job_networkPolicy(ctx, field)
 			case "openSearch":
@@ -45158,6 +45335,138 @@ func (ec *executionContext) fieldContext_KafkaTopicEdge_node(_ context.Context, 
 				return ec.fieldContext_KafkaTopic_pool(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type KafkaTopic", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LogDestinationLoki_id(ctx context.Context, field graphql.CollectedField, obj *logging.LogDestinationLoki) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LogDestinationLoki_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LogDestinationLoki_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LogDestinationLoki",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LogDestinationLoki_grafanaURL(ctx context.Context, field graphql.CollectedField, obj *logging.LogDestinationLoki) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LogDestinationLoki_grafanaURL(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GrafanaURL(ctx), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LogDestinationLoki_grafanaURL(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LogDestinationLoki",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LogDestinationSecureLogs_id(ctx context.Context, field graphql.CollectedField, obj *logging.LogDestinationSecureLogs) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LogDestinationSecureLogs_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LogDestinationSecureLogs_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LogDestinationSecureLogs",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -55759,6 +56068,8 @@ func (ec *executionContext) fieldContext_RestartApplicationPayload_application(_
 				return ec.fieldContext_Application_deployments(ctx, field)
 			case "kafkaTopicAcls":
 				return ec.fieldContext_Application_kafkaTopicAcls(ctx, field)
+			case "logDestinations":
+				return ec.fieldContext_Application_logDestinations(ctx, field)
 			case "networkPolicy":
 				return ec.fieldContext_Application_networkPolicy(ctx, field)
 			case "openSearch":
@@ -73989,6 +74300,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_application(ctx context
 				return ec.fieldContext_Application_deployments(ctx, field)
 			case "kafkaTopicAcls":
 				return ec.fieldContext_Application_kafkaTopicAcls(ctx, field)
+			case "logDestinations":
+				return ec.fieldContext_Application_logDestinations(ctx, field)
 			case "networkPolicy":
 				return ec.fieldContext_Application_networkPolicy(ctx, field)
 			case "openSearch":
@@ -74292,6 +74605,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_job(ctx context.Context
 				return ec.fieldContext_Job_deployments(ctx, field)
 			case "kafkaTopicAcls":
 				return ec.fieldContext_Job_kafkaTopicAcls(ctx, field)
+			case "logDestinations":
+				return ec.fieldContext_Job_logDestinations(ctx, field)
 			case "networkPolicy":
 				return ec.fieldContext_Job_networkPolicy(ctx, field)
 			case "openSearch":
@@ -81086,6 +81401,8 @@ func (ec *executionContext) fieldContext_TriggerJobPayload_job(_ context.Context
 				return ec.fieldContext_Job_deployments(ctx, field)
 			case "kafkaTopicAcls":
 				return ec.fieldContext_Job_kafkaTopicAcls(ctx, field)
+			case "logDestinations":
+				return ec.fieldContext_Job_logDestinations(ctx, field)
 			case "networkPolicy":
 				return ec.fieldContext_Job_networkPolicy(ctx, field)
 			case "openSearch":
@@ -93732,6 +94049,29 @@ func (ec *executionContext) _JobAuthIntegrations(ctx context.Context, sel ast.Se
 	}
 }
 
+func (ec *executionContext) _LogDestination(ctx context.Context, sel ast.SelectionSet, obj logging.LogDestination) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case logging.LogDestinationLoki:
+		return ec._LogDestinationLoki(ctx, sel, &obj)
+	case *logging.LogDestinationLoki:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._LogDestinationLoki(ctx, sel, obj)
+	case logging.LogDestinationSecureLogs:
+		return ec._LogDestinationSecureLogs(ctx, sel, &obj)
+	case *logging.LogDestinationSecureLogs:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._LogDestinationSecureLogs(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj model.Node) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -93778,13 +94118,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ValkeyInstance(ctx, sel, obj)
-	case secret.SecretDeletedActivityLogEntry:
-		return ec._SecretDeletedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretDeletedActivityLogEntry:
+	case bigquery.BigQueryDataset:
+		return ec._BigQueryDataset(ctx, sel, &obj)
+	case *bigquery.BigQueryDataset:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretDeletedActivityLogEntry(ctx, sel, obj)
+		return ec._BigQueryDataset(ctx, sel, obj)
 	case bucket.Bucket:
 		return ec._Bucket(ctx, sel, &obj)
 	case *bucket.Bucket:
@@ -93834,13 +94174,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UserCreatedUserSyncLogEntry(ctx, sel, obj)
-	case secret.SecretValueUpdatedActivityLogEntry:
-		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretValueUpdatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, obj)
 	case unleash.UnleashInstanceUpdatedActivityLogEntry:
 		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *unleash.UnleashInstanceUpdatedActivityLogEntry:
@@ -93869,13 +94202,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamMemberSetRoleActivityLogEntry(ctx, sel, obj)
-	case job.Job:
-		return ec._Job(ctx, sel, &obj)
-	case *job.Job:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Job(ctx, sel, obj)
 	case team.TeamMemberRemovedActivityLogEntry:
 		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, &obj)
 	case *team.TeamMemberRemovedActivityLogEntry:
@@ -93883,13 +94209,27 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, obj)
-	case application.Application:
-		return ec._Application(ctx, sel, &obj)
-	case *application.Application:
+	case job.Job:
+		return ec._Job(ctx, sel, &obj)
+	case *job.Job:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Application(ctx, sel, obj)
+		return ec._Job(ctx, sel, obj)
+	case secret.SecretValueRemovedActivityLogEntry:
+		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueRemovedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, obj)
+	case team.TeamConfirmDeleteKeyActivityLogEntry:
+		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamConfirmDeleteKeyActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, obj)
 	case job.JobDeletedActivityLogEntry:
 		return ec._JobDeletedActivityLogEntry(ctx, sel, &obj)
 	case *job.JobDeletedActivityLogEntry:
@@ -93911,20 +94251,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._KafkaTopic(ctx, sel, obj)
-	case opensearch.OpenSearch:
-		return ec._OpenSearch(ctx, sel, &obj)
-	case *opensearch.OpenSearch:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._OpenSearch(ctx, sel, obj)
-	case team.TeamConfirmDeleteKeyActivityLogEntry:
-		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamConfirmDeleteKeyActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, obj)
 	case team.TeamUpdatedActivityLogEntry:
 		return ec._TeamUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *team.TeamUpdatedActivityLogEntry:
@@ -93932,6 +94258,41 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamUpdatedActivityLogEntry(ctx, sel, obj)
+	case logging.LogDestinationLoki:
+		return ec._LogDestinationLoki(ctx, sel, &obj)
+	case *logging.LogDestinationLoki:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._LogDestinationLoki(ctx, sel, obj)
+	case logging.LogDestinationSecureLogs:
+		return ec._LogDestinationSecureLogs(ctx, sel, &obj)
+	case *logging.LogDestinationSecureLogs:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._LogDestinationSecureLogs(ctx, sel, obj)
+	case opensearch.OpenSearch:
+		return ec._OpenSearch(ctx, sel, &obj)
+	case *opensearch.OpenSearch:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._OpenSearch(ctx, sel, obj)
+	case team.TeamCreatedActivityLogEntry:
+		return ec._TeamCreatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamCreatedActivityLogEntry(ctx, sel, obj)
+	case sqlinstance.SQLInstance:
+		return ec._SqlInstance(ctx, sel, &obj)
+	case *sqlinstance.SQLInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SqlInstance(ctx, sel, obj)
 	case reconciler.ReconcilerEnabledActivityLogEntry:
 		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, &obj)
 	case *reconciler.ReconcilerEnabledActivityLogEntry:
@@ -93960,13 +94321,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._RedisInstance(ctx, sel, obj)
-	case team.TeamCreatedActivityLogEntry:
-		return ec._TeamCreatedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamCreatedActivityLogEntry:
+	case sqlinstance.SQLDatabase:
+		return ec._SqlDatabase(ctx, sel, &obj)
+	case *sqlinstance.SQLDatabase:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamCreatedActivityLogEntry(ctx, sel, obj)
+		return ec._SqlDatabase(ctx, sel, obj)
 	case repository.RepositoryAddedActivityLogEntry:
 		return ec._RepositoryAddedActivityLogEntry(ctx, sel, &obj)
 	case *repository.RepositoryAddedActivityLogEntry:
@@ -93981,48 +94342,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, obj)
-	case sqlinstance.SQLInstance:
-		return ec._SqlInstance(ctx, sel, &obj)
-	case *sqlinstance.SQLInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SqlInstance(ctx, sel, obj)
-	case secret.SecretCreatedActivityLogEntry:
-		return ec._SecretCreatedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretCreatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SecretCreatedActivityLogEntry(ctx, sel, obj)
-	case secret.SecretValueAddedActivityLogEntry:
-		return ec._SecretValueAddedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretValueAddedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SecretValueAddedActivityLogEntry(ctx, sel, obj)
-	case sqlinstance.SQLDatabase:
-		return ec._SqlDatabase(ctx, sel, &obj)
-	case *sqlinstance.SQLDatabase:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SqlDatabase(ctx, sel, obj)
-	case serviceaccount.ServiceAccountUpdatedActivityLogEntry:
-		return ec._ServiceAccountUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.ServiceAccountUpdatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ServiceAccountUpdatedActivityLogEntry(ctx, sel, obj)
-	case bigquery.BigQueryDataset:
-		return ec._BigQueryDataset(ctx, sel, &obj)
-	case *bigquery.BigQueryDataset:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._BigQueryDataset(ctx, sel, obj)
 	case serviceaccount.ServiceAccountTokenDeletedActivityLogEntry:
 		return ec._ServiceAccountTokenDeletedActivityLogEntry(ctx, sel, &obj)
 	case *serviceaccount.ServiceAccountTokenDeletedActivityLogEntry:
@@ -94030,6 +94349,41 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ServiceAccountTokenDeletedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretCreatedActivityLogEntry:
+		return ec._SecretCreatedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretCreatedActivityLogEntry(ctx, sel, obj)
+	case application.Application:
+		return ec._Application(ctx, sel, &obj)
+	case *application.Application:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Application(ctx, sel, obj)
+	case secret.SecretValueUpdatedActivityLogEntry:
+		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretValueAddedActivityLogEntry:
+		return ec._SecretValueAddedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueAddedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretValueAddedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretDeletedActivityLogEntry:
+		return ec._SecretDeletedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretDeletedActivityLogEntry(ctx, sel, obj)
 	case serviceaccount.ServiceAccountTokenUpdatedActivityLogEntry:
 		return ec._ServiceAccountTokenUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *serviceaccount.ServiceAccountTokenUpdatedActivityLogEntry:
@@ -94037,6 +94391,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ServiceAccountTokenUpdatedActivityLogEntry(ctx, sel, obj)
+	case serviceaccount.ServiceAccountTokenCreatedActivityLogEntry:
+		return ec._ServiceAccountTokenCreatedActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccountTokenCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ServiceAccountTokenCreatedActivityLogEntry(ctx, sel, obj)
 	case serviceaccount.ServiceAccountCreatedActivityLogEntry:
 		return ec._ServiceAccountCreatedActivityLogEntry(ctx, sel, &obj)
 	case *serviceaccount.ServiceAccountCreatedActivityLogEntry:
@@ -94044,13 +94405,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ServiceAccountCreatedActivityLogEntry(ctx, sel, obj)
-	case secret.SecretValueRemovedActivityLogEntry:
-		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretValueRemovedActivityLogEntry:
+	case serviceaccount.ServiceAccountUpdatedActivityLogEntry:
+		return ec._ServiceAccountUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccountUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, obj)
+		return ec._ServiceAccountUpdatedActivityLogEntry(ctx, sel, obj)
 	case serviceaccount.ServiceAccountDeletedActivityLogEntry:
 		return ec._ServiceAccountDeletedActivityLogEntry(ctx, sel, &obj)
 	case *serviceaccount.ServiceAccountDeletedActivityLogEntry:
@@ -94072,20 +94433,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._RoleRevokedFromServiceAccountActivityLogEntry(ctx, sel, obj)
-	case serviceaccount.ServiceAccountTokenCreatedActivityLogEntry:
-		return ec._ServiceAccountTokenCreatedActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.ServiceAccountTokenCreatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ServiceAccountTokenCreatedActivityLogEntry(ctx, sel, obj)
-	case feature.Features:
-		return ec._Features(ctx, sel, &obj)
-	case *feature.Features:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Features(ctx, sel, obj)
 	case unleash.UnleashInstance:
 		return ec._UnleashInstance(ctx, sel, &obj)
 	case *unleash.UnleashInstance:
@@ -94093,13 +94440,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UnleashInstance(ctx, sel, obj)
-	case feature.FeatureUnleash:
-		return ec._FeatureUnleash(ctx, sel, &obj)
-	case *feature.FeatureUnleash:
+	case feature.Features:
+		return ec._Features(ctx, sel, &obj)
+	case *feature.Features:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._FeatureUnleash(ctx, sel, obj)
+		return ec._Features(ctx, sel, obj)
 	case secret.Secret:
 		return ec._Secret(ctx, sel, &obj)
 	case *secret.Secret:
@@ -94107,20 +94454,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Secret(ctx, sel, obj)
-	case team.Team:
-		return ec._Team(ctx, sel, &obj)
-	case *team.Team:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Team(ctx, sel, obj)
-	case team.TeamEnvironment:
-		return ec._TeamEnvironment(ctx, sel, &obj)
-	case *team.TeamEnvironment:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamEnvironment(ctx, sel, obj)
 	case repository.Repository:
 		return ec._Repository(ctx, sel, &obj)
 	case *repository.Repository:
@@ -94135,16 +94468,35 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Reconciler(ctx, sel, obj)
-	case activitylog.ActivityLogEntry:
+	case team.Team:
+		return ec._Team(ctx, sel, &obj)
+	case *team.Team:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ActivityLogEntry(ctx, sel, obj)
+		return ec._Team(ctx, sel, obj)
+	case team.TeamEnvironment:
+		return ec._TeamEnvironment(ctx, sel, &obj)
+	case *team.TeamEnvironment:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamEnvironment(ctx, sel, obj)
 	case persistence.Persistence:
 		if obj == nil {
 			return graphql.Null
 		}
 		return ec._Persistence(ctx, sel, obj)
+	case logging.LogDestination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._LogDestination(ctx, sel, obj)
+	case activitylog.ActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ActivityLogEntry(ctx, sel, obj)
 	case job.JobRunInstance:
 		return ec._JobRunInstance(ctx, sel, &obj)
 	case *job.JobRunInstance:
@@ -94180,13 +94532,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ServiceAccount(ctx, sel, obj)
-	case feature.FeatureRedis:
-		return ec._FeatureRedis(ctx, sel, &obj)
-	case *feature.FeatureRedis:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._FeatureRedis(ctx, sel, obj)
 	case feature.FeatureKafka:
 		return ec._FeatureKafka(ctx, sel, &obj)
 	case *feature.FeatureKafka:
@@ -94194,6 +94539,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._FeatureKafka(ctx, sel, obj)
+	case deployment.DeploymentResource:
+		return ec._DeploymentResource(ctx, sel, &obj)
+	case *deployment.DeploymentResource:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._DeploymentResource(ctx, sel, obj)
+	case feature.FeatureValkey:
+		return ec._FeatureValkey(ctx, sel, &obj)
+	case *feature.FeatureValkey:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._FeatureValkey(ctx, sel, obj)
 	case user.User:
 		return ec._User(ctx, sel, &obj)
 	case *user.User:
@@ -94206,13 +94565,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UserSyncLogEntry(ctx, sel, obj)
-	case deployment.DeploymentResource:
-		return ec._DeploymentResource(ctx, sel, &obj)
-	case *deployment.DeploymentResource:
+	case feature.FeatureUnleash:
+		return ec._FeatureUnleash(ctx, sel, &obj)
+	case *feature.FeatureUnleash:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._DeploymentResource(ctx, sel, obj)
+		return ec._FeatureUnleash(ctx, sel, obj)
 	case deployment.DeploymentStatus:
 		return ec._DeploymentStatus(ctx, sel, &obj)
 	case *deployment.DeploymentStatus:
@@ -94220,13 +94579,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._DeploymentStatus(ctx, sel, obj)
-	case feature.FeatureValkey:
-		return ec._FeatureValkey(ctx, sel, &obj)
-	case *feature.FeatureValkey:
+	case feature.FeatureRedis:
+		return ec._FeatureRedis(ctx, sel, &obj)
+	case *feature.FeatureRedis:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._FeatureValkey(ctx, sel, obj)
+		return ec._FeatureRedis(ctx, sel, obj)
 	case deployment.Deployment:
 		return ec._Deployment(ctx, sel, &obj)
 	case *deployment.Deployment:
@@ -95240,6 +95599,42 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 					}
 				}()
 				res = ec._Application_kafkaTopicAcls(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "logDestinations":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Application_logDestinations(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -99990,6 +100385,42 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "logDestinations":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Job_logDestinations(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "networkPolicy":
 			field := field
 
@@ -101643,6 +102074,120 @@ func (ec *executionContext) _KafkaTopicEdge(ctx context.Context, sel ast.Selecti
 			}
 		case "node":
 			out.Values[i] = ec._KafkaTopicEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var logDestinationLokiImplementors = []string{"LogDestinationLoki", "LogDestination", "Node"}
+
+func (ec *executionContext) _LogDestinationLoki(ctx context.Context, sel ast.SelectionSet, obj *logging.LogDestinationLoki) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, logDestinationLokiImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("LogDestinationLoki")
+		case "id":
+			out.Values[i] = ec._LogDestinationLoki_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "grafanaURL":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._LogDestinationLoki_grafanaURL(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var logDestinationSecureLogsImplementors = []string{"LogDestinationSecureLogs", "LogDestination", "Node"}
+
+func (ec *executionContext) _LogDestinationSecureLogs(ctx context.Context, sel ast.SelectionSet, obj *logging.LogDestinationSecureLogs) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, logDestinationSecureLogsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("LogDestinationSecureLogs")
+		case "id":
+			out.Values[i] = ec._LogDestinationSecureLogs_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -121044,6 +121589,60 @@ func (ec *executionContext) unmarshalNKafkaTopicOrderField2githubᚗcomᚋnais�
 
 func (ec *executionContext) marshalNKafkaTopicOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicOrderField(ctx context.Context, sel ast.SelectionSet, v kafkatopic.KafkaTopicOrderField) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) marshalNLogDestination2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋloggingᚐLogDestination(ctx context.Context, sel ast.SelectionSet, v logging.LogDestination) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._LogDestination(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNLogDestination2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋloggingᚐLogDestinationᚄ(ctx context.Context, sel ast.SelectionSet, v []logging.LogDestination) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNLogDestination2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋloggingᚐLogDestination(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNNetworkPolicy2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicy(ctx context.Context, sel ast.SelectionSet, v netpol.NetworkPolicy) graphql.Marshaler {

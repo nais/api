@@ -62,7 +62,7 @@ func (l LogDestinationLoki) ID() ident.Ident {
 	return newIdent(Loki, l.WorkloadType, l.TeamSlug, l.EnvironmentName, l.WorkloadName)
 }
 
-func (l LogDestinationLoki) URL(ctx context.Context) string {
+func (l LogDestinationLoki) GrafanaURL(ctx context.Context) string {
 	const tpl = `{"datasource":"%s-loki","queries":[{"expr":"{service_name=\"%s\", service_namespace=\"%s\"}"}],"range":true}`
 
 	tenantName := fromContext(ctx).tenantName

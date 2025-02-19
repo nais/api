@@ -1,24 +1,31 @@
 extend interface Workload {
+	"List of log destinations for the workload."
 	logDestinations: [LogDestination!]!
 }
 
 extend type Application {
+	"List of log destinations for the application."
 	logDestinations: [LogDestination!]!
 }
 
 extend type Job {
+	"List of log destinations for the job."
 	logDestinations: [LogDestination!]!
 }
 
 interface LogDestination implements Node {
+	"The globally unique ID of the log destination."
 	id: ID!
 }
 
 type LogDestinationLoki implements LogDestination & Node {
+	"The globally unique ID of the log destination."
 	id: ID!
-	url: String!
+	"Grafana URL to view the logs."
+	grafanaURL: String!
 }
 
 type LogDestinationSecureLogs implements LogDestination & Node {
+	"The globally unique ID of the log destination."
 	id: ID!
 }

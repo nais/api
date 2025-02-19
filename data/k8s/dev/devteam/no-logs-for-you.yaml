@@ -546,8 +546,7 @@ kind: Deployment
 metadata:
   annotations:
     deployment.kubernetes.io/revision: "8"
-    kubernetes.io/change-cause:
-      "nais deploy: commit ae4e62746aba1acd900edc74664303b19a4b3257:
+    kubernetes.io/change-cause: "nais deploy: commit ae4e62746aba1acd900edc74664303b19a4b3257:
       https://github.com/navikt/nais-debugapp/actions/runs/8008002103"
     nais.io/deploymentCorrelationID: 55c96e0c-7e29-4ebe-ae12-6d6456ca282c
     reloader.stakater.com/search: "true"
