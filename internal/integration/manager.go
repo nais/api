@@ -34,9 +34,7 @@ import (
 	"github.com/nais/tester/lua/runner"
 	"github.com/nais/tester/lua/spec"
 	"github.com/sirupsen/logrus"
-	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
-	"github.com/testcontainers/testcontainers-go/wait"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"k8s.io/utils/ptr"
@@ -202,10 +200,7 @@ func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, 
 		postgres.WithUsername("example"),
 		postgres.WithPassword("example"),
 		postgres.WithSQLDriver("pgx"),
-		testcontainers.WithWaitStrategy(
-			wait.ForLog("database system is ready to accept connections").
-				WithOccurrence(2),
-		),
+		postgres.BasicWaitStrategies(),
 	)
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to start container: %w", err)
