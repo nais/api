@@ -94,6 +94,14 @@ spec:
             - name: REPLACE_ENVIRONMENT_NAMES
               value: {{ .Values.replaceEnvironmentNames | quote }}
             {{- end }}
+            {{- if .Values.logging.loki }}
+            - name: LOGGING_LOKI_CLUSTER_DEFAULT
+              value: "true"
+            {{- end }}
+            {{- if .Values.logging.secure_logs }}
+            - name: LOGGING_LOKI_CLUSTER_DEFAULT
+              value: "true"
+            {{- end }}
           envFrom:
             - secretRef:
                 name: "{{ .Release.Name }}"

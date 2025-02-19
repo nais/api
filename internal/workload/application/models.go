@@ -297,6 +297,11 @@ func toGraphApplication(application *nais_io_v1alpha1.Application, environmentNa
 		return *status.Conditions
 	}
 
+	var logging *nais_io_v1.Logging
+	if application.Spec.Observability != nil && application.Spec.Observability.Logging != nil {
+		logging = application.Spec.Observability.Logging
+	}
+
 	return &Application{
 		Base: workload.Base{
 			Name:                application.Name,
@@ -308,6 +313,7 @@ func toGraphApplication(application *nais_io_v1alpha1.Application, environmentNa
 			Annotations:         application.GetAnnotations(),
 			RolloutCompleteTime: application.GetStatus().RolloutCompleteTime,
 			Type:                workload.TypeApplication,
+			Logging:             logging,
 		},
 		Spec: &application.Spec,
 	}

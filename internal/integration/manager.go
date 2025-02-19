@@ -30,6 +30,7 @@ import (
 	"github.com/nais/api/internal/usersync/usersyncer"
 	"github.com/nais/api/internal/usersync/usersyncsql"
 	"github.com/nais/api/internal/vulnerability"
+	"github.com/nais/api/internal/workload/logging"
 	testmanager "github.com/nais/tester/lua"
 	"github.com/nais/tester/lua/runner"
 	"github.com/nais/tester/lua/spec"
@@ -145,7 +146,21 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 
 	vulnerabilityClient := vulnerability.NewDependencyTrackClient(vulnerability.DependencyTrackConfig{EnableFakes: true}, log)
 
-	graphMiddleware, err := api.ConfigureGraph(ctx, true, watcherMgr, managementWatcherMgr, pool, clusterConfig, vulnerabilityClient, config.TenantName, clusters(), fakeHookd.New(), unleash.FakeBifrostURL, log)
+	graphMiddleware, err := api.ConfigureGraph(
+		ctx,
+		true,
+		watcherMgr,
+		managementWatcherMgr,
+		pool,
+		clusterConfig,
+		vulnerabilityClient,
+		config.TenantName,
+		clusters(),
+		fakeHookd.New(),
+		unleash.FakeBifrostURL,
+		[]logging.SupportedLogDestination{logging.Loki},
+		log,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to configure graph: %w", err)
 	}

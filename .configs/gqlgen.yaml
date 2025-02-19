@@ -54,6 +54,7 @@ autobind:
   - "github.com/nais/api/internal/workload"
   - "github.com/nais/api/internal/workload/application"
   - "github.com/nais/api/internal/workload/job"
+  - "github.com/nais/api/internal/workload/logging"
   - "github.com/nais/api/internal/workload/netpol"
   - "github.com/nais/api/internal/workload/podlog"
   - "github.com/nais/api/internal/workload/secret"

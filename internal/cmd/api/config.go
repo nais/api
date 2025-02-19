@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/workload/logging"
 	"github.com/sethvargo/go-envconfig"
 )
 
@@ -99,6 +100,22 @@ type unleashConfig struct {
 	BifrostApiUrl string `env:"UNLEASH_BIFROST_API_URL,default=*fake*"`
 }
 
+type loggingConfig struct {
+	LokiDefault       bool `env:"LOGGING_LOKI_CLUSTER_DEFAULT"`
+	SecureLogsDefault bool `env:"LOGGING_SECURE_LOGS_CLUSTER_DEFAULT"`
+}
+
+func (l loggingConfig) DefaultLogDestinations() []logging.SupportedLogDestination {
+	var destinations []logging.SupportedLogDestination
+	if l.LokiDefault {
+		destinations = append(destinations, logging.Loki)
+	}
+	if l.SecureLogsDefault {
+		destinations = append(destinations, logging.SecureLogs)
+	}
+	return destinations
+}
+
 type Config struct {
 	// Tenant is the active tenant
 	Tenant string `env:"TENANT,default=dev-nais"`
@@ -141,6 +158,7 @@ type Config struct {
 	Hookd           hookdConfig
 	OAuth           oAuthConfig
 	Unleash         unleashConfig
+	Logging         loggingConfig
 }
 
 // NewConfig creates a new configuration instance from environment variables

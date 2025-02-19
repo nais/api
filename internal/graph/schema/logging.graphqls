@@ -1,0 +1,24 @@
+extend interface Workload {
+	logDestinations: [LogDestination!]!
+}
+
+extend type Application {
+	logDestinations: [LogDestination!]!
+}
+
+extend type Job {
+	logDestinations: [LogDestination!]!
+}
+
+interface LogDestination implements Node {
+	id: ID!
+}
+
+type LogDestinationLoki implements LogDestination & Node {
+	id: ID!
+	url: String!
+}
+
+type LogDestinationSecureLogs implements LogDestination & Node {
+	id: ID!
+}

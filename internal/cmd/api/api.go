@@ -201,6 +201,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			vulnClient,
 			hookdClient,
 			cfg.Unleash.BifrostApiUrl,
+			cfg.Logging.DefaultLogDestinations(),
 			log,
 		)
 	})
