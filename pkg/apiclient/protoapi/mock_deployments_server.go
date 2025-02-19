@@ -198,7 +198,7 @@ func (_c *MockDeploymentsServer_CreateDeploymentStatus_Call) RunAndReturn(run fu
 	return _c
 }
 
-// mustEmbedUnimplementedDeploymentsServer provides a mock function with given fields:
+// mustEmbedUnimplementedDeploymentsServer provides a mock function with no fields
 func (_m *MockDeploymentsServer) mustEmbedUnimplementedDeploymentsServer() {
 	_m.Called()
 }
@@ -226,7 +226,7 @@ func (_c *MockDeploymentsServer_mustEmbedUnimplementedDeploymentsServer_Call) Re
 }
 
 func (_c *MockDeploymentsServer_mustEmbedUnimplementedDeploymentsServer_Call) RunAndReturn(run func()) *MockDeploymentsServer_mustEmbedUnimplementedDeploymentsServer_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 

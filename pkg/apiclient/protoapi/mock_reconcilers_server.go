@@ -611,7 +611,7 @@ func (_c *MockReconcilersServer_SuccessfulTeamSync_Call) RunAndReturn(run func(c
 	return _c
 }
 
-// mustEmbedUnimplementedReconcilersServer provides a mock function with given fields:
+// mustEmbedUnimplementedReconcilersServer provides a mock function with no fields
 func (_m *MockReconcilersServer) mustEmbedUnimplementedReconcilersServer() {
 	_m.Called()
 }
@@ -639,7 +639,7 @@ func (_c *MockReconcilersServer_mustEmbedUnimplementedReconcilersServer_Call) Re
 }
 
 func (_c *MockReconcilersServer_mustEmbedUnimplementedReconcilersServer_Call) RunAndReturn(run func()) *MockReconcilersServer_mustEmbedUnimplementedReconcilersServer_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 

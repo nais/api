@@ -52,7 +52,7 @@ func (_c *MockHandler_Callback_Call) Return() *MockHandler_Callback_Call {
 }
 
 func (_c *MockHandler_Callback_Call) RunAndReturn(run func(http.ResponseWriter, *http.Request)) *MockHandler_Callback_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -86,7 +86,7 @@ func (_c *MockHandler_DeleteCookie_Call) Return() *MockHandler_DeleteCookie_Call
 }
 
 func (_c *MockHandler_DeleteCookie_Call) RunAndReturn(run func(http.ResponseWriter, string)) *MockHandler_DeleteCookie_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -120,7 +120,7 @@ func (_c *MockHandler_Login_Call) Return() *MockHandler_Login_Call {
 }
 
 func (_c *MockHandler_Login_Call) RunAndReturn(run func(http.ResponseWriter, *http.Request)) *MockHandler_Login_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -154,7 +154,7 @@ func (_c *MockHandler_Logout_Call) Return() *MockHandler_Logout_Call {
 }
 
 func (_c *MockHandler_Logout_Call) RunAndReturn(run func(http.ResponseWriter, *http.Request)) *MockHandler_Logout_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
@@ -188,7 +188,7 @@ func (_c *MockHandler_SetSessionCookie_Call) Return() *MockHandler_SetSessionCoo
 }
 
 func (_c *MockHandler_SetSessionCookie_Call) RunAndReturn(run func(http.ResponseWriter, *session.Session)) *MockHandler_SetSessionCookie_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 

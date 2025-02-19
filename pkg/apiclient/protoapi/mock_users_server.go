@@ -139,7 +139,7 @@ func (_c *MockUsersServer_List_Call) RunAndReturn(run func(context.Context, *Lis
 	return _c
 }
 
-// mustEmbedUnimplementedUsersServer provides a mock function with given fields:
+// mustEmbedUnimplementedUsersServer provides a mock function with no fields
 func (_m *MockUsersServer) mustEmbedUnimplementedUsersServer() {
 	_m.Called()
 }
@@ -167,7 +167,7 @@ func (_c *MockUsersServer_mustEmbedUnimplementedUsersServer_Call) Return() *Mock
 }
 
 func (_c *MockUsersServer_mustEmbedUnimplementedUsersServer_Call) RunAndReturn(run func()) *MockUsersServer_mustEmbedUnimplementedUsersServer_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
