@@ -405,10 +405,8 @@ github.com/nais/dependencytrack v0.0.0-20240610080458-c76185696c11 h1:2Cy7cjTM7P
 github.com/nais/dependencytrack v0.0.0-20240610080458-c76185696c11/go.mod h1:BdPp1+tyE1hSMZigr7aGmhcTqaksf9Pxxbo4ZAi4On8=
 github.com/nais/liberator v0.0.0-20250120121331-1a7304c71267 h1:Ngg/i5VCv0yinrrlOef9ualH6Xml0Ga3DcxlfESUHFU=
 github.com/nais/liberator v0.0.0-20250120121331-1a7304c71267/go.mod h1:DtQgc26XvoZFe8jy0++wbuFUu5yCFTQ3vGV+y7TA7Uw=
-github.com/nais/tester v0.1.0-pre.9 h1:DoHN9I15fPUHoyWXOUIR+p9k4uiU1Eb7798Gqpwz6kY=
-github.com/nais/tester v0.1.0-pre.9/go.mod h1:GKSia4rbGxxRO9S7fPRK+/nFRxtYvqVwuviw80r38tY=
-github.com/nais/tester v0.1.0-pre.11 h1:M8bqQ8Uu19L75TfWZcloj5nhUPNIy8mcoCgxGuED39M=
-github.com/nais/tester v0.1.0-pre.11/go.mod h1:J7hMdvCK9dx2L1BMpVjgNIkNyRDEK1c46L056bzsxB8=
+github.com/nais/tester v0.1.0-pre.12 h1:MOOqgh90AG2WMXudyp8kLjQGaQDuECqRB6T3TFFdhuw=
+github.com/nais/tester v0.1.0-pre.12/go.mod h1:J7hMdvCK9dx2L1BMpVjgNIkNyRDEK1c46L056bzsxB8=
 github.com/nais/unleasherator v0.0.0-20240513081022-06f454638fc1 h1:Ei6o4MzKnaGys+uVHNcZd1ttV9lcmHGX3whH1GyPV8E=
 github.com/nais/unleasherator v0.0.0-20240513081022-06f454638fc1/go.mod h1:p5j21mYqhbtfQeTqs6lHgsuaL28tY5oNNf1r+gADFe0=
 github.com/ncruces/go-strftime v0.1.9 h1:bY0MQC28UADQmHmaF5dgpLmImcShSi2kHU9XLdhx/f4=
