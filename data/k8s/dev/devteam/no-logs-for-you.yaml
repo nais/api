@@ -43,6 +43,12 @@ spec:
       cpu: 100m
       memory: 128Mi
   skipCaBundle: true
+  observability:
+    logging:
+      enabled: true
+      destinations:
+        - id: loki
+        - id: secure_logs
 status:
   conditions:
     - lastTransitionTime: "2024-01-11T14:00:04Z"

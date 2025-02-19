@@ -68,3 +68,7 @@ unleash:
   bifrostApiUrl: "http://bifrost-backend"
 
 replicas: 2
+
+logging:
+  loki: false
+  secure_logs: false

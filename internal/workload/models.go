@@ -31,6 +31,7 @@ type Workload interface {
 	GetAnnotations() map[string]string
 	GetRolloutCompleteTime() int64
 	GetType() Type
+	GetLogging() *nais_io_v1.Logging
 
 	// GetSecrets returns a list of secret names used by the workload
 	GetSecrets() []string
@@ -46,6 +47,7 @@ type Base struct {
 	Annotations         map[string]string        `json:"-"`
 	RolloutCompleteTime int64                    `json:"-"`
 	Type                Type                     `json:"-"`
+	Logging             *nais_io_v1.Logging      `json:"-"`
 }
 
 func (b Base) Image() *ContainerImage {
@@ -65,6 +67,7 @@ func (b Base) GetAccessPolicy() *nais_io_v1.AccessPolicy { return b.AccessPolicy
 func (b Base) GetAnnotations() map[string]string         { return b.Annotations }
 func (b Base) GetRolloutCompleteTime() int64             { return b.RolloutCompleteTime }
 func (b Base) GetType() Type                             { return b.Type }
+func (b Base) GetLogging() *nais_io_v1.Logging           { return b.Logging }
 
 type ContainerImage struct {
 	Name string `json:"name"`
@@ -199,6 +202,18 @@ func (t Type) String() string {
 		return "Naisjob"
 	default:
 		return "Unknown"
+	}
+}
+
+// TypeFromString returns the Type for the given string. If the string does not match any known type, -1 is returned.
+func TypeFromString(s string) (Type, error) {
+	switch s {
+	case "Application":
+		return TypeApplication, nil
+	case "Naisjob":
+		return TypeJob, nil
+	default:
+		return -1, fmt.Errorf("unknown workload type: %s", s)
 	}
 }
 

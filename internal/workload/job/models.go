@@ -322,6 +322,11 @@ func toGraphJob(job *nais_io_v1.Naisjob, environmentName string) *Job {
 		return *status.Conditions
 	}
 
+	var logging *nais_io_v1.Logging
+	if job.Spec.Observability != nil && job.Spec.Observability.Logging != nil {
+		logging = job.Spec.Observability.Logging
+	}
+
 	return &Job{
 		Base: workload.Base{
 			Name:                job.Name,
@@ -333,6 +338,7 @@ func toGraphJob(job *nais_io_v1.Naisjob, environmentName string) *Job {
 			Annotations:         job.GetAnnotations(),
 			RolloutCompleteTime: job.GetStatus().RolloutCompleteTime,
 			Type:                workload.TypeJob,
+			Logging:             logging,
 		},
 		Spec: &job.Spec,
 	}
