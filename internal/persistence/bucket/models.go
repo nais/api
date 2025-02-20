@@ -176,7 +176,7 @@ func toBucket(u *unstructured.Unstructured, env string) (*Bucket, error) {
 
 	return &Bucket{
 		Name:                     obj.Name,
-		CascadingDelete:          obj.Annotations["cnrm.cloud.google.com/deletion-policy"] == "abandon",
+		CascadingDelete:          obj.Annotations["cnrm.cloud.google.com/deletion-policy"] != "abandon",
 		PublicAccessPrevention:   ptr.Deref(obj.Spec.PublicAccessPrevention, ""),
 		WorkloadReference:        workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
 		TeamSlug:                 slug.Slug(obj.GetNamespace()),
