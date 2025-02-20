@@ -72,12 +72,7 @@ func (r *kafkaTopicAclResolver) Workload(ctx context.Context, obj *kafkatopic.Ka
 		return nil, nil
 	}
 
-	owner := &workload.Reference{
-		Type: workload.TypeApplication,
-		Name: obj.WorkloadName,
-	}
-
-	w, err := getWorkload(ctx, owner, slug.Slug(obj.TeamName), obj.EnvironmentName)
+	w, err := tryWorkload(ctx, slug.Slug(obj.TeamName), obj.EnvironmentName, obj.WorkloadName)
 	if errors.Is(err, &watcher.ErrorNotFound{}) {
 		return nil, nil
 	}
