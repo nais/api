@@ -69,6 +69,15 @@ ORDER BY
 	name ASC
 ;
 
+-- name: GetReconcilerErrorByID :one
+SELECT
+	*
+FROM
+	reconciler_errors
+WHERE
+	id = @id
+;
+
 -- name: GetConfig :many
 SELECT
 	rc.reconciler,

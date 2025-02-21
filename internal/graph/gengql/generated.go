@@ -1011,6 +1011,7 @@ type ComplexityRoot struct {
 	ReconcilerError struct {
 		CorrelationID func(childComplexity int) int
 		CreatedAt     func(childComplexity int) int
+		ID            func(childComplexity int) int
 		Message       func(childComplexity int) int
 		Team          func(childComplexity int) int
 	}
@@ -6525,6 +6526,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ReconcilerError.CreatedAt(childComplexity), true
+
+	case "ReconcilerError.id":
+		if e.complexity.ReconcilerError.ID == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerError.ID(childComplexity), true
 
 	case "ReconcilerError.message":
 		if e.complexity.ReconcilerError.Message == nil {
@@ -14655,10 +14663,30 @@ type ReconcilerErrorEdge {
 	node: ReconcilerError!
 }
 
-type ReconcilerError {
+type ReconcilerError implements Node {
+	"""
+	Unique identifier for the reconciler error.
+	"""
+	id: ID!
+
+	"""
+	The correlation ID for the reconciler error.
+	"""
 	correlationID: String!
+
+	"""
+	Creation timestamp of the reconciler error.
+	"""
 	createdAt: Time!
+
+	"""
+	The error message itself.
+	"""
 	message: String!
+
+	"""
+	The team that the error belongs to.
+	"""
 	team: Team!
 }
 
@@ -52815,6 +52843,50 @@ func (ec *executionContext) fieldContext_ReconcilerEnabledActivityLogEntry_envir
 	return fc, nil
 }
 
+func (ec *executionContext) _ReconcilerError_id(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerError) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerError_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerError_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerError",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ReconcilerError_correlationID(ctx context.Context, field graphql.CollectedField, obj *reconciler.ReconcilerError) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ReconcilerError_correlationID(ctx, field)
 	if err != nil {
@@ -53162,6 +53234,8 @@ func (ec *executionContext) fieldContext_ReconcilerErrorConnection_nodes(_ conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_ReconcilerError_id(ctx, field)
 			case "correlationID":
 				return ec.fieldContext_ReconcilerError_correlationID(ctx, field)
 			case "createdAt":
@@ -53310,6 +53384,8 @@ func (ec *executionContext) fieldContext_ReconcilerErrorEdge_node(_ context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_ReconcilerError_id(ctx, field)
 			case "correlationID":
 				return ec.fieldContext_ReconcilerError_correlationID(ctx, field)
 			case "createdAt":
@@ -94076,13 +94152,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case team.TeamCreateDeleteKeyActivityLogEntry:
-		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamCreateDeleteKeyActivityLogEntry:
+	case team.TeamUpdatedActivityLogEntry:
+		return ec._TeamUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, obj)
+		return ec._TeamUpdatedActivityLogEntry(ctx, sel, obj)
 	case team.TeamMemberAddedActivityLogEntry:
 		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, &obj)
 	case *team.TeamMemberAddedActivityLogEntry:
@@ -94202,13 +94278,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamMemberSetRoleActivityLogEntry(ctx, sel, obj)
-	case team.TeamMemberRemovedActivityLogEntry:
-		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamMemberRemovedActivityLogEntry:
+	case secret.SecretCreatedActivityLogEntry:
+		return ec._SecretCreatedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, obj)
+		return ec._SecretCreatedActivityLogEntry(ctx, sel, obj)
 	case job.Job:
 		return ec._Job(ctx, sel, &obj)
 	case *job.Job:
@@ -94216,20 +94292,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Job(ctx, sel, obj)
-	case secret.SecretValueRemovedActivityLogEntry:
-		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretValueRemovedActivityLogEntry:
+	case application.Application:
+		return ec._Application(ctx, sel, &obj)
+	case *application.Application:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, obj)
-	case team.TeamConfirmDeleteKeyActivityLogEntry:
-		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamConfirmDeleteKeyActivityLogEntry:
+		return ec._Application(ctx, sel, obj)
+	case team.TeamMemberRemovedActivityLogEntry:
+		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamMemberRemovedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, obj)
+		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, obj)
 	case job.JobDeletedActivityLogEntry:
 		return ec._JobDeletedActivityLogEntry(ctx, sel, &obj)
 	case *job.JobDeletedActivityLogEntry:
@@ -94251,13 +94327,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._KafkaTopic(ctx, sel, obj)
-	case team.TeamUpdatedActivityLogEntry:
-		return ec._TeamUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamUpdatedActivityLogEntry:
+	case serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry:
+		return ec._RoleRevokedFromServiceAccountActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamUpdatedActivityLogEntry(ctx, sel, obj)
+		return ec._RoleRevokedFromServiceAccountActivityLogEntry(ctx, sel, obj)
 	case logging.LogDestinationLoki:
 		return ec._LogDestinationLoki(ctx, sel, &obj)
 	case *logging.LogDestinationLoki:
@@ -94279,6 +94355,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._OpenSearch(ctx, sel, obj)
+	case team.TeamConfirmDeleteKeyActivityLogEntry:
+		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamConfirmDeleteKeyActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, obj)
+	case team.TeamCreateDeleteKeyActivityLogEntry:
+		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamCreateDeleteKeyActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, obj)
 	case team.TeamCreatedActivityLogEntry:
 		return ec._TeamCreatedActivityLogEntry(ctx, sel, &obj)
 	case *team.TeamCreatedActivityLogEntry:
@@ -94286,13 +94376,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamCreatedActivityLogEntry(ctx, sel, obj)
-	case sqlinstance.SQLInstance:
-		return ec._SqlInstance(ctx, sel, &obj)
-	case *sqlinstance.SQLInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SqlInstance(ctx, sel, obj)
 	case reconciler.ReconcilerEnabledActivityLogEntry:
 		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, &obj)
 	case *reconciler.ReconcilerEnabledActivityLogEntry:
@@ -94321,13 +94404,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._RedisInstance(ctx, sel, obj)
-	case sqlinstance.SQLDatabase:
-		return ec._SqlDatabase(ctx, sel, &obj)
-	case *sqlinstance.SQLDatabase:
+	case secret.SecretValueAddedActivityLogEntry:
+		return ec._SecretValueAddedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueAddedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SqlDatabase(ctx, sel, obj)
+		return ec._SecretValueAddedActivityLogEntry(ctx, sel, obj)
 	case repository.RepositoryAddedActivityLogEntry:
 		return ec._RepositoryAddedActivityLogEntry(ctx, sel, &obj)
 	case *repository.RepositoryAddedActivityLogEntry:
@@ -94342,27 +94425,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, obj)
-	case serviceaccount.ServiceAccountTokenDeletedActivityLogEntry:
-		return ec._ServiceAccountTokenDeletedActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.ServiceAccountTokenDeletedActivityLogEntry:
+	case sqlinstance.SQLInstance:
+		return ec._SqlInstance(ctx, sel, &obj)
+	case *sqlinstance.SQLInstance:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ServiceAccountTokenDeletedActivityLogEntry(ctx, sel, obj)
-	case secret.SecretCreatedActivityLogEntry:
-		return ec._SecretCreatedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretCreatedActivityLogEntry:
+		return ec._SqlInstance(ctx, sel, obj)
+	case sqlinstance.SQLDatabase:
+		return ec._SqlDatabase(ctx, sel, &obj)
+	case *sqlinstance.SQLDatabase:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretCreatedActivityLogEntry(ctx, sel, obj)
-	case application.Application:
-		return ec._Application(ctx, sel, &obj)
-	case *application.Application:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Application(ctx, sel, obj)
+		return ec._SqlDatabase(ctx, sel, obj)
 	case secret.SecretValueUpdatedActivityLogEntry:
 		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *secret.SecretValueUpdatedActivityLogEntry:
@@ -94370,13 +94446,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, obj)
-	case secret.SecretValueAddedActivityLogEntry:
-		return ec._SecretValueAddedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretValueAddedActivityLogEntry:
+	case serviceaccount.ServiceAccountTokenDeletedActivityLogEntry:
+		return ec._ServiceAccountTokenDeletedActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccountTokenDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueAddedActivityLogEntry(ctx, sel, obj)
+		return ec._ServiceAccountTokenDeletedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretValueRemovedActivityLogEntry:
+		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueRemovedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, obj)
 	case secret.SecretDeletedActivityLogEntry:
 		return ec._SecretDeletedActivityLogEntry(ctx, sel, &obj)
 	case *secret.SecretDeletedActivityLogEntry:
@@ -94426,84 +94509,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._RoleAssignedToServiceAccountActivityLogEntry(ctx, sel, obj)
-	case serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry:
-		return ec._RoleRevokedFromServiceAccountActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._RoleRevokedFromServiceAccountActivityLogEntry(ctx, sel, obj)
-	case unleash.UnleashInstance:
-		return ec._UnleashInstance(ctx, sel, &obj)
-	case *unleash.UnleashInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._UnleashInstance(ctx, sel, obj)
-	case feature.Features:
-		return ec._Features(ctx, sel, &obj)
-	case *feature.Features:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Features(ctx, sel, obj)
-	case secret.Secret:
-		return ec._Secret(ctx, sel, &obj)
-	case *secret.Secret:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Secret(ctx, sel, obj)
-	case repository.Repository:
-		return ec._Repository(ctx, sel, &obj)
-	case *repository.Repository:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Repository(ctx, sel, obj)
-	case reconciler.Reconciler:
-		return ec._Reconciler(ctx, sel, &obj)
-	case *reconciler.Reconciler:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Reconciler(ctx, sel, obj)
-	case team.Team:
-		return ec._Team(ctx, sel, &obj)
-	case *team.Team:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Team(ctx, sel, obj)
-	case team.TeamEnvironment:
-		return ec._TeamEnvironment(ctx, sel, &obj)
-	case *team.TeamEnvironment:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamEnvironment(ctx, sel, obj)
-	case persistence.Persistence:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Persistence(ctx, sel, obj)
-	case logging.LogDestination:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._LogDestination(ctx, sel, obj)
-	case activitylog.ActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ActivityLogEntry(ctx, sel, obj)
-	case job.JobRunInstance:
-		return ec._JobRunInstance(ctx, sel, &obj)
-	case *job.JobRunInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._JobRunInstance(ctx, sel, obj)
 	case job.JobRun:
 		return ec._JobRun(ctx, sel, &obj)
 	case *job.JobRun:
@@ -94511,13 +94516,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._JobRun(ctx, sel, obj)
-	case feature.FeatureOpenSearch:
-		return ec._FeatureOpenSearch(ctx, sel, &obj)
-	case *feature.FeatureOpenSearch:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._FeatureOpenSearch(ctx, sel, obj)
 	case serviceaccount.ServiceAccountToken:
 		return ec._ServiceAccountToken(ctx, sel, &obj)
 	case *serviceaccount.ServiceAccountToken:
@@ -94532,6 +94530,77 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ServiceAccount(ctx, sel, obj)
+	case team.TeamEnvironment:
+		return ec._TeamEnvironment(ctx, sel, &obj)
+	case *team.TeamEnvironment:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamEnvironment(ctx, sel, obj)
+	case feature.FeatureOpenSearch:
+		return ec._FeatureOpenSearch(ctx, sel, &obj)
+	case *feature.FeatureOpenSearch:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._FeatureOpenSearch(ctx, sel, obj)
+	case secret.Secret:
+		return ec._Secret(ctx, sel, &obj)
+	case *secret.Secret:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Secret(ctx, sel, obj)
+	case team.Team:
+		return ec._Team(ctx, sel, &obj)
+	case *team.Team:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Team(ctx, sel, obj)
+	case repository.Repository:
+		return ec._Repository(ctx, sel, &obj)
+	case *repository.Repository:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Repository(ctx, sel, obj)
+	case reconciler.ReconcilerError:
+		return ec._ReconcilerError(ctx, sel, &obj)
+	case *reconciler.ReconcilerError:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ReconcilerError(ctx, sel, obj)
+	case activitylog.ActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ActivityLogEntry(ctx, sel, obj)
+	case reconciler.Reconciler:
+		return ec._Reconciler(ctx, sel, &obj)
+	case *reconciler.Reconciler:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Reconciler(ctx, sel, obj)
+	case persistence.Persistence:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Persistence(ctx, sel, obj)
+	case logging.LogDestination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._LogDestination(ctx, sel, obj)
+	case job.JobRunInstance:
+		return ec._JobRunInstance(ctx, sel, &obj)
+	case *job.JobRunInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._JobRunInstance(ctx, sel, obj)
 	case feature.FeatureKafka:
 		return ec._FeatureKafka(ctx, sel, &obj)
 	case *feature.FeatureKafka:
@@ -94539,13 +94608,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._FeatureKafka(ctx, sel, obj)
-	case deployment.DeploymentResource:
-		return ec._DeploymentResource(ctx, sel, &obj)
-	case *deployment.DeploymentResource:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._DeploymentResource(ctx, sel, obj)
 	case feature.FeatureValkey:
 		return ec._FeatureValkey(ctx, sel, &obj)
 	case *feature.FeatureValkey:
@@ -94553,6 +94615,27 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._FeatureValkey(ctx, sel, obj)
+	case unleash.UnleashInstance:
+		return ec._UnleashInstance(ctx, sel, &obj)
+	case *unleash.UnleashInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._UnleashInstance(ctx, sel, obj)
+	case feature.FeatureRedis:
+		return ec._FeatureRedis(ctx, sel, &obj)
+	case *feature.FeatureRedis:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._FeatureRedis(ctx, sel, obj)
+	case feature.FeatureUnleash:
+		return ec._FeatureUnleash(ctx, sel, &obj)
+	case *feature.FeatureUnleash:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._FeatureUnleash(ctx, sel, obj)
 	case user.User:
 		return ec._User(ctx, sel, &obj)
 	case *user.User:
@@ -94565,13 +94648,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UserSyncLogEntry(ctx, sel, obj)
-	case feature.FeatureUnleash:
-		return ec._FeatureUnleash(ctx, sel, &obj)
-	case *feature.FeatureUnleash:
+	case feature.Features:
+		return ec._Features(ctx, sel, &obj)
+	case *feature.Features:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._FeatureUnleash(ctx, sel, obj)
+		return ec._Features(ctx, sel, obj)
 	case deployment.DeploymentStatus:
 		return ec._DeploymentStatus(ctx, sel, &obj)
 	case *deployment.DeploymentStatus:
@@ -94579,13 +94662,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._DeploymentStatus(ctx, sel, obj)
-	case feature.FeatureRedis:
-		return ec._FeatureRedis(ctx, sel, &obj)
-	case *feature.FeatureRedis:
+	case deployment.DeploymentResource:
+		return ec._DeploymentResource(ctx, sel, &obj)
+	case *deployment.DeploymentResource:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._FeatureRedis(ctx, sel, obj)
+		return ec._DeploymentResource(ctx, sel, obj)
 	case deployment.Deployment:
 		return ec._Deployment(ctx, sel, &obj)
 	case *deployment.Deployment:
@@ -104371,7 +104454,7 @@ func (ec *executionContext) _ReconcilerEnabledActivityLogEntry(ctx context.Conte
 	return out
 }
 
-var reconcilerErrorImplementors = []string{"ReconcilerError"}
+var reconcilerErrorImplementors = []string{"ReconcilerError", "Node"}
 
 func (ec *executionContext) _ReconcilerError(ctx context.Context, sel ast.SelectionSet, obj *reconciler.ReconcilerError) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerErrorImplementors)
@@ -104382,6 +104465,11 @@ func (ec *executionContext) _ReconcilerError(ctx context.Context, sel ast.Select
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ReconcilerError")
+		case "id":
+			out.Values[i] = ec._ReconcilerError_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "correlationID":
 			out.Values[i] = ec._ReconcilerError_correlationID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

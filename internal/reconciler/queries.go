@@ -21,7 +21,7 @@ func Get(ctx context.Context, name string) (*Reconciler, error) {
 }
 
 func GetByIdent(ctx context.Context, ident ident.Ident) (*Reconciler, error) {
-	name, err := parseIdent(ident)
+	name, err := parseReconcilerIdent(ident)
 	if err != nil {
 		return nil, err
 	}

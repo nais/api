@@ -5,6 +5,8 @@ package reconcilersql
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 const configure = `-- name: Configure :exec
@@ -173,6 +175,29 @@ func (q *Queries) GetConfig(ctx context.Context, arg GetConfigParams) ([]*GetCon
 		return nil, err
 	}
 	return items, nil
+}
+
+const getReconcilerErrorByID = `-- name: GetReconcilerErrorByID :one
+SELECT
+	id, correlation_id, reconciler, created_at, error_message, team_slug
+FROM
+	reconciler_errors
+WHERE
+	id = $1
+`
+
+func (q *Queries) GetReconcilerErrorByID(ctx context.Context, id uuid.UUID) (*ReconcilerError, error) {
+	row := q.db.QueryRow(ctx, getReconcilerErrorByID, id)
+	var i ReconcilerError
+	err := row.Scan(
+		&i.ID,
+		&i.CorrelationID,
+		&i.Reconciler,
+		&i.CreatedAt,
+		&i.ErrorMessage,
+		&i.TeamSlug,
+	)
+	return &i, err
 }
 
 const list = `-- name: List :many

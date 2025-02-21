@@ -116,10 +116,30 @@ type ReconcilerErrorEdge {
 	node: ReconcilerError!
 }
 
-type ReconcilerError {
+type ReconcilerError implements Node {
+	"""
+	Unique identifier for the reconciler error.
+	"""
+	id: ID!
+
+	"""
+	The correlation ID for the reconciler error.
+	"""
 	correlationID: String!
+
+	"""
+	Creation timestamp of the reconciler error.
+	"""
 	createdAt: Time!
+
+	"""
+	The error message itself.
+	"""
 	message: String!
+
+	"""
+	The team that the error belongs to.
+	"""
 	team: Team!
 }
 

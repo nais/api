@@ -310,3 +310,62 @@ Test.gql("list reconcilers after modifications", function(t)
 		},
 	}
 end)
+
+Test.gql("list reconciler errors", function(t)
+	Helper.SQLExec [[
+		INSERT INTO reconciler_errors (correlation_id, reconciler, created_at, error_message, team_slug)
+		VALUES
+		(gen_random_uuid(), 'reconciler-1', CLOCK_TIMESTAMP(), 'first error for reconciler-1', 'slug-1'),
+		(gen_random_uuid(), 'reconciler-1', CLOCK_TIMESTAMP(), 'second error for reconciler-1', 'slug-2'),
+		(gen_random_uuid(), 'reconciler-2', CLOCK_TIMESTAMP(), 'will not be displayed because reconciler is disabled', 'slug-1')
+	]]
+
+	t.query [[
+		query {
+			reconcilers {
+				nodes {
+					name
+					enabled
+					errors {
+						nodes {
+							id
+							message
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			reconcilers = {
+				nodes = {
+					{
+						name = "reconciler-1",
+						enabled = true,
+						errors = {
+							nodes = {
+								{
+									id = Contains("RECE_"),
+									message = "second error for reconciler-1",
+								},
+								{
+									id = Contains("RECE_"),
+									message = "first error for reconciler-1",
+								},
+							},
+						},
+					},
+					{
+						name = "reconciler-2",
+						enabled = false,
+						errors = {
+							nodes = {},
+						},
+					},
+				},
+			},
+		},
+	}
+end)

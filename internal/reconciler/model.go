@@ -3,6 +3,7 @@ package reconciler
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/reconciler/reconcilersql"
@@ -26,7 +27,7 @@ type Reconciler struct {
 func (Reconciler) IsNode() {}
 
 func (r Reconciler) ID() ident.Ident {
-	return newIdent(r.Name)
+	return newReconcilerIdent(r.Name)
 }
 
 func toGraphReconciler(r *reconcilersql.Reconciler) *Reconciler {
@@ -38,23 +39,14 @@ func toGraphReconciler(r *reconcilersql.Reconciler) *Reconciler {
 	}
 }
 
-// Reconciler configuration type.
 type ReconcilerConfig struct {
-	// Configuration key.
-	Key string `json:"key"`
-	// The human-friendly name of the configuration key.
-	DisplayName string `json:"displayName"`
-	// Configuration description.
-	Description string `json:"description"`
-	// Whether or not the configuration key has a value.
-	Configured bool `json:"configured"`
-	// Whether or not the configuration value is considered a secret. Secret values will not be exposed through the API.
-	Secret bool `json:"secret"`
-	// Configuration value. This will be set to null if the value is considered a secret.
-	Value *string `json:"value,omitempty"`
-
-	// Reconciler name.
-	ReconcilerName string `json:"-"`
+	Key            string  `json:"key"`
+	DisplayName    string  `json:"displayName"`
+	Description    string  `json:"description"`
+	Configured     bool    `json:"configured"`
+	Secret         bool    `json:"secret"`
+	Value          *string `json:"value,omitempty"`
+	ReconcilerName string  `json:"-"`
 }
 
 func toGraphReconcilerConfig(reconcilerName string, u *reconcilersql.GetConfigRow) *ReconcilerConfig {
@@ -69,11 +61,8 @@ func toGraphReconcilerConfig(reconcilerName string, u *reconcilersql.GetConfigRo
 	}
 }
 
-// Reconciler configuration input.
 type ReconcilerConfigInput struct {
-	// Configuration key.
-	Key string `json:"key"`
-	// Configuration value.
+	Key   string `json:"key"`
 	Value string `json:"value"`
 }
 
@@ -82,6 +71,12 @@ type ReconcilerError struct {
 	CreatedAt     time.Time `json:"createdAt"`
 	Message       string    `json:"message"`
 	TeamSlug      slug.Slug `json:"-"`
+	UUID          uuid.UUID `json:"-"`
+}
+
+func (ReconcilerError) IsNode() {}
+func (e *ReconcilerError) ID() ident.Ident {
+	return newReconcilerErrorIdent(e.UUID)
 }
 
 func toGraphReconcilerError(row *reconcilersql.ReconcilerError) *ReconcilerError {
@@ -90,6 +85,7 @@ func toGraphReconcilerError(row *reconcilersql.ReconcilerError) *ReconcilerError
 		CreatedAt:     row.CreatedAt.Time,
 		Message:       row.ErrorMessage,
 		TeamSlug:      row.TeamSlug,
+		UUID:          row.ID,
 	}
 }
 

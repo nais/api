@@ -17,7 +17,7 @@ type Reconciler struct {
 }
 
 type ReconcilerError struct {
-	ID            int64
+	ID            uuid.UUID
 	CorrelationID uuid.UUID
 	Reconciler    string
 	CreatedAt     pgtype.Timestamptz
