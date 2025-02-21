@@ -5,6 +5,7 @@ import (
 	"slices"
 
 	"github.com/nais/api/internal/workload"
+	"github.com/sourcegraph/conc/pool"
 )
 
 func ForWorkload(ctx context.Context, w workload.Workload) *WorkloadStatus {
@@ -31,9 +32,17 @@ func ForWorkload(ctx context.Context, w workload.Workload) *WorkloadStatus {
 }
 
 func ForWorkloads[T workload.Workload](ctx context.Context, workloads []T) []WorkloadStatusError {
-	var errs []WorkloadStatusError
+	wg := pool.NewWithResults[[]WorkloadStatusError]().WithContext(ctx).WithMaxGoroutines(10)
 	for _, workload := range workloads {
-		errs = append(errs, ForWorkload(ctx, workload).Errors...)
+		wg.Go(func(ctx context.Context) ([]WorkloadStatusError, error) {
+			return ForWorkload(ctx, workload).Errors, nil
+		})
+	}
+
+	errors, _ := wg.Wait()
+	var errs []WorkloadStatusError
+	for _, e := range errors {
+		errs = append(errs, e...)
 	}
 	return errs
 }
