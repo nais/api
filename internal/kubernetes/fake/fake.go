@@ -197,6 +197,18 @@ func AddObjectToDynamicClient(scheme *runtime.Scheme, fc *dynfake.FakeDynamicCli
 	}
 
 	for _, obj := range objs {
+		if obj.GetObjectKind().GroupVersionKind().Kind == "List" {
+			list := obj.(*unstructured.Unstructured)
+			ul, err := list.ToList()
+			if err != nil {
+				panic(err)
+			}
+			for _, item := range ul.Items {
+				AddObjectToDynamicClient(scheme, fc, &item)
+			}
+			continue
+		}
+
 		gvks, _, err := scheme.ObjectKinds(obj)
 		if err != nil {
 			panic(err)
@@ -214,6 +226,7 @@ func AddObjectToDynamicClient(scheme *runtime.Scheme, fc *dynfake.FakeDynamicCli
 			if err := fc.Tracker().Create(gvr, obj, ns); err != nil {
 				panic(err)
 			}
+			fmt.Println("added", gvr, ns)
 		}
 	}
 }
