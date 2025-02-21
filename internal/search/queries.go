@@ -12,7 +12,7 @@ import (
 
 func Search(ctx context.Context, page *pagination.Pagination, filter SearchFilter) (*SearchNodeConnection, error) {
 	q := strings.TrimSpace(filter.Query)
-	if q == "" {
+	if q == "" && filter.Type == nil {
 		return pagination.EmptyConnection[SearchNode](), nil
 	}
 
