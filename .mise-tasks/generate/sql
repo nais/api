@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+#MISE description="Generate code using sqlc"
+
+set -e
+
+go tool github.com/sqlc-dev/sqlc/cmd/sqlc generate -f .configs/sqlc.yaml
+go tool github.com/sqlc-dev/sqlc/cmd/sqlc vet -f .configs/sqlc.yaml

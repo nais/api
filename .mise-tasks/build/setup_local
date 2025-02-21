@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+#MISE description="Build setup_local"
+
+set -e
+
+go build -o bin/setup_local ./cmd/setup_local
