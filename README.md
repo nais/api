@@ -5,7 +5,7 @@ NAIS API is the main entrypoint when interacting with the API of the NAIS platfo
 ## Local development
 
 ```bash
-asdf install # Install required dependencies, see .tool-versions for plugins used
+mise install # Install required dependencies
 cp .env.example .env # Copy example configuration file, and adjust to your needs
 docker compose up -d
 make setup-local # Setup local environment (seeds database and creates pubsub topic)
