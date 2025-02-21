@@ -35,6 +35,7 @@ type Workload interface {
 
 	// GetSecrets returns a list of secret names used by the workload
 	GetSecrets() []string
+	Image() *ContainerImage
 }
 
 type Base struct {
