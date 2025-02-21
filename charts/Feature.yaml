@@ -5,7 +5,7 @@ dependencies:
   - allOf:
       - monitoring-crds
       - fqdn-policy
-      - loadbalancer-internal
+      - loadbalancer
 
 values:
   apiserverIP:
