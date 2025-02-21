@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#MISE description="Start tester UI, running integration tests"
+
+set -e
+
+go run ./cmd/tester_run --ui || true
+exit 0

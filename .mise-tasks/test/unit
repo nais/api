@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+#MISE description="Run unit tests"
+
+go test --race ./... github.com/nais/api/pkg/apiclient/...

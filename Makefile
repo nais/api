@@ -1,133 +1,73 @@
-LUA_FORMATTER_VERSION = 1.5.6
-BIN_DIR := $(shell pwd)/bin
-LUAFMT=$(BIN_DIR)/luafmt-$(LUA_FORMATTER_VERSION)
-
 .PHONY: all local
 
-all: generate fmt test check build helm-lint
+all:
+	mise run all
 
-generate: generate-sql generate-graphql generate-proto generate-mocks
+generate:
+	mise run generate
 
 generate-sql:
-	go tool github.com/sqlc-dev/sqlc/cmd/sqlc generate -f .configs/sqlc.yaml
-	go tool github.com/sqlc-dev/sqlc/cmd/sqlc vet -f .configs/sqlc.yaml
-	go tool mvdan.cc/gofumpt -w ./
+	mise run -j 1 generate:sql ::: fmt:go
 
 generate-graphql:
-	go tool github.com/99designs/gqlgen generate --config .configs/gqlgen.yaml
-	go run ./cmd/gen_complexity
-	go tool mvdan.cc/gofumpt -w ./internal/graph
+	mise run -j 1 generate:graphql ::: fmt:go
 
 generate-mocks:
-	find internal pkg -type f -name "mock_*.go" -delete
-	go tool github.com/vektra/mockery/v2 --config ./.configs/mockery.yaml
-	find internal pkg -type f -name "mock_*.go" -exec go tool mvdan.cc/gofumpt -w {} \;
+	mise run -j 1 generate:mocks ::: fmt:go
 
 generate-proto:
-	protoc \
-		-I pkg/apiclient/protoapi/schema/ \
-		./pkg/apiclient/protoapi/schema/*.proto \
-		--go_opt=default_api_level=API_HYBRID \
-		--go_out=. \
-		--go-grpc_out=.
+	mise run -j 1 generate:proto ::: fmt:go
 
 build:
-	go build -o bin/api ./cmd/api
-	go build -o bin/setup_local ./cmd/setup_local
+	mise run build
 
 local:
-	go run ./cmd/api
+	mise run local
 
 debug:
-	dlv debug --headless --listen=:2345 --api-version=2 ./cmd/api
+	mise run local:debug
 
 test:
-	go test -cover -tags integration_test --race ./... github.com/nais/api/pkg/apiclient/...
+	mise run test
 
 unit-test:
-	go test --race ./... github.com/nais/api/pkg/apiclient/...
+	mise run test:unit
 
-check: staticcheck vulncheck deadcode gosec
+check:
+	mise run check
 
 staticcheck:
-	go tool honnef.co/go/tools/cmd/staticcheck ./...
+	mise run check:staticcheck
 
 vulncheck:
-	go tool golang.org/x/vuln/cmd/govulncheck ./...
+	mise run check:vulncheck
 
 deadcode:
-	go tool golang.org/x/tools/cmd/deadcode -test ./...
+	mise run check:deadcode
 
 gosec:
-	go tool github.com/securego/gosec/v2/cmd/gosec --exclude G404,G101 --exclude-generated -terse ./...
-# We've disabled G404 and G101 as they are not relevant for our use case
-# G404: Use of weak random number generator (math/rand instead of crypto/rand).
-#    We don't use random numbers for security purposes.
-# G101: Look for hard coded credentials
-#    The check for credentials is a bit weak and triggers on multiple variables just including
-#    the word `secret`. We depend on GitHub to find possible credentials in our code.
+	mise run check:gosec
 
-fmt: prettier install-lua-formatter
-	go tool mvdan.cc/gofumpt -w ./
-	$(LUAFMT)/bin/CodeFormat format -w . --ignores-file ".gitignore" -c ./integration_tests/.editorconfig
+fmt:
+	mise run fmt
 
 prettier:
-	npm install
-	npx prettier --write .
+	mise run fmt:prettier
 
 helm-lint:
-	helm lint --strict ./charts
+	mise run check:helm-lint
 
 graphql-lint:
-	npx eslint --cache
+	mise run check:graphql-lint
 
 setup-local:
-	GOOGLE_MANAGEMENT_PROJECT_ID=nais-local-dev go run ./cmd/setup_local -users 40 -teams 10 -owners 2 -members 4 -provision_pub_sub
+	mise run local:setup
 
 integration_test:
-	rm -f hack/coverprofile.txt
-	go test -coverprofile=hack/coverprofile.txt -coverpkg github.com/nais/api/... -v -tags integration_test --race ./integration_tests
-# go test -coverprofile=hack/coverprofile.txt -coverpkg $(shell go list --deps ./cmd/api | grep nais/api/ | grep -Ev 'gengql|/(\w+)/\1sql' | tr '\n' ',' | sed '$$s/,$$//') -v -tags integration_test --race ./integration_tests
+	mise run test --coverage
 
 integration_test_ui:
-	go run ./cmd/tester_run --ui
+	mise run test:ui
 
 tester_spec:
-	go run ./cmd/tester_spec
-
-LUA_FORMATTER_URL := https://github.com/CppCXY/EmmyLuaCodeStyle/releases/download/$(LUA_FORMATTER_VERSION)
-OS := $(shell uname -s)
-ARCH := $(shell uname -m)
-
-ifeq ($(OS), Darwin)
-  ifeq ($(ARCH), x86_64)
-    LUA_FORMATTER_FILE := darwin-x64
-  else
-    ifeq ($(ARCH), arm64)
-      LUA_FORMATTER_FILE := darwin-arm64
-    else
-      $(error Unsupported architecture: $(ARCH) on macOS)
-    endif
-  endif
-else ifeq ($(OS), Linux)
-  ifeq ($(ARCH), x86_64)
-    LUA_FORMATTER_FILE := linux-x64
-  else
-    ifeq ($(ARCH), aarch64)
-      LUA_FORMATTER_FILE := linux-aarch64
-    else
-      $(error Unsupported architecture: $(ARCH) on Linux)
-    endif
-  endif
-else
-  $(error Unsupported OS: $(OS))
-endif
-
-install-lua-formatter: $(LUAFMT)
-$(LUAFMT):
-	@mkdir -p $(LUAFMT)
-	@curl -L $(LUA_FORMATTER_URL)/$(LUA_FORMATTER_FILE).tar.gz -o /tmp/luafmt.tar.gz
-	@tar -xzf /tmp/luafmt.tar.gz -C $(LUAFMT)
-	@rm /tmp/luafmt.tar.gz
-	@mv $(LUAFMT)/$(LUA_FORMATTER_FILE)/* $(LUAFMT)/
-	@rmdir $(LUAFMT)/$(LUA_FORMATTER_FILE)
+	mise run -j 1 generate:tester_spec ::: fmt:prettier

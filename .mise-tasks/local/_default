@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="Start local development server"
+
+set -e
+
+go run ./cmd/api

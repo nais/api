@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+#MISE description="Build api"
+
+set -e
+
+go build -o bin/api ./cmd/api

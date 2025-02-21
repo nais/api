@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+#MISE description="Generate Tester lua spec"
+
+set -e
+
+go run ./cmd/tester_spec
+
+mise run fmt:lua
