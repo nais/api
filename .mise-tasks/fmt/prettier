@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+#MISE description="Format non-go and non-lua code using prettier"
+
+set -e
+
+npm install
+npx prettier --write .

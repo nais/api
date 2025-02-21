@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+#MISE description="Generate graphql code using gqlgen"
+
+set -e
+
+go tool github.com/99designs/gqlgen generate --config .configs/gqlgen.yaml
+go run ./cmd/gen_complexity

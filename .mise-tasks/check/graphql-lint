@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+#MISE description="Run graphql-lint"
+
+set -e
+
+npx eslint --cache
