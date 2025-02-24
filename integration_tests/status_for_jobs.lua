@@ -60,7 +60,7 @@ Test.gql("job with deprecated registry", function(t)
 				environment = {
 					job = {
 						status = {
-							state = "NAIS",
+							state = "NOT_NAIS",
 							errors = {
 								expectedMissingSBOM,
 								{

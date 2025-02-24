@@ -14,7 +14,7 @@ func (c checkDeprecatedRegsitry) Run(ctx context.Context, w workload.Workload) (
 	if s == nil {
 		return nil, WorkloadStateNais
 	}
-	return []WorkloadStatusError{s}, WorkloadStateNais
+	return []WorkloadStatusError{s}, WorkloadStateNotNais
 }
 
 func (checkDeprecatedRegsitry) run(_ context.Context, w workload.Workload) WorkloadStatusError {

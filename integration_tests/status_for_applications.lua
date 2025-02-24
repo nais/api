@@ -92,7 +92,7 @@ Test.gql("app with deprecated registry", function(t)
 				environment = {
 					application = {
 						status = {
-							state = "NAIS",
+							state = "NOT_NAIS",
 							errors = {
 								expectedMissingSBOM,
 								{
