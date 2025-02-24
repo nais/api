@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+#MISE description="Setup local environment using dlv"
+
+set -e
+
+dlv debug --headless --listen=:2345 --api-version=2 ./cmd/api

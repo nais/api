@@ -26,14 +26,13 @@ jobs:
             ${{ steps.go-cache.outputs.gocache }}
             ${{ steps.go-cache.outputs.gomodcache }}
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-      - run: make test
+      - run: mise run test
       - run: helm lint --strict ./charts
-      - run: make staticcheck
-      - run: make vulncheck
+      - run: mise run check:staticcheck
+      - run: mise run check:vulncheck
       - name: Check code format and run code generators
         run: |
-          make fmt
-          make generate
+          mise run fmt ::: generate
           git diff --exit-code --name-only
 
   build_push:

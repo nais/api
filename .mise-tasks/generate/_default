@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+#MISE description="Generate all code"
+
+unset MISE_TASK_OUTPUT
+
+mise run generate:sql ::: generate:graphql ::: generate:proto
+mise run generate:mocks ::: generate:tester_spec
+mise run fmt:go ::: fmt:prettier

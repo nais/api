@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+#MISE description="Start local development server"
+#MISE sources=["**/*.go", "data/**/*.yaml"]
+
+set -e
+
+go run ./cmd/api
