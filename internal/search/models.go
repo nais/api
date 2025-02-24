@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/lithammer/fuzzysearch/fuzzy"
+	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 )
 
@@ -15,6 +16,7 @@ type (
 )
 
 type SearchNode interface {
+	ID() ident.Ident
 	IsSearchNode()
 }
 

@@ -31,6 +31,7 @@ import (
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/reconciler"
+	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/serviceaccount"
 	"github.com/nais/api/internal/session"
 	"github.com/nais/api/internal/team"
@@ -234,7 +235,7 @@ func ConfigureGraph(
 		return nil, errors.New("timed out waiting for watchers to be ready")
 	}
 
-	return loader.Middleware(func(ctx context.Context) context.Context {
+	setupContext := func(ctx context.Context) context.Context {
 		ctx = podlog.NewLoaderContext(ctx, podLogStreamer)
 		ctx = application.NewLoaderContext(ctx, appWatcher, ingressWatcher)
 		ctx = bigquery.NewLoaderContext(ctx, bqWatcher)
@@ -261,6 +262,7 @@ func ConfigureGraph(
 		ctx = deployment.NewLoaderContext(ctx, pool, hookdClient)
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)
 		ctx = session.NewLoaderContext(ctx, pool)
+		ctx = search.NewLoaderContext(ctx, pool)
 		ctx = unleash.NewLoaderContext(ctx, tenantName, unleashWatcher, bifrostAPIURL, log)
 		ctx = logging.NewPackageContext(ctx, tenantName, defaultLogDestinations)
 		ctx = feature.NewLoaderContext(
@@ -272,5 +274,14 @@ func ConfigureGraph(
 			openSearchWatcher.Enabled(),
 		)
 		return ctx
-	}), nil
+	}
+
+	{
+		ctx := setupContext(ctx)
+		if err := search.InitBleve(ctx, log.WithField("subsystem", "search_bleve")); err != nil {
+			return nil, fmt.Errorf("init bleve: %w", err)
+		}
+	}
+
+	return loader.Middleware(setupContext), nil
 }

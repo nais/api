@@ -125,3 +125,15 @@ func (i *Ident) UnmarshalGQLContext(_ context.Context, v interface{}) error {
 
 	return nil
 }
+
+func FromString(s string) Ident {
+	typ, id, ok := strings.Cut(s, "_")
+	if !ok {
+		return Ident{}
+	}
+
+	return Ident{
+		ID:   string(base58.Decode(id)),
+		Type: typ,
+	}
+}
