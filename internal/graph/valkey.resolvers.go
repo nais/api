@@ -13,11 +13,11 @@ import (
 )
 
 func (r *applicationResolver) ValkeyInstances(ctx context.Context, obj *application.Application, orderBy *valkey.ValkeyInstanceOrder) (*pagination.Connection[*valkey.ValkeyInstance], error) {
-	return valkey.ListForWorkload(ctx, obj.TeamSlug, obj.Spec.Valkey, orderBy)
+	return valkey.ListForWorkload(ctx, obj.TeamSlug, obj.GetEnvironmentName(), obj.Spec.Valkey, orderBy)
 }
 
 func (r *jobResolver) ValkeyInstances(ctx context.Context, obj *job.Job, orderBy *valkey.ValkeyInstanceOrder) (*pagination.Connection[*valkey.ValkeyInstance], error) {
-	return valkey.ListForWorkload(ctx, obj.TeamSlug, obj.Spec.Valkey, orderBy)
+	return valkey.ListForWorkload(ctx, obj.TeamSlug, obj.GetEnvironmentName(), obj.Spec.Valkey, orderBy)
 }
 
 func (r *teamResolver) ValkeyInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyInstanceOrder) (*pagination.Connection[*valkey.ValkeyInstance], error) {

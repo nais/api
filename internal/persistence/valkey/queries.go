@@ -64,8 +64,8 @@ func ListAccess(ctx context.Context, valkey *ValkeyInstance, page *pagination.Pa
 	return pagination.NewConnection(ret, page, len(all)), nil
 }
 
-func ListForWorkload(ctx context.Context, teamSlug slug.Slug, references []nais_io_v1.Valkey, orderBy *ValkeyInstanceOrder) (*ValkeyInstanceConnection, error) {
-	all := fromContext(ctx).client.watcher.GetByNamespace(teamSlug.String())
+func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, references []nais_io_v1.Valkey, orderBy *ValkeyInstanceOrder) (*ValkeyInstanceConnection, error) {
+	all := fromContext(ctx).client.watcher.GetByNamespace(teamSlug.String(), watcher.InCluster(environmentName))
 	ret := make([]*ValkeyInstance, 0)
 
 	for _, ref := range references {
