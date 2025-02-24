@@ -3,15 +3,18 @@ package search
 import (
 	"context"
 	"fmt"
+	"slices"
 	"sync"
 
 	"github.com/blevesearch/bleve/v2"
+	"github.com/blevesearch/bleve/v2/analysis/analyzer/custom"
+	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/blevesearch/bleve/v2/search/query"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/search/bleveext"
 	"github.com/sirupsen/logrus"
-	"k8s.io/utils/ptr"
 )
 
 type Document struct {
@@ -22,9 +25,15 @@ type Document struct {
 	Fields map[string]string `json:"fields,omitempty"`
 }
 
+type Indexer interface {
+	Update(doc Document) error
+	Remove(id ident.Ident) error
+}
+
 type Searchable interface {
 	Convert(ctx context.Context, ids ...ident.Ident) ([]SearchNode, error)
 	ReIndex(ctx context.Context) []Document
+	Watch(ctx context.Context, indexer Indexer) error
 }
 
 var (
@@ -33,11 +42,35 @@ var (
 )
 
 func RegisterBleve(searchType SearchType, search Searchable) {
+	if _, ok := bleveSearches[searchType]; ok {
+		panic(fmt.Sprintf("search type %q already registered", searchType))
+	}
+
 	bleveSearches[searchType] = search
 }
 
+func buildIndexMapping() (mapping.IndexMapping, error) {
+	indexMapping := bleve.NewIndexMapping()
+
+	err := indexMapping.AddCustomAnalyzer(custom.Name,
+		map[string]any{
+			"type":      "custom",
+			"tokenizer": `unicode`,
+		})
+	if err != nil {
+		return nil, err
+	}
+
+	return indexMapping, nil
+}
+
 func InitBleve(ctx context.Context, log logrus.FieldLogger) error {
-	bleveIndex, err := bleve.NewMemOnly(bleve.NewIndexMapping())
+	im, err := buildIndexMapping()
+	if err != nil {
+		return err
+	}
+	// im.CustomAnalysis = custom.AnalyzerConstructor(config map[string]interface{}, cache *registry.Cache)
+	bleveIndex, err := bleve.NewMemOnly(im)
 	if err != nil {
 		return err
 	}
@@ -49,6 +82,11 @@ func InitBleve(ctx context.Context, log logrus.FieldLogger) error {
 	}
 
 	bleveSearch.reindexAll(ctx)
+	for kind, search := range bleveSearch.Clients {
+		if err := search.Watch(ctx, bleveSearch); err != nil {
+			return fmt.Errorf("failed to watch %q: %w", kind, err)
+		}
+	}
 
 	return nil
 }
@@ -58,6 +96,14 @@ type bleveSearcher struct {
 	Clients map[SearchType]Searchable
 
 	log logrus.FieldLogger
+}
+
+func (v *bleveSearcher) Update(doc Document) error {
+	return v.Client.Index(doc.ID, doc)
+}
+
+func (v *bleveSearcher) Remove(id ident.Ident) error {
+	return v.Client.Delete(id.String())
 }
 
 func (b *bleveSearcher) reindexAll(ctx context.Context) {
@@ -96,20 +142,15 @@ func (b *bleveSearcher) search(ctx context.Context, page *pagination.Pagination,
 	queries := []query.Query{}
 
 	if filter.Query != "" {
-		queries = append(queries, bleve.NewMatchQuery(filter.Query))
-	}
-	if len(slugs) > 0 {
-		teamQueries := make([]query.Query, 0, len(slugs))
-		for _, slug := range slugs {
-			tq := bleve.NewTermQuery(slug.String())
-			tq.SetField("team")
-			tq.BoostVal = ptr.To[query.Boost](1000.0)
-			teamQueries = append(teamQueries, tq)
-		}
+		qq := bleve.NewFuzzyQuery(filter.Query)
+		qq.SetFuzziness(2)
+		qq.SetBoost(0.5)
 
-		teamFilter := bleve.NewDisjunctionQuery(teamQueries...)
-		teamFilter.SetMin(0)
-		queries = append(queries, teamFilter)
+		// We add the query with both a match and a fuzzy query to get both exact and fuzzy matches
+		queries = append(queries, bleve.NewDisjunctionQuery(
+			bleve.NewMatchQuery(filter.Query),
+			qq,
+		))
 	}
 
 	if filter.Type != nil {
@@ -117,7 +158,23 @@ func (b *bleveSearcher) search(ctx context.Context, page *pagination.Pagination,
 		kind.FieldVal = "kind"
 		queries = append(queries, kind)
 	}
-	q := bleve.NewConjunctionQuery(queries...)
+	var q query.Query = bleve.NewConjunctionQuery(queries...)
+
+	if len(slugs) > 0 {
+		teamSlugs := make([]string, 0, len(slugs))
+		for _, slug := range slugs {
+			teamSlugs = append(teamSlugs, slug.String())
+		}
+
+		q = bleveext.NewBoostingQuery(q, []string{"team", "name"}, func(field string, term []byte, isPartOfMatch bool) *query.Boost {
+			v := 1
+			if slices.Contains(teamSlugs, string(term)) {
+				v = 1000
+			}
+			b := query.Boost(v)
+			return &b
+		})
+	}
 
 	search := bleve.NewSearchRequest(q)
 	search.Size = int(page.Limit())
@@ -164,8 +221,11 @@ func (b *bleveSearcher) search(ctx context.Context, page *pagination.Pagination,
 	for _, hit := range results.Hits {
 		n, ok := convertedResults[hit.ID]
 		if !ok {
+			for id := range convertedResults {
+				fmt.Println("has", id)
+			}
 			b.log.WithField("id", hit.ID).Error("missing search result")
-			return nil, fmt.Errorf("missing %v from search result", hit.ID)
+			continue
 		}
 
 		ret = append(ret, n)
