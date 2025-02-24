@@ -199,6 +199,17 @@ func ConfigureGraph(
 	namespaceWatcher := team.NewNamespaceWatcher(ctx, watcherMgr)
 	unleashWatcher := unleash.NewWatcher(ctx, mgmtWatcherMgr)
 
+	// K8s searchers
+	application.AddSearch(appWatcher)
+	job.AddSearch(jobWatcher)
+	bigquery.AddSearch(bqWatcher)
+	bucket.AddSearch(bucketWatcher)
+	kafkatopic.AddSearch(kafkaTopicWatcher)
+	opensearch.AddSearch(openSearchWatcher)
+	redis.AddSearch(redisWatcher)
+	sqlinstance.AddSearch(sqlInstanceWatcher)
+	valkey.AddSearch(valkeyWatcher)
+
 	sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(fakeClients), sqlinstance.WithInstanceWatcher(sqlInstanceWatcher))
 	if err != nil {
 		return nil, fmt.Errorf("create SQL Admin service: %w", err)
