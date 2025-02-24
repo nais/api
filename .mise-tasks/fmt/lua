@@ -46,6 +46,4 @@ if [ ! -d "$LUAFMT" ]; then
 	rmdir "$LUAFMT/$LUA_FORMATTER_FILE"
 fi
 
-
-
 $LUAFMT/bin/CodeFormat format -w . --ignores-file ".gitignore" -c ./integration_tests/.editorconfig

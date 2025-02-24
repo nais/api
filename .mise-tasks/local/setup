@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 #MISE description="Setup local development environment"
 
 set -e

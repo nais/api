@@ -3,4 +3,6 @@
 
 set -e
 
+unset MISE_TASK_OUTPUT
+
 mise run fmt:go ::: fmt:lua ::: fmt:prettier
