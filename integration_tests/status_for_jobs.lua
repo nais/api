@@ -62,15 +62,15 @@ Test.gql("job with deprecated registry", function(t)
 						status = {
 							state = "NAIS",
 							errors = {
+								expectedMissingSBOM,
 								{
 									__typename = "WorkloadStatusDeprecatedRegistry",
-									level = "TODO",
+									level = "WARNING",
 									name = "app-name",
 									registry = "ghcr.io",
 									repository = "navikt",
 									tag = "latest",
 								},
-								expectedMissingSBOM,
 							},
 						},
 					},

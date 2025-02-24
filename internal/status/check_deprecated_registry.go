@@ -37,7 +37,7 @@ func (checkDeprecatedRegsitry) run(_ context.Context, w workload.Workload) Workl
 		repository = strings.Join(parts[1:len(parts)-1], "/")
 	}
 	return &WorkloadStatusDeprecatedRegistry{
-		Level:      WorkloadStatusErrorLevelTodo,
+		Level:      WorkloadStatusErrorLevelWarning,
 		Registry:   registry,
 		Name:       name,
 		Tag:        tag,
