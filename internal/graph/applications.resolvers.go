@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
@@ -14,7 +15,12 @@ import (
 )
 
 func (r *applicationResolver) Team(ctx context.Context, obj *application.Application) (*team.Team, error) {
-	return team.Get(ctx, obj.TeamSlug)
+	team, err := team.Get(ctx, obj.TeamSlug)
+	if err != nil {
+		fmt.Println("Error getting team: ", obj.TeamSlug, err)
+	}
+
+	return team, err
 }
 
 func (r *applicationResolver) Environment(ctx context.Context, obj *application.Application) (*team.TeamEnvironment, error) {
