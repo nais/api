@@ -5,12 +5,17 @@ import (
 	"slices"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/sourcegraph/conc/pool"
 )
 
 func Search(ctx context.Context, page *pagination.Pagination, filter SearchFilter) (*SearchNodeConnection, error) {
+	return bleveSearch.search(ctx, page, filter)
+
+	time.Sleep(100 * time.Millisecond)
+
 	q := strings.TrimSpace(filter.Query)
 	if q == "" {
 		return pagination.EmptyConnection[SearchNode](), nil

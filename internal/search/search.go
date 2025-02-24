@@ -1,6 +1,8 @@
 package search
 
-import "context"
+import (
+	"context"
+)
 
 var searchables []Searchers
 
