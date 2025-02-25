@@ -101,5 +101,5 @@ func NewConvertConnectionWithError[T any, F any, I Integer](nodes []T, page *Pag
 }
 
 type Integer interface {
-	int64 | int32 | int
+	int64 | int32 | int | uint64
 }

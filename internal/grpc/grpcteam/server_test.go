@@ -53,7 +53,7 @@ func TestTeamsServer_Get(t *testing.T) {
 		garRepository := "gar-repository"
 
 		stmt := `
-			INSERT INTO teams (slug, purpose, slack_channel, entra_id_group_id, github_team_slug, google_group_email, gar_repository) VALUES 
+			INSERT INTO teams (slug, purpose, slack_channel, entra_id_group_id, github_team_slug, google_group_email, gar_repository) VALUES
 			($1, $2, $3, $4, $5, $6, $7)`
 		if _, err = pool.Exec(ctx, stmt, teamSlug, purpose, slackChannel, entraIDgroupID, gitHubTeamSlug, googleGroupEmail, garRepository); err != nil {
 			t.Fatalf("failed to insert team: %v", err)

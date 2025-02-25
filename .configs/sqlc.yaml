@@ -174,3 +174,12 @@ sql:
         <<: *default_go
         package: "sessionsql"
         out: "../internal/session/sessionsql"
+
+  - <<: *default_domain
+    name: "Search SQL"
+    queries: "../internal/search/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "searchsql"
+        out: "../internal/search/searchsql"

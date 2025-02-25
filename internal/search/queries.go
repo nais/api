@@ -11,6 +11,15 @@ import (
 )
 
 func Search(ctx context.Context, page *pagination.Pagination, filter SearchFilter) (*SearchNodeConnection, error) {
+	res, err := fromContext(ctx).searcher.Search(ctx, page, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	if res != nil {
+		return res, nil
+	}
+
 	q := strings.TrimSpace(filter.Query)
 	if q == "" && filter.Type == nil {
 		return pagination.EmptyConnection[SearchNode](), nil
