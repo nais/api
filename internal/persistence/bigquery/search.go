@@ -18,7 +18,7 @@ func init() {
 	})
 }
 
-func AddSearch(watcher *watcher.Watcher[*BigQueryDataset]) {
+func AddSearch(client search.Client, watcher *watcher.Watcher[*BigQueryDataset]) {
 	createIdent := func(env string, obj *BigQueryDataset) ident.Ident {
 		return obj.ID()
 	}
@@ -27,5 +27,5 @@ func AddSearch(watcher *watcher.Watcher[*BigQueryDataset]) {
 		return GetByIdent(ctx, id)
 	}
 
-	search.RegisterBleve("BIGQUERY_DATASET", search.NewK8sSearch(watcher, gbi, createIdent))
+	client.AddClient("BIGQUERY_DATASET", search.NewK8sSearch(watcher, gbi, createIdent))
 }

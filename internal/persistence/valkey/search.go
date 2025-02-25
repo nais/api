@@ -19,7 +19,7 @@ func init() {
 	})
 }
 
-func AddSearch(watcher *watcher.Watcher[*ValkeyInstance]) {
+func AddSearch(client search.Client, watcher *watcher.Watcher[*ValkeyInstance]) {
 	createIdent := func(env string, obj *ValkeyInstance) ident.Ident {
 		return newIdent(slug.Slug(obj.GetNamespace()), env, obj.GetName())
 	}
@@ -28,5 +28,5 @@ func AddSearch(watcher *watcher.Watcher[*ValkeyInstance]) {
 		return GetByIdent(ctx, id)
 	}
 
-	search.RegisterBleve("VALKEY_INSTANCE", search.NewK8sSearch(watcher, gbi, createIdent))
+	client.AddClient("VALKEY_INSTANCE", search.NewK8sSearch(watcher, gbi, createIdent))
 }

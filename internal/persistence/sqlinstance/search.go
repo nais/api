@@ -19,7 +19,7 @@ func init() {
 	})
 }
 
-func AddSearch(watcher *watcher.Watcher[*SQLInstance]) {
+func AddSearch(client search.Client, watcher *watcher.Watcher[*SQLInstance]) {
 	createIdent := func(env string, obj *SQLInstance) ident.Ident {
 		return newIdent(slug.Slug(obj.GetNamespace()), env, obj.GetName())
 	}
@@ -28,5 +28,5 @@ func AddSearch(watcher *watcher.Watcher[*SQLInstance]) {
 		return GetByIdent(ctx, id)
 	}
 
-	search.RegisterBleve("SQL_INSTANCE", search.NewK8sSearch(watcher, gbi, createIdent))
+	client.AddClient("SQL_INSTANCE", search.NewK8sSearch(watcher, gbi, createIdent))
 }

@@ -11,7 +11,7 @@ import (
 )
 
 func Search(ctx context.Context, page *pagination.Pagination, filter SearchFilter) (*SearchNodeConnection, error) {
-	return bleveSearch.search(ctx, page, filter)
+	return fromContext(ctx).searcher.Search(ctx, page, filter)
 
 	// time.Sleep(100 * time.Millisecond)
 

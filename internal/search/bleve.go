@@ -10,10 +10,12 @@ import (
 	"github.com/blevesearch/bleve/v2/analysis/analyzer/custom"
 	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/blevesearch/bleve/v2/search/query"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/search/bleveext"
+	"github.com/nais/api/internal/search/searchsql"
 	"github.com/sirupsen/logrus"
 )
 
@@ -36,17 +38,10 @@ type Searchable interface {
 	Watch(ctx context.Context, indexer Indexer) error
 }
 
-var (
-	bleveSearches = map[SearchType]Searchable{}
-	bleveSearch   *bleveSearcher
-)
-
-func RegisterBleve(searchType SearchType, search Searchable) {
-	if _, ok := bleveSearches[searchType]; ok {
-		panic(fmt.Sprintf("search type %q already registered", searchType))
-	}
-
-	bleveSearches[searchType] = search
+type Client interface {
+	Search(ctx context.Context, page *pagination.Pagination, filter SearchFilter) (*SearchNodeConnection, error)
+	AddClient(kind SearchType, client Searchable)
+	ReIndex(ctx context.Context) error
 }
 
 func buildIndexMapping() (mapping.IndexMapping, error) {
@@ -64,31 +59,25 @@ func buildIndexMapping() (mapping.IndexMapping, error) {
 	return indexMapping, nil
 }
 
-func InitBleve(ctx context.Context, log logrus.FieldLogger) error {
+func New(ctx context.Context, pool *pgxpool.Pool, log logrus.FieldLogger) (Client, error) {
 	im, err := buildIndexMapping()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// im.CustomAnalysis = custom.AnalyzerConstructor(config map[string]interface{}, cache *registry.Cache)
 	bleveIndex, err := bleve.NewMemOnly(im)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	bleveSearch = &bleveSearcher{
+	bleveSearch := &bleveSearcher{
 		Client:  bleveIndex,
-		Clients: bleveSearches,
+		Clients: make(map[SearchType]Searchable),
 		log:     log,
+		db:      searchsql.New(pool),
 	}
 
-	bleveSearch.reindexAll(ctx)
-	for kind, search := range bleveSearch.Clients {
-		if err := search.Watch(ctx, bleveSearch); err != nil {
-			return fmt.Errorf("failed to watch %q: %w", kind, err)
-		}
-	}
-
-	return nil
+	return bleveSearch, nil
 }
 
 type bleveSearcher struct {
@@ -96,14 +85,33 @@ type bleveSearcher struct {
 	Clients map[SearchType]Searchable
 
 	log logrus.FieldLogger
+	db  searchsql.Querier
 }
 
-func (v *bleveSearcher) Update(doc Document) error {
-	return v.Client.Index(doc.ID, doc)
+func (b *bleveSearcher) AddClient(kind SearchType, client Searchable) {
+	b.Clients[kind] = client
 }
 
-func (v *bleveSearcher) Remove(id ident.Ident) error {
-	return v.Client.Delete(id.String())
+func (b *bleveSearcher) ReIndex(ctx context.Context) error {
+	b.reindexAll(ctx)
+	for kind, search := range b.Clients {
+		if err := search.Watch(ctx, b); err != nil {
+			return fmt.Errorf("failed to watch %q: %w", kind, err)
+		}
+	}
+	return nil
+}
+
+func (b *bleveSearcher) Update(doc Document) error {
+	b.log.WithField("id", doc).Debug("indexing document")
+
+	return b.Client.Index(doc.ID, doc)
+}
+
+func (b *bleveSearcher) Remove(id ident.Ident) error {
+	b.log.WithField("id", id).Debug("removing document")
+
+	return b.Client.Delete(id.String())
 }
 
 func (b *bleveSearcher) reindexAll(ctx context.Context) {
@@ -132,8 +140,8 @@ func (b *bleveSearcher) index(typ SearchType, docs []Document) error {
 	return b.Client.Batch(batch)
 }
 
-func (b *bleveSearcher) search(ctx context.Context, page *pagination.Pagination, filter SearchFilter) (*SearchNodeConnection, error) {
-	slugs, err := db(ctx).TeamSlugsFromUserID(ctx, authz.ActorFromContext(ctx).User.GetID())
+func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination, filter SearchFilter) (*SearchNodeConnection, error) {
+	slugs, err := b.db.TeamSlugsFromUserID(ctx, authz.ActorFromContext(ctx).User.GetID())
 	if err != nil {
 		b.log.WithError(err).Error("failed to list teams")
 		return nil, err
@@ -146,8 +154,13 @@ func (b *bleveSearcher) search(ctx context.Context, page *pagination.Pagination,
 		qq.SetFuzziness(2)
 		qq.SetBoost(0.5)
 
-		// We add the query with both a match and a fuzzy query to get both exact and fuzzy matches
+		prefix := bleve.NewPrefixQuery(filter.Query)
+		prefix.SetField("name")
+		prefix.SetBoost(1.5)
+
+		// We add the query with both a match, prefix, and a fuzzy query to get both exact and fuzzy matches
 		queries = append(queries, bleve.NewDisjunctionQuery(
+			prefix,
 			bleve.NewMatchQuery(filter.Query),
 			qq,
 		))

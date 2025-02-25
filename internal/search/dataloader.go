@@ -12,8 +12,8 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, dbConn *pgxpool.Pool) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(dbConn))
+func NewLoaderContext(ctx context.Context, dbConn *pgxpool.Pool, searcher Client) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(dbConn, searcher))
 }
 
 func fromContext(ctx context.Context) *loaders {
@@ -22,13 +22,15 @@ func fromContext(ctx context.Context) *loaders {
 
 type loaders struct {
 	internalQuerier *searchsql.Queries
+	searcher        Client
 }
 
-func newLoaders(dbConn *pgxpool.Pool) *loaders {
+func newLoaders(dbConn *pgxpool.Pool, searcher Client) *loaders {
 	db := searchsql.New(dbConn)
 
 	return &loaders{
 		internalQuerier: db,
+		searcher:        searcher,
 	}
 }
 

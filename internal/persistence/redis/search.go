@@ -19,7 +19,7 @@ func init() {
 	})
 }
 
-func AddSearch(watcher *watcher.Watcher[*RedisInstance]) {
+func AddSearch(client search.Client, watcher *watcher.Watcher[*RedisInstance]) {
 	createIdent := func(env string, app *RedisInstance) ident.Ident {
 		return newIdent(slug.Slug(app.GetNamespace()), env, app.GetName())
 	}
@@ -28,5 +28,5 @@ func AddSearch(watcher *watcher.Watcher[*RedisInstance]) {
 		return GetByIdent(ctx, id)
 	}
 
-	search.RegisterBleve("REDIS_INSTANCE", search.NewK8sSearch(watcher, gbi, createIdent))
+	client.AddClient("REDIS_INSTANCE", search.NewK8sSearch(watcher, gbi, createIdent))
 }

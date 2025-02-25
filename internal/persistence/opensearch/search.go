@@ -19,7 +19,7 @@ func init() {
 	})
 }
 
-func AddSearch(watcher *watcher.Watcher[*OpenSearch]) {
+func AddSearch(client search.Client, watcher *watcher.Watcher[*OpenSearch]) {
 	createIdent := func(env string, obj *OpenSearch) ident.Ident {
 		return newIdent(slug.Slug(obj.GetNamespace()), env, obj.GetName())
 	}
@@ -28,5 +28,5 @@ func AddSearch(watcher *watcher.Watcher[*OpenSearch]) {
 		return GetByIdent(ctx, id)
 	}
 
-	search.RegisterBleve("OPENSEARCH", search.NewK8sSearch(watcher, gbi, createIdent))
+	client.AddClient("OPENSEARCH", search.NewK8sSearch(watcher, gbi, createIdent))
 }

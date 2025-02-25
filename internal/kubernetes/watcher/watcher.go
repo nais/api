@@ -57,6 +57,7 @@ type Watcher[T Object] struct {
 	log             logrus.FieldLogger
 	resourceCounter metric.Int64UpDownCounter
 	watchedType     string
+	onAdd           WatcherHook[T]
 	onUpdate        WatcherHook[T]
 	onRemove        WatcherHook[T]
 }
@@ -99,6 +100,10 @@ func (w *Watcher[T]) Enabled() bool {
 }
 
 func (w *Watcher[T]) add(cluster string, obj T) {
+	if w.onAdd != nil {
+		w.onAdd(cluster, obj)
+	}
+
 	w.resourceCounter.Add(context.TODO(), 1, metric.WithAttributes(attribute.String("type", w.watchedType), attribute.String("action", "add")))
 	w.log.WithFields(logrus.Fields{
 		"cluster":   cluster,

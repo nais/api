@@ -17,6 +17,7 @@ import (
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database/notify"
 	"github.com/nais/api/internal/deployment"
 	"github.com/nais/api/internal/feature"
 	"github.com/nais/api/internal/github/repository"
@@ -199,16 +200,27 @@ func ConfigureGraph(
 	namespaceWatcher := team.NewNamespaceWatcher(ctx, watcherMgr)
 	unleashWatcher := unleash.NewWatcher(ctx, mgmtWatcherMgr)
 
+	searcher, err := search.New(ctx, pool, log.WithField("subsystem", "search_bleve"))
+	if err != nil {
+		return nil, fmt.Errorf("init bleve: %w", err)
+	}
+
+	// Notifier to use only one connection to the database for LISTEN/NOTIFY pattern
+	notifier := notify.New(pool, log)
+	go notifier.Run(ctx)
+
 	// K8s searchers
-	application.AddSearch(appWatcher)
-	job.AddSearch(jobWatcher)
-	bigquery.AddSearch(bqWatcher)
-	bucket.AddSearch(bucketWatcher)
-	kafkatopic.AddSearch(kafkaTopicWatcher)
-	opensearch.AddSearch(openSearchWatcher)
-	redis.AddSearch(redisWatcher)
-	sqlinstance.AddSearch(sqlInstanceWatcher)
-	valkey.AddSearch(valkeyWatcher)
+	application.AddSearch(searcher, appWatcher)
+	job.AddSearch(searcher, jobWatcher)
+	bigquery.AddSearch(searcher, bqWatcher)
+	bucket.AddSearch(searcher, bucketWatcher)
+	kafkatopic.AddSearch(searcher, kafkaTopicWatcher)
+	opensearch.AddSearch(searcher, openSearchWatcher)
+	redis.AddSearch(searcher, redisWatcher)
+	sqlinstance.AddSearch(searcher, sqlInstanceWatcher)
+	valkey.AddSearch(searcher, valkeyWatcher)
+	team.AddSearch(searcher, pool, notifier, log.WithField("subsystem", "team_search"))
+	searcher.ReIndex(ctx) // Re-index all to initialize the search index
 
 	sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(fakeClients), sqlinstance.WithInstanceWatcher(sqlInstanceWatcher))
 	if err != nil {
@@ -273,7 +285,7 @@ func ConfigureGraph(
 		ctx = deployment.NewLoaderContext(ctx, pool, hookdClient)
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)
 		ctx = session.NewLoaderContext(ctx, pool)
-		ctx = search.NewLoaderContext(ctx, pool)
+		ctx = search.NewLoaderContext(ctx, pool, searcher)
 		ctx = unleash.NewLoaderContext(ctx, tenantName, unleashWatcher, bifrostAPIURL, log)
 		ctx = logging.NewPackageContext(ctx, tenantName, defaultLogDestinations)
 		ctx = feature.NewLoaderContext(
@@ -285,13 +297,6 @@ func ConfigureGraph(
 			openSearchWatcher.Enabled(),
 		)
 		return ctx
-	}
-
-	{
-		ctx := setupContext(ctx)
-		if err := search.InitBleve(ctx, log.WithField("subsystem", "search_bleve")); err != nil {
-			return nil, fmt.Errorf("init bleve: %w", err)
-		}
 	}
 
 	return loader.Middleware(setupContext), nil

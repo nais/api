@@ -20,7 +20,7 @@ func init() {
 	})
 }
 
-func AddSearch(watcher *watcher.Watcher[*nais_io_v1alpha1.Application]) {
+func AddSearch(client search.Client, watcher *watcher.Watcher[*nais_io_v1alpha1.Application]) {
 	createIdent := func(env string, obj *nais_io_v1alpha1.Application) ident.Ident {
 		return newIdent(slug.Slug(obj.GetNamespace()), env, obj.GetName())
 	}
@@ -29,7 +29,7 @@ func AddSearch(watcher *watcher.Watcher[*nais_io_v1alpha1.Application]) {
 		return GetByIdent(ctx, id)
 	}
 
-	search.RegisterBleve("APPLICATION", search.NewK8sSearch(watcher, gbi, createIdent))
+	client.AddClient("APPLICATION", search.NewK8sSearch(watcher, gbi, createIdent))
 }
 
 // type searcher struct{}

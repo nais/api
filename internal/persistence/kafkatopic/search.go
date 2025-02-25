@@ -19,7 +19,7 @@ func init() {
 	})
 }
 
-func AddSearch(watcher *watcher.Watcher[*KafkaTopic]) {
+func AddSearch(client search.Client, watcher *watcher.Watcher[*KafkaTopic]) {
 	createIdent := func(env string, obj *KafkaTopic) ident.Ident {
 		return newIdent(slug.Slug(obj.GetNamespace()), env, obj.GetName())
 	}
@@ -28,5 +28,5 @@ func AddSearch(watcher *watcher.Watcher[*KafkaTopic]) {
 		return GetByIdent(ctx, id)
 	}
 
-	search.RegisterBleve("KAFKA_TOPIC", search.NewK8sSearch(watcher, gbi, createIdent))
+	client.AddClient("KAFKA_TOPIC", search.NewK8sSearch(watcher, gbi, createIdent))
 }
