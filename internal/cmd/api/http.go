@@ -74,6 +74,7 @@ func runHttpServer(
 	hookdClient hookd.Client,
 	bifrostAPIURL string,
 	defaultLogDestinations []logging.SupportedLogDestination,
+	notifier *notify.Notifier,
 	log logrus.FieldLogger,
 ) error {
 	router := chi.NewRouter()
@@ -94,6 +95,7 @@ func runHttpServer(
 		hookdClient,
 		bifrostAPIURL,
 		defaultLogDestinations,
+		notifier,
 		log,
 	)
 	if err != nil {
@@ -182,6 +184,7 @@ func ConfigureGraph(
 	hookdClient hookd.Client,
 	bifrostAPIURL string,
 	defaultLogDestinations []logging.SupportedLogDestination,
+	notifier *notify.Notifier,
 	log logrus.FieldLogger,
 ) (func(http.Handler) http.Handler, error) {
 	appWatcher := application.NewWatcher(ctx, watcherMgr)
@@ -204,10 +207,6 @@ func ConfigureGraph(
 	if err != nil {
 		return nil, fmt.Errorf("init bleve: %w", err)
 	}
-
-	// Notifier to use only one connection to the database for LISTEN/NOTIFY pattern
-	notifier := notify.New(pool, log)
-	go notifier.Run(ctx)
 
 	// K8s searchers
 	application.AddSearch(searcher, appWatcher)

@@ -60,22 +60,38 @@ func (l *listener) match(payload Payload) bool {
 	return true
 }
 
+type Option func(n *Notifier)
+
+func WithRetries(num int) Option {
+	return func(n *Notifier) {
+		n.maxRetries = num
+	}
+}
+
 type Notifier struct {
-	db      *pgxpool.Pool
-	log     logrus.FieldLogger
-	channel string
+	db         *pgxpool.Pool
+	log        logrus.FieldLogger
+	channel    string
+	maxRetries int
 
 	lock      sync.RWMutex
 	listeners map[string][]listener
 }
 
-func New(db *pgxpool.Pool, log logrus.FieldLogger) *Notifier {
-	return &Notifier{
-		db:        db,
-		channel:   "api_notify",
-		log:       log,
-		listeners: map[string][]listener{},
+func New(db *pgxpool.Pool, log logrus.FieldLogger, opts ...Option) *Notifier {
+	n := &Notifier{
+		db:         db,
+		channel:    "api_notify",
+		log:        log,
+		listeners:  map[string][]listener{},
+		maxRetries: 100,
 	}
+
+	for _, opt := range opts {
+		opt(n)
+	}
+
+	return n
 }
 
 func (n *Notifier) Run(ctx context.Context) {
@@ -89,7 +105,10 @@ func (n *Notifier) Run(ctx context.Context) {
 		default:
 			if err := n.run(ctx); err != nil {
 				n.log.WithError(err).Error("error running notifier")
-
+				if n.maxRetries == 0 || retries >= n.maxRetries {
+					n.log.Errorf("max retries reached, shutting down notifier")
+					return
+				}
 				if time.Since(lastError) > time.Minute {
 					retries = 0
 				}

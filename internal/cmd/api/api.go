@@ -13,6 +13,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database/notify"
 	"github.com/nais/api/internal/deployment"
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/gengql"
@@ -184,6 +185,10 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	wg, ctx := errgroup.WithContext(ctx)
 
+	// Notifier to use only one connection to the database for LISTEN/NOTIFY pattern
+	notifier := notify.New(pool, log)
+	go notifier.Run(ctx)
+
 	// HTTP server
 	wg.Go(func() error {
 		return runHttpServer(
@@ -202,6 +207,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			hookdClient,
 			cfg.Unleash.BifrostApiUrl,
 			cfg.Logging.DefaultLogDestinations(),
+			notifier,
 			log,
 		)
 	})
