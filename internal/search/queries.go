@@ -11,9 +11,14 @@ import (
 )
 
 func Search(ctx context.Context, page *pagination.Pagination, filter SearchFilter) (*SearchNodeConnection, error) {
-	return fromContext(ctx).searcher.Search(ctx, page, filter)
+	res, err := fromContext(ctx).searcher.Search(ctx, page, filter)
+	if err != nil {
+		return nil, err
+	}
 
-	// time.Sleep(100 * time.Millisecond)
+	if res != nil {
+		return res, nil
+	}
 
 	q := strings.TrimSpace(filter.Query)
 	if q == "" && filter.Type == nil {

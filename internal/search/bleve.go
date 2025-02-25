@@ -147,6 +147,10 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 		return nil, err
 	}
 
+	if !slices.Contains(slugs, "nais") {
+		return nil, nil
+	}
+
 	queries := []query.Query{}
 
 	if filter.Query != "" {
@@ -234,9 +238,6 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 	for _, hit := range results.Hits {
 		n, ok := convertedResults[hit.ID]
 		if !ok {
-			for id := range convertedResults {
-				fmt.Println("has", id)
-			}
 			b.log.WithField("id", hit.ID).Error("missing search result")
 			continue
 		}
