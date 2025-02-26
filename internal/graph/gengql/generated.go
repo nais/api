@@ -169,6 +169,7 @@ type ComplexityRoot struct {
 		BigQueryDatasets func(childComplexity int, orderBy *bigquery.BigQueryDatasetOrder) int
 		Buckets          func(childComplexity int, orderBy *bucket.BucketOrder) int
 		Cost             func(childComplexity int) int
+		DeletedAt        func(childComplexity int) int
 		Deployments      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Environment      func(childComplexity int) int
 		ID               func(childComplexity int) int
@@ -2332,6 +2333,7 @@ type ApplicationResolver interface {
 	AuthIntegrations(ctx context.Context, obj *application.Application) ([]workload.ApplicationAuthIntegrations, error)
 	Manifest(ctx context.Context, obj *application.Application) (*application.ApplicationManifest, error)
 	Instances(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*application.ApplicationInstance], error)
+
 	BigQueryDatasets(ctx context.Context, obj *application.Application, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
 	Buckets(ctx context.Context, obj *application.Application, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
 	Cost(ctx context.Context, obj *application.Application) (*cost.WorkloadCost, error)
@@ -2824,6 +2826,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Application.Cost(childComplexity), true
+
+	case "Application.deletedAt":
+		if e.complexity.Application.DeletedAt == nil {
+			break
+		}
+
+		return e.complexity.Application.DeletedAt(childComplexity), true
 
 	case "Application.deployments":
 		if e.complexity.Application.Deployments == nil {
@@ -12423,6 +12432,11 @@ type Application implements Node & Workload {
 		"""
 		before: Cursor
 	): ApplicationInstanceConnection!
+
+	"""
+	If set, when the application was marked for deletion.
+	"""
+	deletedAt: Time
 }
 
 """
@@ -28366,6 +28380,47 @@ func (ec *executionContext) fieldContext_Application_instances(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Application_deletedAt(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Application_deletedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeletedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Application_deletedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Application",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Application_bigQueryDatasets(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Application_bigQueryDatasets(ctx, field)
 	if err != nil {
@@ -29294,6 +29349,8 @@ func (ec *executionContext) fieldContext_ApplicationConnection_nodes(_ context.C
 				return ec.fieldContext_Application_manifest(ctx, field)
 			case "instances":
 				return ec.fieldContext_Application_instances(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Application_deletedAt(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Application_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -29831,6 +29888,8 @@ func (ec *executionContext) fieldContext_ApplicationEdge_node(_ context.Context,
 				return ec.fieldContext_Application_manifest(ctx, field)
 			case "instances":
 				return ec.fieldContext_Application_instances(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Application_deletedAt(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Application_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -56134,6 +56193,8 @@ func (ec *executionContext) fieldContext_RestartApplicationPayload_application(_
 				return ec.fieldContext_Application_manifest(ctx, field)
 			case "instances":
 				return ec.fieldContext_Application_instances(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Application_deletedAt(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Application_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -74366,6 +74427,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_application(ctx context
 				return ec.fieldContext_Application_manifest(ctx, field)
 			case "instances":
 				return ec.fieldContext_Application_instances(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Application_deletedAt(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Application_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -95528,6 +95591,8 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "deletedAt":
+			out.Values[i] = ec._Application_deletedAt(ctx, field, obj)
 		case "bigQueryDatasets":
 			field := field
 

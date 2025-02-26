@@ -6,6 +6,7 @@ metadata:
     nais.io/deploymentCorrelationID: f8c04f82-6a84-4a8e-9f8b-563b5894d0cf
     nais.io/skipDeploymentMessage: "true"
   creationTimestamp: "2023-01-20T10:51:47Z"
+  deletionTimestamp: "2023-01-20T10:51:47Z"
   finalizers:
     - naiserator.nais.io/finalizer
   generation: 407981

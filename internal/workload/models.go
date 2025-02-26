@@ -5,6 +5,7 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
@@ -49,6 +50,7 @@ type Base struct {
 	RolloutCompleteTime int64                    `json:"-"`
 	Type                Type                     `json:"-"`
 	Logging             *nais_io_v1.Logging      `json:"-"`
+	DeletedAt           *time.Time               `json:"deletedAt"`
 }
 
 func (b Base) Image() *ContainerImage {
