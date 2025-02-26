@@ -9,16 +9,6 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-func init() {
-	search.Register("BUCKET", func(ctx context.Context, q string) []*search.Result {
-		ret, err := Search(ctx, q)
-		if err != nil {
-			return nil
-		}
-		return ret
-	})
-}
-
 func AddSearch(client search.Client, watcher *watcher.Watcher[*Bucket]) {
 	createIdent := func(env string, obj *Bucket) ident.Ident {
 		return newIdent(slug.Slug(obj.GetNamespace()), env, obj.GetName())

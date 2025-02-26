@@ -158,10 +158,6 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 		return nil, err
 	}
 
-	if !slices.Contains(slugs, "nais") {
-		return nil, nil
-	}
-
 	queries := []query.Query{}
 
 	if filter.Query != "" {

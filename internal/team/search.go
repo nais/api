@@ -12,16 +12,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func init() {
-	search.Register("TEAM", func(ctx context.Context, q string) []*search.Result {
-		ret, err := Search(ctx, q)
-		if err != nil {
-			return nil
-		}
-		return ret
-	})
-}
-
 func AddSearch(client search.Client, pool *pgxpool.Pool, notifier *notify.Notifier, log logrus.FieldLogger) {
 	client.AddClient("TEAM", &teamSearch{
 		db:       teamsql.New(pool),

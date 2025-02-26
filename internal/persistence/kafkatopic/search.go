@@ -9,16 +9,6 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-func init() {
-	search.Register("KAFKA_TOPIC", func(ctx context.Context, q string) []*search.Result {
-		ret, err := Search(ctx, q)
-		if err != nil {
-			return nil
-		}
-		return ret
-	})
-}
-
 func AddSearch(client search.Client, watcher *watcher.Watcher[*KafkaTopic]) {
 	createIdent := func(env string, obj *KafkaTopic) ident.Ident {
 		return newIdent(slug.Slug(obj.GetNamespace()), env, obj.GetName())

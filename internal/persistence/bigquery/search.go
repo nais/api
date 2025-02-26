@@ -8,16 +8,6 @@ import (
 	"github.com/nais/api/internal/search"
 )
 
-func init() {
-	search.Register("BIGQUERY_DATASET", func(ctx context.Context, q string) []*search.Result {
-		ret, err := Search(ctx, q)
-		if err != nil {
-			return nil
-		}
-		return ret
-	})
-}
-
 func AddSearch(client search.Client, watcher *watcher.Watcher[*BigQueryDataset]) {
 	createIdent := func(env string, obj *BigQueryDataset) ident.Ident {
 		return obj.ID()

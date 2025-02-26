@@ -9,16 +9,6 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-func init() {
-	search.Register("OPENSEARCH", func(ctx context.Context, q string) []*search.Result {
-		ret, err := Search(ctx, q)
-		if err != nil {
-			return nil
-		}
-		return ret
-	})
-}
-
 func AddSearch(client search.Client, watcher *watcher.Watcher[*OpenSearch]) {
 	createIdent := func(env string, obj *OpenSearch) ident.Ident {
 		return newIdent(slug.Slug(obj.GetNamespace()), env, obj.GetName())
