@@ -208,7 +208,7 @@ func ConfigureGraph(
 		return nil, fmt.Errorf("init bleve: %w", err)
 	}
 
-	// K8s searchers
+	// Searchers searchers
 	application.AddSearch(searcher, appWatcher)
 	job.AddSearch(searcher, jobWatcher)
 	bigquery.AddSearch(searcher, bqWatcher)
@@ -219,7 +219,11 @@ func ConfigureGraph(
 	sqlinstance.AddSearch(searcher, sqlInstanceWatcher)
 	valkey.AddSearch(searcher, valkeyWatcher)
 	team.AddSearch(searcher, pool, notifier, log.WithField("subsystem", "team_search"))
-	searcher.ReIndex(ctx) // Re-index all to initialize the search index
+
+	// Re-index all to initialize the search index
+	if err := searcher.ReIndex(ctx); err != nil {
+		return nil, fmt.Errorf("reindex all: %w", err)
+	}
 
 	sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(fakeClients), sqlinstance.WithInstanceWatcher(sqlInstanceWatcher))
 	if err != nil {

@@ -30,34 +30,8 @@ type Payload struct {
 	Data  map[string]any `json:"data"`
 }
 
-type Filter func(Payload) bool
-
-// WithOperations returns a filter that matches the given operations
-func WithOperations(ops ...Operation) Filter {
-	return func(payload Payload) bool {
-		for _, op := range ops {
-			if payload.Op == op {
-				return true
-			}
-		}
-
-		return false
-	}
-}
-
 type listener struct {
-	filters []Filter
-	ch      chan Payload
-}
-
-func (l *listener) match(payload Payload) bool {
-	for _, filter := range l.filters {
-		if !filter(payload) {
-			return false
-		}
-	}
-
-	return true
+	ch chan Payload
 }
 
 type Option func(n *Notifier)
@@ -130,7 +104,7 @@ func (n *Notifier) SetChannel(channel string) {
 
 // Listen returns a channel that will receive notifications for the given table
 // It will receive all notifications for the table unless one or more filters are provided
-func (n *Notifier) Listen(table string, filters ...Filter) <-chan Payload {
+func (n *Notifier) Listen(table string) <-chan Payload {
 	n.lock.Lock()
 	defer n.lock.Unlock()
 
@@ -138,8 +112,7 @@ func (n *Notifier) Listen(table string, filters ...Filter) <-chan Payload {
 
 	ch := make(chan Payload, 20)
 	n.listeners[table] = append(n.listeners[table], listener{
-		filters: filters,
-		ch:      ch,
+		ch: ch,
 	})
 
 	return ch
@@ -195,10 +168,6 @@ func (n *Notifier) distibute(payload Payload) {
 	}
 
 	for _, listener := range listeners {
-		if !listener.match(payload) {
-			continue
-		}
-
 		select {
 		case listener.ch <- payload:
 		default:

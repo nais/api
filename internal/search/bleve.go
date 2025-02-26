@@ -32,8 +32,8 @@ func (m Document) Type() string {
 }
 
 type Indexer interface {
-	Update(doc Document) error
-	Remove(id ident.Ident) error
+	Upsert(doc Document)
+	Remove(id ident.Ident)
 }
 
 type Searchable interface {
@@ -110,16 +110,20 @@ func (b *bleveSearcher) ReIndex(ctx context.Context) error {
 	return nil
 }
 
-func (b *bleveSearcher) Update(doc Document) error {
+func (b *bleveSearcher) Upsert(doc Document) {
 	b.log.WithField("id", doc).Debug("indexing document")
 
-	return b.Client.Index(doc.ID, doc)
+	if err := b.Client.Index(doc.ID, doc); err != nil {
+		b.log.WithError(err).WithField("id", doc).Error("failed to index document")
+	}
 }
 
-func (b *bleveSearcher) Remove(id ident.Ident) error {
+func (b *bleveSearcher) Remove(id ident.Ident) {
 	b.log.WithField("id", id).Debug("removing document")
 
-	return b.Client.Delete(id.String())
+	if err := b.Client.Delete(id.String()); err != nil {
+		b.log.WithError(err).WithField("id", id).Error("failed to remove document")
+	}
 }
 
 func (b *bleveSearcher) reindexAll(ctx context.Context) {
@@ -185,16 +189,19 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 	}
 	var q query.Query = bleve.NewConjunctionQuery(queries...)
 
-	if len(slugs) > 0 {
+	if len(slugs) > 0 && filter.Type != nil && *filter.Type != "TEAM" {
 		teamSlugs := make([]string, 0, len(slugs))
 		for _, slug := range slugs {
 			teamSlugs = append(teamSlugs, slug.String())
 		}
 
 		q = bleveext.NewBoostingQuery(q, []string{"team"}, func(field string, term []byte, isPartOfMatch bool) *query.Boost {
+			if !isPartOfMatch {
+				return nil
+			}
 			v := 1
 			if slices.Contains(teamSlugs, string(term)) {
-				v = 1000
+				v *= 1000
 			}
 			b := query.Boost(v)
 			return &b

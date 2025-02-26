@@ -10,6 +10,8 @@ import (
 	index "github.com/blevesearch/bleve_index_api"
 )
 
+// Inspired by https://gist.github.com/rgalanakis/75dbea70f720d8393a0b83393a010836
+
 // BoostingQueryPredicate is called with a search field, term,
 // and whether the field was part of the match,
 // or was included just for the purposes of the BoostingQuery.

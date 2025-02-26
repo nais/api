@@ -41,14 +41,14 @@ func (k K8sSearch[T]) Convert(ctx context.Context, ids ...ident.Ident) ([]Search
 }
 
 func (k K8sSearch[T]) ReIndex(ctx context.Context) []Document {
-	apps := k.watcher.All()
-	docs := make([]Document, 0, len(apps))
-	for _, app := range apps {
-		team := slug.Slug(app.GetNamespace())
+	objs := k.watcher.All()
+	docs := make([]Document, 0, len(objs))
+	for _, obj := range objs {
+		team := slug.Slug(obj.GetNamespace())
 
 		docs = append(docs, Document{
-			ID:   k.newIdent(app.Cluster, app.Obj).String(),
-			Name: app.GetName(),
+			ID:   k.newIdent(obj.Cluster, obj.Obj).String(),
+			Name: obj.GetName(),
 			Team: team.String(),
 		})
 	}
@@ -57,16 +57,17 @@ func (k K8sSearch[T]) ReIndex(ctx context.Context) []Document {
 }
 
 func (k K8sSearch[T]) Watch(ctx context.Context, indexer Indexer) error {
-	k.watcher.OnUpdate(k.onUpdate(indexer))
+	k.watcher.OnAdd(k.upsert(indexer))
+	k.watcher.OnUpdate(k.upsert(indexer))
 	k.watcher.OnRemove(k.onRemove(indexer))
 
 	return nil
 }
 
-func (k K8sSearch[T]) onUpdate(indexer Indexer) func(string, T) {
+func (k K8sSearch[T]) upsert(indexer Indexer) func(string, T) {
 	return func(env string, obj T) {
 		team := slug.Slug(obj.GetNamespace())
-		indexer.Update(Document{
+		indexer.Upsert(Document{
 			ID:   k.newIdent(env, obj).String(),
 			Name: obj.GetName(),
 			Team: team.String(),

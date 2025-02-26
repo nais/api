@@ -309,6 +309,10 @@ func (w *Watcher[T]) OnUpdate(fn WatcherHook[T]) {
 	w.onUpdate = fn
 }
 
+func (w *Watcher[T]) OnAdd(fn WatcherHook[T]) {
+	w.onAdd = fn
+}
+
 func Objects[T Object](list []*EnvironmentWrapper[T]) []T {
 	ret := make([]T, len(list))
 	for i, obj := range list {

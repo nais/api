@@ -93,13 +93,9 @@ func (t *teamSearch) listen(ctx context.Context, indexer search.Indexer) {
 
 			switch payload.Op {
 			case notify.Insert, notify.Update:
-				if err := indexer.Update(newSearchDocument(data.Slug, data.Purpose)); err != nil {
-					t.log.WithError(err).WithField("slug", data.Slug).Error("failed to update search index")
-				}
+				indexer.Upsert(newSearchDocument(data.Slug, data.Purpose))
 			case notify.Delete:
-				if err := indexer.Remove(newTeamIdent(data.Slug)); err != nil {
-					t.log.WithError(err).WithField("slug", data.Slug).Error("failed to remove from search index")
-				}
+				indexer.Remove(newTeamIdent(data.Slug))
 			default:
 				t.log.WithField("op", payload.Op).Warn("unknown operation")
 			}

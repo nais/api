@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/search/searchsql"
 )
 
@@ -32,14 +31,4 @@ func newLoaders(dbConn *pgxpool.Pool, searcher Client) *loaders {
 		internalQuerier: db,
 		searcher:        searcher,
 	}
-}
-
-func db(ctx context.Context) *searchsql.Queries {
-	l := fromContext(ctx)
-
-	if tx := database.TransactionFromContext(ctx); tx != nil {
-		return l.internalQuerier.WithTx(tx)
-	}
-
-	return l.internalQuerier
 }
