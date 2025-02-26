@@ -9,18 +9,20 @@ import (
 )
 
 type K8sSearch[T watcher.Object] struct {
+	kind       SearchType
 	watcher    *watcher.Watcher[T]
 	getByIdent func(ctx context.Context, id ident.Ident) (SearchNode, error)
-
-	newIdent func(env string, o T) ident.Ident
+	newIdent   func(env string, o T) ident.Ident
 }
 
 func NewK8sSearch[T watcher.Object](
+	kind SearchType,
 	watcher *watcher.Watcher[T],
 	getByIdent func(ctx context.Context, id ident.Ident) (SearchNode, error),
 	newIdent func(env string, o T) ident.Ident,
 ) *K8sSearch[T] {
 	return &K8sSearch[T]{
+		kind:       kind,
 		watcher:    watcher,
 		getByIdent: getByIdent,
 		newIdent:   newIdent,
@@ -48,6 +50,7 @@ func (k K8sSearch[T]) ReIndex(ctx context.Context) []Document {
 
 		docs = append(docs, Document{
 			ID:   k.newIdent(obj.Cluster, obj.Obj).String(),
+			Kind: k.kind.String(),
 			Name: obj.GetName(),
 			Team: team.String(),
 		})
@@ -69,6 +72,7 @@ func (k K8sSearch[T]) upsert(indexer Indexer) func(string, T) {
 		team := slug.Slug(obj.GetNamespace())
 		indexer.Upsert(Document{
 			ID:   k.newIdent(env, obj).String(),
+			Kind: k.kind.String(),
 			Name: obj.GetName(),
 			Team: team.String(),
 		})

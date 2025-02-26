@@ -143,7 +143,6 @@ func (b *bleveSearcher) reindexAll(ctx context.Context) {
 func (b *bleveSearcher) index(typ SearchType, docs []Document) error {
 	batch := b.Client.NewBatch()
 	for _, doc := range docs {
-		doc.Kind = typ.String()
 		if err := batch.Index(doc.ID, doc); err != nil {
 			return err
 		}

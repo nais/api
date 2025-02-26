@@ -27,5 +27,5 @@ func AddSearch(client search.Client, watcher *watcher.Watcher[*BigQueryDataset])
 		return GetByIdent(ctx, id)
 	}
 
-	client.AddClient("BIGQUERY_DATASET", search.NewK8sSearch(watcher, gbi, createIdent))
+	client.AddClient("BIGQUERY_DATASET", search.NewK8sSearch("BIGQUERY_DATASET", watcher, gbi, createIdent))
 }

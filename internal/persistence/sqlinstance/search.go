@@ -28,5 +28,5 @@ func AddSearch(client search.Client, watcher *watcher.Watcher[*SQLInstance]) {
 		return GetByIdent(ctx, id)
 	}
 
-	client.AddClient("SQL_INSTANCE", search.NewK8sSearch(watcher, gbi, createIdent))
+	client.AddClient("SQL_INSTANCE", search.NewK8sSearch("SQL_INSTANCE", watcher, gbi, createIdent))
 }

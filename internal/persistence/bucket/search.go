@@ -28,5 +28,5 @@ func AddSearch(client search.Client, watcher *watcher.Watcher[*Bucket]) {
 		return GetByIdent(ctx, id)
 	}
 
-	client.AddClient("BUCKET", search.NewK8sSearch(watcher, gbi, createIdent))
+	client.AddClient("BUCKET", search.NewK8sSearch("BUCKET", watcher, gbi, createIdent))
 }

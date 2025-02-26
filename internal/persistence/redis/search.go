@@ -28,5 +28,5 @@ func AddSearch(client search.Client, watcher *watcher.Watcher[*RedisInstance]) {
 		return GetByIdent(ctx, id)
 	}
 
-	client.AddClient("REDIS_INSTANCE", search.NewK8sSearch(watcher, gbi, createIdent))
+	client.AddClient("REDIS_INSTANCE", search.NewK8sSearch("REDIS_INSTANCE", watcher, gbi, createIdent))
 }

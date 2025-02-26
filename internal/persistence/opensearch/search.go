@@ -28,5 +28,5 @@ func AddSearch(client search.Client, watcher *watcher.Watcher[*OpenSearch]) {
 		return GetByIdent(ctx, id)
 	}
 
-	client.AddClient("OPENSEARCH", search.NewK8sSearch(watcher, gbi, createIdent))
+	client.AddClient("OPENSEARCH", search.NewK8sSearch("OPENSEARCH", watcher, gbi, createIdent))
 }

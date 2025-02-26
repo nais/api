@@ -28,5 +28,5 @@ func AddSearch(client search.Client, watcher *watcher.Watcher[*KafkaTopic]) {
 		return GetByIdent(ctx, id)
 	}
 
-	client.AddClient("KAFKA_TOPIC", search.NewK8sSearch(watcher, gbi, createIdent))
+	client.AddClient("KAFKA_TOPIC", search.NewK8sSearch("KAFKA_TOPIC", watcher, gbi, createIdent))
 }

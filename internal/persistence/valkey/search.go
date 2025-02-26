@@ -28,5 +28,5 @@ func AddSearch(client search.Client, watcher *watcher.Watcher[*ValkeyInstance]) 
 		return GetByIdent(ctx, id)
 	}
 
-	client.AddClient("VALKEY_INSTANCE", search.NewK8sSearch(watcher, gbi, createIdent))
+	client.AddClient("VALKEY_INSTANCE", search.NewK8sSearch("VALKEY_INSTANCE", watcher, gbi, createIdent))
 }

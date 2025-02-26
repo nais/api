@@ -29,5 +29,5 @@ func AddSearch(client search.Client, watcher *watcher.Watcher[*nais_io_v1.Naisjo
 		return GetByIdent(ctx, id)
 	}
 
-	client.AddClient("JOB", search.NewK8sSearch(watcher, gbi, createIdent))
+	client.AddClient("JOB", search.NewK8sSearch("JOB", watcher, gbi, createIdent))
 }
