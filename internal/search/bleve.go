@@ -132,7 +132,7 @@ func (b *bleveSearcher) reindexAll(ctx context.Context) {
 		wg.Add(1)
 		go func(search Searchable) {
 			defer wg.Done()
-			if err := b.index(typ, search.ReIndex(ctx)); err != nil {
+			if err := b.index(search.ReIndex(ctx)); err != nil {
 				b.log.WithField("search_type", typ).WithError(err).Error("failed to reindex")
 			}
 		}(search)
@@ -140,7 +140,7 @@ func (b *bleveSearcher) reindexAll(ctx context.Context) {
 	wg.Wait()
 }
 
-func (b *bleveSearcher) index(typ SearchType, docs []Document) error {
+func (b *bleveSearcher) index(docs []Document) error {
 	batch := b.Client.NewBatch()
 	for _, doc := range docs {
 		if err := batch.Index(doc.ID, doc); err != nil {
