@@ -85,6 +85,11 @@ interface Workload implements Node {
 	The workload manifest.
 	"""
 	manifest: WorkloadManifest!
+
+	"""
+	If set, when the workload was marked for deletion.
+	"""
+	deletedAt: Time
 }
 
 """

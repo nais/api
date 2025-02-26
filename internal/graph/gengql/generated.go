@@ -622,6 +622,7 @@ type ComplexityRoot struct {
 		BigQueryDatasets func(childComplexity int, orderBy *bigquery.BigQueryDatasetOrder) int
 		Buckets          func(childComplexity int, orderBy *bucket.BucketOrder) int
 		Cost             func(childComplexity int) int
+		DeletedAt        func(childComplexity int) int
 		Deployments      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Environment      func(childComplexity int) int
 		ID               func(childComplexity int) int
@@ -2400,6 +2401,7 @@ type JobResolver interface {
 
 	Runs(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*job.JobRun], error)
 	Manifest(ctx context.Context, obj *job.Job) (*job.JobManifest, error)
+
 	BigQueryDatasets(ctx context.Context, obj *job.Job, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
 	Buckets(ctx context.Context, obj *job.Job, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
 	Cost(ctx context.Context, obj *job.Job) (*cost.WorkloadCost, error)
@@ -4539,6 +4541,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Job.Cost(childComplexity), true
+
+	case "Job.deletedAt":
+		if e.complexity.Job.DeletedAt == nil {
+			break
+		}
+
+		return e.complexity.Job.DeletedAt(childComplexity), true
 
 	case "Job.deployments":
 		if e.complexity.Job.Deployments == nil {
@@ -13868,6 +13877,11 @@ type Job implements Node & Workload {
 
 	"The job manifest."
 	manifest: JobManifest!
+
+	"""
+	If set, when the job was marked for deletion.
+	"""
+	deletedAt: Time
 }
 
 type JobManifest implements WorkloadManifest {
@@ -19223,6 +19237,11 @@ interface Workload implements Node {
 	The workload manifest.
 	"""
 	manifest: WorkloadManifest!
+
+	"""
+	If set, when the workload was marked for deletion.
+	"""
+	deletedAt: Time
 }
 
 """
@@ -40368,6 +40387,47 @@ func (ec *executionContext) fieldContext_Job_manifest(_ context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _Job_deletedAt(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Job_deletedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeletedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Job_deletedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Job_bigQueryDatasets(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Job_bigQueryDatasets(ctx, field)
 	if err != nil {
@@ -41244,6 +41304,8 @@ func (ec *executionContext) fieldContext_JobConnection_nodes(_ context.Context, 
 				return ec.fieldContext_Job_runs(ctx, field)
 			case "manifest":
 				return ec.fieldContext_Job_manifest(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Job_deletedAt(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Job_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -41779,6 +41841,8 @@ func (ec *executionContext) fieldContext_JobEdge_node(_ context.Context, field g
 				return ec.fieldContext_Job_runs(ctx, field)
 			case "manifest":
 				return ec.fieldContext_Job_manifest(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Job_deletedAt(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Job_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -74734,6 +74798,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_job(ctx context.Context
 				return ec.fieldContext_Job_runs(ctx, field)
 			case "manifest":
 				return ec.fieldContext_Job_manifest(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Job_deletedAt(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Job_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -81530,6 +81596,8 @@ func (ec *executionContext) fieldContext_TriggerJobPayload_job(_ context.Context
 				return ec.fieldContext_Job_runs(ctx, field)
 			case "manifest":
 				return ec.fieldContext_Job_manifest(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Job_deletedAt(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Job_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -100353,6 +100421,8 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "deletedAt":
+			out.Values[i] = ec._Job_deletedAt(ctx, field, obj)
 		case "bigQueryDatasets":
 			field := field
 
