@@ -188,16 +188,13 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 	}
 	var q query.Query = bleve.NewConjunctionQuery(queries...)
 
-	if len(slugs) > 0 && filter.Type != nil && *filter.Type != "TEAM" {
+	if len(slugs) > 0 && (filter.Type == nil || (filter.Type != nil && *filter.Type != "TEAM")) {
 		teamSlugs := make([]string, 0, len(slugs))
 		for _, slug := range slugs {
 			teamSlugs = append(teamSlugs, slug.String())
 		}
 
 		q = bleveext.NewBoostingQuery(q, []string{"team"}, func(field string, term []byte, isPartOfMatch bool) *query.Boost {
-			if !isPartOfMatch {
-				return nil
-			}
 			v := 1
 			if slices.Contains(teamSlugs, string(term)) {
 				v *= 1000
