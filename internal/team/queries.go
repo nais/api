@@ -12,7 +12,6 @@ import (
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
-	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team/teamsql"
 	"k8s.io/utils/ptr"
@@ -300,23 +299,6 @@ func ConfirmDeleteKey(ctx context.Context, teamSlug slug.Slug, deleteKey uuid.UU
 			TeamSlug:     ptr.To(teamSlug),
 		})
 	})
-}
-
-func Search(ctx context.Context, q string) ([]*search.Result, error) {
-	ret, err := db(ctx).Search(ctx, q)
-	if err != nil {
-		return nil, err
-	}
-
-	results := make([]*search.Result, len(ret))
-	for i, team := range ret {
-		results[i] = &search.Result{
-			Node: toGraphTeam(&team.Team),
-			Rank: search.Match(q, team.Team.Slug.String()),
-		}
-	}
-
-	return results, nil
 }
 
 func AddMember(ctx context.Context, input AddTeamMemberInput, actor *authz.Actor) error {

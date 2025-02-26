@@ -11,7 +11,6 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes/watcher"
-	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
 	batchv1 "k8s.io/api/batch/v1"
@@ -131,23 +130,6 @@ func Runs(ctx context.Context, teamSlug slug.Slug, environment, jobName string, 
 
 	runs := pagination.Slice(ret, page)
 	return pagination.NewConnection(runs, page, len(ret)), nil
-}
-
-func Search(ctx context.Context, q string) ([]*search.Result, error) {
-	apps := fromContext(ctx).jobWatcher.All()
-
-	ret := make([]*search.Result, 0)
-	for _, app := range apps {
-		rank := search.Match(q, app.Obj.Name)
-		if search.Include(rank) {
-			ret = append(ret, &search.Result{
-				Rank: rank,
-				Node: toGraphJob(app.Obj, app.Cluster),
-			})
-		}
-	}
-
-	return ret, nil
 }
 
 func Manifest(ctx context.Context, teamSlug slug.Slug, environmentName, name string) (*JobManifest, error) {

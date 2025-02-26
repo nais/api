@@ -31,7 +31,6 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.2
 	github.com/joho/godotenv v1.5.1
-	github.com/lithammer/fuzzysearch v1.1.8
 	github.com/nais/api/pkg/apiclient v0.0.0-20250219111538-2b76a0fd6ed9
 	github.com/nais/bifrost v0.0.0-20250217090652-3f042324f3c4
 	github.com/nais/dependencytrack v0.0.0-20250217044741-3c6163f449e4

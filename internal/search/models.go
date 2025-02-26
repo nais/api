@@ -5,7 +5,6 @@ import (
 	"io"
 	"strconv"
 
-	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 )
@@ -23,18 +22,6 @@ type SearchNode interface {
 type Result struct {
 	Node SearchNode
 	Rank int
-}
-
-// Match returns the rank of a match between q and val. 0 means best match. -1 means no match.
-func Match(q, val string) int {
-	return fuzzy.RankMatchFold(q, val)
-}
-
-func Include(rank int) bool {
-	if rank < 0 || rank > 30 {
-		return false
-	}
-	return true
 }
 
 type SearchFilter struct {

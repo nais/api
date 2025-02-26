@@ -9,7 +9,6 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes/watcher"
-	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/slug"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	"google.golang.org/api/googleapi"
@@ -61,23 +60,6 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 	orderSQLInstances(ctx, ret, orderBy)
 
 	return pagination.NewConnectionWithoutPagination(ret), nil
-}
-
-func Search(ctx context.Context, q string) ([]*search.Result, error) {
-	apps := fromContext(ctx).sqlInstanceWatcher.All()
-
-	ret := make([]*search.Result, 0)
-	for _, app := range apps {
-		rank := search.Match(q, app.Obj.Name)
-		if search.Include(rank) {
-			ret = append(ret, &search.Result{
-				Rank: rank,
-				Node: app.Obj,
-			})
-		}
-	}
-
-	return ret, nil
 }
 
 func orderSQLInstances(ctx context.Context, instances []*SQLInstance, orderBy *SQLInstanceOrder) {

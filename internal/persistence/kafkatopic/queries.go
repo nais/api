@@ -8,7 +8,6 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes/watcher"
-	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -54,23 +53,6 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, workloadName, pool
 	}
 	orderTopicACLs(ctx, ret, orderBy)
 	return pagination.NewConnectionWithoutPagination(ret), nil
-}
-
-func Search(ctx context.Context, q string) ([]*search.Result, error) {
-	topics := fromContext(ctx).watcher.All()
-
-	ret := make([]*search.Result, 0)
-	for _, topic := range topics {
-		rank := search.Match(q, topic.Obj.Name)
-		if search.Include(rank) {
-			ret = append(ret, &search.Result{
-				Rank: rank,
-				Node: topic.Obj,
-			})
-		}
-	}
-
-	return ret, nil
 }
 
 func stringMatch(s, pattern string) bool {
