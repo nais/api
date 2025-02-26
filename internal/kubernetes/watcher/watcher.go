@@ -50,11 +50,16 @@ type watcherSettings struct {
 	filterLabelSelector string
 }
 
+type WatcherHook[T Object] func(cluster string, obj T)
+
 type Watcher[T Object] struct {
 	watchers        []*clusterWatcher[T]
 	log             logrus.FieldLogger
 	resourceCounter metric.Int64UpDownCounter
 	watchedType     string
+	onAdd           WatcherHook[T]
+	onUpdate        WatcherHook[T]
+	onRemove        WatcherHook[T]
 }
 
 func newWatcher[T Object](mgr *Manager, obj T, settings *watcherSettings, log logrus.FieldLogger) *Watcher[T] {
@@ -95,6 +100,10 @@ func (w *Watcher[T]) Enabled() bool {
 }
 
 func (w *Watcher[T]) add(cluster string, obj T) {
+	if w.onAdd != nil {
+		w.onAdd(cluster, obj)
+	}
+
 	w.resourceCounter.Add(context.TODO(), 1, metric.WithAttributes(attribute.String("type", w.watchedType), attribute.String("action", "add")))
 	w.log.WithFields(logrus.Fields{
 		"cluster":   cluster,
@@ -104,6 +113,10 @@ func (w *Watcher[T]) add(cluster string, obj T) {
 }
 
 func (w *Watcher[T]) remove(cluster string, obj T) {
+	if w.onRemove != nil {
+		w.onRemove(cluster, obj)
+	}
+
 	w.resourceCounter.Add(context.TODO(), 1, metric.WithAttributes(attribute.String("type", w.watchedType), attribute.String("action", "remove")))
 	w.log.WithFields(logrus.Fields{
 		"cluster":   cluster,
@@ -113,6 +126,9 @@ func (w *Watcher[T]) remove(cluster string, obj T) {
 }
 
 func (w *Watcher[T]) update(cluster string, obj T) {
+	if w.onUpdate != nil {
+		w.onUpdate(cluster, obj)
+	}
 	w.resourceCounter.Add(context.TODO(), 1, metric.WithAttributes(attribute.String("type", w.watchedType), attribute.String("action", "update")))
 	w.log.WithFields(logrus.Fields{
 		"cluster":   cluster,
@@ -283,6 +299,18 @@ func (w *Watcher[T]) SystemAuthenticatedClient(ctx context.Context, cluster stri
 	}
 
 	return nil, fmt.Errorf("no watcher for cluster %s", cluster)
+}
+
+func (w *Watcher[T]) OnRemove(fn WatcherHook[T]) {
+	w.onRemove = fn
+}
+
+func (w *Watcher[T]) OnUpdate(fn WatcherHook[T]) {
+	w.onUpdate = fn
+}
+
+func (w *Watcher[T]) OnAdd(fn WatcherHook[T]) {
+	w.onAdd = fn
 }
 
 func Objects[T Object](list []*EnvironmentWrapper[T]) []T {

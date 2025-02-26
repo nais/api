@@ -17,6 +17,7 @@ import (
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database/notify"
 	"github.com/nais/api/internal/deployment"
 	"github.com/nais/api/internal/feature"
 	"github.com/nais/api/internal/github/repository"
@@ -31,6 +32,7 @@ import (
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/reconciler"
+	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/serviceaccount"
 	"github.com/nais/api/internal/session"
 	"github.com/nais/api/internal/team"
@@ -72,6 +74,7 @@ func runHttpServer(
 	hookdClient hookd.Client,
 	bifrostAPIURL string,
 	defaultLogDestinations []logging.SupportedLogDestination,
+	notifier *notify.Notifier,
 	log logrus.FieldLogger,
 ) error {
 	router := chi.NewRouter()
@@ -92,6 +95,7 @@ func runHttpServer(
 		hookdClient,
 		bifrostAPIURL,
 		defaultLogDestinations,
+		notifier,
 		log,
 	)
 	if err != nil {
@@ -180,6 +184,7 @@ func ConfigureGraph(
 	hookdClient hookd.Client,
 	bifrostAPIURL string,
 	defaultLogDestinations []logging.SupportedLogDestination,
+	notifier *notify.Notifier,
 	log logrus.FieldLogger,
 ) (func(http.Handler) http.Handler, error) {
 	appWatcher := application.NewWatcher(ctx, watcherMgr)
@@ -197,6 +202,28 @@ func ConfigureGraph(
 	ingressWatcher := application.NewIngressWatcher(ctx, watcherMgr)
 	namespaceWatcher := team.NewNamespaceWatcher(ctx, watcherMgr)
 	unleashWatcher := unleash.NewWatcher(ctx, mgmtWatcherMgr)
+
+	searcher, err := search.New(ctx, pool, log.WithField("subsystem", "search_bleve"))
+	if err != nil {
+		return nil, fmt.Errorf("init bleve: %w", err)
+	}
+
+	// Searchers searchers
+	application.AddSearch(searcher, appWatcher)
+	job.AddSearch(searcher, jobWatcher)
+	bigquery.AddSearch(searcher, bqWatcher)
+	bucket.AddSearch(searcher, bucketWatcher)
+	kafkatopic.AddSearch(searcher, kafkaTopicWatcher)
+	opensearch.AddSearch(searcher, openSearchWatcher)
+	redis.AddSearch(searcher, redisWatcher)
+	sqlinstance.AddSearch(searcher, sqlInstanceWatcher)
+	valkey.AddSearch(searcher, valkeyWatcher)
+	team.AddSearch(searcher, pool, notifier, log.WithField("subsystem", "team_search"))
+
+	// Re-index all to initialize the search index
+	if err := searcher.ReIndex(ctx); err != nil {
+		return nil, fmt.Errorf("reindex all: %w", err)
+	}
 
 	sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(fakeClients), sqlinstance.WithInstanceWatcher(sqlInstanceWatcher))
 	if err != nil {
@@ -234,7 +261,7 @@ func ConfigureGraph(
 		return nil, errors.New("timed out waiting for watchers to be ready")
 	}
 
-	return loader.Middleware(func(ctx context.Context) context.Context {
+	setupContext := func(ctx context.Context) context.Context {
 		ctx = podlog.NewLoaderContext(ctx, podLogStreamer)
 		ctx = application.NewLoaderContext(ctx, appWatcher, ingressWatcher)
 		ctx = bigquery.NewLoaderContext(ctx, bqWatcher)
@@ -261,6 +288,7 @@ func ConfigureGraph(
 		ctx = deployment.NewLoaderContext(ctx, pool, hookdClient)
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)
 		ctx = session.NewLoaderContext(ctx, pool)
+		ctx = search.NewLoaderContext(ctx, pool, searcher)
 		ctx = unleash.NewLoaderContext(ctx, tenantName, unleashWatcher, bifrostAPIURL, log)
 		ctx = logging.NewPackageContext(ctx, tenantName, defaultLogDestinations)
 		ctx = feature.NewLoaderContext(
@@ -272,5 +300,7 @@ func ConfigureGraph(
 			openSearchWatcher.Enabled(),
 		)
 		return ctx
-	}), nil
+	}
+
+	return loader.Middleware(setupContext), nil
 }

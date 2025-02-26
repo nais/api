@@ -243,3 +243,13 @@ SELECT
 FROM
 	teams
 ;
+
+-- name: ListAllForSearch :many
+SELECT
+	slug,
+	purpose
+FROM
+	teams
+ORDER BY
+	slug ASC
+;

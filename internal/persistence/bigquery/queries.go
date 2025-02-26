@@ -18,7 +18,7 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*BigQueryDataset, error) {
 		return nil, err
 	}
 
-	return Get(ctx, teamSlug, environment, name)
+	return fromContext(ctx).watcher.Get(environment, teamSlug.String(), name)
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*BigQueryDataset, error) {

@@ -24,6 +24,7 @@ type Querier interface {
 	GetMember(ctx context.Context, arg GetMemberParams) (*GetMemberRow, error)
 	GetMemberByEmail(ctx context.Context, arg GetMemberByEmailParams) (*GetMemberByEmailRow, error)
 	List(ctx context.Context, arg ListParams) ([]*Team, error)
+	ListAllForSearch(ctx context.Context) ([]*ListAllForSearchRow, error)
 	ListAllSlugs(ctx context.Context) ([]slug.Slug, error)
 	ListBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)
 	ListEnvironmentsBySlug(ctx context.Context, argSlug slug.Slug) ([]*TeamAllEnvironment, error)

@@ -17,6 +17,7 @@ import (
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/cmd/api"
 	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database/notify"
 	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/gengql"
@@ -98,11 +99,13 @@ func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
 
 		k8sRunner := apiRunner.NewK8sRunner(scheme, dir, clusters())
 		topic := newPubsubRunner()
-		gqlRunner, err := newGQLRunner(ctx, config, pool, topic, k8sRunner)
+		gqlRunner, gqlCleanup, err := newGQLRunner(ctx, config, pool, topic, k8sRunner)
 		if err != nil {
 			done()
 			return ctx, nil, nil, err
 		}
+
+		cleanups = append([]func(){gqlCleanup}, cleanups...)
 
 		runners := []spec.Runner{
 			gqlRunner,
@@ -120,18 +123,18 @@ func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
 	}
 }
 
-func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic graph.PubsubTopic, k8sRunner *apiRunner.K8s) (spec.Runner, error) {
+func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic graph.PubsubTopic, k8sRunner *apiRunner.K8s) (spec.Runner, func(), error) {
 	log := logrus.New()
 	log.Out = io.Discard
 
 	clusterConfig, err := kubernetes.CreateClusterConfigMap("dev-nais", clusters(), nil)
 	if err != nil {
-		return nil, fmt.Errorf("creating cluster config map: %w", err)
+		return nil, nil, fmt.Errorf("creating cluster config map: %w", err)
 	}
 
 	watcherMgr, err := watcher.NewManager(k8sRunner.Scheme, clusterConfig, log.WithField("subsystem", "k8s_watcher"), watcher.WithClientCreator(k8sRunner.ClientCreator))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create watcher manager: %w", err)
+		return nil, nil, fmt.Errorf("failed to create watcher manager: %w", err)
 	}
 
 	managementWatcherMgr, err := watcher.NewManager(
@@ -141,10 +144,14 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 		watcher.WithClientCreator(k8sRunner.ClientCreator),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create management watcher manager: %w", err)
+		return nil, nil, fmt.Errorf("failed to create management watcher manager: %w", err)
 	}
 
 	vulnerabilityClient := vulnerability.NewDependencyTrackClient(vulnerability.DependencyTrackConfig{EnableFakes: true}, log)
+
+	notifierCtx, notifyCancel := context.WithCancel(ctx)
+	notifier := notify.New(pool, log, notify.WithRetries(0))
+	go notifier.Run(notifierCtx)
 
 	graphMiddleware, err := api.ConfigureGraph(
 		ctx,
@@ -159,10 +166,12 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 		fakeHookd.New(),
 		unleash.FakeBifrostURL,
 		[]logging.SupportedLogDestination{logging.Loki},
+		notifier,
 		log,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to configure graph: %w", err)
+		notifyCancel()
+		return nil, nil, fmt.Errorf("failed to configure graph: %w", err)
 	}
 
 	resolver := graph.NewResolver(topic)
@@ -206,7 +215,7 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 		middleware.ApiKeyAuthentication()(middleware.RequireAuthenticatedUser()(srv)).ServeHTTP(w, r)
 	})
 
-	return runner.NewGQLRunner(graphMiddleware(authProxy)), nil
+	return runner.NewGQLRunner(graphMiddleware(authProxy)), notifyCancel, nil
 }
 
 func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, error) {
