@@ -223,12 +223,19 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 		"duration": results.Took,
 		"total":    results.Total,
 		"hits":     len(results.Hits),
-	}).Debug("search results")
+	}).Warn("search results")
 
 	kinds := map[string][]ident.Ident{}
 	for _, hit := range results.Hits {
 		kind := hit.Fields["kind"].(string)
 		kinds[kind] = append(kinds[kind], ident.FromString(hit.ID))
+	}
+
+	for kind, hits := range kinds {
+		b.log.WithFields(logrus.Fields{
+			"kind": kind,
+			"hits": len(hits),
+		}).Warn("search result hits")
 	}
 
 	convertedResults := make(map[string]SearchNode)
@@ -244,10 +251,18 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 			continue
 		}
 
+		b.log.WithFields(logrus.Fields{
+			"kind": kind,
+			"hits": len(sn),
+			"ids":  ids,
+		}).Warn("converted search result ids")
+
 		for _, n := range sn {
 			convertedResults[n.ID().String()] = n
 		}
 	}
+
+	b.log.WithField("total", len(convertedResults)).Warn("converted search results")
 
 	ret := make([]SearchNode, 0, len(results.Hits))
 	for _, hit := range results.Hits {
@@ -259,6 +274,8 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 
 		ret = append(ret, n)
 	}
+
+	b.log.WithField("total", len(ret)).Warn("search results returned")
 
 	return pagination.NewConnection(ret, page, results.Total), nil
 }
