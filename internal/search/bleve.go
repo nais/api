@@ -27,6 +27,10 @@ type Document struct {
 	Fields map[string]string `json:"fields,omitempty"`
 }
 
+func (m Document) Type() string {
+	return "doc"
+}
+
 type Indexer interface {
 	Update(doc Document) error
 	Remove(id ident.Ident) error
@@ -46,6 +50,10 @@ type Client interface {
 
 func buildIndexMapping() (mapping.IndexMapping, error) {
 	indexMapping := bleve.NewIndexMapping()
+
+	docMapping := bleve.NewDocumentMapping()
+	docMapping.AddFieldMappingsAt("kind", bleve.NewKeywordFieldMapping())
+	indexMapping.AddDocumentMapping("doc", docMapping)
 
 	err := indexMapping.AddCustomAnalyzer(custom.Name,
 		map[string]any{
@@ -171,7 +179,7 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 	}
 
 	if filter.Type != nil {
-		kind := bleve.NewMatchQuery(filter.Type.String())
+		kind := bleve.NewTermQuery(filter.Type.String())
 		kind.FieldVal = "kind"
 		queries = append(queries, kind)
 	}
@@ -183,7 +191,7 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 			teamSlugs = append(teamSlugs, slug.String())
 		}
 
-		q = bleveext.NewBoostingQuery(q, []string{"team", "name"}, func(field string, term []byte, isPartOfMatch bool) *query.Boost {
+		q = bleveext.NewBoostingQuery(q, []string{"team"}, func(field string, term []byte, isPartOfMatch bool) *query.Boost {
 			v := 1
 			if slices.Contains(teamSlugs, string(term)) {
 				v = 1000

@@ -79,32 +79,32 @@ func (t *teamSearch) Watch(ctx context.Context, indexer search.Indexer) error {
 }
 
 func (t *teamSearch) listen(ctx context.Context, indexer search.Indexer) {
-	// ch := t.notifier.Listen("teams")
+	ch := t.notifier.Listen("teams")
 
-	// for {
-	// 	select {
-	// 	case <-ctx.Done():
-	// 		return
-	// 	case payload := <-ch:
-	// 		data := dataFromNotification(payload)
-	// 		if data.Slug == "" {
-	// 			continue
-	// 		}
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case payload := <-ch:
+			data := dataFromNotification(payload)
+			if data.Slug == "" {
+				continue
+			}
 
-	// 		switch payload.Op {
-	// 		case notify.Insert, notify.Update:
-	// 			if err := indexer.Update(newSearchDocument(data.Slug, data.Purpose)); err != nil {
-	// 				t.log.WithError(err).WithField("slug", data.Slug).Error("failed to update search index")
-	// 			}
-	// 		case notify.Delete:
-	// 			if err := indexer.Remove(newTeamIdent(data.Slug)); err != nil {
-	// 				t.log.WithError(err).WithField("slug", data.Slug).Error("failed to remove from search index")
-	// 			}
-	// 		default:
-	// 			t.log.WithField("op", payload.Op).Warn("unknown operation")
-	// 		}
-	// 	}
-	// }
+			switch payload.Op {
+			case notify.Insert, notify.Update:
+				if err := indexer.Update(newSearchDocument(data.Slug, data.Purpose)); err != nil {
+					t.log.WithError(err).WithField("slug", data.Slug).Error("failed to update search index")
+				}
+			case notify.Delete:
+				if err := indexer.Remove(newTeamIdent(data.Slug)); err != nil {
+					t.log.WithError(err).WithField("slug", data.Slug).Error("failed to remove from search index")
+				}
+			default:
+				t.log.WithField("op", payload.Op).Warn("unknown operation")
+			}
+		}
+	}
 }
 
 type notificationData struct {
