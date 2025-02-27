@@ -165,31 +165,31 @@ type ComplexityRoot struct {
 	}
 
 	Application struct {
-		AuthIntegrations func(childComplexity int) int
-		BigQueryDatasets func(childComplexity int, orderBy *bigquery.BigQueryDatasetOrder) int
-		Buckets          func(childComplexity int, orderBy *bucket.BucketOrder) int
-		Cost             func(childComplexity int) int
-		DeletedAt        func(childComplexity int) int
-		Deployments      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Environment      func(childComplexity int) int
-		ID               func(childComplexity int) int
-		Image            func(childComplexity int) int
-		Ingresses        func(childComplexity int) int
-		Instances        func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		KafkaTopicAcls   func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
-		LogDestinations  func(childComplexity int) int
-		Manifest         func(childComplexity int) int
-		Name             func(childComplexity int) int
-		NetworkPolicy    func(childComplexity int) int
-		OpenSearch       func(childComplexity int) int
-		RedisInstances   func(childComplexity int, orderBy *redis.RedisInstanceOrder) int
-		Resources        func(childComplexity int) int
-		SQLInstances     func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
-		Secrets          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Status           func(childComplexity int) int
-		Team             func(childComplexity int) int
-		Utilization      func(childComplexity int) int
-		ValkeyInstances  func(childComplexity int, orderBy *valkey.ValkeyInstanceOrder) int
+		AuthIntegrations  func(childComplexity int) int
+		BigQueryDatasets  func(childComplexity int, orderBy *bigquery.BigQueryDatasetOrder) int
+		Buckets           func(childComplexity int, orderBy *bucket.BucketOrder) int
+		Cost              func(childComplexity int) int
+		DeletionStartedAt func(childComplexity int) int
+		Deployments       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Environment       func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Image             func(childComplexity int) int
+		Ingresses         func(childComplexity int) int
+		Instances         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		KafkaTopicAcls    func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
+		LogDestinations   func(childComplexity int) int
+		Manifest          func(childComplexity int) int
+		Name              func(childComplexity int) int
+		NetworkPolicy     func(childComplexity int) int
+		OpenSearch        func(childComplexity int) int
+		RedisInstances    func(childComplexity int, orderBy *redis.RedisInstanceOrder) int
+		Resources         func(childComplexity int) int
+		SQLInstances      func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
+		Secrets           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Status            func(childComplexity int) int
+		Team              func(childComplexity int) int
+		Utilization       func(childComplexity int) int
+		ValkeyInstances   func(childComplexity int, orderBy *valkey.ValkeyInstanceOrder) int
 	}
 
 	ApplicationConnection struct {
@@ -618,30 +618,30 @@ type ComplexityRoot struct {
 	}
 
 	Job struct {
-		AuthIntegrations func(childComplexity int) int
-		BigQueryDatasets func(childComplexity int, orderBy *bigquery.BigQueryDatasetOrder) int
-		Buckets          func(childComplexity int, orderBy *bucket.BucketOrder) int
-		Cost             func(childComplexity int) int
-		DeletedAt        func(childComplexity int) int
-		Deployments      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Environment      func(childComplexity int) int
-		ID               func(childComplexity int) int
-		Image            func(childComplexity int) int
-		KafkaTopicAcls   func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
-		LogDestinations  func(childComplexity int) int
-		Manifest         func(childComplexity int) int
-		Name             func(childComplexity int) int
-		NetworkPolicy    func(childComplexity int) int
-		OpenSearch       func(childComplexity int) int
-		RedisInstances   func(childComplexity int, orderBy *redis.RedisInstanceOrder) int
-		Resources        func(childComplexity int) int
-		Runs             func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		SQLInstances     func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
-		Schedule         func(childComplexity int) int
-		Secrets          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Status           func(childComplexity int) int
-		Team             func(childComplexity int) int
-		ValkeyInstances  func(childComplexity int, orderBy *valkey.ValkeyInstanceOrder) int
+		AuthIntegrations  func(childComplexity int) int
+		BigQueryDatasets  func(childComplexity int, orderBy *bigquery.BigQueryDatasetOrder) int
+		Buckets           func(childComplexity int, orderBy *bucket.BucketOrder) int
+		Cost              func(childComplexity int) int
+		DeletionStartedAt func(childComplexity int) int
+		Deployments       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Environment       func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Image             func(childComplexity int) int
+		KafkaTopicAcls    func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
+		LogDestinations   func(childComplexity int) int
+		Manifest          func(childComplexity int) int
+		Name              func(childComplexity int) int
+		NetworkPolicy     func(childComplexity int) int
+		OpenSearch        func(childComplexity int) int
+		RedisInstances    func(childComplexity int, orderBy *redis.RedisInstanceOrder) int
+		Resources         func(childComplexity int) int
+		Runs              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		SQLInstances      func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
+		Schedule          func(childComplexity int) int
+		Secrets           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Status            func(childComplexity int) int
+		Team              func(childComplexity int) int
+		ValkeyInstances   func(childComplexity int, orderBy *valkey.ValkeyInstanceOrder) int
 	}
 
 	JobConnection struct {
@@ -2829,12 +2829,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Application.Cost(childComplexity), true
 
-	case "Application.deletedAt":
-		if e.complexity.Application.DeletedAt == nil {
+	case "Application.deletionStartedAt":
+		if e.complexity.Application.DeletionStartedAt == nil {
 			break
 		}
 
-		return e.complexity.Application.DeletedAt(childComplexity), true
+		return e.complexity.Application.DeletionStartedAt(childComplexity), true
 
 	case "Application.deployments":
 		if e.complexity.Application.Deployments == nil {
@@ -4542,12 +4542,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Job.Cost(childComplexity), true
 
-	case "Job.deletedAt":
-		if e.complexity.Job.DeletedAt == nil {
+	case "Job.deletionStartedAt":
+		if e.complexity.Job.DeletionStartedAt == nil {
 			break
 		}
 
-		return e.complexity.Job.DeletedAt(childComplexity), true
+		return e.complexity.Job.DeletionStartedAt(childComplexity), true
 
 	case "Job.deployments":
 		if e.complexity.Job.Deployments == nil {
@@ -12445,7 +12445,7 @@ type Application implements Node & Workload {
 	"""
 	If set, when the application was marked for deletion.
 	"""
-	deletedAt: Time
+	deletionStartedAt: Time
 }
 
 """
@@ -13881,7 +13881,7 @@ type Job implements Node & Workload {
 	"""
 	If set, when the job was marked for deletion.
 	"""
-	deletedAt: Time
+	deletionStartedAt: Time
 }
 
 type JobManifest implements WorkloadManifest {
@@ -19241,7 +19241,7 @@ interface Workload implements Node {
 	"""
 	If set, when the workload was marked for deletion.
 	"""
-	deletedAt: Time
+	deletionStartedAt: Time
 }
 
 """
@@ -28399,8 +28399,8 @@ func (ec *executionContext) fieldContext_Application_instances(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Application_deletedAt(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Application_deletedAt(ctx, field)
+func (ec *executionContext) _Application_deletionStartedAt(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Application_deletionStartedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -28413,7 +28413,7 @@ func (ec *executionContext) _Application_deletedAt(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.DeletedAt, nil
+		return obj.DeletionStartedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -28427,7 +28427,7 @@ func (ec *executionContext) _Application_deletedAt(ctx context.Context, field gr
 	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Application_deletedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Application_deletionStartedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Application",
 		Field:      field,
@@ -29368,8 +29368,8 @@ func (ec *executionContext) fieldContext_ApplicationConnection_nodes(_ context.C
 				return ec.fieldContext_Application_manifest(ctx, field)
 			case "instances":
 				return ec.fieldContext_Application_instances(ctx, field)
-			case "deletedAt":
-				return ec.fieldContext_Application_deletedAt(ctx, field)
+			case "deletionStartedAt":
+				return ec.fieldContext_Application_deletionStartedAt(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Application_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -29907,8 +29907,8 @@ func (ec *executionContext) fieldContext_ApplicationEdge_node(_ context.Context,
 				return ec.fieldContext_Application_manifest(ctx, field)
 			case "instances":
 				return ec.fieldContext_Application_instances(ctx, field)
-			case "deletedAt":
-				return ec.fieldContext_Application_deletedAt(ctx, field)
+			case "deletionStartedAt":
+				return ec.fieldContext_Application_deletionStartedAt(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Application_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -40387,8 +40387,8 @@ func (ec *executionContext) fieldContext_Job_manifest(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_deletedAt(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Job_deletedAt(ctx, field)
+func (ec *executionContext) _Job_deletionStartedAt(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Job_deletionStartedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -40401,7 +40401,7 @@ func (ec *executionContext) _Job_deletedAt(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.DeletedAt, nil
+		return obj.DeletionStartedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -40415,7 +40415,7 @@ func (ec *executionContext) _Job_deletedAt(ctx context.Context, field graphql.Co
 	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Job_deletedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Job_deletionStartedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
@@ -41304,8 +41304,8 @@ func (ec *executionContext) fieldContext_JobConnection_nodes(_ context.Context, 
 				return ec.fieldContext_Job_runs(ctx, field)
 			case "manifest":
 				return ec.fieldContext_Job_manifest(ctx, field)
-			case "deletedAt":
-				return ec.fieldContext_Job_deletedAt(ctx, field)
+			case "deletionStartedAt":
+				return ec.fieldContext_Job_deletionStartedAt(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Job_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -41841,8 +41841,8 @@ func (ec *executionContext) fieldContext_JobEdge_node(_ context.Context, field g
 				return ec.fieldContext_Job_runs(ctx, field)
 			case "manifest":
 				return ec.fieldContext_Job_manifest(ctx, field)
-			case "deletedAt":
-				return ec.fieldContext_Job_deletedAt(ctx, field)
+			case "deletionStartedAt":
+				return ec.fieldContext_Job_deletionStartedAt(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Job_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -56257,8 +56257,8 @@ func (ec *executionContext) fieldContext_RestartApplicationPayload_application(_
 				return ec.fieldContext_Application_manifest(ctx, field)
 			case "instances":
 				return ec.fieldContext_Application_instances(ctx, field)
-			case "deletedAt":
-				return ec.fieldContext_Application_deletedAt(ctx, field)
+			case "deletionStartedAt":
+				return ec.fieldContext_Application_deletionStartedAt(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Application_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -74491,8 +74491,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_application(ctx context
 				return ec.fieldContext_Application_manifest(ctx, field)
 			case "instances":
 				return ec.fieldContext_Application_instances(ctx, field)
-			case "deletedAt":
-				return ec.fieldContext_Application_deletedAt(ctx, field)
+			case "deletionStartedAt":
+				return ec.fieldContext_Application_deletionStartedAt(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Application_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -74798,8 +74798,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_job(ctx context.Context
 				return ec.fieldContext_Job_runs(ctx, field)
 			case "manifest":
 				return ec.fieldContext_Job_manifest(ctx, field)
-			case "deletedAt":
-				return ec.fieldContext_Job_deletedAt(ctx, field)
+			case "deletionStartedAt":
+				return ec.fieldContext_Job_deletionStartedAt(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Job_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -81596,8 +81596,8 @@ func (ec *executionContext) fieldContext_TriggerJobPayload_job(_ context.Context
 				return ec.fieldContext_Job_runs(ctx, field)
 			case "manifest":
 				return ec.fieldContext_Job_manifest(ctx, field)
-			case "deletedAt":
-				return ec.fieldContext_Job_deletedAt(ctx, field)
+			case "deletionStartedAt":
+				return ec.fieldContext_Job_deletionStartedAt(ctx, field)
 			case "bigQueryDatasets":
 				return ec.fieldContext_Job_bigQueryDatasets(ctx, field)
 			case "buckets":
@@ -95659,8 +95659,8 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "deletedAt":
-			out.Values[i] = ec._Application_deletedAt(ctx, field, obj)
+		case "deletionStartedAt":
+			out.Values[i] = ec._Application_deletionStartedAt(ctx, field, obj)
 		case "bigQueryDatasets":
 			field := field
 
@@ -100421,8 +100421,8 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "deletedAt":
-			out.Values[i] = ec._Job_deletedAt(ctx, field, obj)
+		case "deletionStartedAt":
+			out.Values[i] = ec._Job_deletionStartedAt(ctx, field, obj)
 		case "bigQueryDatasets":
 			field := field
 

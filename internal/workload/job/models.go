@@ -335,7 +335,7 @@ func toGraphJob(job *nais_io_v1.Naisjob, environmentName string) *Job {
 	return &Job{
 		Base: workload.Base{
 			Name:                job.Name,
-			DeletedAt:           deletedAt,
+			DeletionStartedAt:   deletedAt,
 			EnvironmentName:     environmentName,
 			TeamSlug:            slug.Slug(job.Namespace),
 			ImageString:         job.Spec.Image,

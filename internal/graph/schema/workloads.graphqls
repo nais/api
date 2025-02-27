@@ -89,7 +89,7 @@ interface Workload implements Node {
 	"""
 	If set, when the workload was marked for deletion.
 	"""
-	deletedAt: Time
+	deletionStartedAt: Time
 }
 
 """

@@ -311,7 +311,7 @@ func toGraphApplication(application *nais_io_v1alpha1.Application, environmentNa
 	return &Application{
 		Base: workload.Base{
 			Name:                application.Name,
-			DeletedAt:           deletedAt,
+			DeletionStartedAt:   deletedAt,
 			EnvironmentName:     environmentName,
 			TeamSlug:            slug.Slug(application.Namespace),
 			ImageString:         application.Spec.Image,

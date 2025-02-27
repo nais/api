@@ -100,7 +100,7 @@ type Job implements Node & Workload {
 	"""
 	If set, when the job was marked for deletion.
 	"""
-	deletedAt: Time
+	deletionStartedAt: Time
 }
 
 type JobManifest implements WorkloadManifest {

@@ -171,7 +171,7 @@ type Application implements Node & Workload {
 	"""
 	If set, when the application was marked for deletion.
 	"""
-	deletedAt: Time
+	deletionStartedAt: Time
 }
 
 """

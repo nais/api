@@ -50,7 +50,7 @@ type Base struct {
 	RolloutCompleteTime int64                    `json:"-"`
 	Type                Type                     `json:"-"`
 	Logging             *nais_io_v1.Logging      `json:"-"`
-	DeletedAt           *time.Time               `json:"deletedAt"`
+	DeletionStartedAt   *time.Time               `json:"deletedAt"`
 }
 
 func (b Base) Image() *ContainerImage {
