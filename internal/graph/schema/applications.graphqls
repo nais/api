@@ -167,6 +167,11 @@ type Application implements Node & Workload {
 		"""
 		before: Cursor
 	): ApplicationInstanceConnection!
+
+	"""
+	If set, when the application was marked for deletion.
+	"""
+	deletionStartedAt: Time
 }
 
 """

@@ -327,9 +327,15 @@ func toGraphJob(job *nais_io_v1.Naisjob, environmentName string) *Job {
 		logging = job.Spec.Observability.Logging
 	}
 
+	var deletedAt *time.Time
+	if job.DeletionTimestamp != nil {
+		deletedAt = ptr.To(job.DeletionTimestamp.Time)
+	}
+
 	return &Job{
 		Base: workload.Base{
 			Name:                job.Name,
+			DeletionStartedAt:   deletedAt,
 			EnvironmentName:     environmentName,
 			TeamSlug:            slug.Slug(job.Namespace),
 			ImageString:         job.Spec.Image,

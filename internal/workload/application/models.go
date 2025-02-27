@@ -18,6 +18,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/utils/ptr"
 )
 
 type (
@@ -302,9 +303,15 @@ func toGraphApplication(application *nais_io_v1alpha1.Application, environmentNa
 		logging = application.Spec.Observability.Logging
 	}
 
+	var deletedAt *time.Time
+	if application.DeletionTimestamp != nil {
+		deletedAt = ptr.To(application.DeletionTimestamp.Time)
+	}
+
 	return &Application{
 		Base: workload.Base{
 			Name:                application.Name,
+			DeletionStartedAt:   deletedAt,
 			EnvironmentName:     environmentName,
 			TeamSlug:            slug.Slug(application.Namespace),
 			ImageString:         application.Spec.Image,

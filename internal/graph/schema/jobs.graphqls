@@ -96,6 +96,11 @@ type Job implements Node & Workload {
 
 	"The job manifest."
 	manifest: JobManifest!
+
+	"""
+	If set, when the job was marked for deletion.
+	"""
+	deletionStartedAt: Time
 }
 
 type JobManifest implements WorkloadManifest {
