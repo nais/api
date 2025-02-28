@@ -315,8 +315,8 @@ github.com/google/go-cmp v0.5.0/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/
 github.com/google/go-cmp v0.5.3/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.5.9/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
-github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
+github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
 github.com/google/go-cmp v0.7.0/go.mod h1:pXiqmnSA92OHEEa9HXL2W4E7lf9JzCmGVUdgjX3N/iU=
 github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
 github.com/google/gofuzz v1.2.0 h1:xRy4A+RhZaiKjJ1bPfwQ8sedCA+YS2YcCHW6ec7JMi0=
@@ -475,10 +475,6 @@ github.com/nais/dependencytrack v0.0.0-20250217044741-3c6163f449e4 h1:DHW39Yz4Kc
 github.com/nais/dependencytrack v0.0.0-20250217044741-3c6163f449e4/go.mod h1:w2ky3EINEyLfj91EFGEvv/BpXwEIp6P+2QN0MtnUi9g=
 github.com/nais/liberator v0.0.0-20250120121331-1a7304c71267 h1:Ngg/i5VCv0yinrrlOef9ualH6Xml0Ga3DcxlfESUHFU=
 github.com/nais/liberator v0.0.0-20250120121331-1a7304c71267/go.mod h1:DtQgc26XvoZFe8jy0++wbuFUu5yCFTQ3vGV+y7TA7Uw=
-github.com/nais/tester v0.1.0-pre.12 h1:MOOqgh90AG2WMXudyp8kLjQGaQDuECqRB6T3TFFdhuw=
-github.com/nais/tester v0.1.0-pre.12/go.mod h1:J7hMdvCK9dx2L1BMpVjgNIkNyRDEK1c46L056bzsxB8=
-github.com/nais/tester v0.1.0-pre.12.0.20250228104631-1e7b20cd5f89 h1:dUCE8parJECbH9i3CyKJ2w5TOqnacwQiPiNwjDEPOZ8=
-github.com/nais/tester v0.1.0-pre.12.0.20250228104631-1e7b20cd5f89/go.mod h1:J7hMdvCK9dx2L1BMpVjgNIkNyRDEK1c46L056bzsxB8=
 github.com/nais/tester v0.1.0-pre.13 h1:nkoaNi/AxctcYaUtvFBeLBSQ6G0mFB1D0BK5bsDA1NA=
 github.com/nais/tester v0.1.0-pre.13/go.mod h1:VDHg4k++AIbuHjBhXS+ORrJxj71NBE1y2CPNN/ouYbA=
 github.com/nais/unleasherator v0.0.0-20240513081022-06f454638fc1 h1:Ei6o4MzKnaGys+uVHNcZd1ttV9lcmHGX3whH1GyPV8E=
