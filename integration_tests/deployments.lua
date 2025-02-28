@@ -1,6 +1,12 @@
 Helper.readK8sResources("k8s_resources/simple")
 
+local user = User.new("usersen", "usr@exam.com", "ei")
+Team.new("slug-1", "purpose", "#slack-channel")
+Team.new("slug-2", "purpose", "#slack-channel")
+
 Test.gql("team with no deployments", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query([[
 		query {
 			team(slug: "slug-1") {
@@ -65,6 +71,8 @@ for i = 1, 3, 1 do
 end
 
 Test.gql("team with deployments", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query([[
 		{
 			team(slug: "slug-2") {
@@ -151,6 +159,8 @@ end)
 
 
 Test.gql("application with deployments", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query([[
 		{
 			team(slug: "slug-2") {
@@ -244,6 +254,8 @@ Test.gql("application with deployments", function(t)
 end)
 
 Test.gql("application with no deployments", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query([[
 		{
 			team(slug: "slug-1") {
@@ -321,6 +333,8 @@ Helper.SQLExec([[
 ]])
 
 Test.gql("team deployment without resources and statuses", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query([[
 		{
 			team(slug: "slug-1") {

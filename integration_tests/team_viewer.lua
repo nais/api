@@ -1,39 +1,15 @@
-Test.gql("Check team is viewer / owner", function(t)
-	Helper.SQLExec([[
-    	INSERT INTO teams(
-    		slug,
-    		purpose,
-    		slack_channel
-    	) VALUES (
-    		'member',
-    		'Member',
-    		'#member'
-    	), (
-    		'owner',
-    		'Owner',
-    		'#owner'
-    	), (
-    		'not-a-member',
-    		'not-a-member',
-    		'#not-a-member'
-    	);
-    ]])
+local memberTeam = Team.new("member", "Member", "#member")
+local ownerTeam = Team.new("owner", "Owner", "#owner")
+local notAMemberTeam = Team.new("not-a-member", "not-a-member", "#not-a-member")
 
-	Helper.SQLExec([[
-    	INSERT INTO user_roles(
-    		role_name,
-    		user_id,
-    		target_team_slug
-    	) VALUES (
-    		'Team member',
-    		(SELECT id FROM users WHERE email = 'authenticated@example.com'),
-    		'member'
-    	), (
-    		'Team owner',
-    		(SELECT id FROM users WHERE email = 'authenticated@example.com'),
-    		'owner'
-    	);
-    ]])
+local user = User.new("authenticated", "authenticated@example.com", "some-id")
+
+memberTeam:addMember(user)
+ownerTeam:addOwner(user)
+
+
+Test.gql("Check team is viewer / owner", function(t)
+	t.addHeader("x-user-email", user:email())
 
 	t.query [[
 		query {

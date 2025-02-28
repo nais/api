@@ -1,6 +1,10 @@
-TeamSlug = "someteamname"
+local teamSlug = "someteamname"
+
+local user = User.new("test", "test@test.com", "exttest")
 
 Test.gql("Create team", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			createTeam(
@@ -15,13 +19,13 @@ Test.gql("Create team", function(t)
 				}
 			}
 		}
-	]], TeamSlug))
+	]], teamSlug))
 
 	t.check {
 		data = {
 			createTeam = {
 				team = {
-					slug = TeamSlug,
+					slug = teamSlug,
 				},
 			},
 		},
@@ -29,6 +33,8 @@ Test.gql("Create team", function(t)
 end)
 
 Test.gql("Update team", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			updateTeam(
@@ -48,7 +54,7 @@ Test.gql("Update team", function(t)
 				}
 			}
 		}
-	]], TeamSlug))
+	]], teamSlug))
 
 	t.check {
 		data = {
@@ -81,6 +87,8 @@ Test.gql("Update team", function(t)
 end)
 
 Test.gql("Nothing to update", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			updateTeam(
@@ -93,7 +101,7 @@ Test.gql("Nothing to update", function(t)
 				}
 			}
 		}
-	]], TeamSlug))
+	]], teamSlug))
 
 	t.check {
 		data = {

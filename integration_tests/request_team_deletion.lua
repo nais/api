@@ -1,38 +1,22 @@
-TeamSlug = "delete-me"
+local team = Team.new("delete-me", "Delete me", "#delete-me")
+local user = User.new("Authenticated User", "auth@example.com", "auth-external-id")
+team:addOwner(user)
 
-Test.sql("Initialize team", function(t)
-	Helper.SQLExec([[
-		INSERT INTO teams(
-			slug,
-			purpose,
-			slack_channel
-		) VALUES ($1, $2, $3);
-	]], TeamSlug, "Delete me", "#delete-me")
+local otherUser = User.new("Other User", "other@example.com", "other")
 
-	Helper.SQLExec([[
-		INSERT INTO user_roles(
-			role_name,
-			user_id,
-			target_team_slug
-		) VALUES (
-			$1,
-			(SELECT id FROM users WHERE email = $2),
-			$3
-		)
-	]], "Team owner", "authenticated@example.com", TeamSlug)
-
-	DeleteKey = Helper.SQLQueryRow([[
-		INSERT INTO team_delete_keys (
-			team_slug,
-			created_by
-		) VALUES (
-			$1,
-			(SELECT id FROM users WHERE email = $2)
-		) RETURNING key::TEXT;
-	]], TeamSlug, "email-2@example.com")
-end)
+local deleteKey = Helper.SQLQueryRow([[
+	INSERT INTO team_delete_keys (
+		team_slug,
+		created_by
+	) VALUES (
+		$1,
+		(SELECT id FROM users WHERE email = $2)
+	) RETURNING key::TEXT;
+]], team:slug(), otherUser:email())
 
 Test.gql("Request team deletion", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			requestTeamDeletion(input: {
@@ -43,7 +27,7 @@ Test.gql("Request team deletion", function(t)
 				}
 			}
 		}
-	]], TeamSlug))
+	]], team:slug()))
 
 	t.check {
 		data = {
@@ -71,7 +55,7 @@ Test.sql("Validate delete key", function(t)
 
 	t.check {
 		confirmed_at = Null,
-		team_slug = TeamSlug,
-		email = "authenticated@example.com",
+		team_slug = team:slug(),
+		email = user:email(),
 	}
 end)

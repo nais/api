@@ -5,11 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/fs"
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -21,15 +19,12 @@ import (
 	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/gengql"
-	"github.com/nais/api/internal/graph/pagination"
 	apiRunner "github.com/nais/api/internal/integration/runner"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/user"
-	"github.com/nais/api/internal/usersync/usersyncer"
-	"github.com/nais/api/internal/usersync/usersyncsql"
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload/logging"
 	testmanager "github.com/nais/tester/lua"
@@ -39,14 +34,21 @@ import (
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/reflect/protoreflect"
-	"k8s.io/utils/ptr"
 )
+
+type ctxKey int
+
+const databaseKey ctxKey = iota
 
 func TestRunner(ctx context.Context, skipSetup bool) (*testmanager.Manager, error) {
 	mgr, err := testmanager.New(newConfig, newManager(ctx, skipSetup), &runner.GQL{}, &runner.SQL{}, &runner.PubSub{}, &apiRunner.K8s{})
 	if err != nil {
 		return nil, err
 	}
+
+	// mgr.AddHelper(createTeam())
+	mgr.AddTypemetatable(teamMetatable())
+	mgr.AddTypemetatable(userMetatable())
 
 	return mgr, nil
 }
@@ -82,7 +84,7 @@ func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
 			return ctx, nil, nil, fmt.Errorf("failed to create k8s scheme: %w", err)
 		}
 
-		pool, cleanup, err := newDB(ctx, container, connStr, !config.SkipSeed, filepath.Join(dir, "seeds"))
+		pool, cleanup, err := newDB(ctx, container, connStr)
 		if err != nil {
 			done()
 			return ctx, nil, nil, err
@@ -114,6 +116,7 @@ func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
 			k8sRunner,
 		}
 
+		ctx = context.WithValue(ctx, databaseKey, pool)
 		return ctx, runners, func() {
 			for _, cleanup := range cleanups {
 				cleanup()
@@ -187,12 +190,6 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 	authProxy := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		email := ""
-		if !config.Unauthenticated {
-			email = "authenticated@example.com"
-			if config.Admin {
-				email = "admin@example.com"
-			}
-		}
 
 		if xemail := r.Header.Get("x-user-email"); xemail != "" {
 			email = xemail
@@ -251,7 +248,7 @@ func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, 
 }
 
 // func newDB(ctx context.Context, seed bool, connectionString string) (database.Database, *pgxpool.Pool, func(), error) {
-func newDB(ctx context.Context, container *postgres.PostgresContainer, connStr string, seed bool, seeds string) (*pgxpool.Pool, func(), error) {
+func newDB(ctx context.Context, container *postgres.PostgresContainer, connStr string) (*pgxpool.Pool, func(), error) {
 	logr := logrus.New()
 	logr.Out = io.Discard
 
@@ -267,64 +264,22 @@ func newDB(ctx context.Context, container *postgres.PostgresContainer, connStr s
 		}
 	}
 
-	if seed {
-		seedFs := os.DirFS(seeds)
-		err := fs.WalkDir(seedFs, ".", func(path string, d fs.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
+	ctx = database.NewLoaderContext(ctx, pool)
+	ctx = environment.NewLoaderContext(ctx, pool)
+	ctx = user.NewLoaderContext(ctx, pool)
+	ctx = authz.NewLoaderContext(ctx, pool)
 
-			if d.IsDir() {
-				return nil
-			}
-
-			b, err := fs.ReadFile(seedFs, path)
-			if err != nil {
-				return err
-			}
-
-			if _, err := pool.Exec(ctx, string(b)); err != nil {
-				return err
-			}
-			return nil
-		})
-		if err != nil {
-			cleanup()
-			return nil, nil, fmt.Errorf("failed to seed database: %w", err)
+	c := clusters()
+	envs := make([]*environment.Environment, len(c))
+	for i, name := range c {
+		envs[i] = &environment.Environment{
+			Name: name,
+			GCP:  true,
 		}
-
-		ctx = database.NewLoaderContext(ctx, pool)
-		ctx = environment.NewLoaderContext(ctx, pool)
-		ctx = user.NewLoaderContext(ctx, pool)
-		ctx = authz.NewLoaderContext(ctx, pool)
-
-		c := clusters()
-		envs := make([]*environment.Environment, len(c))
-		for i, name := range c {
-			envs[i] = &environment.Environment{
-				Name: name,
-				GCP:  true,
-			}
-		}
-		if err := environment.SyncEnvironments(ctx, envs); err != nil {
-			cleanup()
-			return nil, nil, fmt.Errorf("sync environments: %w", err)
-		}
-
-		// Assign default roles to all users
-		p, _ := pagination.ParsePage(ptr.To(1000), nil, nil, nil)
-		users, err := user.List(ctx, p, nil)
-		if err != nil {
-			cleanup()
-			return nil, nil, fmt.Errorf("get users: %w", err)
-		}
-
-		for _, usr := range users.Nodes() {
-			if err := usersyncer.AssignDefaultPermissionsToUser(ctx, usersyncsql.New(pool), usr.UUID); err != nil {
-				cleanup()
-				return nil, nil, fmt.Errorf("attach default permissions to user %q: %w", usr.Email, err)
-			}
-		}
+	}
+	if err := environment.SyncEnvironments(ctx, envs); err != nil {
+		cleanup()
+		return nil, nil, fmt.Errorf("sync environments: %w", err)
 	}
 
 	return pool, cleanup, nil

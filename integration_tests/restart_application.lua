@@ -1,19 +1,13 @@
 Helper.readK8sResources("k8s_resources/simple")
 
--- Ensure the default user has the role "Team member" for the team "slug-1"
-Helper.SQLExec([[
-	INSERT INTO
-		user_roles (role_name, user_id, target_team_slug)
-	VALUES (
-		'Team member',
-		(SELECT id FROM users WHERE email = 'authenticated@example.com'),
-		'slug-1'
-	)
-	ON CONFLICT DO NOTHING;
-	;
-]])
+local user = User.new()
+local nonMember = User.new()
+local team = Team.new("slug-1", "purpose", "#channel")
+team:addMember(user)
 
 Test.gql("as team member", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			restartApplication(
@@ -37,13 +31,9 @@ Test.gql("as team member", function(t)
 	}
 end)
 
-local nonTeamMemberEmail = "email-12@example.com"
-
-Helper.SQLExec([[
-	DELETE FROM user_roles WHERE user_id = (SELECT id FROM users WHERE email = $1);
-]], nonTeamMemberEmail)
-
 Test.gql("as non-team member", function(t)
+	t.addHeader("x-user-email", nonMember:email())
+
 	t.query([[
 		mutation {
 			restartApplication(
@@ -54,7 +44,7 @@ Test.gql("as non-team member", function(t)
 				}
 			}
 		}
-	]], { ["x-user-email"] = nonTeamMemberEmail })
+	]])
 
 	t.check {
 		data = Null,

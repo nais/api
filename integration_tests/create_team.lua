@@ -1,11 +1,16 @@
 Helper.readK8sResources("./k8s_resources/simple")
 
-Helper.SQLExec [[
-	INSERT INTO users (name, email, external_id)
-	VALUES ('Unauthorized', 'unauthorized@example.com', '123')
-]]
+local user = User.new()
+local unauthorized = User.new()
+local existingTeam = Team.new("slug-1", "purpose", "#channel")
+
+Helper.SQLExec([[
+	DELETE FROM user_roles WHERE user_id = $1
+]], unauthorized:id())
 
 Test.gql("Create team with user that is not authorized", function(t)
+	t.addHeader("x-user-email", unauthorized:email())
+
 	t.query([[
 		mutation {
 			createTeam(
@@ -20,7 +25,7 @@ Test.gql("Create team with user that is not authorized", function(t)
 				}
 			}
 		}
-	]], { ["x-user-email"] = "unauthorized@example.com" })
+	]])
 
 	t.check {
 		data = Null,
@@ -36,6 +41,8 @@ Test.gql("Create team with user that is not authorized", function(t)
 end)
 
 Test.gql("Create team with namespace that already exists", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			createTeam(
@@ -69,6 +76,8 @@ Test.gql("Create team with namespace that already exists", function(t)
 end)
 
 Test.gql("Create team", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			createTeam(
@@ -99,6 +108,8 @@ Test.gql("Create team", function(t)
 end)
 
 Test.gql("Create team with invalid slug", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	local testSlug = function(slugs, errorMessageMatch)
 		for _, s in ipairs(slugs) do
 			t.query(string.format([[
@@ -196,6 +207,8 @@ Test.gql("Create team with invalid slug", function(t)
 end)
 
 Test.gql("Create team with invalid Slack channel name", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	local invalidSlackChannelNames = {
 		"foo",                                                                          -- missing hash
 		"#a",                                                                           -- too short
@@ -267,6 +280,8 @@ Test.sql("Check database", function(t)
 end)
 
 Test.gql("Team node query", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		query {
 			node(id: "%s") {
@@ -287,6 +302,8 @@ Test.gql("Team node query", function(t)
 end)
 
 Test.gql("Create team with unavailable slug", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			createTeam(

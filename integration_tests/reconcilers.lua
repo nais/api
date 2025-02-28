@@ -1,3 +1,7 @@
+local user = User.new("user", "user@user.com", "ext")
+Team.new("slug-1", "team-1", "#team")
+Team.new("slug-2", "team-1", "#team")
+
 local reconcilers = { "reconciler-1", "reconciler-2" }
 
 for _, reconciler in ipairs(reconcilers) do
@@ -17,6 +21,8 @@ for _, reconciler in ipairs(reconcilers) do
 end
 
 Test.gql("list reconcilers as non-admin", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		query {
 			reconcilers {
@@ -49,6 +55,8 @@ end)
 
 
 Test.gql("list reconcilers with config as non-admin", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		query {
 			reconcilers {
@@ -88,6 +96,8 @@ Test.gql("list reconcilers with config as non-admin", function(t)
 end)
 
 Test.gql("enable reconciler as non-admin", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			enableReconciler(input: { name: "reconciler-1" }) {
@@ -108,6 +118,8 @@ Test.gql("enable reconciler as non-admin", function(t)
 end)
 
 Test.gql("disable reconciler as non-admin", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			disableReconciler(input: { name: "reconciler-1" }) {
@@ -128,10 +140,11 @@ Test.gql("disable reconciler as non-admin", function(t)
 end)
 
 -- Make the authenticated user an admin
-Helper.SQLExec("UPDATE users SET admin = true WHERE email = $1",
-	'authenticated@example.com')
+user:admin(true)
 
 Test.gql("enable non-configured reconciler as admin", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			enableReconciler(input: { name: "reconciler-1" }) {
@@ -158,6 +171,8 @@ local valuesToSet = {
 
 for _, value in ipairs(valuesToSet) do
 	Test.gql(string.format("configure %s for reconciler as admin", value.key), function(t)
+		t.addHeader("x-user-email", user:email())
+
 		t.query(string.format([[
 		mutation {
 			configureReconciler(input: { name: "reconciler-1", config: {key: "%s", value: "%s"} }) {
@@ -177,6 +192,8 @@ for _, value in ipairs(valuesToSet) do
 end
 
 Test.gql("enable configured reconciler as admin", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			enableReconciler(input: { name: "reconciler-1" }) {
@@ -226,6 +243,8 @@ end)
 
 
 Test.gql("disable reconciler as admin", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			disableReconciler(input: { name: "reconciler-2" }) {
@@ -244,6 +263,8 @@ Test.gql("disable reconciler as admin", function(t)
 end)
 
 Test.gql("list reconcilers after modifications", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		query {
 			reconcilers {
@@ -312,6 +333,8 @@ Test.gql("list reconcilers after modifications", function(t)
 end)
 
 Test.gql("list reconciler errors", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	Helper.SQLExec [[
 		INSERT INTO reconciler_errors (correlation_id, reconciler, created_at, error_message, team_slug)
 		VALUES

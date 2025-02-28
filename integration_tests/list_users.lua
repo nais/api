@@ -1,4 +1,16 @@
+-- Create 20 users
+for i = 1, 20 do
+	local email = string.format("email-%d@example.com", i)
+	local name = string.format("name-%d", i)
+	local externalID = string.format("external_id-%d", i)
+	User.new(name, email, externalID)
+end
+
+local user = User.new("Authenticated User", "authenticated@example.com", "authenticated")
+
 Test.gql("list users", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		query {
 			users(first: 5) {
@@ -53,6 +65,8 @@ Test.gql("list users", function(t)
 end)
 
 Test.gql("list users with offset", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		query {
 			users(first: 5 after:"%s") {

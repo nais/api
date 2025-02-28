@@ -1,14 +1,11 @@
-Config.Unauthenticated = true
+local user = User.new("authenticated", "authenticated@example.com", "someid")
+user:admin(true)
 
-local email = "authenticated@example.com"
-local authenticatedUserHeader = { ["x-user-email"] = email }
-local teamSlug = "newteam"
-local userEmail = "authenticated@example.com"
-
--- Ensure the default user has the role "Team member" for the team "slug-1"
-Helper.SQLExec("UPDATE users SET admin = true WHERE email = $1", email)
+local teamSlug = "slug-team"
 
 Test.gql("Create team service account as authenticated user", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query([[
 		mutation {
 			createServiceAccount(
@@ -28,7 +25,7 @@ Test.gql("Create team service account as authenticated user", function(t)
 				}
 			}
 		}
-	]], authenticatedUserHeader)
+	]])
 
 	t.check {
 		data = {
@@ -46,6 +43,8 @@ Test.gql("Create team service account as authenticated user", function(t)
 end)
 
 Test.gql("Create service account token", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			createServiceAccountToken(
@@ -61,7 +60,7 @@ Test.gql("Create service account token", function(t)
 				}
 			}
 		}
-	]], State.saID), authenticatedUserHeader)
+	]], State.saID))
 
 	t.check {
 		data = {
@@ -75,9 +74,11 @@ Test.gql("Create service account token", function(t)
 	}
 end)
 
-local sa1Header = { authorization = string.format("Bearer %s", State.token) }
+local sa1HeaderValue = string.format("Bearer %s", State.token)
 
 Test.gql("Create new team as service account without permission", function(t)
+	t.addHeader("authorization", sa1HeaderValue)
+
 	t.query(string.format([[
 		mutation {
 			createTeam(
@@ -95,7 +96,7 @@ Test.gql("Create new team as service account without permission", function(t)
 				}
 			}
 		}
-	]], teamSlug), sa1Header)
+	]], teamSlug))
 
 	t.check {
 		data = Null,
@@ -109,6 +110,8 @@ Test.gql("Create new team as service account without permission", function(t)
 end)
 
 Test.gql("Assign team creator role to service account as admin", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			assignRoleToServiceAccount(
@@ -127,7 +130,7 @@ Test.gql("Assign team creator role to service account as admin", function(t)
 				}
 			}
 		}
-	]], State.saID), authenticatedUserHeader)
+	]], State.saID))
 
 	t.check {
 		data = {
@@ -148,6 +151,8 @@ Test.gql("Assign team creator role to service account as admin", function(t)
 end)
 
 Test.gql("Create new team as service account", function(t)
+	t.addHeader("authorization", sa1HeaderValue)
+
 	t.query(string.format([[
 		mutation {
 			createTeam(
@@ -165,7 +170,7 @@ Test.gql("Create new team as service account", function(t)
 				}
 			}
 		}
-	]], teamSlug), sa1Header)
+	]], teamSlug))
 
 	t.check {
 		data = {
@@ -182,6 +187,8 @@ Test.gql("Create new team as service account", function(t)
 end)
 
 Test.gql("Add team member without permission", function(t)
+	t.addHeader("authorization", sa1HeaderValue)
+
 	Helper.emptyPubSubTopic("topic")
 
 	t.query(string.format([[
@@ -198,7 +205,7 @@ Test.gql("Add team member without permission", function(t)
 				}
 			}
 		}
-	]], teamSlug), sa1Header)
+	]], teamSlug))
 
 	t.check {
 		data = Null,
@@ -214,6 +221,8 @@ Test.gql("Add team member without permission", function(t)
 end)
 
 Test.gql("Assign team owner role to service account as admin", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			assignRoleToServiceAccount(
@@ -232,7 +241,7 @@ Test.gql("Assign team owner role to service account as admin", function(t)
 				}
 			}
 		}
-	]], State.saID), authenticatedUserHeader)
+	]], State.saID))
 
 	t.check {
 		data = {
@@ -256,6 +265,8 @@ Test.gql("Assign team owner role to service account as admin", function(t)
 end)
 
 Test.gql("Add team member with correct permission", function(t)
+	t.addHeader("authorization", sa1HeaderValue)
+
 	Helper.emptyPubSubTopic("topic")
 
 	t.query(string.format([[
@@ -272,7 +283,7 @@ Test.gql("Add team member with correct permission", function(t)
 				}
 			}
 		}
-	]], teamSlug, userEmail), sa1Header)
+	]], teamSlug, user:email()))
 
 	t.check {
 		data = {
@@ -287,6 +298,8 @@ end)
 
 
 Test.gql("Remove team member with correct permission", function(t)
+	t.addHeader("authorization", sa1HeaderValue)
+
 	t.query(string.format([[
 		mutation {
 			removeTeamMember(
@@ -304,7 +317,7 @@ Test.gql("Remove team member with correct permission", function(t)
 				}
 			}
 		}
-	]], teamSlug, userEmail), sa1Header)
+	]], teamSlug, user:email()))
 
 	t.check {
 		data = {

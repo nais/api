@@ -62,6 +62,13 @@ function TestFunctionTgql.check(resp)
 	print("check")
 end
 
+--- Add a header to the request
+---@param key string
+---@param value string
+function TestFunctionTgql.addHeader(key, value)
+	print("addHeader")
+end
+
 ---@class TestFunctionTsql
 local TestFunctionTsql = {}
 
@@ -158,15 +165,100 @@ function Helper.readK8sResources(dir)
 	print("readK8sResources")
 end
 
+--- Type metatables
+---@class Team
+Team = {}
+--- Create a new team
+---@param slug string
+---@param purpose string
+---@param slackChannel string
+---@return Team
+function Team.new(slug, purpose, slackChannel)
+	print("new")
+	return {}
+end
+
+--- The slug of the team
+---@return string
+function Team:slug()
+	print("slug")
+	return ""
+end
+
+--- The purpose of the team
+---@return string
+---@overload fun(self: Team, purpose: string)
+function Team:purpose()
+	print("purpose")
+	return ""
+end
+
+--- Add a member to the team
+---@param ... User
+function Team:addMember(...)
+	print("addMember")
+end
+
+--- Add a owner to the team
+---@param ... User
+function Team:addOwner(...)
+	print("addOwner")
+end
+
+---@class User
+User = {}
+--- Create a new user
+---@param name? string
+---@param email? string
+---@param externalID? string
+---@return User
+function User.new(name, email, externalID)
+	print("new")
+	return {}
+end
+
+--- The id of the user
+---@return string
+function User:id()
+	print("id")
+	return ""
+end
+
+--- The name of the user
+---@return string
+---@overload fun(self: User, name: string)
+function User:name()
+	print("name")
+	return ""
+end
+
+--- The email of the user
+---@return string
+---@overload fun(self: User, email: string)
+function User:email()
+	print("email")
+	return ""
+end
+
+--- The externalID of the user
+---@return string
+---@overload fun(self: User, externalID: string)
+function User:externalID()
+	print("externalID")
+	return ""
+end
+
+--- The admin of the user
+---@return boolean
+---@overload fun(self: User, admin: boolean)
+function User:admin()
+	print("admin")
+	return false
+end
+
 --- Configuration
 ---@class Config
----@field SkipSeed boolean
----@field Unauthenticated boolean
----@field Admin boolean
 ---@field TenantName string
 Config = {
-	SkipSeed = false,
-	Unauthenticated = false,
-	Admin = false,
 	TenantName = "some-tenant",
 }

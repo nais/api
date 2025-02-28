@@ -4,6 +4,10 @@ local expectedMissingSBOM = { __typename = "WorkloadStatusMissingSBOM", level = 
 
 Helper.readK8sResources("k8s_resources/status")
 
+local user = User.new("name", "auth@user.com", "sdf")
+Team.new("slug-1", "purpose", "#slack_channel")
+
+
 local function statusQuery(slug, env, appName, errorDetails)
 	return string.format([[
 		query {
@@ -26,6 +30,8 @@ local function statusQuery(slug, env, appName, errorDetails)
 end
 
 Test.gql("job with no errors", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(statusQuery("slug-1", "dev", "no-errors"))
 
 	t.check {
@@ -45,6 +51,8 @@ Test.gql("job with no errors", function(t)
 end)
 
 Test.gql("job with deprecated registry", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(statusQuery("slug-1", "dev", "deprecated-registry", [[
 		... on WorkloadStatusDeprecatedRegistry {
 			registry
@@ -82,6 +90,8 @@ end)
 
 
 Test.gql("job with naiserator invalid yaml", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(statusQuery("slug-1", "dev", "invalid-yaml", [[
 		... on WorkloadStatusInvalidNaisYaml {
 			detail
@@ -113,6 +123,8 @@ end)
 
 
 Test.gql("job with naiserator failed synchronization", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(statusQuery("slug-1", "dev", "failed-synchronization", [[
 		... on WorkloadStatusSynchronizationFailing {
 			detail
@@ -144,6 +156,8 @@ end)
 
 
 Test.gql("job with failing netpols", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(statusQuery("slug-1", "dev", "failed-netpol", [[
 		... on WorkloadStatusInboundNetwork {
 			policy {

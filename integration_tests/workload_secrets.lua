@@ -1,6 +1,10 @@
 Helper.readK8sResources("k8s_resources/secrets")
 
+local user = User.new("authenticated", "user@user.com", "ext")
+
 Test.gql("Create team", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			createTeam(
@@ -29,6 +33,8 @@ Test.gql("Create team", function(t)
 end)
 
 Test.gql("Application with no secrets", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		{
 			team(slug: "myteam") {
@@ -63,6 +69,8 @@ Test.gql("Application with no secrets", function(t)
 end)
 
 Test.gql("Application with secret", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		{
 			team(slug: "myteam") {
@@ -121,6 +129,8 @@ Test.gql("Application with secret", function(t)
 end)
 
 Test.gql("Secrets with workloads", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		{
 			team(slug: "myteam") {

@@ -1,4 +1,13 @@
+local user = User.new();
+-- Create 20 teams
+for i = 1, 20 do
+	local slug = string.format("slug-%d", i)
+	Team.new(slug, "purpose", "#channel")
+end
+
 Test.gql("pagination using cursors", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	local fetchTeamsForwards = function(after)
 		t.query(string.format([[
 			query {

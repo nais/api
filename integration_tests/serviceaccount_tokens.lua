@@ -1,8 +1,12 @@
-Helper.SQLExec [[
-	UPDATE users SET admin = true WHERE email = 'authenticated@example.com'
-]]
+local user = User.new("username", "user@example.com", "e")
+user:admin(true)
+
+local userWithoutPermission = User.new("username-1", "user1@example.com", "e2")
+
 
 Test.gql("Create dummy service account", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			createServiceAccount(
@@ -30,6 +34,8 @@ Test.gql("Create dummy service account", function(t)
 end)
 
 Test.gql("Delete dummy service account", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			deleteServiceAccount(
@@ -52,6 +58,8 @@ Test.gql("Delete dummy service account", function(t)
 end)
 
 Test.gql("Create token for service account that does not exist", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			createServiceAccountToken(
@@ -82,6 +90,8 @@ Test.gql("Create token for service account that does not exist", function(t)
 end)
 
 Test.gql("Create service account", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			createServiceAccount(
@@ -109,6 +119,8 @@ Test.gql("Create service account", function(t)
 end)
 
 Test.gql("Create service account token without permission", function(t)
+	t.addHeader("x-user-email", userWithoutPermission:email())
+
 	t.query(string.format([[
 		mutation {
 			createServiceAccountToken(
@@ -123,7 +135,7 @@ Test.gql("Create service account token without permission", function(t)
 				}
 			}
 		}
-	]], State.saID), { ["x-user-email"] = "email-1@example.com" })
+	]], State.saID))
 
 	t.check {
 		data = Null,
@@ -139,6 +151,8 @@ Test.gql("Create service account token without permission", function(t)
 end)
 
 Test.gql("Create service account token", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			createServiceAccountToken(
@@ -182,6 +196,8 @@ Test.gql("Create service account token", function(t)
 end)
 
 Test.gql("Update service account token", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			updateServiceAccountToken(
@@ -213,6 +229,8 @@ Test.gql("Update service account token", function(t)
 end)
 
 Test.gql("Delete service account token", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			deleteServiceAccountToken(input: { serviceAccountTokenID: "%s" }) {
@@ -235,6 +253,8 @@ Test.gql("Delete service account token", function(t)
 end)
 
 Test.gql("Update service account token that does not exist", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			updateServiceAccountToken(
@@ -266,6 +286,8 @@ Test.gql("Update service account token that does not exist", function(t)
 end)
 
 Test.gql("Delete service account token that does not exist", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			deleteServiceAccountToken(input: { serviceAccountTokenID: "%s" }) {
