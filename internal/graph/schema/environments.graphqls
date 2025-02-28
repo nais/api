@@ -1,0 +1,30 @@
+extend type Query {
+	"""
+	Get a list of environments.
+	"""
+	environments: [Environment!]!
+}
+
+"""
+An environment represents a runtime environment for workloads.
+
+Learn more in the [official Nais documentation](https://docs.nais.io/workloads/explanations/environment/).
+"""
+type Environment implements Node {
+	"""
+	The globally unique ID of the team.
+	"""
+	id: ID!
+
+	"""
+	Unique name of the environment.
+	"""
+	name: String!
+}
+
+extend type TeamEnvironment {
+	"""
+	Get the environment.
+	"""
+	environment: Environment!
+}

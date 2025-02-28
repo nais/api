@@ -1,3 +1,21 @@
+-- name: List :many
+SELECT
+	*
+FROM
+	environments
+ORDER BY
+	name
+;
+
+-- name: Get :one
+SELECT
+	*
+FROM
+	environments
+WHERE
+	name = @name
+;
+
 -- name: DeleteAllEnvironments :exec
 DELETE FROM environments
 ;

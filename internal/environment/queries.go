@@ -7,6 +7,29 @@ import (
 	"github.com/nais/api/internal/environment/environmentsql"
 )
 
+func GetByName(ctx context.Context, name string) (*Environment, error) {
+	e, err := db(ctx).Get(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+
+	return toGraphEnvironment(e), nil
+}
+
+func List(ctx context.Context) ([]*Environment, error) {
+	rows, err := db(ctx).List(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	envs := make([]*Environment, len(rows))
+	for i, row := range rows {
+		envs[i] = toGraphEnvironment(row)
+	}
+
+	return envs, nil
+}
+
 func SyncEnvironments(ctx context.Context, envs []*Environment) error {
 	return database.Transaction(ctx, func(ctx context.Context) error {
 		if err := deleteAllEnvironments(ctx); err != nil {

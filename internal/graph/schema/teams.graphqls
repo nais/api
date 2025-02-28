@@ -169,7 +169,7 @@ type TeamEnvironment implements Node {
 	id: ID!
 
 	"Name of the team environment."
-	name: String!
+	name: String! @deprecated(reason: "Use the `environment` field to get the environment name.")
 
 	"The GCP project ID for the team environment."
 	gcpProjectID: String
