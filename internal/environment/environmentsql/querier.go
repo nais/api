@@ -11,6 +11,7 @@ type Querier interface {
 	Get(ctx context.Context, name string) (*Environment, error)
 	InsertEnvironment(ctx context.Context, arg InsertEnvironmentParams) error
 	List(ctx context.Context) ([]*Environment, error)
+	ListByNames(ctx context.Context, names []string) ([]*Environment, error)
 }
 
 var _ Querier = (*Queries)(nil)

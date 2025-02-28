@@ -49,7 +49,7 @@ func (r *teamResolver) Buckets(ctx context.Context, obj *team.Team, first *int, 
 }
 
 func (r *teamEnvironmentResolver) Bucket(ctx context.Context, obj *team.TeamEnvironment, name string) (*bucket.Bucket, error) {
-	return bucket.Get(ctx, obj.TeamSlug, obj.Name, name)
+	return bucket.Get(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
 func (r *teamInventoryCountsResolver) Buckets(ctx context.Context, obj *team.TeamInventoryCounts) (*bucket.TeamInventoryCountBuckets, error) {

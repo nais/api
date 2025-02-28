@@ -114,7 +114,7 @@ func (r *teamResolver) SQLInstances(ctx context.Context, obj *team.Team, first *
 }
 
 func (r *teamEnvironmentResolver) SQLInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*sqlinstance.SQLInstance, error) {
-	return sqlinstance.Get(ctx, obj.TeamSlug, obj.Name, name)
+	return sqlinstance.Get(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
 func (r *teamInventoryCountsResolver) SQLInstances(ctx context.Context, obj *team.TeamInventoryCounts) (*sqlinstance.TeamInventoryCountSQLInstances, error) {

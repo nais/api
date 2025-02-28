@@ -43,7 +43,7 @@ func (r *teamResolver) Workloads(ctx context.Context, obj *team.Team, first *int
 }
 
 func (r *teamEnvironmentResolver) Workload(ctx context.Context, obj *team.TeamEnvironment, name string) (workload.Workload, error) {
-	return tryWorkload(ctx, obj.TeamSlug, obj.Name, name)
+	return tryWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
 func (r *Resolver) ContainerImage() gengql.ContainerImageResolver { return &containerImageResolver{r} }

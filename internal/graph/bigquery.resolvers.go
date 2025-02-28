@@ -79,7 +79,7 @@ func (r *teamResolver) BigQueryDatasets(ctx context.Context, obj *team.Team, fir
 }
 
 func (r *teamEnvironmentResolver) BigQueryDataset(ctx context.Context, obj *team.TeamEnvironment, name string) (*bigquery.BigQueryDataset, error) {
-	return bigquery.Get(ctx, obj.TeamSlug, obj.Name, name)
+	return bigquery.Get(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
 func (r *teamInventoryCountsResolver) BigQueryDatasets(ctx context.Context, obj *team.TeamInventoryCounts) (*bigquery.TeamInventoryCountBigQueryDatasets, error) {

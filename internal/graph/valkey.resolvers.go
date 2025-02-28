@@ -30,7 +30,7 @@ func (r *teamResolver) ValkeyInstances(ctx context.Context, obj *team.Team, firs
 }
 
 func (r *teamEnvironmentResolver) ValkeyInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*valkey.ValkeyInstance, error) {
-	return valkey.Get(ctx, obj.TeamSlug, obj.Name, name)
+	return valkey.Get(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
 func (r *teamInventoryCountsResolver) ValkeyInstances(ctx context.Context, obj *team.TeamInventoryCounts) (*valkey.TeamInventoryCountValkeyInstances, error) {

@@ -93,7 +93,7 @@ func (r *teamResolver) KafkaTopics(ctx context.Context, obj *team.Team, first *i
 }
 
 func (r *teamEnvironmentResolver) KafkaTopic(ctx context.Context, obj *team.TeamEnvironment, name string) (*kafkatopic.KafkaTopic, error) {
-	return kafkatopic.Get(ctx, obj.TeamSlug, obj.Name, name)
+	return kafkatopic.Get(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
 func (r *teamInventoryCountsResolver) KafkaTopics(ctx context.Context, obj *team.TeamInventoryCounts) (*kafkatopic.TeamInventoryCountKafkaTopics, error) {

@@ -74432,7 +74432,7 @@ func (ec *executionContext) _TeamEnvironment_name(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
+		return obj.Name(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -74453,7 +74453,7 @@ func (ec *executionContext) fieldContext_TeamEnvironment_name(_ context.Context,
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironment",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")

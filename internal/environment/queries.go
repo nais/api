@@ -5,15 +5,19 @@ import (
 
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/environment/environmentsql"
+	"github.com/nais/api/internal/graph/ident"
 )
 
-func GetByName(ctx context.Context, name string) (*Environment, error) {
-	e, err := db(ctx).Get(ctx, name)
+func Get(ctx context.Context, name string) (*Environment, error) {
+	return fromContext(ctx).environmentLoader.Load(ctx, name)
+}
+
+func GetByIdent(ctx context.Context, id ident.Ident) (*Environment, error) {
+	name, err := parseIdent(id)
 	if err != nil {
 		return nil, err
 	}
-
-	return toGraphEnvironment(e), nil
+	return Get(ctx, name)
 }
 
 func List(ctx context.Context) ([]*Environment, error) {

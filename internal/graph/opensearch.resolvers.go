@@ -55,7 +55,7 @@ func (r *teamResolver) OpenSearchInstances(ctx context.Context, obj *team.Team, 
 }
 
 func (r *teamEnvironmentResolver) OpenSearchInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*opensearch.OpenSearch, error) {
-	return opensearch.Get(ctx, obj.TeamSlug, obj.Name, name)
+	return opensearch.Get(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
 func (r *teamInventoryCountsResolver) OpenSearchInstances(ctx context.Context, obj *team.TeamInventoryCounts) (*opensearch.TeamInventoryCountOpenSearchInstances, error) {

@@ -264,21 +264,26 @@ func (e TeamMemberOrderField) MarshalGQL(w io.Writer) {
 }
 
 type TeamEnvironment struct {
-	Name               string    `json:"name"`
 	GCPProjectID       *string   `json:"gcpProjectID"`
 	SlackAlertsChannel string    `json:"slackAlertsChannel"`
 	TeamSlug           slug.Slug `json:"-"`
+	EnvironmentName    string    `json:"_"`
 }
 
 func (TeamEnvironment) IsNode() {}
 
 func (e TeamEnvironment) ID() ident.Ident {
-	return newTeamEnvironmentIdent(e.TeamSlug, e.Name)
+	return newTeamEnvironmentIdent(e.TeamSlug, e.EnvironmentName)
+}
+
+// Name is a deprecated field in the graph, will be removed in the future
+func (e TeamEnvironment) Name() string {
+	return e.EnvironmentName
 }
 
 func toGraphTeamEnvironment(m *teamsql.TeamAllEnvironment) *TeamEnvironment {
 	return &TeamEnvironment{
-		Name:               m.Environment,
+		EnvironmentName:    m.Environment,
 		TeamSlug:           m.TeamSlug,
 		GCPProjectID:       m.GcpProjectID,
 		SlackAlertsChannel: m.SlackAlertsChannel,

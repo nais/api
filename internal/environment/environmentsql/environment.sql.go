@@ -77,3 +77,34 @@ func (q *Queries) List(ctx context.Context) ([]*Environment, error) {
 	}
 	return items, nil
 }
+
+const listByNames = `-- name: ListByNames :many
+SELECT
+	name, gcp
+FROM
+	environments
+WHERE
+	name = ANY ($1::TEXT[])
+ORDER BY
+	name
+`
+
+func (q *Queries) ListByNames(ctx context.Context, names []string) ([]*Environment, error) {
+	rows, err := q.db.Query(ctx, listByNames, names)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*Environment{}
+	for rows.Next() {
+		var i Environment
+		if err := rows.Scan(&i.Name, &i.Gcp); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

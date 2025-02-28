@@ -225,7 +225,7 @@ func (r *teamEnvironmentResolver) Secret(ctx context.Context, obj *team.TeamEnvi
 		return nil, nil
 	}
 
-	envName := r.unmappedEnvironmentName(obj.Name)
+	envName := r.unmappedEnvironmentName(obj.EnvironmentName)
 	return secret.Get(ctx, obj.TeamSlug, envName, name)
 }
 

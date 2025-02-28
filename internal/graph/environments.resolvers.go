@@ -12,5 +12,5 @@ func (r *queryResolver) Environments(ctx context.Context) ([]*environment.Enviro
 }
 
 func (r *teamEnvironmentResolver) Environment(ctx context.Context, obj *team.TeamEnvironment) (*environment.Environment, error) {
-	return environment.GetByName(ctx, obj.Name)
+	return environment.Get(ctx, obj.EnvironmentName)
 }

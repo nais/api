@@ -138,7 +138,7 @@ func (r *teamCostResolver) MonthlySummary(ctx context.Context, obj *cost.TeamCos
 }
 
 func (r *teamEnvironmentResolver) Cost(ctx context.Context, obj *team.TeamEnvironment) (*cost.TeamEnvironmentCost, error) {
-	return &cost.TeamEnvironmentCost{TeamSlug: obj.TeamSlug, EnvironmentName: obj.Name}, nil
+	return &cost.TeamEnvironmentCost{TeamSlug: obj.TeamSlug, EnvironmentName: obj.EnvironmentName}, nil
 }
 
 func (r *teamEnvironmentCostResolver) Daily(ctx context.Context, obj *cost.TeamEnvironmentCost, from scalar.Date, to scalar.Date) (*cost.TeamEnvironmentCostPeriod, error) {

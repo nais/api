@@ -7,6 +7,17 @@ ORDER BY
 	name
 ;
 
+-- name: ListByNames :many
+SELECT
+	*
+FROM
+	environments
+WHERE
+	name = ANY (@names::TEXT[])
+ORDER BY
+	name
+;
+
 -- name: Get :one
 SELECT
 	*

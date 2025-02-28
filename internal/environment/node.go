@@ -1,7 +1,6 @@
 package environment
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -14,7 +13,7 @@ const (
 )
 
 func init() {
-	ident.RegisterIdentType(identEnvironment, "E", getByIdent)
+	ident.RegisterIdentType(identEnvironment, "E", GetByIdent)
 }
 
 func newIdent(name string) ident.Ident {
@@ -28,18 +27,4 @@ func parseIdent(id ident.Ident) (string, error) {
 	}
 
 	return parts[0], nil
-}
-
-func getByIdent(ctx context.Context, id ident.Ident) (*Environment, error) {
-	name, err := parseIdent(id)
-	if err != nil {
-		return nil, err
-	}
-
-	e, err := db(ctx).Get(ctx, name)
-	if err != nil {
-		return nil, err
-	}
-
-	return toGraphEnvironment(e), nil
 }

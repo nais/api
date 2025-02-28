@@ -61,7 +61,7 @@ func (l dataloader) list(ctx context.Context, slugs []slug.Slug) ([]*Team, []err
 
 func (l dataloader) getEnvironments(ctx context.Context, ids []envSlugName) ([]*TeamEnvironment, []error) {
 	makeKey := func(e *TeamEnvironment) envSlugName {
-		return envSlugName{Slug: e.TeamSlug, EnvName: e.Name}
+		return envSlugName{Slug: e.TeamSlug, EnvName: e.EnvironmentName}
 	}
 
 	return loader.LoadModels(ctx, ids, l.getTeamEnvironmentsBySlugsAndEnvNames, toGraphTeamEnvironment, makeKey)
