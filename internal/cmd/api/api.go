@@ -78,8 +78,10 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	ctx, signalStop := signal.NotifyContext(ctx, syscall.SIGTERM, syscall.SIGINT)
 	defer signalStop()
 
+	dbSettings := []database.OptFunc{}
 	if cfg.WithFakeClients {
 		log.Warn("using fake clients")
+		dbSettings = append(dbSettings, database.WithSlowQueryLogger(10*time.Millisecond))
 	}
 
 	_, promReg, err := newMeterProvider(ctx)
@@ -88,7 +90,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 
 	log.Info("connecting to database")
-	pool, err := database.New(ctx, cfg.DatabaseConnectionString, log.WithField("subsystem", "database"))
+	pool, err := database.New(ctx, cfg.DatabaseConnectionString, log.WithField("subsystem", "database"), dbSettings...)
 	if err != nil {
 		return fmt.Errorf("setting up database: %w", err)
 	}
