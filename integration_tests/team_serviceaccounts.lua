@@ -1,37 +1,12 @@
-Helper.SQLExec([[
-	DELETE FROM user_roles WHERE role_name = 'Team owner';
-]])
+local user = User.new()
+local nonMember = User.new()
+local team = Team.new("slug-1", "purpose", "#channel")
+team:addMember(user)
 
-Helper.SQLExec([[
-	INSERT INTO
-		user_roles (role_name, user_id, target_team_slug)
-	VALUES (
-		'Team member',
-		(SELECT id FROM users WHERE email = 'authenticated@example.com'),
-		'slug-1'
-	)
-	ON CONFLICT DO NOTHING;
-	;
-]])
-
-Helper.SQLExec [[
-	INSERT INTO users (name, email, external_id)
-	VALUES ('Non Member', 'non-member@example.com', '123')
-]]
-
-Helper.SQLExec([[
-	INSERT INTO
-		user_roles (role_name, user_id, target_team_slug)
-	VALUES (
-		'Team member',
-		(SELECT id FROM users WHERE email = 'non-member@example.com'),
-		'slug-2'
-	)
-	ON CONFLICT DO NOTHING;
-	;
-]])
 
 Test.gql("Create service account as non-member", function(t)
+	t.addHeader("x-user-email", nonMember:email())
+
 	t.query([[
 		mutation {
 			createServiceAccount(
@@ -46,7 +21,7 @@ Test.gql("Create service account as non-member", function(t)
 				}
 			}
 		}
-	]], { ["x-user-email"] = "non-member@example.com" })
+	]])
 
 	t.check {
 		data = Null,
@@ -62,6 +37,8 @@ Test.gql("Create service account as non-member", function(t)
 end)
 
 Test.gql("Create service account as member", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			createServiceAccount(
@@ -100,6 +77,8 @@ Test.gql("Create service account as member", function(t)
 end)
 
 Test.gql("Update service account as non-member", function(t)
+	t.addHeader("x-user-email", nonMember:email())
+
 	t.query(string.format([[
 		mutation {
 			updateServiceAccount(
@@ -113,7 +92,7 @@ Test.gql("Update service account as non-member", function(t)
 				}
 			}
 		}
-	]], State.saID), { ["x-user-email"] = "non-member@example.com" })
+	]], State.saID))
 
 	t.check {
 		data = Null,
@@ -129,6 +108,8 @@ Test.gql("Update service account as non-member", function(t)
 end)
 
 Test.gql("Update service account as member", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			updateServiceAccount(
@@ -158,6 +139,8 @@ Test.gql("Update service account as member", function(t)
 end)
 
 Test.gql("Assign role to service account as non-member", function(t)
+	t.addHeader("x-user-email", nonMember:email())
+
 	t.query(string.format([[
 		mutation {
 			assignRoleToServiceAccount(
@@ -171,7 +154,7 @@ Test.gql("Assign role to service account as non-member", function(t)
 				}
 			}
 		}
-	]], State.saID), { ["x-user-email"] = "non-member@example.com" })
+	]], State.saID))
 
 	t.check {
 		data = Null,
@@ -187,6 +170,8 @@ Test.gql("Assign role to service account as non-member", function(t)
 end)
 
 Test.gql("Assign global role to service account as member", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			assignRoleToServiceAccount(
@@ -221,6 +206,8 @@ Test.gql("Assign global role to service account as member", function(t)
 end)
 
 Test.gql("Assign role to service account as member", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			assignRoleToServiceAccount(
@@ -260,6 +247,8 @@ Test.gql("Assign role to service account as member", function(t)
 end)
 
 Test.gql("Assign duplicate role to service account as member", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			assignRoleToServiceAccount(
@@ -294,6 +283,8 @@ Test.gql("Assign duplicate role to service account as member", function(t)
 end)
 
 Test.gql("Assign another role to service account as member", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			assignRoleToServiceAccount(
@@ -336,6 +327,8 @@ Test.gql("Assign another role to service account as member", function(t)
 end)
 
 Test.gql("Assign another role to service account as member that requires owner", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			assignRoleToServiceAccount(
@@ -370,6 +363,8 @@ Test.gql("Assign another role to service account as member that requires owner",
 end)
 
 Test.gql("Revoke role from service account as non-member", function(t)
+	t.addHeader("x-user-email", nonMember:email())
+
 	t.query(string.format([[
 		mutation {
 			revokeRoleFromServiceAccount(
@@ -383,7 +378,7 @@ Test.gql("Revoke role from service account as non-member", function(t)
 				}
 			}
 		}
-	]], State.saID), { ["x-user-email"] = "non-member@example.com" })
+	]], State.saID))
 
 	t.check {
 		data = Null,
@@ -399,6 +394,8 @@ Test.gql("Revoke role from service account as non-member", function(t)
 end)
 
 Test.gql("Revoke role from service account as member", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			revokeRoleFromServiceAccount(
@@ -438,6 +435,8 @@ Test.gql("Revoke role from service account as member", function(t)
 end)
 
 Test.gql("Revoke unassigned role from service account as member", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			revokeRoleFromServiceAccount(
@@ -472,6 +471,8 @@ Test.gql("Revoke unassigned role from service account as member", function(t)
 end)
 
 Test.gql("Revoke role from service account as member that requires owner", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			revokeRoleFromServiceAccount(
@@ -506,6 +507,8 @@ Test.gql("Revoke role from service account as member that requires owner", funct
 end)
 
 Test.gql("Delete service account as non-member", function(t)
+	t.addHeader("x-user-email", nonMember:email())
+
 	t.query(string.format([[
 		mutation {
 			deleteServiceAccount(
@@ -516,7 +519,7 @@ Test.gql("Delete service account as non-member", function(t)
 				serviceAccountDeleted
 			}
 		}
-	]], State.saID), { ["x-user-email"] = "non-member@example.com" })
+	]], State.saID))
 
 	t.check {
 		data = Null,
@@ -532,6 +535,8 @@ Test.gql("Delete service account as non-member", function(t)
 end)
 
 Test.gql("Delete service account as member", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			deleteServiceAccount(

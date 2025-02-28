@@ -1,4 +1,10 @@
+local user = User.new("name", "email@example", "extid")
+local nonMember = User.new("other", "email@f.com", "extid2")
+
+
 Test.gql("Create team", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			createTeam(
@@ -27,6 +33,8 @@ Test.gql("Create team", function(t)
 end)
 
 Test.gql("Get deploy key for team I'm member of", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 	{
 		team(slug: "newteam") {
@@ -54,9 +62,9 @@ Test.gql("Get deploy key for team I'm member of", function(t)
 	}
 end)
 
-local nonMemberEmail = "email-12@example.com"
-
 Test.gql("Get deploy key for team not member of", function(t)
+	t.addHeader("x-user-email", nonMember:email())
+
 	t.query([[
 		{
 			team(slug: "newteam") {
@@ -68,7 +76,7 @@ Test.gql("Get deploy key for team not member of", function(t)
 				}
 			}
 		}
-	]], { ["x-user-email"] = nonMemberEmail })
+	]])
 
 	t.check {
 		data = {
@@ -86,6 +94,8 @@ Test.gql("Get deploy key for team not member of", function(t)
 end)
 
 Test.gql("Change deploy key as member", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			changeDeploymentKey(
@@ -118,6 +128,8 @@ Test.gql("Change deploy key as member", function(t)
 end)
 
 Test.gql("Check activity log after deploy key change", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		query {
 			team(slug: "newteam") {
@@ -145,6 +157,8 @@ Test.gql("Check activity log after deploy key change", function(t)
 end)
 
 Test.gql("Change deploy key as non-member", function(t)
+	t.addHeader("x-user-email", nonMember:email())
+
 	t.query([[
 		mutation {
 			changeDeploymentKey(
@@ -160,7 +174,7 @@ Test.gql("Change deploy key as non-member", function(t)
 				}
 			}
 		}
-	]], { ["x-user-email"] = nonMemberEmail })
+	]])
 
 	t.check {
 		data = Null,

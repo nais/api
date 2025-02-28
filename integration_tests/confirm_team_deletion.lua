@@ -1,42 +1,38 @@
-TeamSlug = "delete-me"
+local team = Team.new("some-team", "purpose", "#channel")
+local user1 = User.new()
+local user2 = User.new()
 
-Test.sql("Initialize team", function(t)
-	Helper.SQLExec([[
-		INSERT INTO teams(
-			slug,
-			purpose,
-			slack_channel
-		) VALUES (
-			$1,
-			$2,
-			$3
-		)
-	]], TeamSlug, "Delete me", "#delete-me")
+team:addOwner(user1, user2)
 
-	Helper.SQLExec([[
-		INSERT INTO user_roles(
-  			role_name,
-  			user_id,
-  			target_team_slug
-		) VALUES (
-  			$1,
-  			(SELECT id FROM users WHERE email = $2),
-  			$3
-		)
-	]], "Team owner", "authenticated@example.com", TeamSlug)
+Test.gql("Create delete key", function(t)
+	t.addHeader("x-user-email", user1:email())
 
-	DeleteKey = Helper.SQLQueryRow([[
-		INSERT INTO team_delete_keys (
-  			team_slug,
-  			created_by
-		) VALUES (
-  			$1,
-  			(SELECT id FROM users WHERE email = $2)
-		) RETURNING key::TEXT;
-	]], TeamSlug, "email-2@example.com")
+	t.query(string.format([[
+		mutation {
+			requestTeamDeletion(input: {
+				slug: "%s"
+			}) {
+				key {
+					key
+				}
+			}
+		}
+	]], team:slug()))
+
+	t.check {
+		data = {
+			requestTeamDeletion = {
+				key = {
+					key = Save("key"),
+				},
+			},
+		},
+	}
 end)
 
-Test.gql("Confirm team deletion", function(t)
+Test.gql("Confirm team deletion with the same user", function(t)
+	t.addHeader("x-user-email", user1:email())
+
 	t.query(string.format([[
 		mutation {
 			confirmTeamDeletion(input: {
@@ -46,7 +42,32 @@ Test.gql("Confirm team deletion", function(t)
 				deletionStarted
 			}
 		}
-	]], TeamSlug, DeleteKey.key))
+	]], team:slug(), State.key))
+
+	t.check {
+		data = Null,
+		errors = {
+			{
+				message = "You cannot confirm your own delete key.",
+				path = { "confirmTeamDeletion" },
+			},
+		},
+	}
+end)
+
+Test.gql("Confirm team deletion", function(t)
+	t.addHeader("x-user-email", user2:email())
+
+	t.query(string.format([[
+		mutation {
+			confirmTeamDeletion(input: {
+				slug: "%s"
+				key: "%s"
+			}) {
+				deletionStarted
+			}
+		}
+	]], team:slug(), State.key))
 
 	t.check {
 		data = {
@@ -64,7 +85,7 @@ Test.pubsub("Team deleted event", function(t)
 			EventType = "EVENT_TEAM_DELETED",
 		},
 		data = {
-			slug = TeamSlug,
+			slug = team:slug(),
 		},
 	})
 end)
@@ -78,9 +99,9 @@ Test.sql("Delete key confirmed", function(t)
 		WHERE
   			key = $1
   			AND confirmed_at IS NOT NULL;
-	]], DeleteKey.key)
+	]], State.key)
 
 	t.check {
-		team_slug = TeamSlug,
+		team_slug = team:slug(),
 	}
 end)

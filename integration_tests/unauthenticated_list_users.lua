@@ -1,5 +1,3 @@
-Config.Unauthenticated = true
-
 Test.gql("list users with unauthenticated request", function(t)
 	t.query [[
 		query {

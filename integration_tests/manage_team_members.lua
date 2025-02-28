@@ -1,8 +1,12 @@
-TeamSlug = "myteam"
-MemberToAdd = "email-1@example.com"
-OwnerToAdd = "email-2@example.com"
+local teamSlug = "slug-1"
+local user = User.new("original_user", "orig@team.com", "o")
+
+local memberToAdd = User.new("member", "member@team.com", "3")
+local ownerToAdd = User.new("owner", "owner@team.com", "4")
 
 Test.gql("Create team", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			createTeam(
@@ -17,13 +21,13 @@ Test.gql("Create team", function(t)
 				}
 			}
 		}
-	]], TeamSlug))
+	]], teamSlug))
 
 	t.check {
 		data = {
 			createTeam = {
 				team = {
-					slug = TeamSlug,
+					slug = teamSlug,
 				},
 			},
 		},
@@ -31,6 +35,8 @@ Test.gql("Create team", function(t)
 end)
 
 Test.gql("Set role on user that is not a member", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			setTeamMemberRole(
@@ -45,7 +51,7 @@ Test.gql("Set role on user that is not a member", function(t)
 				}
 			}
 		}
-	]], TeamSlug, MemberToAdd))
+	]], teamSlug, memberToAdd:email()))
 
 	t.check {
 		data = Null,
@@ -61,6 +67,8 @@ Test.gql("Set role on user that is not a member", function(t)
 end)
 
 Test.gql("Add user that does not exist", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	Helper.emptyPubSubTopic("topic")
 
 	t.query(string.format([[
@@ -77,7 +85,7 @@ Test.gql("Add user that does not exist", function(t)
 				}
 			}
 		}
-	]], TeamSlug))
+	]], teamSlug))
 
 	t.check {
 		data = Null,
@@ -93,6 +101,8 @@ Test.gql("Add user that does not exist", function(t)
 end)
 
 Test.gql("Add member", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	Helper.emptyPubSubTopic("topic")
 
 	t.query(string.format([[
@@ -109,7 +119,7 @@ Test.gql("Add member", function(t)
 				}
 			}
 		}
-	]], TeamSlug, MemberToAdd))
+	]], teamSlug, memberToAdd:email()))
 
 	t.check {
 		data = {
@@ -129,12 +139,14 @@ Test.pubsub("Check if pubsub message was sent", function(t)
 			EventType = "EVENT_TEAM_UPDATED",
 		},
 		data = {
-			slug = TeamSlug,
+			slug = teamSlug,
 		},
 	})
 end)
 
 Test.gql("Change role", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	Helper.emptyPubSubTopic("topic")
 
 	t.query(string.format([[
@@ -151,7 +163,7 @@ Test.gql("Change role", function(t)
 				}
 			}
 		}
-	]], TeamSlug, MemberToAdd))
+	]], teamSlug, memberToAdd:email()))
 
 	t.check {
 		data = {
@@ -171,12 +183,14 @@ Test.pubsub("Check if pubsub message was sent", function(t)
 			EventType = "EVENT_TEAM_UPDATED",
 		},
 		data = {
-			slug = TeamSlug,
+			slug = teamSlug,
 		},
 	})
 end)
 
 Test.gql("Add owner", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			addTeamMember(
@@ -202,7 +216,7 @@ Test.gql("Add owner", function(t)
 				}
 			}
 		}
-	]], TeamSlug, OwnerToAdd))
+	]], teamSlug, ownerToAdd:email()))
 
 	t.check {
 		data = {
@@ -215,22 +229,22 @@ Test.gql("Add owner", function(t)
 								{
 									role = "OWNER",
 									user = {
-										email = "authenticated@example.com",
-										name = "Authenticated User",
+										email = memberToAdd:email(),
+										name = memberToAdd:name(),
 									},
 								},
 								{
 									role = "OWNER",
 									user = {
-										email = MemberToAdd,
-										name = "name-1",
+										email = user:email(),
+										name = user:name(),
 									},
 								},
 								{
 									role = "OWNER",
 									user = {
-										email = OwnerToAdd,
-										name = "name-2",
+										email = ownerToAdd:email(),
+										name = ownerToAdd:name(),
 									},
 								},
 							},
@@ -243,6 +257,8 @@ Test.gql("Add owner", function(t)
 end)
 
 Test.gql("Remove owner", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			removeTeamMember(
@@ -264,7 +280,7 @@ Test.gql("Remove owner", function(t)
 				}
 			}
 		}
-	]], TeamSlug, OwnerToAdd))
+	]], teamSlug, ownerToAdd:email()))
 
 	t.check {
 		data = {
@@ -275,15 +291,15 @@ Test.gql("Remove owner", function(t)
 							{
 								role = "OWNER",
 								user = {
-									email = "authenticated@example.com",
-									name = "Authenticated User",
+									email = memberToAdd:email(),
+									name = memberToAdd:name(),
 								},
 							},
 							{
 								role = "OWNER",
 								user = {
-									email = "email-1@example.com",
-									name = "name-1",
+									email = user:email(),
+									name = user:name(),
 								},
 							},
 						},

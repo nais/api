@@ -476,6 +476,8 @@ github.com/nais/liberator v0.0.0-20250120121331-1a7304c71267 h1:Ngg/i5VCv0yinrrl
 github.com/nais/liberator v0.0.0-20250120121331-1a7304c71267/go.mod h1:DtQgc26XvoZFe8jy0++wbuFUu5yCFTQ3vGV+y7TA7Uw=
 github.com/nais/tester v0.1.0-pre.12 h1:MOOqgh90AG2WMXudyp8kLjQGaQDuECqRB6T3TFFdhuw=
 github.com/nais/tester v0.1.0-pre.12/go.mod h1:J7hMdvCK9dx2L1BMpVjgNIkNyRDEK1c46L056bzsxB8=
+github.com/nais/tester v0.1.0-pre.12.0.20250228104631-1e7b20cd5f89 h1:dUCE8parJECbH9i3CyKJ2w5TOqnacwQiPiNwjDEPOZ8=
+github.com/nais/tester v0.1.0-pre.12.0.20250228104631-1e7b20cd5f89/go.mod h1:J7hMdvCK9dx2L1BMpVjgNIkNyRDEK1c46L056bzsxB8=
 github.com/nais/unleasherator v0.0.0-20240513081022-06f454638fc1 h1:Ei6o4MzKnaGys+uVHNcZd1ttV9lcmHGX3whH1GyPV8E=
 github.com/nais/unleasherator v0.0.0-20240513081022-06f454638fc1/go.mod h1:p5j21mYqhbtfQeTqs6lHgsuaL28tY5oNNf1r+gADFe0=
 github.com/ncruces/go-strftime v0.1.9 h1:bY0MQC28UADQmHmaF5dgpLmImcShSi2kHU9XLdhx/f4=

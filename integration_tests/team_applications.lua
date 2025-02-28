@@ -1,6 +1,13 @@
 Helper.readK8sResources("k8s_resources/simple")
 
+local user = User.new("name", "email@email.com", "externalID")
+Team.new("slug-1", "purpose", "#slack_channel")
+Team.new("slug-2", "purpose", "#slack_channel")
+Team.new("slug-3", "purpose", "#slack_channel")
+
 Test.gql("Team with multiple applications", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		query {
 			team(slug: "slug-1") {
@@ -38,6 +45,8 @@ Test.gql("Team with multiple applications", function(t)
 end)
 
 Test.gql("Team with one application", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
     		query {
     			team(slug: "slug-2") {
@@ -72,6 +81,8 @@ Test.gql("Team with one application", function(t)
 end)
 
 Test.gql("Team with no applications", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
     		query {
     			team(slug: "slug-3") {
@@ -98,6 +109,8 @@ Test.gql("Team with no applications", function(t)
 end)
 
 Test.gql("Team with multiple applications and instances", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		query {
 			team(slug: "slug-1") {

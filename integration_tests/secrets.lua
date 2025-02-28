@@ -1,4 +1,9 @@
+local user = User.new("username-1", "user@example.com", "e")
+local otherUser = User.new("username-2", "user2@example.com", "e2")
+
 Test.gql("Create team", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			createTeam(
@@ -29,6 +34,8 @@ Test.gql("Create team", function(t)
 end)
 
 Test.gql("Create secret for team that does not exist", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			createSecret(input: {
@@ -57,6 +64,8 @@ Test.gql("Create secret for team that does not exist", function(t)
 end)
 
 Test.gql("Create secret", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			createSecret(input: {
@@ -87,6 +96,8 @@ Test.gql("Create secret", function(t)
 end)
 
 Test.gql("Add secret value", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			addSecretValue(input: {
@@ -127,6 +138,8 @@ Test.gql("Add secret value", function(t)
 end)
 
 Test.gql("Add secret value that already exists", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			addSecretValue(input: {
@@ -159,6 +172,8 @@ Test.gql("Add secret value that already exists", function(t)
 end)
 
 Test.gql("Update secret value", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			updateSecretValue(input: {
@@ -199,6 +214,8 @@ Test.gql("Update secret value", function(t)
 end)
 
 Test.gql("Update secret value that does not exist", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			updateSecretValue(input: {
@@ -231,6 +248,8 @@ Test.gql("Update secret value that does not exist", function(t)
 end)
 
 Test.gql("Remove secret value that does not exist", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			removeSecretValue(input: {
@@ -260,6 +279,8 @@ Test.gql("Remove secret value that does not exist", function(t)
 end)
 
 Test.gql("Remove secret value that already exists", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			addSecretValue(input: {
@@ -334,6 +355,8 @@ Test.gql("Remove secret value that already exists", function(t)
 end)
 
 Test.gql("Delete secret that does not exist", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			deleteSecret(input: {
@@ -360,6 +383,8 @@ Test.gql("Delete secret that does not exist", function(t)
 end)
 
 Test.gql("Delete secret that exists", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			deleteSecret(input: {
@@ -384,6 +409,8 @@ end)
 local nonTeamMemberEmail = "email-12@example.com"
 
 Test.gql("Create secret as non-team member", function(t)
+	t.addHeader("x-user-email", otherUser:email())
+
 	t.query([[
 		mutation {
 			createSecret(input: {
@@ -396,9 +423,7 @@ Test.gql("Create secret as non-team member", function(t)
 				}
 			}
 		}
-	]],
-		{ ["x-user-email"] = nonTeamMemberEmail }
-	)
+	]])
 
 	t.check {
 		errors = {
@@ -414,6 +439,8 @@ Test.gql("Create secret as non-team member", function(t)
 end)
 
 Test.gql("Update secret as non-team member", function(t)
+	t.addHeader("x-user-email", otherUser:email())
+
 	t.query([[
 		mutation {
 			updateSecretValue(input: {
@@ -430,9 +457,7 @@ Test.gql("Update secret as non-team member", function(t)
 				}
 			}
 		}
-	]],
-		{ ["x-user-email"] = nonTeamMemberEmail }
-	)
+	]])
 
 	t.check {
 		errors = {
@@ -448,6 +473,8 @@ Test.gql("Update secret as non-team member", function(t)
 end)
 
 Test.gql("Delete secret as non-team member", function(t)
+	t.addHeader("x-user-email", otherUser:email())
+
 	t.query([[
 		mutation {
 			deleteSecret(input: {
@@ -458,9 +485,7 @@ Test.gql("Delete secret as non-team member", function(t)
 				secretDeleted
 			}
 		}
-	]],
-		{ ["x-user-email"] = nonTeamMemberEmail }
-	)
+	]])
 
 	t.check {
 		errors = {

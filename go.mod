@@ -35,7 +35,7 @@ require (
 	github.com/nais/bifrost v0.0.0-20250217090652-3f042324f3c4
 	github.com/nais/dependencytrack v0.0.0-20250217044741-3c6163f449e4
 	github.com/nais/liberator v0.0.0-20250120121331-1a7304c71267
-	github.com/nais/tester v0.1.0-pre.12
+	github.com/nais/tester v0.1.0-pre.12.0.20250228104631-1e7b20cd5f89
 	github.com/nais/unleasherator v0.0.0-20240513081022-06f454638fc1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pressly/goose/v3 v3.24.1

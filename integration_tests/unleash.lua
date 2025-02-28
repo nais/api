@@ -1,19 +1,11 @@
-local teamSlug = "slug-1"
-
--- Ensure the default user has the role "Team member" for the team "slug-1"
-Helper.SQLExec([[
-	INSERT INTO
-		user_roles (role_name, user_id, target_team_slug)
-	VALUES (
-		'Team member',
-		(SELECT id FROM users WHERE email = 'authenticated@example.com'),
-		$1
-	)
-	ON CONFLICT DO NOTHING;
-	;
-]], teamSlug)
+Team.new("slug-2", "purpose", "#channel")
+local team = Team.new("slug-1", "purpose", "#channel")
+local user = User.new()
+team:addMember(user)
 
 Test.gql("Get unleash when no instance exists", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		{
 			team(slug: "%s") {
@@ -22,7 +14,7 @@ Test.gql("Get unleash when no instance exists", function(t)
 				}
 			}
 		}
-	]], teamSlug))
+	]], team:slug()))
 
 	t.check {
 		data = {
@@ -34,6 +26,8 @@ Test.gql("Get unleash when no instance exists", function(t)
 end)
 
 Test.gql("Create unleash instance", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			createUnleashForTeam(input: {teamSlug: "slug-1"}) {
@@ -42,13 +36,13 @@ Test.gql("Create unleash instance", function(t)
 				}
 			}
 		}
-	]], teamSlug))
+	]], team:slug()))
 
 	t.check {
 		data = {
 			createUnleashForTeam = {
 				unleash = {
-					name = teamSlug,
+					name = team:slug(),
 				},
 			},
 		},
@@ -56,6 +50,8 @@ Test.gql("Create unleash instance", function(t)
 end)
 
 Test.gql("Get unleash when instance exists", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		{
 			team(slug: "%s") {
@@ -72,16 +68,16 @@ Test.gql("Get unleash when instance exists", function(t)
 				}
 			}
 		}
-	]], teamSlug))
+	]], team:slug()))
 
 	t.check {
 		data = {
 			team = {
 				unleash = {
-					name = teamSlug,
+					name = team:slug(),
 					allowedTeams = {
 						nodes = {
-							{ slug = teamSlug },
+							{ slug = team:slug() },
 						},
 						pageInfo = {
 							totalCount = 1,
@@ -94,6 +90,8 @@ Test.gql("Get unleash when instance exists", function(t)
 end)
 
 Test.gql("Allow other team to access instance", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			allowTeamAccessToUnleash(input: {teamSlug: "%s", allowedTeamSlug: "slug-2"}) {
@@ -110,13 +108,13 @@ Test.gql("Allow other team to access instance", function(t)
 				}
 			}
 		}
-	]], teamSlug))
+	]], team:slug()))
 
 	t.check {
 		data = {
 			allowTeamAccessToUnleash = {
 				unleash = {
-					name = teamSlug,
+					name = team:slug(),
 					allowedTeams = {
 						nodes = {
 							{ slug = "slug-1" },
@@ -133,6 +131,8 @@ Test.gql("Allow other team to access instance", function(t)
 end)
 
 Test.gql("Get unleash when instance exists after allowing other team", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		{
 			team(slug: "%s") {
@@ -149,16 +149,16 @@ Test.gql("Get unleash when instance exists after allowing other team", function(
 				}
 			}
 		}
-	]], teamSlug))
+	]], team:slug()))
 
 	t.check {
 		data = {
 			team = {
 				unleash = {
-					name = teamSlug,
+					name = team:slug(),
 					allowedTeams = {
 						nodes = {
-							{ slug = teamSlug },
+							{ slug = team:slug() },
 							{ slug = "slug-2" },
 						},
 						pageInfo = {
@@ -172,6 +172,8 @@ Test.gql("Get unleash when instance exists after allowing other team", function(
 end)
 
 Test.gql("Revoke other teams access to instance", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			revokeTeamAccessToUnleash(input: {teamSlug: "%s", revokedTeamSlug: "slug-2"}) {
@@ -188,13 +190,13 @@ Test.gql("Revoke other teams access to instance", function(t)
 				}
 			}
 		}
-	]], teamSlug))
+	]], team:slug()))
 
 	t.check {
 		data = {
 			revokeTeamAccessToUnleash = {
 				unleash = {
-					name = teamSlug,
+					name = team:slug(),
 					allowedTeams = {
 						nodes = {
 							{ slug = "slug-1" },
@@ -210,6 +212,8 @@ Test.gql("Revoke other teams access to instance", function(t)
 end)
 
 Test.gql("Get unleash when instance exists after revoking other team", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		{
 			team(slug: "%s") {
@@ -226,16 +230,16 @@ Test.gql("Get unleash when instance exists after revoking other team", function(
 				}
 			}
 		}
-	]], teamSlug))
+	]], team:slug()))
 
 	t.check {
 		data = {
 			team = {
 				unleash = {
-					name = teamSlug,
+					name = team:slug(),
 					allowedTeams = {
 						nodes = {
-							{ slug = teamSlug },
+							{ slug = team:slug() },
 						},
 						pageInfo = {
 							totalCount = 1,
@@ -248,23 +252,23 @@ Test.gql("Get unleash when instance exists after revoking other team", function(
 end)
 
 Test.k8s("Ensure the resource exists", function(t)
-	t.check("unleash.nais.io/v1", "unleashes", "management", "bifrost-unleash", teamSlug, {
+	t.check("unleash.nais.io/v1", "unleashes", "management", "bifrost-unleash", team:slug(), {
 		apiVersion = "unleash.nais.io/v1",
 		kind = "Unleash",
 		metadata = {
 			creationTimestamp = Ignore(),
-			name = teamSlug,
+			name = team:slug(),
 			namespace = "bifrost-unleash",
 		},
 		spec = {
 			apiIngress = {
-				host = teamSlug .. "-unleash-api.example.com",
+				host = team:slug() .. "-unleash-api.example.com",
 			},
 			database = {},
 			extraEnvVars = {
 				{
 					name = "TEAMS_ALLOWED_TEAMS",
-					value = teamSlug,
+					value = team:slug(),
 				},
 			},
 			federation = {},
@@ -277,7 +281,7 @@ Test.k8s("Ensure the resource exists", function(t)
 				},
 			},
 			webIngress = {
-				host = teamSlug .. "-unleash-web.example.com",
+				host = team:slug() .. "-unleash-web.example.com",
 			},
 		},
 		status = Ignore(), -- This is mocked in the test

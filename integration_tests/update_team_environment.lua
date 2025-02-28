@@ -1,6 +1,10 @@
-TeamSlug = "someteamname"
+local teamSlug = "someteamname"
+
+local user = User.new("tester", "tester@tester.com", "some-id")
 
 Test.gql("Create team", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			createTeam(
@@ -15,13 +19,13 @@ Test.gql("Create team", function(t)
 				}
 			}
 		}
-	]], TeamSlug))
+	]], teamSlug))
 
 	t.check {
 		data = {
 			createTeam = {
 				team = {
-					slug = TeamSlug,
+					slug = teamSlug,
 				},
 			},
 		},
@@ -29,6 +33,8 @@ Test.gql("Create team", function(t)
 end)
 
 Test.gql("Update environment", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			updateTeamEnvironment(
@@ -50,7 +56,7 @@ Test.gql("Update environment", function(t)
 				}
 			}
 		}
-	]], TeamSlug))
+	]], teamSlug))
 
 	t.check {
 		data = {
@@ -58,7 +64,7 @@ Test.gql("Update environment", function(t)
 				environment = {
 					name = "dev",
 					team = {
-						slug = TeamSlug,
+						slug = teamSlug,
 						environments = {
 							{
 								name = "dev",
@@ -85,6 +91,8 @@ Test.gql("Update environment", function(t)
 end)
 
 Test.gql("Invalid channel name", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			updateTeamEnvironment(
@@ -99,7 +107,7 @@ Test.gql("Invalid channel name", function(t)
 				}
 			}
 		}
-	]], TeamSlug))
+	]], teamSlug))
 
 	t.check {
 		data = Null,
@@ -118,6 +126,8 @@ Test.gql("Invalid channel name", function(t)
 end)
 
 Test.gql("Nothing to update", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			updateTeamEnvironment(
@@ -131,7 +141,7 @@ Test.gql("Nothing to update", function(t)
 				}
 			}
 		}
-	]], TeamSlug))
+	]], teamSlug))
 
 	t.check {
 		data = {
@@ -145,6 +155,8 @@ Test.gql("Nothing to update", function(t)
 end)
 
 Test.gql("Remove channel", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query(string.format([[
 		mutation {
 			updateTeamEnvironment(
@@ -166,7 +178,7 @@ Test.gql("Remove channel", function(t)
 				}
 			}
 		}
-	]], TeamSlug))
+	]], teamSlug))
 
 	t.check {
 		data = {
@@ -174,7 +186,7 @@ Test.gql("Remove channel", function(t)
 				environment = {
 					name = "dev",
 					team = {
-						slug = TeamSlug,
+						slug = teamSlug,
 						environments = {
 							{
 								name = "dev",

@@ -1,17 +1,11 @@
--- Ensure the default user has the role "Team member" for the team "slug-1"
-Helper.SQLExec([[
-	INSERT INTO
-		user_roles (role_name, user_id, target_team_slug)
-	VALUES (
-		'Team member',
-		(SELECT id FROM users WHERE email = 'authenticated@example.com'),
-		'slug-1'
-	)
-	ON CONFLICT DO NOTHING;
-	;
-]])
+local user = User.new()
+local nonMember = User.new()
+local team = Team.new("slug-1", "purpose", "#channel")
+team:addMember(user)
 
 Test.gql("List repositories for team", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		{
 			team(slug: "slug-1") {
@@ -42,6 +36,8 @@ Test.gql("List repositories for team", function(t)
 end)
 
 Test.gql("Add repository to team as team member", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			addRepositoryToTeam(input: {teamSlug: "slug-1", repositoryName: "nais/api"}) {
@@ -63,13 +59,9 @@ Test.gql("Add repository to team as team member", function(t)
 	}
 end)
 
-local nonTeamMemberEmail = "email-12@example.com"
-
-Helper.SQLExec([[
-	DELETE FROM user_roles WHERE user_id = (SELECT id FROM users WHERE email = $1);
-]], nonTeamMemberEmail)
-
 Test.gql("Add repository to team as non-team member", function(t)
+	t.addHeader("x-user-email", nonMember:email())
+
 	t.query([[
 		mutation {
 			addRepositoryToTeam(input: {teamSlug: "slug-1", repositoryName: "nais/api"}) {
@@ -78,7 +70,7 @@ Test.gql("Add repository to team as non-team member", function(t)
 				}
 			}
 		}
-	]], { ["x-user-email"] = nonTeamMemberEmail })
+	]])
 
 	t.check {
 		data = Null,
@@ -92,6 +84,8 @@ Test.gql("Add repository to team as non-team member", function(t)
 end)
 
 Test.gql("List repositories for team after creation", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		{
 			team(slug: "slug-1") {
@@ -140,13 +134,15 @@ Test.gql("List repositories for team after creation", function(t)
 end)
 
 Test.gql("Remove repository from team as non-team member", function(t)
+	t.addHeader("x-user-email", nonMember:email())
+
 	t.query([[
 		mutation {
 			removeRepositoryFromTeam(input: {teamSlug: "slug-1", repositoryName: "nais/api"}) {
 				success
 			}
 		}
-	]], { ["x-user-email"] = nonTeamMemberEmail })
+	]])
 
 	t.check {
 		data = Null,
@@ -160,6 +156,8 @@ Test.gql("Remove repository from team as non-team member", function(t)
 end)
 
 Test.gql("Remove repository from team as team member", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		mutation {
 			removeRepositoryFromTeam(input: {teamSlug: "slug-1", repositoryName: "nais/api"}) {
@@ -178,6 +176,8 @@ Test.gql("Remove repository from team as team member", function(t)
 end)
 
 Test.gql("List repositories for team after deletion", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query [[
 		{
 			team(slug: "slug-1") {

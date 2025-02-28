@@ -1,4 +1,8 @@
+local user = User.new("user-1", "usr@ex.com", "ei")
+
 Test.gql("list enabled features", function(t)
+	t.addHeader("x-user-email", user:email())
+
 	t.query([[
 		query {
 			features {
@@ -81,6 +85,8 @@ local nodeTests = {
 
 for _, nodeTest in ipairs(nodeTests) do
 	Test.gql("get feature " .. nodeTest.name, function(t)
+		t.addHeader("x-user-email", user:email())
+
 		t.query(
 			string.format([[
 			query {
