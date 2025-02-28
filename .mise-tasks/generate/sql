@@ -5,3 +5,5 @@ set -e
 
 go tool github.com/sqlc-dev/sqlc/cmd/sqlc generate -f .configs/sqlc.yaml
 go tool github.com/sqlc-dev/sqlc/cmd/sqlc vet -f .configs/sqlc.yaml
+
+mise run fmt:go

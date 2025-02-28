@@ -6,3 +6,5 @@ set -e
 find internal pkg -type f -name "mock_*.go" -delete
 go tool github.com/vektra/mockery/v2 --config ./.configs/mockery.yaml
 find internal pkg -type f -name "mock_*.go" -exec go tool mvdan.cc/gofumpt -w {} \;
+
+mise run fmt:go

@@ -9,3 +9,5 @@ protoc \
 	--go_opt=default_api_level=API_HYBRID \
 	--go_out=. \
 	--go-grpc_out=.
+
+mise run fmt:go
