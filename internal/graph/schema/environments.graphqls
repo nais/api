@@ -3,6 +3,11 @@ extend type Query {
 	Get a list of environments.
 	"""
 	environments: [Environment!]!
+
+	"""
+	Get a single environment.
+	"""
+	environment(name: String!): Environment!
 }
 
 """

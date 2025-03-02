@@ -2,14 +2,24 @@ package environment
 
 import (
 	"context"
+	"errors"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/environment/environmentsql"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 )
 
 func Get(ctx context.Context, name string) (*Environment, error) {
-	return fromContext(ctx).environmentLoader.Load(ctx, name)
+	e, err := fromContext(ctx).environmentLoader.Load(ctx, name)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, apierror.Errorf("Environment %q not found", name)
+	} else if err != nil {
+		return nil, err
+	}
+
+	return e, nil
 }
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*Environment, error) {
