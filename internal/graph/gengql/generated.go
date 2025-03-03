@@ -84,6 +84,7 @@ type ResolverRoot interface {
 	DeleteApplicationPayload() DeleteApplicationPayloadResolver
 	DeleteJobPayload() DeleteJobPayloadResolver
 	Deployment() DeploymentResolver
+	Environment() EnvironmentResolver
 	ImageVulnerability() ImageVulnerabilityResolver
 	ImageVulnerabilityAnalysisTrail() ImageVulnerabilityAnalysisTrailResolver
 	Ingress() IngressResolver
@@ -506,8 +507,9 @@ type ComplexityRoot struct {
 	}
 
 	Environment struct {
-		ID   func(childComplexity int) int
-		Name func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Name      func(childComplexity int) int
+		Workloads func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) int
 	}
 
 	ExternalNetworkPolicyHost struct {
@@ -2393,6 +2395,9 @@ type DeploymentResolver interface {
 	Resources(ctx context.Context, obj *deployment.Deployment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.DeploymentResource], error)
 	Statuses(ctx context.Context, obj *deployment.Deployment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*deployment.DeploymentStatus], error)
 }
+type EnvironmentResolver interface {
+	Workloads(ctx context.Context, obj *environment.Environment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) (*pagination.Connection[workload.Workload], error)
+}
 type ImageVulnerabilityResolver interface {
 	AnalysisTrail(ctx context.Context, obj *vulnerability.ImageVulnerability) (*vulnerability.ImageVulnerabilityAnalysisTrail, error)
 }
@@ -4132,6 +4137,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Environment.Name(childComplexity), true
+
+	case "Environment.workloads":
+		if e.complexity.Environment.Workloads == nil {
+			break
+		}
+
+		args, err := ec.field_Environment_workloads_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Environment.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*workload.EnvironmentWorkloadOrder)), true
 
 	case "ExternalNetworkPolicyHost.ports":
 		if e.complexity.ExternalNetworkPolicyHost.Ports == nil {
@@ -12019,6 +12036,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteServiceAccountTokenInput,
 		ec.unmarshalInputDisableReconcilerInput,
 		ec.unmarshalInputEnableReconcilerInput,
+		ec.unmarshalInputEnvironmentWorkloadOrder,
 		ec.unmarshalInputImageVulnerabilityOrder,
 		ec.unmarshalInputJobOrder,
 		ec.unmarshalInputKafkaTopicAclFilter,
@@ -13741,7 +13759,12 @@ type TeamDeployKeyUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"""
 	Get a single environment.
 	"""
-	environment(name: String!): Environment!
+	environment(
+		"""
+		The name of the environment to get.
+		"""
+		name: String!
+	): Environment!
 }
 
 """
@@ -19275,6 +19298,38 @@ type VulnerabilityUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	): WorkloadConnection!
 }
 
+extend type Environment {
+	"""
+	Nais workloads in the environment.
+	"""
+	workloads(
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
+		first: Int
+
+		"""
+		Get items after this cursor.
+		"""
+		after: Cursor
+
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
+		last: Int
+
+		"""
+		Get items before this cursor.
+		"""
+		before: Cursor
+
+		"""
+		Ordering options for items returned from the connection.
+		"""
+		orderBy: EnvironmentWorkloadOrder
+	): WorkloadConnection!
+}
+
 extend type TeamEnvironment {
 	"""
 	Workload in the team environment.
@@ -19520,6 +19575,46 @@ enum WorkloadOrderField {
 	Order by the name of the environment the workload is deployed in.
 	"""
 	ENVIRONMENT
+
+	"""
+	Order by the deployment time.
+	"""
+	DEPLOYMENT_TIME
+}
+
+"""
+Ordering options when fetching workloads in an environment.
+"""
+input EnvironmentWorkloadOrder {
+	"""
+	The field to order items by.
+	"""
+	field: EnvironmentWorkloadOrderField!
+
+	"""
+	The direction to order items by.
+	"""
+	direction: OrderDirection!
+}
+
+"""
+Fields to order workloads in an environment by.
+"""
+enum EnvironmentWorkloadOrderField {
+	"""
+	Order by name.
+	"""
+	NAME
+
+	"""
+	Order by team slug.
+	"""
+	TEAM_SLUG
+
+	"""
+	Order by status.
+	"""
+	STATUS
 
 	"""
 	Order by the deployment time.
@@ -20531,6 +20626,126 @@ func (ec *executionContext) field_Deployment_statuses_argsBefore(
 	}
 
 	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Environment_workloads_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Environment_workloads_argsFirst(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := ec.field_Environment_workloads_argsAfter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := ec.field_Environment_workloads_argsLast(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := ec.field_Environment_workloads_argsBefore(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	arg4, err := ec.field_Environment_workloads_argsOrderBy(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["orderBy"] = arg4
+	return args, nil
+}
+func (ec *executionContext) field_Environment_workloads_argsFirst(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*int, error) {
+	if _, ok := rawArgs["first"]; !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+	if tmp, ok := rawArgs["first"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Environment_workloads_argsAfter(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*pagination.Cursor, error) {
+	if _, ok := rawArgs["after"]; !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+	if tmp, ok := rawArgs["after"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Environment_workloads_argsLast(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*int, error) {
+	if _, ok := rawArgs["last"]; !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+	if tmp, ok := rawArgs["last"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Environment_workloads_argsBefore(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*pagination.Cursor, error) {
+	if _, ok := rawArgs["before"]; !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+	if tmp, ok := rawArgs["before"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Environment_workloads_argsOrderBy(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*workload.EnvironmentWorkloadOrder, error) {
+	if _, ok := rawArgs["orderBy"]; !ok {
+		var zeroVal *workload.EnvironmentWorkloadOrder
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		return ec.unmarshalOEnvironmentWorkloadOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐEnvironmentWorkloadOrder(ctx, tmp)
+	}
+
+	var zeroVal *workload.EnvironmentWorkloadOrder
 	return zeroVal, nil
 }
 
@@ -37368,6 +37583,69 @@ func (ec *executionContext) fieldContext_Environment_name(_ context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Environment_workloads(ctx context.Context, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Environment_workloads(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Environment().Workloads(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*workload.EnvironmentWorkloadOrder))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*pagination.Connection[workload.Workload])
+	fc.Result = res
+	return ec.marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Environment_workloads(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Environment",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pageInfo":
+				return ec.fieldContext_WorkloadConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_WorkloadConnection_nodes(ctx, field)
+			case "edges":
+				return ec.fieldContext_WorkloadConnection_edges(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WorkloadConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Environment_workloads_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ExternalNetworkPolicyHost_target(ctx context.Context, field graphql.CollectedField, obj *netpol.ExternalNetworkPolicyHost) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ExternalNetworkPolicyHost_target(ctx, field)
 	if err != nil {
@@ -50148,6 +50426,8 @@ func (ec *executionContext) fieldContext_Query_environments(_ context.Context, f
 				return ec.fieldContext_Environment_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Environment_name(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Environment_workloads(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Environment", field.Name)
 		},
@@ -50198,6 +50478,8 @@ func (ec *executionContext) fieldContext_Query_environment(ctx context.Context, 
 				return ec.fieldContext_Environment_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Environment_name(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Environment_workloads(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Environment", field.Name)
 		},
@@ -75121,6 +75403,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_environment(_ context.C
 				return ec.fieldContext_Environment_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Environment_name(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Environment_workloads(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Environment", field.Name)
 		},
@@ -92586,6 +92870,40 @@ func (ec *executionContext) unmarshalInputEnableReconcilerInput(ctx context.Cont
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputEnvironmentWorkloadOrder(ctx context.Context, obj any) (workload.EnvironmentWorkloadOrder, error) {
+	var it workload.EnvironmentWorkloadOrder
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNEnvironmentWorkloadOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐEnvironmentWorkloadOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputImageVulnerabilityOrder(ctx context.Context, obj any) (vulnerability.ImageVulnerabilityOrder, error) {
 	var it vulnerability.ImageVulnerabilityOrder
 	asMap := map[string]any{}
@@ -99605,13 +99923,49 @@ func (ec *executionContext) _Environment(ctx context.Context, sel ast.SelectionS
 		case "id":
 			out.Values[i] = ec._Environment_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
 			out.Values[i] = ec._Environment_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "workloads":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Environment_workloads(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -121117,6 +121471,16 @@ func (ec *executionContext) marshalNEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋi
 	return ec._Environment(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNEnvironmentWorkloadOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐEnvironmentWorkloadOrderField(ctx context.Context, v any) (workload.EnvironmentWorkloadOrderField, error) {
+	var res workload.EnvironmentWorkloadOrderField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNEnvironmentWorkloadOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐEnvironmentWorkloadOrderField(ctx context.Context, sel ast.SelectionSet, v workload.EnvironmentWorkloadOrderField) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNExternalNetworkPolicyTarget2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐExternalNetworkPolicyTarget(ctx context.Context, sel ast.SelectionSet, v netpol.ExternalNetworkPolicyTarget) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -127822,6 +128186,14 @@ func (ec *executionContext) marshalODeploymentKey2ᚖgithubᚗcomᚋnaisᚋapi�
 		return graphql.Null
 	}
 	return ec._DeploymentKey(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOEnvironmentWorkloadOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐEnvironmentWorkloadOrder(ctx context.Context, v any) (*workload.EnvironmentWorkloadOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputEnvironmentWorkloadOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOImageVulnerability2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerability(ctx context.Context, sel ast.SelectionSet, v *vulnerability.ImageVulnerability) graphql.Marshaler {

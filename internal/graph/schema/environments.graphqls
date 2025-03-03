@@ -7,7 +7,12 @@ extend type Query {
 	"""
 	Get a single environment.
 	"""
-	environment(name: String!): Environment!
+	environment(
+		"""
+		The name of the environment to get.
+		"""
+		name: String!
+	): Environment!
 }
 
 """

@@ -201,6 +201,57 @@ func TypeFromString(s string) (Type, error) {
 	}
 }
 
+type EnvironmentWorkloadOrder struct {
+	Field     EnvironmentWorkloadOrderField `json:"field"`
+	Direction model.OrderDirection          `json:"direction"`
+}
+
+type EnvironmentWorkloadOrderField string
+
+const (
+	EnvironmentWorkloadOrderFieldName           EnvironmentWorkloadOrderField = "NAME"
+	EnvironmentWorkloadOrderFieldStatus         EnvironmentWorkloadOrderField = "STATUS"
+	EnvironmentWorkloadOrderFieldDeploymentTime EnvironmentWorkloadOrderField = "DEPLOYMENT_TIME"
+	EnvironmentWorkloadOrderFieldTeamSlug       EnvironmentWorkloadOrderField = "TEAM_SLUG"
+)
+
+var AllEnvironmentWorkloadOrderField = []EnvironmentWorkloadOrderField{
+	EnvironmentWorkloadOrderFieldName,
+	EnvironmentWorkloadOrderFieldStatus,
+	EnvironmentWorkloadOrderFieldDeploymentTime,
+	EnvironmentWorkloadOrderFieldTeamSlug,
+}
+
+func (e EnvironmentWorkloadOrderField) IsValid() bool {
+	for _, f := range AllEnvironmentWorkloadOrderField {
+		if e == f {
+			return true
+		}
+	}
+	return false
+}
+
+func (e EnvironmentWorkloadOrderField) String() string {
+	return string(e)
+}
+
+func (e *EnvironmentWorkloadOrderField) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = EnvironmentWorkloadOrderField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid EnvironmentWorkloadOrderField", str)
+	}
+	return nil
+}
+
+func (e EnvironmentWorkloadOrderField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type Reference struct {
 	// Name is the name of the referenced workload.
 	Name string

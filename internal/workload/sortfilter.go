@@ -9,7 +9,10 @@ import (
 	"github.com/nais/api/internal/graph/sortfilter"
 )
 
-var SortFilter = sortfilter.New[Workload, WorkloadOrderField, *TeamWorkloadsFilter]("NAME", model.OrderDirectionAsc)
+var (
+	SortFilter            = sortfilter.New[Workload, WorkloadOrderField, *TeamWorkloadsFilter]("NAME", model.OrderDirectionAsc)
+	SortFilterEnvironment = sortfilter.New[Workload, EnvironmentWorkloadOrderField, *struct{}]("NAME", model.OrderDirectionAsc)
+)
 
 func init() {
 	SortFilter.RegisterSort("NAME", func(ctx context.Context, a, b Workload) int {
@@ -28,5 +31,13 @@ func init() {
 			return true
 		}
 		return false
+	})
+
+	SortFilterEnvironment.RegisterSort("NAME", func(ctx context.Context, a, b Workload) int {
+		return strings.Compare(a.GetName(), b.GetName())
+	})
+
+	SortFilterEnvironment.RegisterSort("TEAM_SLUG", func(ctx context.Context, a, b Workload) int {
+		return strings.Compare(a.GetTeamSlug().String(), a.GetTeamSlug().String())
 	})
 }
