@@ -14,9 +14,6 @@ const (
 )
 
 func init() {
-	application.AllApplicationOrderField = append(application.AllApplicationOrderField, ApplicationOrderFieldDeploymentTime)
-	job.AllJobOrderField = append(job.AllJobOrderField, JobOrderFieldDeploymentTime)
-
 	sortByTimestamp := func(ctx context.Context, wl workload.Workload) int {
 		ts, err := latestDeploymentTimestampForWorkload(ctx, wl)
 		if err != nil {

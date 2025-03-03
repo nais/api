@@ -79,11 +79,7 @@ const (
 )
 
 func (e RedisInstanceOrderField) IsValid() bool {
-	switch e {
-	case RedisInstanceOrderFieldName, RedisInstanceOrderFieldEnvironment:
-		return true
-	}
-	return false
+	return SortFilterRedisInstance.Supports(e)
 }
 
 func (e RedisInstanceOrderField) String() string {
@@ -119,17 +115,8 @@ const (
 	RedisInstanceAccessOrderFieldWorkload RedisInstanceAccessOrderField = "WORKLOAD"
 )
 
-var AllRedisInstanceAccessOrderField = []RedisInstanceAccessOrderField{
-	RedisInstanceAccessOrderFieldAccess,
-	RedisInstanceAccessOrderFieldWorkload,
-}
-
 func (e RedisInstanceAccessOrderField) IsValid() bool {
-	switch e {
-	case RedisInstanceAccessOrderFieldAccess, RedisInstanceAccessOrderFieldWorkload:
-		return true
-	}
-	return false
+	return SortFilterRedisInstanceAccess.Supports(e)
 }
 
 func (e RedisInstanceAccessOrderField) String() string {

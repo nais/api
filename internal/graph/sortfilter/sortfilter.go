@@ -55,6 +55,11 @@ func (s *SortFilter[T, OrderKey, FilterObj]) RegisterOrderBy(key OrderKey, order
 	}
 }
 
+func (s *SortFilter[T, OrderKey, FilterObj]) Supports(key OrderKey) bool {
+	_, exists := s.orderBys[key]
+	return exists
+}
+
 func (s *SortFilter[T, OrderKey, FilterObj]) RegisterConcurrentOrderBy(key OrderKey, orderBy ConcurrentOrderBy[T]) {
 	if _, ok := s.orderBys[key]; ok {
 		panic(fmt.Sprintf("OrderBy already registered for key: %v", key))

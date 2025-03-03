@@ -79,11 +79,7 @@ const (
 )
 
 func (e ValkeyInstanceOrderField) IsValid() bool {
-	switch e {
-	case ValkeyInstanceOrderFieldName, ValkeyInstanceOrderFieldEnvironment:
-		return true
-	}
-	return false
+	return SortFilterValkeyInstance.Supports(e)
 }
 
 func (e ValkeyInstanceOrderField) String() string {
@@ -119,17 +115,8 @@ const (
 	ValkeyInstanceAccessOrderFieldWorkload ValkeyInstanceAccessOrderField = "WORKLOAD"
 )
 
-var AllValkeyInstanceAccessOrderField = []ValkeyInstanceAccessOrderField{
-	ValkeyInstanceAccessOrderFieldAccess,
-	ValkeyInstanceAccessOrderFieldWorkload,
-}
-
 func (e ValkeyInstanceAccessOrderField) IsValid() bool {
-	switch e {
-	case ValkeyInstanceAccessOrderFieldAccess, ValkeyInstanceAccessOrderFieldWorkload:
-		return true
-	}
-	return false
+	return SortFilterValkeyInstanceAccess.Supports(e)
 }
 
 func (e ValkeyInstanceAccessOrderField) String() string {

@@ -149,20 +149,8 @@ const (
 	WorkloadOrderFieldDeploymentTime WorkloadOrderField = "DEPLOYMENT_TIME"
 )
 
-var AllWorkloadOrderField = []WorkloadOrderField{
-	WorkloadOrderFieldName,
-	WorkloadOrderFieldStatus,
-	WorkloadOrderFieldEnvironment,
-	WorkloadOrderFieldDeploymentTime,
-}
-
 func (e WorkloadOrderField) IsValid() bool {
-	for _, f := range AllWorkloadOrderField {
-		if e == f {
-			return true
-		}
-	}
-	return false
+	return SortFilter.Supports(e)
 }
 
 func (e WorkloadOrderField) String() string {

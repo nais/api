@@ -178,26 +178,13 @@ type SecretOrder struct {
 type SecretOrderField string
 
 const (
-	// Order secrets by name.
-	SecretOrderFieldName SecretOrderField = "NAME"
-	// Order secrets by the name of the environment.
-	SecretOrderFieldEnvironment SecretOrderField = "ENVIRONMENT"
-	// Order secrets by the last time it was modified.
+	SecretOrderFieldName           SecretOrderField = "NAME"
+	SecretOrderFieldEnvironment    SecretOrderField = "ENVIRONMENT"
 	SecretOrderFieldLastModifiedAt SecretOrderField = "LAST_MODIFIED_AT"
 )
 
-var AllSecretOrderField = []SecretOrderField{
-	SecretOrderFieldName,
-	SecretOrderFieldEnvironment,
-	SecretOrderFieldLastModifiedAt,
-}
-
 func (e SecretOrderField) IsValid() bool {
-	switch e {
-	case SecretOrderFieldName, SecretOrderFieldEnvironment, SecretOrderFieldLastModifiedAt:
-		return true
-	}
-	return false
+	return SortFilter.Supports(e)
 }
 
 func (e SecretOrderField) String() string {

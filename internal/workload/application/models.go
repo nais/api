@@ -3,7 +3,6 @@ package application
 import (
 	"fmt"
 	"io"
-	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -156,13 +155,8 @@ const (
 	ApplicationOrderFieldEnvironment ApplicationOrderField = "ENVIRONMENT"
 )
 
-var AllApplicationOrderField = []ApplicationOrderField{
-	ApplicationOrderFieldName,
-	ApplicationOrderFieldEnvironment,
-}
-
 func (e ApplicationOrderField) IsValid() bool {
-	return slices.Contains(AllApplicationOrderField, e)
+	return SortFilter.Supports(e)
 }
 
 func (e ApplicationOrderField) String() string {
