@@ -226,7 +226,6 @@ func AddObjectToDynamicClient(scheme *runtime.Scheme, fc *dynfake.FakeDynamicCli
 			if err := fc.Tracker().Create(gvr, obj, ns); err != nil {
 				panic(err)
 			}
-			fmt.Println("added", gvr, ns)
 		}
 	}
 }

@@ -24,7 +24,7 @@ func ForWorkload(ctx context.Context, w workload.Workload) *WorkloadStatus {
 	}
 
 	slices.SortFunc(errs, func(a, b WorkloadStatusError) int {
-		return int(a.GetLevel() - b.GetLevel())
+		return int(b.GetLevel() - a.GetLevel())
 	})
 
 	return &WorkloadStatus{Errors: errs, State: state}

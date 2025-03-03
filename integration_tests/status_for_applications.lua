@@ -102,7 +102,6 @@ Test.gql("app with deprecated registry", function(t)
 						status = {
 							state = "NOT_NAIS",
 							errors = {
-								expectedMissingSBOM,
 								{
 									__typename = "WorkloadStatusDeprecatedRegistry",
 									level = "WARNING",
@@ -111,6 +110,7 @@ Test.gql("app with deprecated registry", function(t)
 									repository = "",
 									tag = "latest",
 								},
+								expectedMissingSBOM,
 							},
 						},
 					},
@@ -138,12 +138,12 @@ Test.gql("app with naiserator invalid yaml", function(t)
 						status = {
 							state = "NOT_NAIS",
 							errors = {
-								expectedMissingSBOM,
 								{
 									__typename = "WorkloadStatusInvalidNaisYaml",
 									level = "ERROR",
 									detail = "Human text from the operator, received from yaml",
 								},
+								expectedMissingSBOM,
 							},
 						},
 					},
@@ -171,12 +171,12 @@ Test.gql("app with naiserator failed synchronization", function(t)
 						status = {
 							state = "NOT_NAIS",
 							errors = {
-								expectedMissingSBOM,
 								{
 									__typename = "WorkloadStatusSynchronizationFailing",
 									level = "ERROR",
 									detail = "Human text from the operator, received from yaml",
 								},
+								expectedMissingSBOM,
 							},
 						},
 					},
@@ -215,7 +215,6 @@ Test.gql("app with failing netpols", function(t)
 						status = {
 							state = "NOT_NAIS",
 							errors = {
-								expectedMissingSBOM,
 								{
 									__typename = "WorkloadStatusInboundNetwork",
 									level = "WARNING",
@@ -234,6 +233,7 @@ Test.gql("app with failing netpols", function(t)
 										targetWorkloadName = "other-app",
 									},
 								},
+								expectedMissingSBOM,
 							},
 						},
 					},
