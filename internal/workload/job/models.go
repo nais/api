@@ -3,7 +3,6 @@ package job
 import (
 	"fmt"
 	"io"
-	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -231,13 +230,8 @@ const (
 	// JobOrderFieldDeploymentTime JobOrderField = "DEPLOYMENT_TIME"
 )
 
-var AllJobOrderField = []JobOrderField{
-	JobOrderFieldName,
-	JobOrderFieldEnvironment,
-}
-
 func (e JobOrderField) IsValid() bool {
-	return slices.Contains(AllJobOrderField, e)
+	return SortFilter.Supports(e)
 }
 
 func (e JobOrderField) String() string {
