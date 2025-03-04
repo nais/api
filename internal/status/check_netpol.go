@@ -1,5 +1,8 @@
 package status
 
+// This check is temporarily
+
+/*
 import (
 	"context"
 	"strings"
@@ -7,7 +10,6 @@ import (
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/netpol"
 )
-
 type checkNetpol struct{}
 
 func (checkNetpol) Run(ctx context.Context, w workload.Workload) ([]WorkloadStatusError, WorkloadState) {
@@ -78,3 +80,4 @@ func isNotZeroTrust(env string, rule *netpol.NetworkPolicyRule) bool {
 
 	return false
 }
+*/

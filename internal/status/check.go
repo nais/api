@@ -21,7 +21,7 @@ var checksToRun = []Check{
 	checkDeprecatedRegsitry{},
 	checkJobRuns{},
 	checkNaiserator{},
-	checkNetpol{},
+	// checkNetpol{},
 	checkAppNoRunningInstances{},
 	checkVulnerabilities{},
 }
