@@ -77,17 +77,8 @@ type BucketStatus struct {
 
 type BucketOrderField string
 
-const (
-	BucketOrderFieldName        BucketOrderField = "NAME"
-	BucketOrderFieldEnvironment BucketOrderField = "ENVIRONMENT"
-)
-
 func (e BucketOrderField) IsValid() bool {
-	switch e {
-	case BucketOrderFieldName, BucketOrderFieldEnvironment:
-		return true
-	}
-	return false
+	return SortFilter.SupportsSort(e)
 }
 
 func (e BucketOrderField) String() string {

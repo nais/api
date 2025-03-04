@@ -67,7 +67,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, datasets []nais_io
 func orderDatasets(ctx context.Context, datasets []*BigQueryDataset, orderBy *BigQueryDatasetOrder) {
 	if orderBy == nil {
 		orderBy = &BigQueryDatasetOrder{
-			Field:     BigQueryDatasetOrderFieldName,
+			Field:     "NAME",
 			Direction: model.OrderDirectionAsc,
 		}
 	}

@@ -5,16 +5,17 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/sortfilter"
 )
 
-var SortFilter = sortfilter.New[*Job, JobOrderField, *TeamJobsFilter](JobOrderFieldName)
+var SortFilter = sortfilter.New[*Job, JobOrderField, *TeamJobsFilter]("NAME", model.OrderDirectionAsc)
 
 func init() {
-	SortFilter.RegisterOrderBy(JobOrderFieldName, func(ctx context.Context, a, b *Job) int {
+	SortFilter.RegisterSort("NAME", func(ctx context.Context, a, b *Job) int {
 		return strings.Compare(a.GetName(), b.GetName())
 	})
-	SortFilter.RegisterOrderBy(JobOrderFieldEnvironment, func(ctx context.Context, a, b *Job) int {
+	SortFilter.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *Job) int {
 		return strings.Compare(a.GetEnvironmentName(), b.GetEnvironmentName())
 	})
 	SortFilter.RegisterFilter(func(ctx context.Context, v *Job, filter *TeamJobsFilter) bool {

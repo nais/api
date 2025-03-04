@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -83,12 +84,12 @@ const (
 	TeamOrderFieldSlug TeamOrderField = "SLUG"
 )
 
+var AllTeamOrderField = []TeamOrderField{
+	TeamOrderFieldSlug,
+}
+
 func (e TeamOrderField) IsValid() bool {
-	switch e {
-	case TeamOrderFieldSlug:
-		return true
-	}
-	return false
+	return slices.Contains(AllTeamOrderField, e)
 }
 
 func (e TeamOrderField) String() string {

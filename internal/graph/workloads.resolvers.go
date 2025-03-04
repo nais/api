@@ -18,20 +18,23 @@ func (r *teamResolver) Workloads(ctx context.Context, obj *team.Team, first *int
 		return nil, err
 	}
 
-	apps := application.ListAllForTeam(ctx, obj.Slug)
-	jobs := job.ListAllForTeam(ctx, obj.Slug)
+	apps := application.ListAllForTeam(ctx, obj.Slug, nil, nil)
+	jobs := job.ListAllForTeam(ctx, obj.Slug, nil, nil)
 
 	workloads := make([]workload.Workload, 0, len(apps)+len(jobs))
 	for _, app := range apps {
 		workloads = append(workloads, app)
 	}
-	for _, job := range jobs {
-		workloads = append(workloads, job)
+	for _, j := range jobs {
+		workloads = append(workloads, j)
 	}
 
 	filtered := workload.SortFilter.Filter(ctx, workloads, filter)
 	if orderBy == nil {
-		orderBy = &workload.WorkloadOrder{Field: workload.WorkloadOrderFieldName, Direction: model.OrderDirectionAsc}
+		orderBy = &workload.WorkloadOrder{
+			Field:     "NAME",
+			Direction: model.OrderDirectionAsc,
+		}
 	}
 	workload.SortFilter.Sort(ctx, filtered, orderBy.Field, orderBy.Direction)
 

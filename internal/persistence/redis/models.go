@@ -73,17 +73,8 @@ type RedisInstanceOrder struct {
 
 type RedisInstanceOrderField string
 
-const (
-	RedisInstanceOrderFieldName        RedisInstanceOrderField = "NAME"
-	RedisInstanceOrderFieldEnvironment RedisInstanceOrderField = "ENVIRONMENT"
-)
-
 func (e RedisInstanceOrderField) IsValid() bool {
-	switch e {
-	case RedisInstanceOrderFieldName, RedisInstanceOrderFieldEnvironment:
-		return true
-	}
-	return false
+	return SortFilterRedisInstance.SupportsSort(e)
 }
 
 func (e RedisInstanceOrderField) String() string {
@@ -114,22 +105,8 @@ type RedisInstanceAccessOrder struct {
 
 type RedisInstanceAccessOrderField string
 
-const (
-	RedisInstanceAccessOrderFieldAccess   RedisInstanceAccessOrderField = "ACCESS"
-	RedisInstanceAccessOrderFieldWorkload RedisInstanceAccessOrderField = "WORKLOAD"
-)
-
-var AllRedisInstanceAccessOrderField = []RedisInstanceAccessOrderField{
-	RedisInstanceAccessOrderFieldAccess,
-	RedisInstanceAccessOrderFieldWorkload,
-}
-
 func (e RedisInstanceAccessOrderField) IsValid() bool {
-	switch e {
-	case RedisInstanceAccessOrderFieldAccess, RedisInstanceAccessOrderFieldWorkload:
-		return true
-	}
-	return false
+	return SortFilterRedisInstanceAccess.SupportsSort(e)
 }
 
 func (e RedisInstanceAccessOrderField) String() string {

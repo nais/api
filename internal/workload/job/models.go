@@ -3,7 +3,6 @@ package job
 import (
 	"fmt"
 	"io"
-	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -224,20 +223,8 @@ type JobOrder struct {
 
 type JobOrderField string
 
-const (
-	// JobOrderFieldStatus         JobOrderField = "STATUS"
-	JobOrderFieldName        JobOrderField = "NAME"
-	JobOrderFieldEnvironment JobOrderField = "ENVIRONMENT"
-	// JobOrderFieldDeploymentTime JobOrderField = "DEPLOYMENT_TIME"
-)
-
-var AllJobOrderField = []JobOrderField{
-	JobOrderFieldName,
-	JobOrderFieldEnvironment,
-}
-
 func (e JobOrderField) IsValid() bool {
-	return slices.Contains(AllJobOrderField, e)
+	return SortFilter.SupportsSort(e)
 }
 
 func (e JobOrderField) String() string {

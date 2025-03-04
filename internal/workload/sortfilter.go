@@ -5,21 +5,20 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/sortfilter"
 )
 
-var SortFilter = sortfilter.New[Workload, WorkloadOrderField, *TeamWorkloadsFilter](WorkloadOrderFieldName)
+var SortFilter = sortfilter.New[Workload, WorkloadOrderField, *TeamWorkloadsFilter]("NAME", model.OrderDirectionAsc)
 
 func init() {
-	SortFilter.RegisterOrderBy(WorkloadOrderFieldName, func(ctx context.Context, a, b Workload) int {
+	SortFilter.RegisterSort("NAME", func(ctx context.Context, a, b Workload) int {
 		return strings.Compare(a.GetName(), b.GetName())
 	})
-	SortFilter.RegisterOrderBy(WorkloadOrderFieldEnvironment, func(ctx context.Context, a, b Workload) int {
+	SortFilter.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b Workload) int {
 		return strings.Compare(a.GetEnvironmentName(), b.GetEnvironmentName())
 	})
-	SortFilter.RegisterOrderBy(WorkloadOrderFieldDeploymentTime, func(ctx context.Context, a, b Workload) int {
-		return int(a.GetRolloutCompleteTime() - b.GetRolloutCompleteTime())
-	})
+
 	SortFilter.RegisterFilter(func(ctx context.Context, v Workload, filter *TeamWorkloadsFilter) bool {
 		if len(filter.Environments) == 0 {
 			return true

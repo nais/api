@@ -9,6 +9,7 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
@@ -22,12 +23,25 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*Job {
+func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, orderBy *JobOrder, filter *TeamJobsFilter) []*Job {
 	allJobs := fromContext(ctx).jobWatcher.GetByNamespace(teamSlug.String())
 	ret := make([]*Job, len(allJobs))
 	for i, obj := range allJobs {
 		ret[i] = toGraphJob(obj.Obj, obj.Cluster)
 	}
+
+	if filter != nil {
+		ret = SortFilter.Filter(ctx, ret, filter)
+	}
+
+	if orderBy == nil {
+		orderBy = &JobOrder{
+			Field:     "NAME",
+			Direction: model.OrderDirectionAsc,
+		}
+	}
+
+	SortFilter.Sort(ctx, ret, orderBy.Field, orderBy.Direction)
 
 	return ret
 }

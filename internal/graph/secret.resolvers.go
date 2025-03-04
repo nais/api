@@ -137,7 +137,7 @@ func (r *secretResolver) Applications(ctx context.Context, obj *secret.Secret, f
 		return nil, err
 	}
 
-	allApps := application.ListAllForTeam(ctx, obj.TeamSlug)
+	allApps := application.ListAllForTeam(ctx, obj.TeamSlug, nil, nil)
 
 	ret := make([]*application.Application, 0)
 	for _, app := range allApps {
@@ -156,7 +156,7 @@ func (r *secretResolver) Jobs(ctx context.Context, obj *secret.Secret, first *in
 		return nil, err
 	}
 
-	allJobs := job.ListAllForTeam(ctx, obj.TeamSlug)
+	allJobs := job.ListAllForTeam(ctx, obj.TeamSlug, nil, nil)
 
 	ret := make([]*job.Job, 0)
 	for _, j := range allJobs {

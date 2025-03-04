@@ -3,6 +3,7 @@ package repository
 import (
 	"fmt"
 	"io"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -58,11 +59,8 @@ type TeamRepositoryFilter struct {
 	Name *string `json:"name"`
 }
 
-// Ordering options when fetching repositories.
 type RepositoryOrder struct {
-	// The field to order items by.
-	Field RepositoryOrderField `json:"field"`
-	// The direction to order items by.
+	Field     RepositoryOrderField `json:"field"`
 	Direction model.OrderDirection `json:"direction"`
 }
 
@@ -77,7 +75,6 @@ func (o *RepositoryOrder) String() string {
 type RepositoryOrderField string
 
 const (
-	// Order repositories by name.
 	RepositoryOrderFieldName RepositoryOrderField = "NAME"
 )
 
@@ -86,11 +83,7 @@ var AllRepositoryOrderField = []RepositoryOrderField{
 }
 
 func (e RepositoryOrderField) IsValid() bool {
-	switch e {
-	case RepositoryOrderFieldName:
-		return true
-	}
-	return false
+	return slices.Contains(AllRepositoryOrderField, e)
 }
 
 func (e RepositoryOrderField) String() string {

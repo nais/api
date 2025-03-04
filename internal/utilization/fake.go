@@ -77,16 +77,16 @@ func (c *FakeClient) query(ctx context.Context, environment string, query string
 	}
 
 	makeLabels := func() prom.Metric {
-		labels := prom.Metric{}
+		lbls := prom.Metric{}
 		for _, label := range labelsToCreate {
 			switch label {
 			case "namespace":
-				labels["namespace"] = prom.LabelValue(teamSlug)
+				lbls["namespace"] = prom.LabelValue(teamSlug)
 			case "container":
-				labels["container"] = prom.LabelValue(workload)
+				lbls["container"] = prom.LabelValue(workload)
 			}
 		}
-		return labels
+		return lbls
 	}
 
 	value := func() prom.SampleValue {
@@ -103,7 +103,7 @@ func (c *FakeClient) query(ctx context.Context, environment string, query string
 	ret := prom.Vector{}
 	if teamSlug != "" {
 		if workload == "" {
-			for _, app := range application.ListAllForTeam(ctx, teamSlug) {
+			for _, app := range application.ListAllForTeam(ctx, teamSlug, nil, nil) {
 				if app.EnvironmentName != environment {
 					continue
 				}

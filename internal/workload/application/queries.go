@@ -9,6 +9,7 @@ import (
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
@@ -22,14 +23,26 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*Application {
-	k8s := fromContext(ctx).appWatcher
-	allApplications := k8s.GetByNamespace(teamSlug.String())
-
+func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, orderBy *ApplicationOrder, filter *TeamApplicationsFilter) []*Application {
+	allApplications := fromContext(ctx).appWatcher.GetByNamespace(teamSlug.String())
 	ret := make([]*Application, len(allApplications))
 	for i, obj := range allApplications {
 		ret[i] = toGraphApplication(obj.Obj, obj.Cluster)
 	}
+
+	if filter != nil {
+		ret = SortFilter.Filter(ctx, ret, filter)
+	}
+
+	if orderBy == nil {
+		orderBy = &ApplicationOrder{
+			Field:     "NAME",
+			Direction: model.OrderDirectionAsc,
+		}
+	}
+
+	SortFilter.Sort(ctx, ret, orderBy.Field, orderBy.Direction)
+
 	return ret
 }
 

@@ -169,35 +169,14 @@ type RemoveSecretValuePayload struct {
 }
 
 type SecretOrder struct {
-	// The field to order items by.
-	Field SecretOrderField `json:"field"`
-	// The direction to order items by.
+	Field     SecretOrderField     `json:"field"`
 	Direction model.OrderDirection `json:"direction"`
 }
 
 type SecretOrderField string
 
-const (
-	// Order secrets by name.
-	SecretOrderFieldName SecretOrderField = "NAME"
-	// Order secrets by the name of the environment.
-	SecretOrderFieldEnvironment SecretOrderField = "ENVIRONMENT"
-	// Order secrets by the last time it was modified.
-	SecretOrderFieldLastModifiedAt SecretOrderField = "LAST_MODIFIED_AT"
-)
-
-var AllSecretOrderField = []SecretOrderField{
-	SecretOrderFieldName,
-	SecretOrderFieldEnvironment,
-	SecretOrderFieldLastModifiedAt,
-}
-
 func (e SecretOrderField) IsValid() bool {
-	switch e {
-	case SecretOrderFieldName, SecretOrderFieldEnvironment, SecretOrderFieldLastModifiedAt:
-		return true
-	}
-	return false
+	return SortFilter.SupportsSort(e)
 }
 
 func (e SecretOrderField) String() string {
@@ -221,8 +200,6 @@ func (e SecretOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-// Input for filtering the secrets of a team.
 type SecretFilter struct {
-	// Filter by usage of the secret.
 	InUse *bool `json:"inUse"`
 }

@@ -73,17 +73,8 @@ type OpenSearchOrder struct {
 
 type OpenSearchOrderField string
 
-const (
-	OpenSearchOrderFieldName        OpenSearchOrderField = "NAME"
-	OpenSearchOrderFieldEnvironment OpenSearchOrderField = "ENVIRONMENT"
-)
-
 func (e OpenSearchOrderField) IsValid() bool {
-	switch e {
-	case OpenSearchOrderFieldName, OpenSearchOrderFieldEnvironment:
-		return true
-	}
-	return false
+	return SortFilterOpenSearch.SupportsSort(e)
 }
 
 func (e OpenSearchOrderField) String() string {
@@ -114,17 +105,8 @@ type OpenSearchAccessOrder struct {
 
 type OpenSearchAccessOrderField string
 
-const (
-	OpenSearchAccessOrderFieldAccess   OpenSearchAccessOrderField = "ACCESS"
-	OpenSearchAccessOrderFieldWorkload OpenSearchAccessOrderField = "WORKLOAD"
-)
-
 func (e OpenSearchAccessOrderField) IsValid() bool {
-	switch e {
-	case OpenSearchAccessOrderFieldAccess, OpenSearchAccessOrderFieldWorkload:
-		return true
-	}
-	return false
+	return SortFilterOpenSearchAccess.SupportsSort(e)
 }
 
 func (e OpenSearchAccessOrderField) String() string {

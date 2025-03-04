@@ -142,27 +142,8 @@ type WorkloadOrder struct {
 
 type WorkloadOrderField string
 
-const (
-	WorkloadOrderFieldName           WorkloadOrderField = "NAME"
-	WorkloadOrderFieldStatus         WorkloadOrderField = "STATUS"
-	WorkloadOrderFieldEnvironment    WorkloadOrderField = "ENVIRONMENT"
-	WorkloadOrderFieldDeploymentTime WorkloadOrderField = "DEPLOYMENT_TIME"
-)
-
-var AllWorkloadOrderField = []WorkloadOrderField{
-	WorkloadOrderFieldName,
-	WorkloadOrderFieldStatus,
-	WorkloadOrderFieldEnvironment,
-	WorkloadOrderFieldDeploymentTime,
-}
-
 func (e WorkloadOrderField) IsValid() bool {
-	for _, f := range AllWorkloadOrderField {
-		if e == f {
-			return true
-		}
-	}
-	return false
+	return SortFilter.SupportsSort(e)
 }
 
 func (e WorkloadOrderField) String() string {

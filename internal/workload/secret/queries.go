@@ -27,11 +27,6 @@ import (
 )
 
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, workload workload.Workload, page *pagination.Pagination) (*SecretConnection, error) {
-	// all := fromContext(ctx).secretWatcher.GetByNamespace(
-	// 	teamSlug.String(),
-	// 	watcher.InCluster(environmentName),
-	// 	watcher.WithObjectNames(workload.GetSecrets()),
-	// )
 	client, err := fromContext(ctx).Client(ctx, environmentName)
 	if err != nil {
 		return nil, err
@@ -58,7 +53,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 		ret = append(ret, s)
 	}
 
-	SortFilter.Sort(ctx, ret, SecretOrderFieldName, model.OrderDirectionAsc)
+	SortFilter.Sort(ctx, ret, "NAME", model.OrderDirectionAsc)
 	paginated := pagination.Slice(ret, page)
 	return pagination.NewConnection(paginated, page, len(ret)), nil
 }
@@ -89,7 +84,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 
 	if orderBy == nil {
 		orderBy = &SecretOrder{
-			Field:     SecretOrderFieldName,
+			Field:     "NAME",
 			Direction: model.OrderDirectionAsc,
 		}
 	}

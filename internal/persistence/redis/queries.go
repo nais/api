@@ -55,7 +55,10 @@ func ListAccess(ctx context.Context, redis *RedisInstance, page *pagination.Pagi
 	all = append(all, jobAccess...)
 
 	if orderBy == nil {
-		orderBy = &RedisInstanceAccessOrder{Field: RedisInstanceAccessOrderFieldAccess, Direction: model.OrderDirectionAsc}
+		orderBy = &RedisInstanceAccessOrder{
+			Field:     "ACCESS",
+			Direction: model.OrderDirectionAsc,
+		}
 	}
 	SortFilterRedisInstanceAccess.Sort(ctx, all, orderBy.Field, orderBy.Direction)
 
@@ -82,7 +85,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, references []nais_
 func orderRedisInstance(ctx context.Context, instances []*RedisInstance, orderBy *RedisInstanceOrder) {
 	if orderBy == nil {
 		orderBy = &RedisInstanceOrder{
-			Field:     RedisInstanceOrderFieldName,
+			Field:     "NAME",
 			Direction: model.OrderDirectionAsc,
 		}
 	}

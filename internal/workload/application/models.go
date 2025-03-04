@@ -3,7 +3,6 @@ package application
 import (
 	"fmt"
 	"io"
-	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -151,18 +150,8 @@ type ApplicationOrder struct {
 
 type ApplicationOrderField string
 
-const (
-	ApplicationOrderFieldName        ApplicationOrderField = "NAME"
-	ApplicationOrderFieldEnvironment ApplicationOrderField = "ENVIRONMENT"
-)
-
-var AllApplicationOrderField = []ApplicationOrderField{
-	ApplicationOrderFieldName,
-	ApplicationOrderFieldEnvironment,
-}
-
 func (e ApplicationOrderField) IsValid() bool {
-	return slices.Contains(AllApplicationOrderField, e)
+	return SortFilter.SupportsSort(e)
 }
 
 func (e ApplicationOrderField) String() string {
