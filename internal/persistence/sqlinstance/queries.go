@@ -65,7 +65,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 func orderSQLInstances(ctx context.Context, instances []*SQLInstance, orderBy *SQLInstanceOrder) {
 	if orderBy == nil {
 		orderBy = &SQLInstanceOrder{
-			Field:     SQLInstanceOrderFieldName,
+			Field:     "NAME",
 			Direction: model.OrderDirectionAsc,
 		}
 	}
@@ -104,7 +104,7 @@ func ListSQLInstanceUsers(ctx context.Context, sqlInstance *SQLInstance, page *p
 
 	if orderBy == nil {
 		orderBy = &SQLInstanceUserOrder{
-			Field:     SQLInstanceUserOrderFieldName,
+			Field:     "NAME",
 			Direction: model.OrderDirectionAsc,
 		}
 	}

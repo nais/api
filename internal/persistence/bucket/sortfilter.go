@@ -4,16 +4,17 @@ import (
 	"context"
 	"strings"
 
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/sortfilter"
 )
 
-var SortFilter = sortfilter.New[*Bucket, BucketOrderField, struct{}](BucketOrderFieldName)
+var SortFilter = sortfilter.New[*Bucket, BucketOrderField, struct{}]("NAME", model.OrderDirectionAsc)
 
 func init() {
-	SortFilter.RegisterOrderBy(BucketOrderFieldName, func(ctx context.Context, a, b *Bucket) int {
+	SortFilter.RegisterOrderBy("NAME", func(ctx context.Context, a, b *Bucket) int {
 		return strings.Compare(a.GetName(), b.GetName())
 	})
-	SortFilter.RegisterOrderBy(BucketOrderFieldEnvironment, func(ctx context.Context, a, b *Bucket) int {
+	SortFilter.RegisterOrderBy("ENVIRONMENT", func(ctx context.Context, a, b *Bucket) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
 	})
 }

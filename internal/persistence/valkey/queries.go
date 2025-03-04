@@ -55,7 +55,10 @@ func ListAccess(ctx context.Context, valkey *ValkeyInstance, page *pagination.Pa
 	all = append(all, jobAccess...)
 
 	if orderBy == nil {
-		orderBy = &ValkeyInstanceAccessOrder{Field: ValkeyInstanceAccessOrderFieldAccess, Direction: model.OrderDirectionAsc}
+		orderBy = &ValkeyInstanceAccessOrder{
+			Field:     "ACCESS",
+			Direction: model.OrderDirectionAsc,
+		}
 	}
 	SortFilterValkeyInstanceAccess.Sort(ctx, all, orderBy.Field, orderBy.Direction)
 
@@ -82,7 +85,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 func orderValkeyInstance(ctx context.Context, instances []*ValkeyInstance, orderBy *ValkeyInstanceOrder) {
 	if orderBy == nil {
 		orderBy = &ValkeyInstanceOrder{
-			Field:     ValkeyInstanceOrderFieldName,
+			Field:     "NAME",
 			Direction: model.OrderDirectionAsc,
 		}
 	}

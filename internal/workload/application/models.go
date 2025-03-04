@@ -150,11 +150,6 @@ type ApplicationOrder struct {
 
 type ApplicationOrderField string
 
-const (
-	ApplicationOrderFieldName        ApplicationOrderField = "NAME"
-	ApplicationOrderFieldEnvironment ApplicationOrderField = "ENVIRONMENT"
-)
-
 func (e ApplicationOrderField) IsValid() bool {
 	return SortFilter.Supports(e)
 }

@@ -6,7 +6,6 @@ import (
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
-	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/status"
 	"github.com/nais/api/internal/team"
@@ -102,26 +101,12 @@ func (r *restartApplicationPayloadResolver) Application(ctx context.Context, obj
 }
 
 func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) (*pagination.Connection[*application.Application], error) {
-	if filter == nil {
-		filter = &application.TeamApplicationsFilter{}
-	}
-
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	if orderBy == nil {
-		orderBy = &application.ApplicationOrder{
-			Field:     application.ApplicationOrderFieldName,
-			Direction: model.OrderDirectionAsc,
-		}
-	}
-
-	ret := application.ListAllForTeam(ctx, obj.Slug)
-	ret = application.SortFilter.Filter(ctx, ret, filter)
-
-	application.SortFilter.Sort(ctx, ret, orderBy.Field, orderBy.Direction)
+	ret := application.ListAllForTeam(ctx, obj.Slug, orderBy, filter)
 	apps := pagination.Slice(ret, page)
 	return pagination.NewConnection(apps, page, len(ret)), nil
 }
@@ -131,7 +116,7 @@ func (r *teamEnvironmentResolver) Application(ctx context.Context, obj *team.Tea
 }
 
 func (r *teamInventoryCountApplicationsResolver) NotNais(ctx context.Context, obj *application.TeamInventoryCountApplications) (int, error) {
-	apps := application.ListAllForTeam(ctx, obj.TeamSlug)
+	apps := application.ListAllForTeam(ctx, obj.TeamSlug, nil, nil)
 	notNais := 0
 
 	for _, app := range apps {
@@ -144,7 +129,7 @@ func (r *teamInventoryCountApplicationsResolver) NotNais(ctx context.Context, ob
 }
 
 func (r *teamInventoryCountsResolver) Applications(ctx context.Context, obj *team.TeamInventoryCounts) (*application.TeamInventoryCountApplications, error) {
-	apps := application.ListAllForTeam(ctx, obj.TeamSlug)
+	apps := application.ListAllForTeam(ctx, obj.TeamSlug, nil, nil)
 
 	return &application.TeamInventoryCountApplications{
 		Total:    len(apps),

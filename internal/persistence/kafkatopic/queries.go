@@ -71,7 +71,7 @@ func stringMatch(s, pattern string) bool {
 func orderTopics(ctx context.Context, topics []*KafkaTopic, orderBy *KafkaTopicOrder) {
 	if orderBy == nil {
 		orderBy = &KafkaTopicOrder{
-			Field:     KafkaTopicOrderFieldName,
+			Field:     "NAME",
 			Direction: model.OrderDirectionAsc,
 		}
 	}
@@ -81,7 +81,7 @@ func orderTopics(ctx context.Context, topics []*KafkaTopic, orderBy *KafkaTopicO
 func orderTopicACLs(ctx context.Context, acls []*KafkaTopicACL, orderBy *KafkaTopicACLOrder) {
 	if orderBy == nil {
 		orderBy = &KafkaTopicACLOrder{
-			Field:     KafkaTopicACLOrderFieldTopicName,
+			Field:     "TOPIC_NAME",
 			Direction: model.OrderDirectionAsc,
 		}
 	}

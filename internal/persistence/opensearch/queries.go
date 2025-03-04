@@ -55,7 +55,10 @@ func ListAccess(ctx context.Context, openSearch *OpenSearch, page *pagination.Pa
 	all = append(all, jobAccess...)
 
 	if orderBy == nil {
-		orderBy = &OpenSearchAccessOrder{Field: OpenSearchAccessOrderFieldAccess, Direction: model.OrderDirectionAsc}
+		orderBy = &OpenSearchAccessOrder{
+			Field:     "ACCESS",
+			Direction: model.OrderDirectionAsc,
+		}
 	}
 	SortFilterOpenSearchAccess.Sort(ctx, all, orderBy.Field, orderBy.Direction)
 
@@ -73,7 +76,10 @@ func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environment string,
 
 func orderOpenSearch(ctx context.Context, ret []*OpenSearch, orderBy *OpenSearchOrder) {
 	if orderBy == nil {
-		orderBy = &OpenSearchOrder{Field: OpenSearchOrderFieldName, Direction: model.OrderDirectionAsc}
+		orderBy = &OpenSearchOrder{
+			Field:     "NAME",
+			Direction: model.OrderDirectionAsc,
+		}
 	}
 
 	SortFilterOpenSearch.Sort(ctx, ret, orderBy.Field, orderBy.Direction)

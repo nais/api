@@ -4,32 +4,33 @@ import (
 	"context"
 	"strings"
 
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/sortfilter"
 )
 
 var (
-	SortFilterTopic    = sortfilter.New[*KafkaTopic, KafkaTopicOrderField, struct{}](KafkaTopicOrderFieldName)
-	SortFilterTopicACL = sortfilter.New[*KafkaTopicACL, KafkaTopicACLOrderField, *KafkaTopicACLFilter](KafkaTopicACLOrderFieldTopicName)
+	SortFilterTopic    = sortfilter.New[*KafkaTopic, KafkaTopicOrderField, struct{}]("NAME", model.OrderDirectionAsc)
+	SortFilterTopicACL = sortfilter.New[*KafkaTopicACL, KafkaTopicACLOrderField, *KafkaTopicACLFilter]("TOPIC_NAME", model.OrderDirectionAsc)
 )
 
 func init() {
-	SortFilterTopic.RegisterOrderBy(KafkaTopicOrderFieldName, func(ctx context.Context, a, b *KafkaTopic) int {
+	SortFilterTopic.RegisterOrderBy("NAME", func(ctx context.Context, a, b *KafkaTopic) int {
 		return strings.Compare(a.GetName(), b.GetName())
 	})
-	SortFilterTopic.RegisterOrderBy(KafkaTopicOrderFieldEnvironment, func(ctx context.Context, a, b *KafkaTopic) int {
+	SortFilterTopic.RegisterOrderBy("ENVIRONMENT", func(ctx context.Context, a, b *KafkaTopic) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
 	})
 
-	SortFilterTopicACL.RegisterOrderBy(KafkaTopicACLOrderFieldTopicName, func(ctx context.Context, a, b *KafkaTopicACL) int {
+	SortFilterTopicACL.RegisterOrderBy("TOPIC_NAME", func(ctx context.Context, a, b *KafkaTopicACL) int {
 		return strings.Compare(a.TopicName, b.TopicName)
 	})
-	SortFilterTopicACL.RegisterOrderBy(KafkaTopicACLOrderFieldTeamSlug, func(ctx context.Context, a, b *KafkaTopicACL) int {
+	SortFilterTopicACL.RegisterOrderBy("TEAM_SLUG", func(ctx context.Context, a, b *KafkaTopicACL) int {
 		return strings.Compare(a.TeamName, b.TeamName)
 	})
-	SortFilterTopicACL.RegisterOrderBy(KafkaTopicACLOrderFieldAccess, func(ctx context.Context, a, b *KafkaTopicACL) int {
+	SortFilterTopicACL.RegisterOrderBy("ACCESS", func(ctx context.Context, a, b *KafkaTopicACL) int {
 		return strings.Compare(a.Access, b.Access)
 	})
-	SortFilterTopicACL.RegisterOrderBy(KafkaTopicACLOrderFieldConsumer, func(ctx context.Context, a, b *KafkaTopicACL) int {
+	SortFilterTopicACL.RegisterOrderBy("CONSUMER", func(ctx context.Context, a, b *KafkaTopicACL) int {
 		return strings.Compare(a.WorkloadName, b.WorkloadName)
 	})
 

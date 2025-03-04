@@ -139,17 +139,8 @@ type SQLInstanceUserOrder struct {
 
 type SQLInstanceUserOrderField string
 
-const (
-	SQLInstanceUserOrderFieldName           SQLInstanceUserOrderField = "NAME"
-	SQLInstanceUserOrderFieldAuthentication SQLInstanceUserOrderField = "AUTHENTICATION"
-)
-
 func (e SQLInstanceUserOrderField) IsValid() bool {
-	switch e {
-	case SQLInstanceUserOrderFieldName, SQLInstanceUserOrderFieldAuthentication:
-		return true
-	}
-	return false
+	return SortFilterSQLInstanceUser.Supports(e)
 }
 
 func (e SQLInstanceUserOrderField) String() string {
@@ -180,23 +171,8 @@ type SQLInstanceOrder struct {
 
 type SQLInstanceOrderField string
 
-const (
-	SQLInstanceOrderFieldName        SQLInstanceOrderField = "NAME"
-	SQLInstanceOrderFieldVersion     SQLInstanceOrderField = "VERSION"
-	SQLInstanceOrderFieldEnvironment SQLInstanceOrderField = "ENVIRONMENT"
-	SQLInstanceOrderFieldStatus      SQLInstanceOrderField = "STATUS"
-	SQLInstanceOrderFieldCost        SQLInstanceOrderField = "COST"
-	SQLInstanceOrderFieldCPU         SQLInstanceOrderField = "CPU_UTILIZATION"
-	SQLInstanceOrderFieldMemory      SQLInstanceOrderField = "MEMORY_UTILIZATION"
-	SQLInstanceOrderFieldDisk        SQLInstanceOrderField = "DISK_UTILIZATION"
-)
-
 func (e SQLInstanceOrderField) IsValid() bool {
-	switch e {
-	case SQLInstanceOrderFieldName, SQLInstanceOrderFieldVersion, SQLInstanceOrderFieldEnvironment, SQLInstanceOrderFieldStatus, SQLInstanceOrderFieldCost, SQLInstanceOrderFieldCPU, SQLInstanceOrderFieldMemory, SQLInstanceOrderFieldDisk:
-		return true
-	}
-	return false
+	return SortFilterSQLInstance.Supports(e)
 }
 
 func (e SQLInstanceOrderField) String() string {

@@ -5,23 +5,23 @@ import (
 	"strings"
 
 	"github.com/nais/api/internal/cost"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/sortfilter"
 )
 
 var (
-	SortFilterSQLInstance     = sortfilter.New[*SQLInstance, SQLInstanceOrderField, struct{}](SQLInstanceOrderFieldName)
-	SortFilterSQLInstanceUser = sortfilter.New[*SQLInstanceUser, SQLInstanceUserOrderField, struct{}](SQLInstanceUserOrderFieldName)
+	SortFilterSQLInstance     = sortfilter.New[*SQLInstance, SQLInstanceOrderField, struct{}]("NAME", model.OrderDirectionAsc)
+	SortFilterSQLInstanceUser = sortfilter.New[*SQLInstanceUser, SQLInstanceUserOrderField, struct{}]("NAME", model.OrderDirectionAsc)
 )
 
 func init() {
-	// SQLInstance
-	SortFilterSQLInstance.RegisterOrderBy(SQLInstanceOrderFieldName, func(ctx context.Context, a, b *SQLInstance) int {
+	SortFilterSQLInstance.RegisterOrderBy("NAME", func(ctx context.Context, a, b *SQLInstance) int {
 		return strings.Compare(a.GetName(), b.GetName())
 	})
-	SortFilterSQLInstance.RegisterOrderBy(SQLInstanceOrderFieldEnvironment, func(ctx context.Context, a, b *SQLInstance) int {
+	SortFilterSQLInstance.RegisterOrderBy("ENVIRONMENT", func(ctx context.Context, a, b *SQLInstance) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
 	})
-	SortFilterSQLInstance.RegisterOrderBy(SQLInstanceOrderFieldVersion, func(ctx context.Context, a, b *SQLInstance) int {
+	SortFilterSQLInstance.RegisterOrderBy("VERSION", func(ctx context.Context, a, b *SQLInstance) int {
 		if a.Version == nil && b.Version == nil {
 			return 0
 		} else if a.Version == nil {
@@ -31,7 +31,7 @@ func init() {
 		}
 		return strings.Compare(*a.Version, *b.Version)
 	})
-	SortFilterSQLInstance.RegisterConcurrentOrderBy(SQLInstanceOrderFieldStatus, func(ctx context.Context, a *SQLInstance) int {
+	SortFilterSQLInstance.RegisterConcurrentOrderBy("STATUS", func(ctx context.Context, a *SQLInstance) int {
 		stateOrder := map[string]int{
 			"UNSPECIFIED":    0,
 			"RUNNABLE":       1,
@@ -49,7 +49,7 @@ func init() {
 
 		return stateOrder[aState.String()]
 	})
-	SortFilterSQLInstance.RegisterConcurrentOrderBy(SQLInstanceOrderFieldCost, func(ctx context.Context, a *SQLInstance) int {
+	SortFilterSQLInstance.RegisterConcurrentOrderBy("COST", func(ctx context.Context, a *SQLInstance) int {
 		if a.WorkloadReference == nil {
 			return 0
 		}
@@ -60,7 +60,7 @@ func init() {
 
 		return int(aCost * 100)
 	})
-	SortFilterSQLInstance.RegisterConcurrentOrderBy(SQLInstanceOrderFieldCPU, func(ctx context.Context, a *SQLInstance) int {
+	SortFilterSQLInstance.RegisterConcurrentOrderBy("CPU_UTILIZATION", func(ctx context.Context, a *SQLInstance) int {
 		aCPU, err := CPUForInstance(ctx, a.ProjectID, a.Name)
 		if err != nil {
 			return 0
@@ -72,7 +72,7 @@ func init() {
 
 		return int(aCPU.Utilization * 100)
 	})
-	SortFilterSQLInstance.RegisterConcurrentOrderBy(SQLInstanceOrderFieldMemory, func(ctx context.Context, a *SQLInstance) int {
+	SortFilterSQLInstance.RegisterConcurrentOrderBy("MEMORY_UTILIZATION", func(ctx context.Context, a *SQLInstance) int {
 		aMemory, err := MemoryForInstance(ctx, a.ProjectID, a.Name)
 		if err != nil {
 			return 0
@@ -84,7 +84,7 @@ func init() {
 
 		return int(aMemory.Utilization * 100)
 	})
-	SortFilterSQLInstance.RegisterConcurrentOrderBy(SQLInstanceOrderFieldDisk, func(ctx context.Context, a *SQLInstance) int {
+	SortFilterSQLInstance.RegisterConcurrentOrderBy("DISK_UTILIZATION", func(ctx context.Context, a *SQLInstance) int {
 		aDisk, err := DiskForInstance(ctx, a.ProjectID, a.Name)
 		if err != nil {
 			return 0
@@ -98,10 +98,10 @@ func init() {
 	})
 
 	// SQLInstanceUser
-	SortFilterSQLInstanceUser.RegisterOrderBy(SQLInstanceUserOrderFieldName, func(ctx context.Context, a, b *SQLInstanceUser) int {
+	SortFilterSQLInstanceUser.RegisterOrderBy("NAME", func(ctx context.Context, a, b *SQLInstanceUser) int {
 		return strings.Compare(a.Name, b.Name)
 	})
-	SortFilterSQLInstanceUser.RegisterOrderBy(SQLInstanceUserOrderFieldAuthentication, func(ctx context.Context, a, b *SQLInstanceUser) int {
+	SortFilterSQLInstanceUser.RegisterOrderBy("AUTHENTICATION", func(ctx context.Context, a, b *SQLInstanceUser) int {
 		return strings.Compare(a.Authentication, b.Authentication)
 	})
 }

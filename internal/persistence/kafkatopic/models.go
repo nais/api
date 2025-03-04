@@ -5,8 +5,6 @@ import (
 	"io"
 	"strconv"
 
-	"k8s.io/apimachinery/pkg/runtime/schema"
-
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
@@ -14,6 +12,7 @@ import (
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 type (
@@ -61,17 +60,8 @@ type KafkaTopicOrder struct {
 
 type KafkaTopicOrderField string
 
-const (
-	KafkaTopicOrderFieldName        KafkaTopicOrderField = "NAME"
-	KafkaTopicOrderFieldEnvironment KafkaTopicOrderField = "ENVIRONMENT"
-)
-
 func (e KafkaTopicOrderField) IsValid() bool {
-	switch e {
-	case KafkaTopicOrderFieldName, KafkaTopicOrderFieldEnvironment:
-		return true
-	}
-	return false
+	return SortFilterTopic.Supports(e)
 }
 
 func (e KafkaTopicOrderField) String() string {
@@ -124,19 +114,8 @@ type KafkaTopicConfiguration struct {
 
 type KafkaTopicACLOrderField string
 
-const (
-	KafkaTopicACLOrderFieldTopicName KafkaTopicACLOrderField = "TOPIC_NAME"
-	KafkaTopicACLOrderFieldTeamSlug  KafkaTopicACLOrderField = "TEAM_SLUG"
-	KafkaTopicACLOrderFieldConsumer  KafkaTopicACLOrderField = "CONSUMER"
-	KafkaTopicACLOrderFieldAccess    KafkaTopicACLOrderField = "ACCESS"
-)
-
 func (e KafkaTopicACLOrderField) IsValid() bool {
-	switch e {
-	case KafkaTopicACLOrderFieldTopicName, KafkaTopicACLOrderFieldTeamSlug, KafkaTopicACLOrderFieldConsumer, KafkaTopicACLOrderFieldAccess:
-		return true
-	}
-	return false
+	return SortFilterTopicACL.Supports(e)
 }
 
 func (e KafkaTopicACLOrderField) String() string {

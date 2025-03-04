@@ -50,7 +50,7 @@ func (r *kafkaTopicResolver) ACL(ctx context.Context, obj *kafkatopic.KafkaTopic
 
 	if orderBy == nil {
 		orderBy = &kafkatopic.KafkaTopicACLOrder{
-			Field:     kafkatopic.KafkaTopicACLOrderFieldTopicName,
+			Field:     "TOPIC_NAME",
 			Direction: model.OrderDirectionAsc,
 		}
 	}

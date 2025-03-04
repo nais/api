@@ -223,13 +223,6 @@ type JobOrder struct {
 
 type JobOrderField string
 
-const (
-	// JobOrderFieldStatus         JobOrderField = "STATUS"
-	JobOrderFieldName        JobOrderField = "NAME"
-	JobOrderFieldEnvironment JobOrderField = "ENVIRONMENT"
-	// JobOrderFieldDeploymentTime JobOrderField = "DEPLOYMENT_TIME"
-)
-
 func (e JobOrderField) IsValid() bool {
 	return SortFilter.Supports(e)
 }

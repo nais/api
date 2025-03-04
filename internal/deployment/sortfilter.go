@@ -8,11 +8,6 @@ import (
 	"github.com/nais/api/internal/workload/job"
 )
 
-const (
-	ApplicationOrderFieldDeploymentTime application.ApplicationOrderField = "DEPLOYMENT_TIME"
-	JobOrderFieldDeploymentTime         job.JobOrderField                 = "DEPLOYMENT_TIME"
-)
-
 func init() {
 	sortByTimestamp := func(ctx context.Context, wl workload.Workload) int {
 		ts, err := latestDeploymentTimestampForWorkload(ctx, wl)
@@ -23,11 +18,15 @@ func init() {
 		return int(ts.Unix())
 	}
 
-	application.SortFilter.RegisterConcurrentOrderBy(ApplicationOrderFieldDeploymentTime, func(ctx context.Context, a *application.Application) int {
+	application.SortFilter.RegisterConcurrentOrderBy("DEPLOYMENT_TIME", func(ctx context.Context, a *application.Application) int {
 		return sortByTimestamp(ctx, a)
 	})
 
-	job.SortFilter.RegisterConcurrentOrderBy(JobOrderFieldDeploymentTime, func(ctx context.Context, a *job.Job) int {
+	job.SortFilter.RegisterConcurrentOrderBy("DEPLOYMENT_TIME", func(ctx context.Context, a *job.Job) int {
+		return sortByTimestamp(ctx, a)
+	})
+
+	workload.SortFilter.RegisterConcurrentOrderBy("DEPLOYMENT_TIME", func(ctx context.Context, a workload.Workload) int {
 		return sortByTimestamp(ctx, a)
 	})
 }

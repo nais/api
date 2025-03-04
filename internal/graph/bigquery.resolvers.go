@@ -39,7 +39,7 @@ func (r *bigQueryDatasetResolver) Access(ctx context.Context, obj *bigquery.BigQ
 
 	if orderBy == nil {
 		orderBy = &bigquery.BigQueryDatasetAccessOrder{
-			Field:     bigquery.BigQueryDatasetAccessOrderFieldEmail,
+			Field:     "EMAIL",
 			Direction: model.OrderDirectionAsc,
 		}
 	}

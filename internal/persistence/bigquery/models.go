@@ -81,17 +81,8 @@ type BigQueryDatasetOrder struct {
 
 type BigQueryDatasetOrderField string
 
-const (
-	BigQueryDatasetOrderFieldName        BigQueryDatasetOrderField = "NAME"
-	BigQueryDatasetOrderFieldEnvironment BigQueryDatasetOrderField = "ENVIRONMENT"
-)
-
 func (e BigQueryDatasetOrderField) IsValid() bool {
-	switch e {
-	case BigQueryDatasetOrderFieldName, BigQueryDatasetOrderFieldEnvironment:
-		return true
-	}
-	return false
+	return SortFilter.Supports(e)
 }
 
 func (e BigQueryDatasetOrderField) String() string {
@@ -122,17 +113,8 @@ type BigQueryDatasetAccessOrder struct {
 
 type BigQueryDatasetAccessOrderField string
 
-const (
-	BigQueryDatasetAccessOrderFieldRole  BigQueryDatasetAccessOrderField = "ROLE"
-	BigQueryDatasetAccessOrderFieldEmail BigQueryDatasetAccessOrderField = "EMAIL"
-)
-
 func (e BigQueryDatasetAccessOrderField) IsValid() bool {
-	switch e {
-	case BigQueryDatasetAccessOrderFieldRole, BigQueryDatasetAccessOrderFieldEmail:
-		return true
-	}
-	return false
+	return SortFilterAccess.Supports(e)
 }
 
 func (e BigQueryDatasetAccessOrderField) String() string {

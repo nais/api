@@ -73,11 +73,6 @@ type ValkeyInstanceOrder struct {
 
 type ValkeyInstanceOrderField string
 
-const (
-	ValkeyInstanceOrderFieldName        ValkeyInstanceOrderField = "NAME"
-	ValkeyInstanceOrderFieldEnvironment ValkeyInstanceOrderField = "ENVIRONMENT"
-)
-
 func (e ValkeyInstanceOrderField) IsValid() bool {
 	return SortFilterValkeyInstance.Supports(e)
 }
@@ -109,11 +104,6 @@ type ValkeyInstanceAccessOrder struct {
 }
 
 type ValkeyInstanceAccessOrderField string
-
-const (
-	ValkeyInstanceAccessOrderFieldAccess   ValkeyInstanceAccessOrderField = "ACCESS"
-	ValkeyInstanceAccessOrderFieldWorkload ValkeyInstanceAccessOrderField = "WORKLOAD"
-)
 
 func (e ValkeyInstanceAccessOrderField) IsValid() bool {
 	return SortFilterValkeyInstanceAccess.Supports(e)

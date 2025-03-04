@@ -6,7 +6,6 @@ import (
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
-	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/status"
 	"github.com/nais/api/internal/team"
@@ -96,25 +95,12 @@ func (r *mutationResolver) TriggerJob(ctx context.Context, input job.TriggerJobI
 }
 
 func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder, filter *job.TeamJobsFilter) (*pagination.Connection[*job.Job], error) {
-	if filter == nil {
-		filter = &job.TeamJobsFilter{}
-	}
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	if orderBy == nil {
-		orderBy = &job.JobOrder{
-			Field:     job.JobOrderFieldName,
-			Direction: model.OrderDirectionAsc,
-		}
-	}
-
-	ret := job.ListAllForTeam(ctx, obj.Slug)
-	ret = job.SortFilter.Filter(ctx, ret, filter)
-
-	job.SortFilter.Sort(ctx, ret, orderBy.Field, orderBy.Direction)
+	ret := job.ListAllForTeam(ctx, obj.Slug, orderBy, filter)
 	jobs := pagination.Slice(ret, page)
 	return pagination.NewConnection(jobs, page, len(ret)), nil
 }
@@ -124,11 +110,11 @@ func (r *teamEnvironmentResolver) Job(ctx context.Context, obj *team.TeamEnviron
 }
 
 func (r *teamInventoryCountJobsResolver) NotNais(ctx context.Context, obj *job.TeamInventoryCountJobs) (int, error) {
-	jobs := job.ListAllForTeam(ctx, obj.TeamSlug)
+	jobs := job.ListAllForTeam(ctx, obj.TeamSlug, nil, nil)
 	notNais := 0
 
-	for _, job := range jobs {
-		s := status.ForWorkload(ctx, job)
+	for _, j := range jobs {
+		s := status.ForWorkload(ctx, j)
 		if s.State == status.WorkloadStateNotNais {
 			notNais++
 		}
@@ -137,10 +123,10 @@ func (r *teamInventoryCountJobsResolver) NotNais(ctx context.Context, obj *job.T
 }
 
 func (r *teamInventoryCountsResolver) Jobs(ctx context.Context, obj *team.TeamInventoryCounts) (*job.TeamInventoryCountJobs, error) {
-	apps := job.ListAllForTeam(ctx, obj.TeamSlug)
+	jobs := job.ListAllForTeam(ctx, obj.TeamSlug, nil, nil)
 
 	return &job.TeamInventoryCountJobs{
-		Total:    len(apps),
+		Total:    len(jobs),
 		TeamSlug: obj.TeamSlug,
 	}, nil
 }

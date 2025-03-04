@@ -27,19 +27,34 @@ type orderByValue[V any] struct {
 }
 
 type SortFilter[V any, OrderKey comparable, FilterObj comparable] struct {
-	orderBys       map[OrderKey]orderByValue[V]
-	filters        []Filter[V, FilterObj]
-	defaultSortKey OrderKey
+	orderBys               map[OrderKey]orderByValue[V]
+	filters                []Filter[V, FilterObj]
+	tieBreakSortKey        OrderKey
+	tieBreakOrderDirection model.OrderDirection
 }
 
-// New creates a new SortFilter with the given defaultSortKey.
-// The defaultSortKey is used when two values are equal in the OrderBy function.
-// The defaultSortKey must not be registered as a ConcurrentOrderBy.
-func New[V any, OrderKey comparable, FilterObj comparable](defaultSortKey OrderKey) *SortFilter[V, OrderKey, FilterObj] {
+// New creates a new SortFilter with the given tieBreakSortKey and tieBreakOrderDirection.
+// The tieBreakSortKey is used when two values are equal in the OrderBy function.
+// The tieBreakSortKey must not be registered as a ConcurrentOrderBy.
+func New[V any, OrderKey comparable, FilterObj comparable](tieBreakSortKey OrderKey, tieBreakOrderDirection model.OrderDirection) *SortFilter[V, OrderKey, FilterObj] {
 	return &SortFilter[V, OrderKey, FilterObj]{
-		orderBys:       make(map[OrderKey]orderByValue[V]),
-		defaultSortKey: defaultSortKey,
+		orderBys:               make(map[OrderKey]orderByValue[V]),
+		tieBreakSortKey:        tieBreakSortKey,
+		tieBreakOrderDirection: tieBreakOrderDirection,
 	}
+}
+
+func (s *SortFilter[T, OrderKey, FilterObj]) DefaultSortKey() OrderKey {
+	return s.tieBreakSortKey
+}
+
+func (s *SortFilter[T, OrderKey, FilterObj]) DefaultOrderDirection() model.OrderDirection {
+	return s.tieBreakOrderDirection
+}
+
+func (s *SortFilter[T, OrderKey, FilterObj]) Supports(key OrderKey) bool {
+	_, exists := s.orderBys[key]
+	return exists
 }
 
 func (s *SortFilter[T, OrderKey, FilterObj]) RegisterFilter(filter Filter[T, FilterObj]) {
@@ -53,11 +68,6 @@ func (s *SortFilter[T, OrderKey, FilterObj]) RegisterOrderBy(key OrderKey, order
 	s.orderBys[key] = orderByValue[T]{
 		orderBy: orderBy,
 	}
-}
-
-func (s *SortFilter[T, OrderKey, FilterObj]) Supports(key OrderKey) bool {
-	_, exists := s.orderBys[key]
-	return exists
 }
 
 func (s *SortFilter[T, OrderKey, FilterObj]) RegisterConcurrentOrderBy(key OrderKey, orderBy ConcurrentOrderBy[T]) {
@@ -181,5 +191,9 @@ func (s *SortFilter[T, OrderKey, FilterObj]) sort(ctx context.Context, items []T
 }
 
 func (s *SortFilter[T, OrderKey, FilterObj]) defaultSort(ctx context.Context, a, b T) int {
-	return s.orderBys[s.defaultSortKey].orderBy(ctx, a, b)
+	if s.tieBreakOrderDirection == model.OrderDirectionDesc {
+		return s.orderBys[s.tieBreakSortKey].orderBy(ctx, b, a)
+	}
+
+	return s.orderBys[s.tieBreakSortKey].orderBy(ctx, a, b)
 }

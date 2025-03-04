@@ -56,7 +56,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, references []nais_
 func orderBuckets(ctx context.Context, buckets []*Bucket, orderBy *BucketOrder) {
 	if orderBy == nil {
 		orderBy = &BucketOrder{
-			Field:     BucketOrderFieldName,
+			Field:     "NAME",
 			Direction: model.OrderDirectionAsc,
 		}
 	}
