@@ -14,13 +14,13 @@ import (
 var SortFilter = sortfilter.New[*Secret, SecretOrderField, *SecretFilter]("NAME", model.OrderDirectionAsc)
 
 func init() {
-	SortFilter.RegisterOrderBy("NAME", func(ctx context.Context, a, b *Secret) int {
+	SortFilter.RegisterSort("NAME", func(ctx context.Context, a, b *Secret) int {
 		return strings.Compare(a.GetName(), b.GetName())
 	})
-	SortFilter.RegisterOrderBy("ENVIRONMENT", func(ctx context.Context, a, b *Secret) int {
+	SortFilter.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *Secret) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
 	})
-	SortFilter.RegisterOrderBy("LAST_MODIFIED_AT", func(ctx context.Context, a, b *Secret) int {
+	SortFilter.RegisterSort("LAST_MODIFIED_AT", func(ctx context.Context, a, b *Secret) int {
 		if a.LastModifiedAt == nil && b.LastModifiedAt == nil {
 			return 0
 		}

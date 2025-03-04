@@ -224,7 +224,7 @@ type JobOrder struct {
 type JobOrderField string
 
 func (e JobOrderField) IsValid() bool {
-	return SortFilter.Supports(e)
+	return SortFilter.SupportsSort(e)
 }
 
 func (e JobOrderField) String() string {

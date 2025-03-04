@@ -12,10 +12,10 @@ import (
 var SortFilter = sortfilter.New[*Job, JobOrderField, *TeamJobsFilter]("NAME", model.OrderDirectionAsc)
 
 func init() {
-	SortFilter.RegisterOrderBy("NAME", func(ctx context.Context, a, b *Job) int {
+	SortFilter.RegisterSort("NAME", func(ctx context.Context, a, b *Job) int {
 		return strings.Compare(a.GetName(), b.GetName())
 	})
-	SortFilter.RegisterOrderBy("ENVIRONMENT", func(ctx context.Context, a, b *Job) int {
+	SortFilter.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *Job) int {
 		return strings.Compare(a.GetEnvironmentName(), b.GetEnvironmentName())
 	})
 	SortFilter.RegisterFilter(func(ctx context.Context, v *Job, filter *TeamJobsFilter) bool {

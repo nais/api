@@ -14,17 +14,17 @@ var (
 )
 
 func init() {
-	SortFilterRedisInstance.RegisterOrderBy("NAME", func(ctx context.Context, a, b *RedisInstance) int {
+	SortFilterRedisInstance.RegisterSort("NAME", func(ctx context.Context, a, b *RedisInstance) int {
 		return strings.Compare(a.GetName(), b.GetName())
 	})
-	SortFilterRedisInstance.RegisterOrderBy("ENVIRONMENT", func(ctx context.Context, a, b *RedisInstance) int {
+	SortFilterRedisInstance.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *RedisInstance) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
 	})
 
-	SortFilterRedisInstanceAccess.RegisterOrderBy("ACCESS", func(ctx context.Context, a, b *RedisInstanceAccess) int {
+	SortFilterRedisInstanceAccess.RegisterSort("ACCESS", func(ctx context.Context, a, b *RedisInstanceAccess) int {
 		return strings.Compare(a.Access, b.Access)
 	})
-	SortFilterRedisInstanceAccess.RegisterOrderBy("WORKLOAD", func(ctx context.Context, a, b *RedisInstanceAccess) int {
+	SortFilterRedisInstanceAccess.RegisterSort("WORKLOAD", func(ctx context.Context, a, b *RedisInstanceAccess) int {
 		return strings.Compare(a.WorkloadReference.Name, b.WorkloadReference.Name)
 	})
 }

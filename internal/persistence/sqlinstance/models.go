@@ -140,7 +140,7 @@ type SQLInstanceUserOrder struct {
 type SQLInstanceUserOrderField string
 
 func (e SQLInstanceUserOrderField) IsValid() bool {
-	return SortFilterSQLInstanceUser.Supports(e)
+	return SortFilterSQLInstanceUser.SupportsSort(e)
 }
 
 func (e SQLInstanceUserOrderField) String() string {
@@ -172,7 +172,7 @@ type SQLInstanceOrder struct {
 type SQLInstanceOrderField string
 
 func (e SQLInstanceOrderField) IsValid() bool {
-	return SortFilterSQLInstance.Supports(e)
+	return SortFilterSQLInstance.SupportsSort(e)
 }
 
 func (e SQLInstanceOrderField) String() string {

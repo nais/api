@@ -11,10 +11,10 @@ import (
 var SortFilter = sortfilter.New[*Bucket, BucketOrderField, struct{}]("NAME", model.OrderDirectionAsc)
 
 func init() {
-	SortFilter.RegisterOrderBy("NAME", func(ctx context.Context, a, b *Bucket) int {
+	SortFilter.RegisterSort("NAME", func(ctx context.Context, a, b *Bucket) int {
 		return strings.Compare(a.GetName(), b.GetName())
 	})
-	SortFilter.RegisterOrderBy("ENVIRONMENT", func(ctx context.Context, a, b *Bucket) int {
+	SortFilter.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *Bucket) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
 	})
 }

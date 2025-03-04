@@ -151,7 +151,7 @@ type ApplicationOrder struct {
 type ApplicationOrderField string
 
 func (e ApplicationOrderField) IsValid() bool {
-	return SortFilter.Supports(e)
+	return SortFilter.SupportsSort(e)
 }
 
 func (e ApplicationOrderField) String() string {

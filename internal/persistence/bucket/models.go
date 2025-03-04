@@ -78,7 +78,7 @@ type BucketStatus struct {
 type BucketOrderField string
 
 func (e BucketOrderField) IsValid() bool {
-	return SortFilter.Supports(e)
+	return SortFilter.SupportsSort(e)
 }
 
 func (e BucketOrderField) String() string {

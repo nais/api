@@ -176,7 +176,7 @@ type SecretOrder struct {
 type SecretOrderField string
 
 func (e SecretOrderField) IsValid() bool {
-	return SortFilter.Supports(e)
+	return SortFilter.SupportsSort(e)
 }
 
 func (e SecretOrderField) String() string {

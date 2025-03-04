@@ -9,15 +9,15 @@ import (
 )
 
 func init() {
-	application.SortFilter.RegisterConcurrentOrderBy("STATUS", func(ctx context.Context, a *application.Application) int {
+	application.SortFilter.RegisterConcurrentSort("STATUS", func(ctx context.Context, a *application.Application) int {
 		return int(ForWorkload(ctx, a).State)
 	})
 
-	job.SortFilter.RegisterConcurrentOrderBy("STATUS", func(ctx context.Context, a *job.Job) int {
+	job.SortFilter.RegisterConcurrentSort("STATUS", func(ctx context.Context, a *job.Job) int {
 		return int(ForWorkload(ctx, a).State)
 	})
 
-	workload.SortFilter.RegisterConcurrentOrderBy("STATUS", func(ctx context.Context, a workload.Workload) int {
+	workload.SortFilter.RegisterConcurrentSort("STATUS", func(ctx context.Context, a workload.Workload) int {
 		return int(ForWorkload(ctx, a).State)
 	})
 }

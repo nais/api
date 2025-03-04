@@ -12,10 +12,10 @@ import (
 var SortFilter = sortfilter.New[Workload, WorkloadOrderField, *TeamWorkloadsFilter]("NAME", model.OrderDirectionAsc)
 
 func init() {
-	SortFilter.RegisterOrderBy("NAME", func(ctx context.Context, a, b Workload) int {
+	SortFilter.RegisterSort("NAME", func(ctx context.Context, a, b Workload) int {
 		return strings.Compare(a.GetName(), b.GetName())
 	})
-	SortFilter.RegisterOrderBy("ENVIRONMENT", func(ctx context.Context, a, b Workload) int {
+	SortFilter.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b Workload) int {
 		return strings.Compare(a.GetEnvironmentName(), b.GetEnvironmentName())
 	})
 

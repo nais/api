@@ -61,7 +61,7 @@ type KafkaTopicOrder struct {
 type KafkaTopicOrderField string
 
 func (e KafkaTopicOrderField) IsValid() bool {
-	return SortFilterTopic.Supports(e)
+	return SortFilterTopic.SupportsSort(e)
 }
 
 func (e KafkaTopicOrderField) String() string {
@@ -115,7 +115,7 @@ type KafkaTopicConfiguration struct {
 type KafkaTopicACLOrderField string
 
 func (e KafkaTopicACLOrderField) IsValid() bool {
-	return SortFilterTopicACL.Supports(e)
+	return SortFilterTopicACL.SupportsSort(e)
 }
 
 func (e KafkaTopicACLOrderField) String() string {

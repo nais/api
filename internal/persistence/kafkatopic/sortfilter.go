@@ -14,23 +14,23 @@ var (
 )
 
 func init() {
-	SortFilterTopic.RegisterOrderBy("NAME", func(ctx context.Context, a, b *KafkaTopic) int {
+	SortFilterTopic.RegisterSort("NAME", func(ctx context.Context, a, b *KafkaTopic) int {
 		return strings.Compare(a.GetName(), b.GetName())
 	})
-	SortFilterTopic.RegisterOrderBy("ENVIRONMENT", func(ctx context.Context, a, b *KafkaTopic) int {
+	SortFilterTopic.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *KafkaTopic) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
 	})
 
-	SortFilterTopicACL.RegisterOrderBy("TOPIC_NAME", func(ctx context.Context, a, b *KafkaTopicACL) int {
+	SortFilterTopicACL.RegisterSort("TOPIC_NAME", func(ctx context.Context, a, b *KafkaTopicACL) int {
 		return strings.Compare(a.TopicName, b.TopicName)
 	})
-	SortFilterTopicACL.RegisterOrderBy("TEAM_SLUG", func(ctx context.Context, a, b *KafkaTopicACL) int {
+	SortFilterTopicACL.RegisterSort("TEAM_SLUG", func(ctx context.Context, a, b *KafkaTopicACL) int {
 		return strings.Compare(a.TeamName, b.TeamName)
 	})
-	SortFilterTopicACL.RegisterOrderBy("ACCESS", func(ctx context.Context, a, b *KafkaTopicACL) int {
+	SortFilterTopicACL.RegisterSort("ACCESS", func(ctx context.Context, a, b *KafkaTopicACL) int {
 		return strings.Compare(a.Access, b.Access)
 	})
-	SortFilterTopicACL.RegisterOrderBy("CONSUMER", func(ctx context.Context, a, b *KafkaTopicACL) int {
+	SortFilterTopicACL.RegisterSort("CONSUMER", func(ctx context.Context, a, b *KafkaTopicACL) int {
 		return strings.Compare(a.WorkloadName, b.WorkloadName)
 	})
 

@@ -18,15 +18,15 @@ func init() {
 		return int(ts.Unix())
 	}
 
-	application.SortFilter.RegisterConcurrentOrderBy("DEPLOYMENT_TIME", func(ctx context.Context, a *application.Application) int {
+	application.SortFilter.RegisterConcurrentSort("DEPLOYMENT_TIME", func(ctx context.Context, a *application.Application) int {
 		return sortByTimestamp(ctx, a)
 	})
 
-	job.SortFilter.RegisterConcurrentOrderBy("DEPLOYMENT_TIME", func(ctx context.Context, a *job.Job) int {
+	job.SortFilter.RegisterConcurrentSort("DEPLOYMENT_TIME", func(ctx context.Context, a *job.Job) int {
 		return sortByTimestamp(ctx, a)
 	})
 
-	workload.SortFilter.RegisterConcurrentOrderBy("DEPLOYMENT_TIME", func(ctx context.Context, a workload.Workload) int {
+	workload.SortFilter.RegisterConcurrentSort("DEPLOYMENT_TIME", func(ctx context.Context, a workload.Workload) int {
 		return sortByTimestamp(ctx, a)
 	})
 }

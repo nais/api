@@ -15,13 +15,13 @@ var (
 )
 
 func init() {
-	SortFilterSQLInstance.RegisterOrderBy("NAME", func(ctx context.Context, a, b *SQLInstance) int {
+	SortFilterSQLInstance.RegisterSort("NAME", func(ctx context.Context, a, b *SQLInstance) int {
 		return strings.Compare(a.GetName(), b.GetName())
 	})
-	SortFilterSQLInstance.RegisterOrderBy("ENVIRONMENT", func(ctx context.Context, a, b *SQLInstance) int {
+	SortFilterSQLInstance.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *SQLInstance) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
 	})
-	SortFilterSQLInstance.RegisterOrderBy("VERSION", func(ctx context.Context, a, b *SQLInstance) int {
+	SortFilterSQLInstance.RegisterSort("VERSION", func(ctx context.Context, a, b *SQLInstance) int {
 		if a.Version == nil && b.Version == nil {
 			return 0
 		} else if a.Version == nil {
@@ -31,7 +31,7 @@ func init() {
 		}
 		return strings.Compare(*a.Version, *b.Version)
 	})
-	SortFilterSQLInstance.RegisterConcurrentOrderBy("STATUS", func(ctx context.Context, a *SQLInstance) int {
+	SortFilterSQLInstance.RegisterConcurrentSort("STATUS", func(ctx context.Context, a *SQLInstance) int {
 		stateOrder := map[string]int{
 			"UNSPECIFIED":    0,
 			"RUNNABLE":       1,
@@ -49,7 +49,7 @@ func init() {
 
 		return stateOrder[aState.String()]
 	})
-	SortFilterSQLInstance.RegisterConcurrentOrderBy("COST", func(ctx context.Context, a *SQLInstance) int {
+	SortFilterSQLInstance.RegisterConcurrentSort("COST", func(ctx context.Context, a *SQLInstance) int {
 		if a.WorkloadReference == nil {
 			return 0
 		}
@@ -60,7 +60,7 @@ func init() {
 
 		return int(aCost * 100)
 	})
-	SortFilterSQLInstance.RegisterConcurrentOrderBy("CPU_UTILIZATION", func(ctx context.Context, a *SQLInstance) int {
+	SortFilterSQLInstance.RegisterConcurrentSort("CPU_UTILIZATION", func(ctx context.Context, a *SQLInstance) int {
 		aCPU, err := CPUForInstance(ctx, a.ProjectID, a.Name)
 		if err != nil {
 			return 0
@@ -72,7 +72,7 @@ func init() {
 
 		return int(aCPU.Utilization * 100)
 	})
-	SortFilterSQLInstance.RegisterConcurrentOrderBy("MEMORY_UTILIZATION", func(ctx context.Context, a *SQLInstance) int {
+	SortFilterSQLInstance.RegisterConcurrentSort("MEMORY_UTILIZATION", func(ctx context.Context, a *SQLInstance) int {
 		aMemory, err := MemoryForInstance(ctx, a.ProjectID, a.Name)
 		if err != nil {
 			return 0
@@ -84,7 +84,7 @@ func init() {
 
 		return int(aMemory.Utilization * 100)
 	})
-	SortFilterSQLInstance.RegisterConcurrentOrderBy("DISK_UTILIZATION", func(ctx context.Context, a *SQLInstance) int {
+	SortFilterSQLInstance.RegisterConcurrentSort("DISK_UTILIZATION", func(ctx context.Context, a *SQLInstance) int {
 		aDisk, err := DiskForInstance(ctx, a.ProjectID, a.Name)
 		if err != nil {
 			return 0
@@ -98,10 +98,10 @@ func init() {
 	})
 
 	// SQLInstanceUser
-	SortFilterSQLInstanceUser.RegisterOrderBy("NAME", func(ctx context.Context, a, b *SQLInstanceUser) int {
+	SortFilterSQLInstanceUser.RegisterSort("NAME", func(ctx context.Context, a, b *SQLInstanceUser) int {
 		return strings.Compare(a.Name, b.Name)
 	})
-	SortFilterSQLInstanceUser.RegisterOrderBy("AUTHENTICATION", func(ctx context.Context, a, b *SQLInstanceUser) int {
+	SortFilterSQLInstanceUser.RegisterSort("AUTHENTICATION", func(ctx context.Context, a, b *SQLInstanceUser) int {
 		return strings.Compare(a.Authentication, b.Authentication)
 	})
 }

@@ -14,17 +14,17 @@ var (
 )
 
 func init() {
-	SortFilterValkeyInstance.RegisterOrderBy("NAME", func(ctx context.Context, a, b *ValkeyInstance) int {
+	SortFilterValkeyInstance.RegisterSort("NAME", func(ctx context.Context, a, b *ValkeyInstance) int {
 		return strings.Compare(a.GetName(), b.GetName())
 	})
-	SortFilterValkeyInstance.RegisterOrderBy("ENVIRONMENT", func(ctx context.Context, a, b *ValkeyInstance) int {
+	SortFilterValkeyInstance.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *ValkeyInstance) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
 	})
 
-	SortFilterValkeyInstanceAccess.RegisterOrderBy("ACCESS", func(ctx context.Context, a, b *ValkeyInstanceAccess) int {
+	SortFilterValkeyInstanceAccess.RegisterSort("ACCESS", func(ctx context.Context, a, b *ValkeyInstanceAccess) int {
 		return strings.Compare(a.Access, b.Access)
 	})
-	SortFilterValkeyInstanceAccess.RegisterOrderBy("WORKLOAD", func(ctx context.Context, a, b *ValkeyInstanceAccess) int {
+	SortFilterValkeyInstanceAccess.RegisterSort("WORKLOAD", func(ctx context.Context, a, b *ValkeyInstanceAccess) int {
 		return strings.Compare(a.WorkloadReference.Name, b.WorkloadReference.Name)
 	})
 }

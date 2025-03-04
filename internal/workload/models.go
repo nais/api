@@ -143,7 +143,7 @@ type WorkloadOrder struct {
 type WorkloadOrderField string
 
 func (e WorkloadOrderField) IsValid() bool {
-	return SortFilter.Supports(e)
+	return SortFilter.SupportsSort(e)
 }
 
 func (e WorkloadOrderField) String() string {

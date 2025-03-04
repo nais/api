@@ -9,77 +9,77 @@ import (
 	"github.com/sourcegraph/conc/pool"
 )
 
-// OrderBy compares two values of type V and returns an integer indicating their order.
+// SortFunc compares two values of type V and returns an integer indicating their order.
 // If a < b, the function should return a negative value.
 // If a == b, the function should return 0.
 // If a > b, the function should return a positive value.
-type OrderBy[V any] func(ctx context.Context, a, b V) int
+type SortFunc[V any] func(ctx context.Context, a, b V) int
 
-// ConcurrentOrderBy should return a integer indicating the order of the given value.
-// The results will later be ordered by the returned value.
-type ConcurrentOrderBy[V any] func(ctx context.Context, a V) int
+// ConcurrentSortFunc should return an integer indicating the order of the given value.
+// The results will later be sorted by the returned value.
+type ConcurrentSortFunc[V any] func(ctx context.Context, a V) int
 
+// Filter is a function that returns true if the given value should be included in the result.
 type Filter[V any, FilterObj any] func(ctx context.Context, v V, filter FilterObj) bool
 
-type orderByValue[V any] struct {
-	concurrentOrderBy ConcurrentOrderBy[V]
-	orderBy           OrderBy[V]
+type funcs[V any] struct {
+	concurrentSort ConcurrentSortFunc[V]
+	sort           SortFunc[V]
 }
 
-type SortFilter[V any, OrderKey comparable, FilterObj comparable] struct {
-	orderBys               map[OrderKey]orderByValue[V]
-	filters                []Filter[V, FilterObj]
-	tieBreakSortKey        OrderKey
-	tieBreakOrderDirection model.OrderDirection
+type SortFilter[V any, SortField comparable, FilterObj comparable] struct {
+	sorters               map[SortField]funcs[V]
+	filters               []Filter[V, FilterObj]
+	tieBreakSortField     SortField
+	tieBreakSortDirection model.OrderDirection
 }
 
-// New creates a new SortFilter with the given tieBreakSortKey and tieBreakOrderDirection.
-// The tieBreakSortKey is used when two values are equal in the OrderBy function.
-// The tieBreakSortKey must not be registered as a ConcurrentOrderBy.
-func New[V any, OrderKey comparable, FilterObj comparable](tieBreakSortKey OrderKey, tieBreakOrderDirection model.OrderDirection) *SortFilter[V, OrderKey, FilterObj] {
-	return &SortFilter[V, OrderKey, FilterObj]{
-		orderBys:               make(map[OrderKey]orderByValue[V]),
-		tieBreakSortKey:        tieBreakSortKey,
-		tieBreakOrderDirection: tieBreakOrderDirection,
+// New creates a new SortFilter with the given tieBreakSortField and tieBreakSortDirection.
+// The tieBreakSortField is used when two values are equal in the Sort function.
+// The tieBreakSortField must not be registered as a ConcurrentSort.
+func New[V any, SortField comparable, FilterObj comparable](tieBreakSortField SortField, tieBreakSortDirection model.OrderDirection) *SortFilter[V, SortField, FilterObj] {
+	return &SortFilter[V, SortField, FilterObj]{
+		sorters:               make(map[SortField]funcs[V]),
+		tieBreakSortField:     tieBreakSortField,
+		tieBreakSortDirection: tieBreakSortDirection,
 	}
 }
 
-func (s *SortFilter[T, OrderKey, FilterObj]) DefaultSortKey() OrderKey {
-	return s.tieBreakSortKey
-}
-
-func (s *SortFilter[T, OrderKey, FilterObj]) DefaultOrderDirection() model.OrderDirection {
-	return s.tieBreakOrderDirection
-}
-
-func (s *SortFilter[T, OrderKey, FilterObj]) Supports(key OrderKey) bool {
-	_, exists := s.orderBys[key]
+// SupportsSort returns true if the given field is registered using RegisterSort or RegisterConcurrentSort.
+func (s *SortFilter[T, SortField, FilterObj]) SupportsSort(field SortField) bool {
+	_, exists := s.sorters[field]
 	return exists
 }
 
-func (s *SortFilter[T, OrderKey, FilterObj]) RegisterFilter(filter Filter[T, FilterObj]) {
+func (s *SortFilter[T, SortField, FilterObj]) RegisterSort(field SortField, sort SortFunc[T]) {
+	if _, ok := s.sorters[field]; ok {
+		panic(fmt.Sprintf("sort field is already registered: %v", field))
+	}
+
+	s.sorters[field] = funcs[T]{
+		sort: sort,
+	}
+}
+
+func (s *SortFilter[T, SortField, FilterObj]) RegisterConcurrentSort(field SortField, sort ConcurrentSortFunc[T]) {
+	if _, ok := s.sorters[field]; ok {
+		panic(fmt.Sprintf("sort field is already registered: %v", field))
+	} else if field == s.tieBreakSortField {
+		panic(fmt.Sprintf("sort field is used for tie break and can not be concurrent: %v", field))
+	}
+
+	s.sorters[field] = funcs[T]{
+		concurrentSort: sort,
+	}
+}
+
+// RegisterFilter registers a filter function that will be applied to the items when calling Filter.
+func (s *SortFilter[T, SortField, FilterObj]) RegisterFilter(filter Filter[T, FilterObj]) {
 	s.filters = append(s.filters, filter)
 }
 
-func (s *SortFilter[T, OrderKey, FilterObj]) RegisterOrderBy(key OrderKey, orderBy OrderBy[T]) {
-	if _, ok := s.orderBys[key]; ok {
-		panic(fmt.Sprintf("OrderBy already registered for key: %v", key))
-	}
-	s.orderBys[key] = orderByValue[T]{
-		orderBy: orderBy,
-	}
-}
-
-func (s *SortFilter[T, OrderKey, FilterObj]) RegisterConcurrentOrderBy(key OrderKey, orderBy ConcurrentOrderBy[T]) {
-	if _, ok := s.orderBys[key]; ok {
-		panic(fmt.Sprintf("OrderBy already registered for key: %v", key))
-	}
-	s.orderBys[key] = orderByValue[T]{
-		concurrentOrderBy: orderBy,
-	}
-}
-
-func (s *SortFilter[T, OrderKey, FilterObj]) Filter(ctx context.Context, items []T, filter FilterObj) []T {
+// Filter filters all items based on the filters registered with RegisterFilter.
+func (s *SortFilter[T, SortField, FilterObj]) Filter(ctx context.Context, items []T, filter FilterObj) []T {
 	var nillish FilterObj
 	if filter == nillish {
 		return items
@@ -118,25 +118,27 @@ func (s *SortFilter[T, OrderKey, FilterObj]) Filter(ctx context.Context, items [
 	return filtered
 }
 
-func (s *SortFilter[T, OrderKey, FilterObj]) Sort(ctx context.Context, items []T, key OrderKey, direction model.OrderDirection) {
-	orderBy, ok := s.orderBys[key]
+// Sort will sort items based on a specific field and direction. The field used must be registered with RegisterSort or
+// RegisterConcurrentSort.
+func (s *SortFilter[T, SortField, FilterObj]) Sort(ctx context.Context, items []T, field SortField, direction model.OrderDirection) {
+	sorter, ok := s.sorters[field]
 	if !ok {
-		panic(fmt.Sprintf("OrderBy not registered for key: %v", key))
+		panic(fmt.Sprintf("no sort registered for field: %v", field))
 	}
 
 	if len(items) == 0 {
 		return
 	}
 
-	if orderBy.concurrentOrderBy != nil {
-		s.sortConcurrent(ctx, items, orderBy.concurrentOrderBy, direction)
+	if sorter.concurrentSort != nil {
+		s.sortConcurrent(ctx, items, sorter.concurrentSort, direction)
 		return
 	}
 
-	s.sort(ctx, items, orderBy.orderBy, direction)
+	s.sort(ctx, items, sorter.sort, direction)
 }
 
-func (s *SortFilter[T, OrderKey, FilterObj]) sortConcurrent(ctx context.Context, items []T, orderBy ConcurrentOrderBy[T], direction model.OrderDirection) {
+func (s *SortFilter[T, SortField, FilterObj]) sortConcurrent(ctx context.Context, items []T, sort ConcurrentSortFunc[T], direction model.OrderDirection) {
 	type sortable struct {
 		item T
 		key  int
@@ -147,26 +149,26 @@ func (s *SortFilter[T, OrderKey, FilterObj]) sortConcurrent(ctx context.Context,
 		wg.Go(func(ctx context.Context) (sortable, error) {
 			return sortable{
 				item: item,
-				key:  orderBy(ctx, item),
+				key:  sort(ctx, item),
 			}, nil
 		})
 	}
 
 	res, err := wg.Wait()
 	if err != nil {
-		// This should never happen, as orderBy doesn't return errors.
+		// This should never happen, as sort doesn't return errors.
 		panic(err)
 	}
 
-	slices.SortStableFunc(res, func(i, j sortable) int {
-		if j.key == i.key {
-			return s.defaultSort(ctx, i.item, j.item)
+	slices.SortStableFunc(res, func(a, b sortable) int {
+		if b.key == a.key {
+			return s.tieBreak(ctx, a.item, b.item)
 		}
 
 		if direction == model.OrderDirectionDesc {
-			return j.key - i.key
+			return b.key - a.key
 		}
-		return i.key - j.key
+		return a.key - b.key
 	})
 
 	for i, r := range res {
@@ -174,26 +176,26 @@ func (s *SortFilter[T, OrderKey, FilterObj]) sortConcurrent(ctx context.Context,
 	}
 }
 
-func (s *SortFilter[T, OrderKey, FilterObj]) sort(ctx context.Context, items []T, orderBy OrderBy[T], direction model.OrderDirection) {
-	slices.SortStableFunc(items, func(i, j T) int {
+func (s *SortFilter[T, SortField, FilterObj]) sort(ctx context.Context, items []T, sort SortFunc[T], direction model.OrderDirection) {
+	slices.SortStableFunc(items, func(a, b T) int {
 		var ret int
 		if direction == model.OrderDirectionDesc {
-			ret = orderBy(ctx, j, i)
+			ret = sort(ctx, b, a)
 		} else {
-			ret = orderBy(ctx, i, j)
+			ret = sort(ctx, a, b)
 		}
 
 		if ret == 0 {
-			return s.defaultSort(ctx, i, j)
+			return s.tieBreak(ctx, a, b)
 		}
 		return ret
 	})
 }
 
-func (s *SortFilter[T, OrderKey, FilterObj]) defaultSort(ctx context.Context, a, b T) int {
-	if s.tieBreakOrderDirection == model.OrderDirectionDesc {
-		return s.orderBys[s.tieBreakSortKey].orderBy(ctx, b, a)
+func (s *SortFilter[T, SortField, FilterObj]) tieBreak(ctx context.Context, a, b T) int {
+	if s.tieBreakSortDirection == model.OrderDirectionDesc {
+		return s.sorters[s.tieBreakSortField].sort(ctx, b, a)
 	}
 
-	return s.orderBys[s.tieBreakSortKey].orderBy(ctx, a, b)
+	return s.sorters[s.tieBreakSortField].sort(ctx, a, b)
 }

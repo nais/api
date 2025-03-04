@@ -74,7 +74,7 @@ type RedisInstanceOrder struct {
 type RedisInstanceOrderField string
 
 func (e RedisInstanceOrderField) IsValid() bool {
-	return SortFilterRedisInstance.Supports(e)
+	return SortFilterRedisInstance.SupportsSort(e)
 }
 
 func (e RedisInstanceOrderField) String() string {
@@ -106,7 +106,7 @@ type RedisInstanceAccessOrder struct {
 type RedisInstanceAccessOrderField string
 
 func (e RedisInstanceAccessOrderField) IsValid() bool {
-	return SortFilterRedisInstanceAccess.Supports(e)
+	return SortFilterRedisInstanceAccess.SupportsSort(e)
 }
 
 func (e RedisInstanceAccessOrderField) String() string {

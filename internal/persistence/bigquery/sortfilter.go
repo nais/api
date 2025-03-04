@@ -14,17 +14,17 @@ var (
 )
 
 func init() {
-	SortFilter.RegisterOrderBy("NAME", func(ctx context.Context, a, b *BigQueryDataset) int {
+	SortFilter.RegisterSort("NAME", func(ctx context.Context, a, b *BigQueryDataset) int {
 		return strings.Compare(a.GetName(), b.GetName())
 	})
-	SortFilter.RegisterOrderBy("ENVIRONMENT", func(ctx context.Context, a, b *BigQueryDataset) int {
+	SortFilter.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *BigQueryDataset) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
 	})
 
-	SortFilterAccess.RegisterOrderBy("EMAIL", func(ctx context.Context, a, b *BigQueryDatasetAccess) int {
+	SortFilterAccess.RegisterSort("EMAIL", func(ctx context.Context, a, b *BigQueryDatasetAccess) int {
 		return strings.Compare(a.Email, b.Email)
 	})
-	SortFilterAccess.RegisterOrderBy("ROLE", func(ctx context.Context, a, b *BigQueryDatasetAccess) int {
+	SortFilterAccess.RegisterSort("ROLE", func(ctx context.Context, a, b *BigQueryDatasetAccess) int {
 		return strings.Compare(a.Role, b.Role)
 	})
 }

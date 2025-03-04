@@ -74,7 +74,7 @@ type OpenSearchOrder struct {
 type OpenSearchOrderField string
 
 func (e OpenSearchOrderField) IsValid() bool {
-	return SortFilterOpenSearch.Supports(e)
+	return SortFilterOpenSearch.SupportsSort(e)
 }
 
 func (e OpenSearchOrderField) String() string {
@@ -106,7 +106,7 @@ type OpenSearchAccessOrder struct {
 type OpenSearchAccessOrderField string
 
 func (e OpenSearchAccessOrderField) IsValid() bool {
-	return SortFilterOpenSearchAccess.Supports(e)
+	return SortFilterOpenSearchAccess.SupportsSort(e)
 }
 
 func (e OpenSearchAccessOrderField) String() string {

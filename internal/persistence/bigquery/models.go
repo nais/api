@@ -82,7 +82,7 @@ type BigQueryDatasetOrder struct {
 type BigQueryDatasetOrderField string
 
 func (e BigQueryDatasetOrderField) IsValid() bool {
-	return SortFilter.Supports(e)
+	return SortFilter.SupportsSort(e)
 }
 
 func (e BigQueryDatasetOrderField) String() string {
@@ -114,7 +114,7 @@ type BigQueryDatasetAccessOrder struct {
 type BigQueryDatasetAccessOrderField string
 
 func (e BigQueryDatasetAccessOrderField) IsValid() bool {
-	return SortFilterAccess.Supports(e)
+	return SortFilterAccess.SupportsSort(e)
 }
 
 func (e BigQueryDatasetAccessOrderField) String() string {

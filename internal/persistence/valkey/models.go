@@ -74,7 +74,7 @@ type ValkeyInstanceOrder struct {
 type ValkeyInstanceOrderField string
 
 func (e ValkeyInstanceOrderField) IsValid() bool {
-	return SortFilterValkeyInstance.Supports(e)
+	return SortFilterValkeyInstance.SupportsSort(e)
 }
 
 func (e ValkeyInstanceOrderField) String() string {
@@ -106,7 +106,7 @@ type ValkeyInstanceAccessOrder struct {
 type ValkeyInstanceAccessOrderField string
 
 func (e ValkeyInstanceAccessOrderField) IsValid() bool {
-	return SortFilterValkeyInstanceAccess.Supports(e)
+	return SortFilterValkeyInstanceAccess.SupportsSort(e)
 }
 
 func (e ValkeyInstanceAccessOrderField) String() string {

@@ -14,17 +14,17 @@ var (
 )
 
 func init() {
-	SortFilterOpenSearch.RegisterOrderBy("NAME", func(ctx context.Context, a, b *OpenSearch) int {
+	SortFilterOpenSearch.RegisterSort("NAME", func(ctx context.Context, a, b *OpenSearch) int {
 		return strings.Compare(a.GetName(), b.GetName())
 	})
-	SortFilterOpenSearch.RegisterOrderBy("ENVIRONMENT", func(ctx context.Context, a, b *OpenSearch) int {
+	SortFilterOpenSearch.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *OpenSearch) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
 	})
 
-	SortFilterOpenSearchAccess.RegisterOrderBy("ACCESS", func(ctx context.Context, a, b *OpenSearchAccess) int {
+	SortFilterOpenSearchAccess.RegisterSort("ACCESS", func(ctx context.Context, a, b *OpenSearchAccess) int {
 		return strings.Compare(a.Access, b.Access)
 	})
-	SortFilterOpenSearchAccess.RegisterOrderBy("WORKLOAD", func(ctx context.Context, a, b *OpenSearchAccess) int {
+	SortFilterOpenSearchAccess.RegisterSort("WORKLOAD", func(ctx context.Context, a, b *OpenSearchAccess) int {
 		return strings.Compare(a.WorkloadReference.Name, b.WorkloadReference.Name)
 	})
 }
