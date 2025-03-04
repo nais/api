@@ -1,6 +1,6 @@
-# NAIS API
+# Nais API
 
-NAIS API is the main entrypoint when interacting with the API of the NAIS platform.
+Nais API is the main entrypoint when interacting with the API of the Nais platform.
 
 ## Local development
 
@@ -55,7 +55,7 @@ They will be re-run every time you save a `.lua` file.
 
 graph TD
   API --> Postgres[(psql)]
-  Service[NAIS Service] --> |GRPC|API
+  Service[Nais Service] --> |GRPC|API
   Clients[External Clients] --> |GraphQL|API
   API -.-> PubSub{PubSub}
 
@@ -71,10 +71,10 @@ graph TD
 | ---------------- | ------------------------------------------------------------------------------------------ |
 | API              | This service                                                                               |
 | Postgres         | The postgres database storing state from this application                                  |
-| NAIS Service     | Services by NAIS that requires special communication with API. E.g. Reconcilers and Deploy |
+| Nais Service     | Services by Nais that requires special communication with API. E.g. Reconcilers and Deploy |
 | External Clients | External clients that communicates with the API. E.g. Browsers and NADA                    |
 | Kubernetes       | The Kubernetes clusters of the tenant                                                      |
-| PubSub           | The PubSub topic used for communication between the API and the NAIS Service               |
+| PubSub           | The PubSub topic used for communication between the API and the Nais Service               |
 | Prometheus       | We collect historic data from the tenants prometheus                                       |
 | Google Admin     | We use the Google Admin API to manage a list of users                                      |
 | BigQuery         | We collect historic cost data from BigQuery                                                |

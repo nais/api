@@ -116,7 +116,7 @@ type Config struct {
 	// TenantDomain The domain for the tenant.
 	TenantDomain string `env:"TENANT_DOMAIN,default=example.com"`
 
-	// GoogleManagementProjectID The ID of the NAIS management project in the tenant organization in GCP.
+	// GoogleManagementProjectID The ID of the Nais management project in the tenant organization in GCP.
 	GoogleManagementProjectID string `env:"GOOGLE_MANAGEMENT_PROJECT_ID"`
 
 	// DatabaseConnectionString is the database DSN

@@ -72,15 +72,15 @@ func NewFromConfig(ctx context.Context, pool *pgxpool.Pool, serviceAccount, subj
 	return New(pool, adminGroupPrefix, tenantDomain, srv, log), nil
 }
 
-// Sync fetches all users from the Google Directory of the tenant and adds them as users in NAIS API.
+// Sync fetches all users from the Google Directory of the tenant and adds them as users in Nais API.
 //
-// If a user already exist in NAIS API the user will get the name and email potentially updated if it has changed in the
+// If a user already exist in Nais API the user will get the name and email potentially updated if it has changed in the
 // Google Directory.
 //
 // After all users have been synced, users that have an email address that matches the tenant domain that no longer
 // exist in the Google Directory will be removed.
 //
-// All users present in the admin group in the Google Directory will also be granted the admin role in NAIS API, and
+// All users present in the admin group in the Google Directory will also be granted the admin role in Nais API, and
 // existing admins that no longer exist in the admin group will get the admin role revoked.
 func (s *Usersynchronizer) Sync(ctx context.Context) error {
 	googleUsers, err := getGoogleUsers(ctx, s.service.Users, s.tenantDomain, s.log)
@@ -167,7 +167,7 @@ func AssignDefaultPermissionsToUser(ctx context.Context, querier usersyncsql.Que
 	return nil
 }
 
-// deleteUnknownUsers will delete users from NAIS API that does not exist in the Google Directory.
+// deleteUnknownUsers will delete users from Nais API that does not exist in the Google Directory.
 func deleteUnknownUsers(ctx context.Context, querier usersyncsql.Querier, unknownUsers map[uuid.UUID]*usersyncsql.User, log logrus.FieldLogger) error {
 	for _, user := range unknownUsers {
 		if err := querier.Delete(ctx, user.ID); err != nil {

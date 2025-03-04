@@ -1,12 +1,12 @@
 # GraphQL practices
 
-The following is a set of practices for developing the GraphQL API defined by NAIS API.
+The following is a set of practices for developing the GraphQL API defined by Nais API.
 
 ## Type conventions
 
 ### The `id` field
 
-NAIS API implements the [Global Object Identification specification](https://graphql.org/learn/global-object-identification/).
+Nais API implements the [Global Object Identification specification](https://graphql.org/learn/global-object-identification/).
 
 All types should have an `id` field of type `ID!`. We create IDs using the internal `ident` package. Refer to the
 implementation in the internal [`teams` package](../internal/team/node.go) for an example.
@@ -100,7 +100,7 @@ type Team {
 
 ### Pagination
 
-NAIS API implements the [GraphQL Cursor Connections specification](https://relay.dev/graphql/connections.htm).
+Nais API implements the [GraphQL Cursor Connections specification](https://relay.dev/graphql/connections.htm).
 
 All queries/fields that return a list of items should support pagination. The rule of thumb is that if it is
 **possible** for the list to grow to a size that is more than 50, it should be paginated.

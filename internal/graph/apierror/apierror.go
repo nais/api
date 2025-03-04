@@ -58,7 +58,7 @@ func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
 			err.Message = originalError.GraphError()
 			return err
 		case *pgconn.PgError:
-			err.Message = "The database encountered an error while processing your request. This is probably a transient error, please try again. If the error persists, contact the NAIS team."
+			err.Message = "The database encountered an error while processing your request. This is probably a transient error, please try again. If the error persists, contact the Nais team."
 			log.WithError(originalError).Errorf("database error %s: %s (%s)", originalError.Code, originalError.Message, originalError.Detail)
 			return err
 		case *validate.ValidationErrors:
@@ -92,7 +92,7 @@ func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
 			err.Message = "Request canceled"
 		default:
 			log.WithError(err).Errorf("unhandled error: %q", err)
-			err.Message = "The server errored out while processing your request, and we didn't write a suitable error message. You might consider that a bug on our side. Please try again, and if the error persists, contact the NAIS team."
+			err.Message = "The server errored out while processing your request, and we didn't write a suitable error message. You might consider that a bug on our side. Please try again, and if the error persists, contact the Nais team."
 		}
 
 		return err
