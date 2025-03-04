@@ -208,27 +208,8 @@ type EnvironmentWorkloadOrder struct {
 
 type EnvironmentWorkloadOrderField string
 
-const (
-	EnvironmentWorkloadOrderFieldName           EnvironmentWorkloadOrderField = "NAME"
-	EnvironmentWorkloadOrderFieldStatus         EnvironmentWorkloadOrderField = "STATUS"
-	EnvironmentWorkloadOrderFieldDeploymentTime EnvironmentWorkloadOrderField = "DEPLOYMENT_TIME"
-	EnvironmentWorkloadOrderFieldTeamSlug       EnvironmentWorkloadOrderField = "TEAM_SLUG"
-)
-
-var AllEnvironmentWorkloadOrderField = []EnvironmentWorkloadOrderField{
-	EnvironmentWorkloadOrderFieldName,
-	EnvironmentWorkloadOrderFieldStatus,
-	EnvironmentWorkloadOrderFieldDeploymentTime,
-	EnvironmentWorkloadOrderFieldTeamSlug,
-}
-
 func (e EnvironmentWorkloadOrderField) IsValid() bool {
-	for _, f := range AllEnvironmentWorkloadOrderField {
-		if e == f {
-			return true
-		}
-	}
-	return false
+	return SortFilterEnvironment.SupportsSort(e)
 }
 
 func (e EnvironmentWorkloadOrderField) String() string {

@@ -32,7 +32,7 @@ func (r *environmentResolver) Workloads(ctx context.Context, obj *environment.En
 
 	if orderBy == nil {
 		orderBy = &workload.EnvironmentWorkloadOrder{
-			Field:     workload.EnvironmentWorkloadOrderFieldName,
+			Field:     "NAME",
 			Direction: model.OrderDirectionAsc,
 		}
 	}
