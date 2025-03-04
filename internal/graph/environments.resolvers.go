@@ -8,8 +8,8 @@ import (
 	"github.com/nais/api/internal/team"
 )
 
-func (r *queryResolver) Environments(ctx context.Context) ([]*environment.Environment, error) {
-	return environment.List(ctx)
+func (r *queryResolver) Environments(ctx context.Context, orderBy *environment.EnvironmentOrder) ([]*environment.Environment, error) {
+	return environment.List(ctx, orderBy)
 }
 
 func (r *queryResolver) Environment(ctx context.Context, name string) (*environment.Environment, error) {

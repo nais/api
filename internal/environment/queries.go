@@ -9,6 +9,7 @@ import (
 	"github.com/nais/api/internal/environment/environmentsql"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
 )
 
 func Get(ctx context.Context, name string) (*Environment, error) {
@@ -30,7 +31,7 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*Environment, error) {
 	return Get(ctx, name)
 }
 
-func List(ctx context.Context) ([]*Environment, error) {
+func List(ctx context.Context, orderBy *EnvironmentOrder) ([]*Environment, error) {
 	rows, err := db(ctx).List(ctx)
 	if err != nil {
 		return nil, err
@@ -41,6 +42,14 @@ func List(ctx context.Context) ([]*Environment, error) {
 		envs[i] = toGraphEnvironment(row)
 	}
 
+	if orderBy == nil {
+		orderBy = &EnvironmentOrder{
+			Field:     "NAME",
+			Direction: model.OrderDirectionAsc,
+		}
+	}
+
+	SortFilter.Sort(ctx, envs, orderBy.Field, orderBy.Direction)
 	return envs, nil
 }
 

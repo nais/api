@@ -933,7 +933,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		Environment      func(childComplexity int, name string) int
-		Environments     func(childComplexity int) int
+		Environments     func(childComplexity int, orderBy *environment.EnvironmentOrder) int
 		Features         func(childComplexity int) int
 		Me               func(childComplexity int) int
 		Node             func(childComplexity int, id ident.Ident) int
@@ -2501,7 +2501,7 @@ type OpenSearchAccessResolver interface {
 type QueryResolver interface {
 	Node(ctx context.Context, id ident.Ident) (model.Node, error)
 	Roles(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*authz.Role], error)
-	Environments(ctx context.Context) ([]*environment.Environment, error)
+	Environments(ctx context.Context, orderBy *environment.EnvironmentOrder) ([]*environment.Environment, error)
 	Environment(ctx context.Context, name string) (*environment.Environment, error)
 	Features(ctx context.Context) (*feature.Features, error)
 	Reconcilers(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*reconciler.Reconciler], error)
@@ -6101,7 +6101,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.Environments(childComplexity), true
+		args, err := ec.field_Query_environments_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Environments(childComplexity, args["orderBy"].(*environment.EnvironmentOrder)), true
 
 	case "Query.features":
 		if e.complexity.Query.Features == nil {
@@ -12036,6 +12041,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteServiceAccountTokenInput,
 		ec.unmarshalInputDisableReconcilerInput,
 		ec.unmarshalInputEnableReconcilerInput,
+		ec.unmarshalInputEnvironmentOrder,
 		ec.unmarshalInputEnvironmentWorkloadOrder,
 		ec.unmarshalInputImageVulnerabilityOrder,
 		ec.unmarshalInputJobOrder,
@@ -13754,7 +13760,12 @@ type TeamDeployKeyUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 	"""
 	Get a list of environments.
 	"""
-	environments: [Environment!]!
+	environments(
+		"""
+		Ordering options for environments.
+		"""
+		orderBy: EnvironmentOrder
+	): [Environment!]!
 
 	"""
 	Get a single environment.
@@ -13765,6 +13776,31 @@ type TeamDeployKeyUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 		"""
 		name: String!
 	): Environment!
+}
+
+"""
+Ordering options when fetching environments.
+"""
+input EnvironmentOrder {
+	"""
+	The field to order by.
+	"""
+	field: EnvironmentOrderField!
+
+	"""
+	The direction to order in.
+	"""
+	direction: OrderDirection!
+}
+
+"""
+Fields to order environments by.
+"""
+enum EnvironmentOrderField {
+	"""
+	Order by name.
+	"""
+	NAME
 }
 
 """
@@ -22698,6 +22734,34 @@ func (ec *executionContext) field_Query_environment_argsName(
 	}
 
 	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_environments_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Query_environments_argsOrderBy(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["orderBy"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_environments_argsOrderBy(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*environment.EnvironmentOrder, error) {
+	if _, ok := rawArgs["orderBy"]; !ok {
+		var zeroVal *environment.EnvironmentOrder
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		return ec.unmarshalOEnvironmentOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentOrder(ctx, tmp)
+	}
+
+	var zeroVal *environment.EnvironmentOrder
 	return zeroVal, nil
 }
 
@@ -50397,7 +50461,7 @@ func (ec *executionContext) _Query_environments(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Environments(rctx)
+		return ec.resolvers.Query().Environments(rctx, fc.Args["orderBy"].(*environment.EnvironmentOrder))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -50414,7 +50478,7 @@ func (ec *executionContext) _Query_environments(ctx context.Context, field graph
 	return ec.marshalNEnvironment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_environments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_environments(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -50431,6 +50495,17 @@ func (ec *executionContext) fieldContext_Query_environments(_ context.Context, f
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Environment", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_environments_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -92870,6 +92945,40 @@ func (ec *executionContext) unmarshalInputEnableReconcilerInput(ctx context.Cont
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputEnvironmentOrder(ctx context.Context, obj any) (environment.EnvironmentOrder, error) {
+	var it environment.EnvironmentOrder
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNEnvironmentOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputEnvironmentWorkloadOrder(ctx context.Context, obj any) (workload.EnvironmentWorkloadOrder, error) {
 	var it workload.EnvironmentWorkloadOrder
 	asMap := map[string]any{}
@@ -121471,6 +121580,16 @@ func (ec *executionContext) marshalNEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋi
 	return ec._Environment(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNEnvironmentOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentOrderField(ctx context.Context, v any) (environment.EnvironmentOrderField, error) {
+	var res environment.EnvironmentOrderField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNEnvironmentOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentOrderField(ctx context.Context, sel ast.SelectionSet, v environment.EnvironmentOrderField) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNEnvironmentWorkloadOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐEnvironmentWorkloadOrderField(ctx context.Context, v any) (workload.EnvironmentWorkloadOrderField, error) {
 	var res workload.EnvironmentWorkloadOrderField
 	err := res.UnmarshalGQL(v)
@@ -128186,6 +128305,14 @@ func (ec *executionContext) marshalODeploymentKey2ᚖgithubᚗcomᚋnaisᚋapi�
 		return graphql.Null
 	}
 	return ec._DeploymentKey(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOEnvironmentOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentOrder(ctx context.Context, v any) (*environment.EnvironmentOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputEnvironmentOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOEnvironmentWorkloadOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐEnvironmentWorkloadOrder(ctx context.Context, v any) (*workload.EnvironmentWorkloadOrder, error) {

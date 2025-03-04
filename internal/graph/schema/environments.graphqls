@@ -2,7 +2,12 @@ extend type Query {
 	"""
 	Get a list of environments.
 	"""
-	environments: [Environment!]!
+	environments(
+		"""
+		Ordering options for environments.
+		"""
+		orderBy: EnvironmentOrder
+	): [Environment!]!
 
 	"""
 	Get a single environment.
@@ -13,6 +18,31 @@ extend type Query {
 		"""
 		name: String!
 	): Environment!
+}
+
+"""
+Ordering options when fetching environments.
+"""
+input EnvironmentOrder {
+	"""
+	The field to order by.
+	"""
+	field: EnvironmentOrderField!
+
+	"""
+	The direction to order in.
+	"""
+	direction: OrderDirection!
+}
+
+"""
+Fields to order environments by.
+"""
+enum EnvironmentOrderField {
+	"""
+	Order by name.
+	"""
+	NAME
 }
 
 """

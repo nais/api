@@ -31,6 +31,74 @@ Test.gql("all environments", function(t)
 	}
 end)
 
+Test.gql("all environments with ordering", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query([[
+		{
+			environments(
+				orderBy: {
+					field: NAME,
+					direction: ASC
+				}
+			) {
+				name
+			}
+		}
+	]])
+
+	t.check {
+		data = {
+			environments = {
+				{
+					name = "dev",
+				},
+				{
+					name = "dev-fss",
+				},
+				{
+					name = "dev-gcp",
+				},
+				{
+					name = "staging",
+				},
+			},
+		},
+	}
+
+	t.query([[
+		{
+			environments(
+				orderBy: {
+					field: NAME,
+					direction: DESC
+				}
+			) {
+				name
+			}
+		}
+	]])
+
+	t.check {
+		data = {
+			environments = {
+				{
+					name = "staging",
+				},
+				{
+					name = "dev-gcp",
+				},
+				{
+					name = "dev-fss",
+				},
+				{
+					name = "dev",
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("single environment", function(t)
 	t.addHeader("x-user-email", user:email())
 
