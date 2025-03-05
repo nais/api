@@ -1,4 +1,8 @@
+Helper.readK8sResources("k8s_resources/simple")
+
 local user = User.new("usersen", "usr@exam.com", "ei")
+Team.new("slug-1", "purpose", "#slack_channel")
+Team.new("slug-2", "purpose", "#slack_channel")
 
 Test.gql("all environments", function(t)
 	t.addHeader("x-user-email", user:email())
@@ -136,6 +140,78 @@ Test.gql("single environment that does not exist", function(t)
 			{
 				message = "Environment \"some-non-existing-environment\" not found",
 				path = { "environment" },
+			},
+		},
+	}
+end)
+
+Test.gql("workloads in environment", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query([[
+		{
+			environment(name: "dev") {
+				workloads {
+					pageInfo {
+						totalCount
+					}
+					nodes {
+						__typename
+						name
+						team {
+							slug
+						}
+					}
+				}
+			}
+		}
+	]])
+
+	t.check {
+		data = {
+			environment = {
+				workloads = {
+					pageInfo = {
+						totalCount = 5,
+					},
+					nodes = {
+						{
+							__typename = "Application",
+							name = "another-app",
+							team = {
+								slug = "slug-1",
+							},
+						},
+						{
+							__typename = "Application",
+							name = "app-name",
+							team = {
+								slug = "slug-1",
+							},
+						},
+						{
+							__typename = "Application",
+							name = "app-name",
+							team = {
+								slug = "slug-2",
+							},
+						},
+						{
+							__typename = "Job",
+							name = "jobname-1",
+							team = {
+								slug = "slug-1",
+							},
+						},
+						{
+							__typename = "Job",
+							name = "jobname-2",
+							team = {
+								slug = "slug-1",
+							},
+						},
+					},
+				},
 			},
 		},
 	}
