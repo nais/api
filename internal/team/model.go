@@ -267,7 +267,7 @@ type TeamEnvironment struct {
 	GCPProjectID       *string   `json:"gcpProjectID"`
 	SlackAlertsChannel string    `json:"slackAlertsChannel"`
 	TeamSlug           slug.Slug `json:"-"`
-	EnvironmentName    string    `json:"_"`
+	EnvironmentName    string    `json:"-"`
 }
 
 func (TeamEnvironment) IsNode() {}
