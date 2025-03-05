@@ -12635,7 +12635,7 @@ type Application implements Node & Workload {
 	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
 
 	"""
-	The team environment for the workload.
+	The team environment for the application.
 	"""
 	teamEnvironment: TeamEnvironment!
 
@@ -14203,7 +14203,7 @@ type Job implements Node & Workload {
 	"The environment the job is deployed in."
 	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
 
-	"The team environment for the workload."
+	"The team environment for the job."
 	teamEnvironment: TeamEnvironment!
 
 	"The container image of the job."

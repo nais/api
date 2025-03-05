@@ -119,7 +119,7 @@ type Application implements Node & Workload {
 	environment: TeamEnvironment! @deprecated(reason: "Use the `teamEnvironment` field instead.")
 
 	"""
-	The team environment for the workload.
+	The team environment for the application.
 	"""
 	teamEnvironment: TeamEnvironment!
 
