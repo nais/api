@@ -228,3 +228,68 @@ Test.gql("workloads in environment", function(t)
 		},
 	}
 end)
+
+Test.gql("workloads in environment with custom order", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query([[
+		{
+			environment(name: "dev") {
+				workloads(
+					orderBy: {
+						field: TEAM_SLUG,
+						direction: DESC
+					}
+				) {
+					nodes {
+						name
+						team {
+							slug
+						}
+					}
+				}
+			}
+		}
+	]])
+
+	t.check {
+		data = {
+			environment = {
+				workloads = {
+					nodes = {
+						{
+							name = "app-name",
+							team = {
+								slug = "slug-2",
+							},
+						},
+						{
+							name = "another-app",
+							team = {
+								slug = "slug-1",
+							},
+						},
+						{
+							name = "app-name",
+							team = {
+								slug = "slug-1",
+							},
+						},
+						{
+							name = "jobname-1",
+							team = {
+								slug = "slug-1",
+							},
+						},
+						{
+							name = "jobname-2",
+							team = {
+								slug = "slug-1",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)

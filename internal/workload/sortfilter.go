@@ -47,7 +47,14 @@ func init() {
 			Direction: ptr.To(model.OrderDirectionAsc),
 		},
 	)
-	SortFilterEnvironment.RegisterSort("TEAM_SLUG", func(ctx context.Context, a, b Workload) int {
-		return strings.Compare(a.GetTeamSlug().String(), b.GetTeamSlug().String())
-	})
+	SortFilterEnvironment.RegisterSort(
+		"TEAM_SLUG",
+		func(ctx context.Context, a, b Workload) int {
+			return strings.Compare(a.GetTeamSlug().String(), b.GetTeamSlug().String())
+		},
+		SortFilterEnvironmentTieBreaker{
+			Field:     "NAME",
+			Direction: ptr.To(model.OrderDirectionAsc),
+		},
+	)
 }
