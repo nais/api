@@ -8,7 +8,7 @@ import (
 	"github.com/nais/api/internal/graph/sortfilter"
 )
 
-var SortFilter = sortfilter.New[*Job, JobOrderField, *TeamJobsFilter]("NAME")
+var SortFilter = sortfilter.New[*Job, JobOrderField, *TeamJobsFilter]()
 
 func init() {
 	SortFilter.RegisterSort("NAME", func(ctx context.Context, a, b *Job) int {

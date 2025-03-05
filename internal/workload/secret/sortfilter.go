@@ -10,7 +10,7 @@ import (
 	"github.com/nais/api/internal/workload/job"
 )
 
-var SortFilter = sortfilter.New[*Secret, SecretOrderField, *SecretFilter]("NAME")
+var SortFilter = sortfilter.New[*Secret, SecretOrderField, *SecretFilter]()
 
 func init() {
 	SortFilter.RegisterSort("NAME", func(ctx context.Context, a, b *Secret) int {

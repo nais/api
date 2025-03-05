@@ -7,7 +7,7 @@ import (
 	"github.com/nais/api/internal/graph/sortfilter"
 )
 
-var SortFilter = sortfilter.New[*Bucket, BucketOrderField, struct{}]("NAME")
+var SortFilter = sortfilter.New[*Bucket, BucketOrderField, struct{}]()
 
 func init() {
 	SortFilter.RegisterSort("NAME", func(ctx context.Context, a, b *Bucket) int {

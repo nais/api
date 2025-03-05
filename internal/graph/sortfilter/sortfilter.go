@@ -6,6 +6,7 @@ import (
 	"slices"
 
 	"github.com/nais/api/internal/graph/model"
+	"github.com/sirupsen/logrus"
 	"github.com/sourcegraph/conc/pool"
 )
 
@@ -13,33 +14,38 @@ import (
 // If a < b, the function should return a negative value.
 // If a == b, the function should return 0.
 // If a > b, the function should return a positive value.
-type SortFunc[V any] func(ctx context.Context, a, b V) int
+type SortFunc[T any] func(ctx context.Context, a, b T) int
 
 // ConcurrentSortFunc should return an integer indicating the order of the given value.
 // The results will later be sorted by the returned value.
-type ConcurrentSortFunc[V any] func(ctx context.Context, a V) int
+type ConcurrentSortFunc[T any] func(ctx context.Context, a T) int
 
 // Filter is a function that returns true if the given value should be included in the result.
-type Filter[V any, FilterObj any] func(ctx context.Context, v V, filter FilterObj) bool
+type Filter[T any, FilterObj any] func(ctx context.Context, v T, filter FilterObj) bool
 
-type funcs[V any] struct {
-	concurrentSort ConcurrentSortFunc[V]
-	sort           SortFunc[V]
+// TieBreaker is a combination of a SortField and a direction that might be able to resolve equal fields during sorting.
+// If the direction is not supplied, the direction used for the original sort will be used. The referenced field must be
+// registered with RegisterSort (concurrent tie-break sorters are not supported).
+type TieBreaker[SortField comparable] struct {
+	Field     SortField
+	Direction *model.OrderDirection
 }
 
-type SortFilter[V any, SortField comparable, FilterObj comparable] struct {
-	sorters           map[SortField]funcs[V]
-	filters           []Filter[V, FilterObj]
-	tieBreakSortField SortField
+type funcs[T any, SortField comparable] struct {
+	concurrentSort ConcurrentSortFunc[T]
+	sort           SortFunc[T]
+	tieBreakers    []TieBreaker[SortField]
 }
 
-// New creates a new SortFilter with the given tieBreakSortField.
-// The tieBreakSortField is used when two values are equal in the Sort function, and will use the direction supplied
-// when calling Sort. The tieBreakSortField must not be registered as a ConcurrentSort.
-func New[V any, SortField comparable, FilterObj comparable](tieBreakSortField SortField) *SortFilter[V, SortField, FilterObj] {
-	return &SortFilter[V, SortField, FilterObj]{
-		sorters:           make(map[SortField]funcs[V]),
-		tieBreakSortField: tieBreakSortField,
+type SortFilter[T any, SortField comparable, FilterObj comparable] struct {
+	sorters map[SortField]funcs[T, SortField]
+	filters []Filter[T, FilterObj]
+}
+
+// New creates a new SortFilter
+func New[T any, SortField comparable, FilterObj comparable]() *SortFilter[T, SortField, FilterObj] {
+	return &SortFilter[T, SortField, FilterObj]{
+		sorters: make(map[SortField]funcs[T, SortField]),
 	}
 }
 
@@ -49,25 +55,29 @@ func (s *SortFilter[T, SortField, FilterObj]) SupportsSort(field SortField) bool
 	return exists
 }
 
-func (s *SortFilter[T, SortField, FilterObj]) RegisterSort(field SortField, sort SortFunc[T]) {
+// RegisterSort will add support for sorting on a specific field. Optional tie-breakers can be supplied to resolve equal
+// values, and will be executed in the given order.
+func (s *SortFilter[T, SortField, FilterObj]) RegisterSort(field SortField, sort SortFunc[T], tieBreakers ...TieBreaker[SortField]) {
 	if _, ok := s.sorters[field]; ok {
 		panic(fmt.Sprintf("sort field is already registered: %v", field))
 	}
 
-	s.sorters[field] = funcs[T]{
-		sort: sort,
+	s.sorters[field] = funcs[T, SortField]{
+		sort:        sort,
+		tieBreakers: tieBreakers,
 	}
 }
 
-func (s *SortFilter[T, SortField, FilterObj]) RegisterConcurrentSort(field SortField, sort ConcurrentSortFunc[T]) {
+// RegisterConcurrentSort will add support for doing concurrent sorting on a specific field. Optional tie-breakers can
+// be supplied to resolve equal values, and will be executed in the given order.
+func (s *SortFilter[T, SortField, FilterObj]) RegisterConcurrentSort(field SortField, sort ConcurrentSortFunc[T], tieBreakers ...TieBreaker[SortField]) {
 	if _, ok := s.sorters[field]; ok {
 		panic(fmt.Sprintf("sort field is already registered: %v", field))
-	} else if field == s.tieBreakSortField {
-		panic(fmt.Sprintf("sort field is used for tie break and can not be concurrent: %v", field))
 	}
 
-	s.sorters[field] = funcs[T]{
+	s.sorters[field] = funcs[T, SortField]{
 		concurrentSort: sort,
+		tieBreakers:    tieBreakers,
 	}
 }
 
@@ -129,14 +139,14 @@ func (s *SortFilter[T, SortField, FilterObj]) Sort(ctx context.Context, items []
 	}
 
 	if sorter.concurrentSort != nil {
-		s.sortConcurrent(ctx, items, sorter.concurrentSort, direction)
+		s.sortConcurrent(ctx, items, sorter.concurrentSort, field, direction, sorter.tieBreakers...)
 		return
 	}
 
-	s.sort(ctx, items, sorter.sort, direction)
+	s.sort(ctx, items, sorter.sort, field, direction, sorter.tieBreakers...)
 }
 
-func (s *SortFilter[T, SortField, FilterObj]) sortConcurrent(ctx context.Context, items []T, sort ConcurrentSortFunc[T], direction model.OrderDirection) {
+func (s *SortFilter[T, SortField, FilterObj]) sortConcurrent(ctx context.Context, items []T, sort ConcurrentSortFunc[T], field SortField, direction model.OrderDirection, tieBreakers ...TieBreaker[SortField]) {
 	type sortable struct {
 		item T
 		key  int
@@ -160,7 +170,7 @@ func (s *SortFilter[T, SortField, FilterObj]) sortConcurrent(ctx context.Context
 
 	slices.SortStableFunc(res, func(a, b sortable) int {
 		if b.key == a.key {
-			return s.tieBreak(ctx, a.item, b.item, direction)
+			return s.tieBreak(ctx, a.item, b.item, field, direction, tieBreakers...)
 		}
 
 		if direction == model.OrderDirectionDesc {
@@ -174,7 +184,7 @@ func (s *SortFilter[T, SortField, FilterObj]) sortConcurrent(ctx context.Context
 	}
 }
 
-func (s *SortFilter[T, SortField, FilterObj]) sort(ctx context.Context, items []T, sort SortFunc[T], direction model.OrderDirection) {
+func (s *SortFilter[T, SortField, FilterObj]) sort(ctx context.Context, items []T, sort SortFunc[T], field SortField, direction model.OrderDirection, tieBreakers ...TieBreaker[SortField]) {
 	slices.SortStableFunc(items, func(a, b T) int {
 		var ret int
 		if direction == model.OrderDirectionDesc {
@@ -184,16 +194,54 @@ func (s *SortFilter[T, SortField, FilterObj]) sort(ctx context.Context, items []
 		}
 
 		if ret == 0 {
-			return s.tieBreak(ctx, a, b, direction)
+			return s.tieBreak(ctx, a, b, field, direction, tieBreakers...)
 		}
 		return ret
 	})
 }
 
-func (s *SortFilter[T, SortField, FilterObj]) tieBreak(ctx context.Context, a, b T, direction model.OrderDirection) int {
-	if direction == model.OrderDirectionDesc {
-		return s.sorters[s.tieBreakSortField].sort(ctx, b, a)
+// tieBreak will resolve equal fields after the initial sort by using the supplied tie-breakers. The function will
+// return as soon as a tie-breaker returns a non-zero value.
+func (s *SortFilter[T, SortField, FilterObj]) tieBreak(ctx context.Context, a, b T, field SortField, direction model.OrderDirection, tieBreakers ...TieBreaker[SortField]) int {
+	for _, tb := range tieBreakers {
+		dir := direction
+		if tb.Direction != nil {
+			dir = *tb.Direction
+		}
+
+		sorter, ok := s.sorters[tb.Field]
+		if !ok {
+			logrus.WithFields(logrus.Fields{
+				"field_type":  fmt.Sprintf("%T", field),
+				"tie_breaker": tb.Field,
+			}).Errorf("no sort registered for tie-breaker")
+			continue
+		} else if sorter.sort == nil {
+			logrus.WithFields(logrus.Fields{
+				"field_type":  fmt.Sprintf("%T", field),
+				"tie_breaker": tb.Field,
+			}).Errorf("tie-breaker can not be a concurrent sort")
+			continue
+		}
+
+		var v int
+		if dir == model.OrderDirectionDesc {
+			v = sorter.sort(ctx, b, a)
+		} else {
+			v = sorter.sort(ctx, a, b)
+		}
+
+		if v != 0 {
+			return v
+		}
 	}
 
-	return s.sorters[s.tieBreakSortField].sort(ctx, a, b)
+	logrus.
+		WithFields(logrus.Fields{
+			"field_type":   fmt.Sprintf("%T", field),
+			"sort_field":   field,
+			"tie_breakers": tieBreakers,
+		}).
+		Errorf("unable to tie-break sort, gotta have more tie-breakers")
+	return 0
 }
