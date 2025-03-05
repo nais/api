@@ -88,7 +88,8 @@ type SqlDatabase implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
-	environment: TeamEnvironment!
+	environment: TeamEnvironment! @deprecated(reason: "Use the `teamEnvironment` field instead.")
+	teamEnvironment: TeamEnvironment!
 	charset: String
 	collation: String
 	deletionPolicy: String
@@ -99,7 +100,8 @@ type SqlInstance implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
-	environment: TeamEnvironment!
+	environment: TeamEnvironment! @deprecated(reason: "Use the `teamEnvironment` field instead.")
+	teamEnvironment: TeamEnvironment!
 	workload: Workload
 	cascadingDelete: Boolean!
 	connectionName: String

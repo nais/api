@@ -23,6 +23,10 @@ func (r *applicationResolver) Team(ctx context.Context, obj *application.Applica
 }
 
 func (r *applicationResolver) Environment(ctx context.Context, obj *application.Application) (*team.TeamEnvironment, error) {
+	return r.TeamEnvironment(ctx, obj)
+}
+
+func (r *applicationResolver) TeamEnvironment(ctx context.Context, obj *application.Application) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
@@ -112,7 +116,7 @@ func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *
 }
 
 func (r *teamEnvironmentResolver) Application(ctx context.Context, obj *team.TeamEnvironment, name string) (*application.Application, error) {
-	return application.Get(ctx, obj.TeamSlug, obj.Name, name)
+	return application.Get(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
 func (r *teamInventoryCountApplicationsResolver) NotNais(ctx context.Context, obj *application.TeamInventoryCountApplications) (int, error) {

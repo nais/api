@@ -46,6 +46,15 @@ func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, orderBy *Applicatio
 	return ret
 }
 
+func ListAllInEnvironment(ctx context.Context, environment string) []*Application {
+	apps := fromContext(ctx).appWatcher.GetByCluster(environment)
+	ret := make([]*Application, len(apps))
+	for i, obj := range apps {
+		ret[i] = toGraphApplication(obj.Obj, obj.Cluster)
+	}
+	return ret
+}
+
 func ListAllForTeamInEnvironment(ctx context.Context, teamSlug slug.Slug, environmentName string) []*Application {
 	k8s := fromContext(ctx).appWatcher
 	allApplications := k8s.GetByNamespace(teamSlug.String(), watcher.InCluster(environmentName))

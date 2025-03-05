@@ -116,6 +116,10 @@ func (r *mutationResolver) DeleteSecret(ctx context.Context, input secret.Delete
 }
 
 func (r *secretResolver) Environment(ctx context.Context, obj *secret.Secret) (*team.TeamEnvironment, error) {
+	return r.TeamEnvironment(ctx, obj)
+}
+
+func (r *secretResolver) TeamEnvironment(ctx context.Context, obj *secret.Secret) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, r.mappedEnvironmentName(obj.EnvironmentName))
 }
 
@@ -225,7 +229,7 @@ func (r *teamEnvironmentResolver) Secret(ctx context.Context, obj *team.TeamEnvi
 		return nil, nil
 	}
 
-	envName := r.unmappedEnvironmentName(obj.Name)
+	envName := r.unmappedEnvironmentName(obj.EnvironmentName)
 	return secret.Get(ctx, obj.TeamSlug, envName, name)
 }
 

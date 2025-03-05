@@ -25,6 +25,10 @@ func (r *bucketResolver) Team(ctx context.Context, obj *bucket.Bucket) (*team.Te
 }
 
 func (r *bucketResolver) Environment(ctx context.Context, obj *bucket.Bucket) (*team.TeamEnvironment, error) {
+	return r.TeamEnvironment(ctx, obj)
+}
+
+func (r *bucketResolver) TeamEnvironment(ctx context.Context, obj *bucket.Bucket) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
@@ -49,7 +53,7 @@ func (r *teamResolver) Buckets(ctx context.Context, obj *team.Team, first *int, 
 }
 
 func (r *teamEnvironmentResolver) Bucket(ctx context.Context, obj *team.TeamEnvironment, name string) (*bucket.Bucket, error) {
-	return bucket.Get(ctx, obj.TeamSlug, obj.Name, name)
+	return bucket.Get(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
 func (r *teamInventoryCountsResolver) Buckets(ctx context.Context, obj *team.TeamInventoryCounts) (*bucket.TeamInventoryCountBuckets, error) {

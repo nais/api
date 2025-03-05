@@ -28,6 +28,10 @@ func (r *bigQueryDatasetResolver) Team(ctx context.Context, obj *bigquery.BigQue
 }
 
 func (r *bigQueryDatasetResolver) Environment(ctx context.Context, obj *bigquery.BigQueryDataset) (*team.TeamEnvironment, error) {
+	return r.TeamEnvironment(ctx, obj)
+}
+
+func (r *bigQueryDatasetResolver) TeamEnvironment(ctx context.Context, obj *bigquery.BigQueryDataset) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
@@ -79,7 +83,7 @@ func (r *teamResolver) BigQueryDatasets(ctx context.Context, obj *team.Team, fir
 }
 
 func (r *teamEnvironmentResolver) BigQueryDataset(ctx context.Context, obj *team.TeamEnvironment, name string) (*bigquery.BigQueryDataset, error) {
-	return bigquery.Get(ctx, obj.TeamSlug, obj.Name, name)
+	return bigquery.Get(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
 func (r *teamInventoryCountsResolver) BigQueryDatasets(ctx context.Context, obj *team.TeamInventoryCounts) (*bigquery.TeamInventoryCountBigQueryDatasets, error) {

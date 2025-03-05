@@ -25,6 +25,10 @@ func (r *jobResolver) Team(ctx context.Context, obj *job.Job) (*team.Team, error
 }
 
 func (r *jobResolver) Environment(ctx context.Context, obj *job.Job) (*team.TeamEnvironment, error) {
+	return r.TeamEnvironment(ctx, obj)
+}
+
+func (r *jobResolver) TeamEnvironment(ctx context.Context, obj *job.Job) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
@@ -106,7 +110,7 @@ func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, aft
 }
 
 func (r *teamEnvironmentResolver) Job(ctx context.Context, obj *team.TeamEnvironment, name string) (*job.Job, error) {
-	return job.Get(ctx, obj.TeamSlug, obj.Name, name)
+	return job.Get(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
 func (r *teamInventoryCountJobsResolver) NotNais(ctx context.Context, obj *job.TeamInventoryCountJobs) (int, error) {

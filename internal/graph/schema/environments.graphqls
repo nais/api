@@ -1,0 +1,105 @@
+extend type Query {
+	"""
+	Get a list of environments.
+	"""
+	environments(
+		"""
+		Ordering options for environments.
+		"""
+		orderBy: EnvironmentOrder
+	): EnvironmentConnection!
+
+	"""
+	Get a single environment.
+	"""
+	environment(
+		"""
+		The name of the environment to get.
+		"""
+		name: String!
+	): Environment!
+}
+
+"""
+Environment connection.
+"""
+type EnvironmentConnection {
+	"""
+	Pagination information.
+	"""
+	pageInfo: PageInfo!
+
+	"""
+	List of nodes.
+	"""
+	nodes: [Environment!]!
+
+	"""
+	List of edges.
+	"""
+	edges: [EnvironmentEdge!]!
+}
+
+"""
+Environment edge.
+"""
+type EnvironmentEdge {
+	"""
+	Cursor for this edge that can be used for pagination.
+	"""
+	cursor: Cursor!
+
+	"""
+	The Environment.
+	"""
+	node: Environment!
+}
+
+"""
+Ordering options when fetching environments.
+"""
+input EnvironmentOrder {
+	"""
+	The field to order by.
+	"""
+	field: EnvironmentOrderField!
+
+	"""
+	The direction to order in.
+	"""
+	direction: OrderDirection!
+}
+
+"""
+Fields to order environments by.
+"""
+enum EnvironmentOrderField {
+	"""
+	Order by name.
+	"""
+	NAME
+}
+
+"""
+An environment represents a runtime environment for workloads.
+
+Learn more in the [official Nais documentation](https://docs.nais.io/workloads/explanations/environment/).
+"""
+type Environment implements Node {
+	"""
+	The globally unique ID of the team.
+	"""
+	id: ID!
+
+	"""
+	Unique name of the environment.
+	"""
+	name: String!
+}
+
+extend type TeamEnvironment {
+	"""
+	Get the environment.
+	"""
+	environment: Environment!
+}

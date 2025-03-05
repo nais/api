@@ -29,4 +29,8 @@ func init() {
 	workload.SortFilter.RegisterConcurrentSort("DEPLOYMENT_TIME", func(ctx context.Context, a workload.Workload) int {
 		return sortByTimestamp(ctx, a)
 	})
+
+	workload.SortFilterEnvironment.RegisterConcurrentSort("DEPLOYMENT_TIME", func(ctx context.Context, a workload.Workload) int {
+		return sortByTimestamp(ctx, a)
+	})
 }

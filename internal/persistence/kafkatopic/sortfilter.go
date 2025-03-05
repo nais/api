@@ -4,13 +4,12 @@ import (
 	"context"
 	"strings"
 
-	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/sortfilter"
 )
 
 var (
-	SortFilterTopic    = sortfilter.New[*KafkaTopic, KafkaTopicOrderField, struct{}]("NAME", model.OrderDirectionAsc)
-	SortFilterTopicACL = sortfilter.New[*KafkaTopicACL, KafkaTopicACLOrderField, *KafkaTopicACLFilter]("TOPIC_NAME", model.OrderDirectionAsc)
+	SortFilterTopic    = sortfilter.New[*KafkaTopic, KafkaTopicOrderField, struct{}]()
+	SortFilterTopicACL = sortfilter.New[*KafkaTopicACL, KafkaTopicACLOrderField, *KafkaTopicACLFilter]()
 )
 
 func init() {

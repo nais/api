@@ -5,13 +5,12 @@ import (
 	"strings"
 
 	"github.com/nais/api/internal/cost"
-	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/sortfilter"
 )
 
 var (
-	SortFilterSQLInstance     = sortfilter.New[*SQLInstance, SQLInstanceOrderField, struct{}]("NAME", model.OrderDirectionAsc)
-	SortFilterSQLInstanceUser = sortfilter.New[*SQLInstanceUser, SQLInstanceUserOrderField, struct{}]("NAME", model.OrderDirectionAsc)
+	SortFilterSQLInstance     = sortfilter.New[*SQLInstance, SQLInstanceOrderField, struct{}]()
+	SortFilterSQLInstanceUser = sortfilter.New[*SQLInstanceUser, SQLInstanceUserOrderField, struct{}]()
 )
 
 func init() {

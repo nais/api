@@ -7,9 +7,15 @@ import (
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/sortfilter"
+	"k8s.io/utils/ptr"
 )
 
-var SortFilter = sortfilter.New[Workload, WorkloadOrderField, *TeamWorkloadsFilter]("NAME", model.OrderDirectionAsc)
+var (
+	SortFilter            = sortfilter.New[Workload, WorkloadOrderField, *TeamWorkloadsFilter]()
+	SortFilterEnvironment = sortfilter.New[Workload, EnvironmentWorkloadOrderField, struct{}]()
+)
+
+type SortFilterEnvironmentTieBreaker = sortfilter.TieBreaker[EnvironmentWorkloadOrderField]
 
 func init() {
 	SortFilter.RegisterSort("NAME", func(ctx context.Context, a, b Workload) int {
@@ -29,4 +35,26 @@ func init() {
 		}
 		return false
 	})
+
+	SortFilterEnvironment.RegisterSort(
+		"NAME",
+		func(ctx context.Context, a, b Workload) int {
+			return strings.Compare(a.GetName(), b.GetName())
+		},
+		// Sort by team when we have workloads with the same name
+		SortFilterEnvironmentTieBreaker{
+			Field:     "TEAM_SLUG",
+			Direction: ptr.To(model.OrderDirectionAsc),
+		},
+	)
+	SortFilterEnvironment.RegisterSort(
+		"TEAM_SLUG",
+		func(ctx context.Context, a, b Workload) int {
+			return strings.Compare(a.GetTeamSlug().String(), b.GetTeamSlug().String())
+		},
+		SortFilterEnvironmentTieBreaker{
+			Field:     "NAME",
+			Direction: ptr.To(model.OrderDirectionAsc),
+		},
+	)
 }

@@ -25,6 +25,10 @@ func (r *redisInstanceResolver) Team(ctx context.Context, obj *redis.RedisInstan
 }
 
 func (r *redisInstanceResolver) Environment(ctx context.Context, obj *redis.RedisInstance) (*team.TeamEnvironment, error) {
+	return r.TeamEnvironment(ctx, obj)
+}
+
+func (r *redisInstanceResolver) TeamEnvironment(ctx context.Context, obj *redis.RedisInstance) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
@@ -55,7 +59,7 @@ func (r *teamResolver) RedisInstances(ctx context.Context, obj *team.Team, first
 }
 
 func (r *teamEnvironmentResolver) RedisInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*redis.RedisInstance, error) {
-	return redis.Get(ctx, obj.TeamSlug, obj.Name, name)
+	return redis.Get(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
 func (r *teamInventoryCountsResolver) RedisInstances(ctx context.Context, obj *team.TeamInventoryCounts) (*redis.TeamInventoryCountRedisInstances, error) {

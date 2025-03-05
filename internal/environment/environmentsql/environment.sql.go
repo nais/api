@@ -16,6 +16,22 @@ func (q *Queries) DeleteAllEnvironments(ctx context.Context) error {
 	return err
 }
 
+const get = `-- name: Get :one
+SELECT
+	name, gcp
+FROM
+	environments
+WHERE
+	name = $1
+`
+
+func (q *Queries) Get(ctx context.Context, name string) (*Environment, error) {
+	row := q.db.QueryRow(ctx, get, name)
+	var i Environment
+	err := row.Scan(&i.Name, &i.Gcp)
+	return &i, err
+}
+
 const insertEnvironment = `-- name: InsertEnvironment :exec
 INSERT INTO
 	environments (name, gcp)
@@ -31,4 +47,64 @@ type InsertEnvironmentParams struct {
 func (q *Queries) InsertEnvironment(ctx context.Context, arg InsertEnvironmentParams) error {
 	_, err := q.db.Exec(ctx, insertEnvironment, arg.Name, arg.Gcp)
 	return err
+}
+
+const list = `-- name: List :many
+SELECT
+	name, gcp
+FROM
+	environments
+ORDER BY
+	name
+`
+
+func (q *Queries) List(ctx context.Context) ([]*Environment, error) {
+	rows, err := q.db.Query(ctx, list)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*Environment{}
+	for rows.Next() {
+		var i Environment
+		if err := rows.Scan(&i.Name, &i.Gcp); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listByNames = `-- name: ListByNames :many
+SELECT
+	name, gcp
+FROM
+	environments
+WHERE
+	name = ANY ($1::TEXT[])
+ORDER BY
+	name
+`
+
+func (q *Queries) ListByNames(ctx context.Context, names []string) ([]*Environment, error) {
+	rows, err := q.db.Query(ctx, listByNames, names)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*Environment{}
+	for rows.Next() {
+		var i Environment
+		if err := rows.Scan(&i.Name, &i.Gcp); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

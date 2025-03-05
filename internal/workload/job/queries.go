@@ -46,6 +46,15 @@ func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, orderBy *JobOrder, 
 	return ret
 }
 
+func ListAllInEnvironment(ctx context.Context, environment string) []*Job {
+	jobs := fromContext(ctx).jobWatcher.GetByCluster(environment)
+	ret := make([]*Job, len(jobs))
+	for i, obj := range jobs {
+		ret[i] = toGraphJob(obj.Obj, obj.Cluster)
+	}
+	return ret
+}
+
 func ListAllForTeamInEnvironment(ctx context.Context, teamSlug slug.Slug, environmentName string) []*Job {
 	allJobs := fromContext(ctx).jobWatcher.GetByNamespace(teamSlug.String(), watcher.InCluster(environmentName))
 	ret := make([]*Job, len(allJobs))

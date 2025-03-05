@@ -19,6 +19,7 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/notify"
 	"github.com/nais/api/internal/deployment"
+	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/feature"
 	"github.com/nais/api/internal/github/repository"
 	"github.com/nais/api/internal/graph/loader"
@@ -291,6 +292,7 @@ func ConfigureGraph(
 		ctx = search.NewLoaderContext(ctx, pool, searcher)
 		ctx = unleash.NewLoaderContext(ctx, tenantName, unleashWatcher, bifrostAPIURL, log)
 		ctx = logging.NewPackageContext(ctx, tenantName, defaultLogDestinations)
+		ctx = environment.NewLoaderContext(ctx, pool)
 		ctx = feature.NewLoaderContext(
 			ctx,
 			unleashWatcher.Enabled(),

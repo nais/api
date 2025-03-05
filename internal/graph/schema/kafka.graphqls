@@ -60,7 +60,8 @@ type KafkaTopic implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
-	environment: TeamEnvironment!
+	environment: TeamEnvironment! @deprecated(reason: "Use the `teamEnvironment` field instead.")
+	teamEnvironment: TeamEnvironment!
 	acl(
 		first: Int
 		after: Cursor
