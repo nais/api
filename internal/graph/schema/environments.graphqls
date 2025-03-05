@@ -7,7 +7,7 @@ extend type Query {
 		Ordering options for environments.
 		"""
 		orderBy: EnvironmentOrder
-	): [Environment!]!
+	): EnvironmentConnection!
 
 	"""
 	Get a single environment.
@@ -18,6 +18,41 @@ extend type Query {
 		"""
 		name: String!
 	): Environment!
+}
+
+"""
+Environment connection.
+"""
+type EnvironmentConnection {
+	"""
+	Pagination information.
+	"""
+	pageInfo: PageInfo!
+
+	"""
+	List of nodes.
+	"""
+	nodes: [Environment!]!
+
+	"""
+	List of edges.
+	"""
+	edges: [EnvironmentEdge!]!
+}
+
+"""
+Environment edge.
+"""
+type EnvironmentEdge {
+	"""
+	Cursor for this edge that can be used for pagination.
+	"""
+	cursor: Cursor!
+
+	"""
+	The Environment.
+	"""
+	node: Environment!
 }
 
 """

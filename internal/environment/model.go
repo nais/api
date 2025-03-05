@@ -8,6 +8,12 @@ import (
 	"github.com/nais/api/internal/environment/environmentsql"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/pagination"
+)
+
+type (
+	EnvironmentConnection = pagination.Connection[*Environment]
+	EnvironmentEdge       = pagination.Edge[*Environment]
 )
 
 type Environment struct {

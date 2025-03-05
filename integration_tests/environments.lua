@@ -10,7 +10,9 @@ Test.gql("all environments", function(t)
 	t.query([[
 		{
 			environments {
-				name
+				nodes {
+					name
+				}
 			}
 		}
 	]])
@@ -18,17 +20,19 @@ Test.gql("all environments", function(t)
 	t.check {
 		data = {
 			environments = {
-				{
-					name = "dev",
-				},
-				{
-					name = "dev-fss",
-				},
-				{
-					name = "dev-gcp",
-				},
-				{
-					name = "staging",
+				nodes = {
+					{
+						name = "dev",
+					},
+					{
+						name = "dev-fss",
+					},
+					{
+						name = "dev-gcp",
+					},
+					{
+						name = "staging",
+					},
 				},
 			},
 		},
@@ -46,7 +50,9 @@ Test.gql("all environments with ordering", function(t)
 					direction: ASC
 				}
 			) {
-				name
+				nodes {
+					name
+				}
 			}
 		}
 	]])
@@ -54,17 +60,19 @@ Test.gql("all environments with ordering", function(t)
 	t.check {
 		data = {
 			environments = {
-				{
-					name = "dev",
-				},
-				{
-					name = "dev-fss",
-				},
-				{
-					name = "dev-gcp",
-				},
-				{
-					name = "staging",
+				nodes = {
+					{
+						name = "dev",
+					},
+					{
+						name = "dev-fss",
+					},
+					{
+						name = "dev-gcp",
+					},
+					{
+						name = "staging",
+					},
 				},
 			},
 		},
@@ -78,7 +86,9 @@ Test.gql("all environments with ordering", function(t)
 					direction: DESC
 				}
 			) {
-				name
+				nodes {
+					name
+				}
 			}
 		}
 	]])
@@ -86,17 +96,19 @@ Test.gql("all environments with ordering", function(t)
 	t.check {
 		data = {
 			environments = {
-				{
-					name = "staging",
-				},
-				{
-					name = "dev-gcp",
-				},
-				{
-					name = "dev-fss",
-				},
-				{
-					name = "dev",
+				nodes = {
+					{
+						name = "staging",
+					},
+					{
+						name = "dev-gcp",
+					},
+					{
+						name = "dev-fss",
+					},
+					{
+						name = "dev",
+					},
 				},
 			},
 		},
