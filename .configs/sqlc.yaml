@@ -183,3 +183,12 @@ sql:
         <<: *default_go
         package: "searchsql"
         out: "../internal/search/searchsql"
+
+  - <<: *default_domain
+    name: "K8s events"
+    queries: "../internal/kubernetes/event/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "eventsql"
+        out: "../internal/kubernetes/event/searchsql"

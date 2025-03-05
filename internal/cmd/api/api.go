@@ -19,6 +19,7 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/grpc"
 	"github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/kubernetes/event"
 	"github.com/nais/api/internal/kubernetes/fake"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/leaderelection"
@@ -190,6 +191,15 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	// Notifier to use only one connection to the database for LISTEN/NOTIFY pattern
 	notifier := notify.New(pool, log)
 	go notifier.Run(ctx)
+
+	if !cfg.WithFakeClients {
+		k8sClients, err := kubernetes.NewClientSets(clusterConfig)
+		if err != nil {
+			return fmt.Errorf("creating k8s clients: %w", err)
+		}
+		eventWatcher := event.NewWatcher(pool, k8sClients, log)
+		go eventWatcher.Run(ctx)
+	}
 
 	// HTTP server
 	wg.Go(func() error {
