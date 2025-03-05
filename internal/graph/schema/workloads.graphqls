@@ -101,7 +101,12 @@ interface Workload implements Node {
 	"""
 	The environment the workload is deployed in.
 	"""
-	environment: TeamEnvironment!
+	environment: TeamEnvironment! @deprecated(reason: "Use the `teamEnvironment` field instead.")
+
+	"""
+	The team environment for the workload.
+	"""
+	teamEnvironment: TeamEnvironment!
 
 	"""
 	The container image of the workload.

@@ -204,7 +204,10 @@ type UpdateTeamPayload {
 
 type UpdateTeamEnvironmentPayload {
 	"The updated team environment."
-	environment: TeamEnvironment
+	environment: TeamEnvironment @deprecated(reason: "Use the `teamEnvironment` field instead.")
+
+	"The updated team environment."
+	teamEnvironment: TeamEnvironment
 }
 
 type RequestTeamDeletionPayload {

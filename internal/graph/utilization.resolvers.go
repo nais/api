@@ -38,6 +38,10 @@ func (r *teamUtilizationDataResolver) Team(ctx context.Context, obj *utilization
 }
 
 func (r *teamUtilizationDataResolver) Environment(ctx context.Context, obj *utilization.TeamUtilizationData) (*team.TeamEnvironment, error) {
+	return r.TeamEnvironment(ctx, obj)
+}
+
+func (r *teamUtilizationDataResolver) TeamEnvironment(ctx context.Context, obj *utilization.TeamUtilizationData) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, r.mappedEnvironmentName(obj.EnvironmentName))
 }
 

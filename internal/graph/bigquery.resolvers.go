@@ -28,6 +28,10 @@ func (r *bigQueryDatasetResolver) Team(ctx context.Context, obj *bigquery.BigQue
 }
 
 func (r *bigQueryDatasetResolver) Environment(ctx context.Context, obj *bigquery.BigQueryDataset) (*team.TeamEnvironment, error) {
+	return r.TeamEnvironment(ctx, obj)
+}
+
+func (r *bigQueryDatasetResolver) TeamEnvironment(ctx context.Context, obj *bigquery.BigQueryDataset) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 

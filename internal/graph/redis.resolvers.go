@@ -25,6 +25,10 @@ func (r *redisInstanceResolver) Team(ctx context.Context, obj *redis.RedisInstan
 }
 
 func (r *redisInstanceResolver) Environment(ctx context.Context, obj *redis.RedisInstance) (*team.TeamEnvironment, error) {
+	return r.TeamEnvironment(ctx, obj)
+}
+
+func (r *redisInstanceResolver) TeamEnvironment(ctx context.Context, obj *redis.RedisInstance) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 

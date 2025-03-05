@@ -126,6 +126,7 @@ type ResolverRoot interface {
 	TriggerJobPayload() TriggerJobPayloadResolver
 	UnleashInstance() UnleashInstanceResolver
 	UnleashInstanceMetrics() UnleashInstanceMetricsResolver
+	UpdateTeamEnvironmentPayload() UpdateTeamEnvironmentPayloadResolver
 	User() UserResolver
 	ValkeyInstance() ValkeyInstanceResolver
 	ValkeyInstanceAccess() ValkeyInstanceAccessResolver
@@ -190,6 +191,7 @@ type ComplexityRoot struct {
 		Secrets           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Status            func(childComplexity int) int
 		Team              func(childComplexity int) int
+		TeamEnvironment   func(childComplexity int) int
 		Utilization       func(childComplexity int) int
 		ValkeyInstances   func(childComplexity int, orderBy *valkey.ValkeyInstanceOrder) int
 	}
@@ -282,6 +284,7 @@ type ComplexityRoot struct {
 		Name            func(childComplexity int) int
 		Status          func(childComplexity int) int
 		Team            func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
 		Workload        func(childComplexity int) int
 	}
 
@@ -329,6 +332,7 @@ type ComplexityRoot struct {
 		PublicAccessPrevention   func(childComplexity int) int
 		Status                   func(childComplexity int) int
 		Team                     func(childComplexity int) int
+		TeamEnvironment          func(childComplexity int) int
 		UniformBucketLevelAccess func(childComplexity int) int
 		Workload                 func(childComplexity int) int
 	}
@@ -660,6 +664,7 @@ type ComplexityRoot struct {
 		Secrets           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Status            func(childComplexity int) int
 		Team              func(childComplexity int) int
+		TeamEnvironment   func(childComplexity int) int
 		ValkeyInstances   func(childComplexity int, orderBy *valkey.ValkeyInstanceOrder) int
 	}
 
@@ -766,13 +771,14 @@ type ComplexityRoot struct {
 	}
 
 	KafkaTopic struct {
-		ACL           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *kafkatopic.KafkaTopicACLFilter, orderBy *kafkatopic.KafkaTopicACLOrder) int
-		Configuration func(childComplexity int) int
-		Environment   func(childComplexity int) int
-		ID            func(childComplexity int) int
-		Name          func(childComplexity int) int
-		Pool          func(childComplexity int) int
-		Team          func(childComplexity int) int
+		ACL             func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *kafkatopic.KafkaTopicACLFilter, orderBy *kafkatopic.KafkaTopicACLOrder) int
+		Configuration   func(childComplexity int) int
+		Environment     func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Name            func(childComplexity int) int
+		Pool            func(childComplexity int) int
+		Team            func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
 	}
 
 	KafkaTopicAcl struct {
@@ -882,14 +888,15 @@ type ComplexityRoot struct {
 	}
 
 	OpenSearch struct {
-		Access      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchAccessOrder) int
-		Cost        func(childComplexity int) int
-		Environment func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Name        func(childComplexity int) int
-		Status      func(childComplexity int) int
-		Team        func(childComplexity int) int
-		Workload    func(childComplexity int) int
+		Access          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchAccessOrder) int
+		Cost            func(childComplexity int) int
+		Environment     func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Name            func(childComplexity int) int
+		Status          func(childComplexity int) int
+		Team            func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+		Workload        func(childComplexity int) int
 	}
 
 	OpenSearchAccess struct {
@@ -1051,14 +1058,15 @@ type ComplexityRoot struct {
 	}
 
 	RedisInstance struct {
-		Access      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceAccessOrder) int
-		Cost        func(childComplexity int) int
-		Environment func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Name        func(childComplexity int) int
-		Status      func(childComplexity int) int
-		Team        func(childComplexity int) int
-		Workload    func(childComplexity int) int
+		Access          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceAccessOrder) int
+		Cost            func(childComplexity int) int
+		Environment     func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Name            func(childComplexity int) int
+		Status          func(childComplexity int) int
+		Team            func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+		Workload        func(childComplexity int) int
 	}
 
 	RedisInstanceAccess struct {
@@ -1245,16 +1253,17 @@ type ComplexityRoot struct {
 	}
 
 	Secret struct {
-		Applications   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Environment    func(childComplexity int) int
-		ID             func(childComplexity int) int
-		Jobs           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		LastModifiedAt func(childComplexity int) int
-		LastModifiedBy func(childComplexity int) int
-		Name           func(childComplexity int) int
-		Team           func(childComplexity int) int
-		Values         func(childComplexity int) int
-		Workloads      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Applications    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Environment     func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Jobs            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		LastModifiedAt  func(childComplexity int) int
+		LastModifiedBy  func(childComplexity int) int
+		Name            func(childComplexity int) int
+		Team            func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+		Values          func(childComplexity int) int
+		Workloads       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 	}
 
 	SecretConnection struct {
@@ -1501,14 +1510,15 @@ type ComplexityRoot struct {
 	}
 
 	SqlDatabase struct {
-		Charset        func(childComplexity int) int
-		Collation      func(childComplexity int) int
-		DeletionPolicy func(childComplexity int) int
-		Environment    func(childComplexity int) int
-		Healthy        func(childComplexity int) int
-		ID             func(childComplexity int) int
-		Name           func(childComplexity int) int
-		Team           func(childComplexity int) int
+		Charset         func(childComplexity int) int
+		Collation       func(childComplexity int) int
+		DeletionPolicy  func(childComplexity int) int
+		Environment     func(childComplexity int) int
+		Healthy         func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Name            func(childComplexity int) int
+		Team            func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
 	}
 
 	SqlInstance struct {
@@ -1532,6 +1542,7 @@ type ComplexityRoot struct {
 		State               func(childComplexity int) int
 		Status              func(childComplexity int) int
 		Team                func(childComplexity int) int
+		TeamEnvironment     func(childComplexity int) int
 		Tier                func(childComplexity int) int
 		Users               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceUserOrder) int
 		Version             func(childComplexity int) int
@@ -2000,10 +2011,11 @@ type ComplexityRoot struct {
 	}
 
 	TeamUtilizationData struct {
-		Environment func(childComplexity int) int
-		Requested   func(childComplexity int) int
-		Team        func(childComplexity int) int
-		Used        func(childComplexity int) int
+		Environment     func(childComplexity int) int
+		Requested       func(childComplexity int) int
+		Team            func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+		Used            func(childComplexity int) int
 	}
 
 	TeamVulnerabilityStatus struct {
@@ -2101,7 +2113,8 @@ type ComplexityRoot struct {
 	}
 
 	UpdateTeamEnvironmentPayload struct {
-		Environment func(childComplexity int) int
+		Environment     func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
 	}
 
 	UpdateTeamPayload struct {
@@ -2174,14 +2187,15 @@ type ComplexityRoot struct {
 	}
 
 	ValkeyInstance struct {
-		Access      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyInstanceAccessOrder) int
-		Cost        func(childComplexity int) int
-		Environment func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Name        func(childComplexity int) int
-		Status      func(childComplexity int) int
-		Team        func(childComplexity int) int
-		Workload    func(childComplexity int) int
+		Access          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyInstanceAccessOrder) int
+		Cost            func(childComplexity int) int
+		Environment     func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Name            func(childComplexity int) int
+		Status          func(childComplexity int) int
+		Team            func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+		Workload        func(childComplexity int) int
 	}
 
 	ValkeyInstanceAccess struct {
@@ -2352,6 +2366,7 @@ type ComplexityRoot struct {
 type ApplicationResolver interface {
 	Team(ctx context.Context, obj *application.Application) (*team.Team, error)
 	Environment(ctx context.Context, obj *application.Application) (*team.TeamEnvironment, error)
+	TeamEnvironment(ctx context.Context, obj *application.Application) (*team.TeamEnvironment, error)
 
 	AuthIntegrations(ctx context.Context, obj *application.Application) ([]workload.ApplicationAuthIntegrations, error)
 	Manifest(ctx context.Context, obj *application.Application) (*application.ApplicationManifest, error)
@@ -2375,6 +2390,7 @@ type ApplicationResolver interface {
 type BigQueryDatasetResolver interface {
 	Team(ctx context.Context, obj *bigquery.BigQueryDataset) (*team.Team, error)
 	Environment(ctx context.Context, obj *bigquery.BigQueryDataset) (*team.TeamEnvironment, error)
+	TeamEnvironment(ctx context.Context, obj *bigquery.BigQueryDataset) (*team.TeamEnvironment, error)
 
 	Access(ctx context.Context, obj *bigquery.BigQueryDataset, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetAccessOrder) (*pagination.Connection[*bigquery.BigQueryDatasetAccess], error)
 
@@ -2384,6 +2400,7 @@ type BigQueryDatasetResolver interface {
 type BucketResolver interface {
 	Team(ctx context.Context, obj *bucket.Bucket) (*team.Team, error)
 	Environment(ctx context.Context, obj *bucket.Bucket) (*team.TeamEnvironment, error)
+	TeamEnvironment(ctx context.Context, obj *bucket.Bucket) (*team.TeamEnvironment, error)
 
 	Workload(ctx context.Context, obj *bucket.Bucket) (workload.Workload, error)
 }
@@ -2421,6 +2438,7 @@ type IngressResolver interface {
 type JobResolver interface {
 	Team(ctx context.Context, obj *job.Job) (*team.Team, error)
 	Environment(ctx context.Context, obj *job.Job) (*team.TeamEnvironment, error)
+	TeamEnvironment(ctx context.Context, obj *job.Job) (*team.TeamEnvironment, error)
 
 	AuthIntegrations(ctx context.Context, obj *job.Job) ([]workload.JobAuthIntegrations, error)
 
@@ -2448,6 +2466,7 @@ type JobRunResolver interface {
 type KafkaTopicResolver interface {
 	Team(ctx context.Context, obj *kafkatopic.KafkaTopic) (*team.Team, error)
 	Environment(ctx context.Context, obj *kafkatopic.KafkaTopic) (*team.TeamEnvironment, error)
+	TeamEnvironment(ctx context.Context, obj *kafkatopic.KafkaTopic) (*team.TeamEnvironment, error)
 	ACL(ctx context.Context, obj *kafkatopic.KafkaTopic, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *kafkatopic.KafkaTopicACLFilter, orderBy *kafkatopic.KafkaTopicACLOrder) (*pagination.Connection[*kafkatopic.KafkaTopicACL], error)
 }
 type KafkaTopicAclResolver interface {
@@ -2501,6 +2520,7 @@ type NetworkPolicyRuleResolver interface {
 type OpenSearchResolver interface {
 	Team(ctx context.Context, obj *opensearch.OpenSearch) (*team.Team, error)
 	Environment(ctx context.Context, obj *opensearch.OpenSearch) (*team.TeamEnvironment, error)
+	TeamEnvironment(ctx context.Context, obj *opensearch.OpenSearch) (*team.TeamEnvironment, error)
 
 	Workload(ctx context.Context, obj *opensearch.OpenSearch) (workload.Workload, error)
 	Access(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchAccessOrder) (*pagination.Connection[*opensearch.OpenSearchAccess], error)
@@ -2539,6 +2559,7 @@ type ReconcilerErrorResolver interface {
 type RedisInstanceResolver interface {
 	Team(ctx context.Context, obj *redis.RedisInstance) (*team.Team, error)
 	Environment(ctx context.Context, obj *redis.RedisInstance) (*team.TeamEnvironment, error)
+	TeamEnvironment(ctx context.Context, obj *redis.RedisInstance) (*team.TeamEnvironment, error)
 	Access(ctx context.Context, obj *redis.RedisInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceAccessOrder) (*pagination.Connection[*redis.RedisInstanceAccess], error)
 	Workload(ctx context.Context, obj *redis.RedisInstance) (workload.Workload, error)
 
@@ -2559,6 +2580,7 @@ type RestartApplicationPayloadResolver interface {
 }
 type SecretResolver interface {
 	Environment(ctx context.Context, obj *secret.Secret) (*team.TeamEnvironment, error)
+	TeamEnvironment(ctx context.Context, obj *secret.Secret) (*team.TeamEnvironment, error)
 	Team(ctx context.Context, obj *secret.Secret) (*team.Team, error)
 	Values(ctx context.Context, obj *secret.Secret) ([]*secret.SecretValue, error)
 	Applications(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*application.Application], error)
@@ -2576,10 +2598,12 @@ type ServiceAccountResolver interface {
 type SqlDatabaseResolver interface {
 	Team(ctx context.Context, obj *sqlinstance.SQLDatabase) (*team.Team, error)
 	Environment(ctx context.Context, obj *sqlinstance.SQLDatabase) (*team.TeamEnvironment, error)
+	TeamEnvironment(ctx context.Context, obj *sqlinstance.SQLDatabase) (*team.TeamEnvironment, error)
 }
 type SqlInstanceResolver interface {
 	Team(ctx context.Context, obj *sqlinstance.SQLInstance) (*team.Team, error)
 	Environment(ctx context.Context, obj *sqlinstance.SQLInstance) (*team.TeamEnvironment, error)
+	TeamEnvironment(ctx context.Context, obj *sqlinstance.SQLInstance) (*team.TeamEnvironment, error)
 	Workload(ctx context.Context, obj *sqlinstance.SQLInstance) (workload.Workload, error)
 
 	Database(ctx context.Context, obj *sqlinstance.SQLInstance) (*sqlinstance.SQLDatabase, error)
@@ -2688,6 +2712,7 @@ type TeamUtilizationDataResolver interface {
 	Team(ctx context.Context, obj *utilization.TeamUtilizationData) (*team.Team, error)
 
 	Environment(ctx context.Context, obj *utilization.TeamUtilizationData) (*team.TeamEnvironment, error)
+	TeamEnvironment(ctx context.Context, obj *utilization.TeamUtilizationData) (*team.TeamEnvironment, error)
 }
 type TeamVulnerabilitySummaryResolver interface {
 	Ranking(ctx context.Context, obj *vulnerability.TeamVulnerabilitySummary) (vulnerability.TeamVulnerabilityRanking, error)
@@ -2707,12 +2732,16 @@ type UnleashInstanceMetricsResolver interface {
 
 	MemoryUtilization(ctx context.Context, obj *unleash.UnleashInstanceMetrics) (float64, error)
 }
+type UpdateTeamEnvironmentPayloadResolver interface {
+	Environment(ctx context.Context, obj *team.UpdateTeamEnvironmentPayload) (*team.TeamEnvironment, error)
+}
 type UserResolver interface {
 	Teams(ctx context.Context, obj *user.User, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.UserTeamOrder) (*pagination.Connection[*team.TeamMember], error)
 }
 type ValkeyInstanceResolver interface {
 	Team(ctx context.Context, obj *valkey.ValkeyInstance) (*team.Team, error)
 	Environment(ctx context.Context, obj *valkey.ValkeyInstance) (*team.TeamEnvironment, error)
+	TeamEnvironment(ctx context.Context, obj *valkey.ValkeyInstance) (*team.TeamEnvironment, error)
 	Access(ctx context.Context, obj *valkey.ValkeyInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyInstanceAccessOrder) (*pagination.Connection[*valkey.ValkeyInstanceAccess], error)
 	Workload(ctx context.Context, obj *valkey.ValkeyInstance) (workload.Workload, error)
 
@@ -3019,6 +3048,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Application.Team(childComplexity), true
+
+	case "Application.teamEnvironment":
+		if e.complexity.Application.TeamEnvironment == nil {
+			break
+		}
+
+		return e.complexity.Application.TeamEnvironment(childComplexity), true
 
 	case "Application.utilization":
 		if e.complexity.Application.Utilization == nil {
@@ -3401,6 +3437,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.BigQueryDataset.Team(childComplexity), true
 
+	case "BigQueryDataset.teamEnvironment":
+		if e.complexity.BigQueryDataset.TeamEnvironment == nil {
+			break
+		}
+
+		return e.complexity.BigQueryDataset.TeamEnvironment(childComplexity), true
+
 	case "BigQueryDataset.workload":
 		if e.complexity.BigQueryDataset.Workload == nil {
 			break
@@ -3561,6 +3604,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Bucket.Team(childComplexity), true
+
+	case "Bucket.teamEnvironment":
+		if e.complexity.Bucket.TeamEnvironment == nil {
+			break
+		}
+
+		return e.complexity.Bucket.TeamEnvironment(childComplexity), true
 
 	case "Bucket.uniformBucketLevelAccess":
 		if e.complexity.Bucket.UniformBucketLevelAccess == nil {
@@ -4794,6 +4844,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Job.Team(childComplexity), true
 
+	case "Job.teamEnvironment":
+		if e.complexity.Job.TeamEnvironment == nil {
+			break
+		}
+
+		return e.complexity.Job.TeamEnvironment(childComplexity), true
+
 	case "Job.valkeyInstances":
 		if e.complexity.Job.ValkeyInstances == nil {
 			break
@@ -5242,6 +5299,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.KafkaTopic.Team(childComplexity), true
+
+	case "KafkaTopic.teamEnvironment":
+		if e.complexity.KafkaTopic.TeamEnvironment == nil {
+			break
+		}
+
+		return e.complexity.KafkaTopic.TeamEnvironment(childComplexity), true
 
 	case "KafkaTopicAcl.access":
 		if e.complexity.KafkaTopicAcl.Access == nil {
@@ -5961,6 +6025,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.OpenSearch.Team(childComplexity), true
+
+	case "OpenSearch.teamEnvironment":
+		if e.complexity.OpenSearch.TeamEnvironment == nil {
+			break
+		}
+
+		return e.complexity.OpenSearch.TeamEnvironment(childComplexity), true
 
 	case "OpenSearch.workload":
 		if e.complexity.OpenSearch.Workload == nil {
@@ -6768,6 +6839,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RedisInstance.Team(childComplexity), true
 
+	case "RedisInstance.teamEnvironment":
+		if e.complexity.RedisInstance.TeamEnvironment == nil {
+			break
+		}
+
+		return e.complexity.RedisInstance.TeamEnvironment(childComplexity), true
+
 	case "RedisInstance.workload":
 		if e.complexity.RedisInstance.Workload == nil {
 			break
@@ -7491,6 +7569,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Secret.Team(childComplexity), true
+
+	case "Secret.teamEnvironment":
+		if e.complexity.Secret.TeamEnvironment == nil {
+			break
+		}
+
+		return e.complexity.Secret.TeamEnvironment(childComplexity), true
 
 	case "Secret.values":
 		if e.complexity.Secret.Values == nil {
@@ -8606,6 +8691,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlDatabase.Team(childComplexity), true
 
+	case "SqlDatabase.teamEnvironment":
+		if e.complexity.SqlDatabase.TeamEnvironment == nil {
+			break
+		}
+
+		return e.complexity.SqlDatabase.TeamEnvironment(childComplexity), true
+
 	case "SqlInstance.backupConfiguration":
 		if e.complexity.SqlInstance.BackupConfiguration == nil {
 			break
@@ -8750,6 +8842,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SqlInstance.Team(childComplexity), true
+
+	case "SqlInstance.teamEnvironment":
+		if e.complexity.SqlInstance.TeamEnvironment == nil {
+			break
+		}
+
+		return e.complexity.SqlInstance.TeamEnvironment(childComplexity), true
 
 	case "SqlInstance.tier":
 		if e.complexity.SqlInstance.Tier == nil {
@@ -10774,6 +10873,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamUtilizationData.Team(childComplexity), true
 
+	case "TeamUtilizationData.teamEnvironment":
+		if e.complexity.TeamUtilizationData.TeamEnvironment == nil {
+			break
+		}
+
+		return e.complexity.TeamUtilizationData.TeamEnvironment(childComplexity), true
+
 	case "TeamUtilizationData.used":
 		if e.complexity.TeamUtilizationData.Used == nil {
 			break
@@ -11178,6 +11284,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UpdateTeamEnvironmentPayload.Environment(childComplexity), true
 
+	case "UpdateTeamEnvironmentPayload.teamEnvironment":
+		if e.complexity.UpdateTeamEnvironmentPayload.TeamEnvironment == nil {
+			break
+		}
+
+		return e.complexity.UpdateTeamEnvironmentPayload.TeamEnvironment(childComplexity), true
+
 	case "UpdateTeamPayload.team":
 		if e.complexity.UpdateTeamPayload.Team == nil {
 			break
@@ -11509,6 +11622,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ValkeyInstance.Team(childComplexity), true
+
+	case "ValkeyInstance.teamEnvironment":
+		if e.complexity.ValkeyInstance.TeamEnvironment == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstance.TeamEnvironment(childComplexity), true
 
 	case "ValkeyInstance.workload":
 		if e.complexity.ValkeyInstance.Workload == nil {
@@ -12512,7 +12632,12 @@ type Application implements Node & Workload {
 	"""
 	The environment the application is deployed in.
 	"""
-	environment: TeamEnvironment!
+	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
+
+	"""
+	The team environment for the workload.
+	"""
+	teamEnvironment: TeamEnvironment!
 
 	"""
 	The container image of the application.
@@ -13051,7 +13176,8 @@ type BigQueryDataset implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
-	environment: TeamEnvironment!
+	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
+	teamEnvironment: TeamEnvironment!
 	cascadingDelete: Boolean!
 	description: String
 	access(
@@ -13185,7 +13311,8 @@ type Bucket implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
-	environment: TeamEnvironment!
+	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
+	teamEnvironment: TeamEnvironment!
 	cascadingDelete: Boolean!
 	publicAccessPrevention: String!
 	uniformBucketLevelAccess: Boolean!
@@ -14074,7 +14201,10 @@ type Job implements Node & Workload {
 	team: Team!
 
 	"The environment the job is deployed in."
-	environment: TeamEnvironment!
+	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
+
+	"The team environment for the workload."
+	teamEnvironment: TeamEnvironment!
 
 	"The container image of the job."
 	image: ContainerImage!
@@ -14461,7 +14591,8 @@ type KafkaTopic implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
-	environment: TeamEnvironment!
+	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
+	teamEnvironment: TeamEnvironment!
 	acl(
 		first: Int
 		after: Cursor
@@ -14686,7 +14817,8 @@ type OpenSearch implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
-	environment: TeamEnvironment!
+	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
+	teamEnvironment: TeamEnvironment!
 	status: OpenSearchStatus!
 	workload: Workload
 	access(
@@ -14759,7 +14891,8 @@ extend enum SearchType {
 	id: ID!
 	name: String!
 	team: Team!
-	environment: TeamEnvironment!
+	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
+	teamEnvironment: TeamEnvironment!
 }
 `, BuiltIn: false},
 	{Name: "../schema/podlog.graphqls", Input: `type Subscription {
@@ -15143,7 +15276,8 @@ type RedisInstance implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
-	environment: TeamEnvironment!
+	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
+	teamEnvironment: TeamEnvironment!
 	access(
 		first: Int
 		after: Cursor
@@ -15706,7 +15840,10 @@ type Secret implements Node {
 	name: String!
 
 	"The environment the secret exists in."
-	environment: TeamEnvironment!
+	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
+
+	"The environment the secret exists in."
+	teamEnvironment: TeamEnvironment!
 
 	"The team that owns the secret."
 	team: Team!
@@ -17087,7 +17224,8 @@ type SqlDatabase implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
-	environment: TeamEnvironment!
+	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
+	teamEnvironment: TeamEnvironment!
 	charset: String
 	collation: String
 	deletionPolicy: String
@@ -17098,7 +17236,8 @@ type SqlInstance implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
-	environment: TeamEnvironment!
+	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
+	teamEnvironment: TeamEnvironment!
 	workload: Workload
 	cascadingDelete: Boolean!
 	connectionName: String
@@ -17608,7 +17747,10 @@ type UpdateTeamPayload {
 
 type UpdateTeamEnvironmentPayload {
 	"The updated team environment."
-	environment: TeamEnvironment
+	environment: TeamEnvironment @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
+
+	"The updated team environment."
+	teamEnvironment: TeamEnvironment
 }
 
 type RequestTeamDeletionPayload {
@@ -18886,7 +19028,10 @@ type TeamUtilizationData {
 	used: Float!
 
 	"The environment for the utilization data."
-	environment: TeamEnvironment!
+	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
+
+	"The environment for the utilization data."
+	teamEnvironment: TeamEnvironment!
 }
 `, BuiltIn: false},
 	{Name: "../schema/valkey.graphqls", Input: `extend type Team {
@@ -18951,7 +19096,8 @@ type ValkeyInstance implements Persistence & Node {
 	id: ID!
 	name: String!
 	team: Team!
-	environment: TeamEnvironment!
+	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
+	teamEnvironment: TeamEnvironment!
 	access(
 		first: Int
 		after: Cursor
@@ -19481,7 +19627,12 @@ interface Workload implements Node {
 	"""
 	The environment the workload is deployed in.
 	"""
-	environment: TeamEnvironment!
+	environment: TeamEnvironment! @deprecated(reason: "Use the ` + "`" + `teamEnvironment` + "`" + ` field instead.")
+
+	"""
+	The team environment for the workload.
+	"""
+	teamEnvironment: TeamEnvironment!
 
 	"""
 	The container image of the workload.
@@ -28145,6 +28296,8 @@ func (ec *executionContext) fieldContext_AddSecretValuePayload_secret(_ context.
 				return ec.fieldContext_Secret_name(ctx, field)
 			case "environment":
 				return ec.fieldContext_Secret_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Secret_teamEnvironment(ctx, field)
 			case "team":
 				return ec.fieldContext_Secret_team(ctx, field)
 			case "values":
@@ -28510,6 +28663,88 @@ func (ec *executionContext) _Application_environment(ctx context.Context, field 
 }
 
 func (ec *executionContext) fieldContext_Application_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Application",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
+			case "bucket":
+				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
+			case "environment":
+				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
+			case "job":
+				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "secret":
+				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Application_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Application_teamEnvironment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Application().TeamEnvironment(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamEnvironment)
+	fc.Result = res
+	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Application_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Application",
 		Field:      field,
@@ -29358,6 +29593,8 @@ func (ec *executionContext) fieldContext_Application_openSearch(_ context.Contex
 				return ec.fieldContext_OpenSearch_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_OpenSearch_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_OpenSearch_teamEnvironment(ctx, field)
 			case "status":
 				return ec.fieldContext_OpenSearch_status(ctx, field)
 			case "workload":
@@ -29834,6 +30071,8 @@ func (ec *executionContext) fieldContext_ApplicationConnection_nodes(_ context.C
 				return ec.fieldContext_Application_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_Application_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Application_teamEnvironment(ctx, field)
 			case "image":
 				return ec.fieldContext_Application_image(ctx, field)
 			case "resources":
@@ -30373,6 +30612,8 @@ func (ec *executionContext) fieldContext_ApplicationEdge_node(_ context.Context,
 				return ec.fieldContext_Application_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_Application_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Application_teamEnvironment(ctx, field)
 			case "image":
 				return ec.fieldContext_Application_image(ctx, field)
 			case "resources":
@@ -32090,6 +32331,88 @@ func (ec *executionContext) fieldContext_BigQueryDataset_environment(_ context.C
 	return fc, nil
 }
 
+func (ec *executionContext) _BigQueryDataset_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDataset_teamEnvironment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.BigQueryDataset().TeamEnvironment(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamEnvironment)
+	fc.Result = res
+	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BigQueryDataset_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDataset",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
+			case "bucket":
+				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
+			case "environment":
+				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
+			case "job":
+				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "secret":
+				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _BigQueryDataset_cascadingDelete(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDataset) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_BigQueryDataset_cascadingDelete(ctx, field)
 	if err != nil {
@@ -32826,6 +33149,8 @@ func (ec *executionContext) fieldContext_BigQueryDatasetConnection_nodes(_ conte
 				return ec.fieldContext_BigQueryDataset_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_BigQueryDataset_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_BigQueryDataset_teamEnvironment(ctx, field)
 			case "cascadingDelete":
 				return ec.fieldContext_BigQueryDataset_cascadingDelete(ctx, field)
 			case "description":
@@ -33030,6 +33355,8 @@ func (ec *executionContext) fieldContext_BigQueryDatasetEdge_node(_ context.Cont
 				return ec.fieldContext_BigQueryDataset_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_BigQueryDataset_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_BigQueryDataset_teamEnvironment(ctx, field)
 			case "cascadingDelete":
 				return ec.fieldContext_BigQueryDataset_cascadingDelete(ctx, field)
 			case "description":
@@ -33420,6 +33747,88 @@ func (ec *executionContext) fieldContext_Bucket_environment(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Bucket_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Bucket_teamEnvironment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Bucket().TeamEnvironment(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamEnvironment)
+	fc.Result = res
+	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Bucket_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Bucket",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
+			case "bucket":
+				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
+			case "environment":
+				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
+			case "job":
+				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "secret":
+				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Bucket_cascadingDelete(ctx context.Context, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Bucket_cascadingDelete(ctx, field)
 	if err != nil {
@@ -33750,6 +34159,8 @@ func (ec *executionContext) fieldContext_BucketConnection_nodes(_ context.Contex
 				return ec.fieldContext_Bucket_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_Bucket_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Bucket_teamEnvironment(ctx, field)
 			case "cascadingDelete":
 				return ec.fieldContext_Bucket_cascadingDelete(ctx, field)
 			case "publicAccessPrevention":
@@ -33908,6 +34319,8 @@ func (ec *executionContext) fieldContext_BucketEdge_node(_ context.Context, fiel
 				return ec.fieldContext_Bucket_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_Bucket_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Bucket_teamEnvironment(ctx, field)
 			case "cascadingDelete":
 				return ec.fieldContext_Bucket_cascadingDelete(ctx, field)
 			case "publicAccessPrevention":
@@ -34935,6 +35348,8 @@ func (ec *executionContext) fieldContext_CreateSecretPayload_secret(_ context.Co
 				return ec.fieldContext_Secret_name(ctx, field)
 			case "environment":
 				return ec.fieldContext_Secret_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Secret_teamEnvironment(ctx, field)
 			case "team":
 				return ec.fieldContext_Secret_team(ctx, field)
 			case "values":
@@ -40968,6 +41383,88 @@ func (ec *executionContext) fieldContext_Job_environment(_ context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Job_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Job_teamEnvironment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Job().TeamEnvironment(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamEnvironment)
+	fc.Result = res
+	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Job_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
+			case "bucket":
+				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
+			case "environment":
+				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
+			case "job":
+				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "secret":
+				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Job_image(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Job_image(ctx, field)
 	if err != nil {
@@ -41761,6 +42258,8 @@ func (ec *executionContext) fieldContext_Job_openSearch(_ context.Context, field
 				return ec.fieldContext_OpenSearch_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_OpenSearch_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_OpenSearch_teamEnvironment(ctx, field)
 			case "status":
 				return ec.fieldContext_OpenSearch_status(ctx, field)
 			case "workload":
@@ -42185,6 +42684,8 @@ func (ec *executionContext) fieldContext_JobConnection_nodes(_ context.Context, 
 				return ec.fieldContext_Job_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_Job_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Job_teamEnvironment(ctx, field)
 			case "image":
 				return ec.fieldContext_Job_image(ctx, field)
 			case "resources":
@@ -42722,6 +43223,8 @@ func (ec *executionContext) fieldContext_JobEdge_node(_ context.Context, field g
 				return ec.fieldContext_Job_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_Job_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Job_teamEnvironment(ctx, field)
 			case "image":
 				return ec.fieldContext_Job_image(ctx, field)
 			case "resources":
@@ -45002,6 +45505,88 @@ func (ec *executionContext) fieldContext_KafkaTopic_environment(_ context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _KafkaTopic_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KafkaTopic_teamEnvironment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.KafkaTopic().TeamEnvironment(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamEnvironment)
+	fc.Result = res
+	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_KafkaTopic_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KafkaTopic",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
+			case "bucket":
+				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
+			case "environment":
+				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
+			case "job":
+				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "secret":
+				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _KafkaTopic_acl(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_KafkaTopic_acl(ctx, field)
 	if err != nil {
@@ -45501,6 +46086,8 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_topic(_ context.Context, 
 				return ec.fieldContext_KafkaTopic_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_KafkaTopic_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_KafkaTopic_teamEnvironment(ctx, field)
 			case "acl":
 				return ec.fieldContext_KafkaTopic_acl(ctx, field)
 			case "configuration":
@@ -46219,6 +46806,8 @@ func (ec *executionContext) fieldContext_KafkaTopicConnection_nodes(_ context.Co
 				return ec.fieldContext_KafkaTopic_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_KafkaTopic_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_KafkaTopic_teamEnvironment(ctx, field)
 			case "acl":
 				return ec.fieldContext_KafkaTopic_acl(ctx, field)
 			case "configuration":
@@ -46373,6 +46962,8 @@ func (ec *executionContext) fieldContext_KafkaTopicEdge_node(_ context.Context, 
 				return ec.fieldContext_KafkaTopic_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_KafkaTopic_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_KafkaTopic_teamEnvironment(ctx, field)
 			case "acl":
 				return ec.fieldContext_KafkaTopic_acl(ctx, field)
 			case "configuration":
@@ -48140,6 +48731,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTeamEnvironment(ctx cont
 			switch field.Name {
 			case "environment":
 				return ec.fieldContext_UpdateTeamEnvironmentPayload_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_UpdateTeamEnvironmentPayload_teamEnvironment(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UpdateTeamEnvironmentPayload", field.Name)
 		},
@@ -49361,6 +49954,88 @@ func (ec *executionContext) fieldContext_OpenSearch_environment(_ context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _OpenSearch_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearch) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_OpenSearch_teamEnvironment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.OpenSearch().TeamEnvironment(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamEnvironment)
+	fc.Result = res
+	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_OpenSearch_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearch",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
+			case "bucket":
+				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
+			case "environment":
+				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
+			case "job":
+				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "secret":
+				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _OpenSearch_status(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearch) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_OpenSearch_status(ctx, field)
 	if err != nil {
@@ -50010,6 +50685,8 @@ func (ec *executionContext) fieldContext_OpenSearchConnection_nodes(_ context.Co
 				return ec.fieldContext_OpenSearch_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_OpenSearch_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_OpenSearch_teamEnvironment(ctx, field)
 			case "status":
 				return ec.fieldContext_OpenSearch_status(ctx, field)
 			case "workload":
@@ -50210,6 +50887,8 @@ func (ec *executionContext) fieldContext_OpenSearchEdge_node(_ context.Context, 
 				return ec.fieldContext_OpenSearch_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_OpenSearch_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_OpenSearch_teamEnvironment(ctx, field)
 			case "status":
 				return ec.fieldContext_OpenSearch_status(ctx, field)
 			case "workload":
@@ -51710,6 +52389,8 @@ func (ec *executionContext) fieldContext_Query_teamsUtilization(ctx context.Cont
 				return ec.fieldContext_TeamUtilizationData_used(ctx, field)
 			case "environment":
 				return ec.fieldContext_TeamUtilizationData_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_TeamUtilizationData_teamEnvironment(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamUtilizationData", field.Name)
 		},
@@ -54833,6 +55514,88 @@ func (ec *executionContext) fieldContext_RedisInstance_environment(_ context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _RedisInstance_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *redis.RedisInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedisInstance_teamEnvironment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.RedisInstance().TeamEnvironment(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamEnvironment)
+	fc.Result = res
+	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RedisInstance_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RedisInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
+			case "bucket":
+				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
+			case "environment":
+				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
+			case "job":
+				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "secret":
+				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _RedisInstance_access(ctx context.Context, field graphql.CollectedField, obj *redis.RedisInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_RedisInstance_access(ctx, field)
 	if err != nil {
@@ -55482,6 +56245,8 @@ func (ec *executionContext) fieldContext_RedisInstanceConnection_nodes(_ context
 				return ec.fieldContext_RedisInstance_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_RedisInstance_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_RedisInstance_teamEnvironment(ctx, field)
 			case "access":
 				return ec.fieldContext_RedisInstance_access(ctx, field)
 			case "workload":
@@ -55682,6 +56447,8 @@ func (ec *executionContext) fieldContext_RedisInstanceEdge_node(_ context.Contex
 				return ec.fieldContext_RedisInstance_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_RedisInstance_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_RedisInstance_teamEnvironment(ctx, field)
 			case "access":
 				return ec.fieldContext_RedisInstance_access(ctx, field)
 			case "workload":
@@ -55824,6 +56591,8 @@ func (ec *executionContext) fieldContext_RemoveSecretValuePayload_secret(_ conte
 				return ec.fieldContext_Secret_name(ctx, field)
 			case "environment":
 				return ec.fieldContext_Secret_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Secret_teamEnvironment(ctx, field)
 			case "team":
 				return ec.fieldContext_Secret_team(ctx, field)
 			case "values":
@@ -57270,6 +58039,8 @@ func (ec *executionContext) fieldContext_RestartApplicationPayload_application(_
 				return ec.fieldContext_Application_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_Application_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Application_teamEnvironment(ctx, field)
 			case "image":
 				return ec.fieldContext_Application_image(ctx, field)
 			case "resources":
@@ -59733,6 +60504,88 @@ func (ec *executionContext) fieldContext_Secret_environment(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Secret_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Secret_teamEnvironment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Secret().TeamEnvironment(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamEnvironment)
+	fc.Result = res
+	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Secret_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Secret",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
+			case "bucket":
+				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
+			case "environment":
+				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
+			case "job":
+				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "secret":
+				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Secret_team(ctx context.Context, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Secret_team(ctx, field)
 	if err != nil {
@@ -60289,6 +61142,8 @@ func (ec *executionContext) fieldContext_SecretConnection_nodes(_ context.Contex
 				return ec.fieldContext_Secret_name(ctx, field)
 			case "environment":
 				return ec.fieldContext_Secret_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Secret_teamEnvironment(ctx, field)
 			case "team":
 				return ec.fieldContext_Secret_team(ctx, field)
 			case "values":
@@ -61147,6 +62002,8 @@ func (ec *executionContext) fieldContext_SecretEdge_node(_ context.Context, fiel
 				return ec.fieldContext_Secret_name(ctx, field)
 			case "environment":
 				return ec.fieldContext_Secret_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Secret_teamEnvironment(ctx, field)
 			case "team":
 				return ec.fieldContext_Secret_team(ctx, field)
 			case "values":
@@ -67210,6 +68067,88 @@ func (ec *executionContext) fieldContext_SqlDatabase_environment(_ context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _SqlDatabase_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlDatabase_teamEnvironment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.SqlDatabase().TeamEnvironment(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamEnvironment)
+	fc.Result = res
+	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlDatabase_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlDatabase",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
+			case "bucket":
+				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
+			case "environment":
+				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
+			case "job":
+				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "secret":
+				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SqlDatabase_charset(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlDatabase_charset(ctx, field)
 	if err != nil {
@@ -67613,6 +68552,88 @@ func (ec *executionContext) _SqlInstance_environment(ctx context.Context, field 
 }
 
 func (ec *executionContext) fieldContext_SqlInstance_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
+			case "bucket":
+				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
+			case "environment":
+				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
+			case "job":
+				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "secret":
+				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SqlInstance_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstance_teamEnvironment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.SqlInstance().TeamEnvironment(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamEnvironment)
+	fc.Result = res
+	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstance_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstance",
 		Field:      field,
@@ -68323,6 +69344,8 @@ func (ec *executionContext) fieldContext_SqlInstance_database(_ context.Context,
 				return ec.fieldContext_SqlDatabase_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_SqlDatabase_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_SqlDatabase_teamEnvironment(ctx, field)
 			case "charset":
 				return ec.fieldContext_SqlDatabase_charset(ctx, field)
 			case "collation":
@@ -68920,6 +69943,8 @@ func (ec *executionContext) fieldContext_SqlInstanceConnection_nodes(_ context.C
 				return ec.fieldContext_SqlInstance_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_SqlInstance_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_SqlInstance_teamEnvironment(ctx, field)
 			case "workload":
 				return ec.fieldContext_SqlInstance_workload(ctx, field)
 			case "cascadingDelete":
@@ -69328,6 +70353,8 @@ func (ec *executionContext) fieldContext_SqlInstanceEdge_node(_ context.Context,
 				return ec.fieldContext_SqlInstance_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_SqlInstance_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_SqlInstance_teamEnvironment(ctx, field)
 			case "workload":
 				return ec.fieldContext_SqlInstance_workload(ctx, field)
 			case "cascadingDelete":
@@ -75514,6 +76541,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_application(ctx context
 				return ec.fieldContext_Application_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_Application_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Application_teamEnvironment(ctx, field)
 			case "image":
 				return ec.fieldContext_Application_image(ctx, field)
 			case "resources":
@@ -75621,6 +76650,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_bigQueryDataset(ctx con
 				return ec.fieldContext_BigQueryDataset_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_BigQueryDataset_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_BigQueryDataset_teamEnvironment(ctx, field)
 			case "cascadingDelete":
 				return ec.fieldContext_BigQueryDataset_cascadingDelete(ctx, field)
 			case "description":
@@ -75698,6 +76729,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_bucket(ctx context.Cont
 				return ec.fieldContext_Bucket_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_Bucket_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Bucket_teamEnvironment(ctx, field)
 			case "cascadingDelete":
 				return ec.fieldContext_Bucket_cascadingDelete(ctx, field)
 			case "publicAccessPrevention":
@@ -75873,6 +76906,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_job(ctx context.Context
 				return ec.fieldContext_Job_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_Job_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Job_teamEnvironment(ctx, field)
 			case "image":
 				return ec.fieldContext_Job_image(ctx, field)
 			case "resources":
@@ -75978,6 +77013,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_kafkaTopic(ctx context.
 				return ec.fieldContext_KafkaTopic_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_KafkaTopic_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_KafkaTopic_teamEnvironment(ctx, field)
 			case "acl":
 				return ec.fieldContext_KafkaTopic_acl(ctx, field)
 			case "configuration":
@@ -76049,6 +77086,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_openSearchInstance(ctx 
 				return ec.fieldContext_OpenSearch_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_OpenSearch_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_OpenSearch_teamEnvironment(ctx, field)
 			case "status":
 				return ec.fieldContext_OpenSearch_status(ctx, field)
 			case "workload":
@@ -76122,6 +77161,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_redisInstance(ctx conte
 				return ec.fieldContext_RedisInstance_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_RedisInstance_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_RedisInstance_teamEnvironment(ctx, field)
 			case "access":
 				return ec.fieldContext_RedisInstance_access(ctx, field)
 			case "workload":
@@ -76193,6 +77234,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_secret(ctx context.Cont
 				return ec.fieldContext_Secret_name(ctx, field)
 			case "environment":
 				return ec.fieldContext_Secret_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Secret_teamEnvironment(ctx, field)
 			case "team":
 				return ec.fieldContext_Secret_team(ctx, field)
 			case "values":
@@ -76272,6 +77315,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_sqlInstance(ctx context
 				return ec.fieldContext_SqlInstance_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_SqlInstance_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_SqlInstance_teamEnvironment(ctx, field)
 			case "workload":
 				return ec.fieldContext_SqlInstance_workload(ctx, field)
 			case "cascadingDelete":
@@ -76377,6 +77422,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_valkeyInstance(ctx cont
 				return ec.fieldContext_ValkeyInstance_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_ValkeyInstance_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_ValkeyInstance_teamEnvironment(ctx, field)
 			case "access":
 				return ec.fieldContext_ValkeyInstance_access(ctx, field)
 			case "workload":
@@ -81961,6 +83008,88 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_environment(_ conte
 	return fc, nil
 }
 
+func (ec *executionContext) _TeamUtilizationData_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *utilization.TeamUtilizationData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUtilizationData_teamEnvironment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamUtilizationData().TeamEnvironment(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamEnvironment)
+	fc.Result = res
+	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamUtilizationData_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamUtilizationData",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
+			case "bucket":
+				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
+			case "environment":
+				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
+			case "job":
+				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "secret":
+				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TeamVulnerabilityStatus_state(ctx context.Context, field graphql.CollectedField, obj *vulnerability.TeamVulnerabilityStatus) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamVulnerabilityStatus_state(ctx, field)
 	if err != nil {
@@ -82673,6 +83802,8 @@ func (ec *executionContext) fieldContext_TriggerJobPayload_job(_ context.Context
 				return ec.fieldContext_Job_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_Job_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Job_teamEnvironment(ctx, field)
 			case "image":
 				return ec.fieldContext_Job_image(ctx, field)
 			case "resources":
@@ -84359,6 +85490,8 @@ func (ec *executionContext) fieldContext_UpdateSecretValuePayload_secret(_ conte
 				return ec.fieldContext_Secret_name(ctx, field)
 			case "environment":
 				return ec.fieldContext_Secret_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Secret_teamEnvironment(ctx, field)
 			case "team":
 				return ec.fieldContext_Secret_team(ctx, field)
 			case "values":
@@ -84573,7 +85706,7 @@ func (ec *executionContext) _UpdateTeamEnvironmentPayload_environment(ctx contex
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Environment, nil
+		return ec.resolvers.UpdateTeamEnvironmentPayload().Environment(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -84588,6 +85721,85 @@ func (ec *executionContext) _UpdateTeamEnvironmentPayload_environment(ctx contex
 }
 
 func (ec *executionContext) fieldContext_UpdateTeamEnvironmentPayload_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateTeamEnvironmentPayload",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
+			case "bucket":
+				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
+			case "environment":
+				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
+			case "job":
+				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "secret":
+				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UpdateTeamEnvironmentPayload_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *team.UpdateTeamEnvironmentPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateTeamEnvironmentPayload_teamEnvironment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TeamEnvironment, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamEnvironment)
+	fc.Result = res
+	return ec.marshalOTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateTeamEnvironmentPayload_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UpdateTeamEnvironmentPayload",
 		Field:      field,
@@ -86800,6 +88012,88 @@ func (ec *executionContext) fieldContext_ValkeyInstance_environment(_ context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _ValkeyInstance_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstance_teamEnvironment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ValkeyInstance().TeamEnvironment(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamEnvironment)
+	fc.Result = res
+	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstance_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
+			case "bucket":
+				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
+			case "environment":
+				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
+			case "job":
+				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "secret":
+				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkeyInstance":
+				return ec.fieldContext_TeamEnvironment_valkeyInstance(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ValkeyInstance_access(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ValkeyInstance_access(ctx, field)
 	if err != nil {
@@ -87449,6 +88743,8 @@ func (ec *executionContext) fieldContext_ValkeyInstanceConnection_nodes(_ contex
 				return ec.fieldContext_ValkeyInstance_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_ValkeyInstance_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_ValkeyInstance_teamEnvironment(ctx, field)
 			case "access":
 				return ec.fieldContext_ValkeyInstance_access(ctx, field)
 			case "workload":
@@ -87649,6 +88945,8 @@ func (ec *executionContext) fieldContext_ValkeyInstanceEdge_node(_ context.Conte
 				return ec.fieldContext_ValkeyInstance_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_ValkeyInstance_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_ValkeyInstance_teamEnvironment(ctx, field)
 			case "access":
 				return ec.fieldContext_ValkeyInstance_access(ctx, field)
 			case "workload":
@@ -96704,6 +98002,42 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "teamEnvironment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Application_teamEnvironment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "image":
 			out.Values[i] = ec._Application_image(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -98055,6 +99389,42 @@ func (ec *executionContext) _BigQueryDataset(ctx context.Context, sel ast.Select
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "teamEnvironment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._BigQueryDataset_teamEnvironment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "cascadingDelete":
 			out.Values[i] = ec._BigQueryDataset_cascadingDelete(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -98572,6 +99942,42 @@ func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, o
 					}
 				}()
 				res = ec._Bucket_environment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "teamEnvironment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Bucket_teamEnvironment(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -101642,6 +103048,42 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "teamEnvironment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Job_teamEnvironment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "image":
 			out.Values[i] = ec._Job_image(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -103206,6 +104648,42 @@ func (ec *executionContext) _KafkaTopic(ctx context.Context, sel ast.SelectionSe
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "teamEnvironment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._KafkaTopic_teamEnvironment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "acl":
 			field := field
 
@@ -104356,6 +105834,42 @@ func (ec *executionContext) _OpenSearch(ctx context.Context, sel ast.SelectionSe
 					}
 				}()
 				res = ec._OpenSearch_environment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "teamEnvironment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OpenSearch_teamEnvironment(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -106250,6 +107764,42 @@ func (ec *executionContext) _RedisInstance(ctx context.Context, sel ast.Selectio
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "teamEnvironment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._RedisInstance_teamEnvironment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "access":
 			field := field
 
@@ -108012,6 +109562,42 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 					}
 				}()
 				res = ec._Secret_environment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "teamEnvironment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Secret_teamEnvironment(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -110238,6 +111824,42 @@ func (ec *executionContext) _SqlDatabase(ctx context.Context, sel ast.SelectionS
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "teamEnvironment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SqlDatabase_teamEnvironment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "charset":
 			out.Values[i] = ec._SqlDatabase_charset(ctx, field, obj)
 		case "collation":
@@ -110339,6 +111961,42 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 					}
 				}()
 				res = ec._SqlInstance_environment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "teamEnvironment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SqlInstance_teamEnvironment(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -116339,6 +117997,42 @@ func (ec *executionContext) _TeamUtilizationData(ctx context.Context, sel ast.Se
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "teamEnvironment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamUtilizationData_teamEnvironment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -117337,7 +119031,40 @@ func (ec *executionContext) _UpdateTeamEnvironmentPayload(ctx context.Context, s
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("UpdateTeamEnvironmentPayload")
 		case "environment":
-			out.Values[i] = ec._UpdateTeamEnvironmentPayload_environment(ctx, field, obj)
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UpdateTeamEnvironmentPayload_environment(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "teamEnvironment":
+			out.Values[i] = ec._UpdateTeamEnvironmentPayload_teamEnvironment(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -117991,6 +119718,42 @@ func (ec *executionContext) _ValkeyInstance(ctx context.Context, sel ast.Selecti
 					}
 				}()
 				res = ec._ValkeyInstance_environment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "teamEnvironment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ValkeyInstance_teamEnvironment(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

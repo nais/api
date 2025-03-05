@@ -513,7 +513,7 @@ func (i *UpdateTeamEnvironmentInput) Validate() error {
 }
 
 type UpdateTeamEnvironmentPayload struct {
-	Environment *TeamEnvironment `json:"environment"`
+	TeamEnvironment *TeamEnvironment `json:"teamEnvironment"`
 }
 
 type TeamInventoryCounts struct {

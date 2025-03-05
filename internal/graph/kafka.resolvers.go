@@ -37,6 +37,10 @@ func (r *kafkaTopicResolver) Team(ctx context.Context, obj *kafkatopic.KafkaTopi
 }
 
 func (r *kafkaTopicResolver) Environment(ctx context.Context, obj *kafkatopic.KafkaTopic) (*team.TeamEnvironment, error) {
+	return r.TeamEnvironment(ctx, obj)
+}
+
+func (r *kafkaTopicResolver) TeamEnvironment(ctx context.Context, obj *kafkatopic.KafkaTopic) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 

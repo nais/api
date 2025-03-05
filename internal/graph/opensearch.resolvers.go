@@ -25,6 +25,10 @@ func (r *openSearchResolver) Team(ctx context.Context, obj *opensearch.OpenSearc
 }
 
 func (r *openSearchResolver) Environment(ctx context.Context, obj *opensearch.OpenSearch) (*team.TeamEnvironment, error) {
+	return r.TeamEnvironment(ctx, obj)
+}
+
+func (r *openSearchResolver) TeamEnvironment(ctx context.Context, obj *opensearch.OpenSearch) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 

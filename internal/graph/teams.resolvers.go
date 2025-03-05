@@ -78,7 +78,7 @@ func (r *mutationResolver) UpdateTeamEnvironment(ctx context.Context, input team
 	r.triggerTeamUpdatedEvent(ctx, input.Slug, correlationID)
 
 	return &team.UpdateTeamEnvironmentPayload{
-		Environment: teamEnvironment,
+		TeamEnvironment: teamEnvironment,
 	}, nil
 }
 
@@ -324,6 +324,10 @@ func (r *teamMemberResolver) User(ctx context.Context, obj *team.TeamMember) (*u
 	return user.Get(ctx, obj.UserID)
 }
 
+func (r *updateTeamEnvironmentPayloadResolver) Environment(ctx context.Context, obj *team.UpdateTeamEnvironmentPayload) (*team.TeamEnvironment, error) {
+	return obj.TeamEnvironment, nil
+}
+
 func (r *Resolver) RemoveTeamMemberPayload() gengql.RemoveTeamMemberPayloadResolver {
 	return &removeTeamMemberPayloadResolver{r}
 }
@@ -342,11 +346,16 @@ func (r *Resolver) TeamInventoryCounts() gengql.TeamInventoryCountsResolver {
 
 func (r *Resolver) TeamMember() gengql.TeamMemberResolver { return &teamMemberResolver{r} }
 
+func (r *Resolver) UpdateTeamEnvironmentPayload() gengql.UpdateTeamEnvironmentPayloadResolver {
+	return &updateTeamEnvironmentPayloadResolver{r}
+}
+
 type (
-	removeTeamMemberPayloadResolver struct{ *Resolver }
-	teamResolver                    struct{ *Resolver }
-	teamDeleteKeyResolver           struct{ *Resolver }
-	teamEnvironmentResolver         struct{ *Resolver }
-	teamInventoryCountsResolver     struct{ *Resolver }
-	teamMemberResolver              struct{ *Resolver }
+	removeTeamMemberPayloadResolver      struct{ *Resolver }
+	teamResolver                         struct{ *Resolver }
+	teamDeleteKeyResolver                struct{ *Resolver }
+	teamEnvironmentResolver              struct{ *Resolver }
+	teamInventoryCountsResolver          struct{ *Resolver }
+	teamMemberResolver                   struct{ *Resolver }
+	updateTeamEnvironmentPayloadResolver struct{ *Resolver }
 )

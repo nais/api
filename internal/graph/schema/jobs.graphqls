@@ -65,7 +65,10 @@ type Job implements Node & Workload {
 	team: Team!
 
 	"The environment the job is deployed in."
-	environment: TeamEnvironment!
+	environment: TeamEnvironment! @deprecated(reason: "Use the `teamEnvironment` field instead.")
+
+	"The team environment for the workload."
+	teamEnvironment: TeamEnvironment!
 
 	"The container image of the job."
 	image: ContainerImage!

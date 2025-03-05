@@ -116,7 +116,12 @@ type Application implements Node & Workload {
 	"""
 	The environment the application is deployed in.
 	"""
-	environment: TeamEnvironment!
+	environment: TeamEnvironment! @deprecated(reason: "Use the `teamEnvironment` field instead.")
+
+	"""
+	The team environment for the workload.
+	"""
+	teamEnvironment: TeamEnvironment!
 
 	"""
 	The container image of the application.

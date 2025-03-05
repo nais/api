@@ -36,6 +36,10 @@ func (r *sqlDatabaseResolver) Team(ctx context.Context, obj *sqlinstance.SQLData
 }
 
 func (r *sqlDatabaseResolver) Environment(ctx context.Context, obj *sqlinstance.SQLDatabase) (*team.TeamEnvironment, error) {
+	return r.TeamEnvironment(ctx, obj)
+}
+
+func (r *sqlDatabaseResolver) TeamEnvironment(ctx context.Context, obj *sqlinstance.SQLDatabase) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
@@ -44,6 +48,10 @@ func (r *sqlInstanceResolver) Team(ctx context.Context, obj *sqlinstance.SQLInst
 }
 
 func (r *sqlInstanceResolver) Environment(ctx context.Context, obj *sqlinstance.SQLInstance) (*team.TeamEnvironment, error) {
+	return r.TeamEnvironment(ctx, obj)
+}
+
+func (r *sqlInstanceResolver) TeamEnvironment(ctx context.Context, obj *sqlinstance.SQLInstance) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
