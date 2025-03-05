@@ -4,13 +4,12 @@ import (
 	"context"
 	"strings"
 
-	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/sortfilter"
 )
 
 var (
-	SortFilterValkeyInstance       = sortfilter.New[*ValkeyInstance, ValkeyInstanceOrderField, struct{}]("NAME", model.OrderDirectionAsc)
-	SortFilterValkeyInstanceAccess = sortfilter.New[*ValkeyInstanceAccess, ValkeyInstanceAccessOrderField, struct{}]("ACCESS", model.OrderDirectionAsc)
+	SortFilterValkeyInstance       = sortfilter.New[*ValkeyInstance, ValkeyInstanceOrderField, struct{}]("NAME")
+	SortFilterValkeyInstanceAccess = sortfilter.New[*ValkeyInstanceAccess, ValkeyInstanceAccessOrderField, struct{}]("ACCESS")
 )
 
 func init() {

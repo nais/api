@@ -28,20 +28,18 @@ type funcs[V any] struct {
 }
 
 type SortFilter[V any, SortField comparable, FilterObj comparable] struct {
-	sorters               map[SortField]funcs[V]
-	filters               []Filter[V, FilterObj]
-	tieBreakSortField     SortField
-	tieBreakSortDirection model.OrderDirection
+	sorters           map[SortField]funcs[V]
+	filters           []Filter[V, FilterObj]
+	tieBreakSortField SortField
 }
 
-// New creates a new SortFilter with the given tieBreakSortField and tieBreakSortDirection.
-// The tieBreakSortField is used when two values are equal in the Sort function.
-// The tieBreakSortField must not be registered as a ConcurrentSort.
-func New[V any, SortField comparable, FilterObj comparable](tieBreakSortField SortField, tieBreakSortDirection model.OrderDirection) *SortFilter[V, SortField, FilterObj] {
+// New creates a new SortFilter with the given tieBreakSortField.
+// The tieBreakSortField is used when two values are equal in the Sort function, and will use the direction supplied
+// when calling Sort. The tieBreakSortField must not be registered as a ConcurrentSort.
+func New[V any, SortField comparable, FilterObj comparable](tieBreakSortField SortField) *SortFilter[V, SortField, FilterObj] {
 	return &SortFilter[V, SortField, FilterObj]{
-		sorters:               make(map[SortField]funcs[V]),
-		tieBreakSortField:     tieBreakSortField,
-		tieBreakSortDirection: tieBreakSortDirection,
+		sorters:           make(map[SortField]funcs[V]),
+		tieBreakSortField: tieBreakSortField,
 	}
 }
 
@@ -162,7 +160,7 @@ func (s *SortFilter[T, SortField, FilterObj]) sortConcurrent(ctx context.Context
 
 	slices.SortStableFunc(res, func(a, b sortable) int {
 		if b.key == a.key {
-			return s.tieBreak(ctx, a.item, b.item)
+			return s.tieBreak(ctx, a.item, b.item, direction)
 		}
 
 		if direction == model.OrderDirectionDesc {
@@ -186,14 +184,14 @@ func (s *SortFilter[T, SortField, FilterObj]) sort(ctx context.Context, items []
 		}
 
 		if ret == 0 {
-			return s.tieBreak(ctx, a, b)
+			return s.tieBreak(ctx, a, b, direction)
 		}
 		return ret
 	})
 }
 
-func (s *SortFilter[T, SortField, FilterObj]) tieBreak(ctx context.Context, a, b T) int {
-	if s.tieBreakSortDirection == model.OrderDirectionDesc {
+func (s *SortFilter[T, SortField, FilterObj]) tieBreak(ctx context.Context, a, b T, direction model.OrderDirection) int {
+	if direction == model.OrderDirectionDesc {
 		return s.sorters[s.tieBreakSortField].sort(ctx, b, a)
 	}
 

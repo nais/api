@@ -4,13 +4,12 @@ import (
 	"context"
 	"strings"
 
-	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/sortfilter"
 )
 
 var (
-	SortFilterRedisInstance       = sortfilter.New[*RedisInstance, RedisInstanceOrderField, struct{}]("NAME", model.OrderDirectionAsc)
-	SortFilterRedisInstanceAccess = sortfilter.New[*RedisInstanceAccess, RedisInstanceAccessOrderField, struct{}]("ACCESS", model.OrderDirectionAsc)
+	SortFilterRedisInstance       = sortfilter.New[*RedisInstance, RedisInstanceOrderField, struct{}]("NAME")
+	SortFilterRedisInstanceAccess = sortfilter.New[*RedisInstanceAccess, RedisInstanceAccessOrderField, struct{}]("ACCESS")
 )
 
 func init() {

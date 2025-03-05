@@ -4,13 +4,12 @@ import (
 	"context"
 	"strings"
 
-	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/sortfilter"
 )
 
 var (
-	SortFilter       = sortfilter.New[*BigQueryDataset, BigQueryDatasetOrderField, struct{}]("NAME", model.OrderDirectionAsc)
-	SortFilterAccess = sortfilter.New[*BigQueryDatasetAccess, BigQueryDatasetAccessOrderField, struct{}]("EMAIL", model.OrderDirectionAsc)
+	SortFilter       = sortfilter.New[*BigQueryDataset, BigQueryDatasetOrderField, struct{}]("NAME")
+	SortFilterAccess = sortfilter.New[*BigQueryDatasetAccess, BigQueryDatasetAccessOrderField, struct{}]("EMAIL")
 )
 
 func init() {

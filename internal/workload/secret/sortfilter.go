@@ -5,13 +5,12 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/sortfilter"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
 )
 
-var SortFilter = sortfilter.New[*Secret, SecretOrderField, *SecretFilter]("NAME", model.OrderDirectionAsc)
+var SortFilter = sortfilter.New[*Secret, SecretOrderField, *SecretFilter]("NAME")
 
 func init() {
 	SortFilter.RegisterSort("NAME", func(ctx context.Context, a, b *Secret) int {

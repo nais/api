@@ -5,13 +5,12 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/sortfilter"
 )
 
 var (
-	SortFilter            = sortfilter.New[Workload, WorkloadOrderField, *TeamWorkloadsFilter]("NAME", model.OrderDirectionAsc)
-	SortFilterEnvironment = sortfilter.New[Workload, EnvironmentWorkloadOrderField, *struct{}]("NAME", model.OrderDirectionAsc)
+	SortFilter            = sortfilter.New[Workload, WorkloadOrderField, *TeamWorkloadsFilter]("NAME")
+	SortFilterEnvironment = sortfilter.New[Workload, EnvironmentWorkloadOrderField, *struct{}]("NAME")
 )
 
 func init() {
@@ -36,8 +35,7 @@ func init() {
 	SortFilterEnvironment.RegisterSort("NAME", func(ctx context.Context, a, b Workload) int {
 		return strings.Compare(a.GetName(), b.GetName())
 	})
-
 	SortFilterEnvironment.RegisterSort("TEAM_SLUG", func(ctx context.Context, a, b Workload) int {
-		return strings.Compare(a.GetTeamSlug().String(), a.GetTeamSlug().String())
+		return strings.Compare(a.GetTeamSlug().String(), b.GetTeamSlug().String())
 	})
 }
