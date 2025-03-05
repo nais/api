@@ -5,7 +5,9 @@ import (
 	"strings"
 
 	"github.com/nais/api/internal/cost"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/sortfilter"
+	"k8s.io/utils/ptr"
 )
 
 var (
@@ -13,12 +15,20 @@ var (
 	SortFilterSQLInstanceUser = sortfilter.New[*SQLInstanceUser, SQLInstanceUserOrderField, struct{}]()
 )
 
+type SortFilterTieBreaker = sortfilter.TieBreaker[SQLInstanceOrderField]
+
 func init() {
 	SortFilterSQLInstance.RegisterSort("NAME", func(ctx context.Context, a, b *SQLInstance) int {
 		return strings.Compare(a.GetName(), b.GetName())
+	}, SortFilterTieBreaker{
+		Field:     "ENVIRONMENT",
+		Direction: ptr.To(model.OrderDirectionAsc),
 	})
 	SortFilterSQLInstance.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *SQLInstance) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
+	}, SortFilterTieBreaker{
+		Field:     "NAME",
+		Direction: ptr.To(model.OrderDirectionAsc),
 	})
 	SortFilterSQLInstance.RegisterSort("VERSION", func(ctx context.Context, a, b *SQLInstance) int {
 		if a.Version == nil && b.Version == nil {
@@ -29,6 +39,12 @@ func init() {
 			return -1
 		}
 		return strings.Compare(*a.Version, *b.Version)
+	}, SortFilterTieBreaker{
+		Field:     "NAME",
+		Direction: ptr.To(model.OrderDirectionAsc),
+	}, SortFilterTieBreaker{
+		Field:     "ENVIRONMENT",
+		Direction: ptr.To(model.OrderDirectionAsc),
 	})
 	SortFilterSQLInstance.RegisterConcurrentSort("STATUS", func(ctx context.Context, a *SQLInstance) int {
 		stateOrder := map[string]int{

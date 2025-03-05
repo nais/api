@@ -15,14 +15,23 @@ var (
 	SortFilterEnvironment = sortfilter.New[Workload, EnvironmentWorkloadOrderField, struct{}]()
 )
 
-type SortFilterEnvironmentTieBreaker = sortfilter.TieBreaker[EnvironmentWorkloadOrderField]
+type (
+	SortFilterTieBreaker            = sortfilter.TieBreaker[WorkloadOrderField]
+	SortFilterEnvironmentTieBreaker = sortfilter.TieBreaker[EnvironmentWorkloadOrderField]
+)
 
 func init() {
 	SortFilter.RegisterSort("NAME", func(ctx context.Context, a, b Workload) int {
 		return strings.Compare(a.GetName(), b.GetName())
+	}, SortFilterTieBreaker{
+		Field:     "ENVIRONMENT",
+		Direction: ptr.To(model.OrderDirectionAsc),
 	})
 	SortFilter.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b Workload) int {
 		return strings.Compare(a.GetEnvironmentName(), b.GetEnvironmentName())
+	}, SortFilterTieBreaker{
+		Field:     "NAME",
+		Direction: ptr.To(model.OrderDirectionAsc),
 	})
 
 	SortFilter.RegisterFilter(func(ctx context.Context, v Workload, filter *TeamWorkloadsFilter) bool {
@@ -41,7 +50,6 @@ func init() {
 		func(ctx context.Context, a, b Workload) int {
 			return strings.Compare(a.GetName(), b.GetName())
 		},
-		// Sort by team when we have workloads with the same name
 		SortFilterEnvironmentTieBreaker{
 			Field:     "TEAM_SLUG",
 			Direction: ptr.To(model.OrderDirectionAsc),
