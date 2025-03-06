@@ -122,6 +122,7 @@ func (w *Watcher[T]) remove(cluster string, obj T) {
 		"cluster":   cluster,
 		"name":      obj.GetName(),
 		"namespace": obj.GetNamespace(),
+		"gvr":       w.watchedType,
 	}).Debug("Removing object")
 }
 
@@ -134,6 +135,7 @@ func (w *Watcher[T]) update(cluster string, obj T) {
 		"cluster":   cluster,
 		"name":      obj.GetName(),
 		"namespace": obj.GetNamespace(),
+		"gvr":       w.watchedType,
 	}).Debug("Updating object")
 }
 

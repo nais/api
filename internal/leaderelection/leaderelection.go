@@ -14,6 +14,19 @@ import (
 
 var elector *leaderelection.LeaderElector
 
+var callbacks = struct {
+	onStartedLeading []func(context.Context)
+	onStoppedLeading []func()
+}{}
+
+func RegisterOnStartedLeading(f func(context.Context)) {
+	callbacks.onStartedLeading = append(callbacks.onStartedLeading, f)
+}
+
+func RegisterOnStoppedLeading(f func()) {
+	callbacks.onStoppedLeading = append(callbacks.onStoppedLeading, f)
+}
+
 func Start(ctx context.Context, client kubernetes.Interface, leaseName, namespace string, log logrus.FieldLogger) error {
 	id, err := os.Hostname()
 	if err != nil {
@@ -40,9 +53,17 @@ func Start(ctx context.Context, client kubernetes.Interface, leaseName, namespac
 		Callbacks: leaderelection.LeaderCallbacks{
 			OnStartedLeading: func(context.Context) {
 				log.Info("Started leading")
+
+				for _, f := range callbacks.onStartedLeading {
+					f(ctx)
+				}
 			},
 			OnStoppedLeading: func() {
 				log.Info("Stopped leading")
+
+				for _, f := range callbacks.onStoppedLeading {
+					f()
+				}
 			},
 			OnNewLeader: func(identity string) {
 				log.Infof("New leader: %s", identity)
