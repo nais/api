@@ -5,19 +5,29 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/sortfilter"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
+	"k8s.io/utils/ptr"
 )
 
 var SortFilter = sortfilter.New[*Secret, SecretOrderField, *SecretFilter]()
 
+type SortFilterTieBreaker = sortfilter.TieBreaker[SecretOrderField]
+
 func init() {
 	SortFilter.RegisterSort("NAME", func(ctx context.Context, a, b *Secret) int {
 		return strings.Compare(a.GetName(), b.GetName())
+	}, SortFilterTieBreaker{
+		Field:     "ENVIRONMENT",
+		Direction: ptr.To(model.OrderDirectionAsc),
 	})
 	SortFilter.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *Secret) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
+	}, SortFilterTieBreaker{
+		Field:     "NAME",
+		Direction: ptr.To(model.OrderDirectionAsc),
 	})
 	SortFilter.RegisterSort("LAST_MODIFIED_AT", func(ctx context.Context, a, b *Secret) int {
 		if a.LastModifiedAt == nil && b.LastModifiedAt == nil {
@@ -30,7 +40,14 @@ func init() {
 			return 1
 		}
 		return a.LastModifiedAt.Compare(*b.LastModifiedAt)
+	}, SortFilterTieBreaker{
+		Field:     "NAME",
+		Direction: ptr.To(model.OrderDirectionAsc),
+	}, SortFilterTieBreaker{
+		Field:     "ENVIRONMENT",
+		Direction: ptr.To(model.OrderDirectionAsc),
 	})
+
 	SortFilter.RegisterFilter(func(ctx context.Context, v *Secret, filter *SecretFilter) bool {
 		if filter.InUse == nil {
 			return true
