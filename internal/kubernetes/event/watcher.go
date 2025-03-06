@@ -14,7 +14,7 @@ import (
 	eventsql "github.com/nais/api/internal/kubernetes/event/searchsql"
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/sync/errgroup"
+	"github.com/sourcegraph/conc/pool"
 	eventv1 "k8s.io/api/events/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
@@ -26,6 +26,9 @@ type Watcher struct {
 	clients map[string]kubernetes.Interface
 	events  chan eventsql.UpsertParams
 	log     logrus.FieldLogger
+	wg      *pool.ContextPool
+
+	cancel context.CancelFunc
 }
 
 func NewWatcher(pool *pgxpool.Pool, clients map[string]kubernetes.Interface, log logrus.FieldLogger) *Watcher {
@@ -38,25 +41,50 @@ func NewWatcher(pool *pgxpool.Pool, clients map[string]kubernetes.Interface, log
 }
 
 func (w *Watcher) Run(ctx context.Context) {
-	wg, ctx := errgroup.WithContext(ctx)
-	for env, client := range w.clients {
-		wg.Go(func() error {
-			return w.run(ctx, env, client)
-		})
+	w.wg = pool.New().WithErrors().WithContext(ctx)
+
+	leaderelection.RegisterOnStartedLeading(w.onStartedLeading)
+	leaderelection.RegisterOnStoppedLeading(w.onStoppedLeading)
+	if leaderelection.IsLeader() {
+		w.onStartedLeading(ctx)
 	}
 
-	wg.Go(func() error {
+	w.wg.Go(func(ctx context.Context) error {
 		return w.batchInsert(ctx)
 	})
 
-	if err := wg.Wait(); err != nil {
+	if err := w.wg.Wait(); err != nil {
 		w.log.WithError(err).Error("error running events watcher")
+	}
+}
+
+func (w *Watcher) onStoppedLeading() {
+	if w.cancel != nil {
+		w.cancel()
+	}
+}
+
+func (w *Watcher) onStartedLeading(_ context.Context) {
+	if w.cancel != nil {
+		w.cancel()
+	}
+
+	cancel := make(chan struct{})
+
+	w.cancel = func() {
+		close(cancel)
+	}
+
+	for env, client := range w.clients {
+		w.wg.Go(func(ctx context.Context) error {
+			return w.run(ctx, env, client, cancel)
+		})
 	}
 }
 
 var regHorizontalPodAutoscaler = regexp.MustCompile(`New size: (\d+); reason: (\w+).*(below|above) target`)
 
-func (w *Watcher) run(ctx context.Context, env string, client kubernetes.Interface) error {
+func (w *Watcher) run(ctx context.Context, env string, client kubernetes.Interface, cancel chan struct{}) error {
 	// Events we want to watch for
 	// SuccessfulRescale - Check for successful rescale events
 	// Killing - Check for liveness failures
@@ -102,6 +130,8 @@ func (w *Watcher) run(ctx context.Context, env string, client kubernetes.Interfa
 	for {
 		select {
 		case <-ctx.Done():
+			return nil
+		case <-cancel:
 			return nil
 		case event := <-rescale.ResultChan():
 			handleEvent(event, func(e *eventv1.Event) (eventsql.UpsertParams, bool) {
