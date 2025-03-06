@@ -197,6 +197,13 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		if err != nil {
 			return fmt.Errorf("creating k8s clients: %w", err)
 		}
+		for a, b := range cfg.ReplaceEnvironmentNames {
+			if v, ok := k8sClients[a]; ok {
+				k8sClients[b] = v
+				delete(k8sClients, a)
+			}
+		}
+
 		log.WithField("envs", len(k8sClients)).Info("Start event watcher")
 		eventWatcher := event.NewWatcher(pool, k8sClients, log)
 		go eventWatcher.Run(ctx)
