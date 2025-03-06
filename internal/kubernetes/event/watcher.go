@@ -101,11 +101,13 @@ func (w *Watcher) run(ctx context.Context, env string, client kubernetes.Interfa
 		case <-ctx.Done():
 			return nil
 		case s := <-state:
-			w.log.WithField("env", env).WithField("state", s).Info("state change")
+			w.log.WithField("env", env).WithField("state", s).Debug("state change")
 			if s {
 				if err := w.watch(ctx, env, client, state); err != nil {
 					w.log.WithError(err).Error("failed to watch events")
 				}
+				w.log.WithField("env", env).Debug("stopped watching")
+
 			}
 		}
 	}
@@ -115,6 +117,14 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 	// Events we want to watch for
 	// SuccessfulRescale - Check for successful rescale events
 	// Killing - Check for liveness failures
+
+	list, err := client.EventsV1().Events("").List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return fmt.Errorf("failed to list events: %w", err)
+	}
+
+	w.log.WithField("len", len(list.Items)).Debug("listed events")
+
 	rescale, err := client.EventsV1().Events("").Watch(ctx, metav1.ListOptions{
 		FieldSelector: "reason=SuccessfulRescale,metadata.namespace!=nais-system",
 	})
@@ -154,7 +164,7 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 		w.events <- e
 	}
 
-	w.log.WithField("env", env).Info("watching events")
+	w.log.WithField("env", env).Debug("watching events")
 	for {
 		select {
 		case <-ctx.Done():
