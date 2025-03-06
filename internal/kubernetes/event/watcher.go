@@ -28,15 +28,21 @@ type Watcher struct {
 	log     logrus.FieldLogger
 	wg      *pool.ContextPool
 
-	cancel context.CancelFunc
+	// State returns true when the watcher should be started/continue running and false when it should stop.
+	state []chan bool
 }
 
 func NewWatcher(pool *pgxpool.Pool, clients map[string]kubernetes.Interface, log logrus.FieldLogger) *Watcher {
+	chs := make([]chan bool, 0, len(clients))
+	for range clients {
+		chs = append(chs, make(chan bool, 1))
+	}
 	return &Watcher{
 		clients: clients,
 		events:  make(chan eventsql.UpsertParams, 20),
 		queries: eventsql.New(pool),
 		log:     log,
+		state:   chs,
 	}
 }
 
@@ -53,38 +59,58 @@ func (w *Watcher) Run(ctx context.Context) {
 		return w.batchInsert(ctx)
 	})
 
+	i := 0
+	for env, client := range w.clients {
+		ch := w.state[i]
+		i++
+		w.wg.Go(func(ctx context.Context) error {
+			return w.run(ctx, env, client, ch)
+		})
+	}
+
 	if err := w.wg.Wait(); err != nil {
 		w.log.WithError(err).Error("error running events watcher")
 	}
 }
 
 func (w *Watcher) onStoppedLeading() {
-	if w.cancel != nil {
-		w.cancel()
+	for _, ch := range w.state {
+		select {
+		case ch <- false:
+		default:
+			w.log.WithField("state", "stopped").Error("failed to send state")
+		}
 	}
 }
 
 func (w *Watcher) onStartedLeading(_ context.Context) {
-	if w.cancel != nil {
-		w.cancel()
-	}
-
-	cancel := make(chan struct{})
-
-	w.cancel = func() {
-		close(cancel)
-	}
-
-	for env, client := range w.clients {
-		w.wg.Go(func(ctx context.Context) error {
-			return w.run(ctx, env, client, cancel)
-		})
+	for _, ch := range w.state {
+		select {
+		case ch <- true:
+		default:
+			w.log.WithField("state", "started").Error("failed to send state")
+		}
 	}
 }
 
 var regHorizontalPodAutoscaler = regexp.MustCompile(`New size: (\d+); reason: (\w+).*(below|above) target`)
 
-func (w *Watcher) run(ctx context.Context, env string, client kubernetes.Interface, cancel chan struct{}) error {
+func (w *Watcher) run(ctx context.Context, env string, client kubernetes.Interface, state chan bool) error {
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		case s := <-state:
+			if s {
+				if err := w.watch(ctx, env, client, state); err != nil {
+					w.log.WithError(err).Error("failed to watch events")
+				}
+			}
+		}
+	}
+}
+
+func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Interface, state chan bool) error {
 	// Events we want to watch for
 	// SuccessfulRescale - Check for successful rescale events
 	// Killing - Check for liveness failures
@@ -131,8 +157,10 @@ func (w *Watcher) run(ctx context.Context, env string, client kubernetes.Interfa
 		select {
 		case <-ctx.Done():
 			return nil
-		case <-cancel:
-			return nil
+		case s := <-state:
+			if !s {
+				return nil
+			}
 		case event := <-rescale.ResultChan():
 			handleEvent(event, func(e *eventv1.Event) (eventsql.UpsertParams, bool) {
 				if !strings.HasPrefix(e.Note, "New size") {
