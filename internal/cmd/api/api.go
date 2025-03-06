@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"maps"
 	"os"
 	"os/signal"
 	"syscall"
@@ -198,7 +197,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		if err != nil {
 			return fmt.Errorf("creating k8s clients: %w", err)
 		}
-		log.WithField("envs", maps.Keys(k8sClients)).Info("Start event watcher")
+		log.WithField("envs", len(k8sClients)).Info("Start event watcher")
 		eventWatcher := event.NewWatcher(pool, k8sClients, log)
 		go eventWatcher.Run(ctx)
 	}

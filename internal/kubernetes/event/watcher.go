@@ -101,6 +101,7 @@ func (w *Watcher) run(ctx context.Context, env string, client kubernetes.Interfa
 		case <-ctx.Done():
 			return nil
 		case s := <-state:
+			w.log.WithField("env", env).WithField("state", s).Info("state change")
 			if s {
 				if err := w.watch(ctx, env, client, state); err != nil {
 					w.log.WithError(err).Error("failed to watch events")
@@ -153,6 +154,7 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 		w.events <- e
 	}
 
+	w.log.WithField("env", env).Info("watching events")
 	for {
 		select {
 		case <-ctx.Done():
