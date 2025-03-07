@@ -15,10 +15,10 @@ var (
 func init() {
 	SortFilterOpenSearch.RegisterSort("NAME", func(ctx context.Context, a, b *OpenSearch) int {
 		return strings.Compare(a.GetName(), b.GetName())
-	})
+	}, "ENVIRONMENT")
 	SortFilterOpenSearch.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *OpenSearch) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
-	})
+	}, "NAME")
 
 	SortFilterOpenSearchAccess.RegisterSort("ACCESS", func(ctx context.Context, a, b *OpenSearchAccess) int {
 		return strings.Compare(a.Access, b.Access)

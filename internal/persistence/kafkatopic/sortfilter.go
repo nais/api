@@ -18,10 +18,10 @@ var (
 func init() {
 	SortFilterTopic.RegisterSort("NAME", func(ctx context.Context, a, b *KafkaTopic) int {
 		return strings.Compare(a.GetName(), b.GetName())
-	})
+	}, "ENVIRONMENT")
 	SortFilterTopic.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *KafkaTopic) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
-	})
+	}, "NAME")
 
 	SortFilterTopicACL.RegisterSort("TOPIC_NAME", func(ctx context.Context, a, b *KafkaTopicACL) int {
 		return strings.Compare(a.TopicName, b.TopicName)

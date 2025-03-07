@@ -56,43 +56,12 @@ func (s *SortFilter[T, SortField, FilterObj]) SupportsSort(field SortField) bool
 	return exists
 }
 
-// sortFieldsToTieBreakers takes a slice of SortField values and returns a list of tie-breakers. The values can be
-// suffixed with :ASC or :DESC to specify the direction. If no direction is supplied, ASC is assumed.
-func sortFieldsToTieBreakers[SortField ~string](fields []SortField) []tieBreaker[SortField] {
-	ret := make([]tieBreaker[SortField], len(fields))
-	for i, field := range fields {
-		direction := model.OrderDirectionAsc
-		if parts := strings.Split(string(field), ":"); len(parts) == 2 {
-			if parts[1] != "ASC" && parts[1] != "DESC" {
-				panic(fmt.Sprintf("invalid direction in sort field: %q", field))
-			}
-
-			direction = model.OrderDirection(parts[1])
-			field = SortField(parts[0])
-		} else if len(parts) > 2 {
-			panic(fmt.Sprintf("invalid sort field: %q", field))
-		}
-
-		ret[i] = tieBreaker[SortField]{
-			field:     field,
-			direction: direction,
-		}
-	}
-
-	return ret
-}
-
-func tieBreakerToSortField[SortField ~string](tb tieBreaker[SortField]) SortField {
-	return tb.field + ":" + SortField(tb.direction)
-}
-
 // RegisterSort will add support for sorting on a specific field. Optional tie-breakers can be supplied to resolve equal
 // values, and will be executed in the given order.
+// This function can also be used to register "internal" sorts that are not exposed to the user, but are used as
+// tie-breakers. These sorters can *not* have tie-breakers of their own.
 func (s *SortFilter[T, SortField, FilterObj]) RegisterSort(field SortField, sort SortFunc[T], tieBreakers ...SortField) {
-	if _, ok := s.sorters[field]; ok {
-		panic(fmt.Sprintf("sort field is already registered: %v", field))
-	}
-
+	s.validateSortField(field, tieBreakers)
 	s.sorters[field] = funcs[T, SortField]{
 		sort:        sort,
 		tieBreakers: sortFieldsToTieBreakers(tieBreakers),
@@ -101,11 +70,10 @@ func (s *SortFilter[T, SortField, FilterObj]) RegisterSort(field SortField, sort
 
 // RegisterConcurrentSort will add support for doing concurrent sorting on a specific field. Optional tie-breakers can
 // be supplied to resolve equal values, and will be executed in the given order.
+// This function can also be used to register "internal" sorts that are not exposed to the user, but are used as
+// tie-breakers. These sorters can *not* have tie-breakers of their own.
 func (s *SortFilter[T, SortField, FilterObj]) RegisterConcurrentSort(field SortField, sort ConcurrentSortFunc[T], tieBreakers ...SortField) {
-	if _, ok := s.sorters[field]; ok {
-		panic(fmt.Sprintf("sort field is already registered: %v", field))
-	}
-
+	s.validateSortField(field, tieBreakers)
 	s.sorters[field] = funcs[T, SortField]{
 		concurrentSort: sort,
 		tieBreakers:    sortFieldsToTieBreakers(tieBreakers),
@@ -276,4 +244,44 @@ func (s *SortFilter[T, SortField, FilterObj]) tieBreak(ctx context.Context, a, b
 		}).
 		Errorf("unable to tie-break sort, gotta have more tie-breakers")
 	return 0
+}
+
+func (s *SortFilter[T, SortField, FilterObj]) validateSortField(field SortField, tieBreakers []SortField) {
+	if _, ok := s.sorters[field]; ok {
+		panic(fmt.Sprintf("sort field is already registered: %v", field))
+	}
+
+	if string(field[0]) == "_" && len(tieBreakers) != 0 {
+		panic(fmt.Sprintf("internal sorts can not have tie-breakers: %v", field))
+	}
+}
+
+// sortFieldsToTieBreakers takes a slice of SortField values and returns a list of tie-breakers. The values can be
+// suffixed with :ASC or :DESC to specify the direction. If no direction is supplied, ASC is assumed.
+func sortFieldsToTieBreakers[SortField ~string](fields []SortField) []tieBreaker[SortField] {
+	ret := make([]tieBreaker[SortField], len(fields))
+	for i, field := range fields {
+		direction := model.OrderDirectionAsc
+		if parts := strings.Split(string(field), ":"); len(parts) == 2 {
+			if parts[1] != "ASC" && parts[1] != "DESC" {
+				panic(fmt.Sprintf("invalid direction in sort field: %q", field))
+			}
+
+			direction = model.OrderDirection(parts[1])
+			field = SortField(parts[0])
+		} else if len(parts) > 2 {
+			panic(fmt.Sprintf("invalid sort field: %q", field))
+		}
+
+		ret[i] = tieBreaker[SortField]{
+			field:     field,
+			direction: direction,
+		}
+	}
+
+	return ret
+}
+
+func tieBreakerToSortField[SortField ~string](tb tieBreaker[SortField]) SortField {
+	return tb.field + ":" + SortField(tb.direction)
 }

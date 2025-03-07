@@ -15,10 +15,10 @@ var (
 func init() {
 	SortFilterRedisInstance.RegisterSort("NAME", func(ctx context.Context, a, b *RedisInstance) int {
 		return strings.Compare(a.GetName(), b.GetName())
-	})
+	}, "ENVIRONMENT")
 	SortFilterRedisInstance.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *RedisInstance) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
-	})
+	}, "NAME")
 
 	SortFilterRedisInstanceAccess.RegisterSort("ACCESS", func(ctx context.Context, a, b *RedisInstanceAccess) int {
 		return strings.Compare(a.Access, b.Access)

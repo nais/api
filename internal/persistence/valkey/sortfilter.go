@@ -15,10 +15,10 @@ var (
 func init() {
 	SortFilterValkeyInstance.RegisterSort("NAME", func(ctx context.Context, a, b *ValkeyInstance) int {
 		return strings.Compare(a.GetName(), b.GetName())
-	})
+	}, "ENVIRONMENT")
 	SortFilterValkeyInstance.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *ValkeyInstance) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
-	})
+	}, "NAME")
 
 	SortFilterValkeyInstanceAccess.RegisterSort("ACCESS", func(ctx context.Context, a, b *ValkeyInstanceAccess) int {
 		return strings.Compare(a.Access, b.Access)
