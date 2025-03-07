@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"github.com/nais/api/internal/graph/sortfilter"
+	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/workload/application"
 )
 
 var (
@@ -22,7 +24,7 @@ func init() {
 
 	SortFilterTopicACL.RegisterSort("TOPIC_NAME", func(ctx context.Context, a, b *KafkaTopicACL) int {
 		return strings.Compare(a.TopicName, b.TopicName)
-	})
+	}, "CONSUMER", "TEAM_SLUG", "ACCESS")
 	SortFilterTopicACL.RegisterSort("TEAM_SLUG", func(ctx context.Context, a, b *KafkaTopicACL) int {
 		return strings.Compare(a.TeamName, b.TeamName)
 	})
@@ -40,6 +42,20 @@ func init() {
 
 		if filter.Workload != nil && *filter.Workload != v.WorkloadName && v.WorkloadName != "*" {
 			return false
+		}
+
+		if filter.ValidWorkloads != nil {
+			if v.WorkloadName == "*" || v.WorkloadName == "" {
+				return *filter.ValidWorkloads
+			}
+			if v.TeamName == "*" || v.TeamName == "" {
+				return *filter.ValidWorkloads
+			}
+
+			if _, err := application.Get(ctx, slug.Slug(v.TeamName), v.EnvironmentName, v.WorkloadName); err != nil {
+				return !*filter.ValidWorkloads
+			}
+			return *filter.ValidWorkloads
 		}
 
 		return true

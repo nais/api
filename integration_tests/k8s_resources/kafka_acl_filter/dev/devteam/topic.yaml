@@ -1,0 +1,41 @@
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  labels:
+    team: devteam
+  name: dokument
+  namespace: devteam
+  resourceVersion: "467599169"
+  uid: 09047c15-c504-42d0-a636-286cd4a7c0ea
+spec:
+  acl:
+    - access: read
+      application: "*"
+      team: devteam
+    - access: readwrite
+      application: all
+      team: "*"
+    - access: readwrite
+      application: app1
+      team: devteam
+    - access: readwrite
+      application: app2
+      team: otherteam
+    - access: readwrite
+      application: missing
+      team: devteam
+    - access: readwrite
+      application: missing
+      team: otherteam
+  config:
+    cleanupPolicy: delete
+    localRetentionBytes: -2
+    localRetentionHours: -2
+    maxMessageBytes: 1048588
+    minimumInSyncReplicas: 1
+    partitions: 1
+    replication: 3
+    retentionBytes: -1
+    retentionHours: 720
+    segmentHours: 168
+  pool: dev

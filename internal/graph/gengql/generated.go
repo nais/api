@@ -14650,6 +14650,7 @@ type KafkaTopicAclEdge {
 input KafkaTopicAclFilter {
 	team: Slug
 	workload: String
+	validWorkloads: Boolean
 }
 
 input KafkaTopicOrder {
@@ -94725,7 +94726,7 @@ func (ec *executionContext) unmarshalInputKafkaTopicAclFilter(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"team", "workload"}
+	fieldsInOrder := [...]string{"team", "workload", "validWorkloads"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -94746,6 +94747,13 @@ func (ec *executionContext) unmarshalInputKafkaTopicAclFilter(ctx context.Contex
 				return it, err
 			}
 			it.Workload = data
+		case "validWorkloads":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("validWorkloads"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ValidWorkloads = data
 		}
 	}
 

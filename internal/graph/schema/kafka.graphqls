@@ -119,6 +119,7 @@ type KafkaTopicAclEdge {
 input KafkaTopicAclFilter {
 	team: Slug
 	workload: String
+	validWorkloads: Boolean
 }
 
 input KafkaTopicOrder {
