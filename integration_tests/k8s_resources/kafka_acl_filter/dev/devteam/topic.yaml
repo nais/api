@@ -27,6 +27,9 @@ spec:
     - access: readwrite
       application: missing
       team: otherteam
+    - access: readwrite
+      application: jobname-1
+      team: otherteam
   config:
     cleanupPolicy: delete
     localRetentionBytes: -2

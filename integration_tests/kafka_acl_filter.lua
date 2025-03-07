@@ -31,12 +31,13 @@ Test.gql("topic without filter", function(t)
 					kafkaTopic = {
 						acl = {
 							nodes = {
-								{ workloadName = "*",       teamName = "devteam",   access = "read" },
-								{ workloadName = "all",     teamName = "*",         access = "readwrite" },
-								{ workloadName = "app1",    teamName = "devteam",   access = "readwrite" },
-								{ workloadName = "app2",    teamName = "otherteam", access = "readwrite" },
-								{ workloadName = "missing", teamName = "devteam",   access = "readwrite" },
-								{ workloadName = "missing", teamName = "otherteam", access = "readwrite" },
+								{ workloadName = "*",         teamName = "devteam",   access = "read" },
+								{ workloadName = "all",       teamName = "*",         access = "readwrite" },
+								{ workloadName = "app1",      teamName = "devteam",   access = "readwrite" },
+								{ workloadName = "app2",      teamName = "otherteam", access = "readwrite" },
+								{ workloadName = "jobname-1", teamName = "otherteam", access = "readwrite" },
+								{ workloadName = "missing",   teamName = "devteam",   access = "readwrite" },
+								{ workloadName = "missing",   teamName = "otherteam", access = "readwrite" },
 							},
 						},
 					},
@@ -113,9 +114,10 @@ Test.gql("topic filtering for team", function(t)
 					kafkaTopic = {
 						acl = {
 							nodes = {
-								{ workloadName = "all",     teamName = "*",         access = "readwrite" },
-								{ workloadName = "app2",    teamName = "otherteam", access = "readwrite" },
-								{ workloadName = "missing", teamName = "otherteam", access = "readwrite" },
+								{ workloadName = "all",       teamName = "*",         access = "readwrite" },
+								{ workloadName = "app2",      teamName = "otherteam", access = "readwrite" },
+								{ workloadName = "jobname-1", teamName = "otherteam", access = "readwrite" },
+								{ workloadName = "missing",   teamName = "otherteam", access = "readwrite" },
 							},
 						},
 					},
@@ -153,10 +155,11 @@ Test.gql("topic filtering for valid workloads", function(t)
 					kafkaTopic = {
 						acl = {
 							nodes = {
-								{ workloadName = "*",    teamName = "devteam",   access = "read" },
-								{ workloadName = "all",  teamName = "*",         access = "readwrite" },
-								{ workloadName = "app1", teamName = "devteam",   access = "readwrite" },
-								{ workloadName = "app2", teamName = "otherteam", access = "readwrite" },
+								{ workloadName = "*",         teamName = "devteam",   access = "read" },
+								{ workloadName = "all",       teamName = "*",         access = "readwrite" },
+								{ workloadName = "app1",      teamName = "devteam",   access = "readwrite" },
+								{ workloadName = "app2",      teamName = "otherteam", access = "readwrite" },
+								{ workloadName = "jobname-1", teamName = "otherteam", access = "readwrite" },
 							},
 						},
 					},

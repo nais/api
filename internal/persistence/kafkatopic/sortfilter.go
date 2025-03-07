@@ -7,6 +7,7 @@ import (
 	"github.com/nais/api/internal/graph/sortfilter"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload/application"
+	"github.com/nais/api/internal/workload/job"
 )
 
 var (
@@ -53,7 +54,9 @@ func init() {
 			}
 
 			if _, err := application.Get(ctx, slug.Slug(v.TeamName), v.EnvironmentName, v.WorkloadName); err != nil {
-				return !*filter.ValidWorkloads
+				if _, err := job.Get(ctx, slug.Slug(v.TeamName), v.EnvironmentName, v.WorkloadName); err != nil {
+					return !*filter.ValidWorkloads
+				}
 			}
 			return *filter.ValidWorkloads
 		}
