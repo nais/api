@@ -140,8 +140,9 @@ func (e KafkaTopicACLOrderField) MarshalGQL(w io.Writer) {
 }
 
 type KafkaTopicACLFilter struct {
-	Team     *slug.Slug `json:"team,omitempty"`
-	Workload *string    `json:"workload,omitempty"`
+	Team           *slug.Slug `json:"team,omitempty"`
+	Workload       *string    `json:"workload,omitempty"`
+	ValidWorkloads *bool      `json:"validWorkloads,omitempty"`
 }
 
 func toKafkaTopicConfiguration(cfg *kafka_nais_io_v1.Config) *KafkaTopicConfiguration {
