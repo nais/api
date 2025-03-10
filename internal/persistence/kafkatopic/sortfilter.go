@@ -28,7 +28,7 @@ func init() {
 	}, "CONSUMER", "TEAM_SLUG", "ACCESS")
 	SortFilterTopicACL.RegisterSort("TEAM_SLUG", func(ctx context.Context, a, b *KafkaTopicACL) int {
 		return strings.Compare(a.TeamName, b.TeamName)
-	})
+	}, "TOPIC_NAME", "CONSUMER", "ACCESS")
 	SortFilterTopicACL.RegisterSort("ACCESS", func(ctx context.Context, a, b *KafkaTopicACL) int {
 		return strings.Compare(a.Access, b.Access)
 	})
