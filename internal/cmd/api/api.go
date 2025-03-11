@@ -204,10 +204,8 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			}
 		}
 
-		log := log.WithField("subsystem", "event-watcher")
-		log.Level = logrus.DebugLevel
 		log.WithField("envs", len(k8sClients)).Info("Start event watcher")
-		eventWatcher := event.NewWatcher(pool, k8sClients, log.WithField("subsystem", "event-watcher"))
+		eventWatcher := event.NewWatcher(pool, k8sClients, log)
 		go eventWatcher.Run(ctx)
 	}
 
