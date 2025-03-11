@@ -33,10 +33,6 @@ type Watcher struct {
 }
 
 func NewWatcher(pool *pgxpool.Pool, clients map[string]kubernetes.Interface, log logrus.FieldLogger) *Watcher {
-	chs := make([]chan bool, 0, len(clients))
-	for range clients {
-		chs = append(chs, make(chan bool, 1))
-	}
 	return &Watcher{
 		clients: clients,
 		events:  make(chan eventsql.UpsertParams, 20),
