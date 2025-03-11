@@ -16,10 +16,8 @@ host: ""
 hookd:
   psk: ""
 
-dependencytrack:
-  frontend: ""
-  password: ""
-  endpoint: "http://dependencytrack-backend:8080"
+v13s:
+  endpoint: "v13s:3001"
 
 serviceaccount:
   email: ""

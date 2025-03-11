@@ -9,10 +9,6 @@ packages:
   github.com/nais/api/internal/thirdparty/hookd:
     interfaces:
       Client:
-  github.com/nais/api/internal/vulnerability:
-    interfaces:
-      InternalClient:
-      Prometheus:
   github.com/nais/api/internal/auth/authn:
     interfaces:
       Handler:
