@@ -155,16 +155,15 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return err
 	}
 
-	vulnClient := vulnerability.NewDependencyTrackClient(
-		vulnerability.DependencyTrackConfig{
-			Endpoint:    cfg.DependencyTrack.Endpoint,
-			Username:    cfg.DependencyTrack.Username,
-			Password:    cfg.DependencyTrack.Password,
-			FrontendURL: cfg.DependencyTrack.Frontend,
-			EnableFakes: cfg.WithFakeClients,
-		},
-		log.WithField("client", "dependencytrack"),
+	vulnMgr, err := vulnerability.NewManager(
+		ctx,
+		cfg.VulnerabilitiesApi.Endpoint,
+		cfg.VulnerabilitiesApi.ServiceAccount,
+		log.WithField("subsystem", "vulnerability"),
 	)
+	if err != nil {
+		return err
+	}
 
 	var hookdClient hookd.Client
 	var mgmtK8sClient k8s.Interface
@@ -221,7 +220,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			mgmtWatcher,
 			authHandler,
 			graphHandler,
-			vulnClient,
+			vulnMgr,
 			hookdClient,
 			cfg.Unleash.BifrostApiUrl,
 			cfg.Logging.DefaultLogDestinations(),

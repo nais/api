@@ -101,7 +101,7 @@ func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
 
 		k8sRunner := apiRunner.NewK8sRunner(scheme, dir, clusters())
 		topic := newPubsubRunner()
-		gqlRunner, gqlCleanup, err := newGQLRunner(ctx, config, pool, topic, k8sRunner)
+		gqlRunner, gqlCleanup, err := newGQLRunner(ctx, config, pool, topic, k8sRunner, dir)
 		if err != nil {
 			done()
 			return ctx, nil, nil, err
@@ -126,7 +126,7 @@ func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
 	}
 }
 
-func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic graph.PubsubTopic, k8sRunner *apiRunner.K8s) (spec.Runner, func(), error) {
+func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic graph.PubsubTopic, k8sRunner *apiRunner.K8s, k8sWorkloadsDir string) (spec.Runner, func(), error) {
 	log := logrus.New()
 	log.Out = io.Discard
 
@@ -150,7 +150,10 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 		return nil, nil, fmt.Errorf("failed to create management watcher manager: %w", err)
 	}
 
-	vulnerabilityClient := vulnerability.NewDependencyTrackClient(vulnerability.DependencyTrackConfig{EnableFakes: true}, log)
+	vMgr, err := vulnerability.NewFakeManager(ctx, log.WithField("subsystem", "vulnerability"))
+	if err != nil {
+		return nil, nil, err
+	}
 
 	notifierCtx, notifyCancel := context.WithCancel(ctx)
 	notifier := notify.New(pool, log, notify.WithRetries(0))
@@ -163,7 +166,7 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 		managementWatcherMgr,
 		pool,
 		clusterConfig,
-		vulnerabilityClient,
+		vMgr,
 		config.TenantName,
 		clusters(),
 		fakeHookd.New(),

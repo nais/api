@@ -25,20 +25,6 @@ values:
       template: |
         {{ .Env.hookd_frontend_pre_shared_key | quote }}
 
-  dependencytrack.frontend:
-    description: The baseurl of the frontend for dependencytrack (used to generate links)
-    displayName: DependencyTrack frontend URL
-    computed:
-      template: |
-        https://{{ subdomain . "salsa" }}
-
-  dependencytrack.password:
-    description: The password for the dependencytrack console user
-    displayName: dependencytrack console password
-    computed:
-      template: |
-        {{ .Env.console_dependencytrack_password | quote}}
-
   serviceaccount.email:
     displayName: GCP SA email
     description: nais-api service account email

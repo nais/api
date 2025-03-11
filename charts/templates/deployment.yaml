@@ -58,10 +58,11 @@ spec:
               value: "{{ .Values.google.managementProjectID }}"
             - name: COST_DATA_IMPORT_ENABLED
               value: "true"
-            - name: DEPENDENCYTRACK_FRONTEND
-              value: "{{ .Values.dependencytrack.frontend }}"
-            - name: DEPENDENCYTRACK_ENDPOINT
-              value: "{{ .Values.dependencytrack.endpoint }}"
+
+            - name: VULNERABILITIES_ENDPOINT
+              value: "{{ .Values.v13s.endpoint }}"
+            - name: VULNERABILITIES_SERVICE_ACCOUNT
+              value: "{{ .Values.serviceaccount.email }}"
             - name: USERSYNC_ENABLED
               value: "true"
             - name: OAUTH_ISSUER
