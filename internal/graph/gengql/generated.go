@@ -85,7 +85,6 @@ type ResolverRoot interface {
 	DeleteJobPayload() DeleteJobPayloadResolver
 	Deployment() DeploymentResolver
 	Environment() EnvironmentResolver
-	ImageVulnerability() ImageVulnerabilityResolver
 	ImageVulnerabilityAnalysisTrail() ImageVulnerabilityAnalysisTrailResolver
 	Ingress() IngressResolver
 	Job() JobResolver
@@ -2425,9 +2424,6 @@ type DeploymentResolver interface {
 }
 type EnvironmentResolver interface {
 	Workloads(ctx context.Context, obj *environment.Environment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) (*pagination.Connection[workload.Workload], error)
-}
-type ImageVulnerabilityResolver interface {
-	AnalysisTrail(ctx context.Context, obj *vulnerability.ImageVulnerability) (*vulnerability.ImageVulnerabilityAnalysisTrail, error)
 }
 type ImageVulnerabilityAnalysisTrailResolver interface {
 	Comments(ctx context.Context, obj *vulnerability.ImageVulnerabilityAnalysisTrail, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*vulnerability.ImageVulnerabilityAnalysisComment], error)
@@ -39697,7 +39693,7 @@ func (ec *executionContext) _ImageVulnerability_analysisTrail(ctx context.Contex
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.ImageVulnerability().AnalysisTrail(rctx, obj)
+		return obj.AnalysisTrail, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -39718,8 +39714,8 @@ func (ec *executionContext) fieldContext_ImageVulnerability_analysisTrail(_ cont
 	fc = &graphql.FieldContext{
 		Object:     "ImageVulnerability",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "state":
@@ -102369,69 +102365,38 @@ func (ec *executionContext) _ImageVulnerability(ctx context.Context, sel ast.Sel
 		case "id":
 			out.Values[i] = ec._ImageVulnerability_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "identifier":
 			out.Values[i] = ec._ImageVulnerability_identifier(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "severity":
 			out.Values[i] = ec._ImageVulnerability_severity(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "description":
 			out.Values[i] = ec._ImageVulnerability_description(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "package":
 			out.Values[i] = ec._ImageVulnerability_package(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "state":
 			out.Values[i] = ec._ImageVulnerability_state(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "analysisTrail":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._ImageVulnerability_analysisTrail(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._ImageVulnerability_analysisTrail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -124156,10 +124121,6 @@ func (ec *executionContext) unmarshalNImageVulnerabilityAnalysisState2githubᚗc
 
 func (ec *executionContext) marshalNImageVulnerabilityAnalysisState2githubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityAnalysisState(ctx context.Context, sel ast.SelectionSet, v vulnerability.ImageVulnerabilityAnalysisState) graphql.Marshaler {
 	return v
-}
-
-func (ec *executionContext) marshalNImageVulnerabilityAnalysisTrail2githubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityAnalysisTrail(ctx context.Context, sel ast.SelectionSet, v vulnerability.ImageVulnerabilityAnalysisTrail) graphql.Marshaler {
-	return ec._ImageVulnerabilityAnalysisTrail(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNImageVulnerabilityAnalysisTrail2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityAnalysisTrail(ctx context.Context, sel ast.SelectionSet, v *vulnerability.ImageVulnerabilityAnalysisTrail) graphql.Marshaler {
