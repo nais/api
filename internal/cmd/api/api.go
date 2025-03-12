@@ -205,7 +205,10 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		}
 
 		log.WithField("envs", len(k8sClients)).Info("Start event watcher")
-		eventWatcher := event.NewWatcher(pool, k8sClients, log)
+		eventWatcher, err := event.NewWatcher(pool, k8sClients, log)
+		if err != nil {
+			return fmt.Errorf("creating event watcher: %w", err)
+		}
 		go eventWatcher.Run(ctx)
 	}
 

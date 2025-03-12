@@ -15,6 +15,9 @@ import (
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/sirupsen/logrus"
 	"github.com/sourcegraph/conc/pool"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
 	eventv1 "k8s.io/api/events/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
@@ -29,21 +32,37 @@ type Watcher struct {
 	wg      *pool.ContextPool
 
 	// State returns true when the watcher should be started/continue running and false when it should stop.
-	state []chan bool
+	state           []chan bool
+	eventsCounter   metric.Int64Counter
+	handlersCounter metric.Int64UpDownCounter
 }
 
-func NewWatcher(pool *pgxpool.Pool, clients map[string]kubernetes.Interface, log logrus.FieldLogger) *Watcher {
+func NewWatcher(pool *pgxpool.Pool, clients map[string]kubernetes.Interface, log logrus.FieldLogger) (*Watcher, error) {
 	chs := make([]chan bool, 0, len(clients))
 	for range clients {
 		chs = append(chs, make(chan bool, 1))
 	}
-	return &Watcher{
-		clients: clients,
-		events:  make(chan eventsql.UpsertParams, 20),
-		queries: eventsql.New(pool),
-		log:     log,
-		state:   chs,
+
+	meter := otel.GetMeterProvider().Meter("nais_api_k8s_events")
+	eventsCounter, err := meter.Int64Counter("nais_api_k8s_events_total", metric.WithDescription("Number of events processed"))
+	if err != nil {
+		return nil, fmt.Errorf("creating events counter: %w", err)
 	}
+
+	handlersCounter, err := meter.Int64UpDownCounter("nais_api_k8s_handlers", metric.WithDescription("number of goroutines handling events"))
+	if err != nil {
+		return nil, fmt.Errorf("creating handlers counter: %w", err)
+	}
+
+	return &Watcher{
+		clients:         clients,
+		events:          make(chan eventsql.UpsertParams, 20),
+		queries:         eventsql.New(pool),
+		log:             log,
+		state:           chs,
+		eventsCounter:   eventsCounter,
+		handlersCounter: handlersCounter,
+	}, nil
 }
 
 func (w *Watcher) Run(ctx context.Context) {
@@ -114,6 +133,9 @@ func (w *Watcher) run(ctx context.Context, env string, client kubernetes.Interfa
 }
 
 func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Interface, state chan bool) error {
+	w.handlersCounter.Add(ctx, 1, metric.WithAttributes(attribute.String("environment", env)))
+	defer w.handlersCounter.Add(ctx, -1, metric.WithAttributes(attribute.String("environment", env)))
+
 	// Events we want to watch for
 	// SuccessfulRescale - Check for successful rescale events
 	// Killing - Check for liveness failures
@@ -125,13 +147,20 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 
 	w.log.WithField("len", len(list.Items)).Debug("listed events")
 
+	closeAndDrain := func(w watch.Interface) {
+		w.Stop()
+		for range w.ResultChan() {
+			// Drain the channel
+		}
+	}
+
 	rescale, err := client.EventsV1().Events("").Watch(ctx, metav1.ListOptions{
 		FieldSelector: "reason=SuccessfulRescale,metadata.namespace!=nais-system",
 	})
 	if err != nil {
 		return fmt.Errorf("failed to watch for rescale events: %w", err)
 	}
-	defer rescale.Stop()
+	defer closeAndDrain(rescale)
 
 	killing, err := client.EventsV1().Events("").Watch(ctx, metav1.ListOptions{
 		FieldSelector: "reason=Killing,metadata.namespace!=nais-system",
@@ -139,7 +168,7 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 	if err != nil {
 		return fmt.Errorf("failed to watch for killing events: %w", err)
 	}
-	defer killing.Stop()
+	defer closeAndDrain(killing)
 
 	handleEvent := func(event watch.Event, convert func(e *eventv1.Event) (eventsql.UpsertParams, bool)) {
 		if event.Type != watch.Added && event.Type != watch.Modified {
@@ -174,6 +203,12 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 				return nil
 			}
 		case event := <-rescale.ResultChan():
+			w.eventsCounter.Add(ctx, 1, metric.WithAttributes(
+				attribute.String("environment", string(env)),
+				attribute.String("type", string(event.Type)),
+				attribute.String("reason", "SuccessfulRescale")),
+			)
+
 			handleEvent(event, func(e *eventv1.Event) (eventsql.UpsertParams, bool) {
 				if !strings.HasPrefix(e.Note, "New size") {
 					w.log.WithField("note", e.Note).Debug("ignoring event")
@@ -203,6 +238,12 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 				return w.toUpsertParams(env, e, data)
 			})
 		case event := <-killing.ResultChan():
+			w.eventsCounter.Add(ctx, 1, metric.WithAttributes(
+				attribute.String("environment", string(env)),
+				attribute.String("type", string(event.Type)),
+				attribute.String("reason", "Killing")),
+			)
+
 			handleEvent(event, func(e *eventv1.Event) (eventsql.UpsertParams, bool) {
 				if strings.HasSuffix(e.Note, "failed liveness probe, will be restarted") {
 					// Match `Container some-container-name failed liveness probe, will be restarted`
