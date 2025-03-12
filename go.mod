@@ -319,3 +319,5 @@ replace github.com/GoogleCloudPlatform/k8s-config-connector/mockgcp => ./mockgcp
 replace github.com/hashicorp/terraform-provider-google-beta => ./third_party/github.com/hashicorp/terraform-provider-google-beta
 
 replace github.com/nais/api/pkg/apiclient => ./pkg/apiclient
+
+replace github.com/nais/v13s/pkg/api => ../v13s/pkg/api
