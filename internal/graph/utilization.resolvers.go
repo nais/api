@@ -53,6 +53,10 @@ func (r *workloadUtilizationResolver) Requested(ctx context.Context, obj *utiliz
 	return utilization.WorkloadResourceRequest(ctx, obj.EnvironmentName, obj.TeamSlug, obj.WorkloadName, resourceType)
 }
 
+func (r *workloadUtilizationResolver) Limit(ctx context.Context, obj *utilization.WorkloadUtilization, resourceType utilization.UtilizationResourceType) (*float64, error) {
+	return utilization.WorkloadResourceLimit(ctx, obj.EnvironmentName, obj.TeamSlug, obj.WorkloadName, resourceType)
+}
+
 func (r *workloadUtilizationResolver) Series(ctx context.Context, obj *utilization.WorkloadUtilization, input utilization.WorkloadUtilizationSeriesInput) ([]*utilization.UtilizationSample, error) {
 	return utilization.WorkloadResourceUsageRange(ctx, obj.EnvironmentName, obj.TeamSlug, obj.WorkloadName, input.ResourceType, input.Start, input.End, input.Step())
 }
