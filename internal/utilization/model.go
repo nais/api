@@ -61,6 +61,7 @@ func (e UtilizationResourceType) MarshalGQL(w io.Writer) {
 type UtilizationSample struct {
 	Timestamp time.Time `json:"timestamp"`
 	Value     float64   `json:"value"`
+	Instance  string    `json:"instance"`
 }
 
 type WorkloadUtilization struct {

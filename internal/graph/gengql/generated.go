@@ -2182,6 +2182,7 @@ type ComplexityRoot struct {
 	}
 
 	UtilizationSample struct {
+		Instance  func(childComplexity int) int
 		Timestamp func(childComplexity int) int
 		Value     func(childComplexity int) int
 	}
@@ -11557,6 +11558,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserUpdatedUserSyncLogEntry.UserName(childComplexity), true
 
+	case "UtilizationSample.instance":
+		if e.complexity.UtilizationSample.Instance == nil {
+			break
+		}
+
+		return e.complexity.UtilizationSample.Instance(childComplexity), true
+
 	case "UtilizationSample.timestamp":
 		if e.complexity.UtilizationSample.Timestamp == nil {
 			break
@@ -19033,6 +19041,9 @@ type UtilizationSample {
 
 	"Value of the used resource at the given timestamp."
 	value: Float!
+
+	"The instance for the utilization data."
+	instance: String
 }
 
 type TeamUtilizationData {
@@ -87774,6 +87785,47 @@ func (ec *executionContext) fieldContext_UtilizationSample_value(_ context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _UtilizationSample_instance(ctx context.Context, field graphql.CollectedField, obj *utilization.UtilizationSample) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UtilizationSample_instance(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Instance, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UtilizationSample_instance(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UtilizationSample",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ValkeyInstance_id(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ValkeyInstance_id(ctx, field)
 	if err != nil {
@@ -91730,6 +91782,8 @@ func (ec *executionContext) fieldContext_WorkloadUtilization_series(ctx context.
 				return ec.fieldContext_UtilizationSample_timestamp(ctx, field)
 			case "value":
 				return ec.fieldContext_UtilizationSample_value(ctx, field)
+			case "instance":
+				return ec.fieldContext_UtilizationSample_instance(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UtilizationSample", field.Name)
 		},
@@ -119735,6 +119789,8 @@ func (ec *executionContext) _UtilizationSample(ctx context.Context, sel ast.Sele
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "instance":
+			out.Values[i] = ec._UtilizationSample_instance(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

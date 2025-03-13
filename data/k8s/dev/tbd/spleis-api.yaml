@@ -10,7 +10,7 @@ metadata:
   finalizers:
     - naiserator.nais.io/finalizer
   generation: 407981
-  name: no-logs-for-you
+  name: spleis-api
   resourceVersion: "3701834314"
   uid: 91ba6c9d-0199-4123-aff6-aa27ce5d2056
 spec:
@@ -82,7 +82,7 @@ metadata:
     cni.projectcalico.org/containerID: 08d6dbf8fb45b386ad896d4ff33bdb60a7557692e150cec5171576c3a744165e
     cni.projectcalico.org/podIP: 10.7.103.103/32
     cni.projectcalico.org/podIPs: 10.7.103.103/32
-    kubectl.kubernetes.io/default-container: no-logs-for-you
+    kubectl.kubernetes.io/default-container: spleis-api
     linkerd.io/created-by: linkerd/proxy-injector stable-2.13.5
     linkerd.io/inject: enabled
     linkerd.io/proxy-version: stable-2.13.5
@@ -91,23 +91,23 @@ metadata:
     prometheus.io/port: "8080"
     prometheus.io/scrape: "true"
   creationTimestamp: "2024-02-29T13:06:04Z"
-  generateName: no-logs-for-you-868cdf6698-
+  generateName: spleis-api-868cdf6698-
   labels:
-    app: no-logs-for-you
+    app: spleis-api
     linkerd.io/control-plane-ns: linkerd
-    linkerd.io/proxy-deployment: no-logs-for-you
+    linkerd.io/proxy-deployment: spleis-api
     linkerd.io/workload-ns: nais-verification
     pod-template-hash: 868cdf6698
     team: nais-verification
     logs.nais.io/flow-secure_logs: "true"
-  name: no-logs-for-you-868cdf6698-fr4pt
+  name: spleis-api-868cdf6698-fr4pt
   namespace: nais-verification
   ownerReferences:
     - apiVersion: apps/v1
       blockOwnerDeletion: true
       controller: true
       kind: ReplicaSet
-      name: no-logs-for-you-868cdf6698
+      name: spleis-api-868cdf6698
       uid: 7c32994a-4a12-4147-8b26-81eaf566daba
   resourceVersion: "3961648158"
   uid: 93a66b42-1bd5-4916-b126-40aa2762abc9
@@ -121,7 +121,7 @@ spec:
                 - key: app
                   operator: In
                   values:
-                    - no-logs-for-you
+                    - spleis-api
             topologyKey: kubernetes.io/hostname
           weight: 10
   containers:
@@ -303,7 +303,7 @@ spec:
         - name: DEPLOY_START
           value: "1709211962000000000"
         - name: NAIS_APP_NAME
-          value: no-logs-for-you
+          value: spleis-api
         - name: NAIS_NAMESPACE
           value: nais-verification
         - name: NAIS_APP_IMAGE
@@ -311,7 +311,7 @@ spec:
         - name: NAIS_CLUSTER_NAME
           value: prod-gcp
         - name: NAIS_CLIENT_ID
-          value: prod-gcp:nais-verification:no-logs-for-you
+          value: prod-gcp:nais-verification:spleis-api
         - name: LOG4J_FORMAT_MSG_NO_LOOKUPS
           value: "true"
       image: ghcr.io/nais/testapp/testapp:2020-02-25-f61e7b7
@@ -331,7 +331,7 @@ spec:
         periodSeconds: 10
         successThreshold: 1
         timeoutSeconds: 1
-      name: no-logs-for-you
+      name: spleis-api
       ports:
         - containerPort: 8080
           name: http
@@ -431,8 +431,8 @@ spec:
     fsGroupChangePolicy: OnRootMismatch
     seccompProfile:
       type: RuntimeDefault
-  serviceAccount: no-logs-for-you
-  serviceAccountName: no-logs-for-you
+  serviceAccount: spleis-api
+  serviceAccountName: spleis-api
   terminationGracePeriodSeconds: 30
   tolerations:
     - effect: NoExecute
@@ -511,7 +511,7 @@ status:
       image: ghcr.io/nais/testapp/testapp:2020-02-25-f61e7b7
       imageID: ghcr.io/nais/testapp/testapp@sha256:7dff60ea2452efed7273e5a3fcbfc8f324d11a9c0ba9feb40f22e4a4f9646bf7
       lastState: {}
-      name: no-logs-for-you
+      name: spleis-api
       ready: true
       restartCount: 0
       started: true
@@ -550,7 +550,7 @@ metadata:
     cni.projectcalico.org/containerID: 08d6dbf8fb45b386ad896d4ff33bdb60a7557692e150cec5171576c3a744165e
     cni.projectcalico.org/podIP: 10.7.103.103/32
     cni.projectcalico.org/podIPs: 10.7.103.103/32
-    kubectl.kubernetes.io/default-container: no-logs-for-you
+    kubectl.kubernetes.io/default-container: spleis-api
     linkerd.io/created-by: linkerd/proxy-injector stable-2.13.5
     linkerd.io/inject: enabled
     linkerd.io/proxy-version: stable-2.13.5
@@ -559,23 +559,23 @@ metadata:
     prometheus.io/port: "8080"
     prometheus.io/scrape: "true"
   creationTimestamp: "2024-02-29T13:06:04Z"
-  generateName: no-logs-for-you-868cdf6698-
+  generateName: spleis-api-868cdf6698-
   labels:
-    app: no-logs-for-you
+    app: spleis-api
     linkerd.io/control-plane-ns: linkerd
-    linkerd.io/proxy-deployment: no-logs-for-you
+    linkerd.io/proxy-deployment: spleis-api
     linkerd.io/workload-ns: nais-verification
     pod-template-hash: 868cdf6698
     team: nais-verification
     logs.nais.io/flow-secure_logs: "true"
-  name: no-logs-for-you-868cdf6698-g2qdj
+  name: spleis-api-868cdf6698-g2qdj
   namespace: nais-verification
   ownerReferences:
     - apiVersion: apps/v1
       blockOwnerDeletion: true
       controller: true
       kind: ReplicaSet
-      name: no-logs-for-you-868cdf6698
+      name: spleis-api-868cdf6698
       uid: 7c32994a-4a12-4147-8b26-81eaf566daba
   resourceVersion: "3961648158"
   uid: 93a66b42-1bd5-4916-b126-40aa2762abc9
@@ -589,7 +589,7 @@ spec:
                 - key: app
                   operator: In
                   values:
-                    - no-logs-for-you
+                    - spleis-api
             topologyKey: kubernetes.io/hostname
           weight: 10
   containers:
@@ -771,7 +771,7 @@ spec:
         - name: DEPLOY_START
           value: "1709211962000000000"
         - name: NAIS_APP_NAME
-          value: no-logs-for-you
+          value: spleis-api
         - name: NAIS_NAMESPACE
           value: nais-verification
         - name: NAIS_APP_IMAGE
@@ -779,7 +779,7 @@ spec:
         - name: NAIS_CLUSTER_NAME
           value: prod-gcp
         - name: NAIS_CLIENT_ID
-          value: prod-gcp:nais-verification:no-logs-for-you
+          value: prod-gcp:nais-verification:spleis-api
         - name: LOG4J_FORMAT_MSG_NO_LOOKUPS
           value: "true"
       image: ghcr.io/nais/testapp/testapp:2020-02-25-f61e7b7
@@ -799,7 +799,7 @@ spec:
         periodSeconds: 10
         successThreshold: 1
         timeoutSeconds: 1
-      name: no-logs-for-you
+      name: spleis-api
       ports:
         - containerPort: 8080
           name: http
@@ -899,8 +899,8 @@ spec:
     fsGroupChangePolicy: OnRootMismatch
     seccompProfile:
       type: RuntimeDefault
-  serviceAccount: no-logs-for-you
-  serviceAccountName: no-logs-for-you
+  serviceAccount: spleis-api
+  serviceAccountName: spleis-api
   terminationGracePeriodSeconds: 30
   tolerations:
     - effect: NoExecute
@@ -979,7 +979,7 @@ status:
       image: ghcr.io/nais/testapp/testapp:2020-02-25-f61e7b7
       imageID: ghcr.io/nais/testapp/testapp@sha256:7dff60ea2452efed7273e5a3fcbfc8f324d11a9c0ba9feb40f22e4a4f9646bf7
       lastState: {}
-      name: no-logs-for-you
+      name: spleis-api
       ready: true
       restartCount: 0
       started: true
@@ -1020,15 +1020,15 @@ metadata:
     nais.io/deploymentCorrelationID: 55c96e0c-7e29-4ebe-ae12-6d6456ca282c
     reloader.stakater.com/search: "true"
   labels:
-    app: no-logs-for-you
-  name: no-logs-for-you
+    app: spleis-api
+  name: spleis-api
 spec:
   progressDeadlineSeconds: 300
   replicas: 1
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: no-logs-for-you
+      app: spleis-api
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -1038,17 +1038,17 @@ spec:
     metadata:
       annotations:
         cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
-        kubectl.kubernetes.io/default-container: no-logs-for-you
+        kubectl.kubernetes.io/default-container: spleis-api
       creationTimestamp: null
       labels:
-        app: no-logs-for-you
+        app: spleis-api
         team: aura
-      name: no-logs-for-you
+      name: spleis-api
       namespace: aura
       ownerReferences:
         - apiVersion: nais.io/v1alpha1
           kind: Application
-          name: no-logs-for-you
+          name: spleis-api
           uid: dfb99342-a82f-4ae1-af01-81f26b352413
     spec:
       affinity:
@@ -1060,7 +1060,7 @@ spec:
                     - key: app
                       operator: In
                       values:
-                        - no-logs-for-you
+                        - spleis-api
                 topologyKey: kubernetes.io/hostname
               weight: 10
       containers:
@@ -1084,7 +1084,7 @@ spec:
             periodSeconds: 5
             successThreshold: 1
             timeoutSeconds: 1
-          name: no-logs-for-you
+          name: spleis-api
           ports:
             - containerPort: 5000
               name: http
@@ -1129,6 +1129,6 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
         seccompProfile:
           type: RuntimeDefault
-      serviceAccount: no-logs-for-you
-      serviceAccountName: no-logs-for-you
+      serviceAccount: spleis-api
+      serviceAccountName: spleis-api
       terminationGracePeriodSeconds: 30
