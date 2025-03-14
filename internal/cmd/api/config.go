@@ -78,6 +78,9 @@ type hookdConfig struct {
 }
 
 type oAuthConfig struct {
+	// Issuer The issuer of the OAuth 2.0 client to use for the OAuth login flow.
+	Issuer string `env:"OAUTH_ISSUER,default=https://accounts.google.com"`
+
 	// ClientID The ID of the OAuth 2.0 client to use for the OAuth login flow.
 	ClientID string `env:"OAUTH_CLIENT_ID"`
 
