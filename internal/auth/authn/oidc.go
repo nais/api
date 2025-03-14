@@ -9,11 +9,6 @@ import (
 
 type OIDC struct {
 	oauth2.Config
-
-	clientID     string
-	clientSecret string
-	redirectURL  string
-
 	provider *oidc.Provider
 }
 
@@ -24,10 +19,7 @@ func NewOIDC(ctx context.Context, issuer, clientID, clientSecret, redirectURL st
 	}
 
 	return &OIDC{
-		clientID:     clientID,
-		clientSecret: clientSecret,
-		redirectURL:  redirectURL,
-		provider:     provider,
+		provider: provider,
 		Config: oauth2.Config{
 			ClientID:     clientID,
 			ClientSecret: clientSecret,
@@ -39,5 +31,5 @@ func NewOIDC(ctx context.Context, issuer, clientID, clientSecret, redirectURL st
 }
 
 func (o *OIDC) Verify(ctx context.Context, rawIDToken string) (*oidc.IDToken, error) {
-	return o.provider.Verifier(&oidc.Config{ClientID: o.clientID}).Verify(ctx, rawIDToken)
+	return o.provider.Verifier(&oidc.Config{ClientID: o.Config.ClientID}).Verify(ctx, rawIDToken)
 }
