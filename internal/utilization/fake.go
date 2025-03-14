@@ -68,8 +68,31 @@ func (c *FakeClient) query(ctx context.Context, environment string, query string
 		labelsToCreate = expr.Grouping
 
 		teamSlug, workload, unit, err = c.selector(expr.Expr)
+	case *parser.VectorSelector:
+		for _, matcher := range expr.LabelMatchers {
+			labelsToCreate = append(labelsToCreate, matcher.Name)
+		}
+		teamSlug, workload, unit, err = c.selector(expr)
+	case *parser.Call:
+		vectorSelector, ok := expr.Args[0].(*parser.VectorSelector)
+		if !ok {
+			matrixSelector, ok := expr.Args[0].(*parser.MatrixSelector)
+			if !ok {
+				return nil, fmt.Errorf("query: unexpected argument type %T", expr.Args[0])
+			}
+			vectorSelector, ok = matrixSelector.VectorSelector.(*parser.VectorSelector)
+			if !ok {
+				return nil, fmt.Errorf("query: unexpected argument type %T", matrixSelector.VectorSelector)
+			}
+		}
+		for _, matcher := range vectorSelector.LabelMatchers {
+			labelsToCreate = append(labelsToCreate, matcher.Name)
+		}
+		labelsToCreate = append(labelsToCreate, "pod")
+		teamSlug, workload, unit, err = c.selector(expr)
+
 	default:
-		return nil, fmt.Errorf("queryAll: unexpected expression type %T", expr)
+		return nil, fmt.Errorf("query: unexpected expression type %T", expr)
 	}
 
 	if err != nil {
@@ -84,6 +107,8 @@ func (c *FakeClient) query(ctx context.Context, environment string, query string
 				lbls["namespace"] = prom.LabelValue(teamSlug)
 			case "container":
 				lbls["container"] = prom.LabelValue(workload)
+			case "pod":
+				lbls["pod"] = prom.LabelValue(fmt.Sprintf("%s-%s", workload, "1"))
 			}
 		}
 		return lbls

@@ -43,28 +43,28 @@ func TestFakeQuery(t *testing.T) {
 			query: appCPURequest,
 			args:  []any{"team", "workload"},
 			expected: prom.Vector{
-				{Metric: prom.Metric{"container": "workload"}, Value: 0.15658213673311283, Timestamp: now()},
+				{Metric: prom.Metric{"container": "workload", "namespace": "team"}, Value: 0.15658213673311283, Timestamp: now()},
 			},
 		},
 		"appCPUUsage": {
 			query: appCPUUsage,
 			args:  []any{"team", "workload"},
 			expected: prom.Vector{
-				{Metric: prom.Metric{"container": "workload"}, Value: 0.15658213673311283, Timestamp: now()},
+				{Metric: prom.Metric{"container": "workload", "namespace": "team", "pod": "workload-1"}, Value: 0.15658213673311283, Timestamp: now()},
 			},
 		},
 		"appMemoryRequest": {
 			query: appMemoryRequest,
 			args:  []any{"team", "workload"},
 			expected: prom.Vector{
-				{Metric: prom.Metric{"container": "workload"}, Value: 105283867, Timestamp: now()},
+				{Metric: prom.Metric{"container": "workload", "namespace": "team"}, Value: 105283867, Timestamp: now()},
 			},
 		},
 		"appMemoryUsage": {
 			query: appMemoryUsage,
 			args:  []any{"team", "workload"},
 			expected: prom.Vector{
-				{Metric: prom.Metric{"container": "workload"}, Value: 105283867, Timestamp: now()},
+				{Metric: prom.Metric{"container": "workload", "namespace": "team", "pod": "workload-1"}, Value: 105283867, Timestamp: now()},
 			},
 		},
 	}
@@ -239,7 +239,7 @@ func TestFakeQueryRange(t *testing.T) {
 			args:  []any{"team1", "workload1"},
 			expected: prom.Matrix{
 				{
-					Metric: prom.Metric{"container": "workload1"},
+					Metric: prom.Metric{"container": "workload1", "namespace": "team1", "pod": "workload1-1"},
 					Values: []prom.SamplePair{
 						{Value: 750014392, Timestamp: 1609458900 * 1000},
 						{Value: 487676427, Timestamp: 1609458915 * 1000},
@@ -271,7 +271,7 @@ func TestFakeQueryRange(t *testing.T) {
 			args:  []any{"team1", "workload1"},
 			expected: prom.Matrix{
 				{
-					Metric: prom.Metric{"container": "workload1"},
+					Metric: prom.Metric{"container": "workload1", "namespace": "team1", "pod": "workload1-1"},
 					Values: []prom.SamplePair{
 						{Value: 0.6805719573212468, Timestamp: 1609458900 * 1000},
 						{Value: 1.8199158760450043, Timestamp: 1609458915 * 1000},

@@ -62,6 +62,9 @@ type UtilizationSample {
 
 	"Value of the used resource at the given timestamp."
 	value: Float!
+
+	"The instance for the utilization data."
+	instance: String!
 }
 
 type TeamUtilizationData {
