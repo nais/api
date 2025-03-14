@@ -66,6 +66,7 @@ func (c *FakeClient) query(ctx context.Context, environment string, query string
 	switch expr := expr.(type) {
 	case *parser.AggregateExpr:
 		labelsToCreate = expr.Grouping
+
 		teamSlug, workload, unit, err = c.selector(expr.Expr)
 	case *parser.VectorSelector:
 		for _, matcher := range expr.LabelMatchers {
