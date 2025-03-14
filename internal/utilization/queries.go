@@ -19,7 +19,7 @@ const (
 	appCPUUsage        = `rate(container_cpu_usage_seconds_total{namespace=%q, container=%q}[5m])`
 	appMemoryLimit     = `kube_pod_container_resource_limits{namespace=%q, container=%q, resource="memory", unit="byte"}`
 	appMemoryRequest   = `kube_pod_container_resource_requests{namespace=%q, container=%q, resource="memory",unit="byte"}`
-	appMemoryUsage     = `container_memory_working_set_bytes{namespace=%q, container=%q}`
+	appMemoryUsage     = `last_over_time(container_memory_working_set_bytes{namespace=%q, container=%q}[5m])`
 	teamCPURequest     = `sum by (container, owner_kind) (kube_pod_container_resource_requests{namespace=%q, container!~%q, resource="cpu",unit="core"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
 	teamCPUUsage       = `sum by (container, owner_kind) (rate(container_cpu_usage_seconds_total{namespace=%q, container!~%q}[5m]) * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"} )`
 	teamMemoryRequest  = `sum by (container, owner_kind) (kube_pod_container_resource_requests{namespace=%q, container!~%q, resource="memory",unit="byte"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
@@ -149,10 +149,6 @@ func WorkloadResourceRequest(ctx context.Context, env string, teamSlug slug.Slug
 
 	c := fromContext(ctx).client
 
-	env = "dev-gcp" // TODO: remove me
-	teamSlug = "tbd"
-	workloadName = "spleis-api"
-
 	v, err := c.query(ctx, env, fmt.Sprintf(q, teamSlug, workloadName))
 	if err != nil {
 		return 0, err
@@ -167,10 +163,6 @@ func WorkloadResourceLimit(ctx context.Context, env string, teamSlug slug.Slug, 
 	}
 
 	c := fromContext(ctx).client
-
-	env = "dev-gcp" // TODO: remove me
-	teamSlug = "tbd"
-	workloadName = "spleis-api"
 
 	v, err := c.query(ctx, env, fmt.Sprintf(q, teamSlug, workloadName))
 	if err != nil {
@@ -192,10 +184,6 @@ func WorkloadResourceUsage(ctx context.Context, env string, teamSlug slug.Slug, 
 
 	c := fromContext(ctx).client
 
-	env = "dev-gcp" // TODO: remove me
-	teamSlug = "tbd"
-	workloadName = "spleis-api"
-
 	v, err := c.query(ctx, env, fmt.Sprintf(q, teamSlug, workloadName))
 	if err != nil {
 		return 0, err
@@ -210,10 +198,6 @@ func WorkloadResourceUsageRange(ctx context.Context, env string, teamSlug slug.S
 		q = appCPUUsage
 	}
 	c := fromContext(ctx).client
-
-	env = "dev-gcp" // TODO: remove me
-	teamSlug = "tbd"
-	workloadName = "spleis-api"
 
 	v, warnings, err := c.queryRange(ctx, env, fmt.Sprintf(q, teamSlug, workloadName), promv1.Range{Start: start, End: end, Step: time.Duration(step) * time.Second})
 	if err != nil {
@@ -248,7 +232,6 @@ func WorkloadResourceUsageRange(ctx context.Context, env string, teamSlug slug.S
 			return 1
 		}
 		return 0
-
 	})
 
 	return ret, nil

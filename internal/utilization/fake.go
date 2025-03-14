@@ -86,7 +86,6 @@ func (c *FakeClient) query(ctx context.Context, environment string, query string
 		}
 		for _, matcher := range vectorSelector.LabelMatchers {
 			labelsToCreate = append(labelsToCreate, matcher.Name)
-
 		}
 		labelsToCreate = append(labelsToCreate, "pod")
 		teamSlug, workload, unit, err = c.selector(expr)

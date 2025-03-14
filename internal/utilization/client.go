@@ -26,16 +26,14 @@ type Client struct {
 
 func NewClient(clusters []string, tenant string, log logrus.FieldLogger) (*Client, error) {
 	proms := map[string]promv1.API{}
-	cluster := "dev-gcp"
-	tenant = "nav"
-	// for _, cluster := range clusters {
-	client, err := api.NewClient(api.Config{Address: fmt.Sprintf("https://prometheus.%s.%s.cloud.nais.io", cluster, tenant)})
-	if err != nil {
-		return nil, err
-	}
+	for _, cluster := range clusters {
+		client, err := api.NewClient(api.Config{Address: fmt.Sprintf("https://prometheus.%s.%s.cloud.nais.io", cluster, tenant)})
+		if err != nil {
+			return nil, err
+		}
 
-	proms[cluster] = promv1.NewAPI(client)
-	// }
+		proms[cluster] = promv1.NewAPI(client)
+	}
 
 	return &Client{
 		prometheuses: proms,
