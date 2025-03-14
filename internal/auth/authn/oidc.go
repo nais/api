@@ -23,7 +23,7 @@ func NewOIDC(ctx context.Context, issuer, clientID, clientSecret, redirectURL st
 		return nil, err
 	}
 
-	g := &OIDC{
+	return &OIDC{
 		clientID:     clientID,
 		clientSecret: clientSecret,
 		redirectURL:  redirectURL,
@@ -35,8 +35,7 @@ func NewOIDC(ctx context.Context, issuer, clientID, clientSecret, redirectURL st
 			RedirectURL:  redirectURL,
 			Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 		},
-	}
-	return g, nil
+	}, nil
 }
 
 func (o *OIDC) Verify(ctx context.Context, rawIDToken string) (*oidc.IDToken, error) {
