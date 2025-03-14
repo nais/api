@@ -19043,7 +19043,7 @@ type UtilizationSample {
 	value: Float!
 
 	"The instance for the utilization data."
-	instance: String
+	instance: String!
 }
 
 type TeamUtilizationData {
@@ -87806,11 +87806,14 @@ func (ec *executionContext) _UtilizationSample_instance(ctx context.Context, fie
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UtilizationSample_instance(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -119791,6 +119794,9 @@ func (ec *executionContext) _UtilizationSample(ctx context.Context, sel ast.Sele
 			}
 		case "instance":
 			out.Values[i] = ec._UtilizationSample_instance(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

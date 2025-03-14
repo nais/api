@@ -64,7 +64,7 @@ type UtilizationSample {
 	value: Float!
 
 	"The instance for the utilization data."
-	instance: String
+	instance: String!
 }
 
 type TeamUtilizationData {
