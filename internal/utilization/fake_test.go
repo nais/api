@@ -66,7 +66,8 @@ func TestFakeQuery(t *testing.T) {
 			expected: prom.Vector{
 				{Metric: prom.Metric{"container": "workload", "namespace": "team", "pod": "workload-1"}, Value: 105283867, Timestamp: now()},
 			},
-		}}
+		},
+	}
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
