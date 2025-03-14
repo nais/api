@@ -256,8 +256,6 @@ func ConfigureGraph(
 		secretClientCreator = secret.CreatorFromConfig(ctx, k8sClients)
 	}
 
-	utilizationClient, _ = utilization.NewClient([]string{"dev-gcp"}, "nav", log) // TODO: Remove this line
-
 	syncCtx, cancelSync := context.WithTimeout(ctx, 20*time.Second)
 	defer cancelSync()
 	if !watcherMgr.WaitForReady(syncCtx) {
