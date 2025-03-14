@@ -64,6 +64,8 @@ spec:
               value: "{{ .Values.dependencytrack.endpoint }}"
             - name: USERSYNC_ENABLED
               value: "true"
+            - name: OAUTH_ISSUER
+              value: "{{ .Values.oauth.issuer }}"
             - name: OAUTH_CLIENT_ID
               value: "{{ .Values.oauth.clientID }}"
             - name: OAUTH_REDIRECT_URL

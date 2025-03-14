@@ -149,7 +149,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("create graph handler: %w", err)
 	}
 
-	authHandler, err := setupAuthHandler(cfg.OAuth, log)
+	authHandler, err := setupAuthHandler(ctx, cfg.OAuth, log)
 	if err != nil {
 		return err
 	}
@@ -298,8 +298,8 @@ func loadEnvFile(log logrus.FieldLogger) error {
 	return nil
 }
 
-func setupAuthHandler(cfg oAuthConfig, log logrus.FieldLogger) (authn.Handler, error) {
-	cf, err := authn.NewGoogle(cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL)
+func setupAuthHandler(ctx context.Context, cfg oAuthConfig, log logrus.FieldLogger) (authn.Handler, error) {
+	cf, err := authn.NewOIDC(ctx, cfg.Issuer, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL)
 	if err != nil {
 		return nil, err
 	}
