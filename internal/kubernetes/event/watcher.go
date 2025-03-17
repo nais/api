@@ -202,7 +202,10 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 			if !s {
 				return nil
 			}
-		case event := <-rescale.ResultChan():
+		case event, ok := <-rescale.ResultChan():
+			if !ok {
+				continue
+			}
 			w.eventsCounter.Add(ctx, 1, metric.WithAttributes(
 				attribute.String("environment", string(env)),
 				attribute.String("type", string(event.Type)),
@@ -237,7 +240,11 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 
 				return w.toUpsertParams(env, e, data)
 			})
-		case event := <-killing.ResultChan():
+		case event, ok := <-killing.ResultChan():
+			if !ok {
+				continue
+			}
+
 			w.eventsCounter.Add(ctx, 1, metric.WithAttributes(
 				attribute.String("environment", string(env)),
 				attribute.String("type", string(event.Type)),
