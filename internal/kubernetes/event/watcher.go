@@ -204,7 +204,8 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 			}
 		case event, ok := <-rescale.ResultChan():
 			if !ok {
-				continue
+				w.log.WithField("env", env).WithField("watcher", "rescale").Error("watching events returned closed channel")
+				return fmt.Errorf("watcher failed")
 			}
 			w.eventsCounter.Add(ctx, 1, metric.WithAttributes(
 				attribute.String("environment", string(env)),
@@ -242,7 +243,8 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 			})
 		case event, ok := <-killing.ResultChan():
 			if !ok {
-				continue
+				w.log.WithField("env", env).WithField("watcher", "rescale").Error("watching events returned closed channel")
+				return fmt.Errorf("watcher failed")
 			}
 
 			w.eventsCounter.Add(ctx, 1, metric.WithAttributes(
