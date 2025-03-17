@@ -154,7 +154,12 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return err
 	}
 
-	vMgr, err := vulnerability.NewManager(ctx, "localhost:50051", "", log.WithField("subsystem", "vulnerability"))
+	vulnMgr, err := vulnerability.NewManager(
+		ctx,
+		cfg.VulnerabilitiesApi.Endpoint,
+		cfg.VulnerabilitiesApi.ServiceAccount,
+		log.WithField("subsystem", "vulnerability"),
+	)
 	if err != nil {
 		return err
 	}
@@ -220,7 +225,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			mgmtWatcher,
 			authHandler,
 			graphHandler,
-			vMgr,
+			vulnMgr,
 			hookdClient,
 			cfg.Unleash.BifrostApiUrl,
 			cfg.Logging.DefaultLogDestinations(),
