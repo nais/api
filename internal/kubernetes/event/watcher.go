@@ -22,6 +22,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/cache"
+	watchtools "k8s.io/client-go/tools/watch"
 )
 
 type Watcher struct {
@@ -136,17 +138,26 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 	w.handlersCounter.Add(ctx, 1, metric.WithAttributes(attribute.String("environment", env)))
 	defer w.handlersCounter.Add(ctx, -1, metric.WithAttributes(attribute.String("environment", env)))
 
+	newWatcher := func(selector string) (*watchtools.RetryWatcher, error) {
+		list, err := client.EventsV1().Events("").List(ctx, metav1.ListOptions{
+			FieldSelector: selector,
+			Limit:         10,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		return watchtools.NewRetryWatcher(list.ResourceVersion, &cache.ListWatch{
+			WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
+				options.FieldSelector = selector
+				return client.EventsV1().Events("").Watch(context.Background(), options)
+			},
+		})
+	}
+
 	// Events we want to watch for
 	// SuccessfulRescale - Check for successful rescale events
 	// Killing - Check for liveness failures
-
-	list, err := client.EventsV1().Events("").List(ctx, metav1.ListOptions{})
-	if err != nil {
-		return fmt.Errorf("failed to list events: %w", err)
-	}
-
-	w.log.WithField("len", len(list.Items)).Debug("listed events")
-
 	closeAndDrain := func(w watch.Interface) {
 		w.Stop()
 		for range w.ResultChan() {
@@ -154,17 +165,13 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 		}
 	}
 
-	rescale, err := client.EventsV1().Events("").Watch(ctx, metav1.ListOptions{
-		FieldSelector: "reason=SuccessfulRescale,metadata.namespace!=nais-system",
-	})
+	rescale, err := newWatcher("reason=SuccessfulRescale,metadata.namespace!=nais-system")
 	if err != nil {
 		return fmt.Errorf("failed to watch for rescale events: %w", err)
 	}
 	defer closeAndDrain(rescale)
 
-	killing, err := client.EventsV1().Events("").Watch(ctx, metav1.ListOptions{
-		FieldSelector: "reason=Killing,metadata.namespace!=nais-system",
-	})
+	killing, err := newWatcher("reason=Killing,metadata.namespace!=nais-system")
 	if err != nil {
 		return fmt.Errorf("failed to watch for killing events: %w", err)
 	}
