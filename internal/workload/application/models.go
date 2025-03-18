@@ -297,13 +297,18 @@ func toGraphApplication(application *nais_io_v1alpha1.Application, environmentNa
 		deletedAt = ptr.To(application.DeletionTimestamp.Time)
 	}
 
+	imageString := application.GetEffectiveImage()
+	if len(imageString) == 0 {
+		imageString = application.GetImage()
+	}
+
 	return &Application{
 		Base: workload.Base{
 			Name:                application.Name,
 			DeletionStartedAt:   deletedAt,
 			EnvironmentName:     environmentName,
 			TeamSlug:            slug.Slug(application.Namespace),
-			ImageString:         application.Spec.Image,
+			ImageString:         imageString,
 			Conditions:          getConditions(application.Status),
 			AccessPolicy:        application.Spec.AccessPolicy,
 			Annotations:         application.GetAnnotations(),
