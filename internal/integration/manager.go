@@ -150,8 +150,7 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 		return nil, nil, fmt.Errorf("failed to create management watcher manager: %w", err)
 	}
 
-	// TODO: Must implement fakes
-	vMgr, err := vulnerability.NewManager(ctx, "localhost:50051", "", log.WithField("subsystem", "vulnerability"))
+	vMgr, err := vulnerability.NewManager(ctx, vulnerability.FakeVulnerabilitiesApiUrl, "notused", log.WithField("subsystem", "vulnerability"))
 	if err != nil {
 		return nil, nil, err
 	}

@@ -65,7 +65,7 @@ type costConfig struct {
 
 // vulnerabilitiesConfig is the configuration for the vulnerability manager using the v13s api
 type vulnerabilitiesConfig struct {
-	Endpoint       string `env:"VULNERABILITIES_ENDPOINT,default=localhost:50051"`
+	Endpoint       string `env:"VULNERABILITIES_ENDPOINT,default=fake"`
 	ServiceAccount string `env:"VULNERABILITIES_SERVICE_ACCOUNT,default=service-account"`
 }
 
