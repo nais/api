@@ -91,8 +91,8 @@ type WorkloadResources interface {
 }
 
 type WorkloadResourceQuantity struct {
-	CPU    float64 `json:"cpu"`
-	Memory int64   `json:"memory"`
+	CPU    *float64 `json:"cpu"`
+	Memory *int64   `json:"memory"`
 }
 
 type AuthIntegration interface {

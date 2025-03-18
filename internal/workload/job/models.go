@@ -268,21 +268,21 @@ func (j *Job) Resources() *JobResources {
 
 	if resources.Limits != nil {
 		if q, err := resource.ParseQuantity(resources.Limits.Cpu); err == nil {
-			ret.Limits.CPU = q.AsApproximateFloat64()
+			ret.Limits.CPU = ptr.To(q.AsApproximateFloat64())
 		}
 
 		if m, err := resource.ParseQuantity(resources.Limits.Memory); err == nil {
-			ret.Limits.Memory = m.Value()
+			ret.Limits.Memory = ptr.To(m.Value())
 		}
 	}
 
 	if resources.Requests != nil {
 		if q, err := resource.ParseQuantity(resources.Requests.Cpu); err == nil {
-			ret.Requests.CPU = q.AsApproximateFloat64()
+			ret.Requests.CPU = ptr.To(q.AsApproximateFloat64())
 		}
 
 		if m, err := resource.ParseQuantity(resources.Requests.Memory); err == nil {
-			ret.Requests.Memory = m.Value()
+			ret.Requests.Memory = ptr.To(m.Value())
 		}
 	}
 

@@ -181,12 +181,12 @@ type WorkloadResourceQuantity {
 	"""
 	The number of CPU cores.
 	"""
-	cpu: Float!
+	cpu: Float
 
 	"""
 	The amount of memory in bytes.
 	"""
-	memory: Int!
+	memory: Int
 }
 
 """
