@@ -253,7 +253,6 @@ func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*g
 				},
 			},
 		})
-
 		if err != nil {
 			s.log.WithError(err).Errorf("add user in Zitadel")
 		}
