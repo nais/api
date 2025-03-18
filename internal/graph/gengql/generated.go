@@ -52510,6 +52510,8 @@ func (ec *executionContext) fieldContext_Query___type(ctx context.Context, field
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -52522,8 +52524,6 @@ func (ec *executionContext) fieldContext_Query___type(ctx context.Context, field
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "isOneOf":
 				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
@@ -92022,6 +92022,50 @@ func (ec *executionContext) fieldContext___Directive_description(_ context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) ___Directive_isRepeatable(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext___Directive_isRepeatable(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsRepeatable, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext___Directive_isRepeatable(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "__Directive",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) ___Directive_locations(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext___Directive_locations(ctx, field)
 	if err != nil {
@@ -92131,50 +92175,6 @@ func (ec *executionContext) fieldContext___Directive_args(ctx context.Context, f
 	if fc.Args, err = ec.field___Directive_args_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) ___Directive_isRepeatable(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext___Directive_isRepeatable(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.IsRepeatable, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext___Directive_isRepeatable(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "__Directive",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
 	}
 	return fc, nil
 }
@@ -92548,6 +92548,8 @@ func (ec *executionContext) fieldContext___Field_type(_ context.Context, field g
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -92560,8 +92562,6 @@ func (ec *executionContext) fieldContext___Field_type(_ context.Context, field g
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "isOneOf":
 				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
@@ -92786,6 +92786,8 @@ func (ec *executionContext) fieldContext___InputValue_type(_ context.Context, fi
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -92798,8 +92800,6 @@ func (ec *executionContext) fieldContext___InputValue_type(_ context.Context, fi
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "isOneOf":
 				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
@@ -93021,6 +93021,8 @@ func (ec *executionContext) fieldContext___Schema_types(_ context.Context, field
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -93033,8 +93035,6 @@ func (ec *executionContext) fieldContext___Schema_types(_ context.Context, field
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "isOneOf":
 				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
@@ -93089,6 +93089,8 @@ func (ec *executionContext) fieldContext___Schema_queryType(_ context.Context, f
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -93101,8 +93103,6 @@ func (ec *executionContext) fieldContext___Schema_queryType(_ context.Context, f
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "isOneOf":
 				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
@@ -93154,6 +93154,8 @@ func (ec *executionContext) fieldContext___Schema_mutationType(_ context.Context
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -93166,8 +93168,6 @@ func (ec *executionContext) fieldContext___Schema_mutationType(_ context.Context
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "isOneOf":
 				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
@@ -93219,6 +93219,8 @@ func (ec *executionContext) fieldContext___Schema_subscriptionType(_ context.Con
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -93231,8 +93233,6 @@ func (ec *executionContext) fieldContext___Schema_subscriptionType(_ context.Con
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "isOneOf":
 				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
@@ -93285,12 +93285,12 @@ func (ec *executionContext) fieldContext___Schema_directives(_ context.Context, 
 				return ec.fieldContext___Directive_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Directive_description(ctx, field)
+			case "isRepeatable":
+				return ec.fieldContext___Directive_isRepeatable(ctx, field)
 			case "locations":
 				return ec.fieldContext___Directive_locations(ctx, field)
 			case "args":
 				return ec.fieldContext___Directive_args(ctx, field)
-			case "isRepeatable":
-				return ec.fieldContext___Directive_isRepeatable(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Directive", field.Name)
 		},
@@ -93424,6 +93424,47 @@ func (ec *executionContext) fieldContext___Type_description(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) ___Type_specifiedByURL(ctx context.Context, field graphql.CollectedField, obj *introspection.Type) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext___Type_specifiedByURL(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SpecifiedByURL(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "__Type",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) ___Type_fields(ctx context.Context, field graphql.CollectedField, obj *introspection.Type) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext___Type_fields(ctx, field)
 	if err != nil {
@@ -93532,6 +93573,8 @@ func (ec *executionContext) fieldContext___Type_interfaces(_ context.Context, fi
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -93544,8 +93587,6 @@ func (ec *executionContext) fieldContext___Type_interfaces(_ context.Context, fi
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "isOneOf":
 				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
@@ -93597,6 +93638,8 @@ func (ec *executionContext) fieldContext___Type_possibleTypes(_ context.Context,
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -93609,8 +93652,6 @@ func (ec *executionContext) fieldContext___Type_possibleTypes(_ context.Context,
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "isOneOf":
 				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
@@ -93779,6 +93820,8 @@ func (ec *executionContext) fieldContext___Type_ofType(_ context.Context, field 
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -93791,53 +93834,10 @@ func (ec *executionContext) fieldContext___Type_ofType(_ context.Context, field 
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "isOneOf":
 				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Type", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) ___Type_specifiedByURL(ctx context.Context, field graphql.CollectedField, obj *introspection.Type) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext___Type_specifiedByURL(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.SpecifiedByURL(), nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "__Type",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -96497,20 +96497,62 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case application.ApplicationDeletedActivityLogEntry:
-		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, &obj)
-	case *application.ApplicationDeletedActivityLogEntry:
+	case vulnerability.VulnerabilityUpdatedActivityLogEntry:
+		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *vulnerability.VulnerabilityUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, obj)
-	case application.ApplicationRestartedActivityLogEntry:
-		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, &obj)
-	case *application.ApplicationRestartedActivityLogEntry:
+		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, obj)
+	case unleash.UnleashInstanceUpdatedActivityLogEntry:
+		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *unleash.UnleashInstanceUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, obj)
+		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, obj)
+	case unleash.UnleashInstanceCreatedActivityLogEntry:
+		return ec._UnleashInstanceCreatedActivityLogEntry(ctx, sel, &obj)
+	case *unleash.UnleashInstanceCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._UnleashInstanceCreatedActivityLogEntry(ctx, sel, obj)
+	case team.TeamUpdatedActivityLogEntry:
+		return ec._TeamUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamUpdatedActivityLogEntry(ctx, sel, obj)
+	case team.TeamMemberSetRoleActivityLogEntry:
+		return ec._TeamMemberSetRoleActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamMemberSetRoleActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamMemberSetRoleActivityLogEntry(ctx, sel, obj)
+	case team.TeamMemberRemovedActivityLogEntry:
+		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamMemberRemovedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, obj)
+	case team.TeamMemberAddedActivityLogEntry:
+		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamMemberAddedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, obj)
+	case team.TeamEnvironmentUpdatedActivityLogEntry:
+		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamEnvironmentUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, obj)
 	case deployment.TeamDeployKeyUpdatedActivityLogEntry:
 		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *deployment.TeamDeployKeyUpdatedActivityLogEntry:
@@ -96518,20 +96560,132 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, obj)
-	case job.JobDeletedActivityLogEntry:
-		return ec._JobDeletedActivityLogEntry(ctx, sel, &obj)
-	case *job.JobDeletedActivityLogEntry:
+	case team.TeamCreatedActivityLogEntry:
+		return ec._TeamCreatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._JobDeletedActivityLogEntry(ctx, sel, obj)
-	case job.JobTriggeredActivityLogEntry:
-		return ec._JobTriggeredActivityLogEntry(ctx, sel, &obj)
-	case *job.JobTriggeredActivityLogEntry:
+		return ec._TeamCreatedActivityLogEntry(ctx, sel, obj)
+	case team.TeamCreateDeleteKeyActivityLogEntry:
+		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamCreateDeleteKeyActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._JobTriggeredActivityLogEntry(ctx, sel, obj)
+		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, obj)
+	case team.TeamConfirmDeleteKeyActivityLogEntry:
+		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamConfirmDeleteKeyActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, obj)
+	case serviceaccount.ServiceAccountUpdatedActivityLogEntry:
+		return ec._ServiceAccountUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccountUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ServiceAccountUpdatedActivityLogEntry(ctx, sel, obj)
+	case serviceaccount.ServiceAccountTokenUpdatedActivityLogEntry:
+		return ec._ServiceAccountTokenUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccountTokenUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ServiceAccountTokenUpdatedActivityLogEntry(ctx, sel, obj)
+	case serviceaccount.ServiceAccountTokenDeletedActivityLogEntry:
+		return ec._ServiceAccountTokenDeletedActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccountTokenDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ServiceAccountTokenDeletedActivityLogEntry(ctx, sel, obj)
+	case serviceaccount.ServiceAccountTokenCreatedActivityLogEntry:
+		return ec._ServiceAccountTokenCreatedActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccountTokenCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ServiceAccountTokenCreatedActivityLogEntry(ctx, sel, obj)
+	case serviceaccount.ServiceAccountDeletedActivityLogEntry:
+		return ec._ServiceAccountDeletedActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccountDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ServiceAccountDeletedActivityLogEntry(ctx, sel, obj)
+	case serviceaccount.ServiceAccountCreatedActivityLogEntry:
+		return ec._ServiceAccountCreatedActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccountCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ServiceAccountCreatedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretValueUpdatedActivityLogEntry:
+		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretValueRemovedActivityLogEntry:
+		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueRemovedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretValueAddedActivityLogEntry:
+		return ec._SecretValueAddedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueAddedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretValueAddedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretDeletedActivityLogEntry:
+		return ec._SecretDeletedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretDeletedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretCreatedActivityLogEntry:
+		return ec._SecretCreatedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretCreatedActivityLogEntry(ctx, sel, obj)
+	case serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry:
+		return ec._RoleRevokedFromServiceAccountActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RoleRevokedFromServiceAccountActivityLogEntry(ctx, sel, obj)
+	case serviceaccount.RoleAssignedToServiceAccountActivityLogEntry:
+		return ec._RoleAssignedToServiceAccountActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.RoleAssignedToServiceAccountActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RoleAssignedToServiceAccountActivityLogEntry(ctx, sel, obj)
+	case repository.RepositoryRemovedActivityLogEntry:
+		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, &obj)
+	case *repository.RepositoryRemovedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, obj)
+	case repository.RepositoryAddedActivityLogEntry:
+		return ec._RepositoryAddedActivityLogEntry(ctx, sel, &obj)
+	case *repository.RepositoryAddedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RepositoryAddedActivityLogEntry(ctx, sel, obj)
 	case reconciler.ReconcilerEnabledActivityLogEntry:
 		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, &obj)
 	case *reconciler.ReconcilerEnabledActivityLogEntry:
@@ -96553,188 +96707,34 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._ReconcilerConfiguredActivityLogEntry(ctx, sel, obj)
-	case repository.RepositoryAddedActivityLogEntry:
-		return ec._RepositoryAddedActivityLogEntry(ctx, sel, &obj)
-	case *repository.RepositoryAddedActivityLogEntry:
+	case job.JobTriggeredActivityLogEntry:
+		return ec._JobTriggeredActivityLogEntry(ctx, sel, &obj)
+	case *job.JobTriggeredActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RepositoryAddedActivityLogEntry(ctx, sel, obj)
-	case repository.RepositoryRemovedActivityLogEntry:
-		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, &obj)
-	case *repository.RepositoryRemovedActivityLogEntry:
+		return ec._JobTriggeredActivityLogEntry(ctx, sel, obj)
+	case job.JobDeletedActivityLogEntry:
+		return ec._JobDeletedActivityLogEntry(ctx, sel, &obj)
+	case *job.JobDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, obj)
-	case secret.SecretCreatedActivityLogEntry:
-		return ec._SecretCreatedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretCreatedActivityLogEntry:
+		return ec._JobDeletedActivityLogEntry(ctx, sel, obj)
+	case application.ApplicationRestartedActivityLogEntry:
+		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, &obj)
+	case *application.ApplicationRestartedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretCreatedActivityLogEntry(ctx, sel, obj)
-	case secret.SecretValueAddedActivityLogEntry:
-		return ec._SecretValueAddedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretValueAddedActivityLogEntry:
+		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, obj)
+	case application.ApplicationDeletedActivityLogEntry:
+		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, &obj)
+	case *application.ApplicationDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueAddedActivityLogEntry(ctx, sel, obj)
-	case secret.SecretValueUpdatedActivityLogEntry:
-		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretValueUpdatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, obj)
-	case secret.SecretValueRemovedActivityLogEntry:
-		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretValueRemovedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, obj)
-	case secret.SecretDeletedActivityLogEntry:
-		return ec._SecretDeletedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretDeletedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SecretDeletedActivityLogEntry(ctx, sel, obj)
-	case serviceaccount.ServiceAccountCreatedActivityLogEntry:
-		return ec._ServiceAccountCreatedActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.ServiceAccountCreatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ServiceAccountCreatedActivityLogEntry(ctx, sel, obj)
-	case serviceaccount.ServiceAccountUpdatedActivityLogEntry:
-		return ec._ServiceAccountUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.ServiceAccountUpdatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ServiceAccountUpdatedActivityLogEntry(ctx, sel, obj)
-	case serviceaccount.ServiceAccountDeletedActivityLogEntry:
-		return ec._ServiceAccountDeletedActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.ServiceAccountDeletedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ServiceAccountDeletedActivityLogEntry(ctx, sel, obj)
-	case serviceaccount.RoleAssignedToServiceAccountActivityLogEntry:
-		return ec._RoleAssignedToServiceAccountActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.RoleAssignedToServiceAccountActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._RoleAssignedToServiceAccountActivityLogEntry(ctx, sel, obj)
-	case serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry:
-		return ec._RoleRevokedFromServiceAccountActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._RoleRevokedFromServiceAccountActivityLogEntry(ctx, sel, obj)
-	case serviceaccount.ServiceAccountTokenCreatedActivityLogEntry:
-		return ec._ServiceAccountTokenCreatedActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.ServiceAccountTokenCreatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ServiceAccountTokenCreatedActivityLogEntry(ctx, sel, obj)
-	case serviceaccount.ServiceAccountTokenUpdatedActivityLogEntry:
-		return ec._ServiceAccountTokenUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.ServiceAccountTokenUpdatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ServiceAccountTokenUpdatedActivityLogEntry(ctx, sel, obj)
-	case serviceaccount.ServiceAccountTokenDeletedActivityLogEntry:
-		return ec._ServiceAccountTokenDeletedActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.ServiceAccountTokenDeletedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ServiceAccountTokenDeletedActivityLogEntry(ctx, sel, obj)
-	case team.TeamCreatedActivityLogEntry:
-		return ec._TeamCreatedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamCreatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamCreatedActivityLogEntry(ctx, sel, obj)
-	case team.TeamUpdatedActivityLogEntry:
-		return ec._TeamUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamUpdatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamUpdatedActivityLogEntry(ctx, sel, obj)
-	case team.TeamCreateDeleteKeyActivityLogEntry:
-		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamCreateDeleteKeyActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, obj)
-	case team.TeamConfirmDeleteKeyActivityLogEntry:
-		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamConfirmDeleteKeyActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, obj)
-	case team.TeamMemberAddedActivityLogEntry:
-		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamMemberAddedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, obj)
-	case team.TeamMemberRemovedActivityLogEntry:
-		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamMemberRemovedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, obj)
-	case team.TeamMemberSetRoleActivityLogEntry:
-		return ec._TeamMemberSetRoleActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamMemberSetRoleActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamMemberSetRoleActivityLogEntry(ctx, sel, obj)
-	case team.TeamEnvironmentUpdatedActivityLogEntry:
-		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamEnvironmentUpdatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, obj)
-	case unleash.UnleashInstanceCreatedActivityLogEntry:
-		return ec._UnleashInstanceCreatedActivityLogEntry(ctx, sel, &obj)
-	case *unleash.UnleashInstanceCreatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._UnleashInstanceCreatedActivityLogEntry(ctx, sel, obj)
-	case unleash.UnleashInstanceUpdatedActivityLogEntry:
-		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *unleash.UnleashInstanceUpdatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, obj)
-	case vulnerability.VulnerabilityUpdatedActivityLogEntry:
-		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *vulnerability.VulnerabilityUpdatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, obj)
+		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -96744,27 +96744,6 @@ func (ec *executionContext) _ApplicationAuthIntegrations(ctx context.Context, se
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case workload.EntraIDAuthIntegration:
-		return ec._EntraIDAuthIntegration(ctx, sel, &obj)
-	case *workload.EntraIDAuthIntegration:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._EntraIDAuthIntegration(ctx, sel, obj)
-	case workload.IDPortenAuthIntegration:
-		return ec._IDPortenAuthIntegration(ctx, sel, &obj)
-	case *workload.IDPortenAuthIntegration:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._IDPortenAuthIntegration(ctx, sel, obj)
-	case workload.MaskinportenAuthIntegration:
-		return ec._MaskinportenAuthIntegration(ctx, sel, &obj)
-	case *workload.MaskinportenAuthIntegration:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._MaskinportenAuthIntegration(ctx, sel, obj)
 	case workload.TokenXAuthIntegration:
 		return ec._TokenXAuthIntegration(ctx, sel, &obj)
 	case *workload.TokenXAuthIntegration:
@@ -96772,6 +96751,27 @@ func (ec *executionContext) _ApplicationAuthIntegrations(ctx context.Context, se
 			return graphql.Null
 		}
 		return ec._TokenXAuthIntegration(ctx, sel, obj)
+	case workload.MaskinportenAuthIntegration:
+		return ec._MaskinportenAuthIntegration(ctx, sel, &obj)
+	case *workload.MaskinportenAuthIntegration:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._MaskinportenAuthIntegration(ctx, sel, obj)
+	case workload.IDPortenAuthIntegration:
+		return ec._IDPortenAuthIntegration(ctx, sel, &obj)
+	case *workload.IDPortenAuthIntegration:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._IDPortenAuthIntegration(ctx, sel, obj)
+	case workload.EntraIDAuthIntegration:
+		return ec._EntraIDAuthIntegration(ctx, sel, &obj)
+	case *workload.EntraIDAuthIntegration:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._EntraIDAuthIntegration(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -96781,27 +96781,6 @@ func (ec *executionContext) _AuthIntegration(ctx context.Context, sel ast.Select
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case workload.EntraIDAuthIntegration:
-		return ec._EntraIDAuthIntegration(ctx, sel, &obj)
-	case *workload.EntraIDAuthIntegration:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._EntraIDAuthIntegration(ctx, sel, obj)
-	case workload.IDPortenAuthIntegration:
-		return ec._IDPortenAuthIntegration(ctx, sel, &obj)
-	case *workload.IDPortenAuthIntegration:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._IDPortenAuthIntegration(ctx, sel, obj)
-	case workload.MaskinportenAuthIntegration:
-		return ec._MaskinportenAuthIntegration(ctx, sel, &obj)
-	case *workload.MaskinportenAuthIntegration:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._MaskinportenAuthIntegration(ctx, sel, obj)
 	case workload.TokenXAuthIntegration:
 		return ec._TokenXAuthIntegration(ctx, sel, &obj)
 	case *workload.TokenXAuthIntegration:
@@ -96809,6 +96788,27 @@ func (ec *executionContext) _AuthIntegration(ctx context.Context, sel ast.Select
 			return graphql.Null
 		}
 		return ec._TokenXAuthIntegration(ctx, sel, obj)
+	case workload.MaskinportenAuthIntegration:
+		return ec._MaskinportenAuthIntegration(ctx, sel, &obj)
+	case *workload.MaskinportenAuthIntegration:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._MaskinportenAuthIntegration(ctx, sel, obj)
+	case workload.IDPortenAuthIntegration:
+		return ec._IDPortenAuthIntegration(ctx, sel, &obj)
+	case *workload.IDPortenAuthIntegration:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._IDPortenAuthIntegration(ctx, sel, obj)
+	case workload.EntraIDAuthIntegration:
+		return ec._EntraIDAuthIntegration(ctx, sel, &obj)
+	case *workload.EntraIDAuthIntegration:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._EntraIDAuthIntegration(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -96837,13 +96837,6 @@ func (ec *executionContext) _ExternalNetworkPolicyTarget(ctx context.Context, se
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case netpol.ExternalNetworkPolicyHost:
-		return ec._ExternalNetworkPolicyHost(ctx, sel, &obj)
-	case *netpol.ExternalNetworkPolicyHost:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ExternalNetworkPolicyHost(ctx, sel, obj)
 	case netpol.ExternalNetworkPolicyIpv4:
 		return ec._ExternalNetworkPolicyIpv4(ctx, sel, &obj)
 	case *netpol.ExternalNetworkPolicyIpv4:
@@ -96851,6 +96844,13 @@ func (ec *executionContext) _ExternalNetworkPolicyTarget(ctx context.Context, se
 			return graphql.Null
 		}
 		return ec._ExternalNetworkPolicyIpv4(ctx, sel, obj)
+	case netpol.ExternalNetworkPolicyHost:
+		return ec._ExternalNetworkPolicyHost(ctx, sel, &obj)
+	case *netpol.ExternalNetworkPolicyHost:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ExternalNetworkPolicyHost(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -96860,13 +96860,6 @@ func (ec *executionContext) _JobAuthIntegrations(ctx context.Context, sel ast.Se
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case workload.EntraIDAuthIntegration:
-		return ec._EntraIDAuthIntegration(ctx, sel, &obj)
-	case *workload.EntraIDAuthIntegration:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._EntraIDAuthIntegration(ctx, sel, obj)
 	case workload.MaskinportenAuthIntegration:
 		return ec._MaskinportenAuthIntegration(ctx, sel, &obj)
 	case *workload.MaskinportenAuthIntegration:
@@ -96874,6 +96867,13 @@ func (ec *executionContext) _JobAuthIntegrations(ctx context.Context, sel ast.Se
 			return graphql.Null
 		}
 		return ec._MaskinportenAuthIntegration(ctx, sel, obj)
+	case workload.EntraIDAuthIntegration:
+		return ec._EntraIDAuthIntegration(ctx, sel, &obj)
+	case *workload.EntraIDAuthIntegration:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._EntraIDAuthIntegration(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -96883,13 +96883,6 @@ func (ec *executionContext) _LogDestination(ctx context.Context, sel ast.Selecti
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case logging.LogDestinationLoki:
-		return ec._LogDestinationLoki(ctx, sel, &obj)
-	case *logging.LogDestinationLoki:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._LogDestinationLoki(ctx, sel, obj)
 	case logging.LogDestinationSecureLogs:
 		return ec._LogDestinationSecureLogs(ctx, sel, &obj)
 	case *logging.LogDestinationSecureLogs:
@@ -96897,6 +96890,13 @@ func (ec *executionContext) _LogDestination(ctx context.Context, sel ast.Selecti
 			return graphql.Null
 		}
 		return ec._LogDestinationSecureLogs(ctx, sel, obj)
+	case logging.LogDestinationLoki:
+		return ec._LogDestinationLoki(ctx, sel, &obj)
+	case *logging.LogDestinationLoki:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._LogDestinationLoki(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -96906,20 +96906,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case team.TeamUpdatedActivityLogEntry:
-		return ec._TeamUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamUpdatedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamUpdatedActivityLogEntry(ctx, sel, obj)
-	case team.TeamCreateDeleteKeyActivityLogEntry:
-		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamCreateDeleteKeyActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, obj)
 	case vulnerability.VulnerabilityUpdatedActivityLogEntry:
 		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *vulnerability.VulnerabilityUpdatedActivityLogEntry:
@@ -96927,20 +96913,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, obj)
-	case application.ApplicationDeletedActivityLogEntry:
-		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, &obj)
-	case *application.ApplicationDeletedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, obj)
-	case application.ApplicationRestartedActivityLogEntry:
-		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, &obj)
-	case *application.ApplicationRestartedActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, obj)
 	case valkey.ValkeyInstance:
 		return ec._ValkeyInstance(ctx, sel, &obj)
 	case *valkey.ValkeyInstance:
@@ -96948,41 +96920,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ValkeyInstance(ctx, sel, obj)
-	case bigquery.BigQueryDataset:
-		return ec._BigQueryDataset(ctx, sel, &obj)
-	case *bigquery.BigQueryDataset:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._BigQueryDataset(ctx, sel, obj)
-	case bucket.Bucket:
-		return ec._Bucket(ctx, sel, &obj)
-	case *bucket.Bucket:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Bucket(ctx, sel, obj)
-	case usersync.RoleRevokedUserSyncLogEntry:
-		return ec._RoleRevokedUserSyncLogEntry(ctx, sel, &obj)
-	case *usersync.RoleRevokedUserSyncLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._RoleRevokedUserSyncLogEntry(ctx, sel, obj)
-	case usersync.RoleAssignedUserSyncLogEntry:
-		return ec._RoleAssignedUserSyncLogEntry(ctx, sel, &obj)
-	case *usersync.RoleAssignedUserSyncLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._RoleAssignedUserSyncLogEntry(ctx, sel, obj)
-	case usersync.UserDeletedUserSyncLogEntry:
-		return ec._UserDeletedUserSyncLogEntry(ctx, sel, &obj)
-	case *usersync.UserDeletedUserSyncLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._UserDeletedUserSyncLogEntry(ctx, sel, obj)
 	case usersync.UserUpdatedUserSyncLogEntry:
 		return ec._UserUpdatedUserSyncLogEntry(ctx, sel, &obj)
 	case *usersync.UserUpdatedUserSyncLogEntry:
@@ -96990,13 +96927,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UserUpdatedUserSyncLogEntry(ctx, sel, obj)
-	case deployment.TeamDeployKeyUpdatedActivityLogEntry:
-		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *deployment.TeamDeployKeyUpdatedActivityLogEntry:
+	case usersync.UserDeletedUserSyncLogEntry:
+		return ec._UserDeletedUserSyncLogEntry(ctx, sel, &obj)
+	case *usersync.UserDeletedUserSyncLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, obj)
+		return ec._UserDeletedUserSyncLogEntry(ctx, sel, obj)
 	case usersync.UserCreatedUserSyncLogEntry:
 		return ec._UserCreatedUserSyncLogEntry(ctx, sel, &obj)
 	case *usersync.UserCreatedUserSyncLogEntry:
@@ -97018,13 +96955,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._UnleashInstanceCreatedActivityLogEntry(ctx, sel, obj)
-	case secret.SecretCreatedActivityLogEntry:
-		return ec._SecretCreatedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretCreatedActivityLogEntry:
+	case team.TeamUpdatedActivityLogEntry:
+		return ec._TeamUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretCreatedActivityLogEntry(ctx, sel, obj)
+		return ec._TeamUpdatedActivityLogEntry(ctx, sel, obj)
 	case team.TeamMemberSetRoleActivityLogEntry:
 		return ec._TeamMemberSetRoleActivityLogEntry(ctx, sel, &obj)
 	case *team.TeamMemberSetRoleActivityLogEntry:
@@ -97046,20 +96983,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, obj)
-	case job.Job:
-		return ec._Job(ctx, sel, &obj)
-	case *job.Job:
+	case team.TeamEnvironmentUpdatedActivityLogEntry:
+		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamEnvironmentUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Job(ctx, sel, obj)
-	case team.TeamConfirmDeleteKeyActivityLogEntry:
-		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamConfirmDeleteKeyActivityLogEntry:
+		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, obj)
+	case deployment.TeamDeployKeyUpdatedActivityLogEntry:
+		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *deployment.TeamDeployKeyUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, obj)
+		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, obj)
 	case team.TeamCreatedActivityLogEntry:
 		return ec._TeamCreatedActivityLogEntry(ctx, sel, &obj)
 	case *team.TeamCreatedActivityLogEntry:
@@ -97067,27 +97004,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamCreatedActivityLogEntry(ctx, sel, obj)
-	case job.JobDeletedActivityLogEntry:
-		return ec._JobDeletedActivityLogEntry(ctx, sel, &obj)
-	case *job.JobDeletedActivityLogEntry:
+	case team.TeamCreateDeleteKeyActivityLogEntry:
+		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamCreateDeleteKeyActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._JobDeletedActivityLogEntry(ctx, sel, obj)
-	case job.JobTriggeredActivityLogEntry:
-		return ec._JobTriggeredActivityLogEntry(ctx, sel, &obj)
-	case *job.JobTriggeredActivityLogEntry:
+		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, obj)
+	case team.TeamConfirmDeleteKeyActivityLogEntry:
+		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, &obj)
+	case *team.TeamConfirmDeleteKeyActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._JobTriggeredActivityLogEntry(ctx, sel, obj)
-	case kafkatopic.KafkaTopic:
-		return ec._KafkaTopic(ctx, sel, &obj)
-	case *kafkatopic.KafkaTopic:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._KafkaTopic(ctx, sel, obj)
+		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, obj)
 	case sqlinstance.SQLInstance:
 		return ec._SqlInstance(ctx, sel, &obj)
 	case *sqlinstance.SQLInstance:
@@ -97095,27 +97025,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._SqlInstance(ctx, sel, obj)
-	case logging.LogDestinationLoki:
-		return ec._LogDestinationLoki(ctx, sel, &obj)
-	case *logging.LogDestinationLoki:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._LogDestinationLoki(ctx, sel, obj)
-	case logging.LogDestinationSecureLogs:
-		return ec._LogDestinationSecureLogs(ctx, sel, &obj)
-	case *logging.LogDestinationSecureLogs:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._LogDestinationSecureLogs(ctx, sel, obj)
-	case opensearch.OpenSearch:
-		return ec._OpenSearch(ctx, sel, &obj)
-	case *opensearch.OpenSearch:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._OpenSearch(ctx, sel, obj)
 	case sqlinstance.SQLDatabase:
 		return ec._SqlDatabase(ctx, sel, &obj)
 	case *sqlinstance.SQLDatabase:
@@ -97123,13 +97032,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._SqlDatabase(ctx, sel, obj)
-	case serviceaccount.ServiceAccountTokenDeletedActivityLogEntry:
-		return ec._ServiceAccountTokenDeletedActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.ServiceAccountTokenDeletedActivityLogEntry:
+	case serviceaccount.ServiceAccountUpdatedActivityLogEntry:
+		return ec._ServiceAccountUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccountUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ServiceAccountTokenDeletedActivityLogEntry(ctx, sel, obj)
+		return ec._ServiceAccountUpdatedActivityLogEntry(ctx, sel, obj)
 	case serviceaccount.ServiceAccountTokenUpdatedActivityLogEntry:
 		return ec._ServiceAccountTokenUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *serviceaccount.ServiceAccountTokenUpdatedActivityLogEntry:
@@ -97137,6 +97046,118 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ServiceAccountTokenUpdatedActivityLogEntry(ctx, sel, obj)
+	case serviceaccount.ServiceAccountTokenDeletedActivityLogEntry:
+		return ec._ServiceAccountTokenDeletedActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccountTokenDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ServiceAccountTokenDeletedActivityLogEntry(ctx, sel, obj)
+	case serviceaccount.ServiceAccountTokenCreatedActivityLogEntry:
+		return ec._ServiceAccountTokenCreatedActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccountTokenCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ServiceAccountTokenCreatedActivityLogEntry(ctx, sel, obj)
+	case serviceaccount.ServiceAccountDeletedActivityLogEntry:
+		return ec._ServiceAccountDeletedActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccountDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ServiceAccountDeletedActivityLogEntry(ctx, sel, obj)
+	case serviceaccount.ServiceAccountCreatedActivityLogEntry:
+		return ec._ServiceAccountCreatedActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccountCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ServiceAccountCreatedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretValueUpdatedActivityLogEntry:
+		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretValueRemovedActivityLogEntry:
+		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueRemovedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretValueAddedActivityLogEntry:
+		return ec._SecretValueAddedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretValueAddedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretValueAddedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretDeletedActivityLogEntry:
+		return ec._SecretDeletedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretDeletedActivityLogEntry(ctx, sel, obj)
+	case secret.SecretCreatedActivityLogEntry:
+		return ec._SecretCreatedActivityLogEntry(ctx, sel, &obj)
+	case *secret.SecretCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SecretCreatedActivityLogEntry(ctx, sel, obj)
+	case usersync.RoleRevokedUserSyncLogEntry:
+		return ec._RoleRevokedUserSyncLogEntry(ctx, sel, &obj)
+	case *usersync.RoleRevokedUserSyncLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RoleRevokedUserSyncLogEntry(ctx, sel, obj)
+	case serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry:
+		return ec._RoleRevokedFromServiceAccountActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RoleRevokedFromServiceAccountActivityLogEntry(ctx, sel, obj)
+	case usersync.RoleAssignedUserSyncLogEntry:
+		return ec._RoleAssignedUserSyncLogEntry(ctx, sel, &obj)
+	case *usersync.RoleAssignedUserSyncLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RoleAssignedUserSyncLogEntry(ctx, sel, obj)
+	case serviceaccount.RoleAssignedToServiceAccountActivityLogEntry:
+		return ec._RoleAssignedToServiceAccountActivityLogEntry(ctx, sel, &obj)
+	case *serviceaccount.RoleAssignedToServiceAccountActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RoleAssignedToServiceAccountActivityLogEntry(ctx, sel, obj)
+	case repository.RepositoryRemovedActivityLogEntry:
+		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, &obj)
+	case *repository.RepositoryRemovedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, obj)
+	case repository.RepositoryAddedActivityLogEntry:
+		return ec._RepositoryAddedActivityLogEntry(ctx, sel, &obj)
+	case *repository.RepositoryAddedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RepositoryAddedActivityLogEntry(ctx, sel, obj)
+	case redis.RedisInstance:
+		return ec._RedisInstance(ctx, sel, &obj)
+	case *redis.RedisInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RedisInstance(ctx, sel, obj)
 	case reconciler.ReconcilerEnabledActivityLogEntry:
 		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, &obj)
 	case *reconciler.ReconcilerEnabledActivityLogEntry:
@@ -97158,34 +97179,83 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ReconcilerConfiguredActivityLogEntry(ctx, sel, obj)
-	case redis.RedisInstance:
-		return ec._RedisInstance(ctx, sel, &obj)
-	case *redis.RedisInstance:
+	case opensearch.OpenSearch:
+		return ec._OpenSearch(ctx, sel, &obj)
+	case *opensearch.OpenSearch:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RedisInstance(ctx, sel, obj)
-	case serviceaccount.ServiceAccountTokenCreatedActivityLogEntry:
-		return ec._ServiceAccountTokenCreatedActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.ServiceAccountTokenCreatedActivityLogEntry:
+		return ec._OpenSearch(ctx, sel, obj)
+	case logging.LogDestinationSecureLogs:
+		return ec._LogDestinationSecureLogs(ctx, sel, &obj)
+	case *logging.LogDestinationSecureLogs:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ServiceAccountTokenCreatedActivityLogEntry(ctx, sel, obj)
-	case repository.RepositoryAddedActivityLogEntry:
-		return ec._RepositoryAddedActivityLogEntry(ctx, sel, &obj)
-	case *repository.RepositoryAddedActivityLogEntry:
+		return ec._LogDestinationSecureLogs(ctx, sel, obj)
+	case logging.LogDestinationLoki:
+		return ec._LogDestinationLoki(ctx, sel, &obj)
+	case *logging.LogDestinationLoki:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RepositoryAddedActivityLogEntry(ctx, sel, obj)
-	case repository.RepositoryRemovedActivityLogEntry:
-		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, &obj)
-	case *repository.RepositoryRemovedActivityLogEntry:
+		return ec._LogDestinationLoki(ctx, sel, obj)
+	case kafkatopic.KafkaTopic:
+		return ec._KafkaTopic(ctx, sel, &obj)
+	case *kafkatopic.KafkaTopic:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, obj)
+		return ec._KafkaTopic(ctx, sel, obj)
+	case job.JobTriggeredActivityLogEntry:
+		return ec._JobTriggeredActivityLogEntry(ctx, sel, &obj)
+	case *job.JobTriggeredActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._JobTriggeredActivityLogEntry(ctx, sel, obj)
+	case job.JobDeletedActivityLogEntry:
+		return ec._JobDeletedActivityLogEntry(ctx, sel, &obj)
+	case *job.JobDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._JobDeletedActivityLogEntry(ctx, sel, obj)
+	case job.Job:
+		return ec._Job(ctx, sel, &obj)
+	case *job.Job:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Job(ctx, sel, obj)
+	case bucket.Bucket:
+		return ec._Bucket(ctx, sel, &obj)
+	case *bucket.Bucket:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Bucket(ctx, sel, obj)
+	case bigquery.BigQueryDataset:
+		return ec._BigQueryDataset(ctx, sel, &obj)
+	case *bigquery.BigQueryDataset:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._BigQueryDataset(ctx, sel, obj)
+	case application.ApplicationRestartedActivityLogEntry:
+		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, &obj)
+	case *application.ApplicationRestartedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, obj)
+	case application.ApplicationDeletedActivityLogEntry:
+		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, &obj)
+	case *application.ApplicationDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, obj)
 	case application.Application:
 		return ec._Application(ctx, sel, &obj)
 	case *application.Application:
@@ -97193,90 +97263,70 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Application(ctx, sel, obj)
-	case secret.SecretValueAddedActivityLogEntry:
-		return ec._SecretValueAddedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretValueAddedActivityLogEntry:
+	case workload.Workload:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueAddedActivityLogEntry(ctx, sel, obj)
-	case team.TeamEnvironmentUpdatedActivityLogEntry:
-		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *team.TeamEnvironmentUpdatedActivityLogEntry:
+		return ec._Workload(ctx, sel, obj)
+	case usersync.UserSyncLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, obj)
-	case secret.SecretValueUpdatedActivityLogEntry:
-		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretValueUpdatedActivityLogEntry:
+		return ec._UserSyncLogEntry(ctx, sel, obj)
+	case user.User:
+		return ec._User(ctx, sel, &obj)
+	case *user.User:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, obj)
-	case secret.SecretValueRemovedActivityLogEntry:
-		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretValueRemovedActivityLogEntry:
+		return ec._User(ctx, sel, obj)
+	case unleash.UnleashInstance:
+		return ec._UnleashInstance(ctx, sel, &obj)
+	case *unleash.UnleashInstance:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, obj)
-	case secret.SecretDeletedActivityLogEntry:
-		return ec._SecretDeletedActivityLogEntry(ctx, sel, &obj)
-	case *secret.SecretDeletedActivityLogEntry:
+		return ec._UnleashInstance(ctx, sel, obj)
+	case team.TeamEnvironment:
+		return ec._TeamEnvironment(ctx, sel, &obj)
+	case *team.TeamEnvironment:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretDeletedActivityLogEntry(ctx, sel, obj)
-	case serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry:
-		return ec._RoleRevokedFromServiceAccountActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry:
+		return ec._TeamEnvironment(ctx, sel, obj)
+	case team.Team:
+		return ec._Team(ctx, sel, &obj)
+	case *team.Team:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RoleRevokedFromServiceAccountActivityLogEntry(ctx, sel, obj)
-	case serviceaccount.RoleAssignedToServiceAccountActivityLogEntry:
-		return ec._RoleAssignedToServiceAccountActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.RoleAssignedToServiceAccountActivityLogEntry:
+		return ec._Team(ctx, sel, obj)
+	case serviceaccount.ServiceAccountToken:
+		return ec._ServiceAccountToken(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccountToken:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RoleAssignedToServiceAccountActivityLogEntry(ctx, sel, obj)
-	case serviceaccount.ServiceAccountCreatedActivityLogEntry:
-		return ec._ServiceAccountCreatedActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.ServiceAccountCreatedActivityLogEntry:
+		return ec._ServiceAccountToken(ctx, sel, obj)
+	case serviceaccount.ServiceAccount:
+		return ec._ServiceAccount(ctx, sel, &obj)
+	case *serviceaccount.ServiceAccount:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ServiceAccountCreatedActivityLogEntry(ctx, sel, obj)
-	case serviceaccount.ServiceAccountUpdatedActivityLogEntry:
-		return ec._ServiceAccountUpdatedActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.ServiceAccountUpdatedActivityLogEntry:
+		return ec._ServiceAccount(ctx, sel, obj)
+	case secret.Secret:
+		return ec._Secret(ctx, sel, &obj)
+	case *secret.Secret:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ServiceAccountUpdatedActivityLogEntry(ctx, sel, obj)
-	case serviceaccount.ServiceAccountDeletedActivityLogEntry:
-		return ec._ServiceAccountDeletedActivityLogEntry(ctx, sel, &obj)
-	case *serviceaccount.ServiceAccountDeletedActivityLogEntry:
+		return ec._Secret(ctx, sel, obj)
+	case *authz.Role:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ServiceAccountDeletedActivityLogEntry(ctx, sel, obj)
-	case feature.FeatureRedis:
-		return ec._FeatureRedis(ctx, sel, &obj)
-	case *feature.FeatureRedis:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._FeatureRedis(ctx, sel, obj)
-	case feature.FeatureValkey:
-		return ec._FeatureValkey(ctx, sel, &obj)
-	case *feature.FeatureValkey:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._FeatureValkey(ctx, sel, obj)
+		return ec._Role(ctx, sel, obj)
 	case repository.Repository:
 		return ec._Repository(ctx, sel, &obj)
 	case *repository.Repository:
@@ -97308,20 +97358,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._LogDestination(ctx, sel, obj)
-	case team.Team:
-		return ec._Team(ctx, sel, &obj)
-	case *team.Team:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Team(ctx, sel, obj)
-	case unleash.UnleashInstance:
-		return ec._UnleashInstance(ctx, sel, &obj)
-	case *unleash.UnleashInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._UnleashInstance(ctx, sel, obj)
 	case job.JobRunInstance:
 		return ec._JobRunInstance(ctx, sel, &obj)
 	case *job.JobRunInstance:
@@ -97329,18 +97365,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._JobRunInstance(ctx, sel, obj)
-	case activitylog.ActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ActivityLogEntry(ctx, sel, obj)
-	case secret.Secret:
-		return ec._Secret(ctx, sel, &obj)
-	case *secret.Secret:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Secret(ctx, sel, obj)
 	case job.JobRun:
 		return ec._JobRun(ctx, sel, &obj)
 	case *job.JobRun:
@@ -97348,48 +97372,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._JobRun(ctx, sel, obj)
-	case feature.FeatureOpenSearch:
-		return ec._FeatureOpenSearch(ctx, sel, &obj)
-	case *feature.FeatureOpenSearch:
+	case vulnerability.ImageVulnerability:
+		return ec._ImageVulnerability(ctx, sel, &obj)
+	case *vulnerability.ImageVulnerability:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._FeatureOpenSearch(ctx, sel, obj)
-	case serviceaccount.ServiceAccount:
-		return ec._ServiceAccount(ctx, sel, &obj)
-	case *serviceaccount.ServiceAccount:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ServiceAccount(ctx, sel, obj)
-	case feature.FeatureKafka:
-		return ec._FeatureKafka(ctx, sel, &obj)
-	case *feature.FeatureKafka:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._FeatureKafka(ctx, sel, obj)
-	case team.TeamEnvironment:
-		return ec._TeamEnvironment(ctx, sel, &obj)
-	case *team.TeamEnvironment:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamEnvironment(ctx, sel, obj)
-	case serviceaccount.ServiceAccountToken:
-		return ec._ServiceAccountToken(ctx, sel, &obj)
-	case *serviceaccount.ServiceAccountToken:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ServiceAccountToken(ctx, sel, obj)
-	case feature.FeatureUnleash:
-		return ec._FeatureUnleash(ctx, sel, &obj)
-	case *feature.FeatureUnleash:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._FeatureUnleash(ctx, sel, obj)
+		return ec._ImageVulnerability(ctx, sel, obj)
 	case feature.Features:
 		return ec._Features(ctx, sel, &obj)
 	case *feature.Features:
@@ -97397,18 +97386,41 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Features(ctx, sel, obj)
-	case user.User:
-		return ec._User(ctx, sel, &obj)
-	case *user.User:
+	case feature.FeatureValkey:
+		return ec._FeatureValkey(ctx, sel, &obj)
+	case *feature.FeatureValkey:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._User(ctx, sel, obj)
-	case usersync.UserSyncLogEntry:
+		return ec._FeatureValkey(ctx, sel, obj)
+	case feature.FeatureUnleash:
+		return ec._FeatureUnleash(ctx, sel, &obj)
+	case *feature.FeatureUnleash:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._UserSyncLogEntry(ctx, sel, obj)
+		return ec._FeatureUnleash(ctx, sel, obj)
+	case feature.FeatureRedis:
+		return ec._FeatureRedis(ctx, sel, &obj)
+	case *feature.FeatureRedis:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._FeatureRedis(ctx, sel, obj)
+	case feature.FeatureOpenSearch:
+		return ec._FeatureOpenSearch(ctx, sel, &obj)
+	case *feature.FeatureOpenSearch:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._FeatureOpenSearch(ctx, sel, obj)
+	case feature.FeatureKafka:
+		return ec._FeatureKafka(ctx, sel, &obj)
+	case *feature.FeatureKafka:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._FeatureKafka(ctx, sel, obj)
 	case environment.Environment:
 		return ec._Environment(ctx, sel, &obj)
 	case *environment.Environment:
@@ -97430,13 +97442,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._DeploymentResource(ctx, sel, obj)
-	case deployment.Deployment:
-		return ec._Deployment(ctx, sel, &obj)
-	case *deployment.Deployment:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Deployment(ctx, sel, obj)
 	case deployment.DeploymentKey:
 		return ec._DeploymentKey(ctx, sel, &obj)
 	case *deployment.DeploymentKey:
@@ -97444,30 +97449,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._DeploymentKey(ctx, sel, obj)
-	case *authz.Role:
+	case deployment.Deployment:
+		return ec._Deployment(ctx, sel, &obj)
+	case *deployment.Deployment:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Role(ctx, sel, obj)
-	case vulnerability.ImageVulnerability:
-		return ec._ImageVulnerability(ctx, sel, &obj)
-	case *vulnerability.ImageVulnerability:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ImageVulnerability(ctx, sel, obj)
-	case application.ApplicationInstance:
-		return ec._ApplicationInstance(ctx, sel, &obj)
-	case *application.ApplicationInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ApplicationInstance(ctx, sel, obj)
-	case workload.Workload:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Workload(ctx, sel, obj)
+		return ec._Deployment(ctx, sel, obj)
 	case workload.ContainerImage:
 		return ec._ContainerImage(ctx, sel, &obj)
 	case *workload.ContainerImage:
@@ -97475,6 +97463,18 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ContainerImage(ctx, sel, obj)
+	case application.ApplicationInstance:
+		return ec._ApplicationInstance(ctx, sel, &obj)
+	case *application.ApplicationInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationInstance(ctx, sel, obj)
+	case activitylog.ActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ActivityLogEntry(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -97484,55 +97484,6 @@ func (ec *executionContext) _Persistence(ctx context.Context, sel ast.SelectionS
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case bigquery.BigQueryDataset:
-		return ec._BigQueryDataset(ctx, sel, &obj)
-	case *bigquery.BigQueryDataset:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._BigQueryDataset(ctx, sel, obj)
-	case bucket.Bucket:
-		return ec._Bucket(ctx, sel, &obj)
-	case *bucket.Bucket:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Bucket(ctx, sel, obj)
-	case kafkatopic.KafkaTopic:
-		return ec._KafkaTopic(ctx, sel, &obj)
-	case *kafkatopic.KafkaTopic:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._KafkaTopic(ctx, sel, obj)
-	case opensearch.OpenSearch:
-		return ec._OpenSearch(ctx, sel, &obj)
-	case *opensearch.OpenSearch:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._OpenSearch(ctx, sel, obj)
-	case redis.RedisInstance:
-		return ec._RedisInstance(ctx, sel, &obj)
-	case *redis.RedisInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._RedisInstance(ctx, sel, obj)
-	case sqlinstance.SQLDatabase:
-		return ec._SqlDatabase(ctx, sel, &obj)
-	case *sqlinstance.SQLDatabase:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SqlDatabase(ctx, sel, obj)
-	case sqlinstance.SQLInstance:
-		return ec._SqlInstance(ctx, sel, &obj)
-	case *sqlinstance.SQLInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SqlInstance(ctx, sel, obj)
 	case valkey.ValkeyInstance:
 		return ec._ValkeyInstance(ctx, sel, &obj)
 	case *valkey.ValkeyInstance:
@@ -97540,6 +97491,55 @@ func (ec *executionContext) _Persistence(ctx context.Context, sel ast.SelectionS
 			return graphql.Null
 		}
 		return ec._ValkeyInstance(ctx, sel, obj)
+	case sqlinstance.SQLInstance:
+		return ec._SqlInstance(ctx, sel, &obj)
+	case *sqlinstance.SQLInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SqlInstance(ctx, sel, obj)
+	case sqlinstance.SQLDatabase:
+		return ec._SqlDatabase(ctx, sel, &obj)
+	case *sqlinstance.SQLDatabase:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SqlDatabase(ctx, sel, obj)
+	case redis.RedisInstance:
+		return ec._RedisInstance(ctx, sel, &obj)
+	case *redis.RedisInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RedisInstance(ctx, sel, obj)
+	case opensearch.OpenSearch:
+		return ec._OpenSearch(ctx, sel, &obj)
+	case *opensearch.OpenSearch:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._OpenSearch(ctx, sel, obj)
+	case kafkatopic.KafkaTopic:
+		return ec._KafkaTopic(ctx, sel, &obj)
+	case *kafkatopic.KafkaTopic:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._KafkaTopic(ctx, sel, obj)
+	case bucket.Bucket:
+		return ec._Bucket(ctx, sel, &obj)
+	case *bucket.Bucket:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Bucket(ctx, sel, obj)
+	case bigquery.BigQueryDataset:
+		return ec._BigQueryDataset(ctx, sel, &obj)
+	case *bigquery.BigQueryDataset:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._BigQueryDataset(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -97549,13 +97549,6 @@ func (ec *executionContext) _ScalingStrategy(ctx context.Context, sel ast.Select
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case application.CPUScalingStrategy:
-		return ec._CPUScalingStrategy(ctx, sel, &obj)
-	case *application.CPUScalingStrategy:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._CPUScalingStrategy(ctx, sel, obj)
 	case application.KafkaLagScalingStrategy:
 		return ec._KafkaLagScalingStrategy(ctx, sel, &obj)
 	case *application.KafkaLagScalingStrategy:
@@ -97563,6 +97556,13 @@ func (ec *executionContext) _ScalingStrategy(ctx context.Context, sel ast.Select
 			return graphql.Null
 		}
 		return ec._KafkaLagScalingStrategy(ctx, sel, obj)
+	case application.CPUScalingStrategy:
+		return ec._CPUScalingStrategy(ctx, sel, &obj)
+	case *application.CPUScalingStrategy:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._CPUScalingStrategy(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -97572,62 +97572,6 @@ func (ec *executionContext) _SearchNode(ctx context.Context, sel ast.SelectionSe
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case application.Application:
-		return ec._Application(ctx, sel, &obj)
-	case *application.Application:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Application(ctx, sel, obj)
-	case bigquery.BigQueryDataset:
-		return ec._BigQueryDataset(ctx, sel, &obj)
-	case *bigquery.BigQueryDataset:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._BigQueryDataset(ctx, sel, obj)
-	case bucket.Bucket:
-		return ec._Bucket(ctx, sel, &obj)
-	case *bucket.Bucket:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Bucket(ctx, sel, obj)
-	case job.Job:
-		return ec._Job(ctx, sel, &obj)
-	case *job.Job:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Job(ctx, sel, obj)
-	case kafkatopic.KafkaTopic:
-		return ec._KafkaTopic(ctx, sel, &obj)
-	case *kafkatopic.KafkaTopic:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._KafkaTopic(ctx, sel, obj)
-	case opensearch.OpenSearch:
-		return ec._OpenSearch(ctx, sel, &obj)
-	case *opensearch.OpenSearch:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._OpenSearch(ctx, sel, obj)
-	case redis.RedisInstance:
-		return ec._RedisInstance(ctx, sel, &obj)
-	case *redis.RedisInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._RedisInstance(ctx, sel, obj)
-	case sqlinstance.SQLInstance:
-		return ec._SqlInstance(ctx, sel, &obj)
-	case *sqlinstance.SQLInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SqlInstance(ctx, sel, obj)
 	case valkey.ValkeyInstance:
 		return ec._ValkeyInstance(ctx, sel, &obj)
 	case *valkey.ValkeyInstance:
@@ -97635,6 +97579,62 @@ func (ec *executionContext) _SearchNode(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._ValkeyInstance(ctx, sel, obj)
+	case sqlinstance.SQLInstance:
+		return ec._SqlInstance(ctx, sel, &obj)
+	case *sqlinstance.SQLInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SqlInstance(ctx, sel, obj)
+	case redis.RedisInstance:
+		return ec._RedisInstance(ctx, sel, &obj)
+	case *redis.RedisInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RedisInstance(ctx, sel, obj)
+	case opensearch.OpenSearch:
+		return ec._OpenSearch(ctx, sel, &obj)
+	case *opensearch.OpenSearch:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._OpenSearch(ctx, sel, obj)
+	case kafkatopic.KafkaTopic:
+		return ec._KafkaTopic(ctx, sel, &obj)
+	case *kafkatopic.KafkaTopic:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._KafkaTopic(ctx, sel, obj)
+	case job.Job:
+		return ec._Job(ctx, sel, &obj)
+	case *job.Job:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Job(ctx, sel, obj)
+	case bucket.Bucket:
+		return ec._Bucket(ctx, sel, &obj)
+	case *bucket.Bucket:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Bucket(ctx, sel, obj)
+	case bigquery.BigQueryDataset:
+		return ec._BigQueryDataset(ctx, sel, &obj)
+	case *bigquery.BigQueryDataset:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._BigQueryDataset(ctx, sel, obj)
+	case application.Application:
+		return ec._Application(ctx, sel, &obj)
+	case *application.Application:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Application(ctx, sel, obj)
 	case team.Team:
 		return ec._Team(ctx, sel, &obj)
 	case *team.Team:
@@ -97651,11 +97651,6 @@ func (ec *executionContext) _UserSyncLogEntry(ctx context.Context, sel ast.Selec
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case *usersync.UserCreatedUserSyncLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._UserCreatedUserSyncLogEntry(ctx, sel, obj)
 	case *usersync.UserUpdatedUserSyncLogEntry:
 		if obj == nil {
 			return graphql.Null
@@ -97666,16 +97661,21 @@ func (ec *executionContext) _UserSyncLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._UserDeletedUserSyncLogEntry(ctx, sel, obj)
-	case *usersync.RoleAssignedUserSyncLogEntry:
+	case *usersync.UserCreatedUserSyncLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RoleAssignedUserSyncLogEntry(ctx, sel, obj)
+		return ec._UserCreatedUserSyncLogEntry(ctx, sel, obj)
 	case *usersync.RoleRevokedUserSyncLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
 		return ec._RoleRevokedUserSyncLogEntry(ctx, sel, obj)
+	case *usersync.RoleAssignedUserSyncLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RoleAssignedUserSyncLogEntry(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -97685,16 +97685,16 @@ func (ec *executionContext) _Workload(ctx context.Context, sel ast.SelectionSet,
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case *application.Application:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Application(ctx, sel, obj)
 	case *job.Job:
 		if obj == nil {
 			return graphql.Null
 		}
 		return ec._Job(ctx, sel, obj)
+	case *application.Application:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Application(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -97704,13 +97704,6 @@ func (ec *executionContext) _WorkloadManifest(ctx context.Context, sel ast.Selec
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case application.ApplicationManifest:
-		return ec._ApplicationManifest(ctx, sel, &obj)
-	case *application.ApplicationManifest:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ApplicationManifest(ctx, sel, obj)
 	case job.JobManifest:
 		return ec._JobManifest(ctx, sel, &obj)
 	case *job.JobManifest:
@@ -97718,6 +97711,13 @@ func (ec *executionContext) _WorkloadManifest(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._JobManifest(ctx, sel, obj)
+	case application.ApplicationManifest:
+		return ec._ApplicationManifest(ctx, sel, &obj)
+	case *application.ApplicationManifest:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationManifest(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -97727,13 +97727,6 @@ func (ec *executionContext) _WorkloadResources(ctx context.Context, sel ast.Sele
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case application.ApplicationResources:
-		return ec._ApplicationResources(ctx, sel, &obj)
-	case *application.ApplicationResources:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ApplicationResources(ctx, sel, obj)
 	case job.JobResources:
 		return ec._JobResources(ctx, sel, &obj)
 	case *job.JobResources:
@@ -97741,6 +97734,13 @@ func (ec *executionContext) _WorkloadResources(ctx context.Context, sel ast.Sele
 			return graphql.Null
 		}
 		return ec._JobResources(ctx, sel, obj)
+	case application.ApplicationResources:
+		return ec._ApplicationResources(ctx, sel, &obj)
+	case *application.ApplicationResources:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationResources(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -97750,20 +97750,27 @@ func (ec *executionContext) _WorkloadStatusError(ctx context.Context, sel ast.Se
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case status.WorkloadStatusDeprecatedRegistry:
-		return ec._WorkloadStatusDeprecatedRegistry(ctx, sel, &obj)
-	case *status.WorkloadStatusDeprecatedRegistry:
+	case status.WorkloadStatusVulnerable:
+		return ec._WorkloadStatusVulnerable(ctx, sel, &obj)
+	case *status.WorkloadStatusVulnerable:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._WorkloadStatusDeprecatedRegistry(ctx, sel, obj)
-	case status.WorkloadStatusDeprecatedIngress:
-		return ec._WorkloadStatusDeprecatedIngress(ctx, sel, &obj)
-	case *status.WorkloadStatusDeprecatedIngress:
+		return ec._WorkloadStatusVulnerable(ctx, sel, obj)
+	case status.WorkloadStatusSynchronizationFailing:
+		return ec._WorkloadStatusSynchronizationFailing(ctx, sel, &obj)
+	case *status.WorkloadStatusSynchronizationFailing:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._WorkloadStatusDeprecatedIngress(ctx, sel, obj)
+		return ec._WorkloadStatusSynchronizationFailing(ctx, sel, obj)
+	case status.WorkloadStatusOutboundNetwork:
+		return ec._WorkloadStatusOutboundNetwork(ctx, sel, &obj)
+	case *status.WorkloadStatusOutboundNetwork:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadStatusOutboundNetwork(ctx, sel, obj)
 	case status.WorkloadStatusNoRunningInstances:
 		return ec._WorkloadStatusNoRunningInstances(ctx, sel, &obj)
 	case *status.WorkloadStatusNoRunningInstances:
@@ -97778,41 +97785,6 @@ func (ec *executionContext) _WorkloadStatusError(ctx context.Context, sel ast.Se
 			return graphql.Null
 		}
 		return ec._WorkloadStatusNewInstancesFailing(ctx, sel, obj)
-	case status.WorkloadStatusInvalidNaisYaml:
-		return ec._WorkloadStatusInvalidNaisYaml(ctx, sel, &obj)
-	case *status.WorkloadStatusInvalidNaisYaml:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._WorkloadStatusInvalidNaisYaml(ctx, sel, obj)
-	case status.WorkloadStatusSynchronizationFailing:
-		return ec._WorkloadStatusSynchronizationFailing(ctx, sel, &obj)
-	case *status.WorkloadStatusSynchronizationFailing:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._WorkloadStatusSynchronizationFailing(ctx, sel, obj)
-	case status.WorkloadStatusInboundNetwork:
-		return ec._WorkloadStatusInboundNetwork(ctx, sel, &obj)
-	case *status.WorkloadStatusInboundNetwork:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._WorkloadStatusInboundNetwork(ctx, sel, obj)
-	case status.WorkloadStatusOutboundNetwork:
-		return ec._WorkloadStatusOutboundNetwork(ctx, sel, &obj)
-	case *status.WorkloadStatusOutboundNetwork:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._WorkloadStatusOutboundNetwork(ctx, sel, obj)
-	case status.WorkloadStatusFailedRun:
-		return ec._WorkloadStatusFailedRun(ctx, sel, &obj)
-	case *status.WorkloadStatusFailedRun:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._WorkloadStatusFailedRun(ctx, sel, obj)
 	case status.WorkloadStatusMissingSBOM:
 		return ec._WorkloadStatusMissingSBOM(ctx, sel, &obj)
 	case *status.WorkloadStatusMissingSBOM:
@@ -97820,13 +97792,41 @@ func (ec *executionContext) _WorkloadStatusError(ctx context.Context, sel ast.Se
 			return graphql.Null
 		}
 		return ec._WorkloadStatusMissingSBOM(ctx, sel, obj)
-	case status.WorkloadStatusVulnerable:
-		return ec._WorkloadStatusVulnerable(ctx, sel, &obj)
-	case *status.WorkloadStatusVulnerable:
+	case status.WorkloadStatusInvalidNaisYaml:
+		return ec._WorkloadStatusInvalidNaisYaml(ctx, sel, &obj)
+	case *status.WorkloadStatusInvalidNaisYaml:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._WorkloadStatusVulnerable(ctx, sel, obj)
+		return ec._WorkloadStatusInvalidNaisYaml(ctx, sel, obj)
+	case status.WorkloadStatusInboundNetwork:
+		return ec._WorkloadStatusInboundNetwork(ctx, sel, &obj)
+	case *status.WorkloadStatusInboundNetwork:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadStatusInboundNetwork(ctx, sel, obj)
+	case status.WorkloadStatusFailedRun:
+		return ec._WorkloadStatusFailedRun(ctx, sel, &obj)
+	case *status.WorkloadStatusFailedRun:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadStatusFailedRun(ctx, sel, obj)
+	case status.WorkloadStatusDeprecatedRegistry:
+		return ec._WorkloadStatusDeprecatedRegistry(ctx, sel, &obj)
+	case *status.WorkloadStatusDeprecatedRegistry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadStatusDeprecatedRegistry(ctx, sel, obj)
+	case status.WorkloadStatusDeprecatedIngress:
+		return ec._WorkloadStatusDeprecatedIngress(ctx, sel, &obj)
+	case *status.WorkloadStatusDeprecatedIngress:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadStatusDeprecatedIngress(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -121765,6 +121765,11 @@ func (ec *executionContext) ___Directive(ctx context.Context, sel ast.SelectionS
 			}
 		case "description":
 			out.Values[i] = ec.___Directive_description(ctx, field, obj)
+		case "isRepeatable":
+			out.Values[i] = ec.___Directive_isRepeatable(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "locations":
 			out.Values[i] = ec.___Directive_locations(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -121772,11 +121777,6 @@ func (ec *executionContext) ___Directive(ctx context.Context, sel ast.SelectionS
 			}
 		case "args":
 			out.Values[i] = ec.___Directive_args(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "isRepeatable":
-			out.Values[i] = ec.___Directive_isRepeatable(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -122039,6 +122039,8 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec.___Type_name(ctx, field, obj)
 		case "description":
 			out.Values[i] = ec.___Type_description(ctx, field, obj)
+		case "specifiedByURL":
+			out.Values[i] = ec.___Type_specifiedByURL(ctx, field, obj)
 		case "fields":
 			out.Values[i] = ec.___Type_fields(ctx, field, obj)
 		case "interfaces":
@@ -122051,8 +122053,6 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec.___Type_inputFields(ctx, field, obj)
 		case "ofType":
 			out.Values[i] = ec.___Type_ofType(ctx, field, obj)
-		case "specifiedByURL":
-			out.Values[i] = ec.___Type_specifiedByURL(ctx, field, obj)
 		case "isOneOf":
 			out.Values[i] = ec.___Type_isOneOf(ctx, field, obj)
 		default:
@@ -124574,9 +124574,7 @@ func (ec *executionContext) marshalNInt2int64(ctx context.Context, sel ast.Selec
 
 func (ec *executionContext) unmarshalNInt2ᚕintᚄ(ctx context.Context, v any) ([]int, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]int, len(vSlice))
 	for i := range vSlice {
@@ -125880,9 +125878,7 @@ func (ec *executionContext) marshalNReconcilerConfig2ᚖgithubᚗcomᚋnaisᚋap
 
 func (ec *executionContext) unmarshalNReconcilerConfigInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconcilerConfigInputᚄ(ctx context.Context, v any) ([]*reconciler.ReconcilerConfigInput, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*reconciler.ReconcilerConfigInput, len(vSlice))
 	for i := range vSlice {
@@ -128179,9 +128175,7 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 
 func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]string, len(vSlice))
 	for i := range vSlice {
@@ -130474,9 +130468,7 @@ func (ec *executionContext) marshalN__DirectiveLocation2string(ctx context.Conte
 
 func (ec *executionContext) unmarshalN__DirectiveLocation2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]string, len(vSlice))
 	for i := range vSlice {
@@ -131094,9 +131086,7 @@ func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v
 		return nil, nil
 	}
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]string, len(vSlice))
 	for i := range vSlice {
