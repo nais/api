@@ -143,6 +143,10 @@ func (r *teamInventoryCountsResolver) Applications(ctx context.Context, obj *tea
 
 func (r *Resolver) Application() gengql.ApplicationResolver { return &applicationResolver{r} }
 
+func (r *Resolver) ApplicationInstance() gengql.ApplicationInstanceResolver {
+	return &applicationInstanceResolver{r}
+}
+
 func (r *Resolver) DeleteApplicationPayload() gengql.DeleteApplicationPayloadResolver {
 	return &deleteApplicationPayloadResolver{r}
 }
@@ -159,6 +163,7 @@ func (r *Resolver) TeamInventoryCountApplications() gengql.TeamInventoryCountApp
 
 type (
 	applicationResolver                    struct{ *Resolver }
+	applicationInstanceResolver            struct{ *Resolver }
 	deleteApplicationPayloadResolver       struct{ *Resolver }
 	ingressResolver                        struct{ *Resolver }
 	restartApplicationPayloadResolver      struct{ *Resolver }
