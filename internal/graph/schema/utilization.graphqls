@@ -7,6 +7,10 @@ extend type Team {
 	serviceUtilization: TeamServiceUtilization!
 }
 
+extend type ApplicationInstance {
+	instanceUtilization(resourceType: UtilizationResourceType!): InstanceUtilization!
+}
+
 extend type Query {
 	teamsUtilization(resourceType: UtilizationResourceType!): [TeamUtilizationData!]!
 }
@@ -82,4 +86,9 @@ type TeamUtilizationData {
 
 	"The environment for the utilization data."
 	teamEnvironment: TeamEnvironment!
+}
+
+type InstanceUtilization {
+	"Get the current usage for the requested resource type."
+	current: Float!
 }

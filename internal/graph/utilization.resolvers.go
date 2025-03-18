@@ -19,6 +19,10 @@ func (r *applicationResolver) Utilization(ctx context.Context, obj *application.
 	}, nil
 }
 
+func (r *applicationInstanceResolver) InstanceUtilization(ctx context.Context, obj *application.ApplicationInstance, resourceType utilization.UtilizationResourceType) (*utilization.InstanceUtilization, error) {
+	return utilization.ForInstance(ctx, r.unmappedEnvironmentName(obj.EnvironmentName), obj.TeamSlug, obj.ApplicationName, obj.Name, resourceType)
+}
+
 func (r *queryResolver) TeamsUtilization(ctx context.Context, resourceType utilization.UtilizationResourceType) ([]*utilization.TeamUtilizationData, error) {
 	return utilization.ForTeams(ctx, resourceType)
 }
