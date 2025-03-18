@@ -319,13 +319,18 @@ func toGraphJob(job *nais_io_v1.Naisjob, environmentName string) *Job {
 		deletedAt = ptr.To(job.DeletionTimestamp.Time)
 	}
 
+	imageString := job.GetEffectiveImage()
+	if len(imageString) == 0 {
+		imageString = job.GetImage()
+	}
+
 	return &Job{
 		Base: workload.Base{
 			Name:                job.Name,
 			DeletionStartedAt:   deletedAt,
 			EnvironmentName:     environmentName,
 			TeamSlug:            slug.Slug(job.Namespace),
-			ImageString:         job.Spec.Image,
+			ImageString:         imageString,
 			Conditions:          getConditions(job.Status),
 			AccessPolicy:        job.Spec.AccessPolicy,
 			Annotations:         job.GetAnnotations(),
