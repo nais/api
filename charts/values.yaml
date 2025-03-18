@@ -75,6 +75,6 @@ logging:
   secure_logs: false
 
 zitadel:
-  idp:
+  idp_id:
   key:
   domain:

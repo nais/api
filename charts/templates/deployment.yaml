@@ -105,9 +105,9 @@ spec:
               value: "true"
             {{- end }}
             - name: ZITADEL_IDP
-              value: .Values.zitadel.idp
+              value: {{ .Values.zitadel.idp_id }}
             - name: ZITADEL_DOMAIN
-              value: .Values.zitadel.domain
+              value: {{ .Values.zitadel.domain }}
           envFrom:
             - secretRef:
                 name: "{{ .Release.Name }}"

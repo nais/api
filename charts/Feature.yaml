@@ -188,8 +188,8 @@ values:
     config:
       type: int
 
-  zitadel.idp:
-    displayName: Zitadel IDP
+  zitadel.idp_id:
+    displayName: Zitadel IDP ID
     description: The IDP ID to use for Zitadel
     config:
       type: string
@@ -200,7 +200,7 @@ values:
     config:
       type: string
 
-  zitatel.key:
+  zitadel.key:
     displayName: Zitadel key
     description: The key to use for the Zitadel API, base64 encoded
     config:
