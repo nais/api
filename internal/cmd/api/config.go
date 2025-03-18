@@ -101,6 +101,17 @@ type loggingConfig struct {
 	SecureLogsDefault bool `env:"LOGGING_SECURE_LOGS_CLUSTER_DEFAULT"`
 }
 
+type zitadelConfig struct {
+	// IDP is the ID of the IDP to use for the Zitadel API
+	IDP string `env:"ZITADEL_IDP"`
+
+	// Key is the secret key to use for the Zitadel API
+	Key string `env:"ZITADEL_KEY"`
+
+	// Domain is the domain to use for the Zitadel API
+	Domain string `env:"ZITADEL_DOMAIN"`
+}
+
 func (l loggingConfig) DefaultLogDestinations() []logging.SupportedLogDestination {
 	var destinations []logging.SupportedLogDestination
 	if l.LokiDefault {
@@ -155,6 +166,7 @@ type Config struct {
 	OAuth           oAuthConfig
 	Unleash         unleashConfig
 	Logging         loggingConfig
+	Zitadel         zitadelConfig
 }
 
 // NewConfig creates a new configuration instance from environment variables

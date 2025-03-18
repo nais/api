@@ -59,8 +59,9 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 
+		// TODO: Add tests for Zitadel API operations
 		err = usersyncer.
-			New(pool, adminGroupPrefix, domain, svc, log).
+			New(pool, adminGroupPrefix, domain, nil, svc, log).
 			Sync(ctx)
 		if err != nil {
 			t.Fatal(err)
@@ -121,7 +122,7 @@ func TestSync(t *testing.T) {
 		}
 
 		err = usersyncer.
-			New(pool, adminGroupPrefix, domain, svc, log).
+			New(pool, adminGroupPrefix, domain, nil, svc, log).
 			Sync(ctx)
 		if err != nil {
 			t.Fatal(err)
@@ -201,7 +202,7 @@ func TestSync(t *testing.T) {
 		}
 
 		err = usersyncer.
-			New(pool, adminGroupPrefix, domain, svc, log).
+			New(pool, adminGroupPrefix, domain, nil, svc, log).
 			Sync(ctx)
 		if err != nil {
 			t.Fatal(err)

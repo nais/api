@@ -187,3 +187,22 @@ values:
     description: The number of replicas to run
     config:
       type: int
+
+  zitadel.idp:
+    displayName: Zitadel IDP
+    description: The IDP ID to use for Zitadel
+    config:
+      type: string
+
+  zitadel.domain:
+    displayName: Zitadel domain
+    description: The domain to use for Zitadel
+    config:
+      type: string
+
+  zitatel.key:
+    displayName: Zitadel key
+    description: The key to use for the Zitadel API, base64 encoded
+    config:
+      type: string
+      secret: true

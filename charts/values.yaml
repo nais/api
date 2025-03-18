@@ -73,3 +73,8 @@ replicas: 2
 logging:
   loki: false
   secure_logs: false
+
+zitadel:
+  idp:
+  key:
+  domain:

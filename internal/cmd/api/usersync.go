@@ -2,12 +2,18 @@ package api
 
 import (
 	"context"
+	"encoding/base64"
 	"time"
 
+	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/nais/api/internal/usersync/usersyncer"
 	"github.com/sirupsen/logrus"
+	"github.com/zitadel/zitadel-go/v3/pkg/client"
+	"github.com/zitadel/zitadel-go/v3/pkg/client/middleware"
+	zitadeluser "github.com/zitadel/zitadel-go/v3/pkg/client/user/v2"
+	"github.com/zitadel/zitadel-go/v3/pkg/client/zitadel"
 )
 
 const (
@@ -21,7 +27,27 @@ func runUsersync(ctx context.Context, pool *pgxpool.Pool, cfg *Config, log logru
 		return nil
 	}
 
-	us, err := usersyncer.NewFromConfig(ctx, pool, cfg.Usersync.ServiceAccount, cfg.Usersync.SubjectEmail, cfg.TenantDomain, cfg.Usersync.AdminGroupPrefix, log)
+	var zw *usersyncer.ZitadelWrapper
+	if cfg.Zitadel.Domain != "" && cfg.Zitadel.Key != "" && cfg.Zitadel.IDP != "" {
+		key, err := base64.StdEncoding.DecodeString(cfg.Zitadel.Key)
+		if err != nil {
+			return err
+		}
+
+		zc, err := zitadeluser.NewClient(ctx, "https://"+cfg.Zitadel.Domain, cfg.Zitadel.Domain+":443",
+			[]string{oidc.ScopeOpenID, client.ScopeZitadelAPI()},
+			zitadel.WithJWTProfileTokenSource(middleware.JWTProfileFromFileData(ctx, key)))
+		if err != nil {
+			return err
+		}
+
+		zw = &usersyncer.ZitadelWrapper{
+			Client: zc,
+			IDP:    cfg.Zitadel.IDP,
+		}
+	}
+
+	us, err := usersyncer.NewFromConfig(ctx, pool, cfg.Usersync.ServiceAccount, cfg.Usersync.SubjectEmail, cfg.TenantDomain, cfg.Usersync.AdminGroupPrefix, zw, log)
 	if err != nil {
 		log.WithError(err).Errorf("unable to set up usersyncer")
 		return err

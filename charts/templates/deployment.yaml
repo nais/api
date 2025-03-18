@@ -104,6 +104,10 @@ spec:
             - name: LOGGING_LOKI_CLUSTER_DEFAULT
               value: "true"
             {{- end }}
+            - name: ZITADEL_IDP
+              value: .Values.zitadel.idp
+            - name: ZITADEL_DOMAIN
+              value: .Values.zitadel.domain
           envFrom:
             - secretRef:
                 name: "{{ .Release.Name }}"
