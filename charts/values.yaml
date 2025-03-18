@@ -46,6 +46,7 @@ google:
   managementProjectID: "" # mapped in fasit
 
 oauth: # mapped in fasit
+  issuer: "https://accounts.google.com"
   clientID: ""
   clientSecret: ""
 
