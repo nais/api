@@ -104,7 +104,7 @@ spec:
             - name: LOGGING_LOKI_CLUSTER_DEFAULT
               value: "true"
             {{- end }}
-            - name: ZITADEL_IDP
+            - name: ZITADEL_IDP_ID
               value: {{ .Values.zitadel.idp_id | quote }}
             - name: ZITADEL_DOMAIN
               value: {{ .Values.zitadel.domain | quote }}

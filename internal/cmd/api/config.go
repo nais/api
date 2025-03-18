@@ -102,8 +102,8 @@ type loggingConfig struct {
 }
 
 type zitadelConfig struct {
-	// IDP is the ID of the IDP to use for the Zitadel API
-	IDP string `env:"ZITADEL_IDP"`
+	// IDPID is the ID of the IDPID to use for the Zitadel API
+	IDPID string `env:"ZITADEL_IDP_ID"`
 
 	// Key is the secret key to use for the Zitadel API
 	Key string `env:"ZITADEL_KEY"`
