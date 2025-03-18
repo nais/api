@@ -19,7 +19,7 @@ func (r *applicationResolver) Utilization(ctx context.Context, obj *application.
 	}, nil
 }
 
-func (r *applicationInstanceResolver) InstanceUtilization(ctx context.Context, obj *application.ApplicationInstance, resourceType utilization.UtilizationResourceType) (*utilization.InstanceUtilization, error) {
+func (r *applicationInstanceResolver) InstanceUtilization(ctx context.Context, obj *application.ApplicationInstance, resourceType utilization.UtilizationResourceType) (*utilization.ApplicationInstanceUtilization, error) {
 	return utilization.ForInstance(ctx, r.unmappedEnvironmentName(obj.EnvironmentName), obj.TeamSlug, obj.ApplicationName, obj.Name, resourceType)
 }
 

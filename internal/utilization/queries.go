@@ -37,7 +37,7 @@ var (
 	ignoredNamespaces = strings.Join([]string{"kube-system", "nais-system", "cnrm-system", "configconnector-operator-system", "linkerd", "gke-mcs", "gke-managed-system", "kyverno", "default", "kube-node-lease", "kube-public"}, "|")
 )
 
-func ForInstance(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, instanceName string, resourceType UtilizationResourceType) (*InstanceUtilization, error) {
+func ForInstance(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, instanceName string, resourceType UtilizationResourceType) (*ApplicationInstanceUtilization, error) {
 	usageQ := instanceMemoryUsage
 
 	if resourceType == UtilizationResourceTypeCPU {
@@ -51,7 +51,7 @@ func ForInstance(ctx context.Context, env string, teamSlug slug.Slug, workloadNa
 		return nil, err
 	}
 
-	return &InstanceUtilization{
+	return &ApplicationInstanceUtilization{
 		Current: ensuredVal(current),
 	}, nil
 }

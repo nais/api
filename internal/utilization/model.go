@@ -118,7 +118,7 @@ type TeamServiceUtilization struct {
 	TeamSlug slug.Slug `json:"-"`
 }
 
-type InstanceUtilization struct {
+type ApplicationInstanceUtilization struct {
 	// Get the current usage for the requested resource type.
 	Current float64 `json:"current"`
 }
