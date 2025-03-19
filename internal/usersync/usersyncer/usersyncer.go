@@ -222,14 +222,52 @@ func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*g
 		offset += uint64(limit)
 	}
 	for _, gu := range googleUsers {
-		// TODO: Add support for updating email / name of existing users
-		if _, exists := existingUsers[gu.ID]; exists {
+		if u, exists := existingUsers[gu.ID]; exists {
+			name := u.GetHuman().GetProfile().GetDisplayName()
+			guName := gu.Name.GivenName + " " + gu.Name.FamilyName
+			email := u.GetHuman().GetEmail().GetEmail()
+
+			if name != guName || email != gu.Email {
+				log := s.log.WithFields(logrus.Fields{
+					"name":      guName,
+					"email":     gu.Email,
+					"old_name":  name,
+					"old_email": email,
+				})
+				log.Debugf("update user in Zitadel")
+				_, err := s.zitadelClient.UpdateHumanUser(ctx, &zitadelgrpcuser.UpdateHumanUserRequest{
+					UserId:   gu.ID,
+					Username: &gu.Email,
+					Profile: &zitadelgrpcuser.SetHumanProfile{
+						GivenName:   gu.Name.GivenName,
+						FamilyName:  gu.Name.FamilyName,
+						DisplayName: &guName,
+					},
+					Email: &zitadelgrpcuser.SetHumanEmail{
+						Email: gu.Email,
+						Verification: &zitadelgrpcuser.SetHumanEmail_IsVerified{
+							IsVerified: true,
+						},
+					},
+				})
+				if err != nil {
+					log.WithError(err).Errorf("update user in Zitadel")
+				}
+			}
+
 			delete(existingUsers, gu.ID)
 			continue
 		}
 
+		log := s.log.WithFields(logrus.Fields{
+			"given_name":  gu.Name.GivenName,
+			"family_name": gu.Name.FamilyName,
+			"email":       gu.Email,
+		})
+		log.Debugf("add user to Zitadel")
 		_, err := s.zitadelClient.AddHumanUser(ctx, &zitadelgrpcuser.AddHumanUserRequest{
-			UserId: ptr.To(gu.ID),
+			UserId:   &gu.ID,
+			Username: &gu.Email,
 			Email: &zitadelgrpcuser.SetHumanEmail{
 				Email: gu.Email,
 				Verification: &zitadelgrpcuser.SetHumanEmail_IsVerified{
@@ -242,8 +280,9 @@ func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*g
 				},
 			},
 			Profile: &zitadelgrpcuser.SetHumanProfile{
-				GivenName:  gu.Name.GivenName,
-				FamilyName: gu.Name.FamilyName,
+				GivenName:   gu.Name.GivenName,
+				FamilyName:  gu.Name.FamilyName,
+				DisplayName: ptr.To(gu.Name.GivenName + " " + gu.Name.FamilyName),
 			},
 			IdpLinks: []*zitadelgrpcuser.IDPLink{
 				{
@@ -254,14 +293,20 @@ func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*g
 			},
 		})
 		if err != nil {
-			s.log.WithError(err).Errorf("add user in Zitadel")
+			log.WithError(err).Errorf("add user to Zitadel")
+			continue
 		}
 	}
 
-	for userID := range existingUsers {
-		s.log.WithField("user_id", userID).Debugf("delete Zitadel user")
+	for userID, user := range existingUsers {
+		log := s.log.WithFields(logrus.Fields{
+			"user_id": userID,
+			"name":    user.GetHuman().GetProfile().GetDisplayName(),
+			"email":   user.GetHuman().GetEmail().GetEmail(),
+		})
+		log.Debugf("delete user from Zitadel")
 		if _, err := s.zitadelClient.DeleteUser(ctx, &zitadelgrpcuser.DeleteUserRequest{UserId: userID}); err != nil {
-			s.log.WithError(err).Errorf("delete user in Zitadel")
+			log.WithError(err).Errorf("delete user from Zitadel")
 		}
 	}
 }
