@@ -108,6 +108,12 @@ values:
       secret: true
     required: true
 
+  oauth.issuer:
+    displayName: OAuth issuer
+    description: The issuer that the OAuth client should use
+    config:
+      type: string
+
   staticServiceAccounts:
     displayName: Static nais-api service accounts
     description: JSON-encoded list of static service accounts
