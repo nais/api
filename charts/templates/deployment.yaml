@@ -72,6 +72,8 @@ spec:
               value: "https://{{ .Values.host }}/oauth2/callback"
             - name: OAUTH_FRONTEND_URL
               value: "https://{{ .Values.host }}"
+            - name: OAUTH_ADDITIONAL_SCOPES
+              value: "{{ .Values.oauth.additionalScopes | join "," }}"
             - name: LISTEN_ADDRESS
               value: ":3000"
             - name: INTERNAL_LISTEN_ADDRESS

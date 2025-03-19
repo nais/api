@@ -12,7 +12,7 @@ type OIDC struct {
 	provider *oidc.Provider
 }
 
-func NewOIDC(ctx context.Context, issuer, clientID, clientSecret, redirectURL string) (*OIDC, error) {
+func NewOIDC(ctx context.Context, issuer, clientID, clientSecret, redirectURL string, additionalScopes []string) (*OIDC, error) {
 	provider, err := oidc.NewProvider(ctx, issuer)
 	if err != nil {
 		return nil, err
@@ -25,7 +25,7 @@ func NewOIDC(ctx context.Context, issuer, clientID, clientSecret, redirectURL st
 			ClientSecret: clientSecret,
 			Endpoint:     provider.Endpoint(),
 			RedirectURL:  redirectURL,
-			Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
+			Scopes:       append([]string{oidc.ScopeOpenID, "profile", "email"}, additionalScopes...),
 		},
 	}, nil
 }

@@ -49,6 +49,7 @@ oauth: # mapped in fasit
   issuer: "https://accounts.google.com"
   clientID: ""
   clientSecret: ""
+  additionalScopes: []
 
 slack:
   feedbackChannel: "console-user-feedback"
