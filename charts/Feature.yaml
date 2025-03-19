@@ -114,6 +114,12 @@ values:
     config:
       type: string
 
+  oauth.additionalScopes:
+    displayName: OAuth additional scopes
+    description: List of additional scopes to use in the OAuth login flow
+    config:
+      type: string_array
+
   staticServiceAccounts:
     displayName: Static nais-api service accounts
     description: JSON-encoded list of static service accounts

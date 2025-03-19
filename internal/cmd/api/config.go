@@ -89,6 +89,9 @@ type oAuthConfig struct {
 
 	// RedirectURL The URL that Google will redirect back to after performing authentication.
 	RedirectURL string `env:"OAUTH_REDIRECT_URL"`
+
+	// AdditionalScopes is a list of additional scopes to request in the OAuth login flow.
+	AdditionalScopes []string `env:"OAUTH_ADDITIONAL_SCOPES"`
 }
 
 type unleashConfig struct {
