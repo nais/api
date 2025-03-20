@@ -76,12 +76,7 @@ func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	})
 
-	opts := make([]oauth2.AuthCodeOption, 0)
-
-	if prompt := r.URL.Query().Get("prompt"); prompt != "" {
-		opts = append(opts, oauth2.SetAuthURLParam("prompt", prompt))
-	}
-	http.Redirect(w, r, h.oauth2Config.AuthCodeURL(oauthState, opts...), http.StatusFound)
+	http.Redirect(w, r, h.oauth2Config.AuthCodeURL(oauthState, oauth2.SetAuthURLParam("prompt", "select_account")), http.StatusFound)
 }
 
 func (h *handler) Callback(w http.ResponseWriter, r *http.Request) {
