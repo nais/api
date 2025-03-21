@@ -9,6 +9,18 @@ import (
 	"github.com/nais/api/internal/user/usersql"
 )
 
+func Create(ctx context.Context, fullName, email, externalID string) (*User, error) {
+	user, err := db(ctx).Create(ctx, usersql.CreateParams{
+		Name:       fullName,
+		Email:      email,
+		ExternalID: externalID,
+	})
+	if err != nil {
+		return nil, handleError(err)
+	}
+	return toGraphUser(user), nil
+}
+
 func Get(ctx context.Context, userID uuid.UUID) (*User, error) {
 	user, err := fromContext(ctx).userLoader.Load(ctx, userID)
 	if err != nil {

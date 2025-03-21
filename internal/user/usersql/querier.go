@@ -11,6 +11,7 @@ import (
 type Querier interface {
 	Count(ctx context.Context) (int64, error)
 	CountMemberships(ctx context.Context, userID uuid.UUID) (int64, error)
+	Create(ctx context.Context, arg CreateParams) (*User, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 	Get(ctx context.Context, id uuid.UUID) (*User, error)
 	GetByEmail(ctx context.Context, email string) (*User, error)

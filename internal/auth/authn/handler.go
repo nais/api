@@ -50,7 +50,11 @@ func New(oauth2Config OAuth2, log logrus.FieldLogger) Handler {
 }
 
 type claims struct {
-	Email string
+	Subject      string `json:"sub"`
+	Email        string `json:"email"`
+	GivenName    string `json:"given_name"`
+	FamilyName   string `json:"family_name"`
+	ZitadelOrgID string `json:"urn:zitadel:iam:user:resourceowner:id"`
 }
 
 func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
@@ -142,9 +146,19 @@ func (h *handler) Callback(w http.ResponseWriter, r *http.Request) {
 
 	u, err := user.GetByEmail(r.Context(), claims.Email)
 	if err != nil {
-		h.log.WithError(err).Errorf("get user (%s) from db", claims.Email)
-		http.Redirect(w, r, "/?error=unknown-user", http.StatusFound)
-		return
+		// TODO: should probably not be hardcoded
+		if claims.ZitadelOrgID == "311995861649387082" {
+			u, err = user.Create(r.Context(), claims.GivenName+" "+claims.FamilyName, claims.Email, claims.Subject)
+			if err != nil {
+				h.log.WithError(err).Error("create nais.io user")
+				http.Redirect(w, r, "/?error=must-be-the-water", http.StatusFound)
+				return
+			}
+		} else {
+			h.log.WithError(err).Errorf("get user (%s) from db", claims.Email)
+			http.Redirect(w, r, "/?error=unknown-user", http.StatusFound)
+			return
+		}
 	}
 
 	sess, err := session.Create(r.Context(), u.UUID)

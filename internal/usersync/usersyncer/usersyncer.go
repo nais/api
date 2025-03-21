@@ -329,6 +329,11 @@ func AssignDefaultPermissionsToUser(ctx context.Context, querier usersyncsql.Que
 // deleteUnknownUsers will delete users from Nais API that does not exist in the Google Directory.
 func deleteUnknownUsers(ctx context.Context, querier usersyncsql.Querier, unknownUsers map[uuid.UUID]*usersyncsql.User, log logrus.FieldLogger) error {
 	for _, user := range unknownUsers {
+		// TODO: should probably not be hard coded
+		if strings.HasSuffix(user.Email, "@nais.io") {
+			continue
+		}
+
 		if err := querier.Delete(ctx, user.ID); err != nil {
 			return fmt.Errorf("delete user %q: %w", user.Email, err)
 		}

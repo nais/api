@@ -5,6 +5,15 @@ FROM
 	users
 ;
 
+-- name: Create :one
+INSERT INTO
+    users (name, email, external_id, admin)
+VALUES
+    (@name, LOWER(@email), @external_id, FALSE)
+RETURNING
+    *
+;
+
 -- name: List :many
 SELECT
 	*

@@ -40,6 +40,34 @@ func (q *Queries) CountMemberships(ctx context.Context, userID uuid.UUID) (int64
 	return count, err
 }
 
+const create = `-- name: Create :one
+INSERT INTO
+    users (name, email, external_id, admin)
+VALUES
+    ($1, LOWER($2), $3, FALSE)
+RETURNING
+    id, email, name, external_id, admin
+`
+
+type CreateParams struct {
+	Name       string
+	Email      string
+	ExternalID string
+}
+
+func (q *Queries) Create(ctx context.Context, arg CreateParams) (*User, error) {
+	row := q.db.QueryRow(ctx, create, arg.Name, arg.Email, arg.ExternalID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Name,
+		&i.ExternalID,
+		&i.Admin,
+	)
+	return &i, err
+}
+
 const delete = `-- name: Delete :exec
 DELETE FROM users
 WHERE
