@@ -493,6 +493,7 @@ WHERE
 	c.team_slug = $1::slug
 	AND c.app_label = $2
 	AND c.environment = $3::TEXT
+	AND c.date >= DATE_TRUNC('month', last_run) - INTERVAL '1 year'
 GROUP BY
 	team_slug,
 	app_label,
@@ -501,8 +502,6 @@ GROUP BY
 	MONTH
 ORDER BY
 	MONTH DESC
-LIMIT
-	12
 `
 
 type MonthlyCostForWorkloadParams struct {

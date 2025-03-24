@@ -35,6 +35,7 @@ WHERE
 	c.team_slug = @team_slug::slug
 	AND c.app_label = @app_label
 	AND c.environment = @environment::TEXT
+	AND c.date >= DATE_TRUNC('month', last_run) - INTERVAL '1 year'
 GROUP BY
 	team_slug,
 	app_label,
@@ -43,8 +44,6 @@ GROUP BY
 	MONTH
 ORDER BY
 	MONTH DESC
-LIMIT
-	12
 ;
 
 -- name: MonthlyCostForTeam :many
