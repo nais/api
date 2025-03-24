@@ -20,7 +20,7 @@ func (r *applicationResolver) SQLInstances(ctx context.Context, obj *application
 		return pagination.EmptyConnection[*sqlinstance.SQLInstance](), nil
 	}
 
-	return sqlinstance.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.GCP.SqlInstances, orderBy)
+	return sqlinstance.ListForWorkload(ctx, obj.Name, obj.TeamSlug, obj.EnvironmentName, obj.Spec.GCP.SqlInstances, orderBy)
 }
 
 func (r *jobResolver) SQLInstances(ctx context.Context, obj *job.Job, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error) {
@@ -28,7 +28,7 @@ func (r *jobResolver) SQLInstances(ctx context.Context, obj *job.Job, orderBy *s
 		return pagination.EmptyConnection[*sqlinstance.SQLInstance](), nil
 	}
 
-	return sqlinstance.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.GCP.SqlInstances, orderBy)
+	return sqlinstance.ListForWorkload(ctx, obj.Name, obj.TeamSlug, obj.EnvironmentName, obj.Spec.GCP.SqlInstances, orderBy)
 }
 
 func (r *sqlDatabaseResolver) Team(ctx context.Context, obj *sqlinstance.SQLDatabase) (*team.Team, error) {
