@@ -37,7 +37,19 @@ func GetDatabaseByIdent(ctx context.Context, id ident.Ident) (*SQLDatabase, erro
 }
 
 func GetDatabase(ctx context.Context, teamSlug slug.Slug, environmentName, sqlInstanceName string) (*SQLDatabase, error) {
-	return fromContext(ctx).sqlDatabaseWatcher.Get(environmentName, teamSlug.String(), sqlInstanceName)
+	all := fromContext(ctx).sqlDatabaseWatcher.GetByNamespace(teamSlug.String(), watcher.InCluster(environmentName))
+
+	for _, db := range all {
+		if db.Obj.SQLInstanceName == sqlInstanceName {
+			return db.Obj, nil
+		}
+	}
+
+	return nil, &watcher.ErrorNotFound{
+		Cluster:   environmentName,
+		Namespace: teamSlug.String(),
+		Name:      sqlInstanceName,
+	}
 }
 
 func ListForWorkload(ctx context.Context, workloadName string, teamSlug slug.Slug, environmentName string, references []nais_io_v1.CloudSqlInstance, orderBy *SQLInstanceOrder) (*SQLInstanceConnection, error) {
