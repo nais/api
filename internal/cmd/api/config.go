@@ -159,6 +159,9 @@ type Config struct {
 	LeaseName      string `env:"LEASE_NAME,default=nais-api-lease"`
 	LeaseNamespace string `env:"LEASE_NAMESPACE,default=nais-system"`
 
+	// ReplaceEnvironmentNames is a map of cluster names to replace in the UI. Keys are cluster names used in
+	// Kubernetes, for instance "prod", and the values are user-facing environment names, for instance "prod-gcp". This
+	// configuration value is only used by the nav.no tenant.
 	ReplaceEnvironmentNames map[string]string `env:"REPLACE_ENVIRONMENT_NAMES, noinit"`
 
 	K8s             k8sConfig

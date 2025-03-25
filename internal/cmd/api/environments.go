@@ -6,21 +6,17 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/environment"
+	"github.com/nais/api/internal/environmentmapper"
 )
 
-func syncEnvironments(ctx context.Context, pool *pgxpool.Pool, clusters ClusterList, replaceNames map[string]string) error {
+func syncEnvironments(ctx context.Context, pool *pgxpool.Pool, clusters ClusterList) error {
 	ctx = database.NewLoaderContext(ctx, pool)
 	ctx = environment.NewLoaderContext(ctx, pool)
 
 	syncEnvs := make([]*environment.Environment, 0)
 	for name, env := range clusters {
-		if replaceNames != nil {
-			if replaceName, ok := replaceNames[name]; ok {
-				name = replaceName
-			}
-		}
 		syncEnvs = append(syncEnvs, &environment.Environment{
-			Name: name,
+			Name: environmentmapper.EnvironmentName(name),
 			GCP:  env.GCP,
 		})
 	}

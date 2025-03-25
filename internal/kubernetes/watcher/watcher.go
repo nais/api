@@ -6,6 +6,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
@@ -68,9 +69,7 @@ func newWatcher[T Object](mgr *Manager, obj T, settings *watcherSettings, log lo
 		resourceCounter: mgr.resourceCounter,
 	}
 	for cluster, client := range mgr.managers {
-		if mgr.replaceEnvironmentNames != nil && mgr.replaceEnvironmentNames[cluster] != "" {
-			cluster = mgr.replaceEnvironmentNames[cluster]
-		}
+		cluster = environmentmapper.EnvironmentName(cluster)
 		watcher, gvr := newClusterWatcher(client, cluster, w, obj, settings, log.WithField("cluster", cluster))
 		if !watcher.isRegistered {
 			continue

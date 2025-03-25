@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/utilization"
@@ -12,7 +13,7 @@ import (
 
 func (r *applicationResolver) Utilization(ctx context.Context, obj *application.Application) (*utilization.WorkloadUtilization, error) {
 	return &utilization.WorkloadUtilization{
-		EnvironmentName: r.unmappedEnvironmentName(obj.EnvironmentName),
+		EnvironmentName: environmentmapper.ClusterName(obj.EnvironmentName),
 		WorkloadName:    obj.Name,
 		TeamSlug:        obj.TeamSlug,
 		WorkloadType:    utilization.WorkloadTypeApplication,
@@ -20,7 +21,7 @@ func (r *applicationResolver) Utilization(ctx context.Context, obj *application.
 }
 
 func (r *applicationInstanceResolver) InstanceUtilization(ctx context.Context, obj *application.ApplicationInstance, resourceType utilization.UtilizationResourceType) (*utilization.ApplicationInstanceUtilization, error) {
-	return utilization.ForInstance(ctx, r.unmappedEnvironmentName(obj.EnvironmentName), obj.TeamSlug, obj.ApplicationName, obj.Name, resourceType)
+	return utilization.ForInstance(ctx, environmentmapper.ClusterName(obj.EnvironmentName), obj.TeamSlug, obj.ApplicationName, obj.Name, resourceType)
 }
 
 func (r *queryResolver) TeamsUtilization(ctx context.Context, resourceType utilization.UtilizationResourceType) ([]*utilization.TeamUtilizationData, error) {
@@ -46,7 +47,7 @@ func (r *teamUtilizationDataResolver) Environment(ctx context.Context, obj *util
 }
 
 func (r *teamUtilizationDataResolver) TeamEnvironment(ctx context.Context, obj *utilization.TeamUtilizationData) (*team.TeamEnvironment, error) {
-	return team.GetTeamEnvironment(ctx, obj.TeamSlug, r.mappedEnvironmentName(obj.EnvironmentName))
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, environmentmapper.EnvironmentName(obj.EnvironmentName))
 }
 
 func (r *workloadUtilizationResolver) Current(ctx context.Context, obj *utilization.WorkloadUtilization, resourceType utilization.UtilizationResourceType) (float64, error) {
@@ -66,7 +67,7 @@ func (r *workloadUtilizationResolver) Series(ctx context.Context, obj *utilizati
 }
 
 func (r *workloadUtilizationDataResolver) Workload(ctx context.Context, obj *utilization.WorkloadUtilizationData) (workload.Workload, error) {
-	return tryWorkload(ctx, obj.TeamSlug, r.mappedEnvironmentName(obj.EnvironmentName), obj.WorkloadName)
+	return tryWorkload(ctx, obj.TeamSlug, environmentmapper.EnvironmentName(obj.EnvironmentName), obj.WorkloadName)
 }
 
 func (r *Resolver) TeamServiceUtilization() gengql.TeamServiceUtilizationResolver {
