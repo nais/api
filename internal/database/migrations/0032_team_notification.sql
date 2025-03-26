@@ -40,8 +40,7 @@ $$ LANGUAGE plpgsql
 ;
 
 -- +goose StatementEnd
-CREATE
-OR REPLACE TRIGGER teams_notify
+CREATE OR REPLACE TRIGGER teams_notify
 AFTER INSERT
 OR
 UPDATE
