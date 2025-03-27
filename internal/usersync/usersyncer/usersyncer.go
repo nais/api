@@ -360,7 +360,7 @@ func assignAdmins(ctx context.Context, querier usersyncsql.Querier, membersServi
 
 	for _, existingAdmin := range existingAdmins {
 		if _, shouldBeAdmin := admins[existingAdmin.ID]; !shouldBeAdmin {
-			log.WithField("email", existingAdmin.Email).Debugf("revoke admin role")
+			log.WithField("email", existingAdmin.Email).Infof("revoke admin role")
 			if err := querier.RevokeGlobalAdmin(ctx, existingAdmin.ID); err != nil {
 				return err
 			}
@@ -379,7 +379,7 @@ func assignAdmins(ctx context.Context, querier usersyncsql.Querier, membersServi
 
 	for _, admin := range admins {
 		if !admin.Admin {
-			log.WithField("email", admin.Email).Debugf("assign admin role")
+			log.WithField("email", admin.Email).Infof("assign admin role")
 			if err := querier.AssignGlobalAdmin(ctx, admin.ID); err != nil {
 				return err
 			}
