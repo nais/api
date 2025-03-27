@@ -59,6 +59,7 @@ type TeamInventoryCountValkeyInstances {
 type ValkeyInstance implements Persistence & Node {
 	id: ID!
 	name: String!
+	terminationProtection: Boolean!
 	team: Team!
 	environment: TeamEnvironment! @deprecated(reason: "Use the `teamEnvironment` field instead.")
 	teamEnvironment: TeamEnvironment!

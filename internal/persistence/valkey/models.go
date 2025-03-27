@@ -25,11 +25,12 @@ type (
 )
 
 type ValkeyInstance struct {
-	Name              string                `json:"name"`
-	Status            *ValkeyInstanceStatus `json:"status"`
-	TeamSlug          slug.Slug             `json:"-"`
-	EnvironmentName   string                `json:"-"`
-	WorkloadReference *workload.Reference   `json:"-"`
+	Name                  string                `json:"name"`
+	Status                *ValkeyInstanceStatus `json:"status"`
+	TerminationProtection bool                  `json:"terminationProtection"`
+	TeamSlug              slug.Slug             `json:"-"`
+	EnvironmentName       string                `json:"-"`
+	WorkloadReference     *workload.Reference   `json:"-"`
 }
 
 func (ValkeyInstance) IsPersistence() {}
@@ -137,9 +138,13 @@ func toValkeyInstance(u *unstructured.Unstructured, envName string) (*ValkeyInst
 		return nil, fmt.Errorf("converting to Valkey instance: %w", err)
 	}
 
+	// Liberator doesn't contain this field, so we read it directly from the unstructured object
+	terminationProtection, _, _ := unstructured.NestedBool(u.Object, "spec", "terminationProtection")
+
 	return &ValkeyInstance{
-		Name:            obj.Name,
-		EnvironmentName: envName,
+		Name:                  obj.Name,
+		EnvironmentName:       envName,
+		TerminationProtection: terminationProtection,
 		Status: &ValkeyInstanceStatus{
 			Conditions: obj.Status.Conditions,
 			State:      obj.Status.State,
