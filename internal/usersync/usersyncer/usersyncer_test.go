@@ -24,7 +24,7 @@ import (
 
 const (
 	domain           = "example.com"
-	adminGroupPrefix = "nais-admins"
+	adminGroupPrefix = "console-admins"
 )
 
 func TestSync(t *testing.T) {

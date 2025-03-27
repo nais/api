@@ -47,7 +47,7 @@ type usersyncConfig struct {
 	Enabled bool `env:"USERSYNC_ENABLED"`
 
 	// AdminGroupPrefix The prefix of the admin group email address.
-	AdminGroupPrefix string `env:"USERSYNC_ADMIN_GROUP_PREFIX,default=nais-admins"`
+	AdminGroupPrefix string `env:"USERSYNC_ADMIN_GROUP_PREFIX,default=console-admins"`
 
 	// Service account to impersonate during user sync
 	ServiceAccount string `env:"USERSYNC_SERVICE_ACCOUNT"`
