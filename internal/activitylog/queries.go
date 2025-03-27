@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/activitylog/activitylogsql"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
@@ -48,11 +49,16 @@ func Create(ctx context.Context, input CreateInput) error {
 		return err
 	}
 
+	var environmentName *string
+	if input.EnvironmentName != nil {
+		environmentName = ptr.To(environmentmapper.EnvironmentName(*input.EnvironmentName))
+	}
+
 	return q.Create(ctx, activitylogsql.CreateParams{
 		Action:          string(input.Action),
 		Actor:           input.Actor.Identity(),
 		Data:            data,
-		EnvironmentName: input.EnvironmentName,
+		EnvironmentName: environmentName,
 		ResourceName:    input.ResourceName,
 		ResourceType:    string(input.ResourceType),
 		TeamSlug:        input.TeamSlug,

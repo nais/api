@@ -15,6 +15,7 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/notify"
 	"github.com/nais/api/internal/deployment"
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/grpc"
@@ -97,7 +98,9 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 	defer pool.Close()
 
-	if err := syncEnvironments(ctx, pool, cfg.K8s.ClusterList(), cfg.ReplaceEnvironmentNames); err != nil {
+	environmentmapper.SetMapping(cfg.ReplaceEnvironmentNames)
+
+	if err := syncEnvironments(ctx, pool, cfg.K8s.ClusterList()); err != nil {
 		return err
 	}
 
@@ -114,7 +117,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	if cfg.WithFakeClients {
 		watcherOpts = append(watcherOpts, watcher.WithClientCreator(fake.Clients(os.DirFS("./data/k8s"))))
 	}
-	watcherOpts = append(watcherOpts, watcher.WithReplaceEnvironmentNames(cfg.ReplaceEnvironmentNames))
 
 	clusterConfig, err := kubernetes.CreateClusterConfigMap(cfg.Tenant, cfg.K8s.Clusters, cfg.K8s.StaticClusters)
 	if err != nil {
@@ -141,7 +143,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		Resolvers: graph.NewResolver(
 			&graph.TopicWrapper{Topic: pubsubTopic},
 			graph.WithLogger(log),
-			graph.WithReplacedEnvironmentName(cfg.ReplaceEnvironmentNames),
 		),
 		Complexity: gengql.NewComplexityRoot(),
 	}, log)
@@ -197,12 +198,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		if err != nil {
 			return fmt.Errorf("creating k8s clients: %w", err)
 		}
-		for a, b := range cfg.ReplaceEnvironmentNames {
-			if v, ok := k8sClients[a]; ok {
-				k8sClients[b] = v
-				delete(k8sClients, a)
-			}
-		}
 
 		log.WithField("envs", len(k8sClients)).Info("Start event watcher")
 		eventWatcher, err := event.NewWatcher(pool, k8sClients, log)
@@ -244,7 +239,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	})
 
 	wg.Go(func() error {
-		if err := grpc.Run(ctx, cfg.GRPCListenAddress, pool, cfg.ReplaceEnvironmentNames, log); err != nil {
+		if err := grpc.Run(ctx, cfg.GRPCListenAddress, pool, log); err != nil {
 			log.WithError(err).Errorf("error in GRPC server")
 			return err
 		}

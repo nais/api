@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/grpc/grpcdeployment/grpcdeploymentsql"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/pkg/apiclient/protoapi"
@@ -16,15 +17,13 @@ import (
 )
 
 type Server struct {
-	querier                grpcdeploymentsql.Querier
-	mappedEnvironmentNames map[string]string
+	querier grpcdeploymentsql.Querier
 	protoapi.UnimplementedDeploymentsServer
 }
 
-func NewServer(pool *pgxpool.Pool, mappedEnvironmentNames map[string]string) *Server {
+func NewServer(pool *pgxpool.Pool) *Server {
 	return &Server{
-		querier:                grpcdeploymentsql.New(pool),
-		mappedEnvironmentNames: mappedEnvironmentNames,
+		querier: grpcdeploymentsql.New(pool),
 	}
 }
 
@@ -72,7 +71,7 @@ func (s *Server) CreateDeployment(ctx context.Context, req *protoapi.CreateDeplo
 		},
 		TeamSlug:         slug.Slug(req.GetTeamSlug()),
 		Repository:       repoName,
-		EnvironmentName:  s.mapEnvironmentName(req.GetEnvironmentName()),
+		EnvironmentName:  environmentmapper.EnvironmentName(req.GetEnvironmentName()),
 		CommitSha:        commitSha,
 		DeployerUsername: deployerUsername,
 		TriggerUrl:       triggerUrl,
@@ -192,16 +191,4 @@ func toSQLStateEnum(gs protoapi.DeploymentState) (grpcdeploymentsql.DeploymentSt
 	}
 
 	return mapped, true
-}
-
-func (s *Server) mapEnvironmentName(name string) string {
-	if s.mappedEnvironmentNames == nil {
-		return name
-	}
-
-	if mapped, ok := s.mappedEnvironmentNames[name]; ok {
-		return mapped
-	}
-
-	return name
 }

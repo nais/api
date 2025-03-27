@@ -3,6 +3,7 @@ package kubernetes
 import (
 	"fmt"
 
+	"github.com/nais/api/internal/environmentmapper"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 )
@@ -21,7 +22,7 @@ func NewClientSets(clusterConfig ClusterConfigMap) (map[string]kubernetes.Interf
 		if err != nil {
 			return nil, fmt.Errorf("create k8s client set for cluster %q: %w", cluster, err)
 		}
-		k8sClientSets[cluster] = clientSet
+		k8sClientSets[environmentmapper.EnvironmentName(cluster)] = clientSet
 	}
 
 	return k8sClientSets, nil

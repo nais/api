@@ -18,7 +18,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, mappedEnvironmentNames map[string]string, log logrus.FieldLogger) error {
+func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, log logrus.FieldLogger) error {
 	log.Info("GRPC serving on ", listenAddress)
 	lis, err := net.Listen("tcp", listenAddress)
 	if err != nil {
@@ -33,7 +33,7 @@ func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, mappedEn
 	protoapi.RegisterTeamsServer(s, grpcteam.NewServer(pool))
 	protoapi.RegisterUsersServer(s, grpcuser.NewServer(pool))
 	protoapi.RegisterReconcilersServer(s, grpcreconciler.NewServer(pool))
-	protoapi.RegisterDeploymentsServer(s, grpcdeployment.NewServer(pool, mappedEnvironmentNames))
+	protoapi.RegisterDeploymentsServer(s, grpcdeployment.NewServer(pool))
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error { return s.Serve(lis) })
