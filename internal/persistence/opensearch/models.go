@@ -25,11 +25,12 @@ type (
 )
 
 type OpenSearch struct {
-	Name              string              `json:"name"`
-	Status            *OpenSearchStatus   `json:"status"`
-	TeamSlug          slug.Slug           `json:"-"`
-	EnvironmentName   string              `json:"-"`
-	WorkloadReference *workload.Reference `json:"-"`
+	Name                  string              `json:"name"`
+	Status                *OpenSearchStatus   `json:"status"`
+	TerminationProtection bool                `json:"terminationProtection"`
+	TeamSlug              slug.Slug           `json:"-"`
+	EnvironmentName       string              `json:"-"`
+	WorkloadReference     *workload.Reference `json:"-"`
 }
 
 func (OpenSearch) IsPersistence() {}
@@ -137,9 +138,13 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		return nil, fmt.Errorf("converting to OpenSearch: %w", err)
 	}
 
+	// Liberator doesn't contain this field, so we read it directly from the unstructured object
+	terminationProtection, _, _ := unstructured.NestedBool(u.Object, "spec", "terminationProtection")
+
 	return &OpenSearch{
-		Name:            obj.Name,
-		EnvironmentName: envName,
+		Name:                  obj.Name,
+		EnvironmentName:       envName,
+		TerminationProtection: terminationProtection,
 		Status: &OpenSearchStatus{
 			Conditions: obj.Status.Conditions,
 			State:      obj.Status.State,

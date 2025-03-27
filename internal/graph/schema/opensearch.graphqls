@@ -53,6 +53,7 @@ type OpenSearch implements Persistence & Node {
 	team: Team!
 	environment: TeamEnvironment! @deprecated(reason: "Use the `teamEnvironment` field instead.")
 	teamEnvironment: TeamEnvironment!
+	terminationProtection: Boolean!
 	status: OpenSearchStatus!
 	workload: Workload
 	access(
