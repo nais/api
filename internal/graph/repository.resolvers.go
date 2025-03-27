@@ -16,6 +16,12 @@ func (r *mutationResolver) AddRepositoryToTeam(ctx context.Context, input reposi
 		return nil, err
 	}
 
+	if exists, err := team.Exists(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	} else if !exists {
+		return nil, team.ErrNotFound{}
+	}
+
 	repo, err := repository.AddToTeam(ctx, input)
 	if err != nil {
 		return nil, err

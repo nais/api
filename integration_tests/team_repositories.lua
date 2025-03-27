@@ -1,3 +1,5 @@
+local admin = User.new()
+admin:admin(true)
 local user = User.new()
 local nonMember = User.new()
 local team = Team.new("slug-1", "purpose", "#channel")
@@ -54,6 +56,30 @@ Test.gql("Add repository to team as team member", function(t)
 				repository = {
 					name = "nais/api",
 				},
+			},
+		},
+	}
+end)
+
+Test.gql("Add repository to non-existing-team as admin", function(t)
+	t.addHeader("x-user-email", admin:email())
+
+	t.query [[
+		mutation {
+			addRepositoryToTeam(input: {teamSlug: "team-that-does-not-exist", repositoryName: "nais/api"}) {
+				repository {
+					name
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = Null,
+		errors = {
+			{
+				message = "The specified team was not found.",
+				path = { "addRepositoryToTeam" },
 			},
 		},
 	}
