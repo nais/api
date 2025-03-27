@@ -8,6 +8,7 @@ import (
 
 	"github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/analysis/analyzer/custom"
+	"github.com/blevesearch/bleve/v2/analysis/tokenizer/unicode"
 	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/blevesearch/bleve/v2/search/query"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -53,12 +54,13 @@ func buildIndexMapping() (mapping.IndexMapping, error) {
 
 	docMapping := bleve.NewDocumentMapping()
 	docMapping.AddFieldMappingsAt("kind", bleve.NewKeywordFieldMapping())
+	docMapping.AddFieldMappingsAt("name", bleve.NewTextFieldMapping(), bleve.NewKeywordFieldMapping())
 	indexMapping.AddDocumentMapping("doc", docMapping)
 
 	err := indexMapping.AddCustomAnalyzer(custom.Name,
 		map[string]any{
 			"type":      "custom",
-			"tokenizer": `unicode`,
+			"tokenizer": unicode.Name,
 		})
 	if err != nil {
 		return nil, err
@@ -169,11 +171,17 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 		prefix.SetField("name")
 		prefix.SetBoost(1.5)
 
+		// Match on exact match
+		term := bleve.NewTermQuery(filter.Query)
+		term.FieldVal = "name"
+		term.SetBoost(200.0)
+
 		// We add the query with both a match, prefix, and a fuzzy query to get both exact and fuzzy matches
 		queries = append(queries, bleve.NewDisjunctionQuery(
 			prefix,
 			bleve.NewMatchQuery(filter.Query),
 			qq,
+			term,
 		))
 	}
 
