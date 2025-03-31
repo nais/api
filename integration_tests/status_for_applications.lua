@@ -106,7 +106,7 @@ Test.gql("app with deprecated registry", function(t)
 								{
 									__typename = "WorkloadStatusVulnerable",
 									level = "WARNING",
-								}
+								},
 							},
 						},
 					},

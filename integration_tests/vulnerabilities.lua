@@ -127,7 +127,7 @@ Test.gql("List vulnerabilities for image", function(t)
 			}
 		}
 	}
-	]], team:slug(), "dev" , "app-with-vulnerabilities"))
+	]], team:slug(), "dev", "app-with-vulnerabilities"))
 
 	t.check {
 		data = {
@@ -138,7 +138,7 @@ Test.gql("List vulnerabilities for image", function(t)
 						name = "dev",
 					},
 					workload = {
-						image  = {
+						image = {
 							vulnerabilities = {
 								nodes = {
 									{
@@ -178,7 +178,7 @@ Test.gql("List vulnerabilities for image", function(t)
 										},
 									},
 								},
-							}
+							},
 						},
 					},
 				},

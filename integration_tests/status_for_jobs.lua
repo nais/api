@@ -37,7 +37,7 @@ Test.gql("job with no errors", function(t)
 					job = {
 						status = {
 							state = "NAIS",
-							errors = { },
+							errors = {},
 						},
 					},
 				},
