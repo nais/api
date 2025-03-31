@@ -101,7 +101,7 @@ func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
 
 		k8sRunner := apiRunner.NewK8sRunner(scheme, dir, clusters())
 		topic := newPubsubRunner()
-		gqlRunner, gqlCleanup, err := newGQLRunner(ctx, config, pool, topic, k8sRunner, dir)
+		gqlRunner, gqlCleanup, err := newGQLRunner(ctx, config, pool, topic, k8sRunner)
 		if err != nil {
 			done()
 			return ctx, nil, nil, err
@@ -126,7 +126,7 @@ func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
 	}
 }
 
-func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic graph.PubsubTopic, k8sRunner *apiRunner.K8s, k8sWorkloadsDir string) (spec.Runner, func(), error) {
+func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic graph.PubsubTopic, k8sRunner *apiRunner.K8s) (spec.Runner, func(), error) {
 	log := logrus.New()
 	log.Out = io.Discard
 
