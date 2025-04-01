@@ -63,12 +63,10 @@ type costConfig struct {
 	BigQueryProjectID string `env:"BIGQUERY_PROJECTID,default=*detect-project-id*"`
 }
 
-// dependencyTrackConfig is the configuration for the dependency track service
-type dependencyTrackConfig struct {
-	Endpoint string `env:"DEPENDENCYTRACK_ENDPOINT,default=http://localhost:9010"`
-	Frontend string `env:"DEPENDENCYTRACK_FRONTEND,default=http://localhost:9020"`
-	Username string `env:"DEPENDENCYTRACK_USERNAME,default=console"`
-	Password string `env:"DEPENDENCYTRACK_PASSWORD,default=yolo"`
+// vulnerabilitiesConfig is the configuration for the vulnerability manager using the v13s api
+type vulnerabilitiesConfig struct {
+	Endpoint       string `env:"VULNERABILITIES_ENDPOINT,default=fake"`
+	ServiceAccount string `env:"VULNERABILITIES_SERVICE_ACCOUNT,default=service-account"`
 }
 
 // hookdConfig is the configuration for the hookd service
@@ -164,15 +162,15 @@ type Config struct {
 	// configuration value is only used by the nav.no tenant.
 	ReplaceEnvironmentNames map[string]string `env:"REPLACE_ENVIRONMENT_NAMES, noinit"`
 
-	K8s             k8sConfig
-	Usersync        usersyncConfig
-	Cost            costConfig
-	DependencyTrack dependencyTrackConfig
-	Hookd           hookdConfig
-	OAuth           oAuthConfig
-	Unleash         unleashConfig
-	Logging         loggingConfig
-	Zitadel         zitadelConfig
+	K8s                k8sConfig
+	Usersync           usersyncConfig
+	Cost               costConfig
+	VulnerabilitiesApi vulnerabilitiesConfig
+	Hookd              hookdConfig
+	OAuth              oAuthConfig
+	Unleash            unleashConfig
+	Logging            loggingConfig
+	Zitadel            zitadelConfig
 }
 
 // NewConfig creates a new configuration instance from environment variables

@@ -1,7 +1,3 @@
--- Currently, there's no way to provide dependencytrack data, so we consider missing sbom
--- as valid empty condition
-local expectedMissingSBOM = { __typename = "WorkloadStatusMissingSBOM", level = "TODO" }
-
 Helper.readK8sResources("k8s_resources/status")
 local user = User.new("name", "auth@user.com", "sdf")
 Team.new("slug-1", "purpose", "#slack_channel")
@@ -39,9 +35,7 @@ Test.gql("app with no errors", function(t)
 					application = {
 						status = {
 							state = "NAIS",
-							errors = {
-								expectedMissingSBOM,
-							},
+							errors = {},
 						},
 					},
 				},
@@ -72,7 +66,6 @@ Test.gql("app with deprecated ingress", function(t)
 									ingress = "https://error.dev-gcp.nais.io",
 									level = "TODO",
 								},
-								expectedMissingSBOM,
 							},
 						},
 					},
@@ -110,7 +103,10 @@ Test.gql("app with deprecated registry", function(t)
 									repository = "",
 									tag = "latest",
 								},
-								expectedMissingSBOM,
+								{
+									__typename = "WorkloadStatusVulnerable",
+									level = "WARNING",
+								},
 							},
 						},
 					},
@@ -143,7 +139,6 @@ Test.gql("app with naiserator invalid yaml", function(t)
 									level = "ERROR",
 									detail = "Human text from the operator, received from yaml",
 								},
-								expectedMissingSBOM,
 							},
 						},
 					},
@@ -176,7 +171,6 @@ Test.gql("app with naiserator failed synchronization", function(t)
 									level = "ERROR",
 									detail = "Human text from the operator, received from yaml",
 								},
-								expectedMissingSBOM,
 							},
 						},
 					},

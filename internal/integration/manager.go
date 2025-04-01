@@ -150,7 +150,10 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 		return nil, nil, fmt.Errorf("failed to create management watcher manager: %w", err)
 	}
 
-	vulnerabilityClient := vulnerability.NewDependencyTrackClient(vulnerability.DependencyTrackConfig{EnableFakes: true}, log)
+	vMgr, err := vulnerability.NewFakeManager(ctx, log.WithField("subsystem", "vulnerability"))
+	if err != nil {
+		return nil, nil, err
+	}
 
 	notifierCtx, notifyCancel := context.WithCancel(ctx)
 	notifier := notify.New(pool, log, notify.WithRetries(0))
@@ -163,7 +166,7 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 		managementWatcherMgr,
 		pool,
 		clusterConfig,
-		vulnerabilityClient,
+		vMgr,
 		config.TenantName,
 		clusters(),
 		fakeHookd.New(),
