@@ -97,7 +97,7 @@ Test.gql("app with deprecated registry", function(t)
 							errors = {
 								{
 									__typename = "WorkloadStatusDeprecatedRegistry",
-									level = "WARNING",
+									level = "ERROR",
 									name = "app-name",
 									registry = "navikt",
 									repository = "",

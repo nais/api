@@ -7,6 +7,17 @@ import (
 	"github.com/nais/api/internal/workload"
 )
 
+var allowedRegistries = []string{
+	"europe-north1-docker.pkg.dev",
+	"repo.adeo.no:5443",
+	"oliver006/redis_exporter",
+	"bitnami/redis",
+	"docker.io/oliver006/redis_exporter",
+	"docker.io/redis",
+	"docker.io/bitnami/redis",
+	"redis",
+}
+
 type checkDeprecatedRegsitry struct{}
 
 func (c checkDeprecatedRegsitry) Run(ctx context.Context, w workload.Workload) ([]WorkloadStatusError, WorkloadState) {
@@ -20,8 +31,10 @@ func (c checkDeprecatedRegsitry) Run(ctx context.Context, w workload.Workload) (
 func (checkDeprecatedRegsitry) run(_ context.Context, w workload.Workload) WorkloadStatusError {
 	imageString := w.GetImageString()
 
-	if strings.Contains(imageString, "europe-north1-docker.pkg.dev") {
-		return nil
+	for _, registry := range allowedRegistries {
+		if strings.HasPrefix(imageString, registry) {
+			return nil
+		}
 	}
 
 	parts := strings.Split(imageString, ":")
@@ -37,7 +50,7 @@ func (checkDeprecatedRegsitry) run(_ context.Context, w workload.Workload) Workl
 		repository = strings.Join(parts[1:len(parts)-1], "/")
 	}
 	return &WorkloadStatusDeprecatedRegistry{
-		Level:      WorkloadStatusErrorLevelWarning,
+		Level:      WorkloadStatusErrorLevelError,
 		Registry:   registry,
 		Name:       name,
 		Tag:        tag,
