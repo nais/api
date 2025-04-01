@@ -166,7 +166,7 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Team.ValkeyInstances = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyInstanceOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.Team.VulnerabilitySummaries = func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder) int {
+	c.Team.VulnerabilitySummaries = func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.VulnerabilitySummaryOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Team.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) int {
