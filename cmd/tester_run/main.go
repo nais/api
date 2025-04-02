@@ -17,10 +17,12 @@ func main() {
 	flag.Parse()
 
 	ctx := context.Background()
-	mgr, err := integration.TestRunner(ctx, false)
+	mgr, cleanup, err := integration.TestRunner(ctx, false)
 	if err != nil {
 		panic(err)
 	}
+
+	defer cleanup()
 
 	if ui {
 		if err := mgr.RunUI(ctx, dir); err != nil {

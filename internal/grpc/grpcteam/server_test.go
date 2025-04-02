@@ -15,6 +15,7 @@ import (
 	"github.com/nais/api/pkg/apiclient/protoapi"
 	"github.com/sirupsen/logrus"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
+	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -24,7 +25,7 @@ func TestTeamsServer_Get(t *testing.T) {
 	ctx := context.Background()
 	log, _ := logrustest.NewNullLogger()
 
-	container, dsn, err := startPostgresql(ctx, log)
+	container, dsn, err := startPostgresql(ctx, t, log)
 	if err != nil {
 		t.Fatalf("failed to start postgres container: %v", err)
 	}
@@ -102,7 +103,7 @@ func TestTeamsServer_Delete(t *testing.T) {
 	ctx := context.Background()
 	log, _ := logrustest.NewNullLogger()
 
-	container, dsn, err := startPostgresql(ctx, log)
+	container, dsn, err := startPostgresql(ctx, t, log)
 	if err != nil {
 		t.Fatalf("failed to start postgres container: %v", err)
 	}
@@ -153,7 +154,7 @@ func TestTeamsServer_ToBeReconciled(t *testing.T) {
 	ctx := context.Background()
 	log, _ := logrustest.NewNullLogger()
 
-	container, dsn, err := startPostgresql(ctx, log)
+	container, dsn, err := startPostgresql(ctx, t, log)
 	if err != nil {
 		t.Fatalf("failed to start postgres container: %v", err)
 	}
@@ -197,7 +198,7 @@ func TestTeamsServer_IsRepositoryAuthorized(t *testing.T) {
 	ctx := context.Background()
 	log, _ := logrustest.NewNullLogger()
 
-	container, dsn, err := startPostgresql(ctx, log)
+	container, dsn, err := startPostgresql(ctx, t, log)
 	if err != nil {
 		t.Fatalf("failed to start postgres container: %v", err)
 	}
@@ -271,7 +272,7 @@ func TestTeamsServer_Members(t *testing.T) {
 	ctx := context.Background()
 	log, _ := logrustest.NewNullLogger()
 
-	container, dsn, err := startPostgresql(ctx, log)
+	container, dsn, err := startPostgresql(ctx, t, log)
 	if err != nil {
 		t.Fatalf("failed to start postgres container: %v", err)
 	}
@@ -362,7 +363,7 @@ func TestTeamsServer_Members(t *testing.T) {
 	})
 }
 
-func startPostgresql(ctx context.Context, log logrus.FieldLogger) (container *postgres.PostgresContainer, dsn string, err error) {
+func startPostgresql(ctx context.Context, t *testing.T, log logrus.FieldLogger) (container *postgres.PostgresContainer, dsn string, err error) {
 	container, err = postgres.Run(
 		ctx,
 		"docker.io/postgres:16-alpine",
@@ -372,6 +373,8 @@ func startPostgresql(ctx context.Context, log logrus.FieldLogger) (container *po
 		postgres.WithSQLDriver("pgx"),
 		postgres.BasicWaitStrategies(),
 	)
+	defer testcontainers.CleanupContainer(t, container)
+
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to start container: %w", err)
 	}

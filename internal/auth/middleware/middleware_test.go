@@ -11,6 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/database"
 	"github.com/sirupsen/logrus"
+	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
@@ -19,7 +20,7 @@ func getRequest(ctx context.Context) *http.Request {
 	return req.WithContext(ctx)
 }
 
-func startPostgresql(ctx context.Context, log logrus.FieldLogger) (container *postgres.PostgresContainer, dsn string, err error) {
+func startPostgresql(ctx context.Context, t *testing.T, log logrus.FieldLogger) (container *postgres.PostgresContainer, dsn string, err error) {
 	container, err = postgres.Run(
 		ctx,
 		"docker.io/postgres:16-alpine",
@@ -29,6 +30,8 @@ func startPostgresql(ctx context.Context, log logrus.FieldLogger) (container *po
 		postgres.WithSQLDriver("pgx"),
 		postgres.BasicWaitStrategies(),
 	)
+	defer testcontainers.CleanupContainer(t, container)
+
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to start container: %w", err)
 	}

@@ -13,10 +13,12 @@ func main() {
 	flag.StringVar(&dir, "d", dir, "write spec to this directory")
 	flag.Parse()
 
-	mgr, err := integration.TestRunner(context.Background(), true)
+	mgr, cleanup, err := integration.TestRunner(context.Background(), true)
 	if err != nil {
 		panic(err)
 	}
+
+	defer cleanup()
 
 	if err := mgr.GenerateSpec(dir); err != nil {
 		panic(err)

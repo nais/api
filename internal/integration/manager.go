@@ -40,33 +40,34 @@ type ctxKey int
 
 const databaseKey ctxKey = iota
 
-func TestRunner(ctx context.Context, skipSetup bool) (*testmanager.Manager, error) {
-	mgr, err := testmanager.New(newConfig, newManager(ctx, skipSetup), &runner.GQL{}, &runner.SQL{}, &runner.PubSub{}, &apiRunner.K8s{})
+func TestRunner(ctx context.Context, skipSetup bool) (*testmanager.Manager, func(), error) {
+	container, connStr, err := startPostgresql(ctx)
 	if err != nil {
-		return nil, err
+		return nil, func() {}, err
 	}
 
-	// mgr.AddHelper(createTeam())
+	mgr, err := testmanager.New(newConfig, newManager(ctx, container, connStr, skipSetup), &runner.GQL{}, &runner.SQL{}, &runner.PubSub{}, &apiRunner.K8s{})
+	if err != nil {
+		return nil, func() {}, err
+	}
+
 	mgr.AddTypemetatable(teamMetatable())
 	mgr.AddTypemetatable(userMetatable())
 
-	return mgr, nil
+	return mgr, func() {
+		_ = container.Terminate(ctx)
+	}, nil
 }
 
 func clusters() []string {
 	return []string{"dev", "staging", "dev-fss", "dev-gcp"}
 }
 
-func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
+func newManager(ctx context.Context, container *postgres.PostgresContainer, connStr string, skipSetup bool) testmanager.SetupFunc {
 	if skipSetup {
 		return func(ctx context.Context, _ string, _ any) (retCtx context.Context, runners []spec.Runner, close func(), err error) {
 			return ctx, nil, func() {}, nil
 		}
-	}
-
-	container, connStr, err := startPostgresql(ctx)
-	if err != nil {
-		panic(err)
 	}
 
 	return func(ctx context.Context, dir string, configInput any) (context.Context, []spec.Runner, func(), error) {
@@ -250,7 +251,6 @@ func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, 
 	return container, connStr, nil
 }
 
-// func newDB(ctx context.Context, seed bool, connectionString string) (database.Database, *pgxpool.Pool, func(), error) {
 func newDB(ctx context.Context, container *postgres.PostgresContainer, connStr string) (*pgxpool.Pool, func(), error) {
 	logr := logrus.New()
 	logr.Out = io.Discard

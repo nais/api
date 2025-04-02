@@ -25,7 +25,7 @@ func TestOauth2Authentication(t *testing.T) {
 	ctx := context.Background()
 	log, _ := test.NewNullLogger()
 
-	container, dsn, err := startPostgresql(ctx, log)
+	container, dsn, err := startPostgresql(ctx, t, log)
 	if err != nil {
 		t.Fatalf("failed to start postgres container: %v", err)
 	}

@@ -12,10 +12,12 @@ import (
 
 func TestIntegration(t *testing.T) {
 	ctx := context.Background()
-	mgr, err := integration.TestRunner(ctx, false)
+	mgr, cleanup, err := integration.TestRunner(ctx, false)
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	defer cleanup()
 
 	if err := mgr.Run(ctx, ".", lua.NewTestReporter(t)); err != nil {
 		t.Fatal(err)

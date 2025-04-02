@@ -162,7 +162,7 @@ func TestFakeQueryAll(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	container, connStr, err := startPostgresql(ctx)
+	container, connStr, err := startPostgresql(ctx, t)
 	if err != nil {
 		t.Fatalf("failed to start postgres container: %v", err)
 	}
@@ -317,13 +317,12 @@ func TestFakeQueryRange(t *testing.T) {
 	}
 }
 
-func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, error) {
+func startPostgresql(ctx context.Context, t *testing.T) (*postgres.PostgresContainer, string, error) {
 	lg := log.New(io.Discard, "", 0)
-	// if testing.Verbose() {
-	// 	lg = log.New(os.Stderr, "", log.LstdFlags)
-	// }
 
-	container, err := postgres.Run(ctx, "docker.io/postgres:16-alpine",
+	container, err := postgres.Run(
+		ctx,
+		"docker.io/postgres:16-alpine",
 		testcontainers.WithLogger(lg),
 		postgres.WithDatabase("example"),
 		postgres.WithUsername("example"),
@@ -331,6 +330,8 @@ func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, 
 		postgres.WithSQLDriver("pgx"),
 		postgres.BasicWaitStrategies(),
 	)
+	defer testcontainers.CleanupContainer(t, container)
+
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to start container: %w", err)
 	}
