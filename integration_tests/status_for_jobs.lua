@@ -74,6 +74,10 @@ Test.gql("job with deprecated registry", function(t)
 									repository = "navikt",
 									tag = "latest",
 								},
+								{
+									__typename = "WorkloadStatusVulnerable",
+									level = "WARNING",
+								},
 							},
 						},
 					},
