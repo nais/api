@@ -89,11 +89,13 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		return nil, err
 	}
 
-	total, err := q.CountForTeam(ctx, &teamSlug)
-	if err != nil {
-		return nil, err
+	var total int64
+	if len(ret) > 0 {
+		total = ret[0].TotalCount
 	}
-	return pagination.NewConvertConnectionWithError(ret, page, total, toGraphActivityLogEntry)
+	return pagination.NewConvertConnectionWithError(ret, page, total, func(from *activitylogsql.ListForTeamRow) (ActivityLogEntry, error) {
+		return toGraphActivityLogEntry(&from.ActivityLogEntry)
+	})
 }
 
 func ListForResource(ctx context.Context, resourceType ActivityLogEntryResourceType, resourceName string, page *pagination.Pagination) (*ActivityLogEntryConnection, error) {
@@ -109,14 +111,13 @@ func ListForResource(ctx context.Context, resourceType ActivityLogEntryResourceT
 		return nil, err
 	}
 
-	total, err := q.CountForResource(ctx, activitylogsql.CountForResourceParams{
-		ResourceType: string(resourceType),
-		ResourceName: resourceName,
-	})
-	if err != nil {
-		return nil, err
+	var total int64
+	if len(ret) > 0 {
+		total = ret[0].TotalCount
 	}
-	return pagination.NewConvertConnectionWithError(ret, page, total, toGraphActivityLogEntry)
+	return pagination.NewConvertConnectionWithError(ret, page, total, func(from *activitylogsql.ListForResourceRow) (ActivityLogEntry, error) {
+		return toGraphActivityLogEntry(&from.ActivityLogEntry)
+	})
 }
 
 func toGraphActivityLogEntry(row *activitylogsql.ActivityLogEntry) (ActivityLogEntry, error) {

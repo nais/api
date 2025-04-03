@@ -2,11 +2,9 @@ package deployment
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/deployment/deploymentsql"
@@ -29,12 +27,14 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		return nil, err
 	}
 
-	total, err := q.CountForTeam(ctx, teamSlug)
-	if err != nil {
-		return nil, err
+	var total int64
+	if len(ret) > 0 {
+		total = ret[0].TotalCount
 	}
 
-	return pagination.NewConvertConnection(ret, page, total, toGraphDeployment), nil
+	return pagination.NewConvertConnection(ret, page, total, func(from *deploymentsql.ListByTeamSlugRow) *Deployment {
+		return toGraphDeployment(&from.Deployment)
+	}), nil
 }
 
 func ListResourcesForDeployment(ctx context.Context, deploymentID uuid.UUID, page *pagination.Pagination) (*DeploymentResourceConnection, error) {
@@ -49,12 +49,14 @@ func ListResourcesForDeployment(ctx context.Context, deploymentID uuid.UUID, pag
 		return nil, err
 	}
 
-	total, err := q.CountResourcesForDeployment(ctx, deploymentID)
-	if err != nil {
-		return nil, err
+	var total int64
+	if len(ret) > 0 {
+		total = ret[0].TotalCount
 	}
 
-	return pagination.NewConvertConnection(ret, page, total, toGraphDeploymentResource), nil
+	return pagination.NewConvertConnection(ret, page, total, func(from *deploymentsql.ListResourcesForDeploymentRow) *DeploymentResource {
+		return toGraphDeploymentResource(&from.DeploymentK8sResource)
+	}), nil
 }
 
 func ListStatusesForDeployment(ctx context.Context, deploymentID uuid.UUID, page *pagination.Pagination) (*DeploymentStatusConnection, error) {
@@ -69,14 +71,14 @@ func ListStatusesForDeployment(ctx context.Context, deploymentID uuid.UUID, page
 		return nil, err
 	}
 
-	total, err := fromContext(ctx).deploymentStatusForDeploymentCountLoader.Load(ctx, deploymentID)
-	if errors.Is(err, pgx.ErrNoRows) {
-		total = &deploymentStatusForDeploymentCount{}
-	} else if err != nil {
-		return nil, err
+	var total int64
+	if len(ret) > 0 {
+		total = ret[0].TotalCount
 	}
 
-	return pagination.NewConvertConnection(ret, page, total.Count, toGraphDeploymentStatus), nil
+	return pagination.NewConvertConnection(ret, page, total, func(from *deploymentsql.ListStatusesForDeploymentRow) *DeploymentStatus {
+		return toGraphDeploymentStatus(&from.DeploymentStatus)
+	}), nil
 }
 
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string, workloadType workload.Type, page *pagination.Pagination) (*DeploymentConnection, error) {
@@ -94,17 +96,14 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, w
 		return nil, err
 	}
 
-	total, err := q.CountForWorkload(ctx, deploymentsql.CountForWorkloadParams{
-		TeamSlug:        teamSlug,
-		EnvironmentName: environmentName,
-		WorkloadName:    workloadName,
-		WorkloadKind:    workloadType.String(),
-	})
-	if err != nil {
-		return nil, err
+	var total int64
+	if len(ret) > 0 {
+		total = ret[0].TotalCount
 	}
 
-	return pagination.NewConvertConnection(ret, page, total, toGraphDeployment), nil
+	return pagination.NewConvertConnection(ret, page, total, func(from *deploymentsql.ListForWorkloadRow) *Deployment {
+		return toGraphDeployment(&from.Deployment)
+	}), nil
 }
 
 func KeyForTeam(ctx context.Context, teamSlug slug.Slug) (*DeploymentKey, error) {

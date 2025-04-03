@@ -350,11 +350,13 @@ func List(ctx context.Context, page *pagination.Pagination) (*ServiceAccountConn
 		return nil, err
 	}
 
-	total, err := q.Count(ctx)
-	if err != nil {
-		return nil, err
+	var total int64
+	if len(ret) > 0 {
+		total = ret[0].TotalCount
 	}
-	return pagination.NewConvertConnection(ret, page, total, toGraphServiceAccount), nil
+	return pagination.NewConvertConnection(ret, page, total, func(from *serviceaccountsql.ListRow) *ServiceAccount {
+		return toGraphServiceAccount(&from.ServiceAccount)
+	}), nil
 }
 
 func ListTokensForServiceAccount(ctx context.Context, page *pagination.Pagination, serviceAccountID uuid.UUID) (*ServiceAccountTokenConnection, error) {
@@ -369,11 +371,13 @@ func ListTokensForServiceAccount(ctx context.Context, page *pagination.Paginatio
 		return nil, err
 	}
 
-	total, err := q.CountTokensForServiceAccount(ctx, serviceAccountID)
-	if err != nil {
-		return nil, err
+	var total int64
+	if len(ret) > 0 {
+		total = ret[0].TotalCount
 	}
-	return pagination.NewConvertConnection(ret, page, total, toGraphServiceAccountToken), nil
+	return pagination.NewConvertConnection(ret, page, total, func(from *serviceaccountsql.ListTokensForServiceAccountRow) *ServiceAccountToken {
+		return toGraphServiceAccountToken(&from.ServiceAccountToken)
+	}), nil
 }
 
 // TODO: Remove once static service accounts has been removed

@@ -29,40 +29,6 @@ func (q *Queries) AddMember(ctx context.Context, arg AddMemberParams) error {
 	return err
 }
 
-const countForUser = `-- name: CountForUser :one
-SELECT
-	COUNT(user_roles.*)
-FROM
-	user_roles
-	JOIN teams ON teams.slug = user_roles.target_team_slug
-WHERE
-	user_roles.user_id = $1
-`
-
-func (q *Queries) CountForUser(ctx context.Context, userID uuid.UUID) (int64, error) {
-	row := q.db.QueryRow(ctx, countForUser, userID)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
-const countMembers = `-- name: CountMembers :one
-SELECT
-	COUNT(user_roles.*)
-FROM
-	user_roles
-	JOIN teams ON teams.slug = user_roles.target_team_slug
-WHERE
-	user_roles.target_team_slug = $1
-`
-
-func (q *Queries) CountMembers(ctx context.Context, teamSlug *slug.Slug) (int64, error) {
-	row := q.db.QueryRow(ctx, countMembers, teamSlug)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
 const getMember = `-- name: GetMember :one
 SELECT
 	users.id, users.email, users.name, users.external_id, users.admin,
@@ -148,7 +114,8 @@ func (q *Queries) GetMemberByEmail(ctx context.Context, arg GetMemberByEmailPara
 const listForUser = `-- name: ListForUser :many
 SELECT
 	users.id, users.email, users.name, users.external_id, users.admin,
-	user_roles.id, user_roles.role_name, user_roles.user_id, user_roles.target_team_slug
+	user_roles.id, user_roles.role_name, user_roles.user_id, user_roles.target_team_slug,
+	COUNT(*) OVER () AS total_count
 FROM
 	user_roles
 	JOIN teams ON teams.slug = user_roles.target_team_slug
@@ -177,8 +144,9 @@ type ListForUserParams struct {
 }
 
 type ListForUserRow struct {
-	User     User
-	UserRole UserRole
+	User       User
+	UserRole   UserRole
+	TotalCount int64
 }
 
 func (q *Queries) ListForUser(ctx context.Context, arg ListForUserParams) ([]*ListForUserRow, error) {
@@ -205,6 +173,7 @@ func (q *Queries) ListForUser(ctx context.Context, arg ListForUserParams) ([]*Li
 			&i.UserRole.RoleName,
 			&i.UserRole.UserID,
 			&i.UserRole.TargetTeamSlug,
+			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}
@@ -219,7 +188,8 @@ func (q *Queries) ListForUser(ctx context.Context, arg ListForUserParams) ([]*Li
 const listMembers = `-- name: ListMembers :many
 SELECT
 	users.id, users.email, users.name, users.external_id, users.admin,
-	user_roles.id, user_roles.role_name, user_roles.user_id, user_roles.target_team_slug
+	user_roles.id, user_roles.role_name, user_roles.user_id, user_roles.target_team_slug,
+	COUNT(*) OVER () AS total_count
 FROM
 	user_roles
 	JOIN teams ON teams.slug = user_roles.target_team_slug
@@ -261,8 +231,9 @@ type ListMembersParams struct {
 }
 
 type ListMembersRow struct {
-	User     User
-	UserRole UserRole
+	User       User
+	UserRole   UserRole
+	TotalCount int64
 }
 
 func (q *Queries) ListMembers(ctx context.Context, arg ListMembersParams) ([]*ListMembersRow, error) {
@@ -289,6 +260,7 @@ func (q *Queries) ListMembers(ctx context.Context, arg ListMembersParams) ([]*Li
 			&i.UserRole.RoleName,
 			&i.UserRole.UserID,
 			&i.UserRole.TargetTeamSlug,
+			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}

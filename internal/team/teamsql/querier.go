@@ -12,9 +12,6 @@ import (
 type Querier interface {
 	AddMember(ctx context.Context, arg AddMemberParams) error
 	ConfirmDeleteKey(ctx context.Context, key uuid.UUID) error
-	Count(ctx context.Context) (int64, error)
-	CountForUser(ctx context.Context, userID uuid.UUID) (int64, error)
-	CountMembers(ctx context.Context, teamSlug *slug.Slug) (int64, error)
 	Create(ctx context.Context, arg CreateParams) (*Team, error)
 	CreateDeleteKey(ctx context.Context, arg CreateDeleteKeyParams) (*TeamDeleteKey, error)
 	Exists(ctx context.Context, argSlug slug.Slug) (bool, error)
@@ -23,7 +20,7 @@ type Querier interface {
 	GetEnvironment(ctx context.Context, arg GetEnvironmentParams) (*TeamAllEnvironment, error)
 	GetMember(ctx context.Context, arg GetMemberParams) (*GetMemberRow, error)
 	GetMemberByEmail(ctx context.Context, arg GetMemberByEmailParams) (*GetMemberByEmailRow, error)
-	List(ctx context.Context, arg ListParams) ([]*Team, error)
+	List(ctx context.Context, arg ListParams) ([]*ListRow, error)
 	ListAllForSearch(ctx context.Context) ([]*ListAllForSearchRow, error)
 	ListAllSlugs(ctx context.Context) ([]slug.Slug, error)
 	ListBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)
@@ -36,7 +33,6 @@ type Querier interface {
 	ListMembers(ctx context.Context, arg ListMembersParams) ([]*ListMembersRow, error)
 	RemoveMember(ctx context.Context, arg RemoveMemberParams) error
 	RemoveSlackAlertsChannel(ctx context.Context, arg RemoveSlackAlertsChannelParams) error
-	Search(ctx context.Context, query string) ([]*SearchRow, error)
 	SetDeleteKeyConfirmedAt(ctx context.Context, argSlug slug.Slug) error
 	SlugAvailable(ctx context.Context, argSlug slug.Slug) (bool, error)
 	Update(ctx context.Context, arg UpdateParams) (*Team, error)

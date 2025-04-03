@@ -39,11 +39,13 @@ func List(ctx context.Context, page *pagination.Pagination) (*ReconcilerConnecti
 		return nil, err
 	}
 
-	total, err := q.Count(ctx)
-	if err != nil {
-		return nil, err
+	var total int64
+	if len(ret) > 0 {
+		total = ret[0].TotalCount
 	}
-	return pagination.NewConvertConnection(ret, page, total, toGraphReconciler), nil
+	return pagination.NewConvertConnection(ret, page, total, func(from *reconcilersql.ListRow) *Reconciler {
+		return toGraphReconciler(&from.Reconciler)
+	}), nil
 }
 
 func GetConfig(ctx context.Context, name string, includeSecrets bool) ([]*ReconcilerConfig, error) {
@@ -205,10 +207,12 @@ func GetErrors(ctx context.Context, reconcilerName string, page *pagination.Pagi
 		return nil, err
 	}
 
-	total, err := q.ListReconcilerErrorsCount(ctx, reconcilerName)
-	if err != nil {
-		return nil, err
+	var total int64
+	if len(ret) > 0 {
+		total = ret[0].TotalCount
 	}
 
-	return pagination.NewConvertConnection(ret, page, total, toGraphReconcilerError), nil
+	return pagination.NewConvertConnection(ret, page, total, func(from *reconcilersql.ListReconcilerErrorsRow) *ReconcilerError {
+		return toGraphReconcilerError(&from.ReconcilerError)
+	}), nil
 }

@@ -8,8 +8,7 @@ import (
 
 type Querier interface {
 	AddToTeam(ctx context.Context, arg AddToTeamParams) (*TeamRepository, error)
-	CountForTeam(ctx context.Context, arg CountForTeamParams) (int64, error)
-	ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*TeamRepository, error)
+	ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*ListForTeamRow, error)
 	RemoveFromTeam(ctx context.Context, arg RemoveFromTeamParams) error
 }
 

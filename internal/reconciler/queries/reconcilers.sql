@@ -1,6 +1,7 @@
 -- name: List :many
 SELECT
-	*
+	sqlc.embed(reconcilers),
+	COUNT(*) OVER () AS total_count
 FROM
 	reconcilers
 ORDER BY
@@ -9,13 +10,6 @@ LIMIT
 	sqlc.arg('limit')
 OFFSET
 	sqlc.arg('offset')
-;
-
--- name: Count :one
-SELECT
-	COUNT(*) AS total
-FROM
-	reconcilers
 ;
 
 -- name: ListEnabledReconcilers :many
@@ -112,7 +106,8 @@ WHERE
 
 -- name: ListReconcilerErrors :many
 SELECT
-	reconciler_errors.*
+	sqlc.embed(reconciler_errors),
+	COUNT(*) OVER () AS total_count
 FROM
 	reconciler_errors
 	JOIN reconcilers ON reconcilers.name = reconciler_errors.reconciler
@@ -125,15 +120,4 @@ LIMIT
 	sqlc.arg('limit')
 OFFSET
 	sqlc.arg('offset')
-;
-
--- name: ListReconcilerErrorsCount :one
-SELECT
-	COUNT(*)
-FROM
-	reconciler_errors
-	JOIN reconcilers ON reconcilers.name = reconciler_errors.reconciler
-WHERE
-	reconcilers.enabled = TRUE
-	AND reconciler_errors.reconciler = @reconciler
 ;

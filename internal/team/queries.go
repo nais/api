@@ -150,11 +150,14 @@ func List(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder) 
 		return nil, err
 	}
 
-	total, err := q.Count(ctx)
-	if err != nil {
-		return nil, err
+	var total int64
+	if len(ret) > 0 {
+		total = ret[0].TotalCount
 	}
-	return pagination.NewConvertConnection(ret, page, total, toGraphTeam), nil
+
+	return pagination.NewConvertConnection(ret, page, total, func(from *teamsql.ListRow) *Team {
+		return toGraphTeam(&from.Team)
+	}), nil
 }
 
 func ListForUser(ctx context.Context, userID uuid.UUID, page *pagination.Pagination, orderBy *UserTeamOrder) (*TeamMemberConnection, error) {
@@ -170,9 +173,9 @@ func ListForUser(ctx context.Context, userID uuid.UUID, page *pagination.Paginat
 		return nil, err
 	}
 
-	total, err := q.CountForUser(ctx, userID)
-	if err != nil {
-		return nil, err
+	var total int64
+	if len(ret) > 0 {
+		total = ret[0].TotalCount
 	}
 	return pagination.NewConvertConnection(ret, page, total, toGraphUserTeam), nil
 }
@@ -207,9 +210,9 @@ func ListMembers(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		return nil, err
 	}
 
-	total, err := q.CountMembers(ctx, &teamSlug)
-	if err != nil {
-		return nil, err
+	var total int64
+	if len(ret) > 0 {
+		total = ret[0].TotalCount
 	}
 	return pagination.NewConvertConnection(ret, page, total, toGraphTeamMember), nil
 }
@@ -500,7 +503,8 @@ func UpdateEnvironment(ctx context.Context, input *UpdateTeamEnvironmentInput, a
 }
 
 func Count(ctx context.Context) (int64, error) {
-	return db(ctx).Count(ctx)
+	// TODO: REMOVE
+	return 0, nil
 }
 
 // Exists checks if an active team with the given slug exists.

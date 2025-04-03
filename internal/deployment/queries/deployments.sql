@@ -33,7 +33,8 @@ ORDER BY
 
 -- name: ListByTeamSlug :many
 SELECT
-	*
+	sqlc.embed(deployments),
+	COUNT(*) OVER () AS total_count
 FROM
 	deployments
 WHERE
@@ -44,20 +45,12 @@ LIMIT
 	sqlc.arg('limit')
 OFFSET
 	sqlc.arg('offset')
-;
-
--- name: CountForTeam :one
-SELECT
-	COUNT(*)
-FROM
-	deployments
-WHERE
-	team_slug = @team_slug::slug
 ;
 
 -- name: ListResourcesForDeployment :many
 SELECT
-	*
+	sqlc.embed(deployment_k8s_resources),
+	COUNT(*) OVER () AS total_count
 FROM
 	deployment_k8s_resources
 WHERE
@@ -68,20 +61,12 @@ LIMIT
 	sqlc.arg('limit')
 OFFSET
 	sqlc.arg('offset')
-;
-
--- name: CountResourcesForDeployment :one
-SELECT
-	COUNT(*)
-FROM
-	deployment_k8s_resources
-WHERE
-	deployment_id = @deployment_id
 ;
 
 -- name: ListStatusesForDeployment :many
 SELECT
-	*
+	sqlc.embed(deployment_statuses),
+	COUNT(*) OVER () AS total_count
 FROM
 	deployment_statuses
 WHERE
@@ -94,23 +79,10 @@ OFFSET
 	sqlc.arg('offset')
 ;
 
--- name: CountStatusesForDeploymentIDs :many
-SELECT
-	deployment_id,
-	COUNT(1)
-FROM
-	deployment_statuses
-WHERE
-	deployment_id = ANY (@deployment_ids::UUID[])
-GROUP BY
-	deployment_id
-ORDER BY
-	deployment_id
-;
-
 -- name: ListForWorkload :many
 SELECT
-	deployments.*
+	sqlc.embed(deployments),
+	COUNT(*) OVER () AS total_count
 FROM
 	deployments
 	JOIN deployment_k8s_resources ON deployments.id = deployment_k8s_resources.deployment_id
@@ -142,19 +114,6 @@ ORDER BY
 	deployments.created_at DESC
 LIMIT
 	1
-;
-
--- name: CountForWorkload :one
-SELECT
-	COUNT(*)
-FROM
-	deployments
-	JOIN deployment_k8s_resources ON deployments.id = deployment_k8s_resources.deployment_id
-WHERE
-	deployment_k8s_resources.name = @workload_name
-	AND deployment_k8s_resources.kind = @workload_kind
-	AND deployments.environment_name = @environment_name
-	AND deployments.team_slug = @team_slug
 ;
 
 -- name: CleanupNaisVerification :execresult

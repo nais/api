@@ -42,15 +42,13 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	if err != nil {
 		return nil, err
 	}
-
-	total, err := q.CountForTeam(ctx, repositorysql.CountForTeamParams{
-		TeamSlug: teamSlug,
-		Search:   filter.Name,
-	})
-	if err != nil {
-		return nil, err
+	var total int64
+	if len(ret) > 0 {
+		total = ret[0].TotalCount
 	}
-	return pagination.NewConvertConnection(ret, page, total, toGraphRepository), nil
+	return pagination.NewConvertConnection(ret, page, total, func(from *repositorysql.ListForTeamRow) *Repository {
+		return toGraphRepository(&from.TeamRepository)
+	}), nil
 }
 
 func AddToTeam(ctx context.Context, input AddRepositoryToTeamInput) (*Repository, error) {

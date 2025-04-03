@@ -23,20 +23,6 @@ func (q *Queries) ConfirmDeleteKey(ctx context.Context, key uuid.UUID) error {
 	return err
 }
 
-const count = `-- name: Count :one
-SELECT
-	COUNT(*)
-FROM
-	teams
-`
-
-func (q *Queries) Count(ctx context.Context) (int64, error) {
-	row := q.db.QueryRow(ctx, count)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
 const create = `-- name: Create :one
 INSERT INTO
 	teams (slug, purpose, slack_channel)
@@ -202,7 +188,8 @@ func (q *Queries) GetEnvironment(ctx context.Context, arg GetEnvironmentParams) 
 
 const list = `-- name: List :many
 SELECT
-	slug, purpose, last_successful_sync, slack_channel, google_group_email, entra_id_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
+	teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.entra_id_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.delete_key_confirmed_at,
+	COUNT(*) OVER () AS total_count
 FROM
 	teams
 ORDER BY
@@ -225,26 +212,32 @@ type ListParams struct {
 	Limit   int32
 }
 
-func (q *Queries) List(ctx context.Context, arg ListParams) ([]*Team, error) {
+type ListRow struct {
+	Team       Team
+	TotalCount int64
+}
+
+func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ListRow, error) {
 	rows, err := q.db.Query(ctx, list, arg.OrderBy, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*Team{}
+	items := []*ListRow{}
 	for rows.Next() {
-		var i Team
+		var i ListRow
 		if err := rows.Scan(
-			&i.Slug,
-			&i.Purpose,
-			&i.LastSuccessfulSync,
-			&i.SlackChannel,
-			&i.GoogleGroupEmail,
-			&i.EntraIDGroupID,
-			&i.GithubTeamSlug,
-			&i.GarRepository,
-			&i.CdnBucket,
-			&i.DeleteKeyConfirmedAt,
+			&i.Team.Slug,
+			&i.Team.Purpose,
+			&i.Team.LastSuccessfulSync,
+			&i.Team.SlackChannel,
+			&i.Team.GoogleGroupEmail,
+			&i.Team.EntraIDGroupID,
+			&i.Team.GithubTeamSlug,
+			&i.Team.GarRepository,
+			&i.Team.CdnBucket,
+			&i.Team.DeleteKeyConfirmedAt,
+			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}
@@ -456,66 +449,6 @@ type RemoveSlackAlertsChannelParams struct {
 func (q *Queries) RemoveSlackAlertsChannel(ctx context.Context, arg RemoveSlackAlertsChannelParams) error {
 	_, err := q.db.Exec(ctx, removeSlackAlertsChannel, arg.TeamSlug, arg.Environment)
 	return err
-}
-
-const search = `-- name: Search :many
-WITH
-	result AS (
-		SELECT
-			slug,
-			levenshtein ($1, slug) AS RANK
-		FROM
-			teams
-		ORDER BY
-			RANK ASC
-		LIMIT
-			10
-	)
-SELECT
-	teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.entra_id_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.delete_key_confirmed_at,
-	RANK
-FROM
-	teams
-	JOIN result ON teams.slug = result.slug
-ORDER BY
-	result.rank ASC
-`
-
-type SearchRow struct {
-	Team Team
-	Rank int32
-}
-
-func (q *Queries) Search(ctx context.Context, query string) ([]*SearchRow, error) {
-	rows, err := q.db.Query(ctx, search, query)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []*SearchRow{}
-	for rows.Next() {
-		var i SearchRow
-		if err := rows.Scan(
-			&i.Team.Slug,
-			&i.Team.Purpose,
-			&i.Team.LastSuccessfulSync,
-			&i.Team.SlackChannel,
-			&i.Team.GoogleGroupEmail,
-			&i.Team.EntraIDGroupID,
-			&i.Team.GithubTeamSlug,
-			&i.Team.GarRepository,
-			&i.Team.CdnBucket,
-			&i.Team.DeleteKeyConfirmedAt,
-			&i.Rank,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const setDeleteKeyConfirmedAt = `-- name: SetDeleteKeyConfirmedAt :exec

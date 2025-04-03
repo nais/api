@@ -29,20 +29,6 @@ func (q *Queries) Configure(ctx context.Context, arg ConfigureParams) error {
 	return err
 }
 
-const count = `-- name: Count :one
-SELECT
-	COUNT(*) AS total
-FROM
-	reconcilers
-`
-
-func (q *Queries) Count(ctx context.Context) (int64, error) {
-	row := q.db.QueryRow(ctx, count)
-	var total int64
-	err := row.Scan(&total)
-	return total, err
-}
-
 const disable = `-- name: Disable :one
 UPDATE reconcilers
 SET
@@ -202,7 +188,8 @@ func (q *Queries) GetReconcilerErrorByID(ctx context.Context, id uuid.UUID) (*Re
 
 const list = `-- name: List :many
 SELECT
-	name, display_name, description, enabled, member_aware
+	reconcilers.name, reconcilers.display_name, reconcilers.description, reconcilers.enabled, reconcilers.member_aware,
+	COUNT(*) OVER () AS total_count
 FROM
 	reconcilers
 ORDER BY
@@ -218,21 +205,27 @@ type ListParams struct {
 	Limit  int32
 }
 
-func (q *Queries) List(ctx context.Context, arg ListParams) ([]*Reconciler, error) {
+type ListRow struct {
+	Reconciler Reconciler
+	TotalCount int64
+}
+
+func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ListRow, error) {
 	rows, err := q.db.Query(ctx, list, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*Reconciler{}
+	items := []*ListRow{}
 	for rows.Next() {
-		var i Reconciler
+		var i ListRow
 		if err := rows.Scan(
-			&i.Name,
-			&i.DisplayName,
-			&i.Description,
-			&i.Enabled,
-			&i.MemberAware,
+			&i.Reconciler.Name,
+			&i.Reconciler.DisplayName,
+			&i.Reconciler.Description,
+			&i.Reconciler.Enabled,
+			&i.Reconciler.MemberAware,
+			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}
@@ -320,7 +313,8 @@ func (q *Queries) ListEnabledReconcilers(ctx context.Context) ([]*Reconciler, er
 
 const listReconcilerErrors = `-- name: ListReconcilerErrors :many
 SELECT
-	reconciler_errors.id, reconciler_errors.correlation_id, reconciler_errors.reconciler, reconciler_errors.created_at, reconciler_errors.error_message, reconciler_errors.team_slug
+	reconciler_errors.id, reconciler_errors.correlation_id, reconciler_errors.reconciler, reconciler_errors.created_at, reconciler_errors.error_message, reconciler_errors.team_slug,
+	COUNT(*) OVER () AS total_count
 FROM
 	reconciler_errors
 	JOIN reconcilers ON reconcilers.name = reconciler_errors.reconciler
@@ -341,22 +335,28 @@ type ListReconcilerErrorsParams struct {
 	Limit      int32
 }
 
-func (q *Queries) ListReconcilerErrors(ctx context.Context, arg ListReconcilerErrorsParams) ([]*ReconcilerError, error) {
+type ListReconcilerErrorsRow struct {
+	ReconcilerError ReconcilerError
+	TotalCount      int64
+}
+
+func (q *Queries) ListReconcilerErrors(ctx context.Context, arg ListReconcilerErrorsParams) ([]*ListReconcilerErrorsRow, error) {
 	rows, err := q.db.Query(ctx, listReconcilerErrors, arg.Reconciler, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*ReconcilerError{}
+	items := []*ListReconcilerErrorsRow{}
 	for rows.Next() {
-		var i ReconcilerError
+		var i ListReconcilerErrorsRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.CorrelationID,
-			&i.Reconciler,
-			&i.CreatedAt,
-			&i.ErrorMessage,
-			&i.TeamSlug,
+			&i.ReconcilerError.ID,
+			&i.ReconcilerError.CorrelationID,
+			&i.ReconcilerError.Reconciler,
+			&i.ReconcilerError.CreatedAt,
+			&i.ReconcilerError.ErrorMessage,
+			&i.ReconcilerError.TeamSlug,
+			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}
@@ -366,22 +366,4 @@ func (q *Queries) ListReconcilerErrors(ctx context.Context, arg ListReconcilerEr
 		return nil, err
 	}
 	return items, nil
-}
-
-const listReconcilerErrorsCount = `-- name: ListReconcilerErrorsCount :one
-SELECT
-	COUNT(*)
-FROM
-	reconciler_errors
-	JOIN reconcilers ON reconcilers.name = reconciler_errors.reconciler
-WHERE
-	reconcilers.enabled = TRUE
-	AND reconciler_errors.reconciler = $1
-`
-
-func (q *Queries) ListReconcilerErrorsCount(ctx context.Context, reconciler string) (int64, error) {
-	row := q.db.QueryRow(ctx, listReconcilerErrorsCount, reconciler)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
 }

@@ -22,30 +22,6 @@ ORDER BY
 	teams.slug ASC
 `
 
-// SELECT
-//
-//	sqlc.embed(users),
-//	sqlc.embed(user_roles)
-//
-// FROM
-//
-//	user_roles
-//	JOIN teams ON teams.slug = user_roles.target_team_slug
-//	JOIN users ON users.id = user_roles.user_id
-//
-// WHERE
-//
-//	user_roles.user_id = @user_id
-//
-// ORDER BY
-//
-//	CASE
-//		WHEN @order_by::TEXT = 'slug:asc' THEN teams.slug
-//	END ASC,
-//	CASE
-//		WHEN @order_by::TEXT = 'slug:desc' THEN teams.slug
-//	END DESC,
-//	teams.slug ASC
 func (q *Queries) TeamSlugsFromUserID(ctx context.Context, userID uuid.UUID) ([]slug.Slug, error) {
 	rows, err := q.db.Query(ctx, teamSlugsFromUserID, userID)
 	if err != nil {

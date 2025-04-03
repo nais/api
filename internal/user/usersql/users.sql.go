@@ -9,70 +9,6 @@ import (
 	"github.com/google/uuid"
 )
 
-const count = `-- name: Count :one
-SELECT
-	COUNT(*)
-FROM
-	users
-`
-
-func (q *Queries) Count(ctx context.Context) (int64, error) {
-	row := q.db.QueryRow(ctx, count)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
-const countMemberships = `-- name: CountMemberships :one
-SELECT
-	COUNT(*)
-FROM
-	user_roles
-WHERE
-	user_roles.user_id = $1
-	AND target_team_slug IS NOT NULL
-`
-
-func (q *Queries) CountMemberships(ctx context.Context, userID uuid.UUID) (int64, error) {
-	row := q.db.QueryRow(ctx, countMemberships, userID)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
-const delete = `-- name: Delete :exec
-DELETE FROM users
-WHERE
-	id = $1
-`
-
-func (q *Queries) Delete(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.Exec(ctx, delete, id)
-	return err
-}
-
-const get = `-- name: Get :one
-SELECT
-	id, email, name, external_id, admin
-FROM
-	users
-WHERE
-	id = $1
-`
-
-func (q *Queries) Get(ctx context.Context, id uuid.UUID) (*User, error) {
-	row := q.db.QueryRow(ctx, get, id)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Email,
-		&i.Name,
-		&i.ExternalID,
-		&i.Admin,
-	)
-	return &i, err
-}
-
 const getByEmail = `-- name: GetByEmail :one
 SELECT
 	id, email, name, external_id, admin
@@ -84,28 +20,6 @@ WHERE
 
 func (q *Queries) GetByEmail(ctx context.Context, email string) (*User, error) {
 	row := q.db.QueryRow(ctx, getByEmail, email)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Email,
-		&i.Name,
-		&i.ExternalID,
-		&i.Admin,
-	)
-	return &i, err
-}
-
-const getByExternalID = `-- name: GetByExternalID :one
-SELECT
-	id, email, name, external_id, admin
-FROM
-	users
-WHERE
-	external_id = $1
-`
-
-func (q *Queries) GetByExternalID(ctx context.Context, externalID string) (*User, error) {
-	row := q.db.QueryRow(ctx, getByExternalID, externalID)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -157,7 +71,8 @@ func (q *Queries) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error
 
 const list = `-- name: List :many
 SELECT
-	id, email, name, external_id, admin
+	users.id, users.email, users.name, users.external_id, users.admin,
+	COUNT(*) OVER () AS total_count
 FROM
 	users
 ORDER BY
@@ -187,21 +102,27 @@ type ListParams struct {
 	Limit   int32
 }
 
-func (q *Queries) List(ctx context.Context, arg ListParams) ([]*User, error) {
+type ListRow struct {
+	User       User
+	TotalCount int64
+}
+
+func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ListRow, error) {
 	rows, err := q.db.Query(ctx, list, arg.OrderBy, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*User{}
+	items := []*ListRow{}
 	for rows.Next() {
-		var i User
+		var i ListRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.Email,
-			&i.Name,
-			&i.ExternalID,
-			&i.Admin,
+			&i.User.ID,
+			&i.User.Email,
+			&i.User.Name,
+			&i.User.ExternalID,
+			&i.User.Admin,
+			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}
@@ -229,101 +150,4 @@ func (q *Queries) ListGCPGroupsForUser(ctx context.Context, userID uuid.UUID) ([
 	var column_1 []string
 	err := row.Scan(&column_1)
 	return column_1, err
-}
-
-const listMemberships = `-- name: ListMemberships :many
-SELECT
-	teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.entra_id_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.delete_key_confirmed_at,
-	user_roles.role_name
-FROM
-	user_roles
-	JOIN teams ON teams.slug = user_roles.target_team_slug
-WHERE
-	user_roles.user_id = $1
-ORDER BY
-	teams.slug ASC
-LIMIT
-	$3
-OFFSET
-	$2
-`
-
-type ListMembershipsParams struct {
-	UserID uuid.UUID
-	Offset int32
-	Limit  int32
-}
-
-type ListMembershipsRow struct {
-	Team     Team
-	RoleName string
-}
-
-func (q *Queries) ListMemberships(ctx context.Context, arg ListMembershipsParams) ([]*ListMembershipsRow, error) {
-	rows, err := q.db.Query(ctx, listMemberships, arg.UserID, arg.Offset, arg.Limit)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []*ListMembershipsRow{}
-	for rows.Next() {
-		var i ListMembershipsRow
-		if err := rows.Scan(
-			&i.Team.Slug,
-			&i.Team.Purpose,
-			&i.Team.LastSuccessfulSync,
-			&i.Team.SlackChannel,
-			&i.Team.GoogleGroupEmail,
-			&i.Team.EntraIDGroupID,
-			&i.Team.GithubTeamSlug,
-			&i.Team.GarRepository,
-			&i.Team.CdnBucket,
-			&i.Team.DeleteKeyConfirmedAt,
-			&i.RoleName,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const update = `-- name: Update :one
-UPDATE users
-SET
-	name = $1,
-	email = LOWER($2),
-	external_id = $3
-WHERE
-	id = $4
-RETURNING
-	id, email, name, external_id, admin
-`
-
-type UpdateParams struct {
-	Name       string
-	Email      string
-	ExternalID string
-	ID         uuid.UUID
-}
-
-func (q *Queries) Update(ctx context.Context, arg UpdateParams) (*User, error) {
-	row := q.db.QueryRow(ctx, update,
-		arg.Name,
-		arg.Email,
-		arg.ExternalID,
-		arg.ID,
-	)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Email,
-		&i.Name,
-		&i.ExternalID,
-		&i.Admin,
-	)
-	return &i, err
 }

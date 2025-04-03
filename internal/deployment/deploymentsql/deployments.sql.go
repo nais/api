@@ -23,109 +23,6 @@ func (q *Queries) CleanupNaisVerification(ctx context.Context) (pgconn.CommandTa
 	return q.db.Exec(ctx, cleanupNaisVerification)
 }
 
-const countForTeam = `-- name: CountForTeam :one
-SELECT
-	COUNT(*)
-FROM
-	deployments
-WHERE
-	team_slug = $1::slug
-`
-
-func (q *Queries) CountForTeam(ctx context.Context, teamSlug slug.Slug) (int64, error) {
-	row := q.db.QueryRow(ctx, countForTeam, teamSlug)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
-const countForWorkload = `-- name: CountForWorkload :one
-SELECT
-	COUNT(*)
-FROM
-	deployments
-	JOIN deployment_k8s_resources ON deployments.id = deployment_k8s_resources.deployment_id
-WHERE
-	deployment_k8s_resources.name = $1
-	AND deployment_k8s_resources.kind = $2
-	AND deployments.environment_name = $3
-	AND deployments.team_slug = $4
-`
-
-type CountForWorkloadParams struct {
-	WorkloadName    string
-	WorkloadKind    string
-	EnvironmentName string
-	TeamSlug        slug.Slug
-}
-
-func (q *Queries) CountForWorkload(ctx context.Context, arg CountForWorkloadParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countForWorkload,
-		arg.WorkloadName,
-		arg.WorkloadKind,
-		arg.EnvironmentName,
-		arg.TeamSlug,
-	)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
-const countResourcesForDeployment = `-- name: CountResourcesForDeployment :one
-SELECT
-	COUNT(*)
-FROM
-	deployment_k8s_resources
-WHERE
-	deployment_id = $1
-`
-
-func (q *Queries) CountResourcesForDeployment(ctx context.Context, deploymentID uuid.UUID) (int64, error) {
-	row := q.db.QueryRow(ctx, countResourcesForDeployment, deploymentID)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
-const countStatusesForDeploymentIDs = `-- name: CountStatusesForDeploymentIDs :many
-SELECT
-	deployment_id,
-	COUNT(1)
-FROM
-	deployment_statuses
-WHERE
-	deployment_id = ANY ($1::UUID[])
-GROUP BY
-	deployment_id
-ORDER BY
-	deployment_id
-`
-
-type CountStatusesForDeploymentIDsRow struct {
-	DeploymentID uuid.UUID
-	Count        int64
-}
-
-func (q *Queries) CountStatusesForDeploymentIDs(ctx context.Context, deploymentIds []uuid.UUID) ([]*CountStatusesForDeploymentIDsRow, error) {
-	rows, err := q.db.Query(ctx, countStatusesForDeploymentIDs, deploymentIds)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []*CountStatusesForDeploymentIDsRow{}
-	for rows.Next() {
-		var i CountStatusesForDeploymentIDsRow
-		if err := rows.Scan(&i.DeploymentID, &i.Count); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const latestDeploymentTimestampForWorkload = `-- name: LatestDeploymentTimestampForWorkload :one
 SELECT
 	deployments.created_at
@@ -205,7 +102,8 @@ func (q *Queries) ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*Deployment
 
 const listByTeamSlug = `-- name: ListByTeamSlug :many
 SELECT
-	id, external_id, created_at, team_slug, repository, commit_sha, deployer_username, trigger_url, environment_name
+	deployments.id, deployments.external_id, deployments.created_at, deployments.team_slug, deployments.repository, deployments.commit_sha, deployments.deployer_username, deployments.trigger_url, deployments.environment_name,
+	COUNT(*) OVER () AS total_count
 FROM
 	deployments
 WHERE
@@ -224,25 +122,31 @@ type ListByTeamSlugParams struct {
 	Limit    int32
 }
 
-func (q *Queries) ListByTeamSlug(ctx context.Context, arg ListByTeamSlugParams) ([]*Deployment, error) {
+type ListByTeamSlugRow struct {
+	Deployment Deployment
+	TotalCount int64
+}
+
+func (q *Queries) ListByTeamSlug(ctx context.Context, arg ListByTeamSlugParams) ([]*ListByTeamSlugRow, error) {
 	rows, err := q.db.Query(ctx, listByTeamSlug, arg.TeamSlug, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*Deployment{}
+	items := []*ListByTeamSlugRow{}
 	for rows.Next() {
-		var i Deployment
+		var i ListByTeamSlugRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.ExternalID,
-			&i.CreatedAt,
-			&i.TeamSlug,
-			&i.Repository,
-			&i.CommitSha,
-			&i.DeployerUsername,
-			&i.TriggerUrl,
-			&i.EnvironmentName,
+			&i.Deployment.ID,
+			&i.Deployment.ExternalID,
+			&i.Deployment.CreatedAt,
+			&i.Deployment.TeamSlug,
+			&i.Deployment.Repository,
+			&i.Deployment.CommitSha,
+			&i.Deployment.DeployerUsername,
+			&i.Deployment.TriggerUrl,
+			&i.Deployment.EnvironmentName,
+			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}
@@ -333,7 +237,8 @@ func (q *Queries) ListDeploymentStatusesByIDs(ctx context.Context, ids []uuid.UU
 
 const listForWorkload = `-- name: ListForWorkload :many
 SELECT
-	deployments.id, deployments.external_id, deployments.created_at, deployments.team_slug, deployments.repository, deployments.commit_sha, deployments.deployer_username, deployments.trigger_url, deployments.environment_name
+	deployments.id, deployments.external_id, deployments.created_at, deployments.team_slug, deployments.repository, deployments.commit_sha, deployments.deployer_username, deployments.trigger_url, deployments.environment_name,
+	COUNT(*) OVER () AS total_count
 FROM
 	deployments
 	JOIN deployment_k8s_resources ON deployments.id = deployment_k8s_resources.deployment_id
@@ -359,7 +264,12 @@ type ListForWorkloadParams struct {
 	Limit           int32
 }
 
-func (q *Queries) ListForWorkload(ctx context.Context, arg ListForWorkloadParams) ([]*Deployment, error) {
+type ListForWorkloadRow struct {
+	Deployment Deployment
+	TotalCount int64
+}
+
+func (q *Queries) ListForWorkload(ctx context.Context, arg ListForWorkloadParams) ([]*ListForWorkloadRow, error) {
 	rows, err := q.db.Query(ctx, listForWorkload,
 		arg.WorkloadName,
 		arg.WorkloadKind,
@@ -372,19 +282,20 @@ func (q *Queries) ListForWorkload(ctx context.Context, arg ListForWorkloadParams
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*Deployment{}
+	items := []*ListForWorkloadRow{}
 	for rows.Next() {
-		var i Deployment
+		var i ListForWorkloadRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.ExternalID,
-			&i.CreatedAt,
-			&i.TeamSlug,
-			&i.Repository,
-			&i.CommitSha,
-			&i.DeployerUsername,
-			&i.TriggerUrl,
-			&i.EnvironmentName,
+			&i.Deployment.ID,
+			&i.Deployment.ExternalID,
+			&i.Deployment.CreatedAt,
+			&i.Deployment.TeamSlug,
+			&i.Deployment.Repository,
+			&i.Deployment.CommitSha,
+			&i.Deployment.DeployerUsername,
+			&i.Deployment.TriggerUrl,
+			&i.Deployment.EnvironmentName,
+			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}
@@ -398,7 +309,8 @@ func (q *Queries) ListForWorkload(ctx context.Context, arg ListForWorkloadParams
 
 const listResourcesForDeployment = `-- name: ListResourcesForDeployment :many
 SELECT
-	id, created_at, deployment_id, "group", version, kind, name, namespace
+	deployment_k8s_resources.id, deployment_k8s_resources.created_at, deployment_k8s_resources.deployment_id, deployment_k8s_resources."group", deployment_k8s_resources.version, deployment_k8s_resources.kind, deployment_k8s_resources.name, deployment_k8s_resources.namespace,
+	COUNT(*) OVER () AS total_count
 FROM
 	deployment_k8s_resources
 WHERE
@@ -417,24 +329,30 @@ type ListResourcesForDeploymentParams struct {
 	Limit        int32
 }
 
-func (q *Queries) ListResourcesForDeployment(ctx context.Context, arg ListResourcesForDeploymentParams) ([]*DeploymentK8sResource, error) {
+type ListResourcesForDeploymentRow struct {
+	DeploymentK8sResource DeploymentK8sResource
+	TotalCount            int64
+}
+
+func (q *Queries) ListResourcesForDeployment(ctx context.Context, arg ListResourcesForDeploymentParams) ([]*ListResourcesForDeploymentRow, error) {
 	rows, err := q.db.Query(ctx, listResourcesForDeployment, arg.DeploymentID, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*DeploymentK8sResource{}
+	items := []*ListResourcesForDeploymentRow{}
 	for rows.Next() {
-		var i DeploymentK8sResource
+		var i ListResourcesForDeploymentRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedAt,
-			&i.DeploymentID,
-			&i.Group,
-			&i.Version,
-			&i.Kind,
-			&i.Name,
-			&i.Namespace,
+			&i.DeploymentK8sResource.ID,
+			&i.DeploymentK8sResource.CreatedAt,
+			&i.DeploymentK8sResource.DeploymentID,
+			&i.DeploymentK8sResource.Group,
+			&i.DeploymentK8sResource.Version,
+			&i.DeploymentK8sResource.Kind,
+			&i.DeploymentK8sResource.Name,
+			&i.DeploymentK8sResource.Namespace,
+			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}
@@ -448,7 +366,8 @@ func (q *Queries) ListResourcesForDeployment(ctx context.Context, arg ListResour
 
 const listStatusesForDeployment = `-- name: ListStatusesForDeployment :many
 SELECT
-	id, created_at, deployment_id, state, message
+	deployment_statuses.id, deployment_statuses.created_at, deployment_statuses.deployment_id, deployment_statuses.state, deployment_statuses.message,
+	COUNT(*) OVER () AS total_count
 FROM
 	deployment_statuses
 WHERE
@@ -467,21 +386,27 @@ type ListStatusesForDeploymentParams struct {
 	Limit        int32
 }
 
-func (q *Queries) ListStatusesForDeployment(ctx context.Context, arg ListStatusesForDeploymentParams) ([]*DeploymentStatus, error) {
+type ListStatusesForDeploymentRow struct {
+	DeploymentStatus DeploymentStatus
+	TotalCount       int64
+}
+
+func (q *Queries) ListStatusesForDeployment(ctx context.Context, arg ListStatusesForDeploymentParams) ([]*ListStatusesForDeploymentRow, error) {
 	rows, err := q.db.Query(ctx, listStatusesForDeployment, arg.DeploymentID, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*DeploymentStatus{}
+	items := []*ListStatusesForDeploymentRow{}
 	for rows.Next() {
-		var i DeploymentStatus
+		var i ListStatusesForDeploymentRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedAt,
-			&i.DeploymentID,
-			&i.State,
-			&i.Message,
+			&i.DeploymentStatus.ID,
+			&i.DeploymentStatus.CreatedAt,
+			&i.DeploymentStatus.DeploymentID,
+			&i.DeploymentStatus.State,
+			&i.DeploymentStatus.Message,
+			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}
