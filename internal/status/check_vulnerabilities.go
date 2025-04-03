@@ -15,7 +15,7 @@ func (checkVulnerabilities) Run(ctx context.Context, w workload.Workload) ([]Wor
 		return nil, WorkloadStateUnknown
 	}
 
-	if md.Summary == nil {
+	if md.Summary == nil || !md.HasSBOM {
 		return []WorkloadStatusError{&WorkloadStatusMissingSBOM{Level: WorkloadStatusErrorLevelTodo}}, WorkloadStateNais
 	}
 
