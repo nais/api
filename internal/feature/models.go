@@ -4,7 +4,6 @@ import "github.com/nais/api/internal/graph/ident"
 
 type Features struct {
 	Unleash    FeatureUnleash    `json:"unleash"`
-	Redis      FeatureRedis      `json:"redis"`
 	Valkey     FeatureValkey     `json:"valkey"`
 	Kafka      FeatureKafka      `json:"kafka"`
 	OpenSearch FeatureOpenSearch `json:"openSearch"`
@@ -19,13 +18,6 @@ type FeatureUnleash struct {
 
 func (f FeatureUnleash) ID() ident.Ident { return NewIdent("unleash") }
 func (f FeatureUnleash) IsNode()         {}
-
-type FeatureRedis struct {
-	Enabled bool `json:"enabled"`
-}
-
-func (f FeatureRedis) ID() ident.Ident { return NewIdent("redis") }
-func (f FeatureRedis) IsNode()         {}
 
 type FeatureValkey struct {
 	Enabled bool `json:"enabled"`

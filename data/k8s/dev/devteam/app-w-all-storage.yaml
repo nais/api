@@ -72,9 +72,6 @@ spec:
       - name: uniquebucketname-bucket
   kafka:
     pool: nav-dev
-  redis:
-    - instance: contests
-      access: admin
   valkey:
     - instance: contests
       access: admin

@@ -11,10 +11,6 @@ Test.gql("list enabled features", function(t)
 					id
 					enabled
 				}
-				redis {
-					id
-					enabled
-				}
 				valkey {
 					id
 					enabled
@@ -39,10 +35,6 @@ Test.gql("list enabled features", function(t)
 					id = "F_5T7D7YtTPV",
 					enabled = true,
 				},
-				redis = {
-					id = "F_DuZv6up",
-					enabled = true,
-				},
 				valkey = {
 					id = "F_21x71SHpk",
 					enabled = true,
@@ -64,10 +56,6 @@ local nodeTests = {
 	{
 		name = "FeatureUnleash",
 		id = "F_5T7D7YtTPV",
-	},
-	{
-		name = "FeatureRedis",
-		id = "F_DuZv6up",
 	},
 	{
 		name = "FeatureValkey",

@@ -50,9 +50,6 @@ spec:
       cpu: 100m
       memory: 128Mi
   skipCaBundle: true
-  redis:
-    - instance: contests
-      access: readwrite
   valkey:
     - instance: contests
       access: readwrite

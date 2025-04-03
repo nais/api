@@ -10,11 +10,6 @@ type Features implements Node {
 	unleash: FeatureUnleash!
 
 	"""
-	Information about Redis feature.
-	"""
-	redis: FeatureRedis! @deprecated(reason: "We are switching to Valkey")
-
-	"""
 	Information about Valkey feature.
 	"""
 	valkey: FeatureValkey!
@@ -45,18 +40,6 @@ type FeatureUnleash implements Node {
 
 	"""
 	Wether Unleash is enabled or not.
-	"""
-	enabled: Boolean!
-}
-
-type FeatureRedis implements Node {
-	"""
-	Unique identifier for the feature.
-	"""
-	id: ID!
-
-	"""
-	Wether Redis is enabled or not.
 	"""
 	enabled: Boolean!
 }

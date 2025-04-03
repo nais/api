@@ -85,10 +85,6 @@ type OpenSearchCost struct {
 	Sum float64 `json:"sum"`
 }
 
-type RedisInstanceCost struct {
-	Sum float64 `json:"sum"`
-}
-
 type ValkeyInstanceCost struct {
 	Sum float64 `json:"sum"`
 }
