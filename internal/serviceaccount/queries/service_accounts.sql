@@ -1,6 +1,7 @@
 -- name: List :many
 SELECT
-	*
+	sqlc.embed(service_accounts),
+	COUNT(*) OVER () AS total_count
 FROM
 	service_accounts
 ORDER BY
@@ -10,13 +11,6 @@ LIMIT
 	sqlc.arg('limit')
 OFFSET
 	sqlc.arg('offset')
-;
-
--- name: Count :one
-SELECT
-	COUNT(*)
-FROM
-	service_accounts
 ;
 
 -- name: GetServiceAccountAndTokenBySecret :one
@@ -36,7 +30,8 @@ WHERE
 
 -- name: ListTokensForServiceAccount :many
 SELECT
-	*
+	sqlc.embed(service_account_tokens),
+	COUNT(*) OVER () AS total_count
 FROM
 	service_account_tokens
 WHERE
@@ -47,15 +42,6 @@ LIMIT
 	sqlc.arg('limit')
 OFFSET
 	sqlc.arg('offset')
-;
-
--- name: CountTokensForServiceAccount :one
-SELECT
-	COUNT(*)
-FROM
-	service_account_tokens
-WHERE
-	service_account_id = @service_account_id
 ;
 
 -- name: GetByName :one

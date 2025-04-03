@@ -42,16 +42,10 @@ SELECT
 	)
 ;
 
--- name: Count :one
-SELECT
-	COUNT(*)
-FROM
-	teams
-;
-
 -- name: List :many
 SELECT
-	*
+	sqlc.embed(teams),
+	COUNT(*) OVER () AS total_count
 FROM
 	teams
 ORDER BY
@@ -164,29 +158,6 @@ SET
 	delete_key_confirmed_at = NOW()
 WHERE
 	slug = @slug
-;
-
--- name: Search :many
-WITH
-	result AS (
-		SELECT
-			slug,
-			levenshtein (@query, slug) AS RANK
-		FROM
-			teams
-		ORDER BY
-			RANK ASC
-		LIMIT
-			10
-	)
-SELECT
-	sqlc.embed(teams),
-	RANK
-FROM
-	teams
-	JOIN result ON teams.slug = result.slug
-ORDER BY
-	result.rank ASC
 ;
 
 -- name: UpsertEnvironment :exec

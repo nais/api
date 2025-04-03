@@ -4,22 +4,7 @@ package usersql
 
 import (
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/nais/api/internal/slug"
 )
-
-type Team struct {
-	Slug                 slug.Slug
-	Purpose              string
-	LastSuccessfulSync   pgtype.Timestamp
-	SlackChannel         string
-	GoogleGroupEmail     *string
-	EntraIDGroupID       *uuid.UUID
-	GithubTeamSlug       *string
-	GarRepository        *string
-	CdnBucket            *string
-	DeleteKeyConfirmedAt pgtype.Timestamptz
-}
 
 type User struct {
 	ID         uuid.UUID

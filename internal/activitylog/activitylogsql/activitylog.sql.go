@@ -10,66 +10,6 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-const countForResource = `-- name: CountForResource :one
-SELECT
-	COUNT(*)
-FROM
-	activity_log_entries
-WHERE
-	resource_type = $1
-	AND resource_name = $2
-`
-
-type CountForResourceParams struct {
-	ResourceType string
-	ResourceName string
-}
-
-func (q *Queries) CountForResource(ctx context.Context, arg CountForResourceParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countForResource, arg.ResourceType, arg.ResourceName)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
-const countForTeam = `-- name: CountForTeam :one
-SELECT
-	COUNT(*)
-FROM
-	activity_log_entries
-WHERE
-	team_slug = $1
-`
-
-func (q *Queries) CountForTeam(ctx context.Context, teamSlug *slug.Slug) (int64, error) {
-	row := q.db.QueryRow(ctx, countForTeam, teamSlug)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
-const countForTeamByResource = `-- name: CountForTeamByResource :one
-SELECT
-	COUNT(*)
-FROM
-	activity_log_entries
-WHERE
-	team_slug = $1
-	AND resource_type = $2
-`
-
-type CountForTeamByResourceParams struct {
-	TeamSlug     *slug.Slug
-	ResourceType string
-}
-
-func (q *Queries) CountForTeamByResource(ctx context.Context, arg CountForTeamByResourceParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countForTeamByResource, arg.TeamSlug, arg.ResourceType)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
 const create = `-- name: Create :exec
 INSERT INTO
 	activity_log_entries (
@@ -185,7 +125,8 @@ func (q *Queries) ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*ActivityLo
 
 const listForResource = `-- name: ListForResource :many
 SELECT
-	id, created_at, actor, action, resource_type, resource_name, team_slug, data, environment
+	activity_log_entries.id, activity_log_entries.created_at, activity_log_entries.actor, activity_log_entries.action, activity_log_entries.resource_type, activity_log_entries.resource_name, activity_log_entries.team_slug, activity_log_entries.data, activity_log_entries.environment,
+	COUNT(*) OVER () AS total_count
 FROM
 	activity_log_entries
 WHERE
@@ -206,7 +147,12 @@ type ListForResourceParams struct {
 	Limit        int32
 }
 
-func (q *Queries) ListForResource(ctx context.Context, arg ListForResourceParams) ([]*ActivityLogEntry, error) {
+type ListForResourceRow struct {
+	ActivityLogEntry ActivityLogEntry
+	TotalCount       int64
+}
+
+func (q *Queries) ListForResource(ctx context.Context, arg ListForResourceParams) ([]*ListForResourceRow, error) {
 	rows, err := q.db.Query(ctx, listForResource,
 		arg.ResourceType,
 		arg.ResourceName,
@@ -217,19 +163,20 @@ func (q *Queries) ListForResource(ctx context.Context, arg ListForResourceParams
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*ActivityLogEntry{}
+	items := []*ListForResourceRow{}
 	for rows.Next() {
-		var i ActivityLogEntry
+		var i ListForResourceRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedAt,
-			&i.Actor,
-			&i.Action,
-			&i.ResourceType,
-			&i.ResourceName,
-			&i.TeamSlug,
-			&i.Data,
-			&i.Environment,
+			&i.ActivityLogEntry.ID,
+			&i.ActivityLogEntry.CreatedAt,
+			&i.ActivityLogEntry.Actor,
+			&i.ActivityLogEntry.Action,
+			&i.ActivityLogEntry.ResourceType,
+			&i.ActivityLogEntry.ResourceName,
+			&i.ActivityLogEntry.TeamSlug,
+			&i.ActivityLogEntry.Data,
+			&i.ActivityLogEntry.Environment,
+			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}
@@ -243,7 +190,8 @@ func (q *Queries) ListForResource(ctx context.Context, arg ListForResourceParams
 
 const listForTeam = `-- name: ListForTeam :many
 SELECT
-	id, created_at, actor, action, resource_type, resource_name, team_slug, data, environment
+	activity_log_entries.id, activity_log_entries.created_at, activity_log_entries.actor, activity_log_entries.action, activity_log_entries.resource_type, activity_log_entries.resource_name, activity_log_entries.team_slug, activity_log_entries.data, activity_log_entries.environment,
+	COUNT(*) OVER () AS total_count
 FROM
 	activity_log_entries
 WHERE
@@ -262,83 +210,31 @@ type ListForTeamParams struct {
 	Limit    int32
 }
 
-func (q *Queries) ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*ActivityLogEntry, error) {
+type ListForTeamRow struct {
+	ActivityLogEntry ActivityLogEntry
+	TotalCount       int64
+}
+
+func (q *Queries) ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*ListForTeamRow, error) {
 	rows, err := q.db.Query(ctx, listForTeam, arg.TeamSlug, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*ActivityLogEntry{}
+	items := []*ListForTeamRow{}
 	for rows.Next() {
-		var i ActivityLogEntry
+		var i ListForTeamRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedAt,
-			&i.Actor,
-			&i.Action,
-			&i.ResourceType,
-			&i.ResourceName,
-			&i.TeamSlug,
-			&i.Data,
-			&i.Environment,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listForTeamByResource = `-- name: ListForTeamByResource :many
-SELECT
-	id, created_at, actor, action, resource_type, resource_name, team_slug, data, environment
-FROM
-	activity_log_entries
-WHERE
-	team_slug = $1
-	AND resource_type = $2
-ORDER BY
-	created_at DESC
-LIMIT
-	$4
-OFFSET
-	$3
-`
-
-type ListForTeamByResourceParams struct {
-	TeamSlug     *slug.Slug
-	ResourceType string
-	Offset       int32
-	Limit        int32
-}
-
-func (q *Queries) ListForTeamByResource(ctx context.Context, arg ListForTeamByResourceParams) ([]*ActivityLogEntry, error) {
-	rows, err := q.db.Query(ctx, listForTeamByResource,
-		arg.TeamSlug,
-		arg.ResourceType,
-		arg.Offset,
-		arg.Limit,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []*ActivityLogEntry{}
-	for rows.Next() {
-		var i ActivityLogEntry
-		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedAt,
-			&i.Actor,
-			&i.Action,
-			&i.ResourceType,
-			&i.ResourceName,
-			&i.TeamSlug,
-			&i.Data,
-			&i.Environment,
+			&i.ActivityLogEntry.ID,
+			&i.ActivityLogEntry.CreatedAt,
+			&i.ActivityLogEntry.Actor,
+			&i.ActivityLogEntry.Action,
+			&i.ActivityLogEntry.ResourceType,
+			&i.ActivityLogEntry.ResourceName,
+			&i.ActivityLogEntry.TeamSlug,
+			&i.ActivityLogEntry.Data,
+			&i.ActivityLogEntry.Environment,
+			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}

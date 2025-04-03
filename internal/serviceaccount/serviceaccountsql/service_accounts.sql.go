@@ -11,36 +11,6 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-const count = `-- name: Count :one
-SELECT
-	COUNT(*)
-FROM
-	service_accounts
-`
-
-func (q *Queries) Count(ctx context.Context) (int64, error) {
-	row := q.db.QueryRow(ctx, count)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
-const countTokensForServiceAccount = `-- name: CountTokensForServiceAccount :one
-SELECT
-	COUNT(*)
-FROM
-	service_account_tokens
-WHERE
-	service_account_id = $1
-`
-
-func (q *Queries) CountTokensForServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) (int64, error) {
-	row := q.db.QueryRow(ctx, countTokensForServiceAccount, serviceAccountID)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
 const create = `-- name: Create :one
 INSERT INTO
 	service_accounts (name, description, team_slug)
@@ -319,7 +289,8 @@ func (q *Queries) LastUsedAt(ctx context.Context, serviceAccountID uuid.UUID) (p
 
 const list = `-- name: List :many
 SELECT
-	id, created_at, updated_at, name, description, team_slug
+	service_accounts.id, service_accounts.created_at, service_accounts.updated_at, service_accounts.name, service_accounts.description, service_accounts.team_slug,
+	COUNT(*) OVER () AS total_count
 FROM
 	service_accounts
 ORDER BY
@@ -336,22 +307,28 @@ type ListParams struct {
 	Limit  int32
 }
 
-func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ServiceAccount, error) {
+type ListRow struct {
+	ServiceAccount ServiceAccount
+	TotalCount     int64
+}
+
+func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ListRow, error) {
 	rows, err := q.db.Query(ctx, list, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*ServiceAccount{}
+	items := []*ListRow{}
 	for rows.Next() {
-		var i ServiceAccount
+		var i ListRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.Name,
-			&i.Description,
-			&i.TeamSlug,
+			&i.ServiceAccount.ID,
+			&i.ServiceAccount.CreatedAt,
+			&i.ServiceAccount.UpdatedAt,
+			&i.ServiceAccount.Name,
+			&i.ServiceAccount.Description,
+			&i.ServiceAccount.TeamSlug,
+			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}
@@ -365,7 +342,8 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ServiceAccount, 
 
 const listTokensForServiceAccount = `-- name: ListTokensForServiceAccount :many
 SELECT
-	id, created_at, updated_at, last_used_at, expires_at, name, description, token, service_account_id
+	service_account_tokens.id, service_account_tokens.created_at, service_account_tokens.updated_at, service_account_tokens.last_used_at, service_account_tokens.expires_at, service_account_tokens.name, service_account_tokens.description, service_account_tokens.token, service_account_tokens.service_account_id,
+	COUNT(*) OVER () AS total_count
 FROM
 	service_account_tokens
 WHERE
@@ -384,25 +362,31 @@ type ListTokensForServiceAccountParams struct {
 	Limit            int32
 }
 
-func (q *Queries) ListTokensForServiceAccount(ctx context.Context, arg ListTokensForServiceAccountParams) ([]*ServiceAccountToken, error) {
+type ListTokensForServiceAccountRow struct {
+	ServiceAccountToken ServiceAccountToken
+	TotalCount          int64
+}
+
+func (q *Queries) ListTokensForServiceAccount(ctx context.Context, arg ListTokensForServiceAccountParams) ([]*ListTokensForServiceAccountRow, error) {
 	rows, err := q.db.Query(ctx, listTokensForServiceAccount, arg.ServiceAccountID, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*ServiceAccountToken{}
+	items := []*ListTokensForServiceAccountRow{}
 	for rows.Next() {
-		var i ServiceAccountToken
+		var i ListTokensForServiceAccountRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.LastUsedAt,
-			&i.ExpiresAt,
-			&i.Name,
-			&i.Description,
-			&i.Token,
-			&i.ServiceAccountID,
+			&i.ServiceAccountToken.ID,
+			&i.ServiceAccountToken.CreatedAt,
+			&i.ServiceAccountToken.UpdatedAt,
+			&i.ServiceAccountToken.LastUsedAt,
+			&i.ServiceAccountToken.ExpiresAt,
+			&i.ServiceAccountToken.Name,
+			&i.ServiceAccountToken.Description,
+			&i.ServiceAccountToken.Token,
+			&i.ServiceAccountToken.ServiceAccountID,
+			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}

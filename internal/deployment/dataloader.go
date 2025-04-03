@@ -2,7 +2,6 @@ package deployment
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -26,12 +25,11 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	internalQuerier                          *deploymentsql.Queries
-	deploymentLoader                         *dataloadgen.Loader[uuid.UUID, *Deployment]
-	deploymentResourceLoader                 *dataloadgen.Loader[uuid.UUID, *DeploymentResource]
-	deploymentStatusLoader                   *dataloadgen.Loader[uuid.UUID, *DeploymentStatus]
-	deploymentStatusForDeploymentCountLoader *dataloadgen.Loader[uuid.UUID, *deploymentStatusForDeploymentCount]
-	client                                   hookd.Client
+	internalQuerier          *deploymentsql.Queries
+	deploymentLoader         *dataloadgen.Loader[uuid.UUID, *Deployment]
+	deploymentResourceLoader *dataloadgen.Loader[uuid.UUID, *DeploymentResource]
+	deploymentStatusLoader   *dataloadgen.Loader[uuid.UUID, *DeploymentStatus]
+	client                   hookd.Client
 }
 
 func newLoaders(pool *pgxpool.Pool, client hookd.Client) *loaders {
@@ -43,11 +41,7 @@ func newLoaders(pool *pgxpool.Pool, client hookd.Client) *loaders {
 		deploymentLoader:         dataloadgen.NewLoader(deploymentLoader.list, loader.DefaultDataLoaderOptions...),
 		deploymentResourceLoader: dataloadgen.NewLoader(deploymentLoader.listDeploymentResources, loader.DefaultDataLoaderOptions...),
 		deploymentStatusLoader:   dataloadgen.NewLoader(deploymentLoader.listDeploymentStatuses, loader.DefaultDataLoaderOptions...),
-		deploymentStatusForDeploymentCountLoader: dataloadgen.NewLoader(
-			deploymentLoader.countDeploymentStatusForDeployment,
-			append(loader.DefaultDataLoaderOptions, dataloadgen.WithWait(3*time.Millisecond))...,
-		),
-		client: client,
+		client:                   client,
 	}
 }
 
@@ -68,16 +62,6 @@ func (l dataloader) listDeploymentResources(ctx context.Context, ids []uuid.UUID
 func (l dataloader) listDeploymentStatuses(ctx context.Context, ids []uuid.UUID) ([]*DeploymentStatus, []error) {
 	makeKey := func(obj *DeploymentStatus) uuid.UUID { return obj.UUID }
 	return loader.LoadModels(ctx, ids, l.db.ListDeploymentStatusesByIDs, toGraphDeploymentStatus, makeKey)
-}
-
-func (l dataloader) countDeploymentStatusForDeployment(ctx context.Context, ids []uuid.UUID) ([]*deploymentStatusForDeploymentCount, []error) {
-	makeKey := func(obj *deploymentStatusForDeploymentCount) uuid.UUID { return obj.DeploymentID }
-	return loader.LoadModels(ctx, ids, l.db.CountStatusesForDeploymentIDs, func(d *deploymentsql.CountStatusesForDeploymentIDsRow) *deploymentStatusForDeploymentCount {
-		return &deploymentStatusForDeploymentCount{
-			DeploymentID: d.DeploymentID,
-			Count:        d.Count,
-		}
-	}, makeKey)
 }
 
 func db(ctx context.Context) *deploymentsql.Queries {

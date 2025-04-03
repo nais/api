@@ -1,19 +1,7 @@
--- name: CountForTeam :one
-SELECT
-	COUNT(*)
-FROM
-	team_repositories
-WHERE
-	team_slug = @team_slug
-	AND CASE
-		WHEN sqlc.narg(search)::TEXT IS NOT NULL THEN github_repository ILIKE '%' || @search || '%'
-		ELSE TRUE
-	END
-;
-
 -- name: ListForTeam :many
 SELECT
-	*
+	sqlc.embed(team_repositories),
+	COUNT(*) OVER () AS total_count
 FROM
 	team_repositories
 WHERE

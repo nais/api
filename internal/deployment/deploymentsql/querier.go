@@ -8,23 +8,18 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/nais/api/internal/slug"
 )
 
 type Querier interface {
 	CleanupNaisVerification(ctx context.Context) (pgconn.CommandTag, error)
-	CountForTeam(ctx context.Context, teamSlug slug.Slug) (int64, error)
-	CountForWorkload(ctx context.Context, arg CountForWorkloadParams) (int64, error)
-	CountResourcesForDeployment(ctx context.Context, deploymentID uuid.UUID) (int64, error)
-	CountStatusesForDeploymentIDs(ctx context.Context, deploymentIds []uuid.UUID) ([]*CountStatusesForDeploymentIDsRow, error)
 	LatestDeploymentTimestampForWorkload(ctx context.Context, arg LatestDeploymentTimestampForWorkloadParams) (pgtype.Timestamptz, error)
 	ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*Deployment, error)
-	ListByTeamSlug(ctx context.Context, arg ListByTeamSlugParams) ([]*Deployment, error)
+	ListByTeamSlug(ctx context.Context, arg ListByTeamSlugParams) ([]*ListByTeamSlugRow, error)
 	ListDeploymentResourcesByIDs(ctx context.Context, ids []uuid.UUID) ([]*DeploymentK8sResource, error)
 	ListDeploymentStatusesByIDs(ctx context.Context, ids []uuid.UUID) ([]*DeploymentStatus, error)
-	ListForWorkload(ctx context.Context, arg ListForWorkloadParams) ([]*Deployment, error)
-	ListResourcesForDeployment(ctx context.Context, arg ListResourcesForDeploymentParams) ([]*DeploymentK8sResource, error)
-	ListStatusesForDeployment(ctx context.Context, arg ListStatusesForDeploymentParams) ([]*DeploymentStatus, error)
+	ListForWorkload(ctx context.Context, arg ListForWorkloadParams) ([]*ListForWorkloadRow, error)
+	ListResourcesForDeployment(ctx context.Context, arg ListResourcesForDeploymentParams) ([]*ListResourcesForDeploymentRow, error)
+	ListStatusesForDeployment(ctx context.Context, arg ListStatusesForDeploymentParams) ([]*ListStatusesForDeploymentRow, error)
 }
 
 var _ Querier = (*Queries)(nil)

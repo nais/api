@@ -10,8 +10,6 @@ import (
 )
 
 type Querier interface {
-	Count(ctx context.Context) (int64, error)
-	CountTokensForServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) (int64, error)
 	Create(ctx context.Context, arg CreateParams) (*ServiceAccount, error)
 	CreateToken(ctx context.Context, arg CreateTokenParams) (*ServiceAccountToken, error)
 	Delete(ctx context.Context, id uuid.UUID) error
@@ -23,8 +21,8 @@ type Querier interface {
 	GetServiceAccountAndTokenBySecret(ctx context.Context, token string) (*GetServiceAccountAndTokenBySecretRow, error)
 	GetTokensByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccountToken, error)
 	LastUsedAt(ctx context.Context, serviceAccountID uuid.UUID) (pgtype.Timestamptz, error)
-	List(ctx context.Context, arg ListParams) ([]*ServiceAccount, error)
-	ListTokensForServiceAccount(ctx context.Context, arg ListTokensForServiceAccountParams) ([]*ServiceAccountToken, error)
+	List(ctx context.Context, arg ListParams) ([]*ListRow, error)
+	ListTokensForServiceAccount(ctx context.Context, arg ListTokensForServiceAccountParams) ([]*ListTokensForServiceAccountRow, error)
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
 	Update(ctx context.Context, arg UpdateParams) (*ServiceAccount, error)
 	UpdateToken(ctx context.Context, arg UpdateTokenParams) (*ServiceAccountToken, error)

@@ -6,7 +6,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/nais/api/internal/user/usersql"
 	"github.com/nais/api/internal/usersync/usersyncer"
 	"github.com/nais/api/internal/usersync/usersyncsql"
 	"github.com/nais/tester/lua/spec"
@@ -155,8 +154,8 @@ func userGetID(L *lua.LState) int {
 }
 
 func userUpdate(L *lua.LState, u *User) {
-	db := usersql.New(L.Context().Value(databaseKey).(*pgxpool.Pool))
-	usr, err := db.Update(L.Context(), usersql.UpdateParams{
+	db := usersyncsql.New(L.Context().Value(databaseKey).(*pgxpool.Pool))
+	err := db.Update(L.Context(), usersyncsql.UpdateParams{
 		Name:       u.Name,
 		Email:      u.Email,
 		ExternalID: u.ExternalID,
@@ -165,11 +164,6 @@ func userUpdate(L *lua.LState, u *User) {
 	if err != nil {
 		L.RaiseError("failed to update user: %s", err)
 	}
-
-	u.Name = usr.Name
-	u.Email = usr.Email
-	u.ExternalID = usr.ExternalID
-	u.Admin = usr.Admin
 }
 
 func userGetSetName(L *lua.LState) int {

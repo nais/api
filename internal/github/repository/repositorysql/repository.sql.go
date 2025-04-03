@@ -30,34 +30,10 @@ func (q *Queries) AddToTeam(ctx context.Context, arg AddToTeamParams) (*TeamRepo
 	return &i, err
 }
 
-const countForTeam = `-- name: CountForTeam :one
-SELECT
-	COUNT(*)
-FROM
-	team_repositories
-WHERE
-	team_slug = $1
-	AND CASE
-		WHEN $2::TEXT IS NOT NULL THEN github_repository ILIKE '%' || $2 || '%'
-		ELSE TRUE
-	END
-`
-
-type CountForTeamParams struct {
-	TeamSlug slug.Slug
-	Search   *string
-}
-
-func (q *Queries) CountForTeam(ctx context.Context, arg CountForTeamParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countForTeam, arg.TeamSlug, arg.Search)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
 const listForTeam = `-- name: ListForTeam :many
 SELECT
-	team_slug, github_repository
+	team_repositories.team_slug, team_repositories.github_repository,
+	COUNT(*) OVER () AS total_count
 FROM
 	team_repositories
 WHERE
@@ -88,7 +64,12 @@ type ListForTeamParams struct {
 	Limit    int32
 }
 
-func (q *Queries) ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*TeamRepository, error) {
+type ListForTeamRow struct {
+	TeamRepository TeamRepository
+	TotalCount     int64
+}
+
+func (q *Queries) ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*ListForTeamRow, error) {
 	rows, err := q.db.Query(ctx, listForTeam,
 		arg.TeamSlug,
 		arg.Search,
@@ -100,10 +81,10 @@ func (q *Queries) ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*Te
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*TeamRepository{}
+	items := []*ListForTeamRow{}
 	for rows.Next() {
-		var i TeamRepository
-		if err := rows.Scan(&i.TeamSlug, &i.GithubRepository); err != nil {
+		var i ListForTeamRow
+		if err := rows.Scan(&i.TeamRepository.TeamSlug, &i.TeamRepository.GithubRepository, &i.TotalCount); err != nil {
 			return nil, err
 		}
 		items = append(items, &i)

@@ -1,7 +1,8 @@
 -- name: ListMembers :many
 SELECT
 	sqlc.embed(users),
-	sqlc.embed(user_roles)
+	sqlc.embed(user_roles),
+	COUNT(*) OVER () AS total_count
 FROM
 	user_roles
 	JOIN teams ON teams.slug = user_roles.target_team_slug
@@ -35,20 +36,11 @@ OFFSET
 	sqlc.arg('offset')
 ;
 
--- name: CountMembers :one
-SELECT
-	COUNT(user_roles.*)
-FROM
-	user_roles
-	JOIN teams ON teams.slug = user_roles.target_team_slug
-WHERE
-	user_roles.target_team_slug = @team_slug
-;
-
 -- name: ListForUser :many
 SELECT
 	sqlc.embed(users),
-	sqlc.embed(user_roles)
+	sqlc.embed(user_roles),
+	COUNT(*) OVER () AS total_count
 FROM
 	user_roles
 	JOIN teams ON teams.slug = user_roles.target_team_slug
@@ -67,16 +59,6 @@ LIMIT
 	sqlc.arg('limit')
 OFFSET
 	sqlc.arg('offset')
-;
-
--- name: CountForUser :one
-SELECT
-	COUNT(user_roles.*)
-FROM
-	user_roles
-	JOIN teams ON teams.slug = user_roles.target_team_slug
-WHERE
-	user_roles.user_id = @user_id
 ;
 
 -- name: GetMember :one
