@@ -25,12 +25,11 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	internalQuerier                          *deploymentsql.Queries
-	deploymentLoader                         *dataloadgen.Loader[uuid.UUID, *Deployment]
-	deploymentResourceLoader                 *dataloadgen.Loader[uuid.UUID, *DeploymentResource]
-	deploymentStatusLoader                   *dataloadgen.Loader[uuid.UUID, *DeploymentStatus]
-	deploymentStatusForDeploymentCountLoader *dataloadgen.Loader[uuid.UUID, *deploymentStatusForDeploymentCount]
-	client                                   hookd.Client
+	internalQuerier          *deploymentsql.Queries
+	deploymentLoader         *dataloadgen.Loader[uuid.UUID, *Deployment]
+	deploymentResourceLoader *dataloadgen.Loader[uuid.UUID, *DeploymentResource]
+	deploymentStatusLoader   *dataloadgen.Loader[uuid.UUID, *DeploymentStatus]
+	client                   hookd.Client
 }
 
 func newLoaders(pool *pgxpool.Pool, client hookd.Client) *loaders {
