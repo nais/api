@@ -12,7 +12,6 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/opensearch"
-	"github.com/nais/api/internal/persistence/redis"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/team"
@@ -78,28 +77,6 @@ func (r *openSearchResolver) Cost(ctx context.Context, obj *opensearch.OpenSearc
 	}
 
 	return &cost.OpenSearchCost{
-		Sum: float64(sum),
-	}, nil
-}
-
-func (r *redisInstanceResolver) Cost(ctx context.Context, obj *redis.RedisInstance) (*cost.RedisInstanceCost, error) {
-	if obj.WorkloadReference == nil {
-		return &cost.RedisInstanceCost{}, nil
-	}
-
-	sum, err := cost.MonthlyForService(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name, "Redis")
-	if err != nil {
-		r.log.WithError(err).WithFields(logrus.Fields{
-			"EnvironmentName": obj.EnvironmentName,
-			"TeamSlug":        obj.TeamSlug,
-			"Redis":           obj.Name,
-		}).Warn("failed to get monthly cost for Redis instance")
-		return &cost.RedisInstanceCost{
-			Sum: 0,
-		}, nil
-	}
-
-	return &cost.RedisInstanceCost{
 		Sum: float64(sum),
 	}, nil
 }

@@ -75,7 +75,6 @@ CREATE TABLE audit_logs (
 -- Cloud SQL
 -- BigQuery
 -- Kubernetes Engine
--- Redis
 -- Valkey
 -- Cloud Storage
 -- V and it should really, really be an enum.

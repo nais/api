@@ -12,14 +12,11 @@ const (
 
 func NewLoaderContext(
 	ctx context.Context,
-	unleash, redis, valkey, kafka, openSearch bool,
+	unleash, valkey, kafka, openSearch bool,
 ) context.Context {
 	return context.WithValue(ctx, loadersKey, newLoaders(&Features{
 		Unleash: FeatureUnleash{
 			Enabled: unleash,
-		},
-		Redis: FeatureRedis{
-			Enabled: redis,
 		},
 		Valkey: FeatureValkey{
 			Enabled: valkey,

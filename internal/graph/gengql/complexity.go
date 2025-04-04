@@ -9,7 +9,6 @@ import (
 	bucket "github.com/nais/api/internal/persistence/bucket"
 	kafkatopic "github.com/nais/api/internal/persistence/kafkatopic"
 	opensearch "github.com/nais/api/internal/persistence/opensearch"
-	redis "github.com/nais/api/internal/persistence/redis"
 	sqlinstance "github.com/nais/api/internal/persistence/sqlinstance"
 	valkey "github.com/nais/api/internal/persistence/valkey"
 	search "github.com/nais/api/internal/search"
@@ -100,9 +99,6 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Reconciler.Errors = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.RedisInstance.Access = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceAccessOrder) int {
-		return cursorComplexity(first, last) * childComplexity
-	}
 	c.Secret.Applications = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
@@ -149,9 +145,6 @@ func NewComplexityRoot() ComplexityRoot {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Team.OpenSearchInstances = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) int {
-		return cursorComplexity(first, last) * childComplexity
-	}
-	c.Team.RedisInstances = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Team.Repositories = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *repository.RepositoryOrder, filter *repository.TeamRepositoryFilter) int {

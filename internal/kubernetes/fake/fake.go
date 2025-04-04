@@ -151,8 +151,6 @@ func ParseResource(scheme *runtime.Scheme, b []byte, ns string) (v runtime.Objec
 // This is a hack around how k8s unsafeGuesses resource plurals
 func depluralized(s string) string {
 	switch s {
-	case "redises":
-		return "redis"
 	case "valkeies":
 		return "valkeys"
 	case "opensearchs", "opensearches":
@@ -183,7 +181,6 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 
 	return dynfake.NewSimpleDynamicClientWithCustomListKinds(newScheme,
 		map[schema.GroupVersionResource]string{
-			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("redis"):        "RedisList",
 			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("valkeys"):      "ValkeyList",
 			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("opensearches"): "OpenSearchList",
 			unleash_nais_io_v1.GroupVersion.WithResource("unleashes"):             "UnleashList",

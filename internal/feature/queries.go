@@ -26,8 +26,6 @@ func getByIdent(ctx context.Context, id ident.Ident) (model.Node, error) {
 	switch feature {
 	case "unleash":
 		return container.Unleash, nil
-	case "redis":
-		return container.Redis, nil
 	case "valkey":
 		return container.Valkey, nil
 	case "kafka":

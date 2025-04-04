@@ -39,7 +39,6 @@ autobind:
   - "github.com/nais/api/internal/persistence/bucket"
   - "github.com/nais/api/internal/persistence/kafkatopic"
   - "github.com/nais/api/internal/persistence/opensearch"
-  - "github.com/nais/api/internal/persistence/redis"
   - "github.com/nais/api/internal/persistence/sqlinstance"
   - "github.com/nais/api/internal/persistence/valkey"
   - "github.com/nais/api/internal/reconciler"

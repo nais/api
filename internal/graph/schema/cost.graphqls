@@ -156,14 +156,6 @@ type OpenSearchCost {
 	sum: Float!
 }
 
-extend type RedisInstance {
-	cost: RedisInstanceCost! @deprecated(reason: "We are switching to Valkey")
-}
-
-type RedisInstanceCost {
-	sum: Float! @deprecated(reason: "We are switching to Valkey")
-}
-
 extend type ValkeyInstance {
 	cost: ValkeyInstanceCost!
 }

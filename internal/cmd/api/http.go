@@ -29,7 +29,6 @@ import (
 	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/persistence/opensearch"
-	"github.com/nais/api/internal/persistence/redis"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/reconciler"
@@ -192,7 +191,6 @@ func ConfigureGraph(
 	jobWatcher := job.NewWatcher(ctx, watcherMgr)
 	runWatcher := job.NewRunWatcher(ctx, watcherMgr)
 	bqWatcher := bigquery.NewWatcher(ctx, watcherMgr)
-	redisWatcher := redis.NewWatcher(ctx, watcherMgr)
 	valkeyWatcher := valkey.NewWatcher(ctx, watcherMgr)
 	openSearchWatcher := opensearch.NewWatcher(ctx, watcherMgr)
 	bucketWatcher := bucket.NewWatcher(ctx, watcherMgr)
@@ -216,7 +214,6 @@ func ConfigureGraph(
 	bucket.AddSearch(searcher, bucketWatcher)
 	kafkatopic.AddSearch(searcher, kafkaTopicWatcher)
 	opensearch.AddSearch(searcher, openSearchWatcher)
-	redis.AddSearch(searcher, redisWatcher)
 	sqlinstance.AddSearch(searcher, sqlInstanceWatcher)
 	valkey.AddSearch(searcher, valkeyWatcher)
 	team.AddSearch(searcher, pool, notifier, log.WithField("subsystem", "team_search"))
@@ -272,7 +269,6 @@ func ConfigureGraph(
 		ctx = workload.NewLoaderContext(ctx, podWatcher)
 		ctx = secret.NewLoaderContext(ctx, secretClientCreator, clusters, log)
 		ctx = opensearch.NewLoaderContext(ctx, openSearchWatcher)
-		ctx = redis.NewLoaderContext(ctx, redisWatcher)
 		ctx = valkey.NewLoaderContext(ctx, valkeyWatcher)
 		ctx = utilization.NewLoaderContext(ctx, utilizationClient)
 		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, sqlDatabaseWatcher, sqlInstanceWatcher)
@@ -296,7 +292,6 @@ func ConfigureGraph(
 		ctx = feature.NewLoaderContext(
 			ctx,
 			unleashWatcher.Enabled(),
-			redisWatcher.Enabled(),
 			valkeyWatcher.Enabled(),
 			kafkaTopicWatcher.Enabled(),
 			openSearchWatcher.Enabled(),

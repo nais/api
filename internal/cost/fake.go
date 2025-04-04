@@ -181,7 +181,6 @@ func randomServices() []string {
 		"Cloud SQL",
 		"Cloud Storage",
 		"Compute Engine",
-		"Redis",
 		"Valkey",
 		"OpenSearch",
 	}
