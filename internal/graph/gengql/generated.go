@@ -2257,11 +2257,6 @@ type ComplexityRoot struct {
 		Name   func(childComplexity int) int
 	}
 
-	WorkloadStatusInboundNetwork struct {
-		Level  func(childComplexity int) int
-		Policy func(childComplexity int) int
-	}
-
 	WorkloadStatusInvalidNaisYaml struct {
 		Detail func(childComplexity int) int
 		Level  func(childComplexity int) int
@@ -2271,18 +2266,8 @@ type ComplexityRoot struct {
 		Level func(childComplexity int) int
 	}
 
-	WorkloadStatusNewInstancesFailing struct {
-		FailingInstances func(childComplexity int) int
-		Level            func(childComplexity int) int
-	}
-
 	WorkloadStatusNoRunningInstances struct {
 		Level func(childComplexity int) int
-	}
-
-	WorkloadStatusOutboundNetwork struct {
-		Level  func(childComplexity int) int
-		Policy func(childComplexity int) int
 	}
 
 	WorkloadStatusSynchronizationFailing struct {
@@ -11775,20 +11760,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.WorkloadStatusFailedRun.Name(childComplexity), true
 
-	case "WorkloadStatusInboundNetwork.level":
-		if e.complexity.WorkloadStatusInboundNetwork.Level == nil {
-			break
-		}
-
-		return e.complexity.WorkloadStatusInboundNetwork.Level(childComplexity), true
-
-	case "WorkloadStatusInboundNetwork.policy":
-		if e.complexity.WorkloadStatusInboundNetwork.Policy == nil {
-			break
-		}
-
-		return e.complexity.WorkloadStatusInboundNetwork.Policy(childComplexity), true
-
 	case "WorkloadStatusInvalidNaisYaml.detail":
 		if e.complexity.WorkloadStatusInvalidNaisYaml.Detail == nil {
 			break
@@ -11810,40 +11781,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.WorkloadStatusMissingSBOM.Level(childComplexity), true
 
-	case "WorkloadStatusNewInstancesFailing.failingInstances":
-		if e.complexity.WorkloadStatusNewInstancesFailing.FailingInstances == nil {
-			break
-		}
-
-		return e.complexity.WorkloadStatusNewInstancesFailing.FailingInstances(childComplexity), true
-
-	case "WorkloadStatusNewInstancesFailing.level":
-		if e.complexity.WorkloadStatusNewInstancesFailing.Level == nil {
-			break
-		}
-
-		return e.complexity.WorkloadStatusNewInstancesFailing.Level(childComplexity), true
-
 	case "WorkloadStatusNoRunningInstances.level":
 		if e.complexity.WorkloadStatusNoRunningInstances.Level == nil {
 			break
 		}
 
 		return e.complexity.WorkloadStatusNoRunningInstances.Level(childComplexity), true
-
-	case "WorkloadStatusOutboundNetwork.level":
-		if e.complexity.WorkloadStatusOutboundNetwork.Level == nil {
-			break
-		}
-
-		return e.complexity.WorkloadStatusOutboundNetwork.Level(childComplexity), true
-
-	case "WorkloadStatusOutboundNetwork.policy":
-		if e.complexity.WorkloadStatusOutboundNetwork.Policy == nil {
-			break
-		}
-
-		return e.complexity.WorkloadStatusOutboundNetwork.Policy(childComplexity), true
 
 	case "WorkloadStatusSynchronizationFailing.detail":
 		if e.complexity.WorkloadStatusSynchronizationFailing.Detail == nil {
@@ -17112,14 +17055,6 @@ type WorkloadStatusNoRunningInstances implements WorkloadStatusError {
 	level: WorkloadStatusErrorLevel!
 }
 
-"Error describing that a workload has new instances that are failing"
-type WorkloadStatusNewInstancesFailing implements WorkloadStatusError {
-	"Error level"
-	level: WorkloadStatusErrorLevel!
-	"Names of the failing instances"
-	failingInstances: [String!]!
-}
-
 "The last deployed YAML is invalid"
 type WorkloadStatusInvalidNaisYaml implements WorkloadStatusError {
 	"Error level"
@@ -17134,22 +17069,6 @@ type WorkloadStatusSynchronizationFailing implements WorkloadStatusError {
 	level: WorkloadStatusErrorLevel!
 	"Error message"
 	detail: String!
-}
-
-"An inbound network policies are not met"
-type WorkloadStatusInboundNetwork implements WorkloadStatusError {
-	"Error level"
-	level: WorkloadStatusErrorLevel!
-	"Network policy"
-	policy: NetworkPolicyRule!
-}
-
-"An outbound network policies are not met"
-type WorkloadStatusOutboundNetwork implements WorkloadStatusError {
-	"Error level"
-	level: WorkloadStatusErrorLevel!
-	"Network policy"
-	policy: NetworkPolicyRule!
 }
 
 "Error describing that the workload is failing to run"
@@ -88957,106 +88876,6 @@ func (ec *executionContext) fieldContext_WorkloadStatusFailedRun_name(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadStatusInboundNetwork_level(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusInboundNetwork) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkloadStatusInboundNetwork_level(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Level, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(status.WorkloadStatusErrorLevel)
-	fc.Result = res
-	return ec.marshalNWorkloadStatusErrorLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋstatusᚐWorkloadStatusErrorLevel(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WorkloadStatusInboundNetwork_level(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadStatusInboundNetwork",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type WorkloadStatusErrorLevel does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _WorkloadStatusInboundNetwork_policy(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusInboundNetwork) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkloadStatusInboundNetwork_policy(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Policy, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*netpol.NetworkPolicyRule)
-	fc.Result = res
-	return ec.marshalNNetworkPolicyRule2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicyRule(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WorkloadStatusInboundNetwork_policy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadStatusInboundNetwork",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "targetWorkloadName":
-				return ec.fieldContext_NetworkPolicyRule_targetWorkloadName(ctx, field)
-			case "targetWorkload":
-				return ec.fieldContext_NetworkPolicyRule_targetWorkload(ctx, field)
-			case "targetTeamSlug":
-				return ec.fieldContext_NetworkPolicyRule_targetTeamSlug(ctx, field)
-			case "targetTeam":
-				return ec.fieldContext_NetworkPolicyRule_targetTeam(ctx, field)
-			case "mutual":
-				return ec.fieldContext_NetworkPolicyRule_mutual(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type NetworkPolicyRule", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _WorkloadStatusInvalidNaisYaml_level(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusInvalidNaisYaml) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_WorkloadStatusInvalidNaisYaml_level(ctx, field)
 	if err != nil {
@@ -89189,94 +89008,6 @@ func (ec *executionContext) fieldContext_WorkloadStatusMissingSBOM_level(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadStatusNewInstancesFailing_level(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusNewInstancesFailing) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkloadStatusNewInstancesFailing_level(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Level, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(status.WorkloadStatusErrorLevel)
-	fc.Result = res
-	return ec.marshalNWorkloadStatusErrorLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋstatusᚐWorkloadStatusErrorLevel(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WorkloadStatusNewInstancesFailing_level(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadStatusNewInstancesFailing",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type WorkloadStatusErrorLevel does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _WorkloadStatusNewInstancesFailing_failingInstances(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusNewInstancesFailing) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkloadStatusNewInstancesFailing_failingInstances(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.FailingInstances, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]string)
-	fc.Result = res
-	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WorkloadStatusNewInstancesFailing_failingInstances(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadStatusNewInstancesFailing",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _WorkloadStatusNoRunningInstances_level(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusNoRunningInstances) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_WorkloadStatusNoRunningInstances_level(ctx, field)
 	if err != nil {
@@ -89316,106 +89047,6 @@ func (ec *executionContext) fieldContext_WorkloadStatusNoRunningInstances_level(
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type WorkloadStatusErrorLevel does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _WorkloadStatusOutboundNetwork_level(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusOutboundNetwork) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkloadStatusOutboundNetwork_level(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Level, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(status.WorkloadStatusErrorLevel)
-	fc.Result = res
-	return ec.marshalNWorkloadStatusErrorLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋstatusᚐWorkloadStatusErrorLevel(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WorkloadStatusOutboundNetwork_level(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadStatusOutboundNetwork",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type WorkloadStatusErrorLevel does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _WorkloadStatusOutboundNetwork_policy(ctx context.Context, field graphql.CollectedField, obj *status.WorkloadStatusOutboundNetwork) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkloadStatusOutboundNetwork_policy(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Policy, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*netpol.NetworkPolicyRule)
-	fc.Result = res
-	return ec.marshalNNetworkPolicyRule2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicyRule(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WorkloadStatusOutboundNetwork_policy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadStatusOutboundNetwork",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "targetWorkloadName":
-				return ec.fieldContext_NetworkPolicyRule_targetWorkloadName(ctx, field)
-			case "targetWorkload":
-				return ec.fieldContext_NetworkPolicyRule_targetWorkload(ctx, field)
-			case "targetTeamSlug":
-				return ec.fieldContext_NetworkPolicyRule_targetTeamSlug(ctx, field)
-			case "targetTeam":
-				return ec.fieldContext_NetworkPolicyRule_targetTeam(ctx, field)
-			case "mutual":
-				return ec.fieldContext_NetworkPolicyRule_mutual(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type NetworkPolicyRule", field.Name)
 		},
 	}
 	return fc, nil
@@ -96196,13 +95827,6 @@ func (ec *executionContext) _WorkloadStatusError(ctx context.Context, sel ast.Se
 			return graphql.Null
 		}
 		return ec._WorkloadStatusSynchronizationFailing(ctx, sel, obj)
-	case status.WorkloadStatusOutboundNetwork:
-		return ec._WorkloadStatusOutboundNetwork(ctx, sel, &obj)
-	case *status.WorkloadStatusOutboundNetwork:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._WorkloadStatusOutboundNetwork(ctx, sel, obj)
 	case status.WorkloadStatusNoRunningInstances:
 		return ec._WorkloadStatusNoRunningInstances(ctx, sel, &obj)
 	case *status.WorkloadStatusNoRunningInstances:
@@ -96210,13 +95834,6 @@ func (ec *executionContext) _WorkloadStatusError(ctx context.Context, sel ast.Se
 			return graphql.Null
 		}
 		return ec._WorkloadStatusNoRunningInstances(ctx, sel, obj)
-	case status.WorkloadStatusNewInstancesFailing:
-		return ec._WorkloadStatusNewInstancesFailing(ctx, sel, &obj)
-	case *status.WorkloadStatusNewInstancesFailing:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._WorkloadStatusNewInstancesFailing(ctx, sel, obj)
 	case status.WorkloadStatusMissingSBOM:
 		return ec._WorkloadStatusMissingSBOM(ctx, sel, &obj)
 	case *status.WorkloadStatusMissingSBOM:
@@ -96231,13 +95848,6 @@ func (ec *executionContext) _WorkloadStatusError(ctx context.Context, sel ast.Se
 			return graphql.Null
 		}
 		return ec._WorkloadStatusInvalidNaisYaml(ctx, sel, obj)
-	case status.WorkloadStatusInboundNetwork:
-		return ec._WorkloadStatusInboundNetwork(ctx, sel, &obj)
-	case *status.WorkloadStatusInboundNetwork:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._WorkloadStatusInboundNetwork(ctx, sel, obj)
 	case status.WorkloadStatusFailedRun:
 		return ec._WorkloadStatusFailedRun(ctx, sel, &obj)
 	case *status.WorkloadStatusFailedRun:
@@ -118797,50 +118407,6 @@ func (ec *executionContext) _WorkloadStatusFailedRun(ctx context.Context, sel as
 	return out
 }
 
-var workloadStatusInboundNetworkImplementors = []string{"WorkloadStatusInboundNetwork", "WorkloadStatusError"}
-
-func (ec *executionContext) _WorkloadStatusInboundNetwork(ctx context.Context, sel ast.SelectionSet, obj *status.WorkloadStatusInboundNetwork) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, workloadStatusInboundNetworkImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("WorkloadStatusInboundNetwork")
-		case "level":
-			out.Values[i] = ec._WorkloadStatusInboundNetwork_level(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "policy":
-			out.Values[i] = ec._WorkloadStatusInboundNetwork_policy(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var workloadStatusInvalidNaisYamlImplementors = []string{"WorkloadStatusInvalidNaisYaml", "WorkloadStatusError"}
 
 func (ec *executionContext) _WorkloadStatusInvalidNaisYaml(ctx context.Context, sel ast.SelectionSet, obj *status.WorkloadStatusInvalidNaisYaml) graphql.Marshaler {
@@ -118924,50 +118490,6 @@ func (ec *executionContext) _WorkloadStatusMissingSBOM(ctx context.Context, sel 
 	return out
 }
 
-var workloadStatusNewInstancesFailingImplementors = []string{"WorkloadStatusNewInstancesFailing", "WorkloadStatusError"}
-
-func (ec *executionContext) _WorkloadStatusNewInstancesFailing(ctx context.Context, sel ast.SelectionSet, obj *status.WorkloadStatusNewInstancesFailing) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, workloadStatusNewInstancesFailingImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("WorkloadStatusNewInstancesFailing")
-		case "level":
-			out.Values[i] = ec._WorkloadStatusNewInstancesFailing_level(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "failingInstances":
-			out.Values[i] = ec._WorkloadStatusNewInstancesFailing_failingInstances(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var workloadStatusNoRunningInstancesImplementors = []string{"WorkloadStatusNoRunningInstances", "WorkloadStatusError"}
 
 func (ec *executionContext) _WorkloadStatusNoRunningInstances(ctx context.Context, sel ast.SelectionSet, obj *status.WorkloadStatusNoRunningInstances) graphql.Marshaler {
@@ -118981,50 +118503,6 @@ func (ec *executionContext) _WorkloadStatusNoRunningInstances(ctx context.Contex
 			out.Values[i] = graphql.MarshalString("WorkloadStatusNoRunningInstances")
 		case "level":
 			out.Values[i] = ec._WorkloadStatusNoRunningInstances_level(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var workloadStatusOutboundNetworkImplementors = []string{"WorkloadStatusOutboundNetwork", "WorkloadStatusError"}
-
-func (ec *executionContext) _WorkloadStatusOutboundNetwork(ctx context.Context, sel ast.SelectionSet, obj *status.WorkloadStatusOutboundNetwork) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, workloadStatusOutboundNetworkImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("WorkloadStatusOutboundNetwork")
-		case "level":
-			out.Values[i] = ec._WorkloadStatusOutboundNetwork_level(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "policy":
-			out.Values[i] = ec._WorkloadStatusOutboundNetwork_policy(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

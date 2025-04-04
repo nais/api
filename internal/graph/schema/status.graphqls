@@ -48,14 +48,6 @@ type WorkloadStatusNoRunningInstances implements WorkloadStatusError {
 	level: WorkloadStatusErrorLevel!
 }
 
-"Error describing that a workload has new instances that are failing"
-type WorkloadStatusNewInstancesFailing implements WorkloadStatusError {
-	"Error level"
-	level: WorkloadStatusErrorLevel!
-	"Names of the failing instances"
-	failingInstances: [String!]!
-}
-
 "The last deployed YAML is invalid"
 type WorkloadStatusInvalidNaisYaml implements WorkloadStatusError {
 	"Error level"
@@ -70,22 +62,6 @@ type WorkloadStatusSynchronizationFailing implements WorkloadStatusError {
 	level: WorkloadStatusErrorLevel!
 	"Error message"
 	detail: String!
-}
-
-"An inbound network policies are not met"
-type WorkloadStatusInboundNetwork implements WorkloadStatusError {
-	"Error level"
-	level: WorkloadStatusErrorLevel!
-	"Network policy"
-	policy: NetworkPolicyRule!
-}
-
-"An outbound network policies are not met"
-type WorkloadStatusOutboundNetwork implements WorkloadStatusError {
-	"Error level"
-	level: WorkloadStatusErrorLevel!
-	"Network policy"
-	policy: NetworkPolicyRule!
 }
 
 "Error describing that the workload is failing to run"

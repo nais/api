@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/nais/api/internal/vulnerability"
-	"github.com/nais/api/internal/workload/netpol"
 )
 
 type WorkloadStatusError interface {
@@ -30,13 +29,6 @@ type WorkloadStatusDeprecatedRegistry struct {
 
 func (w WorkloadStatusDeprecatedRegistry) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
-type WorkloadStatusInboundNetwork struct {
-	Level  WorkloadStatusErrorLevel  `json:"level"`
-	Policy *netpol.NetworkPolicyRule `json:"policy"`
-}
-
-func (w WorkloadStatusInboundNetwork) GetLevel() WorkloadStatusErrorLevel { return w.Level }
-
 type WorkloadStatusInvalidNaisYaml struct {
 	Level  WorkloadStatusErrorLevel `json:"level"`
 	Detail string                   `json:"detail"`
@@ -44,25 +36,11 @@ type WorkloadStatusInvalidNaisYaml struct {
 
 func (w WorkloadStatusInvalidNaisYaml) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
-type WorkloadStatusNewInstancesFailing struct {
-	Level            WorkloadStatusErrorLevel `json:"level"`
-	FailingInstances []string                 `json:"failingInstances"`
-}
-
-func (w WorkloadStatusNewInstancesFailing) GetLevel() WorkloadStatusErrorLevel { return w.Level }
-
 type WorkloadStatusNoRunningInstances struct {
 	Level WorkloadStatusErrorLevel `json:"level"`
 }
 
 func (w WorkloadStatusNoRunningInstances) GetLevel() WorkloadStatusErrorLevel { return w.Level }
-
-type WorkloadStatusOutboundNetwork struct {
-	Level  WorkloadStatusErrorLevel  `json:"level"`
-	Policy *netpol.NetworkPolicyRule `json:"policy"`
-}
-
-func (w WorkloadStatusOutboundNetwork) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
 type WorkloadStatusSynchronizationFailing struct {
 	Level  WorkloadStatusErrorLevel `json:"level"`
