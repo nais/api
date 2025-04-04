@@ -127,11 +127,13 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	if err != nil {
 		return fmt.Errorf("create k8s watcher manager: %w", err)
 	}
+	defer watcherMgr.Stop()
 
 	mgmtWatcher, err := watcher.NewManager(scheme, kubernetes.ClusterConfigMap{"management": nil}, log.WithField("subsystem", "k8s_watcher"), watcherOpts...)
 	if err != nil {
 		return fmt.Errorf("create k8s watcher manager for management: %w", err)
 	}
+	defer mgmtWatcher.Stop()
 
 	pubsubClient, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
 	if err != nil {
