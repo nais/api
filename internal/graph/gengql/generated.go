@@ -2281,10 +2281,12 @@ type ComplexityRoot struct {
 	}
 
 	WorkloadUtilization struct {
-		Current   func(childComplexity int, resourceType utilization.UtilizationResourceType) int
-		Limit     func(childComplexity int, resourceType utilization.UtilizationResourceType) int
-		Requested func(childComplexity int, resourceType utilization.UtilizationResourceType) int
-		Series    func(childComplexity int, input utilization.WorkloadUtilizationSeriesInput) int
+		Current         func(childComplexity int, resourceType utilization.UtilizationResourceType) int
+		Limit           func(childComplexity int, resourceType utilization.UtilizationResourceType) int
+		LimitSeries     func(childComplexity int, input utilization.WorkloadUtilizationSeriesInput) int
+		Requested       func(childComplexity int, resourceType utilization.UtilizationResourceType) int
+		RequestedSeries func(childComplexity int, input utilization.WorkloadUtilizationSeriesInput) int
+		Series          func(childComplexity int, input utilization.WorkloadUtilizationSeriesInput) int
 	}
 
 	WorkloadUtilizationData struct {
@@ -2693,7 +2695,9 @@ type WorkloadCostSampleResolver interface {
 type WorkloadUtilizationResolver interface {
 	Current(ctx context.Context, obj *utilization.WorkloadUtilization, resourceType utilization.UtilizationResourceType) (float64, error)
 	Requested(ctx context.Context, obj *utilization.WorkloadUtilization, resourceType utilization.UtilizationResourceType) (float64, error)
+	RequestedSeries(ctx context.Context, obj *utilization.WorkloadUtilization, input utilization.WorkloadUtilizationSeriesInput) ([]*utilization.UtilizationSample, error)
 	Limit(ctx context.Context, obj *utilization.WorkloadUtilization, resourceType utilization.UtilizationResourceType) (*float64, error)
+	LimitSeries(ctx context.Context, obj *utilization.WorkloadUtilization, input utilization.WorkloadUtilizationSeriesInput) ([]*utilization.UtilizationSample, error)
 	Series(ctx context.Context, obj *utilization.WorkloadUtilization, input utilization.WorkloadUtilizationSeriesInput) ([]*utilization.UtilizationSample, error)
 }
 type WorkloadUtilizationDataResolver interface {
@@ -11840,6 +11844,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.WorkloadUtilization.Limit(childComplexity, args["resourceType"].(utilization.UtilizationResourceType)), true
 
+	case "WorkloadUtilization.limitSeries":
+		if e.complexity.WorkloadUtilization.LimitSeries == nil {
+			break
+		}
+
+		args, err := ec.field_WorkloadUtilization_limitSeries_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.WorkloadUtilization.LimitSeries(childComplexity, args["input"].(utilization.WorkloadUtilizationSeriesInput)), true
+
 	case "WorkloadUtilization.requested":
 		if e.complexity.WorkloadUtilization.Requested == nil {
 			break
@@ -11851,6 +11867,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.WorkloadUtilization.Requested(childComplexity, args["resourceType"].(utilization.UtilizationResourceType)), true
+
+	case "WorkloadUtilization.requestedSeries":
+		if e.complexity.WorkloadUtilization.RequestedSeries == nil {
+			break
+		}
+
+		args, err := ec.field_WorkloadUtilization_requestedSeries_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.WorkloadUtilization.RequestedSeries(childComplexity, args["input"].(utilization.WorkloadUtilizationSeriesInput)), true
 
 	case "WorkloadUtilization.series":
 		if e.complexity.WorkloadUtilization.Series == nil {
@@ -18583,8 +18611,14 @@ type WorkloadUtilization {
 	"Gets the requested amount of resources for the requested resource type."
 	requested(resourceType: UtilizationResourceType!): Float!
 
+	"Gets the requested amount of resources between start and end with step size for given resource type."
+	requestedSeries(input: WorkloadUtilizationSeriesInput!): [UtilizationSample!]!
+
 	"Gets the limit of the resources for the requested resource type."
 	limit(resourceType: UtilizationResourceType!): Float
+
+	"Gets the limit of the resources between start and end with step size for given resource type."
+	limitSeries(input: WorkloadUtilizationSeriesInput!): [UtilizationSample!]!
 
 	"Usage between start and end with step size for given resource type."
 	series(input: WorkloadUtilizationSeriesInput!): [UtilizationSample!]!
@@ -27346,6 +27380,34 @@ func (ec *executionContext) field_WorkloadUtilization_current_argsResourceType(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_WorkloadUtilization_limitSeries_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_WorkloadUtilization_limitSeries_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_WorkloadUtilization_limitSeries_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (utilization.WorkloadUtilizationSeriesInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal utilization.WorkloadUtilizationSeriesInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNWorkloadUtilizationSeriesInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationSeriesInput(ctx, tmp)
+	}
+
+	var zeroVal utilization.WorkloadUtilizationSeriesInput
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_WorkloadUtilization_limit_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -27371,6 +27433,34 @@ func (ec *executionContext) field_WorkloadUtilization_limit_argsResourceType(
 	}
 
 	var zeroVal utilization.UtilizationResourceType
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_WorkloadUtilization_requestedSeries_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_WorkloadUtilization_requestedSeries_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_WorkloadUtilization_requestedSeries_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (utilization.WorkloadUtilizationSeriesInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal utilization.WorkloadUtilizationSeriesInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNWorkloadUtilizationSeriesInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationSeriesInput(ctx, tmp)
+	}
+
+	var zeroVal utilization.WorkloadUtilizationSeriesInput
 	return zeroVal, nil
 }
 
@@ -29414,8 +29504,12 @@ func (ec *executionContext) fieldContext_Application_utilization(_ context.Conte
 				return ec.fieldContext_WorkloadUtilization_current(ctx, field)
 			case "requested":
 				return ec.fieldContext_WorkloadUtilization_requested(ctx, field)
+			case "requestedSeries":
+				return ec.fieldContext_WorkloadUtilization_requestedSeries(ctx, field)
 			case "limit":
 				return ec.fieldContext_WorkloadUtilization_limit(ctx, field)
+			case "limitSeries":
+				return ec.fieldContext_WorkloadUtilization_limitSeries(ctx, field)
 			case "series":
 				return ec.fieldContext_WorkloadUtilization_series(ctx, field)
 			}
@@ -89354,6 +89448,69 @@ func (ec *executionContext) fieldContext_WorkloadUtilization_requested(ctx conte
 	return fc, nil
 }
 
+func (ec *executionContext) _WorkloadUtilization_requestedSeries(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilization) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadUtilization_requestedSeries(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.WorkloadUtilization().RequestedSeries(rctx, obj, fc.Args["input"].(utilization.WorkloadUtilizationSeriesInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*utilization.UtilizationSample)
+	fc.Result = res
+	return ec.marshalNUtilizationSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSampleᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadUtilization_requestedSeries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadUtilization",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "timestamp":
+				return ec.fieldContext_UtilizationSample_timestamp(ctx, field)
+			case "value":
+				return ec.fieldContext_UtilizationSample_value(ctx, field)
+			case "instance":
+				return ec.fieldContext_UtilizationSample_instance(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UtilizationSample", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_WorkloadUtilization_requestedSeries_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _WorkloadUtilization_limit(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilization) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_WorkloadUtilization_limit(ctx, field)
 	if err != nil {
@@ -89400,6 +89557,69 @@ func (ec *executionContext) fieldContext_WorkloadUtilization_limit(ctx context.C
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_WorkloadUtilization_limit_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadUtilization_limitSeries(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilization) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadUtilization_limitSeries(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.WorkloadUtilization().LimitSeries(rctx, obj, fc.Args["input"].(utilization.WorkloadUtilizationSeriesInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*utilization.UtilizationSample)
+	fc.Result = res
+	return ec.marshalNUtilizationSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSampleᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadUtilization_limitSeries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadUtilization",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "timestamp":
+				return ec.fieldContext_UtilizationSample_timestamp(ctx, field)
+			case "value":
+				return ec.fieldContext_UtilizationSample_value(ctx, field)
+			case "instance":
+				return ec.fieldContext_UtilizationSample_instance(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UtilizationSample", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_WorkloadUtilization_limitSeries_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -118700,6 +118920,42 @@ func (ec *executionContext) _WorkloadUtilization(ctx context.Context, sel ast.Se
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "requestedSeries":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._WorkloadUtilization_requestedSeries(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "limit":
 			field := field
 
@@ -118710,6 +118966,42 @@ func (ec *executionContext) _WorkloadUtilization(ctx context.Context, sel ast.Se
 					}
 				}()
 				res = ec._WorkloadUtilization_limit(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "limitSeries":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._WorkloadUtilization_limitSeries(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 

@@ -213,14 +213,14 @@ func WorkloadResourceUsage(ctx context.Context, env string, teamSlug slug.Slug, 
 	return ensuredVal(v), nil
 }
 
-func WorkloadResourceUsageRange(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, resourceType UtilizationResourceType, start time.Time, end time.Time, step int) ([]*UtilizationSample, error) {
-	q := appMemoryUsage
-	if resourceType == UtilizationResourceTypeCPU {
-		q = appCPUUsage
-	}
+func queryPrometheusRange(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, queryTemplate string, start time.Time, end time.Time, step int) ([]*UtilizationSample, error) {
 	c := fromContext(ctx).client
 
-	v, warnings, err := c.queryRange(ctx, env, fmt.Sprintf(q, teamSlug, workloadName), promv1.Range{Start: start, End: end, Step: time.Duration(step) * time.Second})
+	// Format the query
+	query := fmt.Sprintf(queryTemplate, teamSlug, workloadName)
+
+	// Perform the query
+	v, warnings, err := c.queryRange(ctx, env, query, promv1.Range{Start: start, End: end, Step: time.Duration(step) * time.Second})
 	if err != nil {
 		return nil, err
 	}
@@ -228,13 +228,13 @@ func WorkloadResourceUsageRange(ctx context.Context, env string, teamSlug slug.S
 		return nil, fmt.Errorf("prometheus query warnings: %s", strings.Join(warnings, ", "))
 	}
 
+	// Process the results
 	matrix, ok := v.(prom.Matrix)
 	if !ok {
 		return nil, fmt.Errorf("expected prometheus matrix, got %T", v)
 	}
 
 	ret := make([]*UtilizationSample, 0)
-
 	for _, sample := range matrix {
 		for _, value := range sample.Values {
 			ret = append(ret, &UtilizationSample{
@@ -245,6 +245,7 @@ func WorkloadResourceUsageRange(ctx context.Context, env string, teamSlug slug.S
 		}
 	}
 
+	// Sort the results by timestamp
 	slices.SortStableFunc(ret, func(i, j *UtilizationSample) int {
 		if i.Timestamp.Before(j.Timestamp) {
 			return -1
@@ -256,6 +257,30 @@ func WorkloadResourceUsageRange(ctx context.Context, env string, teamSlug slug.S
 	})
 
 	return ret, nil
+}
+
+func WorkloadResourceUsageRange(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, resourceType UtilizationResourceType, start time.Time, end time.Time, step int) ([]*UtilizationSample, error) {
+	queryTemplate := appMemoryUsage
+	if resourceType == UtilizationResourceTypeCPU {
+		queryTemplate = appCPUUsage
+	}
+	return queryPrometheusRange(ctx, env, teamSlug, workloadName, queryTemplate, start, end, step)
+}
+
+func WorkloadResourceRequestRange(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, resourceType UtilizationResourceType, start time.Time, end time.Time, step int) ([]*UtilizationSample, error) {
+	queryTemplate := appMemoryRequest
+	if resourceType == UtilizationResourceTypeCPU {
+		queryTemplate = appCPURequest
+	}
+	return queryPrometheusRange(ctx, env, teamSlug, workloadName, queryTemplate, start, end, step)
+}
+
+func WorkloadResourceLimitRange(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, resourceType UtilizationResourceType, start time.Time, end time.Time, step int) ([]*UtilizationSample, error) {
+	queryTemplate := appMemoryLimit
+	if resourceType == UtilizationResourceTypeCPU {
+		queryTemplate = appCPULimit
+	}
+	return queryPrometheusRange(ctx, env, teamSlug, workloadName, queryTemplate, start, end, step)
 }
 
 func ensuredVal(v prom.Vector) float64 {
