@@ -298,12 +298,12 @@ func queryRange(ctx context.Context, env string, teamSlug slug.Slug, workloadNam
 }
 
 func WorkloadResourceRecommendations(ctx context.Context, env string, teamSlug slug.Slug, workloadName string) (*WorkloadUtilizationRecommendations, error) {
-	cpu, err := queryRange(ctx, env, teamSlug, workloadName, appCPUUsage, time.Now().Add(-168*time.Hour), time.Now(), 5)
+	cpu, err := queryRange(ctx, env, teamSlug, workloadName, appCPUUsage, time.Now().Add(-168*time.Hour), time.Now(), 300)
 	if err != nil {
 		return nil, err
 	}
 
-	mem, err := queryRange(ctx, env, teamSlug, workloadName, appMemoryUsage, time.Now().Add(-168*time.Hour), time.Now(), 5)
+	mem, err := queryRange(ctx, env, teamSlug, workloadName, appMemoryUsage, time.Now().Add(-168*time.Hour), time.Now(), 300)
 	if err != nil {
 		return nil, err
 	}
