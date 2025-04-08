@@ -2,6 +2,7 @@ package utilization
 
 import (
 	"context"
+	"time"
 )
 
 type ctxKey int
@@ -17,11 +18,17 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	client ResourceUsageClient
+	client   ResourceUsageClient
+	location *time.Location
 }
 
 func newLoaders(client ResourceUsageClient) *loaders {
+	loc, err := time.LoadLocation("Europe/Berlin")
+	if err != nil {
+		panic(err)
+	}
 	return &loaders{
-		client: client,
+		client:   client,
+		location: loc,
 	}
 }

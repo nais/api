@@ -33,10 +33,12 @@ const (
 	teamsMemoryRequest  = `sum by (namespace, owner_kind) (kube_pod_container_resource_requests{namespace!~%q, container!~%q, resource="memory",unit="byte"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
 	teamsMemoryUsage    = `sum by (namespace, owner_kind) (container_memory_working_set_bytes{namespace!~%q, container!~%q} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
 
-	MinCPURequest           = 0.01             // 10m
-	MinMemoryRequestBytes   = 64 * 1024 * 1024 // 64 MiB
-	MemoryRequestPercentile = 90
-	CPURequestPercentile    = 80
+	appCPUUsageForRecommendation    = `rate(container_cpu_usage_seconds_total{namespace=%q, container=%q}[5m]) and on() (hour() >= %d and hour() <= %d and day_of_week() > 0 and day_of_week() < 6)`
+	appMemoryUsageForRecommendation = `last_over_time(container_memory_working_set_bytes{namespace=%q, container=%q}[5m]) and on() (hour() >= %d and hour() <= %d and day_of_week() > 0 and day_of_week() < 6)`
+	minCPURequest                   = 0.01             // 10m
+	minMemoryRequestBytes           = 64 * 1024 * 1024 // 64 MiB
+	memoryRequestPercentile         = 90
+	cpuRequestPercentile            = 80
 )
 
 var (
@@ -269,8 +271,10 @@ func queryPrometheusRange(ctx context.Context, env string, teamSlug slug.Slug, w
 func queryRange(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, queryTemplate string, start, end time.Time, step int) ([]float64, error) {
 	c := fromContext(ctx).client
 
+	startTime := time.Date(start.Year(), start.Month(), start.Day(), 6, 0, 0, 0, fromContext(ctx).location)
+
 	// Format the query
-	query := fmt.Sprintf(queryTemplate, teamSlug, workloadName)
+	query := fmt.Sprintf(queryTemplate, teamSlug, workloadName, startTime.UTC().Hour(), startTime.Add(time.Hour*12).UTC().Hour())
 
 	// Perform the query
 	v, warnings, err := c.queryRange(ctx, env, query, promv1.Range{Start: start, End: end, Step: time.Duration(step) * time.Second})
@@ -298,12 +302,12 @@ func queryRange(ctx context.Context, env string, teamSlug slug.Slug, workloadNam
 }
 
 func WorkloadResourceRecommendations(ctx context.Context, env string, teamSlug slug.Slug, workloadName string) (*WorkloadUtilizationRecommendations, error) {
-	cpu, err := queryRange(ctx, env, teamSlug, workloadName, appCPUUsage, time.Now().Add(-168*time.Hour), time.Now(), 300)
+	cpu, err := queryRange(ctx, env, teamSlug, workloadName, appCPUUsageForRecommendation, time.Now().Add(-168*time.Hour), time.Now(), 300)
 	if err != nil {
 		return nil, err
 	}
 
-	mem, err := queryRange(ctx, env, teamSlug, workloadName, appMemoryUsage, time.Now().Add(-168*time.Hour), time.Now(), 300)
+	mem, err := queryRange(ctx, env, teamSlug, workloadName, appMemoryUsageForRecommendation, time.Now().Add(-168*time.Hour), time.Now(), 300)
 	if err != nil {
 		return nil, err
 	}
@@ -349,9 +353,9 @@ func generateRecommendation(cpuUsage, memUsage []float64) WorkloadUtilizationRec
 		return WorkloadUtilizationRecommendations{}
 	}
 
-	cpuReq := math.Max(percentile(cpuUsage, CPURequestPercentile), MinCPURequest)
+	cpuReq := math.Max(percentile(cpuUsage, cpuRequestPercentile), minCPURequest)
 
-	memReq := math.Max(percentile(memUsage, MemoryRequestPercentile), MinMemoryRequestBytes)
+	memReq := math.Max(percentile(memUsage, memoryRequestPercentile), minMemoryRequestBytes)
 	memLim := math.Max(max(memUsage)*1.2, memReq)
 
 	// Return recommendation with raw values in cores and bytes
