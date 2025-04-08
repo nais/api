@@ -32,6 +32,11 @@ const (
 	teamsCPUUsage       = `sum by (namespace, owner_kind) (rate(container_cpu_usage_seconds_total{namespace!~%q, container!~%q}[5m]) * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
 	teamsMemoryRequest  = `sum by (namespace, owner_kind) (kube_pod_container_resource_requests{namespace!~%q, container!~%q, resource="memory",unit="byte"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
 	teamsMemoryUsage    = `sum by (namespace, owner_kind) (container_memory_working_set_bytes{namespace!~%q, container!~%q} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
+
+	MinCPURequest           = 0.01             // 10m
+	MinMemoryRequestBytes   = 64 * 1024 * 1024 // 64 MiB
+	MemoryRequestPercentile = 90
+	CPURequestPercentile    = 80
 )
 
 var (
@@ -293,12 +298,12 @@ func queryRange(ctx context.Context, env string, teamSlug slug.Slug, workloadNam
 }
 
 func WorkloadResourceRecommendations(ctx context.Context, env string, teamSlug slug.Slug, workloadName string) (*WorkloadUtilizationRecommendations, error) {
-	cpu, err := queryRange(ctx, env, teamSlug, workloadName, appCPUUsage, time.Now().Add(-72*time.Hour), time.Now(), 5)
+	cpu, err := queryRange(ctx, env, teamSlug, workloadName, appCPUUsage, time.Now().Add(-168*time.Hour), time.Now(), 5)
 	if err != nil {
 		return nil, err
 	}
 
-	mem, err := queryRange(ctx, env, teamSlug, workloadName, appMemoryUsage, time.Now().Add(-72*time.Hour), time.Now(), 5)
+	mem, err := queryRange(ctx, env, teamSlug, workloadName, appMemoryUsage, time.Now().Add(-168*time.Hour), time.Now(), 5)
 	if err != nil {
 		return nil, err
 	}
@@ -344,10 +349,9 @@ func generateRecommendation(cpuUsage, memUsage []float64) WorkloadUtilizationRec
 		return WorkloadUtilizationRecommendations{}
 	}
 
-	// Calculate the recommended CPU and Memory usage
-	cpuReq := math.Max(percentile(cpuUsage, 80), 0.1)
+	cpuReq := math.Max(percentile(cpuUsage, CPURequestPercentile), MinCPURequest)
 
-	memReq := math.Max(percentile(memUsage, 90), 128*1024*1024)
+	memReq := math.Max(percentile(memUsage, MemoryRequestPercentile), MinMemoryRequestBytes)
 	memLim := math.Max(max(memUsage)*1.2, memReq)
 
 	// Return recommendation with raw values in cores and bytes
