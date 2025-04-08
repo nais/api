@@ -122,3 +122,9 @@ type ApplicationInstanceUtilization struct {
 	// Get the current usage for the requested resource type.
 	Current float64 `json:"current"`
 }
+
+type WorkloadUtilizationRecommendations struct {
+	CPURequestCores    float64 `json:"cpuRequest"`
+	MemoryRequestBytes int64   `json:"memoryRequest"`
+	MemoryLimitBytes   int64   `json:"memoryLimit"`
+}

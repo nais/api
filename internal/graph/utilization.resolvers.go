@@ -74,6 +74,10 @@ func (r *workloadUtilizationResolver) Series(ctx context.Context, obj *utilizati
 	return utilization.WorkloadResourceUsageRange(ctx, obj.EnvironmentName, obj.TeamSlug, obj.WorkloadName, input.ResourceType, input.Start, input.End, input.Step())
 }
 
+func (r *workloadUtilizationResolver) Recommendations(ctx context.Context, obj *utilization.WorkloadUtilization) (*utilization.WorkloadUtilizationRecommendations, error) {
+	return utilization.WorkloadResourceRecommendations(ctx, obj.EnvironmentName, obj.TeamSlug, obj.WorkloadName)
+}
+
 func (r *workloadUtilizationDataResolver) Workload(ctx context.Context, obj *utilization.WorkloadUtilizationData) (workload.Workload, error) {
 	return tryWorkload(ctx, obj.TeamSlug, environmentmapper.EnvironmentName(obj.EnvironmentName), obj.WorkloadName)
 }

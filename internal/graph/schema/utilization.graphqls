@@ -46,6 +46,15 @@ type WorkloadUtilization {
 
 	"Usage between start and end with step size for given resource type."
 	series(input: WorkloadUtilizationSeriesInput!): [UtilizationSample!]!
+
+	"Gets the recommended amount of resources for the workload."
+	recommendations: WorkloadUtilizationRecommendations!
+}
+
+type WorkloadUtilizationRecommendations {
+	cpuRequestCores: Float!
+	memoryRequestBytes: Int!
+	memoryLimitBytes: Int!
 }
 
 input WorkloadUtilizationSeriesInput {
