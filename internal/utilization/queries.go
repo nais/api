@@ -3,7 +3,9 @@ package utilization
 import (
 	"context"
 	"fmt"
+	"math"
 	"slices"
+	"sort"
 	"strings"
 	"time"
 
@@ -259,6 +261,52 @@ func queryPrometheusRange(ctx context.Context, env string, teamSlug slug.Slug, w
 	return ret, nil
 }
 
+func queryRange(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, queryTemplate string, start, end time.Time, step int) ([]float64, error) {
+	c := fromContext(ctx).client
+
+	// Format the query
+	query := fmt.Sprintf(queryTemplate, teamSlug, workloadName)
+
+	// Perform the query
+	v, warnings, err := c.queryRange(ctx, env, query, promv1.Range{Start: start, End: end, Step: time.Duration(step) * time.Second})
+	if err != nil {
+		return nil, err
+	}
+	if len(warnings) > 0 {
+		return nil, fmt.Errorf("prometheus query warnings: %s", strings.Join(warnings, ", "))
+	}
+
+	// Process the results
+	values := []float64{}
+
+	matrix, ok := v.(prom.Matrix)
+	if !ok {
+		return nil, fmt.Errorf("expected prometheus matrix, got %T", v)
+	}
+	for _, stream := range matrix {
+		for _, point := range stream.Values {
+			values = append(values, float64(point.Value))
+		}
+	}
+
+	return values, nil
+}
+
+func WorkloadResourceRecommendations(ctx context.Context, env string, teamSlug slug.Slug, workloadName string) (*WorkloadUtilizationRecommendations, error) {
+	cpu, err := queryRange(ctx, env, teamSlug, workloadName, appCPUUsage, time.Now().Add(-72*time.Hour), time.Now(), 5)
+	if err != nil {
+		return nil, err
+	}
+
+	mem, err := queryRange(ctx, env, teamSlug, workloadName, appMemoryUsage, time.Now().Add(-72*time.Hour), time.Now(), 5)
+	if err != nil {
+		return nil, err
+	}
+
+	reqs := generateRecommendation(cpu, mem)
+	return &reqs, nil
+}
+
 func WorkloadResourceUsageRange(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, resourceType UtilizationResourceType, start time.Time, end time.Time, step int) ([]*UtilizationSample, error) {
 	queryTemplate := appMemoryUsage
 	if resourceType == UtilizationResourceTypeCPU {
@@ -289,4 +337,48 @@ func ensuredVal(v prom.Vector) float64 {
 	}
 
 	return float64(v[0].Value)
+}
+
+func generateRecommendation(cpuUsage, memUsage []float64) WorkloadUtilizationRecommendations {
+	if len(cpuUsage) == 0 || len(memUsage) == 0 {
+		return WorkloadUtilizationRecommendations{}
+	}
+
+	// Calculate the recommended CPU and Memory usage
+	cpuReq := math.Max(percentile(cpuUsage, 80), 0.1)
+
+	memReq := math.Max(percentile(memUsage, 90), 128*1024*1024)
+	memLim := math.Max(max(memUsage)*1.2, memReq)
+
+	// Return recommendation with raw values in cores and bytes
+	return WorkloadUtilizationRecommendations{
+		CPURequestCores:    cpuReq,
+		MemoryRequestBytes: int64(math.Ceil(memReq)),
+		MemoryLimitBytes:   int64(math.Ceil(memLim)),
+	}
+}
+
+func percentile(data []float64, p float64) float64 {
+	sort.Float64s(data)
+	if len(data) == 0 {
+		return 0
+	}
+	idx := float64(len(data)-1) * p / 100.0
+	lower := int(math.Floor(idx))
+	upper := int(math.Ceil(idx))
+	if lower == upper {
+		return data[lower]
+	}
+	weight := idx - float64(lower)
+	return data[lower]*(1-weight) + data[upper]*weight
+}
+
+func max(data []float64) float64 {
+	m := data[0]
+	for _, v := range data {
+		if v > m {
+			m = v
+		}
+	}
+	return m
 }

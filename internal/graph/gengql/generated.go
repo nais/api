@@ -2284,6 +2284,7 @@ type ComplexityRoot struct {
 		Current         func(childComplexity int, resourceType utilization.UtilizationResourceType) int
 		Limit           func(childComplexity int, resourceType utilization.UtilizationResourceType) int
 		LimitSeries     func(childComplexity int, input utilization.WorkloadUtilizationSeriesInput) int
+		Recommendations func(childComplexity int) int
 		Requested       func(childComplexity int, resourceType utilization.UtilizationResourceType) int
 		RequestedSeries func(childComplexity int, input utilization.WorkloadUtilizationSeriesInput) int
 		Series          func(childComplexity int, input utilization.WorkloadUtilizationSeriesInput) int
@@ -2293,6 +2294,12 @@ type ComplexityRoot struct {
 		Requested func(childComplexity int) int
 		Used      func(childComplexity int) int
 		Workload  func(childComplexity int) int
+	}
+
+	WorkloadUtilizationRecommendations struct {
+		CPURequestCores    func(childComplexity int) int
+		MemoryLimitBytes   func(childComplexity int) int
+		MemoryRequestBytes func(childComplexity int) int
 	}
 
 	WorkloadVulnerabilitySummary struct {
@@ -2699,6 +2706,7 @@ type WorkloadUtilizationResolver interface {
 	Limit(ctx context.Context, obj *utilization.WorkloadUtilization, resourceType utilization.UtilizationResourceType) (*float64, error)
 	LimitSeries(ctx context.Context, obj *utilization.WorkloadUtilization, input utilization.WorkloadUtilizationSeriesInput) ([]*utilization.UtilizationSample, error)
 	Series(ctx context.Context, obj *utilization.WorkloadUtilization, input utilization.WorkloadUtilizationSeriesInput) ([]*utilization.UtilizationSample, error)
+	Recommendations(ctx context.Context, obj *utilization.WorkloadUtilization) (*utilization.WorkloadUtilizationRecommendations, error)
 }
 type WorkloadUtilizationDataResolver interface {
 	Workload(ctx context.Context, obj *utilization.WorkloadUtilizationData) (workload.Workload, error)
@@ -11856,6 +11864,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.WorkloadUtilization.LimitSeries(childComplexity, args["input"].(utilization.WorkloadUtilizationSeriesInput)), true
 
+	case "WorkloadUtilization.recommendations":
+		if e.complexity.WorkloadUtilization.Recommendations == nil {
+			break
+		}
+
+		return e.complexity.WorkloadUtilization.Recommendations(childComplexity), true
+
 	case "WorkloadUtilization.requested":
 		if e.complexity.WorkloadUtilization.Requested == nil {
 			break
@@ -11912,6 +11927,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.WorkloadUtilizationData.Workload(childComplexity), true
+
+	case "WorkloadUtilizationRecommendations.cpuRequestCores":
+		if e.complexity.WorkloadUtilizationRecommendations.CPURequestCores == nil {
+			break
+		}
+
+		return e.complexity.WorkloadUtilizationRecommendations.CPURequestCores(childComplexity), true
+
+	case "WorkloadUtilizationRecommendations.memoryLimitBytes":
+		if e.complexity.WorkloadUtilizationRecommendations.MemoryLimitBytes == nil {
+			break
+		}
+
+		return e.complexity.WorkloadUtilizationRecommendations.MemoryLimitBytes(childComplexity), true
+
+	case "WorkloadUtilizationRecommendations.memoryRequestBytes":
+		if e.complexity.WorkloadUtilizationRecommendations.MemoryRequestBytes == nil {
+			break
+		}
+
+		return e.complexity.WorkloadUtilizationRecommendations.MemoryRequestBytes(childComplexity), true
 
 	case "WorkloadVulnerabilitySummary.hasSBOM":
 		if e.complexity.WorkloadVulnerabilitySummary.HasSbom == nil {
@@ -18622,6 +18658,15 @@ type WorkloadUtilization {
 
 	"Usage between start and end with step size for given resource type."
 	series(input: WorkloadUtilizationSeriesInput!): [UtilizationSample!]!
+
+	"Gets the recommended amount of resources for the workload."
+	recommendations: WorkloadUtilizationRecommendations!
+}
+
+type WorkloadUtilizationRecommendations {
+	cpuRequestCores: Float!
+	memoryRequestBytes: Int!
+	memoryLimitBytes: Int!
 }
 
 input WorkloadUtilizationSeriesInput {
@@ -29512,6 +29557,8 @@ func (ec *executionContext) fieldContext_Application_utilization(_ context.Conte
 				return ec.fieldContext_WorkloadUtilization_limitSeries(ctx, field)
 			case "series":
 				return ec.fieldContext_WorkloadUtilization_series(ctx, field)
+			case "recommendations":
+				return ec.fieldContext_WorkloadUtilization_recommendations(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type WorkloadUtilization", field.Name)
 		},
@@ -89689,6 +89736,58 @@ func (ec *executionContext) fieldContext_WorkloadUtilization_series(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _WorkloadUtilization_recommendations(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilization) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadUtilization_recommendations(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.WorkloadUtilization().Recommendations(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*utilization.WorkloadUtilizationRecommendations)
+	fc.Result = res
+	return ec.marshalNWorkloadUtilizationRecommendations2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationRecommendations(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadUtilization_recommendations(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadUtilization",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cpuRequestCores":
+				return ec.fieldContext_WorkloadUtilizationRecommendations_cpuRequestCores(ctx, field)
+			case "memoryRequestBytes":
+				return ec.fieldContext_WorkloadUtilizationRecommendations_memoryRequestBytes(ctx, field)
+			case "memoryLimitBytes":
+				return ec.fieldContext_WorkloadUtilizationRecommendations_memoryLimitBytes(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WorkloadUtilizationRecommendations", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _WorkloadUtilizationData_workload(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilizationData) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_WorkloadUtilizationData_workload(ctx, field)
 	if err != nil {
@@ -89816,6 +89915,138 @@ func (ec *executionContext) fieldContext_WorkloadUtilizationData_used(_ context.
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadUtilizationRecommendations_cpuRequestCores(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilizationRecommendations) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadUtilizationRecommendations_cpuRequestCores(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CPURequestCores, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadUtilizationRecommendations_cpuRequestCores(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadUtilizationRecommendations",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadUtilizationRecommendations_memoryRequestBytes(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilizationRecommendations) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadUtilizationRecommendations_memoryRequestBytes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MemoryRequestBytes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadUtilizationRecommendations_memoryRequestBytes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadUtilizationRecommendations",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadUtilizationRecommendations_memoryLimitBytes(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilizationRecommendations) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadUtilizationRecommendations_memoryLimitBytes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MemoryLimitBytes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadUtilizationRecommendations_memoryLimitBytes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadUtilizationRecommendations",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -119061,6 +119292,42 @@ func (ec *executionContext) _WorkloadUtilization(ctx context.Context, sel ast.Se
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "recommendations":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._WorkloadUtilization_recommendations(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -119140,6 +119407,55 @@ func (ec *executionContext) _WorkloadUtilizationData(ctx context.Context, sel as
 			out.Values[i] = ec._WorkloadUtilizationData_used(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var workloadUtilizationRecommendationsImplementors = []string{"WorkloadUtilizationRecommendations"}
+
+func (ec *executionContext) _WorkloadUtilizationRecommendations(ctx context.Context, sel ast.SelectionSet, obj *utilization.WorkloadUtilizationRecommendations) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadUtilizationRecommendationsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkloadUtilizationRecommendations")
+		case "cpuRequestCores":
+			out.Values[i] = ec._WorkloadUtilizationRecommendations_cpuRequestCores(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "memoryRequestBytes":
+			out.Values[i] = ec._WorkloadUtilizationRecommendations_memoryRequestBytes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "memoryLimitBytes":
+			out.Values[i] = ec._WorkloadUtilizationRecommendations_memoryLimitBytes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -127713,6 +128029,20 @@ func (ec *executionContext) marshalNWorkloadUtilizationData2ᚕᚖgithubᚗcom�
 	wg.Wait()
 
 	return ret
+}
+
+func (ec *executionContext) marshalNWorkloadUtilizationRecommendations2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationRecommendations(ctx context.Context, sel ast.SelectionSet, v utilization.WorkloadUtilizationRecommendations) graphql.Marshaler {
+	return ec._WorkloadUtilizationRecommendations(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNWorkloadUtilizationRecommendations2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationRecommendations(ctx context.Context, sel ast.SelectionSet, v *utilization.WorkloadUtilizationRecommendations) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._WorkloadUtilizationRecommendations(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNWorkloadUtilizationSeriesInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationSeriesInput(ctx context.Context, v any) (utilization.WorkloadUtilizationSeriesInput, error) {
