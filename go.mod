@@ -1,6 +1,6 @@
 module github.com/nais/api
 
-go 1.24.1
+go 1.24.2
 
 tool (
 	github.com/99designs/gqlgen
