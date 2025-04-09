@@ -288,39 +288,6 @@ func queryPrometheusRange(ctx context.Context, env string, teamSlug slug.Slug, w
 	return ret, nil
 }
 
-func queryRange(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, queryTemplate string, start, end time.Time, step int) ([]float64, error) {
-	c := fromContext(ctx).client
-
-	startTime := time.Date(start.Year(), start.Month(), start.Day(), 6, 0, 0, 0, fromContext(ctx).location)
-
-	// Format the query
-	query := fmt.Sprintf(queryTemplate, teamSlug, workloadName, startTime.UTC().Hour(), startTime.Add(time.Hour*12).UTC().Hour())
-
-	// Perform the query
-	v, warnings, err := c.queryRange(ctx, env, query, promv1.Range{Start: start, End: end, Step: time.Duration(step) * time.Second})
-	if err != nil {
-		return nil, err
-	}
-	if len(warnings) > 0 {
-		return nil, fmt.Errorf("prometheus query warnings: %s", strings.Join(warnings, ", "))
-	}
-
-	// Process the results
-	values := []float64{}
-
-	matrix, ok := v.(prom.Matrix)
-	if !ok {
-		return nil, fmt.Errorf("expected prometheus matrix, got %T", v)
-	}
-	for _, stream := range matrix {
-		for _, point := range stream.Values {
-			values = append(values, float64(point.Value))
-		}
-	}
-
-	return values, nil
-}
-
 func WorkloadResourceRecommendations(ctx context.Context, env string, teamSlug slug.Slug, workloadName string) (*WorkloadUtilizationRecommendations, error) {
 	c := fromContext(ctx).client
 	now := time.Now().In(fromContext(ctx).location)
