@@ -244,6 +244,9 @@ func (c *FakeClient) selector(expr parser.Expr) (teamSlug slug.Slug, workload st
 		if err != nil {
 			return "", "", "", err
 		}
+	case *parser.SubqueryExpr:
+		return c.selector(expr.Expr)
+	case *parser.NumberLiteral:
 
 	default:
 		return "", "", "", fmt.Errorf("selector: unexpected expression type %T", expr)

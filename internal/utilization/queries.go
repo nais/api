@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math"
 	"slices"
-	"sort"
 	"strings"
 	"time"
 
@@ -33,12 +32,33 @@ const (
 	teamsMemoryRequest  = `sum by (namespace, owner_kind) (kube_pod_container_resource_requests{namespace!~%q, container!~%q, resource="memory",unit="byte"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
 	teamsMemoryUsage    = `sum by (namespace, owner_kind) (container_memory_working_set_bytes{namespace!~%q, container!~%q} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
 
-	appCPUUsageForRecommendation    = `rate(container_cpu_usage_seconds_total{namespace=%q, container=%q}[5m]) and on() (hour() >= %d and hour() <= %d and day_of_week() > 0 and day_of_week() < 6)`
-	appMemoryUsageForRecommendation = `last_over_time(container_memory_working_set_bytes{namespace=%q, container=%q}[5m]) and on() (hour() >= %d and hour() <= %d and day_of_week() > 0 and day_of_week() < 6)`
-	minCPURequest                   = 0.01             // 10m
-	minMemoryRequestBytes           = 64 * 1024 * 1024 // 64 MiB
-	memoryRequestPercentile         = 90
-	cpuRequestPercentile            = 80
+	cpuRequestRecommendation = `max(
+		avg_over_time(
+		  rate(container_cpu_usage_seconds_total{container=%q,namespace=%q}[5m])[1w:5m]
+		)
+	  and on ()
+		(hour() >= %d and hour() < %d and day_of_week() > 0 and day_of_week() < 6)
+	)`
+	memoryRequestRecommendation = `max(
+		avg_over_time(
+		  quantile_over_time(0.8, container_memory_working_set_bytes{container=%q,namespace=%q}[5m])[1w:5m]
+		)
+	  and on ()
+		time() >= (hour() >= %d and hour() < %d and day_of_week() > 0 and day_of_week() < 6)
+	)`
+	memoryLimitRecommendation = `max(
+		max_over_time(
+		  quantile_over_time(
+			0.95,
+			container_memory_working_set_bytes{container=%q,namespace=%q}[5m]
+		  )[1w:5m]
+		)
+	  and on ()
+		(hour() >= %d and hour() < %d and day_of_week() > 0 and day_of_week() < 6)
+	)`
+
+	minCPURequest         = 0.01             // 10m
+	minMemoryRequestBytes = 64 * 1024 * 1024 // 64 MiB
 )
 
 var (
@@ -302,18 +322,37 @@ func queryRange(ctx context.Context, env string, teamSlug slug.Slug, workloadNam
 }
 
 func WorkloadResourceRecommendations(ctx context.Context, env string, teamSlug slug.Slug, workloadName string) (*WorkloadUtilizationRecommendations, error) {
-	cpu, err := queryRange(ctx, env, teamSlug, workloadName, appCPUUsageForRecommendation, time.Now().Add(-168*time.Hour), time.Now(), 300)
+	c := fromContext(ctx).client
+	now := time.Now().In(fromContext(ctx).location)
+
+	start := time.Date(now.Year(), now.Month(), now.Day(), 6, 0, 0, 0, fromContext(ctx).location).UTC()
+
+	v, err := c.query(ctx, env, fmt.Sprintf(cpuRequestRecommendation, workloadName, teamSlug, start.Hour(), start.Add(time.Hour*12).Hour()))
 	if err != nil {
 		return nil, err
 	}
 
-	mem, err := queryRange(ctx, env, teamSlug, workloadName, appMemoryUsageForRecommendation, time.Now().Add(-168*time.Hour), time.Now(), 300)
+	cpuReq := ensuredVal(v)
+
+	v, err = c.query(ctx, env, fmt.Sprintf(memoryRequestRecommendation, workloadName, teamSlug, start.Hour(), start.Add(time.Hour*12).Hour()))
 	if err != nil {
 		return nil, err
 	}
 
-	reqs := generateRecommendation(cpu, mem)
-	return &reqs, nil
+	memReq := ensuredVal(v)
+
+	v, err = c.query(ctx, env, fmt.Sprintf(memoryLimitRecommendation, workloadName, teamSlug, start.Hour(), start.Add(time.Hour*12).Hour()))
+	if err != nil {
+		return nil, err
+	}
+
+	memLimit := ensuredVal(v)
+
+	return &WorkloadUtilizationRecommendations{
+		CPURequestCores:    math.Max(cpuReq, minCPURequest),
+		MemoryRequestBytes: int64(math.Ceil(math.Max(memReq, minMemoryRequestBytes))),
+		MemoryLimitBytes:   int64(math.Ceil(math.Max(memLimit, minMemoryRequestBytes))),
+	}, nil
 }
 
 func WorkloadResourceUsageRange(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, resourceType UtilizationResourceType, start time.Time, end time.Time, step int) ([]*UtilizationSample, error) {
@@ -346,47 +385,4 @@ func ensuredVal(v prom.Vector) float64 {
 	}
 
 	return float64(v[0].Value)
-}
-
-func generateRecommendation(cpuUsage, memUsage []float64) WorkloadUtilizationRecommendations {
-	if len(cpuUsage) == 0 || len(memUsage) == 0 {
-		return WorkloadUtilizationRecommendations{}
-	}
-
-	cpuReq := math.Max(percentile(cpuUsage, cpuRequestPercentile), minCPURequest)
-
-	memReq := math.Max(percentile(memUsage, memoryRequestPercentile), minMemoryRequestBytes)
-	memLim := math.Max(max(memUsage)*1.2, memReq)
-
-	// Return recommendation with raw values in cores and bytes
-	return WorkloadUtilizationRecommendations{
-		CPURequestCores:    cpuReq,
-		MemoryRequestBytes: int64(math.Ceil(memReq)),
-		MemoryLimitBytes:   int64(math.Ceil(memLim)),
-	}
-}
-
-func percentile(data []float64, p float64) float64 {
-	sort.Float64s(data)
-	if len(data) == 0 {
-		return 0
-	}
-	idx := float64(len(data)-1) * p / 100.0
-	lower := int(math.Floor(idx))
-	upper := int(math.Ceil(idx))
-	if lower == upper {
-		return data[lower]
-	}
-	weight := idx - float64(lower)
-	return data[lower]*(1-weight) + data[upper]*weight
-}
-
-func max(data []float64) float64 {
-	m := data[0]
-	for _, v := range data {
-		if v > m {
-			m = v
-		}
-	}
-	return m
 }
