@@ -162,7 +162,14 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 
 	graphMiddleware, err := api.ConfigureGraph(
 		ctx,
-		true,
+		api.Fakes{
+			WithFakeKubernetes:     true,
+			WithFakeHookd:          true,
+			WithInsecureUserHeader: true,
+			WithFakeCloudSQL:       true,
+			WithFakePrometheus:     true,
+			WithFakeCostClient:     true,
+		},
 		watcherMgr,
 		managementWatcherMgr,
 		pool,

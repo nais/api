@@ -37,6 +37,7 @@ import (
 	"github.com/nais/api/internal/session"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/thirdparty/hookd"
+	"github.com/nais/api/internal/thirdparty/promclient"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/usersync"
@@ -60,8 +61,8 @@ import (
 // runHttpServer will start the HTTP server
 func runHttpServer(
 	ctx context.Context,
+	fakes Fakes,
 	listenAddress string,
-	insecureAuthAndFakes bool,
 	tenantName string,
 	clusters []string,
 	pool *pgxpool.Pool,
@@ -84,7 +85,7 @@ func runHttpServer(
 
 	contextDependencies, err := ConfigureGraph(
 		ctx,
-		insecureAuthAndFakes,
+		fakes,
 		watcherMgr,
 		mgmtWatcherMgr,
 		pool,
@@ -114,7 +115,7 @@ func runHttpServer(
 			).Handler,
 		}
 
-		if insecureAuthAndFakes {
+		if fakes.WithInsecureUserHeader {
 			middlewares = append(middlewares, middleware.InsecureUserHeader())
 		}
 
@@ -173,7 +174,7 @@ func runHttpServer(
 
 func ConfigureGraph(
 	ctx context.Context,
-	fakeClients bool,
+	fakes Fakes,
 	watcherMgr *watcher.Manager,
 	mgmtWatcherMgr *watcher.Manager,
 	pool *pgxpool.Pool,
@@ -223,34 +224,38 @@ func ConfigureGraph(
 		return nil, fmt.Errorf("reindex all: %w", err)
 	}
 
-	sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(fakeClients), sqlinstance.WithInstanceWatcher(sqlInstanceWatcher))
+	sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(fakes.WithFakeCloudSQL), sqlinstance.WithInstanceWatcher(sqlInstanceWatcher))
 	if err != nil {
 		return nil, fmt.Errorf("create SQL Admin service: %w", err)
 	}
 
-	var utilizationClient utilization.ResourceUsageClient
-	var costOpts []cost.Option
-	var podLogStreamer podlog.Streamer
-	var secretClientCreator secret.ClientCreator
-	if fakeClients {
-		utilizationClient = utilization.NewFakeClient(clusters, nil, nil)
-		costOpts = append(costOpts, cost.WithClient(cost.NewFakeClient()))
-		podLogStreamer = fakepodlog.NewLogStreamer()
-
-		secretClientCreator = secret.CreatorFromClients(watcherMgr.GetDynamicClients())
+	var prometheusClient promclient.Client
+	if fakes.WithFakePrometheus {
+		prometheusClient = promclient.NewFakeClient(clusters, nil, nil)
 	} else {
 		var err error
-		utilizationClient, err = utilization.NewClient(clusters, tenantName, log)
+		prometheusClient, err = promclient.New(clusters, tenantName, log)
 		if err != nil {
 			return nil, fmt.Errorf("create utilization client: %w", err)
 		}
-
+	}
+	var podLogStreamer podlog.Streamer
+	var secretClientCreator secret.ClientCreator
+	if fakes.WithFakeKubernetes {
+		podLogStreamer = fakepodlog.NewLogStreamer()
+		secretClientCreator = secret.CreatorFromClients(watcherMgr.GetDynamicClients())
+	} else {
 		clients, err := apik8s.NewClientSets(k8sClients)
 		if err != nil {
 			return nil, fmt.Errorf("create k8s client sets: %w", err)
 		}
 		podLogStreamer = podlog.NewLogStreamer(clients, log)
 		secretClientCreator = secret.CreatorFromConfig(ctx, k8sClients)
+	}
+
+	var costOpts []cost.Option
+	if fakes.WithFakeCostClient {
+		costOpts = append(costOpts, cost.WithClient(cost.NewFakeClient()))
 	}
 
 	syncCtx, cancelSync := context.WithTimeout(ctx, 20*time.Second)
@@ -270,7 +275,7 @@ func ConfigureGraph(
 		ctx = secret.NewLoaderContext(ctx, secretClientCreator, clusters, log)
 		ctx = opensearch.NewLoaderContext(ctx, openSearchWatcher)
 		ctx = valkey.NewLoaderContext(ctx, valkeyWatcher)
-		ctx = utilization.NewLoaderContext(ctx, utilizationClient)
+		ctx = utilization.NewLoaderContext(ctx, prometheusClient)
 		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, sqlDatabaseWatcher, sqlInstanceWatcher)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, namespaceWatcher)
@@ -280,7 +285,7 @@ func ConfigureGraph(
 		ctx = repository.NewLoaderContext(ctx, pool)
 		ctx = authz.NewLoaderContext(ctx, pool)
 		ctx = activitylog.NewLoaderContext(ctx, pool)
-		ctx = vulnerability.NewLoaderContext(ctx, vulnMgr, tenantName, clusters, fakeClients, log)
+		ctx = vulnerability.NewLoaderContext(ctx, vulnMgr, prometheusClient, log)
 		ctx = reconciler.NewLoaderContext(ctx, pool)
 		ctx = deployment.NewLoaderContext(ctx, pool, hookdClient)
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)

@@ -75,7 +75,7 @@ func ForInstance(ctx context.Context, env string, teamSlug slug.Slug, workloadNa
 
 	c := fromContext(ctx).client
 
-	current, err := c.query(ctx, env, fmt.Sprintf(usageQ, teamSlug, workloadName, instanceName))
+	current, err := c.Query(ctx, env, fmt.Sprintf(usageQ, teamSlug, workloadName, instanceName))
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func ForTeams(ctx context.Context, resourceType UtilizationResourceType) ([]*Tea
 
 	c := fromContext(ctx).client
 
-	requested, err := c.queryAll(ctx, fmt.Sprintf(reqQ, ignoredNamespaces, ignoredContainers))
+	requested, err := c.QueryAll(ctx, fmt.Sprintf(reqQ, ignoredNamespaces, ignoredContainers))
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func ForTeams(ctx context.Context, resourceType UtilizationResourceType) ([]*Tea
 		}
 	}
 
-	used, err := c.queryAll(ctx, fmt.Sprintf(usageQ, ignoredNamespaces, ignoredContainers))
+	used, err := c.QueryAll(ctx, fmt.Sprintf(usageQ, ignoredNamespaces, ignoredContainers))
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +155,7 @@ func ForTeam(ctx context.Context, teamSlug slug.Slug, resourceType UtilizationRe
 
 	c := fromContext(ctx).client
 
-	requested, err := c.queryAll(ctx, fmt.Sprintf(reqQ, teamSlug, ignoredContainers))
+	requested, err := c.QueryAll(ctx, fmt.Sprintf(reqQ, teamSlug, ignoredContainers))
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +173,7 @@ func ForTeam(ctx context.Context, teamSlug slug.Slug, resourceType UtilizationRe
 		}
 	}
 
-	used, err := c.queryAll(ctx, fmt.Sprintf(usageQ, teamSlug, ignoredContainers))
+	used, err := c.QueryAll(ctx, fmt.Sprintf(usageQ, teamSlug, ignoredContainers))
 	if err != nil {
 		return nil, err
 	}
@@ -199,7 +199,7 @@ func WorkloadResourceRequest(ctx context.Context, env string, teamSlug slug.Slug
 
 	c := fromContext(ctx).client
 
-	v, err := c.query(ctx, env, fmt.Sprintf(q, teamSlug, workloadName))
+	v, err := c.Query(ctx, env, fmt.Sprintf(q, teamSlug, workloadName))
 	if err != nil {
 		return 0, err
 	}
@@ -214,7 +214,7 @@ func WorkloadResourceLimit(ctx context.Context, env string, teamSlug slug.Slug, 
 
 	c := fromContext(ctx).client
 
-	v, err := c.query(ctx, env, fmt.Sprintf(q, teamSlug, workloadName))
+	v, err := c.Query(ctx, env, fmt.Sprintf(q, teamSlug, workloadName))
 	if err != nil {
 		return nil, err
 	}
@@ -234,7 +234,7 @@ func WorkloadResourceUsage(ctx context.Context, env string, teamSlug slug.Slug, 
 
 	c := fromContext(ctx).client
 
-	v, err := c.query(ctx, env, fmt.Sprintf(q, teamSlug, workloadName))
+	v, err := c.Query(ctx, env, fmt.Sprintf(q, teamSlug, workloadName))
 	if err != nil {
 		return 0, err
 	}
@@ -249,7 +249,7 @@ func queryPrometheusRange(ctx context.Context, env string, teamSlug slug.Slug, w
 	query := fmt.Sprintf(queryTemplate, teamSlug, workloadName)
 
 	// Perform the query
-	v, warnings, err := c.queryRange(ctx, env, query, promv1.Range{Start: start, End: end, Step: time.Duration(step) * time.Second})
+	v, warnings, err := c.QueryRange(ctx, env, query, promv1.Range{Start: start, End: end, Step: time.Duration(step) * time.Second})
 	if err != nil {
 		return nil, err
 	}
@@ -294,21 +294,21 @@ func WorkloadResourceRecommendations(ctx context.Context, env string, teamSlug s
 
 	start := time.Date(now.Year(), now.Month(), now.Day(), 6, 0, 0, 0, fromContext(ctx).location).UTC()
 
-	v, err := c.query(ctx, env, fmt.Sprintf(cpuRequestRecommendation, workloadName, teamSlug, start.Hour(), start.Add(time.Hour*12).Hour()))
+	v, err := c.Query(ctx, env, fmt.Sprintf(cpuRequestRecommendation, workloadName, teamSlug, start.Hour(), start.Add(time.Hour*12).Hour()))
 	if err != nil {
 		return nil, err
 	}
 
 	cpuReq := ensuredVal(v)
 
-	v, err = c.query(ctx, env, fmt.Sprintf(memoryRequestRecommendation, workloadName, teamSlug, start.Hour(), start.Add(time.Hour*12).Hour()))
+	v, err = c.Query(ctx, env, fmt.Sprintf(memoryRequestRecommendation, workloadName, teamSlug, start.Hour(), start.Add(time.Hour*12).Hour()))
 	if err != nil {
 		return nil, err
 	}
 
 	memReq := ensuredVal(v)
 
-	v, err = c.query(ctx, env, fmt.Sprintf(memoryLimitRecommendation, workloadName, teamSlug, start.Hour(), start.Add(time.Hour*12).Hour()))
+	v, err = c.Query(ctx, env, fmt.Sprintf(memoryLimitRecommendation, workloadName, teamSlug, start.Hour(), start.Add(time.Hour*12).Hour()))
 	if err != nil {
 		return nil, err
 	}

@@ -52,6 +52,12 @@ func Run(ctx context.Context) {
 		os.Exit(exitCodeEnvFileError)
 	}
 
+	if _, ok := os.LookupEnv("WITH_FAKE_CLIENTS"); ok {
+		log.Errorf("WITH_FAKE_CLIENTS should no longer be used. Update your .env file or environment variables.")
+		log.Errorf("See .env.example for new environment variables.")
+		os.Exit(1)
+	}
+
 	cfg, err := NewConfig(ctx, envconfig.OsLookuper())
 	if err != nil {
 		log.WithError(err).Errorf("error when processing configuration")
@@ -63,6 +69,8 @@ func Run(ctx context.Context) {
 		log.WithError(err).Errorf("error when creating application logger")
 		os.Exit(exitCodeLoggerError)
 	}
+
+	cfg.Fakes.Inform(appLogger)
 
 	err = run(ctx, cfg, appLogger)
 	if err != nil {
@@ -81,8 +89,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	defer signalStop()
 
 	dbSettings := []database.OptFunc{}
-	if cfg.WithFakeClients {
-		log.Warn("using fake clients")
+	if cfg.WithSlowQueryLogger {
 		dbSettings = append(dbSettings, database.WithSlowQueryLogger(10*time.Millisecond))
 	}
 
@@ -114,7 +121,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 
 	watcherOpts := []watcher.Option{}
-	if cfg.WithFakeClients {
+	if cfg.Fakes.WithFakeKubernetes {
 		watcherOpts = append(watcherOpts, watcher.WithClientCreator(fake.Clients(os.DirFS("./data/k8s"))))
 	}
 
@@ -167,13 +174,10 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return err
 	}
 
-	var hookdClient hookd.Client
 	var mgmtK8sClient k8s.Interface
-	if cfg.WithFakeClients {
-		hookdClient = fakehookd.New()
+	if cfg.Fakes.WithFakeKubernetes {
 		mgmtK8sClient = k8sfake.NewSimpleClientset()
 	} else {
-		hookdClient = hookd.New(cfg.Hookd.Endpoint, cfg.Hookd.PSK, log.WithField("client", "hookd"))
 		cfg, err := rest.InClusterConfig()
 		if err != nil {
 			return fmt.Errorf("creating in-cluster config: %w", err)
@@ -182,6 +186,13 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		if err != nil {
 			return fmt.Errorf("creating k8s client: %w", err)
 		}
+	}
+
+	var hookdClient hookd.Client
+	if cfg.Fakes.WithFakeHookd {
+		hookdClient = fakehookd.New()
+	} else {
+		hookdClient = hookd.New(cfg.Hookd.Endpoint, cfg.Hookd.PSK, log.WithField("client", "hookd"))
 	}
 
 	if err := leaderelection.Start(ctx, mgmtK8sClient, cfg.LeaseName, cfg.LeaseNamespace, log); err != nil {
@@ -194,7 +205,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	notifier := notify.New(pool, log)
 	go notifier.Run(ctx)
 
-	if !cfg.WithFakeClients {
+	if !cfg.Fakes.WithFakeKubernetes {
 		k8sClients, err := kubernetes.NewClientSets(clusterConfig)
 		if err != nil {
 			return fmt.Errorf("creating k8s clients: %w", err)
@@ -212,8 +223,8 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	wg.Go(func() error {
 		return runHttpServer(
 			ctx,
+			cfg.Fakes,
 			cfg.ListenAddress,
-			cfg.WithFakeClients,
 			cfg.Tenant,
 			cfg.K8s.AllClusterNames(),
 			pool,

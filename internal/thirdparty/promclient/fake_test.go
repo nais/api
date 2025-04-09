@@ -1,6 +1,6 @@
 //go:build integration_test
 
-package utilization
+package promclient
 
 import (
 	"context"
@@ -25,6 +25,21 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
+)
+
+const (
+	appCPURequest      = `max by (container, namespace) (kube_pod_container_resource_requests{namespace=%q, container=%q, resource="cpu",unit="core"})`
+	appCPUUsage        = `rate(container_cpu_usage_seconds_total{namespace=%q, container=%q}[5m])`
+	appMemoryRequest   = `max by (container, namespace) (kube_pod_container_resource_requests{namespace=%q, container=%q, resource="memory",unit="byte"})`
+	appMemoryUsage     = `last_over_time(container_memory_working_set_bytes{namespace=%q, container=%q}[5m])`
+	teamCPURequest     = `sum by (container, owner_kind) (kube_pod_container_resource_requests{namespace=%q, container!~%q, resource="cpu",unit="core"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
+	teamCPUUsage       = `sum by (container, owner_kind) (rate(container_cpu_usage_seconds_total{namespace=%q, container!~%q}[5m]) * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"} )`
+	teamMemoryRequest  = `sum by (container, owner_kind) (kube_pod_container_resource_requests{namespace=%q, container!~%q, resource="memory",unit="byte"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
+	teamMemoryUsage    = `sum by (container, owner_kind) (container_memory_working_set_bytes{namespace=%q, container!~%q} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
+	teamsCPURequest    = `sum by (namespace, owner_kind) (kube_pod_container_resource_requests{namespace!~%q, container!~%q, resource="cpu",unit="core"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
+	teamsCPUUsage      = `sum by (namespace, owner_kind) (rate(container_cpu_usage_seconds_total{namespace!~%q, container!~%q}[5m]) * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
+	teamsMemoryRequest = `sum by (namespace, owner_kind) (kube_pod_container_resource_requests{namespace!~%q, container!~%q, resource="memory",unit="byte"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
+	teamsMemoryUsage   = `sum by (namespace, owner_kind) (container_memory_working_set_bytes{namespace!~%q, container!~%q} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
 )
 
 func TestFakeQuery(t *testing.T) {
@@ -73,7 +88,7 @@ func TestFakeQuery(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			c := NewFakeClient([]string{"test", "dev"}, rand.New(rand.NewPCG(2, 2)), now)
 
-			res, err := c.query(ctx, "unused", fmt.Sprintf(test.query, test.args...))
+			res, err := c.Query(ctx, "unused", fmt.Sprintf(test.query, test.args...))
 			if err != nil {
 				t.Errorf("Expected no error, got %v", err)
 			}
@@ -209,7 +224,7 @@ func TestFakeQueryAll(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			c := NewFakeClient([]string{"test", "dev"}, rand.New(rand.NewPCG(1, 1)), now)
 
-			res, err := c.queryAll(ctx, fmt.Sprintf(test.query, test.args...))
+			res, err := c.QueryAll(ctx, fmt.Sprintf(test.query, test.args...))
 			if err != nil {
 				t.Errorf("Expected no error, got %v", err)
 			}
@@ -305,7 +320,7 @@ func TestFakeQueryRange(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			c := NewFakeClient([]string{"test", "dev"}, rand.New(rand.NewPCG(1, 1)), now)
 
-			res, _, err := c.queryRange(ctx, "test", fmt.Sprintf(test.query, test.args...), test.rng)
+			res, _, err := c.QueryRange(ctx, "test", fmt.Sprintf(test.query, test.args...), test.rng)
 			if err != nil {
 				t.Errorf("Expected no error, got %v", err)
 			}
