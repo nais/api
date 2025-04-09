@@ -81,10 +81,10 @@ func (c *clusterManager) createInformer(obj runtime.Object, gvr *schema.GroupVer
 	}
 
 	if lblSelector == "" {
-		c.log.WithField("resource", gvr.String()).Info("creating informer")
+		c.log.WithField("resource", gvr.String()).Debug("creating informer")
 		return c.informer().ForResource(*gvr), *gvr, nil
 	}
 
-	c.log.WithField("resource", gvr.String()).Info("creating filtered informer")
+	c.log.WithField("resource", gvr.String()).Debug("creating filtered informer")
 	return c.filteredInformer(lblSelector).ForResource(*gvr), *gvr, nil
 }

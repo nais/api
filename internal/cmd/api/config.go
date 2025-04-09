@@ -2,10 +2,12 @@ package api
 
 import (
 	"context"
+	"reflect"
 
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/workload/logging"
 	"github.com/sethvargo/go-envconfig"
+	"github.com/sirupsen/logrus"
 )
 
 type k8sConfig struct {
@@ -144,8 +146,7 @@ type Config struct {
 	// application starts. Refer to the README for the format.
 	StaticServiceAccounts StaticServiceAccounts `env:"STATIC_SERVICE_ACCOUNTS"`
 
-	// WithFakeKubernetes When set to true, the api will use a fake kubernetes client.
-	WithFakeClients bool `env:"WITH_FAKE_CLIENTS"`
+	WithSlowQueryLogger bool `env:"WITH_SLOW_QUERY_LOGGER"`
 
 	// ListenAddress is host:port combination used by the http server
 	ListenAddress         string `env:"LISTEN_ADDRESS,default=127.0.0.1:3000"`
@@ -171,6 +172,26 @@ type Config struct {
 	Unleash            unleashConfig
 	Logging            loggingConfig
 	Zitadel            zitadelConfig
+	Fakes              Fakes
+}
+
+type Fakes struct {
+	WithInsecureUserHeader bool `env:"WITH_INSECURE_USER_HEADER"`
+	WithFakeKubernetes     bool `env:"WITH_FAKE_KUBERNETES"`
+	WithFakeHookd          bool `env:"WITH_FAKE_HOOKD"`
+	WithFakeCloudSQL       bool `env:"WITH_FAKE_CLOUD_SQL"`
+	WithFakePrometheus     bool `env:"WITH_FAKE_PROMETHEUS"`
+	WithFakeCostClient     bool `env:"WITH_FAKE_COST_CLIENT"`
+}
+
+func (f Fakes) Inform(log logrus.FieldLogger) {
+	v := reflect.ValueOf(f)
+	for i := range v.NumField() {
+		field := v.Type().Field(i)
+		if v.Field(i).Bool() {
+			log.Warnf("%s is true", field.Name)
+		}
+	}
 }
 
 // NewConfig creates a new configuration instance from environment variables

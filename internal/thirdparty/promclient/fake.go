@@ -1,4 +1,4 @@
-package utilization
+package promclient
 
 import (
 	"context"
@@ -36,10 +36,10 @@ func NewFakeClient(environments []string, random *rand.Rand, nowFunc func() prom
 	return &FakeClient{environments: environments, random: random, now: nowFunc}
 }
 
-func (c *FakeClient) queryAll(ctx context.Context, query string) (map[string]prom.Vector, error) {
+func (c *FakeClient) QueryAll(ctx context.Context, query string, opts ...QueryOption) (map[string]prom.Vector, error) {
 	ret := map[string]prom.Vector{}
 	for _, env := range c.environments {
-		v, err := c.query(ctx, env, query)
+		v, err := c.Query(ctx, env, query, opts...)
 		if err != nil {
 			return nil, err
 		}
@@ -50,7 +50,14 @@ func (c *FakeClient) queryAll(ctx context.Context, query string) (map[string]pro
 	return ret, nil
 }
 
-func (c *FakeClient) query(ctx context.Context, environment string, query string) (prom.Vector, error) {
+func (c *FakeClient) Query(ctx context.Context, environment string, query string, opts ...QueryOption) (prom.Vector, error) {
+	opt := queryOpts{
+		time: c.now().Time(),
+	}
+	for _, o := range opts {
+		o(&opt)
+	}
+
 	expr, err := parser.ParseExpr(query)
 	if err != nil {
 		return nil, err
@@ -105,6 +112,8 @@ func (c *FakeClient) query(ctx context.Context, environment string, query string
 			switch label {
 			case "namespace":
 				lbls["namespace"] = prom.LabelValue(teamSlug)
+			case "workload_namespace":
+				lbls["workload_namespace"] = prom.LabelValue(teamSlug)
 			case "container":
 				lbls["container"] = prom.LabelValue(workload)
 			case "pod":
@@ -134,7 +143,7 @@ func (c *FakeClient) query(ctx context.Context, environment string, query string
 				}
 				workload = app.Name
 				ret = append(ret, &prom.Sample{
-					Timestamp: c.now(),
+					Timestamp: prom.TimeFromUnix(opt.time.Unix()),
 					Metric:    makeLabels(),
 					Value:     value(),
 				})
@@ -144,7 +153,7 @@ func (c *FakeClient) query(ctx context.Context, environment string, query string
 		}
 		ret = prom.Vector{
 			{
-				Timestamp: c.now(),
+				Timestamp: prom.TimeFromUnix(opt.time.Unix()),
 				Metric:    makeLabels(),
 				Value:     value(),
 			},
@@ -163,7 +172,7 @@ func (c *FakeClient) query(ctx context.Context, environment string, query string
 		for _, t := range teams.Nodes() {
 			teamSlug = t.Slug
 			ret = append(ret, &prom.Sample{
-				Timestamp: c.now(),
+				Timestamp: prom.TimeFromUnix(opt.time.Unix()),
 				Metric:    makeLabels(),
 				Value:     value(),
 			})
@@ -172,7 +181,7 @@ func (c *FakeClient) query(ctx context.Context, environment string, query string
 	return ret, nil
 }
 
-func (c *FakeClient) queryRange(ctx context.Context, environment string, query string, promRange promv1.Range) (prom.Value, promv1.Warnings, error) {
+func (c *FakeClient) QueryRange(ctx context.Context, environment string, query string, promRange promv1.Range) (prom.Value, promv1.Warnings, error) {
 	matrix := prom.Matrix{}
 
 	prevNow := c.now
@@ -185,7 +194,7 @@ func (c *FakeClient) queryRange(ctx context.Context, environment string, query s
 			return prom.TimeFromUnix(start.Unix())
 		}
 
-		vector, err := c.query(ctx, environment, query)
+		vector, err := c.Query(ctx, environment, query)
 		if err != nil {
 			return nil, nil, err
 		}
