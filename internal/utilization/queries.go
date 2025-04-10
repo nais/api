@@ -317,8 +317,8 @@ func WorkloadResourceRecommendations(ctx context.Context, env string, teamSlug s
 
 	return &WorkloadUtilizationRecommendations{
 		CPURequestCores:    math.Max(cpuReq, minCPURequest),
-		MemoryRequestBytes: int64(math.Ceil(math.Max(memReq, minMemoryRequestBytes))),
-		MemoryLimitBytes:   int64(math.Ceil(math.Max(memLimit, minMemoryRequestBytes))),
+		MemoryRequestBytes: int64(math.Max(roundUpToPowerOf2(memReq), minMemoryRequestBytes)),
+		MemoryLimitBytes:   int64(math.Max(roundUpToPowerOf2(memLimit), minMemoryRequestBytes)),
 	}, nil
 }
 
@@ -352,4 +352,11 @@ func ensuredVal(v prom.Vector) float64 {
 	}
 
 	return float64(v[0].Value)
+}
+
+func roundUpToPowerOf2(x float64) float64 {
+	if x <= 0 {
+		return 0
+	}
+	return math.Pow(2, math.Ceil(math.Log2(x)))
 }
