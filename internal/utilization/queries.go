@@ -58,7 +58,7 @@ const (
 	)`
 
 	minCPURequest         = 0.01             // 10m
-	minMemoryRequestBytes = 64 * 1024 * 1024 // 64 MiB
+	minMemoryRequestBytes = 32 * 1024 * 1024 // 64 MiB
 )
 
 var (
@@ -317,8 +317,8 @@ func WorkloadResourceRecommendations(ctx context.Context, env string, teamSlug s
 
 	return &WorkloadUtilizationRecommendations{
 		CPURequestCores:    math.Max(cpuReq, minCPURequest),
-		MemoryRequestBytes: int64(math.Max(roundUpToPowerOf2(memReq), minMemoryRequestBytes)),
-		MemoryLimitBytes:   int64(math.Max(roundUpToPowerOf2(memLimit), minMemoryRequestBytes)),
+		MemoryRequestBytes: int64(math.Max(roundUpToNearest32MiB(memReq), minMemoryRequestBytes)),
+		MemoryLimitBytes:   int64(math.Max(roundUpToNearest32MiB(memLimit), minMemoryRequestBytes)),
 	}, nil
 }
 
@@ -354,9 +354,7 @@ func ensuredVal(v prom.Vector) float64 {
 	return float64(v[0].Value)
 }
 
-func roundUpToPowerOf2(x float64) float64 {
-	if x <= 0 {
-		return 0
-	}
-	return math.Pow(2, math.Ceil(math.Log2(x)))
+func roundUpToNearest32MiB(bytes float64) float64 {
+	const chunk float64 = 32 * 1024 * 1024 // 32 MiB in bytes
+	return math.Ceil(bytes/chunk) * chunk
 }
