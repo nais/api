@@ -39,7 +39,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 			if rule.Cluster != "" && strings.Contains(rule.Cluster, "-fss") {
 				continue
 			}
-			if strings.HasSuffix(rule.Application, "-token-generator") && rule.Namespace == "aura" && strings.Contains(environmentName, "dev") {
+			if strings.HasSuffix(rule.Application, "-token-generator") && rule.Namespace == "nais" && strings.Contains(environmentName, "dev") {
 				continue
 			}
 			inbound.Rules = append(inbound.Rules, &NetworkPolicyRule{
@@ -59,7 +59,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 			if rule.Cluster != "" && strings.Contains(rule.Cluster, "-fss") {
 				continue
 			}
-			if strings.HasSuffix(rule.Application, "-token-generator") && rule.Namespace == "aura" && strings.Contains(environmentName, "dev") {
+			if strings.HasSuffix(rule.Application, "-token-generator") && rule.Namespace == "nais" && strings.Contains(environmentName, "dev") {
 				continue
 			}
 			outbound.Rules = append(outbound.Rules, &NetworkPolicyRule{
