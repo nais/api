@@ -133,10 +133,10 @@ func ForTeams(ctx context.Context, resourceType UtilizationResourceType) ([]*Tea
 	}
 	ret = filtered
 
-	for _, samples := range used {
+	for env, samples := range used {
 		for _, sample := range samples {
 			for _, data := range ret {
-				if data.TeamSlug == slug.Slug(sample.Metric["namespace"]) {
+				if data.TeamSlug == slug.Slug(sample.Metric["namespace"]) && data.EnvironmentName == env {
 					data.Used = float64(sample.Value)
 				}
 			}
