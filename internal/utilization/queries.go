@@ -10,6 +10,7 @@ import (
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/thirdparty/promclient"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/common/model"
 )
@@ -96,7 +97,8 @@ func ForTeams(ctx context.Context, resourceType UtilizationResourceType) ([]*Tea
 
 	c := fromContext(ctx).client
 
-	requested, err := c.QueryAll(ctx, fmt.Sprintf(reqQ, ignoredNamespaces, ignoredContainers))
+	queryTime := time.Now().Add(-time.Minute * 5)
+	requested, err := c.QueryAll(ctx, fmt.Sprintf(reqQ, ignoredNamespaces, ignoredContainers), promclient.WithTime(queryTime))
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +115,7 @@ func ForTeams(ctx context.Context, resourceType UtilizationResourceType) ([]*Tea
 		}
 	}
 
-	used, err := c.QueryAll(ctx, fmt.Sprintf(usageQ, ignoredNamespaces, ignoredContainers))
+	used, err := c.QueryAll(ctx, fmt.Sprintf(usageQ, ignoredNamespaces, ignoredContainers), promclient.WithTime(queryTime))
 	if err != nil {
 		return nil, err
 	}
