@@ -1,0 +1,112 @@
+package maintenancewindow
+
+import (
+	"context"
+	"fmt"
+	"strings"
+
+	"github.com/nais/api/internal/environmentmapper"
+	"github.com/nais/api/internal/graph/loader"
+	"github.com/sirupsen/logrus"
+	"github.com/sourcegraph/conc/pool"
+	"github.com/vikstrous/dataloadgen"
+)
+
+type ctxKey int
+
+const loadersKey ctxKey = iota
+
+func NewLoaderContext(ctx context.Context, vulnMgr *Manager, prometheusClient PrometheusClient, logger logrus.FieldLogger) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(vulnMgr, prometheusClient, logger))
+}
+
+func fromContext(ctx context.Context) *loaders {
+	return ctx.Value(loadersKey).(*loaders)
+}
+
+type loaders struct {
+	imageLoader *dataloadgen.Loader[string, *ImageDetails]
+	vulnMgr     *Manager
+	promClients *PrometheusQuerier
+}
+
+func newLoaders(vulnMgr *Manager, prometheusClient PrometheusClient, logger logrus.FieldLogger) *loaders {
+	vulnerabilityLoader := &dataloader{vulnMgr: vulnMgr, log: logger}
+
+	return &loaders{
+		imageLoader: dataloadgen.NewLoader(vulnerabilityLoader.imageList, loader.DefaultDataLoaderOptions...),
+		vulnMgr:     vulnMgr,
+		promClients: &PrometheusQuerier{
+			client: prometheusClient,
+		},
+	}
+}
+
+type dataloader struct {
+	vulnMgr *Manager
+	log     logrus.FieldLogger
+}
+
+func (l dataloader) imageList(ctx context.Context, imageRef []string) ([]*ImageDetails, []error) {
+	wg := pool.New().WithContext(ctx)
+
+	ret := make([]*ImageDetails, len(imageRef))
+	errs := make([]error, len(imageRef))
+
+	for i, ref := range imageRef {
+		wg.Go(func(ctx context.Context) error {
+			m, err := l.imageDetails(ctx, ref)
+			if err != nil {
+				errs[i] = err
+			} else {
+				ret[i] = m
+			}
+			return nil
+		})
+	}
+
+	if err := wg.Wait(); err != nil {
+		l.log.WithError(err).Error("error waiting for dataloader")
+	}
+
+	return ret, errs
+}
+
+func (l dataloader) imageDetails(ctx context.Context, imageRef string) (*ImageDetails, error) {
+	parts := strings.Split(imageRef, ":")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid image reference: %s", imageRef)
+	}
+	resp, err := l.vulnMgr.client.GetVulnerabilitySummaryForImage(ctx, parts[0], parts[1])
+	if err != nil {
+		return nil, err
+	}
+	sum := resp.GetVulnerabilitySummary()
+	workloadRefs := make([]*WorkloadReference, 0)
+	for _, ref := range resp.GetWorkloadRef() {
+		workloadRefs = append(workloadRefs, &WorkloadReference{
+			Environment:  environmentmapper.EnvironmentName(ref.GetCluster()),
+			Team:         ref.GetNamespace(),
+			Name:         ref.GetName(),
+			WorkloadType: ref.GetType(),
+		})
+	}
+
+	return &ImageDetails{
+		Name:    parts[0],
+		Version: parts[1],
+		Summary: &ImageVulnerabilitySummary{
+			Critical:   int(sum.Critical),
+			High:       int(sum.High),
+			Medium:     int(sum.Medium),
+			Low:        int(sum.Low),
+			Unassigned: int(sum.Unassigned),
+			Total:      int(sum.Total),
+			RiskScore:  int(sum.RiskScore),
+		},
+		HasSBOM: sum.GetHasSbom(),
+		// TODO add project URL
+		// ProjectURL:         "",
+		WorkloadReferences: workloadRefs,
+	}, nil
+}
