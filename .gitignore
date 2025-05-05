@@ -3,14 +3,14 @@ kubeconfig
 values.json
 .idea
 /bin
-.env
 .vscode/
 .DS_Store
 .direnv
 __debug_bin*
-.envrc
+.env*
 node_modules
 hack/coverprofile.txt
 .eslintcache
 data/k8s/dev/tbd/
 data/k8s/dev/dolly/
+result*

@@ -1,0 +1,417 @@
+package maintenancewindow
+
+import (
+	"context"
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/environmentmapper"
+	"github.com/nais/api/internal/graph/apierror"
+	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/workload/application"
+	"github.com/nais/api/internal/workload/job"
+	"github.com/nais/v13s/pkg/api/vulnerabilities"
+	"github.com/nais/v13s/pkg/api/vulnerabilities/iterator"
+)
+
+// TODO: check references to workload as a hack until v13s api has proper data
+func ListWorkloadReferences(ctx context.Context, image string, page *pagination.Pagination) (*pagination.Connection[*ContainerImageWorkloadReference], error) {
+	metadata, err := fromContext(ctx).imageLoader.Load(ctx, image)
+	if err != nil {
+		return nil, err
+	}
+
+	all := metadata.WorkloadReferences
+
+	refs := make([]*WorkloadReference, 0)
+	for _, ref := range all {
+		if ref.WorkloadType == "app" {
+			_, err = application.Get(ctx, slug.Slug(ref.Team), ref.Environment, ref.Name)
+			if err != nil {
+				continue
+			}
+			refs = append(refs, ref)
+		}
+
+		if ref.WorkloadType == "job" {
+			_, err = job.Get(ctx, slug.Slug(ref.Team), ref.Environment, ref.Name)
+			if err != nil {
+				continue
+			}
+			refs = append(refs, ref)
+		}
+	}
+
+	slice := pagination.Slice(refs, page)
+	return pagination.NewConvertConnection(slice, page, len(refs), toGraphWorkloadReference), nil
+}
+
+func ListVulnerabilitySummaries(ctx context.Context, s slug.Slug, filter *TeamVulnerabilitySummaryFilter, page *pagination.Pagination, orderBy *VulnerabilitySummaryOrder) (*WorkloadVulnerabilitySummaryConnection, error) {
+	opts := make([]vulnerabilities.Option, 0)
+	if filter != nil && len(filter.Environments) == 1 {
+		opts = append(opts, vulnerabilities.ClusterFilter(filter.Environments[0]))
+	}
+	opts = append(opts, vulnerabilities.NamespaceFilter(s.String()))
+	opts = append(opts, vulnerabilities.Offset(page.Offset()))
+	opts = append(opts, vulnerabilities.Limit(page.Limit()))
+
+	if orderBy != nil {
+		direction := vulnerabilities.Direction_ASC
+		if orderBy.Direction == model.OrderDirectionDesc {
+			direction = vulnerabilities.Direction_DESC
+		}
+
+		o, ok := SortFilterWorkloadSummaries[orderBy.Field]
+		if !ok {
+			return nil, apierror.Errorf("unsupported order field '%s'", orderBy.Field)
+		}
+
+		opts = append(opts, vulnerabilities.Order(o, direction))
+	}
+
+	resp, err := fromContext(ctx).vulnMgr.client.ListVulnerabilitySummaries(ctx, opts...)
+	if err != nil {
+		return nil, apierror.Errorf("list vulnerability summaries: %v", err)
+	}
+
+	summaries := make([]*WorkloadVulnerabilitySummary, 0)
+	for _, sum := range resp.GetNodes() {
+		summaries = append(summaries, toWorkloadVulnerabilitySummary(sum))
+	}
+	return pagination.NewConnection(summaries, page, resp.PageInfo.TotalCount), nil
+}
+
+func ListImageVulnerabilities(ctx context.Context, ref string, page *pagination.Pagination, order *ImageVulnerabilityOrder) (*ImageVulnerabilityConnection, error) {
+	parts := strings.Split(ref, ":")
+	if len(parts) != 2 {
+		return nil, apierror.Errorf("invalid image ref")
+	}
+
+	if order == nil {
+		order = &ImageVulnerabilityOrder{
+			Field:     "SEVERITY",
+			Direction: model.OrderDirectionAsc,
+		}
+	}
+
+	direction := vulnerabilities.Direction_ASC
+	if order.Direction == model.OrderDirectionDesc {
+		direction = vulnerabilities.Direction_DESC
+	}
+
+	o, ok := SortFilterImageVulnerabilities[order.Field]
+	if !ok {
+		return nil, apierror.Errorf("unsupported order field '%s'", order.Field)
+	}
+
+	resp, err := fromContext(ctx).vulnMgr.client.ListVulnerabilitiesForImage(
+		ctx,
+		parts[0],
+		parts[1],
+		vulnerabilities.IncludeSuppressed(),
+		vulnerabilities.Offset(page.Offset()),
+		vulnerabilities.Limit(page.Limit()),
+		vulnerabilities.Order(o, direction),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	vulns := make([]*ImageVulnerability, 0)
+	for _, v := range resp.Nodes {
+		vulns = append(vulns, toImageVulnerability(v))
+	}
+
+	return pagination.NewConnection(vulns, page, resp.PageInfo.TotalCount), nil
+}
+
+func GetImageMetadata(ctx context.Context, imageRef string) (*ImageDetails, error) {
+	return fromContext(ctx).imageLoader.Load(ctx, imageRef)
+}
+
+func GetTeamRanking(ctx context.Context, teamSlug slug.Slug) (TeamVulnerabilityRanking, error) {
+	totalTeams, err := team.Count(ctx)
+	if err != nil {
+		return TeamVulnerabilityRankingUnknown, fmt.Errorf("counting teams: %w", err)
+	}
+
+	currentRank, err := fromContext(ctx).promClients.ranking(ctx, teamSlug.String(), time.Now())
+	if err != nil {
+		return "", fmt.Errorf("getting team ranking: %w", err)
+	}
+
+	// Divide teams into three parts
+	upperLimit := int(totalTeams) / 3        // Upper third
+	middleLimit := 2 * (int(totalTeams) / 3) // Middle third (everything before bottom third)
+
+	// Determine vulnerability score based on rank
+	switch {
+	case currentRank == 0:
+		return TeamVulnerabilityRankingUnknown, nil
+	case currentRank <= upperLimit: // Top third
+		return TeamVulnerabilityRankingMostVulnerable, nil
+	case currentRank > upperLimit && currentRank <= middleLimit: // Middle third
+		return TeamVulnerabilityRankingMiddle, nil
+	default: // Bottom third
+		return TeamVulnerabilityRankingLeastVulnerable, nil
+	}
+}
+
+func GetTeamRiskScoreTrend(ctx context.Context, teamSlug slug.Slug) (TeamVulnerabilityRiskScoreTrend, error) {
+	current, err := fromContext(ctx).promClients.riskScoreTotal(ctx, teamSlug.String(), time.Now())
+	if err != nil {
+		return "", fmt.Errorf("getting team risk score: %w", err)
+	}
+	previous, err := fromContext(ctx).promClients.riskScoreTotal(ctx, teamSlug.String(), time.Now().AddDate(0, 0, -30))
+	if err != nil {
+		return "", fmt.Errorf("getting team risk score: %w", err)
+	}
+	switch {
+	case current > previous:
+		return TeamVulnerabilityRiskScoreTrendUp, nil
+	case current < previous:
+		return TeamVulnerabilityRiskScoreTrendDown, nil
+	default:
+		return TeamVulnerabilityRiskScoreTrendFlat, nil
+	}
+}
+
+// TODO: it doesn't seem to be in use from console frontend
+func GetTeamVulnerabilityStatus(ctx context.Context, teamSlug slug.Slug) ([]*TeamVulnerabilityStatus, error) {
+	it := iterator.New(ctx, 100, func(limit, offset int32) (*vulnerabilities.ListVulnerabilitySummariesResponse, error) {
+		return fromContext(ctx).vulnMgr.client.ListVulnerabilitySummaries(
+			ctx,
+			vulnerabilities.NamespaceFilter(teamSlug.String()),
+			vulnerabilities.Limit(limit),
+			vulnerabilities.Offset(offset),
+		)
+	})
+
+	vulnWorkloads := 0
+	bomCount := 0
+	total := 0
+
+	for it.Next() {
+		sum := it.Value().GetVulnerabilitySummary()
+		total++
+
+		if sum.GetHasSbom() {
+			bomCount++
+		}
+
+		switch {
+		case sum.Critical > 0:
+			vulnWorkloads++
+		// if the amount of high vulnerabilities is greater than 50 % of the total amount of vulnerabilities, we consider the image as vulnerable
+		case sum.RiskScore > 100 && sum.High > sum.RiskScore/2:
+			vulnWorkloads++
+		}
+
+	}
+	apps := application.ListAllForTeam(ctx, teamSlug, nil, nil)
+	jobs := job.ListAllForTeam(ctx, teamSlug, nil, nil)
+
+	retVal := make([]*TeamVulnerabilityStatus, 0)
+
+	coverage := 0.0
+	if len(apps) == 0 && len(jobs) == 0 {
+		coverage = 0.0
+	} else {
+		coverage = float64(bomCount) / float64(len(apps)+len(jobs)) * 100
+	}
+
+	if coverage < 90 {
+		retVal = append(retVal, &TeamVulnerabilityStatus{
+			State:       TeamVulnerabilityStateCoverageTooLow,
+			Title:       "SBOM coverage",
+			Description: "SBOM coverage is below 90% (number of workloads with SBOM / total number of workloads)",
+		})
+	}
+
+	if vulnWorkloads > 0 {
+		retVal = append(retVal, &TeamVulnerabilityStatus{
+			State:       TeamVulnerabilityStateTooManyVulnerableWorkloads,
+			Title:       "Too many vulnerable workloads",
+			Description: "The threshold for a vulnerable workload is a riskscore above 100 or a critical vulnerability",
+		})
+	}
+
+	return retVal, nil
+}
+
+func UpdateImageVulnerability(ctx context.Context, input UpdateImageVulnerabilityInput) (*UpdateImageVulnerabilityPayload, error) {
+	usr := authz.ActorFromContext(ctx).User
+
+	state := vulnerabilities.SuppressState_NOT_AFFECTED
+	switch input.AnalysisState {
+	case ImageVulnerabilityAnalysisStateResolved:
+		state = vulnerabilities.SuppressState_RESOLVED
+	case ImageVulnerabilityAnalysisStateInTriage:
+		state = vulnerabilities.SuppressState_IN_TRIAGE
+	case ImageVulnerabilityAnalysisStateFalsePositive:
+		state = vulnerabilities.SuppressState_FALSE_POSITIVE
+	}
+
+	err := fromContext(ctx).vulnMgr.client.SuppressVulnerability(ctx, input.VulnerabilityID.ID, input.Comment, usr.Identity(), state, input.Suppress)
+	if err != nil {
+		return nil, err
+	}
+
+	err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:       activitylog.ActivityLogEntryActionUpdated,
+		Actor:        usr,
+		ResourceType: activityLogEntryResourceTypeVulnerability,
+		ResourceName: input.VulnerabilityID.String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &UpdateImageVulnerabilityPayload{
+		Vulnerability: &ImageVulnerability{
+			AnalysisTrail: &ImageVulnerabilityAnalysisTrail{
+				State:      input.AnalysisState,
+				Suppressed: input.Suppress,
+				AllComments: []*ImageVulnerabilityAnalysisComment{
+					{
+						Comment:    input.Comment,
+						State:      input.AnalysisState,
+						Suppressed: input.Suppress,
+						OnBehalfOf: usr.Identity(),
+						Timestamp:  time.Now(),
+					},
+				},
+			},
+			vulnerabilityID: input.VulnerabilityID.ID,
+		},
+	}, nil
+}
+
+// TODO: change Graph to include has SBOM in summary?
+func GetImageVulnerabilitySummary(ctx context.Context, ref string) (*ImageVulnerabilitySummary, error) {
+	parts := strings.Split(ref, ":")
+	if len(parts) != 2 {
+		return nil, apierror.Errorf("invalid image ref")
+	}
+	resp, err := fromContext(ctx).vulnMgr.client.GetVulnerabilitySummaryForImage(ctx, parts[0], parts[1])
+	if err != nil {
+		return nil, apierror.Errorf("get vulnerability summary: %v", err)
+	}
+	sum := resp.GetVulnerabilitySummary()
+	return &ImageVulnerabilitySummary{
+		Critical:   int(sum.Critical),
+		High:       int(sum.High),
+		Medium:     int(sum.Medium),
+		Low:        int(sum.Low),
+		Unassigned: int(sum.Unassigned),
+		Total:      int(sum.Total),
+		RiskScore:  int(sum.RiskScore),
+	}, nil
+}
+
+// TODO: use GetVulnerabilitySummary from v13s instead once data is cleaned up properly
+func GetVulnerabilitySummary(ctx context.Context, s slug.Slug, filter *TeamVulnerabilitySummaryFilter) (*TeamVulnerabilitySummary, error) {
+	wSums, err := getFilteredVulnerabilitySummaries(ctx, s, filter)
+	if err != nil {
+		return nil, apierror.Errorf("get vulnerability summary: %v", err)
+	}
+	ret := &TeamVulnerabilitySummary{
+		TeamSlug: s,
+	}
+
+	for _, ws := range wSums {
+		ret.Critical += ws.Summary.Critical
+		ret.High += ws.Summary.High
+		ret.Medium += ws.Summary.Medium
+		ret.Low += ws.Summary.Low
+		ret.Unassigned += ws.Summary.Unassigned
+		ret.RiskScore += ws.Summary.RiskScore
+		if ws.HasSbom {
+			ret.BomCount++
+		}
+	}
+	if ret.BomCount > 0 {
+		ret.Coverage = float64(ret.BomCount) / float64(len(wSums)) * 100
+	}
+
+	return ret, nil
+}
+
+func getFilteredVulnerabilitySummaries(ctx context.Context, s slug.Slug, filter *TeamVulnerabilitySummaryFilter) ([]*WorkloadVulnerabilitySummary, error) {
+	it := iterator.New(ctx, 100, func(limit, offset int32) (*vulnerabilities.ListVulnerabilitySummariesResponse, error) {
+		opts := make([]vulnerabilities.Option, 0)
+		if filter != nil && len(filter.Environments) == 1 {
+			cluster := environmentmapper.ClusterName(filter.Environments[0])
+			opts = append(opts, vulnerabilities.ClusterFilter(cluster))
+		}
+		opts = append(opts, vulnerabilities.NamespaceFilter(s.String()))
+		opts = append(opts, vulnerabilities.Offset(offset))
+		opts = append(opts, vulnerabilities.Limit(limit))
+		return fromContext(ctx).vulnMgr.client.ListVulnerabilitySummaries(ctx, opts...)
+	})
+
+	ret := make([]*WorkloadVulnerabilitySummary, 0)
+	for it.Next() {
+		if it.Err() != nil {
+			return nil, apierror.Errorf("list vulnerability summaries: %v", it.Err())
+		}
+
+		wSum := it.Value()
+		env := environmentmapper.EnvironmentName(wSum.Workload.Cluster)
+		if wSum.Workload.Type == "app" {
+			_, err := application.Get(ctx, s, env, wSum.Workload.Name)
+			if err != nil {
+				continue
+			}
+			ret = append(ret, toWorkloadVulnerabilitySummary(wSum))
+		}
+		if wSum.Workload.Type == "job" {
+			_, err := job.Get(ctx, s, env, wSum.Workload.Name)
+			if err != nil {
+				continue
+			}
+			ret = append(ret, toWorkloadVulnerabilitySummary(wSum))
+		}
+	}
+	return ret, nil
+}
+
+func getVulnerabilityByIdent(ctx context.Context, id ident.Ident) (*ImageVulnerability, error) {
+	resp, err := fromContext(ctx).vulnMgr.client.GetVulnerabilityById(ctx, id.ID)
+	if err != nil {
+		return nil, apierror.Errorf("%v", err)
+	}
+	return toImageVulnerability(resp.GetVulnerability()), nil
+}
+
+func getWorkloadVulnerabilitySummaryByIdent(ctx context.Context, id ident.Ident) (*WorkloadVulnerabilitySummary, error) {
+	w, err := parseWorkloadVulnerabilitySummaryIdent(id)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := fromContext(ctx).vulnMgr.client.ListVulnerabilitySummaries(
+		ctx,
+		vulnerabilities.ClusterFilter(w.Environment),
+		vulnerabilities.NamespaceFilter(w.Team),
+		vulnerabilities.WorkloadTypeFilter(w.WorkloadType),
+		vulnerabilities.WorkloadFilter(w.Name),
+	)
+	if err != nil {
+		return nil, apierror.Errorf("%v", err)
+	}
+
+	for _, sum := range resp.GetNodes() {
+		if id.ID == newWorkloadVulnerabilitySummaryIdent(w).ID {
+			return toWorkloadVulnerabilitySummary(sum), nil
+		}
+	}
+	return nil, apierror.Errorf("workload vulnerability summary not found for %v", w)
+}
