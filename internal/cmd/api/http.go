@@ -25,7 +25,7 @@ import (
 	"github.com/nais/api/internal/graph/loader"
 	apik8s "github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
-	// "github.com/nais/api/internal/maintenance_window" // TODO
+	"github.com/nais/api/internal/maintenance"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/kafkatopic"
@@ -302,7 +302,7 @@ func ConfigureGraph(
 		ctx = authz.NewLoaderContext(ctx, pool)
 		ctx = activitylog.NewLoaderContext(ctx, pool)
 		ctx = vulnerability.NewLoaderContext(ctx, vulnMgr, prometheusClient, log)
-		// ctx = maintenancewindow.NewLoaderContext(ctx, vulnMgr, prometheusClient, log) // TODO
+		ctx = maintenance.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = reconciler.NewLoaderContext(ctx, pool)
 		ctx = deployment.NewLoaderContext(ctx, pool, hookdClient)
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)

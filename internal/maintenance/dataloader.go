@@ -1,4 +1,4 @@
-package maintenancewindow
+package maintenance
 
 import (
 	"context"
@@ -16,8 +16,8 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, vulnMgr *Manager, prometheusClient PrometheusClient, logger logrus.FieldLogger) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(vulnMgr, prometheusClient, logger))
+func NewLoaderContext(ctx context.Context, prometheusClient PrometheusClient, logger logrus.FieldLogger) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(prometheusClient, logger))
 }
 
 func fromContext(ctx context.Context) *loaders {
@@ -30,12 +30,11 @@ type loaders struct {
 	promClients *PrometheusQuerier
 }
 
-func newLoaders(vulnMgr *Manager, prometheusClient PrometheusClient, logger logrus.FieldLogger) *loaders {
-	vulnerabilityLoader := &dataloader{vulnMgr: vulnMgr, log: logger}
+func newLoaders(prometheusClient PrometheusClient, logger logrus.FieldLogger) *loaders {
+	vulnerabilityLoader := &dataloader{log: logger}
 
 	return &loaders{
 		imageLoader: dataloadgen.NewLoader(vulnerabilityLoader.imageList, loader.DefaultDataLoaderOptions...),
-		vulnMgr:     vulnMgr,
 		promClients: &PrometheusQuerier{
 			client: prometheusClient,
 		},
