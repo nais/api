@@ -25,6 +25,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/nais/api/internal/logger"
+	"github.com/nais/api/internal/maintenance"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/vulnerability"
@@ -164,6 +165,15 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return err
 	}
 
+	maintenanceManager, err := maintenance.NewManager(
+		ctx,
+		cfg.AivenToken,
+		log.WithField("subsystem", "maintenance"),
+	)
+	if err != nil {
+		return err
+	}
+
 	vulnMgr, err := vulnerability.NewManager(
 		ctx,
 		cfg.VulnerabilitiesApi.Endpoint,
@@ -233,6 +243,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			mgmtWatcher,
 			authHandler,
 			graphHandler,
+			maintenanceManager,
 			vulnMgr,
 			hookdClient,
 			cfg.Unleash.BifrostApiUrl,

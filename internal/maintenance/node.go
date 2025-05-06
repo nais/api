@@ -9,30 +9,18 @@ import (
 type identType int
 
 const (
-	identVulnerability identType = iota
-	identWorkloadVulnerabilitySummary
+	identMaintenance identType = iota
 )
 
 func init() {
 	// implements node pattern, e.g. retrieves a node by its identifier
-	ident.RegisterIdentType(identVulnerability, "VUL", getVulnerabilityByIdent)
-	ident.RegisterIdentType(identWorkloadVulnerabilitySummary, "WVS", getWorkloadVulnerabilitySummaryByIdent)
-}
-
-func newWorkloadVulnerabilitySummaryIdent(w WorkloadReference) ident.Ident {
-	return ident.NewIdent(
-		identWorkloadVulnerabilitySummary,
-		w.Environment,
-		w.Team,
-		w.WorkloadType,
-		w.Name,
-	)
+	ident.RegisterIdentType(identMaintenance, "MAI", getVulnerabilityByIdent)
 }
 
 func parseWorkloadVulnerabilitySummaryIdent(id ident.Ident) (WorkloadReference, error) {
 	parts := id.Parts()
 	if len(parts) != 4 {
-		return WorkloadReference{}, fmt.Errorf("invalid workload vulnerability summary ident")
+		return WorkloadReference{}, fmt.Errorf("invalid maintenance summary ident")
 	}
 
 	return WorkloadReference{

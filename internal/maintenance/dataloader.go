@@ -2,11 +2,10 @@ package maintenance
 
 import (
 	"context"
-	"fmt"
-	"strings"
+	"time"
 
-	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/loader"
+
 	"github.com/sirupsen/logrus"
 	"github.com/sourcegraph/conc/pool"
 	"github.com/vikstrous/dataloadgen"
@@ -24,17 +23,22 @@ func fromContext(ctx context.Context) *loaders {
 	return ctx.Value(loadersKey).(*loaders)
 }
 
+type aivenDataLoaderKey struct {
+	project     string
+	serviceName string
+}
+
 type loaders struct {
-	imageLoader *dataloadgen.Loader[string, *ImageDetails]
-	vulnMgr     *Manager
-	promClients *PrometheusQuerier
+	maintenanceLoader  *dataloadgen.Loader[*aivenDataLoaderKey, *Maintenance]
+	maintenanceManager *Manager
+	promClients        *PrometheusQuerier
 }
 
 func newLoaders(prometheusClient PrometheusClient, logger logrus.FieldLogger) *loaders {
-	vulnerabilityLoader := &dataloader{log: logger}
+	maintenanceLoader := &dataloader{maintenanceManager: nil, log: logger}
 
 	return &loaders{
-		imageLoader: dataloadgen.NewLoader(vulnerabilityLoader.imageList, loader.DefaultDataLoaderOptions...),
+		maintenanceLoader: dataloadgen.NewLoader(maintenanceLoader.maintenanceList, loader.DefaultDataLoaderOptions...),
 		promClients: &PrometheusQuerier{
 			client: prometheusClient,
 		},
@@ -42,70 +46,55 @@ func newLoaders(prometheusClient PrometheusClient, logger logrus.FieldLogger) *l
 }
 
 type dataloader struct {
-	vulnMgr *Manager
-	log     logrus.FieldLogger
+	maintenanceManager *Manager
+	log                logrus.FieldLogger
 }
 
-func (l dataloader) imageList(ctx context.Context, imageRef []string) ([]*ImageDetails, []error) {
+func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*aivenDataLoaderKey) ([]*Maintenance, []error) {
+
 	wg := pool.New().WithContext(ctx)
 
-	ret := make([]*ImageDetails, len(imageRef))
-	errs := make([]error, len(imageRef))
+	rets := make([]*Maintenance, len(aivenDataLoaderKeys))
+	errs := make([]error, len(aivenDataLoaderKeys))
 
-	for i, ref := range imageRef {
+	for i, pair := range aivenDataLoaderKeys {
 		wg.Go(func(ctx context.Context) error {
-			m, err := l.imageDetails(ctx, ref)
+			res, err := l.maintenanceManager.client.ServiceGet(ctx, pair.project, pair.serviceName)
 			if err != nil {
 				errs[i] = err
 			} else {
-				ret[i] = m
+				if res.Maintenance != nil && res.Maintenance.Updates != nil {
+					updates := make([]*Update, len(res.Maintenance.Updates))
+					for j, update := range res.Maintenance.Updates {
+						updates[j] = &Update{
+							Title:             *update.Description,
+							Description:       *update.Impact,
+							DocumentationLink: *update.DocumentationLink,
+							StartAt:           update.StartAt,
+						}
+						if update.Deadline != nil {
+
+							if t, err := time.Parse(time.RFC3339, *update.Deadline); err == nil {
+								updates[j].Deadline = &t
+							} else {
+								l.log.WithError(err).Warnf("Failed to parse deadline time: %s", update.Deadline)
+							}
+						}
+
+						if update.StartAfter != nil {
+							if t, err := time.Parse(time.RFC3339, *update.StartAfter); err == nil {
+								updates[j].StartAfter = &t
+							} else {
+								l.log.WithError(err).Warnf("Failed to parse start_after time: %s", update.StartAfter)
+							}
+						}
+
+					}
+					rets[i] = &Maintenance{Updates: updates}
+				}
 			}
 			return nil
 		})
 	}
-
-	if err := wg.Wait(); err != nil {
-		l.log.WithError(err).Error("error waiting for dataloader")
-	}
-
-	return ret, errs
-}
-
-func (l dataloader) imageDetails(ctx context.Context, imageRef string) (*ImageDetails, error) {
-	parts := strings.Split(imageRef, ":")
-	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid image reference: %s", imageRef)
-	}
-	resp, err := l.vulnMgr.client.GetVulnerabilitySummaryForImage(ctx, parts[0], parts[1])
-	if err != nil {
-		return nil, err
-	}
-	sum := resp.GetVulnerabilitySummary()
-	workloadRefs := make([]*WorkloadReference, 0)
-	for _, ref := range resp.GetWorkloadRef() {
-		workloadRefs = append(workloadRefs, &WorkloadReference{
-			Environment:  environmentmapper.EnvironmentName(ref.GetCluster()),
-			Team:         ref.GetNamespace(),
-			Name:         ref.GetName(),
-			WorkloadType: ref.GetType(),
-		})
-	}
-
-	return &ImageDetails{
-		Name:    parts[0],
-		Version: parts[1],
-		Summary: &ImageVulnerabilitySummary{
-			Critical:   int(sum.Critical),
-			High:       int(sum.High),
-			Medium:     int(sum.Medium),
-			Low:        int(sum.Low),
-			Unassigned: int(sum.Unassigned),
-			Total:      int(sum.Total),
-			RiskScore:  int(sum.RiskScore),
-		},
-		HasSBOM: sum.GetHasSbom(),
-		// TODO add project URL
-		// ProjectURL:         "",
-		WorkloadReferences: workloadRefs,
-	}, nil
+	return rets, errs
 }
