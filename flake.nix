@@ -5,7 +5,12 @@
   outputs =
     { self, ... }@inputs:
     inputs.flake-utils.lib.eachSystem
-      [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" ]
+      [
+        "x86_64-linux"
+        "x86_64-darwin"
+        "aarch64-linux"
+        "aarch64-darwin"
+      ]
       (
         system:
         let
@@ -48,24 +53,26 @@
         in
         {
           devShells.default = pkgs.mkShell {
-            packages = with pkgs; [
-              go
-              go-tools
-              gopls
-              gotools
+            packages =
+              with pkgs;
+              [
+                go
+                go-tools
+                gopls
+                gotools
 
-              gofumpt
-              protobuf
-              protoc-gen-go
-              protoc-gen-go-grpc
-              sqlc
-              # Mise dependencies
-              helm
-              nodejs_22
+                gofumpt
+                protobuf
+                protoc-gen-go
+                protoc-gen-go-grpc
+                sqlc
+                # Mise dependencies
+                nodejs_22
 
-              mise
-              nodePackages.prettier
-            ] ++ [ gqlgen ];
+                mise
+                nodePackages.prettier
+              ]
+              ++ [ gqlgen ];
           };
 
           formatter = pkgs.nixfmt-rfc-style;
