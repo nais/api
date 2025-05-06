@@ -74,6 +74,7 @@ func runHttpServer(
 	mgmtWatcherMgr *watcher.Manager,
 	authHandler authn.Handler,
 	graphHandler *handler.Server,
+	maintenanceManager *maintenance.Manager,
 	vulnMgr *vulnerability.Manager,
 	hookdClient hookd.Client,
 	bifrostAPIURL string,

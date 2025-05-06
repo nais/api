@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	activityLogEntryResourceTypeVulnerability activitylog.ActivityLogEntryResourceType = "VULNERABILITY"
+	activityLogEntryResourceTypeVulnerability activitylog.ActivityLogEntryResourceType = "MAINTENANCE"
 )
 
 func init() {
@@ -15,10 +15,10 @@ func init() {
 		switch entry.Action {
 		case activitylog.ActivityLogEntryActionUpdated:
 			return VulnerabilityUpdatedActivityLogEntry{
-				GenericActivityLogEntry: entry.WithMessage("Updated vulnerability"),
+				GenericActivityLogEntry: entry.WithMessage("Updated maintenance"),
 			}, nil
 		default:
-			return nil, fmt.Errorf("unsupported vulnerability activity log entry action: %q", entry.Action)
+			return nil, fmt.Errorf("unsupported maintenance activity log entry action: %q", entry.Action)
 		}
 	})
 }
