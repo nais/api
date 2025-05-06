@@ -1,0 +1,55 @@
+extend type ValkeyInstance {
+	"Fetch maintenances for the Valkey instance."
+	maintenances(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): MaintenanceList!
+}
+
+type MaintenanceList {
+	"Information to aid in pagination."
+	pageInfo: PageInfo!
+
+	"List of edges."
+	edges: [MaintenanceEdge!]!
+
+	"List of nodes."
+	nodes: [Maintenance!]!
+}
+
+type MaintenanceEdge {
+	"A cursor for use in pagination."
+	cursor: Cursor!
+
+	"A maintenance update."
+	node: Maintenance!
+}
+
+type Maintenance {
+	"Deadline for installing the maintenance. If set, maintenance is mandatory and will be forcibly applied."
+	deadline: Time
+
+	"Title of the maintenance."
+	title: String!
+
+	"Description of the maintenance."
+	description: String!
+
+	"Documentation link."
+	documentation_link: String
+
+	"The earliest time the update will be automatically applied."
+	start_after: Time!
+
+	"The time when the update will be automatically applied. If set, maintenance is mandatory and will be forcibly applied."
+	start_at: Time
+}
