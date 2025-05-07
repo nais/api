@@ -77,7 +77,7 @@ func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*
 							if t, err := time.Parse(time.RFC3339, *update.Deadline); err == nil {
 								updates[j].Deadline = &t
 							} else {
-								l.log.WithError(err).Warnf("Failed to parse deadline time: %s", update.Deadline)
+								l.log.WithError(err).Warnf("Failed to parse deadline time: %v", update.Deadline)
 							}
 						}
 
@@ -85,7 +85,7 @@ func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*
 							if t, err := time.Parse(time.RFC3339, *update.StartAfter); err == nil {
 								updates[j].StartAfter = &t
 							} else {
-								l.log.WithError(err).Warnf("Failed to parse start_after time: %s", update.StartAfter)
+								l.log.WithError(err).Warnf("Failed to parse start_after time: %v", update.StartAfter)
 							}
 						}
 
