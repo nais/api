@@ -182,6 +182,7 @@ type Fakes struct {
 	WithFakeCloudSQL       bool `env:"WITH_FAKE_CLOUD_SQL"`
 	WithFakePrometheus     bool `env:"WITH_FAKE_PROMETHEUS"`
 	WithFakeCostClient     bool `env:"WITH_FAKE_COST_CLIENT"`
+	WithFakePriceClient    bool `env:"WITH_FAKE_PRICE_CLIENT"`
 }
 
 func (f Fakes) Inform(log logrus.FieldLogger) {

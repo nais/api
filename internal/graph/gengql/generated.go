@@ -33,6 +33,7 @@ import (
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
+	"github.com/nais/api/internal/price"
 	"github.com/nais/api/internal/reconciler"
 	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/serviceaccount"
@@ -81,6 +82,7 @@ type ResolverRoot interface {
 	Bucket() BucketResolver
 	ContainerImage() ContainerImageResolver
 	ContainerImageWorkloadReference() ContainerImageWorkloadReferenceResolver
+	CurrentUnitPrices() CurrentUnitPricesResolver
 	DeleteApplicationPayload() DeleteApplicationPayloadResolver
 	DeleteJobPayload() DeleteJobPayloadResolver
 	Deployment() DeploymentResolver
@@ -417,6 +419,11 @@ type ComplexityRoot struct {
 
 	CreateUnleashForTeamPayload struct {
 		Unleash func(childComplexity int) int
+	}
+
+	CurrentUnitPrices struct {
+		CPU    func(childComplexity int) int
+		Memory func(childComplexity int) int
 	}
 
 	DeleteApplicationPayload struct {
@@ -945,23 +952,28 @@ type ComplexityRoot struct {
 		TotalCount      func(childComplexity int) int
 	}
 
+	Price struct {
+		Value func(childComplexity int) int
+	}
+
 	Query struct {
-		Environment      func(childComplexity int, name string) int
-		Environments     func(childComplexity int, orderBy *environment.EnvironmentOrder) int
-		Features         func(childComplexity int) int
-		Me               func(childComplexity int) int
-		Node             func(childComplexity int, id ident.Ident) int
-		Reconcilers      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Roles            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Search           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) int
-		ServiceAccount   func(childComplexity int, id ident.Ident) int
-		ServiceAccounts  func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Team             func(childComplexity int, slug slug.Slug) int
-		Teams            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) int
-		TeamsUtilization func(childComplexity int, resourceType utilization.UtilizationResourceType) int
-		User             func(childComplexity int, email *string) int
-		UserSyncLog      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Users            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) int
+		CurrentUnitPrices func(childComplexity int) int
+		Environment       func(childComplexity int, name string) int
+		Environments      func(childComplexity int, orderBy *environment.EnvironmentOrder) int
+		Features          func(childComplexity int) int
+		Me                func(childComplexity int) int
+		Node              func(childComplexity int, id ident.Ident) int
+		Reconcilers       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Roles             func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Search            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) int
+		ServiceAccount    func(childComplexity int, id ident.Ident) int
+		ServiceAccounts   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Team              func(childComplexity int, slug slug.Slug) int
+		Teams             func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) int
+		TeamsUtilization  func(childComplexity int, resourceType utilization.UtilizationResourceType) int
+		User              func(childComplexity int, email *string) int
+		UserSyncLog       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Users             func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) int
 	}
 
 	Reconciler struct {
@@ -2373,6 +2385,10 @@ type ContainerImageResolver interface {
 type ContainerImageWorkloadReferenceResolver interface {
 	Workload(ctx context.Context, obj *vulnerability.ContainerImageWorkloadReference) (workload.Workload, error)
 }
+type CurrentUnitPricesResolver interface {
+	CPU(ctx context.Context, obj *price.CurrentUnitPrices) (*price.Price, error)
+	Memory(ctx context.Context, obj *price.CurrentUnitPrices) (*price.Price, error)
+}
 type DeleteApplicationPayloadResolver interface {
 	Team(ctx context.Context, obj *application.DeleteApplicationPayload) (*team.Team, error)
 }
@@ -2491,6 +2507,7 @@ type QueryResolver interface {
 	Environments(ctx context.Context, orderBy *environment.EnvironmentOrder) (*pagination.Connection[*environment.Environment], error)
 	Environment(ctx context.Context, name string) (*environment.Environment, error)
 	Features(ctx context.Context) (*feature.Features, error)
+	CurrentUnitPrices(ctx context.Context) (*price.CurrentUnitPrices, error)
 	Reconcilers(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*reconciler.Reconciler], error)
 	Search(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) (*pagination.Connection[search.SearchNode], error)
 	ServiceAccounts(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*serviceaccount.ServiceAccount], error)
@@ -3815,6 +3832,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CreateUnleashForTeamPayload.Unleash(childComplexity), true
+
+	case "CurrentUnitPrices.cpu":
+		if e.complexity.CurrentUnitPrices.CPU == nil {
+			break
+		}
+
+		return e.complexity.CurrentUnitPrices.CPU(childComplexity), true
+
+	case "CurrentUnitPrices.memory":
+		if e.complexity.CurrentUnitPrices.Memory == nil {
+			break
+		}
+
+		return e.complexity.CurrentUnitPrices.Memory(childComplexity), true
 
 	case "DeleteApplicationPayload.success":
 		if e.complexity.DeleteApplicationPayload.Success == nil {
@@ -6130,6 +6161,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PageInfo.TotalCount(childComplexity), true
+
+	case "Price.value":
+		if e.complexity.Price.Value == nil {
+			break
+		}
+
+		return e.complexity.Price.Value(childComplexity), true
+
+	case "Query.currentUnitPrices":
+		if e.complexity.Query.CurrentUnitPrices == nil {
+			break
+		}
+
+		return e.complexity.Query.CurrentUnitPrices(childComplexity), true
 
 	case "Query.environment":
 		if e.complexity.Query.Environment == nil {
@@ -14745,6 +14790,24 @@ type WorkloadLogLine {
 
 	"The name of the instance that generated the log line."
 	instance: String!
+}
+`, BuiltIn: false},
+	{Name: "../schema/price.graphqls", Input: `extend type Query {
+	"""
+	Get current prices for resources.
+	"""
+	currentUnitPrices: CurrentUnitPrices!
+}
+"Get current unit prices."
+type CurrentUnitPrices {
+	"Current price for one CPU hour."
+	cpu: Price!
+	"Current price for one GB hour of memory."
+	memory: Price!
+}
+
+type Price {
+	value: Float!
 }
 `, BuiltIn: false},
 	{Name: "../schema/reconcilers.graphqls", Input: `extend type Mutation {
@@ -35523,6 +35586,102 @@ func (ec *executionContext) fieldContext_CreateUnleashForTeamPayload_unleash(_ c
 	return fc, nil
 }
 
+func (ec *executionContext) _CurrentUnitPrices_cpu(ctx context.Context, field graphql.CollectedField, obj *price.CurrentUnitPrices) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CurrentUnitPrices_cpu(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.CurrentUnitPrices().CPU(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*price.Price)
+	fc.Result = res
+	return ec.marshalNPrice2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CurrentUnitPrices_cpu(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CurrentUnitPrices",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "value":
+				return ec.fieldContext_Price_value(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Price", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CurrentUnitPrices_memory(ctx context.Context, field graphql.CollectedField, obj *price.CurrentUnitPrices) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CurrentUnitPrices_memory(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.CurrentUnitPrices().Memory(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*price.Price)
+	fc.Result = res
+	return ec.marshalNPrice2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CurrentUnitPrices_memory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CurrentUnitPrices",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "value":
+				return ec.fieldContext_Price_value(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Price", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _DeleteApplicationPayload_team(ctx context.Context, field graphql.CollectedField, obj *application.DeleteApplicationPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_DeleteApplicationPayload_team(ctx, field)
 	if err != nil {
@@ -50943,6 +51102,50 @@ func (ec *executionContext) fieldContext_PageInfo_pageEnd(_ context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Price_value(ctx context.Context, field graphql.CollectedField, obj *price.Price) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Price_value(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Value, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Price_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Price",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_node(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_node(ctx, field)
 	if err != nil {
@@ -51235,6 +51438,56 @@ func (ec *executionContext) fieldContext_Query_features(_ context.Context, field
 				return ec.fieldContext_Features_openSearch(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Features", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_currentUnitPrices(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_currentUnitPrices(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().CurrentUnitPrices(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*price.CurrentUnitPrices)
+	fc.Result = res
+	return ec.marshalNCurrentUnitPrices2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐCurrentUnitPrices(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_currentUnitPrices(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cpu":
+				return ec.fieldContext_CurrentUnitPrices_cpu(ctx, field)
+			case "memory":
+				return ec.fieldContext_CurrentUnitPrices_memory(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CurrentUnitPrices", field.Name)
 		},
 	}
 	return fc, nil
@@ -99602,6 +99855,112 @@ func (ec *executionContext) _CreateUnleashForTeamPayload(ctx context.Context, se
 	return out
 }
 
+var currentUnitPricesImplementors = []string{"CurrentUnitPrices"}
+
+func (ec *executionContext) _CurrentUnitPrices(ctx context.Context, sel ast.SelectionSet, obj *price.CurrentUnitPrices) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, currentUnitPricesImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CurrentUnitPrices")
+		case "cpu":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._CurrentUnitPrices_cpu(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "memory":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._CurrentUnitPrices_memory(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var deleteApplicationPayloadImplementors = []string{"DeleteApplicationPayload"}
 
 func (ec *executionContext) _DeleteApplicationPayload(ctx context.Context, sel ast.SelectionSet, obj *application.DeleteApplicationPayload) graphql.Marshaler {
@@ -105060,6 +105419,45 @@ func (ec *executionContext) _PageInfo(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var priceImplementors = []string{"Price"}
+
+func (ec *executionContext) _Price(ctx context.Context, sel ast.SelectionSet, obj *price.Price) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, priceImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Price")
+		case "value":
+			out.Values[i] = ec._Price_value(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -105174,6 +105572,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_features(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "currentUnitPrices":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_currentUnitPrices(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -121361,6 +121781,20 @@ func (ec *executionContext) marshalNCreateUnleashForTeamPayload2ᚖgithubᚗcom�
 	return ec._CreateUnleashForTeamPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNCurrentUnitPrices2githubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐCurrentUnitPrices(ctx context.Context, sel ast.SelectionSet, v price.CurrentUnitPrices) graphql.Marshaler {
+	return ec._CurrentUnitPrices(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCurrentUnitPrices2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐCurrentUnitPrices(ctx context.Context, sel ast.SelectionSet, v *price.CurrentUnitPrices) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CurrentUnitPrices(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx context.Context, v any) (pagination.Cursor, error) {
 	var res pagination.Cursor
 	err := res.UnmarshalGQLContext(ctx, v)
@@ -123679,6 +124113,20 @@ func (ec *executionContext) marshalNOutboundNetworkPolicy2ᚖgithubᚗcomᚋnais
 
 func (ec *executionContext) marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx context.Context, sel ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
 	return ec._PageInfo(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPrice2githubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice(ctx context.Context, sel ast.SelectionSet, v price.Price) graphql.Marshaler {
+	return ec._Price(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPrice2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice(ctx context.Context, sel ast.SelectionSet, v *price.Price) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Price(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNReconciler2githubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconciler(ctx context.Context, sel ast.SelectionSet, v reconciler.Reconciler) graphql.Marshaler {

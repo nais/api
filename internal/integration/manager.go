@@ -169,6 +169,7 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 			WithFakeCloudSQL:       true,
 			WithFakePrometheus:     true,
 			WithFakeCostClient:     true,
+			WithFakePriceClient:    true,
 		},
 		watcherMgr,
 		managementWatcherMgr,
