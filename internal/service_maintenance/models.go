@@ -1,4 +1,4 @@
-package maintenance
+package servicemaintenance
 
 import (
 	"time"
@@ -6,7 +6,7 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 )
 
-type Update struct {
+type ServiceMaintenanceUpdate struct {
 	Deadline          *time.Time `json:"deadline"`
 	Title             string     `json:"title"`
 	Description       string     `json:"description"`
@@ -15,12 +15,12 @@ type Update struct {
 	StartAt           *time.Time `json:"start_at"`
 }
 
-type Maintenance struct {
-	Identifier ident.Ident `json:"id"`
-	Updates    []Update    `json:"updates"`
+type ServiceMaintenance struct {
+	Identifier ident.Ident                `json:"id"`
+	Updates    []ServiceMaintenanceUpdate `json:"updates"`
 }
 
-func (Maintenance) IsNode() {}
-func (i *Maintenance) ID() ident.Ident {
+func (ServiceMaintenance) IsNode() {}
+func (i *ServiceMaintenance) ID() ident.Ident {
 	return i.Identifier
 }

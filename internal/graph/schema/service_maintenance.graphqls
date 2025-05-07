@@ -1,14 +1,14 @@
 extend type ValkeyInstance {
   "Fetch maintenances for the Valkey instance."
-  maintenance: Maintenance!
+  maintenance: ServiceMaintenance!
 }
 
-type Maintenance implements Node {
+type ServiceMaintenance implements Node {
   id: ID!
-  updates: [Update]!
+  updates: [ServiceMaintenanceUpdate]!
 }
 
-type Update {
+type ServiceMaintenanceUpdate {
 	"Deadline for installing the maintenance. If set, maintenance is mandatory and will be forcibly applied."
 	deadline: Time
 

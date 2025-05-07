@@ -25,7 +25,6 @@ import (
 	"github.com/nais/api/internal/graph/loader"
 	apik8s "github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
-	"github.com/nais/api/internal/maintenance"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/kafkatopic"
@@ -36,6 +35,7 @@ import (
 	fakeprice "github.com/nais/api/internal/price/fake"
 	"github.com/nais/api/internal/reconciler"
 	"github.com/nais/api/internal/search"
+	servicemaintenance "github.com/nais/api/internal/service_maintenance"
 	"github.com/nais/api/internal/serviceaccount"
 	"github.com/nais/api/internal/session"
 	"github.com/nais/api/internal/team"
@@ -74,7 +74,7 @@ func runHttpServer(
 	mgmtWatcherMgr *watcher.Manager,
 	authHandler authn.Handler,
 	graphHandler *handler.Server,
-	maintenanceManager *maintenance.Manager,
+	maintenanceManager *servicemaintenance.Manager,
 	vulnMgr *vulnerability.Manager,
 	hookdClient hookd.Client,
 	bifrostAPIURL string,
@@ -184,7 +184,7 @@ func ConfigureGraph(
 	mgmtWatcherMgr *watcher.Manager,
 	pool *pgxpool.Pool,
 	k8sClients apik8s.ClusterConfigMap,
-	maintenananceManager *maintenance.Manager,
+	maintenananceManager *servicemaintenance.Manager,
 	vulnMgr *vulnerability.Manager,
 	tenantName string,
 	clusters []string,
@@ -305,7 +305,7 @@ func ConfigureGraph(
 		ctx = authz.NewLoaderContext(ctx, pool)
 		ctx = activitylog.NewLoaderContext(ctx, pool)
 		ctx = vulnerability.NewLoaderContext(ctx, vulnMgr, prometheusClient, log)
-		ctx = maintenance.NewLoaderContext(ctx, prometheusClient, log)
+		ctx = servicemaintenance.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = reconciler.NewLoaderContext(ctx, pool)
 		ctx = deployment.NewLoaderContext(ctx, pool, hookdClient)
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)
