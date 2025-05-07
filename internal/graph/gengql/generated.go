@@ -33,6 +33,7 @@ import (
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
+	"github.com/nais/api/internal/price"
 	"github.com/nais/api/internal/reconciler"
 	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/serviceaccount"
@@ -945,7 +946,16 @@ type ComplexityRoot struct {
 		TotalCount      func(childComplexity int) int
 	}
 
+	Price struct {
+		Currency    func(childComplexity int) int
+		Description func(childComplexity int) int
+		Price       func(childComplexity int) int
+		Type        func(childComplexity int) int
+		Unit        func(childComplexity int) int
+	}
+
 	Query struct {
+		CurrentUnitPrice func(childComplexity int, resourceType price.ResourceType) int
 		Environment      func(childComplexity int, name string) int
 		Environments     func(childComplexity int, orderBy *environment.EnvironmentOrder) int
 		Features         func(childComplexity int) int
@@ -2491,6 +2501,7 @@ type QueryResolver interface {
 	Environments(ctx context.Context, orderBy *environment.EnvironmentOrder) (*pagination.Connection[*environment.Environment], error)
 	Environment(ctx context.Context, name string) (*environment.Environment, error)
 	Features(ctx context.Context) (*feature.Features, error)
+	CurrentUnitPrice(ctx context.Context, resourceType price.ResourceType) (*price.Price, error)
 	Reconcilers(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*reconciler.Reconciler], error)
 	Search(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) (*pagination.Connection[search.SearchNode], error)
 	ServiceAccounts(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*serviceaccount.ServiceAccount], error)
@@ -6130,6 +6141,53 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PageInfo.TotalCount(childComplexity), true
+
+	case "Price.currency":
+		if e.complexity.Price.Currency == nil {
+			break
+		}
+
+		return e.complexity.Price.Currency(childComplexity), true
+
+	case "Price.description":
+		if e.complexity.Price.Description == nil {
+			break
+		}
+
+		return e.complexity.Price.Description(childComplexity), true
+
+	case "Price.price":
+		if e.complexity.Price.Price == nil {
+			break
+		}
+
+		return e.complexity.Price.Price(childComplexity), true
+
+	case "Price.type":
+		if e.complexity.Price.Type == nil {
+			break
+		}
+
+		return e.complexity.Price.Type(childComplexity), true
+
+	case "Price.unit":
+		if e.complexity.Price.Unit == nil {
+			break
+		}
+
+		return e.complexity.Price.Unit(childComplexity), true
+
+	case "Query.currentUnitPrice":
+		if e.complexity.Query.CurrentUnitPrice == nil {
+			break
+		}
+
+		args, err := ec.field_Query_currentUnitPrice_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.CurrentUnitPrice(childComplexity, args["resourceType"].(price.ResourceType)), true
 
 	case "Query.environment":
 		if e.complexity.Query.Environment == nil {
@@ -14747,6 +14805,24 @@ type WorkloadLogLine {
 	instance: String!
 }
 `, BuiltIn: false},
+	{Name: "../schema/price.graphqls", Input: `extend type Query {
+	# Get current price for the given type.
+	currentUnitPrice(resourceType: ResourceType!): Price!
+}
+
+type Price {
+	description: String!
+	price: Float!
+	unit: String!
+	currency: String!
+	type: ResourceType!
+}
+
+enum ResourceType {
+	CPU
+	MEMORY
+}
+`, BuiltIn: false},
 	{Name: "../schema/reconcilers.graphqls", Input: `extend type Mutation {
 	"""
 	Enable a reconciler
@@ -22701,6 +22777,34 @@ func (ec *executionContext) field_Query___type_argsName(
 	}
 
 	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_currentUnitPrice_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Query_currentUnitPrice_argsResourceType(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["resourceType"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_currentUnitPrice_argsResourceType(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (price.ResourceType, error) {
+	if _, ok := rawArgs["resourceType"]; !ok {
+		var zeroVal price.ResourceType
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("resourceType"))
+	if tmp, ok := rawArgs["resourceType"]; ok {
+		return ec.unmarshalNResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐResourceType(ctx, tmp)
+	}
+
+	var zeroVal price.ResourceType
 	return zeroVal, nil
 }
 
@@ -50943,6 +51047,226 @@ func (ec *executionContext) fieldContext_PageInfo_pageEnd(_ context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Price_description(ctx context.Context, field graphql.CollectedField, obj *price.Price) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Price_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Price_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Price",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Price_price(ctx context.Context, field graphql.CollectedField, obj *price.Price) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Price_price(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Price, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Price_price(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Price",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Price_unit(ctx context.Context, field graphql.CollectedField, obj *price.Price) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Price_unit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Unit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Price_unit(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Price",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Price_currency(ctx context.Context, field graphql.CollectedField, obj *price.Price) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Price_currency(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Currency, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Price_currency(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Price",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Price_type(ctx context.Context, field graphql.CollectedField, obj *price.Price) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Price_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(price.ResourceType)
+	fc.Result = res
+	return ec.marshalNResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Price_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Price",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_node(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_node(ctx, field)
 	if err != nil {
@@ -51236,6 +51560,73 @@ func (ec *executionContext) fieldContext_Query_features(_ context.Context, field
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Features", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_currentUnitPrice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_currentUnitPrice(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().CurrentUnitPrice(rctx, fc.Args["resourceType"].(price.ResourceType))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*price.Price)
+	fc.Result = res
+	return ec.marshalNPrice2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_currentUnitPrice(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "description":
+				return ec.fieldContext_Price_description(ctx, field)
+			case "price":
+				return ec.fieldContext_Price_price(ctx, field)
+			case "unit":
+				return ec.fieldContext_Price_unit(ctx, field)
+			case "currency":
+				return ec.fieldContext_Price_currency(ctx, field)
+			case "type":
+				return ec.fieldContext_Price_type(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Price", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_currentUnitPrice_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -105060,6 +105451,65 @@ func (ec *executionContext) _PageInfo(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var priceImplementors = []string{"Price"}
+
+func (ec *executionContext) _Price(ctx context.Context, sel ast.SelectionSet, obj *price.Price) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, priceImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Price")
+		case "description":
+			out.Values[i] = ec._Price_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "price":
+			out.Values[i] = ec._Price_price(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "unit":
+			out.Values[i] = ec._Price_unit(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "currency":
+			out.Values[i] = ec._Price_currency(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "type":
+			out.Values[i] = ec._Price_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -105174,6 +105624,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_features(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "currentUnitPrice":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_currentUnitPrice(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -123681,6 +124153,20 @@ func (ec *executionContext) marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinterna
 	return ec._PageInfo(ctx, sel, &v)
 }
 
+func (ec *executionContext) marshalNPrice2githubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice(ctx context.Context, sel ast.SelectionSet, v price.Price) graphql.Marshaler {
+	return ec._Price(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPrice2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice(ctx context.Context, sel ast.SelectionSet, v *price.Price) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Price(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNReconciler2githubᚗcomᚋnaisᚋapiᚋinternalᚋreconcilerᚐReconciler(ctx context.Context, sel ast.SelectionSet, v reconciler.Reconciler) graphql.Marshaler {
 	return ec._Reconciler(ctx, sel, &v)
 }
@@ -124201,6 +124687,16 @@ func (ec *executionContext) marshalNRequestTeamDeletionPayload2ᚖgithubᚗcom�
 		return graphql.Null
 	}
 	return ec._RequestTeamDeletionPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐResourceType(ctx context.Context, v any) (price.ResourceType, error) {
+	var res price.ResourceType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐResourceType(ctx context.Context, sel ast.SelectionSet, v price.ResourceType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNRestartApplicationInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐRestartApplicationInput(ctx context.Context, v any) (application.RestartApplicationInput, error) {
