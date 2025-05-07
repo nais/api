@@ -12,11 +12,7 @@ func (r *currentUnitPricesResolver) CPU(ctx context.Context, obj *price.CurrentU
 }
 
 func (r *currentUnitPricesResolver) Memory(ctx context.Context, obj *price.CurrentUnitPrices) (*price.Price, error) {
-	p, err := price.MemoryHour(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return p, nil
+	return price.MemoryHour(ctx)
 }
 
 func (r *queryResolver) CurrentUnitPrices(ctx context.Context) (*price.CurrentUnitPrices, error) {
