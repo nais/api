@@ -35,12 +35,22 @@ func NewClient(ctx context.Context, log logrus.FieldLogger, opts ...option.Clien
 }
 
 func (s *Client) GetUnitPrice(ctx context.Context, skuID string) (*Price, error) {
+	if cached, found := s.cache.Get(skuID); found {
+		if price, ok := cached.(*Price); ok {
+			return price, nil
+		}
+	}
+
 	p, err := s.client.Skus.Price.Get("skus/" + skuID + "/price").CurrencyCode("EUR").Context(ctx).Do()
 	if err != nil {
 		return nil, err
 	}
 
-	return &Price{
+	price := &Price{
 		Value: float64(p.Rate.Tiers[len(p.Rate.Tiers)-1].ListPrice.Nanos) / 1e9,
-	}, nil
+	}
+
+	s.cache.Add(skuID, price, time.Hour*24)
+
+	return price, nil
 }
