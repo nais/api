@@ -19,10 +19,6 @@ func NewLoaderContext(ctx context.Context, prometheusClient PrometheusClient, lo
 	return context.WithValue(ctx, loadersKey, newLoaders(prometheusClient, logger))
 }
 
-func fromContext(ctx context.Context) *loaders {
-	return ctx.Value(loadersKey).(*loaders)
-}
-
 type aivenDataLoaderKey struct {
 	project     string
 	serviceName string
@@ -64,9 +60,9 @@ func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*
 				errs[i] = err
 			} else {
 				if res.Maintenance != nil && res.Maintenance.Updates != nil {
-					updates := make([]*Update, len(res.Maintenance.Updates))
+					updates := make([]Update, len(res.Maintenance.Updates))
 					for j, update := range res.Maintenance.Updates {
-						updates[j] = &Update{
+						updates[j] = Update{
 							Title:             *update.Description,
 							Description:       *update.Impact,
 							DocumentationLink: *update.DocumentationLink,
