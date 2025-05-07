@@ -204,3 +204,10 @@ values:
     config:
       type: string
       secret: true
+
+  aiven_token:
+    displayName: Aiven token
+    description: Aiven token key
+    config:
+      type: string
+      secret: true
