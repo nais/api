@@ -17,7 +17,7 @@ type Update struct {
 
 type Maintenance struct {
 	Identifier ident.Ident `json:"id"`
-	Updates    []*Update   `json:"updates"`
+	Updates    []Update    `json:"updates"`
 }
 
 func (Maintenance) IsNode() {}
