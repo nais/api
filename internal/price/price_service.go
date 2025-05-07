@@ -2,6 +2,7 @@ package price
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/patrickmn/go-cache"
@@ -19,7 +20,7 @@ type PriceService struct {
 func NewPriceService(ctx context.Context, log logrus.FieldLogger, opts ...option.ClientOption) (*PriceService, error) {
 	priceService, err := cloudbilling.NewService(ctx, option.WithScopes(cloudbilling.CloudBillingScope))
 	if err != nil {
-		log.Fatalf("Failed to create billing service: %v", err)
+		return nil, fmt.Errorf("failed to create billing service: %w", err)
 	}
 
 	return &PriceService{
@@ -29,18 +30,13 @@ func NewPriceService(ctx context.Context, log logrus.FieldLogger, opts ...option
 	}, nil
 }
 
-func (s *PriceService) GetUnitPrice(ctx context.Context, resourceType ResourceType) (*Price, error) {
-	// TODO: Replace with actual SKU
-	p, err := s.client.Skus.Price.Get("skus/0001-48D2-BE14/price").CurrencyCode("EUR").Context(ctx).Do()
+func (s *PriceService) GetUnitPrice(ctx context.Context, skuID string) (*Price, error) {
+	p, err := s.client.Skus.Price.Get("skus/" + skuID + "/price").CurrencyCode("EUR").Context(ctx).Do()
 	if err != nil {
 		return nil, err
 	}
 
 	return &Price{
-		Currency:    p.CurrencyCode,
-		Description: "Price for " + resourceType.String(),
-		Type:        resourceType,
-		Price:       float64(p.Rate.Tiers[len(p.Rate.Tiers)-1].ListPrice.Nanos) / 1e9,
-		Unit:        "TODO",
+		Value: float64(p.Rate.Tiers[len(p.Rate.Tiers)-1].ListPrice.Nanos) / 1e9,
 	}, nil
 }

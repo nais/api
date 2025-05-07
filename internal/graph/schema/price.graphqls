@@ -1,17 +1,17 @@
 extend type Query {
-	# Get current price for the given type.
-	currentUnitPrice(resourceType: ResourceType!): Price!
+	"""
+	Get current prices for resources.
+	"""
+	currentUnitPrices: CurrentUnitPrices!
+}
+"Get current unit prices."
+type CurrentUnitPrices {
+	"Current price for one CPU hour."
+	cpu: Price!
+	"Current price for one GB hour of memory."
+	memory: Price!
 }
 
 type Price {
-	description: String!
-	price: Float!
-	unit: String!
-	currency: String!
-	type: ResourceType!
-}
-
-enum ResourceType {
-	CPU
-	MEMORY
+	value: Float!
 }
