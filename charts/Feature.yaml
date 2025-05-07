@@ -11,7 +11,19 @@ values:
   apiserverIP:
     displayName: API server IP
     computed:
-      template: '"{{.Env.apiserver_endpoint}}"'
+      template: |
+        {{ .Env.apiserver_endpoint | quote }}
+
+  aiven.token:
+    description: An API-token with full access to the relevant project
+    displayName: Aiven API-token
+    computed:
+      template: |
+        {{ .Env.aiven_nais_api_user_token | quote }}
+    config:
+      type: string
+      secret: true
+
   host:
     displayName: Ingress hostname
     computed:
@@ -70,7 +82,7 @@ values:
     displayName: Tenant domain
     computed:
       template: |
-        {{ .Env.tenant_domain }}
+        {{ .Env.tenant_domain | quote }}
 
   google.managementProjectID:
     displayName: Management project ID
@@ -82,29 +94,22 @@ values:
   oauth.clientID:
     displayName: OAuth client ID
     description: The client ID for the OAuth client
-    config:
-      type: string
-    required: true
+    computed:
+      template: |
+        {{ .Env.api_zitadel_client_id | quote }}
 
   oauth.clientSecret:
     displayName: OAuth client secret
     description: The client secret for the OAuth client
-    config:
-      type: string
-      secret: true
-    required: true
+    computed:
+      template: |
+        {{ .Env.api_zitadel_client_secret | quote }}
 
   oauth.issuer:
     displayName: OAuth issuer
     description: The issuer that the OAuth client should use
     config:
       type: string
-
-  oauth.additionalScopes:
-    displayName: OAuth additional scopes
-    description: List of additional scopes to use in the OAuth login flow
-    config:
-      type: string_array
 
   staticServiceAccounts:
     displayName: Static nais-api service accounts
@@ -172,7 +177,8 @@ values:
     config:
       type: string
     computed:
-      template: '"{{ .Management.bifrost_unleash_namespace}}"'
+      template: |
+        {{ .Management.bifrost_unleash_namespace | quote }}
 
   replaceEnvironmentNames:
     displayName: Replace environment names
@@ -186,11 +192,12 @@ values:
     config:
       type: int
 
-  zitadel.idp_id:
+  zitadel.idpID:
     displayName: Zitadel IDP ID
-    description: The IDP ID to use for Zitadel
+    description: Global IDP ID in Zitadel to point user logins to
     config:
       type: string
+    required: true
 
   zitadel.domain:
     displayName: Zitadel domain
@@ -204,8 +211,12 @@ values:
     computed:
       template: "{{ .Env.api_usersync_zitadel_key | quote }}"
 
-  zitadel.organization_id:
-    displayName: Zitadel organizatoin id
-    description: The organization ID to use for Zitadel
+  zitadel.organizationID:
+    displayName: Zitadel organization ID
+    description: Organization ID in Zitadel for this tenant
     computed:
       template: "{{ .Env.zitadel_organization_id | quote }}"
+
+rename:
+  - from: "zitadel.idp_id"
+    to: "zitadel.idpID"
