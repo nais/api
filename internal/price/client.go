@@ -46,6 +46,10 @@ func (s *Client) GetUnitPrice(ctx context.Context, skuID string) (*Price, error)
 		return nil, err
 	}
 
+	if p.Rate == nil {
+		return nil, fmt.Errorf("pricing information is unavailable for SKU: %s", skuID)
+	}
+
 	if len(p.Rate.Tiers) == 0 {
 		return nil, fmt.Errorf("no pricing tiers available for SKU: %s", skuID)
 	}
