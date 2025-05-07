@@ -211,3 +211,9 @@ values:
     config:
       type: string
       secret: true
+
+  aiven_project_environment_map:
+    displayName: Mapping environment <-> Aiven project
+    description: A mapping required for querying the Aiven API
+    config:
+      type: map
