@@ -2,25 +2,45 @@ package price
 
 import (
 	"context"
+	"fmt"
+	"time"
 
+	"github.com/patrickmn/go-cache"
 	"github.com/sirupsen/logrus"
+	cloudbilling "google.golang.org/api/cloudbilling/v1beta"
+	"google.golang.org/api/option"
 )
 
 type Client struct {
-	Price *PriceService
-	log   logrus.FieldLogger
+	cache  *cache.Cache
+	client *cloudbilling.Service
+	log    logrus.FieldLogger
 }
 
-func NewClient(ctx context.Context, log logrus.FieldLogger) (*Client, error) {
-	client := &Client{
-		log: log,
+type Retriever interface {
+	GetUnitPrice(ctx context.Context, skuID string) (*Price, error)
+}
+
+func NewClient(ctx context.Context, log logrus.FieldLogger, opts ...option.ClientOption) (*Client, error) {
+	priceService, err := cloudbilling.NewService(ctx, option.WithScopes(cloudbilling.CloudBillingScope))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create billing service: %w", err)
 	}
 
-	s, err := NewPriceService(ctx, log)
+	return &Client{
+		cache:  cache.New(10*time.Minute, 20*time.Minute),
+		client: priceService,
+		log:    log,
+	}, nil
+}
+
+func (s *Client) GetUnitPrice(ctx context.Context, skuID string) (*Price, error) {
+	p, err := s.client.Skus.Price.Get("skus/" + skuID + "/price").CurrencyCode("EUR").Context(ctx).Do()
 	if err != nil {
 		return nil, err
 	}
-	client.Price = s
 
-	return client, nil
+	return &Price{
+		Value: float64(p.Rate.Tiers[len(p.Rate.Tiers)-1].ListPrice.Nanos) / 1e9,
+	}, nil
 }

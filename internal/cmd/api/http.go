@@ -32,6 +32,7 @@ import (
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/price"
+	fakeprice "github.com/nais/api/internal/price/fake"
 	"github.com/nais/api/internal/reconciler"
 	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/serviceaccount"
@@ -230,10 +231,15 @@ func ConfigureGraph(
 		return nil, fmt.Errorf("create SQL Admin service: %w", err)
 	}
 
-	// TODO: Do we need a fake client for this?
-	priceService, err := price.NewClient(ctx, log)
-	if err != nil {
-		return nil, fmt.Errorf("create price service: %w", err)
+	var priceRetriever price.Retriever
+	if fakes.WithFakePriceClient {
+		priceRetriever = fakeprice.NewClient()
+		log.Warn("Using fake price retriever")
+	} else {
+		priceRetriever, err = price.NewClient(ctx, log)
+		if err != nil {
+			return nil, fmt.Errorf("create price service: %w", err)
+		}
 	}
 
 	var prometheusClient promclient.Client
@@ -283,7 +289,7 @@ func ConfigureGraph(
 		ctx = secret.NewLoaderContext(ctx, secretClientCreator, clusters, log)
 		ctx = opensearch.NewLoaderContext(ctx, openSearchWatcher)
 		ctx = valkey.NewLoaderContext(ctx, valkeyWatcher)
-		ctx = price.NewLoaderContext(ctx, priceService, log)
+		ctx = price.NewLoaderContext(ctx, priceRetriever, log)
 		ctx = utilization.NewLoaderContext(ctx, prometheusClient)
 		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, sqlDatabaseWatcher, sqlInstanceWatcher)
 		ctx = database.NewLoaderContext(ctx, pool)

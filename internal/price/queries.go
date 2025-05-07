@@ -3,7 +3,8 @@ package price
 import "context"
 
 func CPUHour(ctx context.Context) (*Price, error) {
-	p, err := fromContext(ctx).client.Price.GetUnitPrice(ctx, "0981-D144-B18E")
+	// 0981-D144-B18E: E2 Instance Core running in Finland
+	p, err := fromContext(ctx).client.GetUnitPrice(ctx, "0981-D144-B18E")
 	if err != nil {
 		return nil, err
 	}
@@ -12,7 +13,8 @@ func CPUHour(ctx context.Context) (*Price, error) {
 }
 
 func MemoryHour(ctx context.Context) (*Price, error) {
-	p, err := fromContext(ctx).client.Price.GetUnitPrice(ctx, "779E-BED5-F31F")
+	// 779E-BED5-F31F: E2 Instance Ram running in Finland
+	p, err := fromContext(ctx).client.GetUnitPrice(ctx, "779E-BED5-F31F")
 	if err != nil {
 		return nil, err
 	}
