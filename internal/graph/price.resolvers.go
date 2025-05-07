@@ -8,11 +8,7 @@ import (
 )
 
 func (r *currentUnitPricesResolver) CPU(ctx context.Context, obj *price.CurrentUnitPrices) (*price.Price, error) {
-	p, err := price.CPUHour(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return p, nil
+	return price.CPUHour(ctx)
 }
 
 func (r *currentUnitPricesResolver) Memory(ctx context.Context, obj *price.CurrentUnitPrices) (*price.Price, error) {
