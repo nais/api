@@ -30,6 +30,10 @@ type loaders struct {
 	promClients        *PrometheusQuerier
 }
 
+func fromContext(ctx context.Context) *loaders {
+	return ctx.Value(loadersKey).(*loaders)
+}
+
 func newLoaders(prometheusClient PrometheusClient, logger logrus.FieldLogger) *loaders {
 	maintenanceLoader := &dataloader{maintenanceManager: nil, log: logger}
 
