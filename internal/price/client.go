@@ -46,11 +46,15 @@ func (s *Client) GetUnitPrice(ctx context.Context, skuID string) (*Price, error)
 		return nil, err
 	}
 
+	if len(p.Rate.Tiers) == 0 {
+		return nil, fmt.Errorf("no pricing tiers available for SKU: %s", skuID)
+	}
+
 	price := &Price{
 		Value: float64(p.Rate.Tiers[len(p.Rate.Tiers)-1].ListPrice.Nanos) / 1e9,
 	}
 
-	s.cache.Add(skuID, price, time.Hour*24)
+	s.cache.Set(skuID, price, time.Hour*24)
 
 	return price, nil
 }
