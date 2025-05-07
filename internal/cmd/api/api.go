@@ -25,7 +25,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/nais/api/internal/logger"
-	"github.com/nais/api/internal/maintenance"
+	servicemaintenance "github.com/nais/api/internal/service_maintenance"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/vulnerability"
@@ -165,7 +165,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return err
 	}
 
-	maintenanceManager, err := maintenance.NewManager(
+	maintenanceManager, err := servicemaintenance.NewManager(
 		ctx,
 		cfg.AivenToken,
 		log.WithField("subsystem", "maintenance"),

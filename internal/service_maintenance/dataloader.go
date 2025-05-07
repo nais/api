@@ -1,4 +1,4 @@
-package maintenance
+package servicemaintenance
 
 import (
 	"context"
@@ -25,7 +25,7 @@ type aivenDataLoaderKey struct {
 }
 
 type loaders struct {
-	maintenanceLoader  *dataloadgen.Loader[*aivenDataLoaderKey, *Maintenance]
+	maintenanceLoader  *dataloadgen.Loader[*aivenDataLoaderKey, *ServiceMaintenance]
 	maintenanceManager *Manager
 	promClients        *PrometheusQuerier
 }
@@ -46,10 +46,10 @@ type dataloader struct {
 	log                logrus.FieldLogger
 }
 
-func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*aivenDataLoaderKey) ([]*Maintenance, []error) {
+func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*aivenDataLoaderKey) ([]*ServiceMaintenance, []error) {
 	wg := pool.New().WithContext(ctx)
 
-	rets := make([]*Maintenance, len(aivenDataLoaderKeys))
+	rets := make([]*ServiceMaintenance, len(aivenDataLoaderKeys))
 	errs := make([]error, len(aivenDataLoaderKeys))
 
 	for i, pair := range aivenDataLoaderKeys {
@@ -59,9 +59,9 @@ func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*
 				errs[i] = err
 			} else {
 				if res.Maintenance != nil && res.Maintenance.Updates != nil {
-					updates := make([]Update, len(res.Maintenance.Updates))
+					updates := make([]ServiceMaintenanceUpdate, len(res.Maintenance.Updates))
 					for j, update := range res.Maintenance.Updates {
-						updates[j] = Update{
+						updates[j] = ServiceMaintenanceUpdate{
 							Title:             *update.Description,
 							Description:       *update.Impact,
 							DocumentationLink: *update.DocumentationLink,
@@ -84,7 +84,7 @@ func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*
 						}
 
 					}
-					rets[i] = &Maintenance{Updates: updates}
+					rets[i] = &ServiceMaintenance{Updates: updates}
 				}
 			}
 			return nil
