@@ -47,7 +47,6 @@ type dataloader struct {
 }
 
 func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*aivenDataLoaderKey) ([]*Maintenance, []error) {
-
 	wg := pool.New().WithContext(ctx)
 
 	rets := make([]*Maintenance, len(aivenDataLoaderKeys))
@@ -69,7 +68,6 @@ func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*
 							StartAt:           update.StartAt,
 						}
 						if update.Deadline != nil {
-
 							if t, err := time.Parse(time.RFC3339, *update.Deadline); err == nil {
 								updates[j].Deadline = &t
 							} else {
