@@ -23,3 +23,10 @@ func NewManager(ctx context.Context, token string, log *logrus.Entry) (*Manager,
 		log:    log,
 	}, nil
 }
+
+func NewFakeManager(_ context.Context, log *logrus.Entry) (*Manager, error) {
+	return &Manager{
+		client: nil,
+		log:    log,
+	}, nil
+}
