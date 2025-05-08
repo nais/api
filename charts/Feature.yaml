@@ -205,15 +205,11 @@ values:
       type: string
       secret: true
 
-  aiven_token:
-    displayName: Aiven token
-    description: Aiven token key
+  aiven.token:
+    description: An API-token with full access to the relevant project
+    displayName: Aiven API-token
+    computed:
+      template: '"{{ .Env.aiven_application_token_aivenator }}"'
     config:
       type: string
       secret: true
-
-  aiven_project_environment_map:
-    displayName: Mapping environment <-> Aiven project
-    description: A mapping required for querying the Aiven API
-    config:
-      type: map
