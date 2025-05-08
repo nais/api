@@ -66654,9 +66654,9 @@ func (ec *executionContext) _ServiceMaintenanceUpdate_documentation_link(ctx con
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ServiceMaintenanceUpdate_documentation_link(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
