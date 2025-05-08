@@ -25,13 +25,8 @@ type aivenDataLoaderKey struct {
 }
 
 type loaders struct {
-	maintenanceLoader  *dataloadgen.Loader[*aivenDataLoaderKey, *ServiceMaintenance]
-	maintenanceManager *Manager
-	promClients        *PrometheusQuerier
-}
-
-func fromContext(ctx context.Context) *loaders {
-	return ctx.Value(loadersKey).(*loaders)
+	maintenanceLoader *dataloadgen.Loader[*aivenDataLoaderKey, *ServiceMaintenance]
+	promClients       *PrometheusQuerier
 }
 
 func newLoaders(serviceMaintenanceMgr *Manager, prometheusClient PrometheusClient, logger logrus.FieldLogger) *loaders {
