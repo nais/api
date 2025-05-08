@@ -15,8 +15,8 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, prometheusClient PrometheusClient, logger logrus.FieldLogger) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(prometheusClient, logger))
+func NewLoaderContext(ctx context.Context, serviceMaintenanceManager *Manager, prometheusClient PrometheusClient, logger logrus.FieldLogger) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(serviceMaintenanceManager, prometheusClient, logger))
 }
 
 type aivenDataLoaderKey struct {
@@ -34,9 +34,8 @@ func fromContext(ctx context.Context) *loaders {
 	return ctx.Value(loadersKey).(*loaders)
 }
 
-func newLoaders(prometheusClient PrometheusClient, logger logrus.FieldLogger) *loaders {
-	maintenanceLoader := &dataloader{maintenanceManager: nil, log: logger}
-
+func newLoaders(serviceMaintenanceMgr *Manager, prometheusClient PrometheusClient, logger logrus.FieldLogger) *loaders {
+	maintenanceLoader := &dataloader{serviceMaintenanceManager: serviceMaintenanceMgr, log: logger}
 	return &loaders{
 		maintenanceLoader: dataloadgen.NewLoader(maintenanceLoader.maintenanceList, loader.DefaultDataLoaderOptions...),
 		promClients: &PrometheusQuerier{
@@ -46,19 +45,18 @@ func newLoaders(prometheusClient PrometheusClient, logger logrus.FieldLogger) *l
 }
 
 type dataloader struct {
-	maintenanceManager *Manager
-	log                logrus.FieldLogger
+	serviceMaintenanceManager *Manager
+	log                       logrus.FieldLogger
 }
 
 func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*aivenDataLoaderKey) ([]*ServiceMaintenance, []error) {
 	wg := pool.New().WithContext(ctx)
-
 	rets := make([]*ServiceMaintenance, len(aivenDataLoaderKeys))
 	errs := make([]error, len(aivenDataLoaderKeys))
 
 	for i, pair := range aivenDataLoaderKeys {
 		wg.Go(func(ctx context.Context) error {
-			res, err := l.maintenanceManager.client.ServiceGet(ctx, pair.project, pair.serviceName)
+			res, err := l.serviceMaintenanceManager.client.ServiceGet(ctx, pair.project, pair.serviceName)
 			if err != nil {
 				errs[i] = err
 			} else {
@@ -66,10 +64,12 @@ func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*
 					updates := make([]ServiceMaintenanceUpdate, len(res.Maintenance.Updates))
 					for j, update := range res.Maintenance.Updates {
 						updates[j] = ServiceMaintenanceUpdate{
-							Title:             *update.Description,
-							Description:       *update.Impact,
-							DocumentationLink: *update.DocumentationLink,
-							StartAt:           update.StartAt,
+							Title:       *update.Description,
+							Description: *update.Impact,
+							StartAt:     update.StartAt,
+						}
+						if update.DocumentationLink != nil {
+							updates[j].DocumentationLink = *update.DocumentationLink
 						}
 						if update.Deadline != nil {
 							if t, err := time.Parse(time.RFC3339, *update.Deadline); err == nil {
@@ -78,7 +78,6 @@ func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*
 								l.log.WithError(err).Warnf("Failed to parse deadline time: %v", update.Deadline)
 							}
 						}
-
 						if update.StartAfter != nil {
 							if t, err := time.Parse(time.RFC3339, *update.StartAfter); err == nil {
 								updates[j].StartAfter = &t
@@ -93,6 +92,10 @@ func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*
 			}
 			return nil
 		})
+	}
+	if err := wg.Wait(); err != nil {
+		l.log.WithError(err).Error("error waiting for dataloader")
+
 	}
 	return rets, errs
 }

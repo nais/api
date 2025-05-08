@@ -130,7 +130,7 @@ func (l loggingConfig) DefaultLogDestinations() []logging.SupportedLogDestinatio
 }
 
 type Config struct {
-	// Aiven token is the token for the aiven
+	// Aiven token is the token for the aiven token
 	AivenToken string `env:"AIVEN_TOKEN"`
 
 	// Tenant is the active tenant
