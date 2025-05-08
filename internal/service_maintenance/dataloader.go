@@ -59,13 +59,12 @@ func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*
 					updates := make([]ServiceMaintenanceUpdate, len(res.Maintenance.Updates))
 					for j, update := range res.Maintenance.Updates {
 						updates[j] = ServiceMaintenanceUpdate{
-							Title:       *update.Description,
-							Description: *update.Impact,
-							StartAt:     update.StartAt,
+							Title:             *update.Description,
+							Description:       *update.Impact,
+							DocumentationLink: update.DocumentationLink,
+							StartAt:           update.StartAt,
 						}
-						if update.DocumentationLink != nil {
-							updates[j].DocumentationLink = *update.DocumentationLink
-						}
+
 						if update.Deadline != nil {
 							if t, err := time.Parse(time.RFC3339, *update.Deadline); err == nil {
 								updates[j].Deadline = &t
@@ -73,6 +72,7 @@ func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*
 								l.log.WithError(err).Warnf("Failed to parse deadline time: %v", update.Deadline)
 							}
 						}
+
 						if update.StartAfter != nil {
 							if t, err := time.Parse(time.RFC3339, *update.StartAfter); err == nil {
 								updates[j].StartAfter = &t
@@ -80,7 +80,6 @@ func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*
 								l.log.WithError(err).Warnf("Failed to parse start_after time: %v", update.StartAfter)
 							}
 						}
-
 					}
 					rets[i] = &ServiceMaintenance{Updates: updates}
 				}
@@ -88,9 +87,10 @@ func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*
 			return nil
 		})
 	}
+
 	if err := wg.Wait(); err != nil {
 		l.log.WithError(err).Error("error waiting for dataloader")
-
 	}
+
 	return rets, errs
 }

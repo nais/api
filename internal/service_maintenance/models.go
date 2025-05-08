@@ -7,12 +7,12 @@ import (
 )
 
 type ServiceMaintenanceUpdate struct {
-	Deadline          *time.Time `json:"deadline"`
+	Deadline          *time.Time `json:"deadline,omitempty"`
 	Title             string     `json:"title"`
 	Description       string     `json:"description"`
-	DocumentationLink string     `json:"documentation_link"`
-	StartAfter        *time.Time `json:"start_after"`
-	StartAt           *time.Time `json:"start_at"`
+	DocumentationLink *string    `json:"documentation_link,omitempty"`
+	StartAfter        *time.Time `json:"start_after,omitempty"`
+	StartAt           *time.Time `json:"start_at,omitempty"`
 }
 
 type ServiceMaintenance struct {
