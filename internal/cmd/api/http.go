@@ -35,6 +35,7 @@ import (
 	fakeprice "github.com/nais/api/internal/price/fake"
 	"github.com/nais/api/internal/reconciler"
 	"github.com/nais/api/internal/search"
+	servicemaintenance "github.com/nais/api/internal/service_maintenance"
 	"github.com/nais/api/internal/serviceaccount"
 	"github.com/nais/api/internal/session"
 	"github.com/nais/api/internal/team"
@@ -73,6 +74,7 @@ func runHttpServer(
 	mgmtWatcherMgr *watcher.Manager,
 	authHandler authn.Handler,
 	graphHandler *handler.Server,
+	maintenanceManager *servicemaintenance.Manager,
 	vulnMgr *vulnerability.Manager,
 	hookdClient hookd.Client,
 	bifrostAPIURL string,
@@ -92,6 +94,7 @@ func runHttpServer(
 		mgmtWatcherMgr,
 		pool,
 		k8sClients,
+		maintenanceManager,
 		vulnMgr,
 		tenantName,
 		clusters,
@@ -181,6 +184,7 @@ func ConfigureGraph(
 	mgmtWatcherMgr *watcher.Manager,
 	pool *pgxpool.Pool,
 	k8sClients apik8s.ClusterConfigMap,
+	maintenananceManager *servicemaintenance.Manager,
 	vulnMgr *vulnerability.Manager,
 	tenantName string,
 	clusters []string,
@@ -301,6 +305,7 @@ func ConfigureGraph(
 		ctx = authz.NewLoaderContext(ctx, pool)
 		ctx = activitylog.NewLoaderContext(ctx, pool)
 		ctx = vulnerability.NewLoaderContext(ctx, vulnMgr, prometheusClient, log)
+		ctx = servicemaintenance.NewLoaderContext(ctx, maintenananceManager, prometheusClient, log)
 		ctx = reconciler.NewLoaderContext(ctx, pool)
 		ctx = deployment.NewLoaderContext(ctx, pool, hookdClient)
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)

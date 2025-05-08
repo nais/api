@@ -31,6 +31,7 @@ type ValkeyInstance struct {
 	TeamSlug              slug.Slug             `json:"-"`
 	EnvironmentName       string                `json:"-"`
 	WorkloadReference     *workload.Reference   `json:"-"`
+	AivenProject          string                `json:"-"`
 }
 
 func (ValkeyInstance) IsPersistence() {}
@@ -151,6 +152,7 @@ func toValkeyInstance(u *unstructured.Unstructured, envName string) (*ValkeyInst
 		},
 		TeamSlug:          slug.Slug(obj.GetNamespace()),
 		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
+		AivenProject:      obj.Spec.Project,
 	}, nil
 }
 

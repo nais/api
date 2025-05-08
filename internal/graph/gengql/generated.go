@@ -36,6 +36,7 @@ import (
 	"github.com/nais/api/internal/price"
 	"github.com/nais/api/internal/reconciler"
 	"github.com/nais/api/internal/search"
+	servicemaintenance "github.com/nais/api/internal/service_maintenance"
 	"github.com/nais/api/internal/serviceaccount"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/status"
@@ -1466,6 +1467,19 @@ type ComplexityRoot struct {
 		Sum      func(childComplexity int) int
 	}
 
+	ServiceMaintenance struct {
+		Updates func(childComplexity int) int
+	}
+
+	ServiceMaintenanceUpdate struct {
+		Deadline          func(childComplexity int) int
+		Description       func(childComplexity int) int
+		DocumentationLink func(childComplexity int) int
+		StartAfter        func(childComplexity int) int
+		StartAt           func(childComplexity int) int
+		Title             func(childComplexity int) int
+	}
+
 	SetTeamMemberRolePayload struct {
 		Member func(childComplexity int) int
 	}
@@ -2147,6 +2161,7 @@ type ComplexityRoot struct {
 		Cost                  func(childComplexity int) int
 		Environment           func(childComplexity int) int
 		ID                    func(childComplexity int) int
+		Maintenance           func(childComplexity int) int
 		Name                  func(childComplexity int) int
 		Status                func(childComplexity int) int
 		Team                  func(childComplexity int) int
@@ -2705,6 +2720,7 @@ type ValkeyInstanceResolver interface {
 	Workload(ctx context.Context, obj *valkey.ValkeyInstance) (workload.Workload, error)
 
 	Cost(ctx context.Context, obj *valkey.ValkeyInstance) (*cost.ValkeyInstanceCost, error)
+	Maintenance(ctx context.Context, obj *valkey.ValkeyInstance) (*servicemaintenance.ServiceMaintenance, error)
 }
 type ValkeyInstanceAccessResolver interface {
 	Workload(ctx context.Context, obj *valkey.ValkeyInstanceAccess) (workload.Workload, error)
@@ -8437,6 +8453,55 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ServiceCostSeries.Sum(childComplexity), true
 
+	case "ServiceMaintenance.updates":
+		if e.complexity.ServiceMaintenance.Updates == nil {
+			break
+		}
+
+		return e.complexity.ServiceMaintenance.Updates(childComplexity), true
+
+	case "ServiceMaintenanceUpdate.deadline":
+		if e.complexity.ServiceMaintenanceUpdate.Deadline == nil {
+			break
+		}
+
+		return e.complexity.ServiceMaintenanceUpdate.Deadline(childComplexity), true
+
+	case "ServiceMaintenanceUpdate.description":
+		if e.complexity.ServiceMaintenanceUpdate.Description == nil {
+			break
+		}
+
+		return e.complexity.ServiceMaintenanceUpdate.Description(childComplexity), true
+
+	case "ServiceMaintenanceUpdate.documentation_link":
+		if e.complexity.ServiceMaintenanceUpdate.DocumentationLink == nil {
+			break
+		}
+
+		return e.complexity.ServiceMaintenanceUpdate.DocumentationLink(childComplexity), true
+
+	case "ServiceMaintenanceUpdate.start_after":
+		if e.complexity.ServiceMaintenanceUpdate.StartAfter == nil {
+			break
+		}
+
+		return e.complexity.ServiceMaintenanceUpdate.StartAfter(childComplexity), true
+
+	case "ServiceMaintenanceUpdate.start_at":
+		if e.complexity.ServiceMaintenanceUpdate.StartAt == nil {
+			break
+		}
+
+		return e.complexity.ServiceMaintenanceUpdate.StartAt(childComplexity), true
+
+	case "ServiceMaintenanceUpdate.title":
+		if e.complexity.ServiceMaintenanceUpdate.Title == nil {
+			break
+		}
+
+		return e.complexity.ServiceMaintenanceUpdate.Title(childComplexity), true
+
 	case "SetTeamMemberRolePayload.member":
 		if e.complexity.SetTeamMemberRolePayload.Member == nil {
 			break
@@ -11391,6 +11456,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ValkeyInstance.ID(childComplexity), true
+
+	case "ValkeyInstance.maintenance":
+		if e.complexity.ValkeyInstance.Maintenance == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstance.Maintenance(childComplexity), true
 
 	case "ValkeyInstance.name":
 		if e.complexity.ValkeyInstance.Name == nil {
@@ -15946,6 +16018,35 @@ type SecretDeletedActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
+}
+`, BuiltIn: false},
+	{Name: "../schema/service_maintenance.graphqls", Input: `extend type ValkeyInstance {
+  "Fetch maintenances for the Valkey instance."
+  maintenance: ServiceMaintenance!
+}
+
+type ServiceMaintenance {
+  updates: [ServiceMaintenanceUpdate]!
+}
+
+type ServiceMaintenanceUpdate {
+	"Deadline for installing the maintenance. If set, maintenance is mandatory and will be forcibly applied."
+	deadline: Time
+
+	"Title of the maintenance."
+	title: String!
+
+	"Description of the maintenance."
+	description: String!
+
+	"Documentation link."
+	documentation_link: String
+
+	"The earliest time the update will be automatically applied."
+	start_after: Time
+
+	"The time when the update will be automatically applied. If set, maintenance is mandatory and will be forcibly applied."
+	start_at: Time
 }
 `, BuiltIn: false},
 	{Name: "../schema/serviceaccounts.graphqls", Input: `extend type Query {
@@ -66290,6 +66391,316 @@ func (ec *executionContext) fieldContext_ServiceCostSeries_services(_ context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _ServiceMaintenance_updates(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.ServiceMaintenance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceMaintenance_updates(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Updates, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]servicemaintenance.ServiceMaintenanceUpdate)
+	fc.Result = res
+	return ec.marshalNServiceMaintenanceUpdate2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋservice_maintenanceᚐServiceMaintenanceUpdate(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceMaintenance_updates(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceMaintenance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "deadline":
+				return ec.fieldContext_ServiceMaintenanceUpdate_deadline(ctx, field)
+			case "title":
+				return ec.fieldContext_ServiceMaintenanceUpdate_title(ctx, field)
+			case "description":
+				return ec.fieldContext_ServiceMaintenanceUpdate_description(ctx, field)
+			case "documentation_link":
+				return ec.fieldContext_ServiceMaintenanceUpdate_documentation_link(ctx, field)
+			case "start_after":
+				return ec.fieldContext_ServiceMaintenanceUpdate_start_after(ctx, field)
+			case "start_at":
+				return ec.fieldContext_ServiceMaintenanceUpdate_start_at(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ServiceMaintenanceUpdate", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ServiceMaintenanceUpdate_deadline(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.ServiceMaintenanceUpdate) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceMaintenanceUpdate_deadline(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Deadline, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceMaintenanceUpdate_deadline(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceMaintenanceUpdate",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ServiceMaintenanceUpdate_title(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.ServiceMaintenanceUpdate) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceMaintenanceUpdate_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceMaintenanceUpdate_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceMaintenanceUpdate",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ServiceMaintenanceUpdate_description(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.ServiceMaintenanceUpdate) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceMaintenanceUpdate_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceMaintenanceUpdate_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceMaintenanceUpdate",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ServiceMaintenanceUpdate_documentation_link(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.ServiceMaintenanceUpdate) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceMaintenanceUpdate_documentation_link(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DocumentationLink, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceMaintenanceUpdate_documentation_link(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceMaintenanceUpdate",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ServiceMaintenanceUpdate_start_after(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.ServiceMaintenanceUpdate) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceMaintenanceUpdate_start_after(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StartAfter, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceMaintenanceUpdate_start_after(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceMaintenanceUpdate",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ServiceMaintenanceUpdate_start_at(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.ServiceMaintenanceUpdate) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceMaintenanceUpdate_start_at(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StartAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServiceMaintenanceUpdate_start_at(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServiceMaintenanceUpdate",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SetTeamMemberRolePayload_member(ctx context.Context, field graphql.CollectedField, obj *team.SetTeamMemberRolePayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SetTeamMemberRolePayload_member(ctx, field)
 	if err != nil {
@@ -75901,6 +76312,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_valkeyInstance(ctx cont
 				return ec.fieldContext_ValkeyInstance_status(ctx, field)
 			case "cost":
 				return ec.fieldContext_ValkeyInstance_cost(ctx, field)
+			case "maintenance":
+				return ec.fieldContext_ValkeyInstance_maintenance(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ValkeyInstance", field.Name)
 		},
@@ -86745,6 +87158,54 @@ func (ec *executionContext) fieldContext_ValkeyInstance_cost(_ context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _ValkeyInstance_maintenance(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstance_maintenance(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ValkeyInstance().Maintenance(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*servicemaintenance.ServiceMaintenance)
+	fc.Result = res
+	return ec.marshalNServiceMaintenance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservice_maintenanceᚐServiceMaintenance(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstance_maintenance(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "updates":
+				return ec.fieldContext_ServiceMaintenance_updates(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ServiceMaintenance", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ValkeyInstanceAccess_workload(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyInstanceAccess) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ValkeyInstanceAccess_workload(ctx, field)
 	if err != nil {
@@ -87206,6 +87667,8 @@ func (ec *executionContext) fieldContext_ValkeyInstanceConnection_nodes(_ contex
 				return ec.fieldContext_ValkeyInstance_status(ctx, field)
 			case "cost":
 				return ec.fieldContext_ValkeyInstance_cost(ctx, field)
+			case "maintenance":
+				return ec.fieldContext_ValkeyInstance_maintenance(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ValkeyInstance", field.Name)
 		},
@@ -87410,6 +87873,8 @@ func (ec *executionContext) fieldContext_ValkeyInstanceEdge_node(_ context.Conte
 				return ec.fieldContext_ValkeyInstance_status(ctx, field)
 			case "cost":
 				return ec.fieldContext_ValkeyInstance_cost(ctx, field)
+			case "maintenance":
+				return ec.fieldContext_ValkeyInstance_maintenance(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ValkeyInstance", field.Name)
 		},
@@ -110099,6 +110564,97 @@ func (ec *executionContext) _ServiceCostSeries(ctx context.Context, sel ast.Sele
 	return out
 }
 
+var serviceMaintenanceImplementors = []string{"ServiceMaintenance"}
+
+func (ec *executionContext) _ServiceMaintenance(ctx context.Context, sel ast.SelectionSet, obj *servicemaintenance.ServiceMaintenance) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, serviceMaintenanceImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ServiceMaintenance")
+		case "updates":
+			out.Values[i] = ec._ServiceMaintenance_updates(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var serviceMaintenanceUpdateImplementors = []string{"ServiceMaintenanceUpdate"}
+
+func (ec *executionContext) _ServiceMaintenanceUpdate(ctx context.Context, sel ast.SelectionSet, obj *servicemaintenance.ServiceMaintenanceUpdate) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, serviceMaintenanceUpdateImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ServiceMaintenanceUpdate")
+		case "deadline":
+			out.Values[i] = ec._ServiceMaintenanceUpdate_deadline(ctx, field, obj)
+		case "title":
+			out.Values[i] = ec._ServiceMaintenanceUpdate_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "description":
+			out.Values[i] = ec._ServiceMaintenanceUpdate_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "documentation_link":
+			out.Values[i] = ec._ServiceMaintenanceUpdate_documentation_link(ctx, field, obj)
+		case "start_after":
+			out.Values[i] = ec._ServiceMaintenanceUpdate_start_after(ctx, field, obj)
+		case "start_at":
+			out.Values[i] = ec._ServiceMaintenanceUpdate_start_at(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var setTeamMemberRolePayloadImplementors = []string{"SetTeamMemberRolePayload"}
 
 func (ec *executionContext) _SetTeamMemberRolePayload(ctx context.Context, sel ast.SelectionSet, obj *team.SetTeamMemberRolePayload) graphql.Marshaler {
@@ -118193,6 +118749,42 @@ func (ec *executionContext) _ValkeyInstance(ctx context.Context, sel ast.Selecti
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "maintenance":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ValkeyInstance_maintenance(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -125730,6 +126322,58 @@ func (ec *executionContext) marshalNServiceCostSeries2ᚖgithubᚗcomᚋnaisᚋa
 	return ec._ServiceCostSeries(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNServiceMaintenance2githubᚗcomᚋnaisᚋapiᚋinternalᚋservice_maintenanceᚐServiceMaintenance(ctx context.Context, sel ast.SelectionSet, v servicemaintenance.ServiceMaintenance) graphql.Marshaler {
+	return ec._ServiceMaintenance(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNServiceMaintenance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservice_maintenanceᚐServiceMaintenance(ctx context.Context, sel ast.SelectionSet, v *servicemaintenance.ServiceMaintenance) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ServiceMaintenance(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNServiceMaintenanceUpdate2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋservice_maintenanceᚐServiceMaintenanceUpdate(ctx context.Context, sel ast.SelectionSet, v []servicemaintenance.ServiceMaintenanceUpdate) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOServiceMaintenanceUpdate2githubᚗcomᚋnaisᚋapiᚋinternalᚋservice_maintenanceᚐServiceMaintenanceUpdate(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalNSetTeamMemberRoleInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐSetTeamMemberRoleInput(ctx context.Context, v any) (team.SetTeamMemberRoleInput, error) {
 	res, err := ec.unmarshalInputSetTeamMemberRoleInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -129211,6 +129855,10 @@ func (ec *executionContext) marshalOServiceAccountToken2ᚖgithubᚗcomᚋnais�
 		return graphql.Null
 	}
 	return ec._ServiceAccountToken(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOServiceMaintenanceUpdate2githubᚗcomᚋnaisᚋapiᚋinternalᚋservice_maintenanceᚐServiceMaintenanceUpdate(ctx context.Context, sel ast.SelectionSet, v servicemaintenance.ServiceMaintenanceUpdate) graphql.Marshaler {
+	return ec._ServiceMaintenanceUpdate(ctx, sel, &v)
 }
 
 func (ec *executionContext) unmarshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, v any) (*slug.Slug, error) {
