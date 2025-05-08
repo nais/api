@@ -1468,7 +1468,6 @@ type ComplexityRoot struct {
 	}
 
 	ServiceMaintenance struct {
-		ID      func(childComplexity int) int
 		Updates func(childComplexity int) int
 	}
 
@@ -8453,13 +8452,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ServiceCostSeries.Sum(childComplexity), true
-
-	case "ServiceMaintenance.id":
-		if e.complexity.ServiceMaintenance.ID == nil {
-			break
-		}
-
-		return e.complexity.ServiceMaintenance.ID(childComplexity), true
 
 	case "ServiceMaintenance.updates":
 		if e.complexity.ServiceMaintenance.Updates == nil {
@@ -16033,8 +16025,7 @@ type SecretDeletedActivityLogEntry implements ActivityLogEntry & Node {
   maintenance: ServiceMaintenance!
 }
 
-type ServiceMaintenance implements Node {
-  id: ID!
+type ServiceMaintenance {
   updates: [ServiceMaintenanceUpdate]!
 }
 
@@ -66400,50 +66391,6 @@ func (ec *executionContext) fieldContext_ServiceCostSeries_services(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceMaintenance_id(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.ServiceMaintenance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ServiceMaintenance_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID(), nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(ident.Ident)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ServiceMaintenance_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ServiceMaintenance",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _ServiceMaintenance_updates(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.ServiceMaintenance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ServiceMaintenance_updates(ctx, field)
 	if err != nil {
@@ -87250,8 +87197,6 @@ func (ec *executionContext) fieldContext_ValkeyInstance_maintenance(_ context.Co
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_ServiceMaintenance_id(ctx, field)
 			case "updates":
 				return ec.fieldContext_ServiceMaintenance_updates(ctx, field)
 			}
@@ -96609,13 +96554,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Team(ctx, sel, obj)
-	case servicemaintenance.ServiceMaintenance:
-		return ec._ServiceMaintenance(ctx, sel, &obj)
-	case *servicemaintenance.ServiceMaintenance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ServiceMaintenance(ctx, sel, obj)
 	case serviceaccount.ServiceAccountToken:
 		return ec._ServiceAccountToken(ctx, sel, &obj)
 	case *serviceaccount.ServiceAccountToken:
@@ -110626,7 +110564,7 @@ func (ec *executionContext) _ServiceCostSeries(ctx context.Context, sel ast.Sele
 	return out
 }
 
-var serviceMaintenanceImplementors = []string{"ServiceMaintenance", "Node"}
+var serviceMaintenanceImplementors = []string{"ServiceMaintenance"}
 
 func (ec *executionContext) _ServiceMaintenance(ctx context.Context, sel ast.SelectionSet, obj *servicemaintenance.ServiceMaintenance) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, serviceMaintenanceImplementors)
@@ -110637,11 +110575,6 @@ func (ec *executionContext) _ServiceMaintenance(ctx context.Context, sel ast.Sel
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ServiceMaintenance")
-		case "id":
-			out.Values[i] = ec._ServiceMaintenance_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "updates":
 			out.Values[i] = ec._ServiceMaintenance_updates(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

@@ -3,8 +3,7 @@ extend type ValkeyInstance {
   maintenance: ServiceMaintenance!
 }
 
-type ServiceMaintenance implements Node {
-  id: ID!
+type ServiceMaintenance {
   updates: [ServiceMaintenanceUpdate]!
 }
 

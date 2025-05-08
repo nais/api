@@ -7,8 +7,7 @@ import (
 	aiven "github.com/aiven/go-client-codegen/handler/service"
 )
 
-type FakeAivenClient struct {
-}
+type FakeAivenClient struct{}
 
 func NewFakeAivenClient() *FakeAivenClient {
 	return &FakeAivenClient{}
