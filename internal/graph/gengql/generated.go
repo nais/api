@@ -2398,7 +2398,7 @@ type ContainerImageResolver interface {
 	HasSbom(ctx context.Context, obj *workload.ContainerImage) (bool, error)
 	Vulnerabilities(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.ImageVulnerabilityOrder) (*pagination.Connection[*vulnerability.ImageVulnerability], error)
 	VulnerabilitySummary(ctx context.Context, obj *workload.ContainerImage) (*vulnerability.ImageVulnerabilitySummary, error)
-	VulnerabilityHistory(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*vulnerability.ImageVulnerabilityHistoryConnection, error)
+	VulnerabilityHistory(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*vulnerability.ImageVulnerabilityHistory], error)
 	WorkloadReferences(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*vulnerability.ContainerImageWorkloadReference], error)
 }
 type ContainerImageWorkloadReferenceResolver interface {
@@ -35023,9 +35023,9 @@ func (ec *executionContext) _ContainerImage_vulnerabilityHistory(ctx context.Con
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*vulnerability.ImageVulnerabilityHistoryConnection)
+	res := resTmp.(*pagination.Connection[*vulnerability.ImageVulnerabilityHistory])
 	fc.Result = res
-	return ec.marshalNImageVulnerabilityHistoryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistoryConnection(ctx, field.Selections, res)
+	return ec.marshalNImageVulnerabilityHistoryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ContainerImage_vulnerabilityHistory(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -40862,7 +40862,7 @@ func (ec *executionContext) fieldContext_ImageVulnerabilityHistory_date(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ImageVulnerabilityHistoryConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ImageVulnerabilityHistoryConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _ImageVulnerabilityHistoryConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*vulnerability.ImageVulnerabilityHistory]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ImageVulnerabilityHistoryConnection_pageInfo(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -40888,9 +40888,9 @@ func (ec *executionContext) _ImageVulnerabilityHistoryConnection_pageInfo(ctx co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*pagination.PageInfo)
+	res := resTmp.(pagination.PageInfo)
 	fc.Result = res
-	return ec.marshalNPageInfo2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, field.Selections, res)
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ImageVulnerabilityHistoryConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -40922,7 +40922,7 @@ func (ec *executionContext) fieldContext_ImageVulnerabilityHistoryConnection_pag
 	return fc, nil
 }
 
-func (ec *executionContext) _ImageVulnerabilityHistoryConnection_edges(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ImageVulnerabilityHistoryConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _ImageVulnerabilityHistoryConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*vulnerability.ImageVulnerabilityHistory]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ImageVulnerabilityHistoryConnection_edges(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -40948,9 +40948,9 @@ func (ec *executionContext) _ImageVulnerabilityHistoryConnection_edges(ctx conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*vulnerability.ImageVulnerabilityHistoryEdge)
+	res := resTmp.([]pagination.Edge[*vulnerability.ImageVulnerabilityHistory])
 	fc.Result = res
-	return ec.marshalNImageVulnerabilityHistoryEdge2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistoryEdgeᚄ(ctx, field.Selections, res)
+	return ec.marshalNImageVulnerabilityHistoryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ImageVulnerabilityHistoryConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -40972,7 +40972,7 @@ func (ec *executionContext) fieldContext_ImageVulnerabilityHistoryConnection_edg
 	return fc, nil
 }
 
-func (ec *executionContext) _ImageVulnerabilityHistoryConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ImageVulnerabilityHistoryConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _ImageVulnerabilityHistoryConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*vulnerability.ImageVulnerabilityHistory]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ImageVulnerabilityHistoryConnection_nodes(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -40986,7 +40986,7 @@ func (ec *executionContext) _ImageVulnerabilityHistoryConnection_nodes(ctx conte
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Nodes, nil
+		return obj.Nodes(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -41007,7 +41007,7 @@ func (ec *executionContext) fieldContext_ImageVulnerabilityHistoryConnection_nod
 	fc = &graphql.FieldContext{
 		Object:     "ImageVulnerabilityHistoryConnection",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
@@ -41024,7 +41024,7 @@ func (ec *executionContext) fieldContext_ImageVulnerabilityHistoryConnection_nod
 	return fc, nil
 }
 
-func (ec *executionContext) _ImageVulnerabilityHistoryEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ImageVulnerabilityHistoryEdge) (ret graphql.Marshaler) {
+func (ec *executionContext) _ImageVulnerabilityHistoryEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*vulnerability.ImageVulnerabilityHistory]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ImageVulnerabilityHistoryEdge_cursor(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -41068,7 +41068,7 @@ func (ec *executionContext) fieldContext_ImageVulnerabilityHistoryEdge_cursor(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _ImageVulnerabilityHistoryEdge_node(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ImageVulnerabilityHistoryEdge) (ret graphql.Marshaler) {
+func (ec *executionContext) _ImageVulnerabilityHistoryEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*vulnerability.ImageVulnerabilityHistory]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ImageVulnerabilityHistoryEdge_node(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -102539,7 +102539,7 @@ func (ec *executionContext) _ImageVulnerabilityHistory(ctx context.Context, sel 
 
 var imageVulnerabilityHistoryConnectionImplementors = []string{"ImageVulnerabilityHistoryConnection"}
 
-func (ec *executionContext) _ImageVulnerabilityHistoryConnection(ctx context.Context, sel ast.SelectionSet, obj *vulnerability.ImageVulnerabilityHistoryConnection) graphql.Marshaler {
+func (ec *executionContext) _ImageVulnerabilityHistoryConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*vulnerability.ImageVulnerabilityHistory]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, imageVulnerabilityHistoryConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -102588,7 +102588,7 @@ func (ec *executionContext) _ImageVulnerabilityHistoryConnection(ctx context.Con
 
 var imageVulnerabilityHistoryEdgeImplementors = []string{"ImageVulnerabilityHistoryEdge"}
 
-func (ec *executionContext) _ImageVulnerabilityHistoryEdge(ctx context.Context, sel ast.SelectionSet, obj *vulnerability.ImageVulnerabilityHistoryEdge) graphql.Marshaler {
+func (ec *executionContext) _ImageVulnerabilityHistoryEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*vulnerability.ImageVulnerabilityHistory]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, imageVulnerabilityHistoryEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -123716,11 +123716,11 @@ func (ec *executionContext) marshalNImageVulnerabilityHistory2ᚖgithubᚗcomᚋ
 	return ec._ImageVulnerabilityHistory(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNImageVulnerabilityHistoryConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistoryConnection(ctx context.Context, sel ast.SelectionSet, v vulnerability.ImageVulnerabilityHistoryConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNImageVulnerabilityHistoryConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*vulnerability.ImageVulnerabilityHistory]) graphql.Marshaler {
 	return ec._ImageVulnerabilityHistoryConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNImageVulnerabilityHistoryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistoryConnection(ctx context.Context, sel ast.SelectionSet, v *vulnerability.ImageVulnerabilityHistoryConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNImageVulnerabilityHistoryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*vulnerability.ImageVulnerabilityHistory]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -123730,7 +123730,11 @@ func (ec *executionContext) marshalNImageVulnerabilityHistoryConnection2ᚖgithu
 	return ec._ImageVulnerabilityHistoryConnection(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNImageVulnerabilityHistoryEdge2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistoryEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []*vulnerability.ImageVulnerabilityHistoryEdge) graphql.Marshaler {
+func (ec *executionContext) marshalNImageVulnerabilityHistoryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*vulnerability.ImageVulnerabilityHistory]) graphql.Marshaler {
+	return ec._ImageVulnerabilityHistoryEdge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNImageVulnerabilityHistoryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*vulnerability.ImageVulnerabilityHistory]) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -123754,7 +123758,7 @@ func (ec *executionContext) marshalNImageVulnerabilityHistoryEdge2ᚕᚖgithub�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNImageVulnerabilityHistoryEdge2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistoryEdge(ctx, sel, v[i])
+			ret[i] = ec.marshalNImageVulnerabilityHistoryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -123772,16 +123776,6 @@ func (ec *executionContext) marshalNImageVulnerabilityHistoryEdge2ᚕᚖgithub�
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNImageVulnerabilityHistoryEdge2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistoryEdge(ctx context.Context, sel ast.SelectionSet, v *vulnerability.ImageVulnerabilityHistoryEdge) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._ImageVulnerabilityHistoryEdge(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNImageVulnerabilityOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityOrderField(ctx context.Context, v any) (vulnerability.ImageVulnerabilityOrderField, error) {
@@ -125118,16 +125112,6 @@ func (ec *executionContext) marshalNOutboundNetworkPolicy2ᚖgithubᚗcomᚋnais
 
 func (ec *executionContext) marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx context.Context, sel ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
 	return ec._PageInfo(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNPageInfo2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx context.Context, sel ast.SelectionSet, v *pagination.PageInfo) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._PageInfo(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNPrice2githubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice(ctx context.Context, sel ast.SelectionSet, v price.Price) graphql.Marshaler {
