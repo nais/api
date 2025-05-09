@@ -2164,6 +2164,7 @@ type ComplexityRoot struct {
 		ID                    func(childComplexity int) int
 		Maintenance           func(childComplexity int) int
 		Name                  func(childComplexity int) int
+		Project               func(childComplexity int) int
 		Status                func(childComplexity int) int
 		Team                  func(childComplexity int) int
 		TeamEnvironment       func(childComplexity int) int
@@ -2723,6 +2724,7 @@ type ValkeyInstanceResolver interface {
 
 	Cost(ctx context.Context, obj *valkey.ValkeyInstance) (*cost.ValkeyInstanceCost, error)
 	Maintenance(ctx context.Context, obj *valkey.ValkeyInstance) (*servicemaintenance.ServiceMaintenance, error)
+	Project(ctx context.Context, obj *valkey.ValkeyInstance) (string, error)
 }
 type ValkeyInstanceAccessResolver interface {
 	Workload(ctx context.Context, obj *valkey.ValkeyInstanceAccess) (workload.Workload, error)
@@ -11485,6 +11487,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ValkeyInstance.Name(childComplexity), true
 
+	case "ValkeyInstance.project":
+		if e.complexity.ValkeyInstance.Project == nil {
+			break
+		}
+
+		return e.complexity.ValkeyInstance.Project(childComplexity), true
+
 	case "ValkeyInstance.status":
 		if e.complexity.ValkeyInstance.Status == nil {
 			break
@@ -16048,12 +16057,13 @@ extend type Mutation {
 
 
 extend type ValkeyInstance {
-  "Fetch maintenances for the Valkey instance."
-  maintenance: ServiceMaintenance!
+	"Fetch maintenances for the Valkey instance."
+	maintenance: ServiceMaintenance!
+	project: String!
 }
 
 type ServiceMaintenance {
-  updates: [ServiceMaintenanceUpdate]!
+	updates: [ServiceMaintenanceUpdate]!
 }
 
 type ServiceMaintenanceUpdate {
@@ -76421,6 +76431,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_valkeyInstance(ctx cont
 				return ec.fieldContext_ValkeyInstance_cost(ctx, field)
 			case "maintenance":
 				return ec.fieldContext_ValkeyInstance_maintenance(ctx, field)
+			case "project":
+				return ec.fieldContext_ValkeyInstance_project(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ValkeyInstance", field.Name)
 		},
@@ -87313,6 +87325,50 @@ func (ec *executionContext) fieldContext_ValkeyInstance_maintenance(_ context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _ValkeyInstance_project(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ValkeyInstance_project(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ValkeyInstance().Project(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ValkeyInstance_project(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ValkeyInstanceAccess_workload(ctx context.Context, field graphql.CollectedField, obj *valkey.ValkeyInstanceAccess) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ValkeyInstanceAccess_workload(ctx, field)
 	if err != nil {
@@ -87776,6 +87832,8 @@ func (ec *executionContext) fieldContext_ValkeyInstanceConnection_nodes(_ contex
 				return ec.fieldContext_ValkeyInstance_cost(ctx, field)
 			case "maintenance":
 				return ec.fieldContext_ValkeyInstance_maintenance(ctx, field)
+			case "project":
+				return ec.fieldContext_ValkeyInstance_project(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ValkeyInstance", field.Name)
 		},
@@ -87982,6 +88040,8 @@ func (ec *executionContext) fieldContext_ValkeyInstanceEdge_node(_ context.Conte
 				return ec.fieldContext_ValkeyInstance_cost(ctx, field)
 			case "maintenance":
 				return ec.fieldContext_ValkeyInstance_maintenance(ctx, field)
+			case "project":
+				return ec.fieldContext_ValkeyInstance_project(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ValkeyInstance", field.Name)
 		},
@@ -118904,6 +118964,42 @@ func (ec *executionContext) _ValkeyInstance(ctx context.Context, sel ast.Selecti
 					}
 				}()
 				res = ec._ValkeyInstance_maintenance(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "project":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ValkeyInstance_project(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
