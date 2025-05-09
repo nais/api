@@ -874,6 +874,7 @@ type ComplexityRoot struct {
 		RestartApplication           func(childComplexity int, input application.RestartApplicationInput) int
 		RevokeRoleFromServiceAccount func(childComplexity int, input serviceaccount.RevokeRoleFromServiceAccountInput) int
 		RevokeTeamAccessToUnleash    func(childComplexity int, input unleash.RevokeTeamAccessToUnleashInput) int
+		RunMaintenance               func(childComplexity int, input servicemaintenance.RunMaintenanceInput) int
 		SetTeamMemberRole            func(childComplexity int, input team.SetTeamMemberRoleInput) int
 		TriggerJob                   func(childComplexity int, input job.TriggerJobInput) int
 		UpdateImageVulnerability     func(childComplexity int, input vulnerability.UpdateImageVulnerabilityInput) int
@@ -2486,6 +2487,7 @@ type MutationResolver interface {
 	UpdateSecretValue(ctx context.Context, input secret.UpdateSecretValueInput) (*secret.UpdateSecretValuePayload, error)
 	RemoveSecretValue(ctx context.Context, input secret.RemoveSecretValueInput) (*secret.RemoveSecretValuePayload, error)
 	DeleteSecret(ctx context.Context, input secret.DeleteSecretInput) (*secret.DeleteSecretPayload, error)
+	RunMaintenance(ctx context.Context, input servicemaintenance.RunMaintenanceInput) (*string, error)
 	CreateServiceAccount(ctx context.Context, input serviceaccount.CreateServiceAccountInput) (*serviceaccount.CreateServiceAccountPayload, error)
 	UpdateServiceAccount(ctx context.Context, input serviceaccount.UpdateServiceAccountInput) (*serviceaccount.UpdateServiceAccountPayload, error)
 	DeleteServiceAccount(ctx context.Context, input serviceaccount.DeleteServiceAccountInput) (*serviceaccount.DeleteServiceAccountPayload, error)
@@ -5833,6 +5835,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.RevokeTeamAccessToUnleash(childComplexity, args["input"].(unleash.RevokeTeamAccessToUnleashInput)), true
+
+	case "Mutation.runMaintenance":
+		if e.complexity.Mutation.RunMaintenance == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_runMaintenance_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RunMaintenance(childComplexity, args["input"].(servicemaintenance.RunMaintenanceInput)), true
 
 	case "Mutation.setTeamMemberRole":
 		if e.complexity.Mutation.SetTeamMemberRole == nil {
@@ -12216,6 +12230,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRestartApplicationInput,
 		ec.unmarshalInputRevokeRoleFromServiceAccountInput,
 		ec.unmarshalInputRevokeTeamAccessToUnleashInput,
+		ec.unmarshalInputRunMaintenanceInput,
 		ec.unmarshalInputSearchFilter,
 		ec.unmarshalInputSecretFilter,
 		ec.unmarshalInputSecretOrder,
@@ -16057,7 +16072,19 @@ type SecretDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 }
 `, BuiltIn: false},
-	{Name: "../schema/service_maintenance.graphqls", Input: `extend type ValkeyInstance {
+	{Name: "../schema/service_maintenance.graphqls", Input: `scalar RunMaintenancePayload
+
+input RunMaintenanceInput {
+  project: String!
+  serviceName: String!
+}
+
+extend type Mutation {
+  runMaintenance(input: RunMaintenanceInput!): RunMaintenancePayload
+}
+
+
+extend type ValkeyInstance {
   "Fetch maintenances for the Valkey instance."
   maintenance: ServiceMaintenance!
 }
@@ -22553,6 +22580,34 @@ func (ec *executionContext) field_Mutation_revokeTeamAccessToUnleash_argsInput(
 	}
 
 	var zeroVal unleash.RevokeTeamAccessToUnleashInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_runMaintenance_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_runMaintenance_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_runMaintenance_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (servicemaintenance.RunMaintenanceInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal servicemaintenance.RunMaintenanceInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNRunMaintenanceInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋservice_maintenanceᚐRunMaintenanceInput(ctx, tmp)
+	}
+
+	var zeroVal servicemaintenance.RunMaintenanceInput
 	return zeroVal, nil
 }
 
@@ -48167,6 +48222,58 @@ func (ec *executionContext) fieldContext_Mutation_deleteSecret(ctx context.Conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteSecret_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_runMaintenance(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_runMaintenance(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RunMaintenance(rctx, fc.Args["input"].(servicemaintenance.RunMaintenanceInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalORunMaintenancePayload2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_runMaintenance(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type RunMaintenancePayload does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_runMaintenance_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -94939,6 +95046,40 @@ func (ec *executionContext) unmarshalInputRevokeTeamAccessToUnleashInput(ctx con
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRunMaintenanceInput(ctx context.Context, obj any) (servicemaintenance.RunMaintenanceInput, error) {
+	var it servicemaintenance.RunMaintenanceInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"project", "serviceName"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "project":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("project"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Project = data
+		case "serviceName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("serviceName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ServiceName = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSearchFilter(ctx context.Context, obj any) (search.SearchFilter, error) {
 	var it search.SearchFilter
 	asMap := map[string]any{}
@@ -105214,6 +105355,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "runMaintenance":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_runMaintenance(ctx, field)
+			})
 		case "createServiceAccount":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createServiceAccount(ctx, field)
@@ -125886,6 +126031,11 @@ func (ec *executionContext) marshalNRoleRevokedFromServiceAccountActivityLogEntr
 	return ec._RoleRevokedFromServiceAccountActivityLogEntryData(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNRunMaintenanceInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋservice_maintenanceᚐRunMaintenanceInput(ctx context.Context, v any) (servicemaintenance.RunMaintenanceInput, error) {
+	res, err := ec.unmarshalInputRunMaintenanceInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNScalingStrategy2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐScalingStrategy(ctx context.Context, sel ast.SelectionSet, v application.ScalingStrategy) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -130252,6 +130402,22 @@ func (ec *executionContext) unmarshalORepositoryOrder2ᚖgithubᚗcomᚋnaisᚋa
 	}
 	res, err := ec.unmarshalInputRepositoryOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalORunMaintenancePayload2ᚖstring(ctx context.Context, v any) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalString(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalORunMaintenancePayload2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalString(*v)
+	return res
 }
 
 func (ec *executionContext) unmarshalOSearchType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchType(ctx context.Context, v any) (*search.SearchType, error) {

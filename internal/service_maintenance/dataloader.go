@@ -19,14 +19,15 @@ func NewLoaderContext(ctx context.Context, serviceMaintenanceManager *Manager, p
 	return context.WithValue(ctx, loadersKey, newLoaders(serviceMaintenanceManager, prometheusClient, logger))
 }
 
-type aivenDataLoaderKey struct {
+type AivenDataLoaderKey struct {
 	project     string
 	serviceName string
 }
 
 type loaders struct {
-	maintenanceLoader *dataloadgen.Loader[*aivenDataLoaderKey, *ServiceMaintenance]
-	promClients       *PrometheusQuerier
+	maintenanceLoader  *dataloadgen.Loader[*AivenDataLoaderKey, *ServiceMaintenance]
+	maintenanceMutator *Manager
+	promClients        *PrometheusQuerier
 }
 
 func newLoaders(serviceMaintenanceMgr *Manager, prometheusClient PrometheusClient, logger logrus.FieldLogger) *loaders {
@@ -36,6 +37,7 @@ func newLoaders(serviceMaintenanceMgr *Manager, prometheusClient PrometheusClien
 		promClients: &PrometheusQuerier{
 			client: prometheusClient,
 		},
+		maintenanceMutator: serviceMaintenanceMgr,
 	}
 }
 
@@ -44,7 +46,7 @@ type dataloader struct {
 	log                       logrus.FieldLogger
 }
 
-func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*aivenDataLoaderKey) ([]*ServiceMaintenance, []error) {
+func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*AivenDataLoaderKey) ([]*ServiceMaintenance, []error) {
 	wg := pool.New().WithContext(ctx)
 	rets := make([]*ServiceMaintenance, len(aivenDataLoaderKeys))
 	errs := make([]error, len(aivenDataLoaderKeys))
