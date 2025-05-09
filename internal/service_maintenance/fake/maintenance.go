@@ -2,6 +2,7 @@ package fake
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	aiven "github.com/aiven/go-client-codegen/handler/service"
@@ -11,6 +12,10 @@ type FakeAivenClient struct{}
 
 func NewFakeAivenClient() *FakeAivenClient {
 	return &FakeAivenClient{}
+}
+
+func (f *FakeAivenClient) ServiceMaintenanceStart(_ context.Context, _ string, _ string) error {
+	return fmt.Errorf("no maintenance")
 }
 
 func (f *FakeAivenClient) ServiceGet(_ context.Context, _ string, _ string, _ ...[2]string) (*aiven.ServiceGetOut, error) {

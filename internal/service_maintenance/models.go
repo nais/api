@@ -20,6 +20,11 @@ type ServiceMaintenance struct {
 	Updates    []ServiceMaintenanceUpdate `json:"updates"`
 }
 
+type RunMaintenanceInput struct {
+	Project     string `json:"project"`
+	ServiceName string `json:"serviceName"`
+}
+
 func (ServiceMaintenance) IsNode() {}
 func (i *ServiceMaintenance) ID() ident.Ident {
 	return i.Identifier

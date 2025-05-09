@@ -15,6 +15,7 @@ const (
 
 type Client interface {
 	ServiceGet(context.Context, string, string, ...[2]string) (*aivenservice.ServiceGetOut, error)
+	ServiceMaintenanceStart(context.Context, string, string) error
 }
 
 type Manager struct {
@@ -34,7 +35,8 @@ func NewManager(ctx context.Context, token string, log *logrus.Entry) (*Manager,
 
 	return &Manager{
 		client: client,
-		log:    log,
+
+		log: log,
 	}, nil
 }
 

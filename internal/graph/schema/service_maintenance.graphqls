@@ -1,25 +1,13 @@
-extend type Mutation {
-	"""
-	Create a new Unleash instance.
+scalar RunMaintenancePayload
 
-	This mutation will create a new Unleash instance for the given team. The team
-	will be set as owner of the Unleash instance and will be able to manage it.
-	"""
-	createUnleashForTeam(input: CreateUnleashForTeamInput!): CreateUnleashForTeamPayload!
-
-	"""
-	Add team to the list of teams that can access the Unleash instance.
-	"""
-	allowTeamAccessToUnleash(input: AllowTeamAccessToUnleashInput!): AllowTeamAccessToUnleashPayload!
-
-	"""
-	Remove team from the list of teams that can access the Unleash instance.
-	"""
-	revokeTeamAccessToUnleash(
-		input: RevokeTeamAccessToUnleashInput!
-	): RevokeTeamAccessToUnleashPayload!
+input RunMaintenanceInput {
+  project: String!
+  serviceName: String!
 }
 
+extend type Mutation {
+  runMaintenance(input: RunMaintenanceInput!): RunMaintenancePayload
+}
 
 
 extend type ValkeyInstance {
