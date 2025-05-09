@@ -202,4 +202,4 @@ values:
     displayName: Zitadel key
     description: The key to use for the Zitadel API, base64 encoded
     computed:
-      template: "{{ .Env.api_usersync_zitadel_key }}"
+      template: "{{ .Env.api_usersync_zitadel_key | quote }}"
