@@ -11,12 +11,13 @@ extend type Mutation {
 
 
 extend type ValkeyInstance {
-  "Fetch maintenances for the Valkey instance."
-  maintenance: ServiceMaintenance!
+	"Fetch maintenances for the Valkey instance."
+	maintenance: ServiceMaintenance!
+	project: String!
 }
 
 type ServiceMaintenance {
-  updates: [ServiceMaintenanceUpdate]!
+	updates: [ServiceMaintenanceUpdate]!
 }
 
 type ServiceMaintenanceUpdate {
