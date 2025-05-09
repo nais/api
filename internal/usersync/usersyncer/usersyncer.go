@@ -25,7 +25,8 @@ import (
 
 type ZitadelWrapper struct {
 	*zitadeluser.Client
-	IDP string
+	IDP            string
+	OrganizationID string
 }
 
 type Usersynchronizer struct {
@@ -179,7 +180,7 @@ func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*g
 		s.log.WithField("duration", time.Since(start).String()).Debugf("Zitadel user sync done")
 	}()
 
-	limit, offset := uint32(1000), uint64(0)
+	limit, offset := uint32(250), uint64(0)
 	existingUsers := make(map[string]*zitadelgrpcuser.User)
 
 	for {
@@ -192,6 +193,13 @@ func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*g
 				{
 					Query: &zitadelgrpcuser.SearchQuery_TypeQuery{
 						TypeQuery: &zitadelgrpcuser.TypeQuery{Type: zitadelgrpcuser.Type_TYPE_HUMAN},
+					},
+				},
+				{
+					Query: &zitadelgrpcuser.SearchQuery_OrganizationIdQuery{
+						OrganizationIdQuery: &zitadelgrpcuser.OrganizationIdQuery{
+							OrganizationId: s.zitadelClient.OrganizationID,
+						},
 					},
 				},
 				{

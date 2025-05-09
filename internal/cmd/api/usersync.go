@@ -42,8 +42,9 @@ func runUsersync(ctx context.Context, pool *pgxpool.Pool, cfg *Config, log logru
 		}
 
 		zw = &usersyncer.ZitadelWrapper{
-			Client: zc,
-			IDP:    cfg.Zitadel.IDPID,
+			Client:         zc,
+			IDP:            cfg.Zitadel.IDPID,
+			OrganizationID: cfg.Zitadel.OrganizationID,
 		}
 	}
 
