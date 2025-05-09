@@ -18,7 +18,7 @@ import (
 
 const (
 	usersyncInterval = time.Minute * 15
-	usersyncTimeout  = time.Minute
+	usersyncTimeout  = time.Minute * 5
 )
 
 func runUsersync(ctx context.Context, pool *pgxpool.Pool, cfg *Config, log logrus.FieldLogger) error {
