@@ -58,6 +58,12 @@ func (b Base) Image() *ContainerImage {
 	return &ContainerImage{
 		Name: name,
 		Tag:  tag,
+		WorkloadReference: &Reference{
+			Name: b.Name,
+			Type: b.Type,
+		},
+		EnvironmentName: b.EnvironmentName,
+		TeamSlug:        b.TeamSlug,
 	}
 }
 
@@ -73,8 +79,11 @@ func (b Base) GetType() Type                             { return b.Type }
 func (b Base) GetLogging() *nais_io_v1.Logging           { return b.Logging }
 
 type ContainerImage struct {
-	Name string `json:"name"`
-	Tag  string `json:"tag"`
+	Name              string     `json:"name"`
+	Tag               string     `json:"tag"`
+	WorkloadReference *Reference `json:"-"`
+	EnvironmentName   string     `json:"-"`
+	TeamSlug          slug.Slug  `json:"-"`
 }
 
 func (ContainerImage) IsNode() {}
