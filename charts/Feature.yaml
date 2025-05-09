@@ -201,6 +201,5 @@ values:
   zitadel.key:
     displayName: Zitadel key
     description: The key to use for the Zitadel API, base64 encoded
-    config:
-      type: string
-      secret: true
+    computed:
+      template: "{{ .Env.api_usersync_zitadel_key }}"
