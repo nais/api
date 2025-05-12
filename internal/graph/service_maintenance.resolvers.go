@@ -23,6 +23,5 @@ func (r *valkeyInstanceResolver) Maintenance(ctx context.Context, obj *valkey.Va
 }
 
 func (r *valkeyInstanceResolver) Project(ctx context.Context, obj *valkey.ValkeyInstance) (string, error) {
-	// TODO: Figure out if there's a better/more preferred way of doing this
 	return obj.AivenProject, nil
 }
