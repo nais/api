@@ -42,6 +42,7 @@ Test.gql("Show maintenance updates for Valkey", function(t)
 										{
 											description = "This is the impact (Nais API call it description)",
 											documentation_link = "https://nais.io",
+											start_at = Null,
 											deadline = Null,
 
 										},
