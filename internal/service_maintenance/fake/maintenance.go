@@ -33,7 +33,6 @@ func (f *FakeAivenClient) ServiceGet(_ context.Context, _ string, _ string, _ ..
 					Description:       &description,
 					DocumentationLink: &link,
 					Impact:            &impact,
-					StartAt:           &startAt,
 				},
 				{
 					Deadline:    &deadline,
