@@ -58,12 +58,6 @@ func (b Base) Image() *ContainerImage {
 	return &ContainerImage{
 		Name: name,
 		Tag:  tag,
-		WorkloadReference: &Reference{
-			Name: b.Name,
-			Type: b.Type,
-		},
-		EnvironmentName: b.EnvironmentName,
-		TeamSlug:        b.TeamSlug,
 	}
 }
 

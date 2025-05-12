@@ -2,6 +2,49 @@ Helper.readK8sResources("k8s_resources/vulnerability")
 local team = Team.new("slug-1", "purpose", "#channel")
 local user = User.new("authenticated", "authenticated@example.com", "some-id")
 
+Test.gql("List vulnerability history for image", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		{
+			team(slug: "%s") {
+				environment(name: "%s") {
+					workload(name: "%s") {
+						vulnerabilityHistory {
+							nodes {
+								id
+								date
+								summary {
+									total
+									riskScore
+									critical
+									high
+									medium
+									low
+									unassigned
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	]], team:slug(), "dev", "app-with-vulnerabilities"))
+
+	t.check {
+		data = {
+			team = {
+				environment = {
+					workload = {
+						vulnerabilityHistory = {
+							nodes = { { id = NotNull(), date = NotNull(), summary = { total = NotNull(), riskScore = NotNull(), critical = NotNull(), high = NotNull(), medium = NotNull(), low = NotNull(), unassigned = NotNull() } } },
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("List vulnerability summaries for team", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query(string.format([[
@@ -32,23 +75,21 @@ Test.gql("List vulnerability summaries for team", function(t)
 		data = {
 			team = {
 				workloads = {
-					nodes = {
-						{
-							image = {
-								name = "europe-north1-docker.pkg.dev/nais/navikt/app-name",
-								hasSBOM = true,
-								vulnerabilitySummary = {
-									total = NotNull(),
-									critical = NotNull(),
-									high = NotNull(),
-									medium = NotNull(),
-									low = NotNull(),
-									unassigned = NotNull(),
-									riskScore = NotNull(),
-								},
+					nodes = { {
+						image = {
+							name = "europe-north1-docker.pkg.dev/nais/navikt/app-name",
+							hasSBOM = true,
+							vulnerabilitySummary = {
+								total = NotNull(),
+								critical = NotNull(),
+								high = NotNull(),
+								medium = NotNull(),
+								low = NotNull(),
+								unassigned = NotNull(),
+								riskScore = NotNull(),
 							},
 						},
-					},
+					} },
 				},
 			},
 		},
@@ -140,44 +181,40 @@ Test.gql("List vulnerabilities for image", function(t)
 					workload = {
 						image = {
 							vulnerabilities = {
-								nodes = {
-									{
-										description = NotNull(),
-										identifier = NotNull(),
-										package = NotNull(),
-										severity = NotNull(),
+								nodes = { {
+									description = NotNull(),
+									identifier = NotNull(),
+									package = NotNull(),
+									severity = NotNull(),
+									state = NotNull(),
+									analysisTrail = {
 										state = NotNull(),
-										analysisTrail = {
-											state = NotNull(),
-											suppressed = NotNull(),
-											comments = NotNull(),
-										},
+										suppressed = NotNull(),
+										comments = NotNull(),
 									},
-									{
-										description = NotNull(),
-										identifier = NotNull(),
-										package = NotNull(),
-										severity = NotNull(),
+								}, {
+									description = NotNull(),
+									identifier = NotNull(),
+									package = NotNull(),
+									severity = NotNull(),
+									state = NotNull(),
+									analysisTrail = {
 										state = NotNull(),
-										analysisTrail = {
-											state = NotNull(),
-											suppressed = NotNull(),
-											comments = NotNull(),
-										},
+										suppressed = NotNull(),
+										comments = NotNull(),
 									},
-									{
-										description = NotNull(),
-										identifier = NotNull(),
-										package = NotNull(),
-										severity = NotNull(),
+								}, {
+									description = NotNull(),
+									identifier = NotNull(),
+									package = NotNull(),
+									severity = NotNull(),
+									state = NotNull(),
+									analysisTrail = {
 										state = NotNull(),
-										analysisTrail = {
-											state = NotNull(),
-											suppressed = NotNull(),
-											comments = NotNull(),
-										},
+										suppressed = NotNull(),
+										comments = NotNull(),
 									},
-								},
+								} },
 							},
 						},
 					},
