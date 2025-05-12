@@ -17,6 +17,7 @@ func (f *FakeAivenClient) ServiceMaintenanceStart(_ context.Context, _ string, _
 	return nil
 }
 
+// Return hardcoded example dataset
 func (f *FakeAivenClient) ServiceGet(_ context.Context, _ string, _ string, _ ...[2]string) (*aiven.ServiceGetOut, error) {
 	description := "This is a description (Nais API call it title)"
 	link := "https://nais.io"
