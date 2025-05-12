@@ -74,14 +74,6 @@ func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*
 								l.log.WithError(err).Warnf("Failed to parse deadline time: %v", update.Deadline)
 							}
 						}
-
-						if update.StartAfter != nil {
-							if t, err := time.Parse(time.RFC3339, *update.StartAfter); err == nil {
-								updates[j].StartAfter = &t
-							} else {
-								l.log.WithError(err).Warnf("Failed to parse start_after time: %v", update.StartAfter)
-							}
-						}
 					}
 					rets[i] = &ServiceMaintenance{Updates: updates}
 				}
