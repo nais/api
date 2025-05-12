@@ -85,3 +85,46 @@ status:
       state:
         running:
           startedAt: "2022-07-06T09:45:18Z"
+---
+apiVersion: aiven.io/v1alpha1
+kind: Valkey
+metadata:
+  annotations:
+    controllers.aiven.io/generation-was-processed: "1"
+    controllers.aiven.io/instance-is-running: "true"
+    nais.io/deploymentCorrelationID: 61ad0b73-e30f-401a-949c-b8810c2b509a
+  labels:
+    app: app-w-all-storage
+    team: slug-1
+  name: valkey-slug-1-contests
+  namespace: slug-1
+  ownerReferences:
+    - apiVersion: nais.io/v1alpha1
+      kind: Application
+      name: app-w-all-storage
+      uid: 5d684281-5621-4c87-aee7-fca257550790
+spec:
+  cloudName: google-europe-north1
+  connInfoSecretTarget:
+    name: ""
+  plan: startup-4
+  project: nav-dev
+  projectVpcId: d405e36a-a577-4dce-af0e-6d217fc47a5c
+  tags:
+    environment: dev
+    team: slug-1
+    tenant: nav
+  terminationProtection: true
+status:
+  conditions:
+    - lastTransitionTime: "2023-11-20T19:07:04Z"
+      message: Instance was created or update on Aiven side
+      reason: Updated
+      status: "True"
+      type: Initialized
+    - lastTransitionTime: "2024-02-23T14:55:47Z"
+      message: Instance is running on Aiven side
+      reason: CheckRunning
+      status: "True"
+      type: Running
+  state: RUNNING
