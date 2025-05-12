@@ -82,6 +82,11 @@ func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 		opts = append(opts, oauth2.SetAuthURLParam("prompt", "select_account"))
 	}
 
+	loginHint := r.URL.Query().Get("login_hint")
+	if len(loginHint) > 0 {
+		opts = append(opts, oauth2.SetAuthURLParam("login_hint", loginHint))
+	}
+
 	http.Redirect(w, r, h.oauth2Config.AuthCodeURL(oauthState, opts...), http.StatusFound)
 }
 
