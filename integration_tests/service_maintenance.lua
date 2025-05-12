@@ -18,7 +18,6 @@ Test.gql("Show maintenance updates for Valkey", function(t)
             updates {
               description
               documentation_link
-              start_after
               start_at
               deadline
             }
@@ -43,15 +42,12 @@ Test.gql("Show maintenance updates for Valkey", function(t)
 										{
 											description = "This is the impact (Nais API call it description)",
 											documentation_link = "https://nais.io",
-											start_after = Null,
-											start_at = "1987-07-09T00:00:00Z",
 											deadline = Null,
 
 										},
 										{
 											description = "This is the impact (Nais API call it description)",
 											documentation_link = Null,
-											start_after = "1987-07-09T01:00:00Z",
 											start_at = "1987-07-09T00:00:00Z",
 											deadline = "1987-07-10T00:00:00Z",
 										},

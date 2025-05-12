@@ -15,7 +15,6 @@ type ServiceMaintenanceUpdate struct {
 	Title             string     `json:"title"`
 	Description       string     `json:"description"`
 	DocumentationLink *string    `json:"documentation_link,omitempty"`
-	StartAfter        *time.Time `json:"start_after,omitempty"`
 	StartAt           *time.Time `json:"start_at,omitempty"`
 }
 
