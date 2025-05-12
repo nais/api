@@ -1,14 +1,15 @@
-scalar RunMaintenancePayload
+type RunMaintenancePayload {
+	error: String
+}
 
 input RunMaintenanceInput {
-  project: String!
-  serviceName: String!
+	project: String!
+	serviceName: String!
 }
 
 extend type Mutation {
-  runMaintenance(input: RunMaintenanceInput!): RunMaintenancePayload
+	RunMaintenance(input: RunMaintenanceInput!): RunMaintenancePayload
 }
-
 
 extend type ValkeyInstance {
 	"Fetch maintenances for the Valkey instance."

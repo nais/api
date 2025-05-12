@@ -6,6 +6,10 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 )
 
+type RunMaintenancePayload struct {
+	Error *string `json:"error,omitempty"`
+}
+
 type ServiceMaintenanceUpdate struct {
 	Deadline          *time.Time `json:"deadline,omitempty"`
 	Title             string     `json:"title"`
