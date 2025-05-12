@@ -12,6 +12,16 @@ values:
     displayName: API server IP
     computed:
       template: '"{{.Env.apiserver_endpoint}}"'
+
+  aiven.token:
+    description: An API-token with full access to the relevant project
+    displayName: Aiven API-token
+    computed:
+      template: '"{{ .Env.aiven_application_token_aivenator }}"'
+    config:
+      type: string
+      secret: true
+
   host:
     displayName: Ingress hostname
     computed:
@@ -201,15 +211,11 @@ values:
   zitadel.key:
     displayName: Zitadel key
     description: The key to use for the Zitadel API, base64 encoded
-    config:
-      type: string
-      secret: true
-
-  aiven.token:
-    description: An API-token with full access to the relevant project
-    displayName: Aiven API-token
     computed:
-      template: '"{{ .Env.aiven_application_token_aivenator }}"'
-    config:
-      type: string
-      secret: true
+      template: "{{ .Env.api_usersync_zitadel_key | quote }}"
+
+  zitadel.organization_id:
+    displayName: Zitadel organizatoin id
+    description: The organization ID to use for Zitadel
+    computed:
+      template: "{{ .Env.zitadel_organization_id | quote }}"

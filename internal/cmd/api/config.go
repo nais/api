@@ -113,6 +113,9 @@ type zitadelConfig struct {
 
 	// Domain is the domain to use for the Zitadel API
 	Domain string `env:"ZITADEL_DOMAIN"`
+
+	// OrganizationID is the ID of the organization to use for the Zitadel API
+	OrganizationID string `env:"ZITADEL_ORGANIZATION_ID"`
 }
 
 func (l loggingConfig) DefaultLogDestinations() []logging.SupportedLogDestination {
