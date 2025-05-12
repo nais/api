@@ -177,8 +177,8 @@ type Config struct {
 	OAuth              oAuthConfig
 	Unleash            unleashConfig
 	Logging            loggingConfig
-	Fakes              Fakes
 	Zitadel            zitadelConfig
+	Fakes              Fakes
 }
 
 type Fakes struct {
