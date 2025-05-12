@@ -193,7 +193,7 @@ type ComplexityRoot struct {
 		TeamEnvironment      func(childComplexity int) int
 		Utilization          func(childComplexity int) int
 		ValkeyInstances      func(childComplexity int, orderBy *valkey.ValkeyInstanceOrder) int
-		VulnerabilityHistory func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		VulnerabilityHistory func(childComplexity int) int
 	}
 
 	ApplicationConnection struct {
@@ -627,19 +627,7 @@ type ComplexityRoot struct {
 
 	ImageVulnerabilityHistory struct {
 		Date    func(childComplexity int) int
-		ID      func(childComplexity int) int
 		Summary func(childComplexity int) int
-	}
-
-	ImageVulnerabilityHistoryConnection struct {
-		Edges    func(childComplexity int) int
-		Nodes    func(childComplexity int) int
-		PageInfo func(childComplexity int) int
-	}
-
-	ImageVulnerabilityHistoryEdge struct {
-		Cursor func(childComplexity int) int
-		Node   func(childComplexity int) int
 	}
 
 	ImageVulnerabilitySummary struct {
@@ -686,7 +674,7 @@ type ComplexityRoot struct {
 		Team                 func(childComplexity int) int
 		TeamEnvironment      func(childComplexity int) int
 		ValkeyInstances      func(childComplexity int, orderBy *valkey.ValkeyInstanceOrder) int
-		VulnerabilityHistory func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		VulnerabilityHistory func(childComplexity int) int
 	}
 
 	JobConnection struct {
@@ -2374,7 +2362,7 @@ type ApplicationResolver interface {
 	Status(ctx context.Context, obj *application.Application) (*status.WorkloadStatus, error)
 	Utilization(ctx context.Context, obj *application.Application) (*utilization.WorkloadUtilization, error)
 	ValkeyInstances(ctx context.Context, obj *application.Application, orderBy *valkey.ValkeyInstanceOrder) (*pagination.Connection[*valkey.ValkeyInstance], error)
-	VulnerabilityHistory(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*vulnerability.ImageVulnerabilityHistory], error)
+	VulnerabilityHistory(ctx context.Context, obj *application.Application) ([]*vulnerability.ImageVulnerabilityHistory, error)
 }
 type ApplicationInstanceResolver interface {
 	InstanceUtilization(ctx context.Context, obj *application.ApplicationInstance, resourceType utilization.UtilizationResourceType) (*utilization.ApplicationInstanceUtilization, error)
@@ -2450,7 +2438,7 @@ type JobResolver interface {
 	SQLInstances(ctx context.Context, obj *job.Job, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
 	Status(ctx context.Context, obj *job.Job) (*status.WorkloadStatus, error)
 	ValkeyInstances(ctx context.Context, obj *job.Job, orderBy *valkey.ValkeyInstanceOrder) (*pagination.Connection[*valkey.ValkeyInstance], error)
-	VulnerabilityHistory(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*vulnerability.ImageVulnerabilityHistory], error)
+	VulnerabilityHistory(ctx context.Context, obj *job.Job) ([]*vulnerability.ImageVulnerabilityHistory, error)
 }
 type JobRunResolver interface {
 	Duration(ctx context.Context, obj *job.JobRun) (int, error)
@@ -3055,12 +3043,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Application_vulnerabilityHistory_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Application.VulnerabilityHistory(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+		return e.complexity.Application.VulnerabilityHistory(childComplexity), true
 
 	case "ApplicationConnection.edges":
 		if e.complexity.ApplicationConnection.Edges == nil {
@@ -4579,54 +4562,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ImageVulnerabilityHistory.Date(childComplexity), true
 
-	case "ImageVulnerabilityHistory.id":
-		if e.complexity.ImageVulnerabilityHistory.ID == nil {
-			break
-		}
-
-		return e.complexity.ImageVulnerabilityHistory.ID(childComplexity), true
-
 	case "ImageVulnerabilityHistory.summary":
 		if e.complexity.ImageVulnerabilityHistory.Summary == nil {
 			break
 		}
 
 		return e.complexity.ImageVulnerabilityHistory.Summary(childComplexity), true
-
-	case "ImageVulnerabilityHistoryConnection.edges":
-		if e.complexity.ImageVulnerabilityHistoryConnection.Edges == nil {
-			break
-		}
-
-		return e.complexity.ImageVulnerabilityHistoryConnection.Edges(childComplexity), true
-
-	case "ImageVulnerabilityHistoryConnection.nodes":
-		if e.complexity.ImageVulnerabilityHistoryConnection.Nodes == nil {
-			break
-		}
-
-		return e.complexity.ImageVulnerabilityHistoryConnection.Nodes(childComplexity), true
-
-	case "ImageVulnerabilityHistoryConnection.pageInfo":
-		if e.complexity.ImageVulnerabilityHistoryConnection.PageInfo == nil {
-			break
-		}
-
-		return e.complexity.ImageVulnerabilityHistoryConnection.PageInfo(childComplexity), true
-
-	case "ImageVulnerabilityHistoryEdge.cursor":
-		if e.complexity.ImageVulnerabilityHistoryEdge.Cursor == nil {
-			break
-		}
-
-		return e.complexity.ImageVulnerabilityHistoryEdge.Cursor(childComplexity), true
-
-	case "ImageVulnerabilityHistoryEdge.node":
-		if e.complexity.ImageVulnerabilityHistoryEdge.Node == nil {
-			break
-		}
-
-		return e.complexity.ImageVulnerabilityHistoryEdge.Node(childComplexity), true
 
 	case "ImageVulnerabilitySummary.critical":
 		if e.complexity.ImageVulnerabilitySummary.Critical == nil {
@@ -4911,12 +4852,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Job_vulnerabilityHistory_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Job.VulnerabilityHistory(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+		return e.complexity.Job.VulnerabilityHistory(childComplexity), true
 
 	case "JobConnection.edges":
 		if e.complexity.JobConnection.Edges == nil {
@@ -19027,32 +18963,17 @@ extend enum SearchType {
 
 extend interface Workload {
 	"Get the vulnerability history for workload."
-	vulnerabilityHistory(
-		first: Int
-		after: Cursor
-		last: Int
-		before: Cursor
-	): ImageVulnerabilityHistoryConnection!
+	vulnerabilityHistory: [ImageVulnerabilityHistory!]!
 }
 
 extend type Application {
 	"Get the vulnerability history for application."
-	vulnerabilityHistory(
-		first: Int
-		after: Cursor
-		last: Int
-		before: Cursor
-	): ImageVulnerabilityHistoryConnection!
+	vulnerabilityHistory: [ImageVulnerabilityHistory!]!
 }
 
 extend type Job {
 	"Get the vulnerability history for job."
-	vulnerabilityHistory(
-		first: Int
-		after: Cursor
-		last: Int
-		before: Cursor
-	): ImageVulnerabilityHistoryConnection!
+	vulnerabilityHistory: [ImageVulnerabilityHistory!]!
 }
 
 extend type ContainerImage {
@@ -19178,17 +19099,6 @@ type ImageVulnerabilitySummary {
 	unassigned: Int!
 }
 
-type ImageVulnerabilityHistoryConnection {
-	"Information to aid in pagination."
-	pageInfo: PageInfo!
-
-	"List of edges."
-	edges: [ImageVulnerabilityHistoryEdge!]!
-
-	"List of nodes."
-	nodes: [ImageVulnerabilityHistory!]!
-}
-
 type ImageVulnerabilityConnection {
 	"Information to aid in pagination."
 	pageInfo: PageInfo!
@@ -19200,18 +19110,7 @@ type ImageVulnerabilityConnection {
 	nodes: [ImageVulnerability!]!
 }
 
-type ImageVulnerabilityHistoryEdge {
-	"A cursor for use in pagination."
-	cursor: Cursor!
-
-	"The image vulnerability history."
-	node: ImageVulnerabilityHistory!
-}
-
-type ImageVulnerabilityHistory implements Node {
-	"The globally unique ID of the image vulnerability history node."
-	id: ID!
-
+type ImageVulnerabilityHistory {
 	"The historic image vulnerability summary"
 	summary: ImageVulnerabilitySummary!
 
@@ -20378,103 +20277,6 @@ func (ec *executionContext) field_Application_valkeyInstances_argsOrderBy(
 	}
 
 	var zeroVal *valkey.ValkeyInstanceOrder
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Application_vulnerabilityHistory_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := ec.field_Application_vulnerabilityHistory_argsFirst(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["first"] = arg0
-	arg1, err := ec.field_Application_vulnerabilityHistory_argsAfter(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["after"] = arg1
-	arg2, err := ec.field_Application_vulnerabilityHistory_argsLast(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["last"] = arg2
-	arg3, err := ec.field_Application_vulnerabilityHistory_argsBefore(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["before"] = arg3
-	return args, nil
-}
-func (ec *executionContext) field_Application_vulnerabilityHistory_argsFirst(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (*int, error) {
-	if _, ok := rawArgs["first"]; !ok {
-		var zeroVal *int
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
-	if tmp, ok := rawArgs["first"]; ok {
-		return ec.unmarshalOInt2ᚖint(ctx, tmp)
-	}
-
-	var zeroVal *int
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Application_vulnerabilityHistory_argsAfter(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (*pagination.Cursor, error) {
-	if _, ok := rawArgs["after"]; !ok {
-		var zeroVal *pagination.Cursor
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
-	if tmp, ok := rawArgs["after"]; ok {
-		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, tmp)
-	}
-
-	var zeroVal *pagination.Cursor
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Application_vulnerabilityHistory_argsLast(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (*int, error) {
-	if _, ok := rawArgs["last"]; !ok {
-		var zeroVal *int
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
-	if tmp, ok := rawArgs["last"]; ok {
-		return ec.unmarshalOInt2ᚖint(ctx, tmp)
-	}
-
-	var zeroVal *int
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Application_vulnerabilityHistory_argsBefore(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (*pagination.Cursor, error) {
-	if _, ok := rawArgs["before"]; !ok {
-		var zeroVal *pagination.Cursor
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
-	if tmp, ok := rawArgs["before"]; ok {
-		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, tmp)
-	}
-
-	var zeroVal *pagination.Cursor
 	return zeroVal, nil
 }
 
@@ -21751,103 +21553,6 @@ func (ec *executionContext) field_Job_valkeyInstances_argsOrderBy(
 	}
 
 	var zeroVal *valkey.ValkeyInstanceOrder
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Job_vulnerabilityHistory_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := ec.field_Job_vulnerabilityHistory_argsFirst(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["first"] = arg0
-	arg1, err := ec.field_Job_vulnerabilityHistory_argsAfter(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["after"] = arg1
-	arg2, err := ec.field_Job_vulnerabilityHistory_argsLast(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["last"] = arg2
-	arg3, err := ec.field_Job_vulnerabilityHistory_argsBefore(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["before"] = arg3
-	return args, nil
-}
-func (ec *executionContext) field_Job_vulnerabilityHistory_argsFirst(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (*int, error) {
-	if _, ok := rawArgs["first"]; !ok {
-		var zeroVal *int
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
-	if tmp, ok := rawArgs["first"]; ok {
-		return ec.unmarshalOInt2ᚖint(ctx, tmp)
-	}
-
-	var zeroVal *int
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Job_vulnerabilityHistory_argsAfter(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (*pagination.Cursor, error) {
-	if _, ok := rawArgs["after"]; !ok {
-		var zeroVal *pagination.Cursor
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
-	if tmp, ok := rawArgs["after"]; ok {
-		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, tmp)
-	}
-
-	var zeroVal *pagination.Cursor
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Job_vulnerabilityHistory_argsLast(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (*int, error) {
-	if _, ok := rawArgs["last"]; !ok {
-		var zeroVal *int
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
-	if tmp, ok := rawArgs["last"]; ok {
-		return ec.unmarshalOInt2ᚖint(ctx, tmp)
-	}
-
-	var zeroVal *int
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Job_vulnerabilityHistory_argsBefore(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (*pagination.Cursor, error) {
-	if _, ok := rawArgs["before"]; !ok {
-		var zeroVal *pagination.Cursor
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
-	if tmp, ok := rawArgs["before"]; ok {
-		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, tmp)
-	}
-
-	var zeroVal *pagination.Cursor
 	return zeroVal, nil
 }
 
@@ -30061,7 +29766,7 @@ func (ec *executionContext) _Application_vulnerabilityHistory(ctx context.Contex
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Application().VulnerabilityHistory(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+		return ec.resolvers.Application().VulnerabilityHistory(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -30073,12 +29778,12 @@ func (ec *executionContext) _Application_vulnerabilityHistory(ctx context.Contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*pagination.Connection[*vulnerability.ImageVulnerabilityHistory])
+	res := resTmp.([]*vulnerability.ImageVulnerabilityHistory)
 	fc.Result = res
-	return ec.marshalNImageVulnerabilityHistoryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
+	return ec.marshalNImageVulnerabilityHistory2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistoryᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Application_vulnerabilityHistory(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Application_vulnerabilityHistory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Application",
 		Field:      field,
@@ -30086,26 +29791,13 @@ func (ec *executionContext) fieldContext_Application_vulnerabilityHistory(ctx co
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "pageInfo":
-				return ec.fieldContext_ImageVulnerabilityHistoryConnection_pageInfo(ctx, field)
-			case "edges":
-				return ec.fieldContext_ImageVulnerabilityHistoryConnection_edges(ctx, field)
-			case "nodes":
-				return ec.fieldContext_ImageVulnerabilityHistoryConnection_nodes(ctx, field)
+			case "summary":
+				return ec.fieldContext_ImageVulnerabilityHistory_summary(ctx, field)
+			case "date":
+				return ec.fieldContext_ImageVulnerabilityHistory_date(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityHistoryConnection", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityHistory", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Application_vulnerabilityHistory_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -40848,50 +40540,6 @@ func (ec *executionContext) fieldContext_ImageVulnerabilityEdge_node(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _ImageVulnerabilityHistory_id(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ImageVulnerabilityHistory) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ImageVulnerabilityHistory_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(ident.Ident)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ImageVulnerabilityHistory_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ImageVulnerabilityHistory",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _ImageVulnerabilityHistory_summary(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ImageVulnerabilityHistory) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ImageVulnerabilityHistory_summary(ctx, field)
 	if err != nil {
@@ -40991,264 +40639,6 @@ func (ec *executionContext) fieldContext_ImageVulnerabilityHistory_date(_ contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ImageVulnerabilityHistoryConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*vulnerability.ImageVulnerabilityHistory]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ImageVulnerabilityHistoryConnection_pageInfo(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PageInfo, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(pagination.PageInfo)
-	fc.Result = res
-	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ImageVulnerabilityHistoryConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ImageVulnerabilityHistoryConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "endCursor":
-				return ec.fieldContext_PageInfo_endCursor(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			case "startCursor":
-				return ec.fieldContext_PageInfo_startCursor(ctx, field)
-			case "totalCount":
-				return ec.fieldContext_PageInfo_totalCount(ctx, field)
-			case "pageStart":
-				return ec.fieldContext_PageInfo_pageStart(ctx, field)
-			case "pageEnd":
-				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ImageVulnerabilityHistoryConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*vulnerability.ImageVulnerabilityHistory]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ImageVulnerabilityHistoryConnection_edges(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Edges, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]pagination.Edge[*vulnerability.ImageVulnerabilityHistory])
-	fc.Result = res
-	return ec.marshalNImageVulnerabilityHistoryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ImageVulnerabilityHistoryConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ImageVulnerabilityHistoryConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "cursor":
-				return ec.fieldContext_ImageVulnerabilityHistoryEdge_cursor(ctx, field)
-			case "node":
-				return ec.fieldContext_ImageVulnerabilityHistoryEdge_node(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityHistoryEdge", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ImageVulnerabilityHistoryConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*vulnerability.ImageVulnerabilityHistory]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ImageVulnerabilityHistoryConnection_nodes(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Nodes(), nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*vulnerability.ImageVulnerabilityHistory)
-	fc.Result = res
-	return ec.marshalNImageVulnerabilityHistory2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistoryᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ImageVulnerabilityHistoryConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ImageVulnerabilityHistoryConnection",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_ImageVulnerabilityHistory_id(ctx, field)
-			case "summary":
-				return ec.fieldContext_ImageVulnerabilityHistory_summary(ctx, field)
-			case "date":
-				return ec.fieldContext_ImageVulnerabilityHistory_date(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityHistory", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ImageVulnerabilityHistoryEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*vulnerability.ImageVulnerabilityHistory]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ImageVulnerabilityHistoryEdge_cursor(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Cursor, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(pagination.Cursor)
-	fc.Result = res
-	return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ImageVulnerabilityHistoryEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ImageVulnerabilityHistoryEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Cursor does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ImageVulnerabilityHistoryEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*vulnerability.ImageVulnerabilityHistory]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ImageVulnerabilityHistoryEdge_node(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Node, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*vulnerability.ImageVulnerabilityHistory)
-	fc.Result = res
-	return ec.marshalNImageVulnerabilityHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistory(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ImageVulnerabilityHistoryEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ImageVulnerabilityHistoryEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_ImageVulnerabilityHistory_id(ctx, field)
-			case "summary":
-				return ec.fieldContext_ImageVulnerabilityHistory_summary(ctx, field)
-			case "date":
-				return ec.fieldContext_ImageVulnerabilityHistory_date(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityHistory", field.Name)
 		},
 	}
 	return fc, nil
@@ -43135,7 +42525,7 @@ func (ec *executionContext) _Job_vulnerabilityHistory(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Job().VulnerabilityHistory(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+		return ec.resolvers.Job().VulnerabilityHistory(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -43147,12 +42537,12 @@ func (ec *executionContext) _Job_vulnerabilityHistory(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*pagination.Connection[*vulnerability.ImageVulnerabilityHistory])
+	res := resTmp.([]*vulnerability.ImageVulnerabilityHistory)
 	fc.Result = res
-	return ec.marshalNImageVulnerabilityHistoryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, field.Selections, res)
+	return ec.marshalNImageVulnerabilityHistory2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistoryᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Job_vulnerabilityHistory(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Job_vulnerabilityHistory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
@@ -43160,26 +42550,13 @@ func (ec *executionContext) fieldContext_Job_vulnerabilityHistory(ctx context.Co
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "pageInfo":
-				return ec.fieldContext_ImageVulnerabilityHistoryConnection_pageInfo(ctx, field)
-			case "edges":
-				return ec.fieldContext_ImageVulnerabilityHistoryConnection_edges(ctx, field)
-			case "nodes":
-				return ec.fieldContext_ImageVulnerabilityHistoryConnection_nodes(ctx, field)
+			case "summary":
+				return ec.fieldContext_ImageVulnerabilityHistory_summary(ctx, field)
+			case "date":
+				return ec.fieldContext_ImageVulnerabilityHistory_date(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityHistoryConnection", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityHistory", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Job_vulnerabilityHistory_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -97063,13 +96440,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._JobRun(ctx, sel, obj)
-	case vulnerability.ImageVulnerabilityHistory:
-		return ec._ImageVulnerabilityHistory(ctx, sel, &obj)
-	case *vulnerability.ImageVulnerabilityHistory:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ImageVulnerabilityHistory(ctx, sel, obj)
 	case vulnerability.ImageVulnerability:
 		return ec._ImageVulnerability(ctx, sel, &obj)
 	case *vulnerability.ImageVulnerability:
@@ -102693,7 +102063,7 @@ func (ec *executionContext) _ImageVulnerabilityEdge(ctx context.Context, sel ast
 	return out
 }
 
-var imageVulnerabilityHistoryImplementors = []string{"ImageVulnerabilityHistory", "Node"}
+var imageVulnerabilityHistoryImplementors = []string{"ImageVulnerabilityHistory"}
 
 func (ec *executionContext) _ImageVulnerabilityHistory(ctx context.Context, sel ast.SelectionSet, obj *vulnerability.ImageVulnerabilityHistory) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, imageVulnerabilityHistoryImplementors)
@@ -102704,11 +102074,6 @@ func (ec *executionContext) _ImageVulnerabilityHistory(ctx context.Context, sel 
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ImageVulnerabilityHistory")
-		case "id":
-			out.Values[i] = ec._ImageVulnerabilityHistory_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "summary":
 			out.Values[i] = ec._ImageVulnerabilityHistory_summary(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -102716,99 +102081,6 @@ func (ec *executionContext) _ImageVulnerabilityHistory(ctx context.Context, sel 
 			}
 		case "date":
 			out.Values[i] = ec._ImageVulnerabilityHistory_date(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var imageVulnerabilityHistoryConnectionImplementors = []string{"ImageVulnerabilityHistoryConnection"}
-
-func (ec *executionContext) _ImageVulnerabilityHistoryConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*vulnerability.ImageVulnerabilityHistory]) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, imageVulnerabilityHistoryConnectionImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ImageVulnerabilityHistoryConnection")
-		case "pageInfo":
-			out.Values[i] = ec._ImageVulnerabilityHistoryConnection_pageInfo(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "edges":
-			out.Values[i] = ec._ImageVulnerabilityHistoryConnection_edges(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "nodes":
-			out.Values[i] = ec._ImageVulnerabilityHistoryConnection_nodes(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var imageVulnerabilityHistoryEdgeImplementors = []string{"ImageVulnerabilityHistoryEdge"}
-
-func (ec *executionContext) _ImageVulnerabilityHistoryEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*vulnerability.ImageVulnerabilityHistory]) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, imageVulnerabilityHistoryEdgeImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ImageVulnerabilityHistoryEdge")
-		case "cursor":
-			out.Values[i] = ec._ImageVulnerabilityHistoryEdge_cursor(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "node":
-			out.Values[i] = ec._ImageVulnerabilityHistoryEdge_node(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -123955,68 +123227,6 @@ func (ec *executionContext) marshalNImageVulnerabilityHistory2ᚖgithubᚗcomᚋ
 		return graphql.Null
 	}
 	return ec._ImageVulnerabilityHistory(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNImageVulnerabilityHistoryConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*vulnerability.ImageVulnerabilityHistory]) graphql.Marshaler {
-	return ec._ImageVulnerabilityHistoryConnection(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNImageVulnerabilityHistoryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*vulnerability.ImageVulnerabilityHistory]) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._ImageVulnerabilityHistoryConnection(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNImageVulnerabilityHistoryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*vulnerability.ImageVulnerabilityHistory]) graphql.Marshaler {
-	return ec._ImageVulnerabilityHistoryEdge(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNImageVulnerabilityHistoryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*vulnerability.ImageVulnerabilityHistory]) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNImageVulnerabilityHistoryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) unmarshalNImageVulnerabilityOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityOrderField(ctx context.Context, v any) (vulnerability.ImageVulnerabilityOrderField, error) {
