@@ -1480,7 +1480,6 @@ type ComplexityRoot struct {
 		Deadline          func(childComplexity int) int
 		Description       func(childComplexity int) int
 		DocumentationLink func(childComplexity int) int
-		StartAfter        func(childComplexity int) int
 		StartAt           func(childComplexity int) int
 		Title             func(childComplexity int) int
 	}
@@ -8507,13 +8506,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ServiceMaintenanceUpdate.DocumentationLink(childComplexity), true
-
-	case "ServiceMaintenanceUpdate.start_after":
-		if e.complexity.ServiceMaintenanceUpdate.StartAfter == nil {
-			break
-		}
-
-		return e.complexity.ServiceMaintenanceUpdate.StartAfter(childComplexity), true
 
 	case "ServiceMaintenanceUpdate.start_at":
 		if e.complexity.ServiceMaintenanceUpdate.StartAt == nil {
@@ -16090,9 +16082,6 @@ type ServiceMaintenanceUpdate {
 
 	"Documentation link."
 	documentation_link: String
-
-	"The earliest time the update will be automatically applied."
-	start_after: Time
 
 	"The time when the update will be automatically applied. If set, maintenance is mandatory and will be forcibly applied."
 	start_at: Time
@@ -66612,8 +66601,6 @@ func (ec *executionContext) fieldContext_ServiceMaintenance_updates(_ context.Co
 				return ec.fieldContext_ServiceMaintenanceUpdate_description(ctx, field)
 			case "documentation_link":
 				return ec.fieldContext_ServiceMaintenanceUpdate_documentation_link(ctx, field)
-			case "start_after":
-				return ec.fieldContext_ServiceMaintenanceUpdate_start_after(ctx, field)
 			case "start_at":
 				return ec.fieldContext_ServiceMaintenanceUpdate_start_at(ctx, field)
 			}
@@ -66788,47 +66775,6 @@ func (ec *executionContext) fieldContext_ServiceMaintenanceUpdate_documentation_
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ServiceMaintenanceUpdate_start_after(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.ServiceMaintenanceUpdate) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ServiceMaintenanceUpdate_start_after(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.StartAfter, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*time.Time)
-	fc.Result = res
-	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ServiceMaintenanceUpdate_start_after(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ServiceMaintenanceUpdate",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -110926,8 +110872,6 @@ func (ec *executionContext) _ServiceMaintenanceUpdate(ctx context.Context, sel a
 			}
 		case "documentation_link":
 			out.Values[i] = ec._ServiceMaintenanceUpdate_documentation_link(ctx, field, obj)
-		case "start_after":
-			out.Values[i] = ec._ServiceMaintenanceUpdate_start_after(ctx, field, obj)
 		case "start_at":
 			out.Values[i] = ec._ServiceMaintenanceUpdate_start_at(ctx, field, obj)
 		default:
