@@ -20,6 +20,9 @@ func TestLogDestinationLoki_GrafanaURL(t *testing.T) {
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, contextKeyTenantName, &contextData{tenantName: "test-tenant"})
 
+	type loaders struct{}
+	ctx = context.WithValue(ctx, contextKey("loaders"), &loaders{})
+
 	l := LogDestinationLoki{
 		logDestinationBase: logDestinationBase{
 			WorkloadType:    workload.TypeApplication,
