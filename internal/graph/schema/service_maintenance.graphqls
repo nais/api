@@ -5,6 +5,8 @@ type RunMaintenancePayload {
 input RunMaintenanceInput {
 	project: String!
 	serviceName: String!
+	teamSlug: Slug!
+	environmentName: String!
 }
 
 extend type Mutation {

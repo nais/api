@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/slug"
 )
 
 type RunMaintenancePayload struct {
@@ -24,8 +25,10 @@ type ServiceMaintenance struct {
 }
 
 type RunMaintenanceInput struct {
-	Project     string `json:"project"`
-	ServiceName string `json:"serviceName"`
+	EnvironmentName string    `json:"environmentName"`
+	Project         string    `json:"project"`
+	ServiceName     string    `json:"serviceName"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
 }
 
 func (ServiceMaintenance) IsNode() {}

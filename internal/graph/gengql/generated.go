@@ -16054,6 +16054,8 @@ type SecretDeletedActivityLogEntry implements ActivityLogEntry & Node {
 input RunMaintenanceInput {
 	project: String!
 	serviceName: String!
+	teamSlug: Slug!
+	environmentName: String!
 }
 
 extend type Mutation {
@@ -94836,7 +94838,7 @@ func (ec *executionContext) unmarshalInputRunMaintenanceInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"project", "serviceName"}
+	fieldsInOrder := [...]string{"project", "serviceName", "teamSlug", "environmentName"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -94857,6 +94859,20 @@ func (ec *executionContext) unmarshalInputRunMaintenanceInput(ctx context.Contex
 				return it, err
 			}
 			it.ServiceName = data
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		case "environmentName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EnvironmentName = data
 		}
 	}
 
