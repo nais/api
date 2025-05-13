@@ -1,3 +1,8 @@
+enum ServiceType {
+	OPENSEARCH
+	VALKEY
+}
+
 type RunMaintenancePayload {
 	error: String
 }
@@ -7,10 +12,17 @@ input RunMaintenanceInput {
 	serviceName: String!
 	teamSlug: Slug!
 	environmentName: String!
+	serviceType: ServiceType!
 }
 
 extend type Mutation {
 	RunMaintenance(input: RunMaintenanceInput!): RunMaintenancePayload
+}
+
+extend type OpenSearch {
+	"Fetch maintenances for the OpenSearch instance."
+	maintenance: ServiceMaintenance!
+	project: String!
 }
 
 extend type ValkeyInstance {

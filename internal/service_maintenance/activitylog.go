@@ -7,8 +7,9 @@ import (
 )
 
 const (
-	activityLogResourceTypeValkeyServiceMaintenance activitylog.ActivityLogEntryResourceType = "VALKEY_MAINTENANCE"
-	activityLogEntryActionStartServiceMaintenance   activitylog.ActivityLogEntryAction       = "STARTED"
+	activityLogResourceTypeValkeyServiceMaintenance     activitylog.ActivityLogEntryResourceType = "VALKEY_MAINTENANCE"
+	activityLogResourceTypeOpenSearchServiceMaintenance activitylog.ActivityLogEntryResourceType = "OPENSEARCH_MAINTENANCE"
+	activityLogEntryActionStartServiceMaintenance       activitylog.ActivityLogEntryAction       = "STARTED"
 )
 
 func init() {

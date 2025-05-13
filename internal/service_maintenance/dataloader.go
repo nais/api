@@ -20,8 +20,8 @@ func NewLoaderContext(ctx context.Context, serviceMaintenanceManager *Manager, l
 }
 
 type AivenDataLoaderKey struct {
-	project     string
-	serviceName string
+	Project     string
+	ServiceName string
 }
 
 type loaders struct {
@@ -49,7 +49,7 @@ func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*
 
 	for i, pair := range aivenDataLoaderKeys {
 		wg.Go(func(ctx context.Context) error {
-			res, err := l.serviceMaintenanceManager.client.ServiceGet(ctx, pair.project, pair.serviceName)
+			res, err := l.serviceMaintenanceManager.client.ServiceGet(ctx, pair.Project, pair.ServiceName)
 			if err != nil {
 				errs[i] = err
 			} else {

@@ -25,10 +25,11 @@ type ServiceMaintenance struct {
 }
 
 type RunMaintenanceInput struct {
-	EnvironmentName string    `json:"environmentName"`
-	Project         string    `json:"project"`
-	ServiceName     string    `json:"serviceName"`
-	TeamSlug        slug.Slug `json:"teamSlug"`
+	EnvironmentName string      `json:"environmentName"`
+	Project         string      `json:"project"`
+	ServiceName     string      `json:"serviceName"`
+	TeamSlug        slug.Slug   `json:"teamSlug"`
+	ServiceType     ServiceType `json:"serviceType"`
 }
 
 func (ServiceMaintenance) IsNode() {}

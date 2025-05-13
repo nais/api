@@ -896,7 +896,9 @@ type ComplexityRoot struct {
 		Cost                  func(childComplexity int) int
 		Environment           func(childComplexity int) int
 		ID                    func(childComplexity int) int
+		Maintenance           func(childComplexity int) int
 		Name                  func(childComplexity int) int
+		Project               func(childComplexity int) int
 		Status                func(childComplexity int) int
 		Team                  func(childComplexity int) int
 		TeamEnvironment       func(childComplexity int) int
@@ -2518,6 +2520,8 @@ type OpenSearchResolver interface {
 	Workload(ctx context.Context, obj *opensearch.OpenSearch) (workload.Workload, error)
 	Access(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchAccessOrder) (*pagination.Connection[*opensearch.OpenSearchAccess], error)
 	Cost(ctx context.Context, obj *opensearch.OpenSearch) (*cost.OpenSearchCost, error)
+	Maintenance(ctx context.Context, obj *opensearch.OpenSearch) (*servicemaintenance.ServiceMaintenance, error)
+	Project(ctx context.Context, obj *opensearch.OpenSearch) (string, error)
 }
 type OpenSearchAccessResolver interface {
 	Workload(ctx context.Context, obj *opensearch.OpenSearchAccess) (workload.Workload, error)
@@ -5994,12 +5998,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.OpenSearch.ID(childComplexity), true
 
+	case "OpenSearch.maintenance":
+		if e.complexity.OpenSearch.Maintenance == nil {
+			break
+		}
+
+		return e.complexity.OpenSearch.Maintenance(childComplexity), true
+
 	case "OpenSearch.name":
 		if e.complexity.OpenSearch.Name == nil {
 			break
 		}
 
 		return e.complexity.OpenSearch.Name(childComplexity), true
+
+	case "OpenSearch.project":
+		if e.complexity.OpenSearch.Project == nil {
+			break
+		}
+
+		return e.complexity.OpenSearch.Project(childComplexity), true
 
 	case "OpenSearch.status":
 		if e.complexity.OpenSearch.Status == nil {
@@ -16047,7 +16065,12 @@ type SecretDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	environmentName: String
 }
 `, BuiltIn: false},
-	{Name: "../schema/service_maintenance.graphqls", Input: `type RunMaintenancePayload {
+	{Name: "../schema/service_maintenance.graphqls", Input: `enum ServiceType {
+	OPENSEARCH
+	VALKEY
+}
+
+type RunMaintenancePayload {
 	error: String
 }
 
@@ -16056,10 +16079,17 @@ input RunMaintenanceInput {
 	serviceName: String!
 	teamSlug: Slug!
 	environmentName: String!
+	serviceType: ServiceType!
 }
 
 extend type Mutation {
 	RunMaintenance(input: RunMaintenanceInput!): RunMaintenancePayload
+}
+
+extend type OpenSearch {
+	"Fetch maintenances for the OpenSearch instance."
+	maintenance: ServiceMaintenance!
+	project: String!
 }
 
 extend type ValkeyInstance {
@@ -29555,6 +29585,10 @@ func (ec *executionContext) fieldContext_Application_openSearch(_ context.Contex
 				return ec.fieldContext_OpenSearch_access(ctx, field)
 			case "cost":
 				return ec.fieldContext_OpenSearch_cost(ctx, field)
+			case "maintenance":
+				return ec.fieldContext_OpenSearch_maintenance(ctx, field)
+			case "project":
+				return ec.fieldContext_OpenSearch_project(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type OpenSearch", field.Name)
 		},
@@ -42216,6 +42250,10 @@ func (ec *executionContext) fieldContext_Job_openSearch(_ context.Context, field
 				return ec.fieldContext_OpenSearch_access(ctx, field)
 			case "cost":
 				return ec.fieldContext_OpenSearch_cost(ctx, field)
+			case "maintenance":
+				return ec.fieldContext_OpenSearch_maintenance(ctx, field)
+			case "project":
+				return ec.fieldContext_OpenSearch_project(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type OpenSearch", field.Name)
 		},
@@ -50209,6 +50247,98 @@ func (ec *executionContext) fieldContext_OpenSearch_cost(_ context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _OpenSearch_maintenance(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearch) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_OpenSearch_maintenance(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.OpenSearch().Maintenance(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*servicemaintenance.ServiceMaintenance)
+	fc.Result = res
+	return ec.marshalNServiceMaintenance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservice_maintenanceᚐServiceMaintenance(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_OpenSearch_maintenance(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearch",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "updates":
+				return ec.fieldContext_ServiceMaintenance_updates(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ServiceMaintenance", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _OpenSearch_project(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearch) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_OpenSearch_project(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.OpenSearch().Project(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_OpenSearch_project(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearch",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _OpenSearchAccess_workload(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchAccess) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_OpenSearchAccess_workload(ctx, field)
 	if err != nil {
@@ -50670,6 +50800,10 @@ func (ec *executionContext) fieldContext_OpenSearchConnection_nodes(_ context.Co
 				return ec.fieldContext_OpenSearch_access(ctx, field)
 			case "cost":
 				return ec.fieldContext_OpenSearch_cost(ctx, field)
+			case "maintenance":
+				return ec.fieldContext_OpenSearch_maintenance(ctx, field)
+			case "project":
+				return ec.fieldContext_OpenSearch_project(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type OpenSearch", field.Name)
 		},
@@ -50874,6 +51008,10 @@ func (ec *executionContext) fieldContext_OpenSearchEdge_node(_ context.Context, 
 				return ec.fieldContext_OpenSearch_access(ctx, field)
 			case "cost":
 				return ec.fieldContext_OpenSearch_cost(ctx, field)
+			case "maintenance":
+				return ec.fieldContext_OpenSearch_maintenance(ctx, field)
+			case "project":
+				return ec.fieldContext_OpenSearch_project(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type OpenSearch", field.Name)
 		},
@@ -76171,6 +76309,10 @@ func (ec *executionContext) fieldContext_TeamEnvironment_openSearchInstance(ctx 
 				return ec.fieldContext_OpenSearch_access(ctx, field)
 			case "cost":
 				return ec.fieldContext_OpenSearch_cost(ctx, field)
+			case "maintenance":
+				return ec.fieldContext_OpenSearch_maintenance(ctx, field)
+			case "project":
+				return ec.fieldContext_OpenSearch_project(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type OpenSearch", field.Name)
 		},
@@ -94838,7 +94980,7 @@ func (ec *executionContext) unmarshalInputRunMaintenanceInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"project", "serviceName", "teamSlug", "environmentName"}
+	fieldsInOrder := [...]string{"project", "serviceName", "teamSlug", "environmentName", "serviceType"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -94873,6 +95015,13 @@ func (ec *executionContext) unmarshalInputRunMaintenanceInput(ctx context.Contex
 				return it, err
 			}
 			it.EnvironmentName = data
+		case "serviceType":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("serviceType"))
+			data, err := ec.unmarshalNServiceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋservice_maintenanceᚐServiceType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ServiceType = data
 		}
 	}
 
@@ -105613,6 +105762,78 @@ func (ec *executionContext) _OpenSearch(ctx context.Context, sel ast.SelectionSe
 					}
 				}()
 				res = ec._OpenSearch_cost(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "maintenance":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OpenSearch_maintenance(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "project":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OpenSearch_project(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -126671,6 +126892,16 @@ func (ec *executionContext) marshalNServiceMaintenanceUpdate2ᚕgithubᚗcomᚋn
 	wg.Wait()
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalNServiceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋservice_maintenanceᚐServiceType(ctx context.Context, v any) (servicemaintenance.ServiceType, error) {
+	var res servicemaintenance.ServiceType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNServiceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋservice_maintenanceᚐServiceType(ctx context.Context, sel ast.SelectionSet, v servicemaintenance.ServiceType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNSetTeamMemberRoleInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐSetTeamMemberRoleInput(ctx context.Context, v any) (team.SetTeamMemberRoleInput, error) {
