@@ -8,20 +8,8 @@ import (
 	"github.com/nais/api/internal/workload"
 )
 
-type contextKey string
-
-type contextData struct {
-	tenantName string
-}
-
-const contextKeyTenantName contextKey = "tenantName"
-
 func TestLogDestinationLoki_GrafanaURL(t *testing.T) {
-	ctx := context.Background()
-	ctx = context.WithValue(ctx, contextKeyTenantName, &contextData{tenantName: "test-tenant"})
-
-	type loaders struct{}
-	ctx = context.WithValue(ctx, contextKey("loaders"), &loaders{})
+	ctx := NewPackageContext(context.Background(), "test-tenant", nil)
 
 	l := LogDestinationLoki{
 		logDestinationBase: logDestinationBase{
