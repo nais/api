@@ -3,11 +3,24 @@ package servicemaintenance
 import (
 	"context"
 
+	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/persistence/valkey"
 )
 
 func RunServiceMaintenance(ctx context.Context, service RunMaintenanceInput) error {
-	return ctx.Value(loadersKey).(*loaders).maintenanceMutator.client.ServiceMaintenanceStart(ctx, service.Project, service.ServiceName)
+	err := ctx.Value(loadersKey).(*loaders).maintenanceMutator.client.ServiceMaintenanceStart(ctx, service.Project, service.ServiceName)
+	if err != nil {
+		return nil
+	}
+	return activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activityLogEntryActionStartServiceMaintenance,
+		ResourceType:    activityLogResourceTypeValkeyServiceMaintenance,
+		TeamSlug:        &service.TeamSlug,
+		EnvironmentName: &service.EnvironmentName,
+		ResourceName:    service.ServiceName,
+		Actor:           authz.ActorFromContext(ctx).User,
+	})
 }
 
 func GetServiceMaintenances(ctx context.Context, valkey valkey.ValkeyInstance) (*ServiceMaintenance, error) {

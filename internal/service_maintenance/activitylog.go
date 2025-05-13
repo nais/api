@@ -7,22 +7,21 @@ import (
 )
 
 const (
-	activityLogEntryResourceTypeVulnerability activitylog.ActivityLogEntryResourceType = "MAINTENANCE"
+	activityLogResourceTypeValkeyServiceMaintenance activitylog.ActivityLogEntryResourceType = "VALKEY_MAINTENANCE"
+	activityLogEntryActionStartServiceMaintenance   activitylog.ActivityLogEntryAction       = "STARTED"
 )
 
 func init() {
-	activitylog.RegisterTransformer(activityLogEntryResourceTypeVulnerability, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
-		switch entry.Action {
-		case activitylog.ActivityLogEntryActionUpdated:
-			return VulnerabilityUpdatedActivityLogEntry{
-				GenericActivityLogEntry: entry.WithMessage("Updated maintenance"),
+	activitylog.RegisterTransformer(activityLogResourceTypeValkeyServiceMaintenance, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
+		if entry.Action == activityLogEntryActionStartServiceMaintenance {
+			return ServiceMaintenanceActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage("Started service maintenance maintenance updates"),
 			}, nil
-		default:
-			return nil, fmt.Errorf("unsupported maintenance activity log entry action: %q", entry.Action)
 		}
+		return nil, fmt.Errorf("unsupported maintenance activity log entry action: %q", entry.Action)
 	})
 }
 
-type VulnerabilityUpdatedActivityLogEntry struct {
+type ServiceMaintenanceActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
 }
