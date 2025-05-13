@@ -12,13 +12,12 @@ Test.gql("Show maintenance updates for Valkey", function(t)
       edges {
         node {
        	name
-          project
-
+        project
         maintenance {
             updates {
               description
-              documentation_link
-              start_at
+              documentationLink
+              startAt
               deadline
             }
           }
@@ -41,15 +40,14 @@ Test.gql("Show maintenance updates for Valkey", function(t)
 									updates = {
 										{
 											description = "This is the impact (Nais API call it description)",
-											documentation_link = "https://nais.io",
-											start_at = Null,
+											documentationLink = "https://nais.io",
+											startAt = Null,
 											deadline = Null,
-
 										},
 										{
 											description = "This is the impact (Nais API call it description)",
-											documentation_link = Null,
-											start_at = "1987-07-09T00:00:00Z",
+											documentationLink = Null,
+											startAt = "1987-07-09T00:00:00Z",
 											deadline = "1987-07-10T00:00:00Z",
 										},
 									},

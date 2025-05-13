@@ -15,8 +15,8 @@ type ServiceMaintenanceUpdate struct {
 	Deadline          *time.Time `json:"deadline,omitempty"`
 	Title             string     `json:"title"`
 	Description       string     `json:"description"`
-	DocumentationLink *string    `json:"documentation_link,omitempty"`
-	StartAt           *time.Time `json:"start_at,omitempty"`
+	DocumentationLink *string    `json:"documentationLink,omitempty"`
+	StartAt           *time.Time `json:"startAt,omitempty"`
 }
 
 type ServiceMaintenance struct {
@@ -29,9 +29,4 @@ type RunMaintenanceInput struct {
 	Project         string    `json:"project"`
 	ServiceName     string    `json:"serviceName"`
 	TeamSlug        slug.Slug `json:"teamSlug"`
-}
-
-func (ServiceMaintenance) IsNode() {}
-func (i *ServiceMaintenance) ID() ident.Ident {
-	return i.Identifier
 }

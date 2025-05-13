@@ -34,8 +34,8 @@ type ServiceMaintenanceUpdate {
 	description: String!
 
 	"Documentation link."
-	documentation_link: String
+	documentationLink: String
 
 	"The time when the update will be automatically applied. If set, maintenance is mandatory and will be forcibly applied."
-	start_at: Time
+	startAt: Time
 }
