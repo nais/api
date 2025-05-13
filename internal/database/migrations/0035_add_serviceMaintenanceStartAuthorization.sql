@@ -11,5 +11,6 @@ VALUES
 INSERT INTO
 	role_authorizations (role_name, authorization_name)
 VALUES
-	('Team member', 'service_maintenance:update:start')
+	('Team member', 'service_maintenance:update:start'),
+	('Team owner', 'service_maintenance:update:start')
 ;
