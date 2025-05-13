@@ -8537,14 +8537,14 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ServiceMaintenanceUpdate.Description(childComplexity), true
 
-	case "ServiceMaintenanceUpdate.documentation_link":
+	case "ServiceMaintenanceUpdate.documentationLink":
 		if e.complexity.ServiceMaintenanceUpdate.DocumentationLink == nil {
 			break
 		}
 
 		return e.complexity.ServiceMaintenanceUpdate.DocumentationLink(childComplexity), true
 
-	case "ServiceMaintenanceUpdate.start_at":
+	case "ServiceMaintenanceUpdate.startAt":
 		if e.complexity.ServiceMaintenanceUpdate.StartAt == nil {
 			break
 		}
@@ -16120,10 +16120,10 @@ type ServiceMaintenanceUpdate {
 	description: String!
 
 	"Documentation link."
-	documentation_link: String
+	documentationLink: String
 
 	"The time when the update will be automatically applied. If set, maintenance is mandatory and will be forcibly applied."
-	start_at: Time
+	startAt: Time
 }
 `, BuiltIn: false},
 	{Name: "../schema/serviceaccounts.graphqls", Input: `extend type Query {
@@ -66875,10 +66875,10 @@ func (ec *executionContext) fieldContext_ServiceMaintenance_updates(_ context.Co
 				return ec.fieldContext_ServiceMaintenanceUpdate_title(ctx, field)
 			case "description":
 				return ec.fieldContext_ServiceMaintenanceUpdate_description(ctx, field)
-			case "documentation_link":
-				return ec.fieldContext_ServiceMaintenanceUpdate_documentation_link(ctx, field)
-			case "start_at":
-				return ec.fieldContext_ServiceMaintenanceUpdate_start_at(ctx, field)
+			case "documentationLink":
+				return ec.fieldContext_ServiceMaintenanceUpdate_documentationLink(ctx, field)
+			case "startAt":
+				return ec.fieldContext_ServiceMaintenanceUpdate_startAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ServiceMaintenanceUpdate", field.Name)
 		},
@@ -67015,8 +67015,8 @@ func (ec *executionContext) fieldContext_ServiceMaintenanceUpdate_description(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceMaintenanceUpdate_documentation_link(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.ServiceMaintenanceUpdate) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ServiceMaintenanceUpdate_documentation_link(ctx, field)
+func (ec *executionContext) _ServiceMaintenanceUpdate_documentationLink(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.ServiceMaintenanceUpdate) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceMaintenanceUpdate_documentationLink(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -67043,7 +67043,7 @@ func (ec *executionContext) _ServiceMaintenanceUpdate_documentation_link(ctx con
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ServiceMaintenanceUpdate_documentation_link(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ServiceMaintenanceUpdate_documentationLink(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServiceMaintenanceUpdate",
 		Field:      field,
@@ -67056,8 +67056,8 @@ func (ec *executionContext) fieldContext_ServiceMaintenanceUpdate_documentation_
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceMaintenanceUpdate_start_at(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.ServiceMaintenanceUpdate) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ServiceMaintenanceUpdate_start_at(ctx, field)
+func (ec *executionContext) _ServiceMaintenanceUpdate_startAt(ctx context.Context, field graphql.CollectedField, obj *servicemaintenance.ServiceMaintenanceUpdate) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServiceMaintenanceUpdate_startAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -67084,7 +67084,7 @@ func (ec *executionContext) _ServiceMaintenanceUpdate_start_at(ctx context.Conte
 	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ServiceMaintenanceUpdate_start_at(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ServiceMaintenanceUpdate_startAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServiceMaintenanceUpdate",
 		Field:      field,
@@ -111282,10 +111282,10 @@ func (ec *executionContext) _ServiceMaintenanceUpdate(ctx context.Context, sel a
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "documentation_link":
-			out.Values[i] = ec._ServiceMaintenanceUpdate_documentation_link(ctx, field, obj)
-		case "start_at":
-			out.Values[i] = ec._ServiceMaintenanceUpdate_start_at(ctx, field, obj)
+		case "documentationLink":
+			out.Values[i] = ec._ServiceMaintenanceUpdate_documentationLink(ctx, field, obj)
+		case "startAt":
+			out.Values[i] = ec._ServiceMaintenanceUpdate_startAt(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
