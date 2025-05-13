@@ -305,7 +305,7 @@ func ConfigureGraph(
 		ctx = authz.NewLoaderContext(ctx, pool)
 		ctx = activitylog.NewLoaderContext(ctx, pool)
 		ctx = vulnerability.NewLoaderContext(ctx, vulnMgr, prometheusClient, log)
-		ctx = servicemaintenance.NewLoaderContext(ctx, maintenananceManager, prometheusClient, log)
+		ctx = servicemaintenance.NewLoaderContext(ctx, maintenananceManager, log)
 		ctx = reconciler.NewLoaderContext(ctx, pool)
 		ctx = deployment.NewLoaderContext(ctx, pool, hookdClient)
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)

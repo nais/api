@@ -15,8 +15,8 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, serviceMaintenanceManager *Manager, prometheusClient PrometheusClient, logger logrus.FieldLogger) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(serviceMaintenanceManager, prometheusClient, logger))
+func NewLoaderContext(ctx context.Context, serviceMaintenanceManager *Manager, logger logrus.FieldLogger) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(serviceMaintenanceManager, logger))
 }
 
 type AivenDataLoaderKey struct {
@@ -27,16 +27,12 @@ type AivenDataLoaderKey struct {
 type loaders struct {
 	maintenanceLoader  *dataloadgen.Loader[*AivenDataLoaderKey, *ServiceMaintenance]
 	maintenanceMutator *Manager
-	promClients        *PrometheusQuerier
 }
 
-func newLoaders(serviceMaintenanceMgr *Manager, prometheusClient PrometheusClient, logger logrus.FieldLogger) *loaders {
+func newLoaders(serviceMaintenanceMgr *Manager, logger logrus.FieldLogger) *loaders {
 	maintenanceLoader := &dataloader{serviceMaintenanceManager: serviceMaintenanceMgr, log: logger}
 	return &loaders{
-		maintenanceLoader: dataloadgen.NewLoader(maintenanceLoader.maintenanceList, loader.DefaultDataLoaderOptions...),
-		promClients: &PrometheusQuerier{
-			client: prometheusClient,
-		},
+		maintenanceLoader:  dataloadgen.NewLoader(maintenanceLoader.maintenanceList, loader.DefaultDataLoaderOptions...),
 		maintenanceMutator: serviceMaintenanceMgr,
 	}
 }
