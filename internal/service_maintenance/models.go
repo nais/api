@@ -7,7 +7,7 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-type RunMaintenancePayload struct {
+type RunAivenMaintenancePayload struct {
 	Error *string `json:"error,omitempty"`
 }
 
@@ -24,7 +24,7 @@ type ServiceMaintenance struct {
 	Updates    []ServiceMaintenanceUpdate `json:"updates"`
 }
 
-type RunMaintenanceInput struct {
+type RunValkeyMaintenanceInput struct {
 	EnvironmentName string    `json:"environmentName"`
 	Project         string    `json:"project"`
 	ServiceName     string    `json:"serviceName"`

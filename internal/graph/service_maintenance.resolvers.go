@@ -8,7 +8,7 @@ import (
 	servicemaintenance "github.com/nais/api/internal/service_maintenance"
 )
 
-func (r *mutationResolver) RunMaintenance(ctx context.Context, input servicemaintenance.RunMaintenanceInput) (*servicemaintenance.RunMaintenancePayload, error) {
+func (r *mutationResolver) RunValkeyMaintenance(ctx context.Context, input servicemaintenance.RunValkeyMaintenanceInput) (*servicemaintenance.RunAivenMaintenancePayload, error) {
 	if err := authz.CanStartServiceMaintenance(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
@@ -17,7 +17,7 @@ func (r *mutationResolver) RunMaintenance(ctx context.Context, input servicemain
 		return nil, err
 	}
 
-	return &servicemaintenance.RunMaintenancePayload{
+	return &servicemaintenance.RunAivenMaintenancePayload{
 		Error: new(string),
 	}, nil
 }

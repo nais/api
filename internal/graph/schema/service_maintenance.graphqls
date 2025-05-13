@@ -1,16 +1,16 @@
-type RunMaintenancePayload {
+type RunAivenMaintenancePayload {
 	error: String
 }
 
-input RunMaintenanceInput {
-	project: String!
+input RunValkeyMaintenanceInput {
+	project: String! # TODO: Remove
 	serviceName: String!
 	teamSlug: Slug!
 	environmentName: String!
 }
 
 extend type Mutation {
-	RunMaintenance(input: RunMaintenanceInput!): RunMaintenancePayload
+	RunValkeyMaintenance(input: RunValkeyMaintenanceInput!): RunAivenMaintenancePayload
 }
 
 extend type ValkeyInstance {
