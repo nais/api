@@ -8,7 +8,7 @@ import (
 	"github.com/nais/api/internal/persistence/valkey"
 )
 
-func RunServiceMaintenance(ctx context.Context, service RunMaintenanceInput) error {
+func RunServiceMaintenance(ctx context.Context, service RunValkeyMaintenanceInput) error {
 	err := ctx.Value(loadersKey).(*loaders).maintenanceMutator.client.ServiceMaintenanceStart(ctx, service.Project, service.ServiceName)
 	if err != nil {
 		return nil
