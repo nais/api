@@ -48,10 +48,12 @@ func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*
 	errs := make([]error, len(aivenDataLoaderKeys))
 
 	for i, pair := range aivenDataLoaderKeys {
+		localI := i
+		localPair := pair
 		wg.Go(func(ctx context.Context) error {
-			res, err := l.serviceMaintenanceManager.client.ServiceGet(ctx, pair.project, pair.serviceName)
+			res, err := l.serviceMaintenanceManager.client.ServiceGet(ctx, localPair.project, localPair.serviceName)
 			if err != nil {
-				errs[i] = err
+				errs[localI] = err
 			} else {
 				if res.Maintenance != nil && res.Maintenance.Updates != nil {
 					updates := make([]ServiceMaintenanceUpdate, len(res.Maintenance.Updates))
