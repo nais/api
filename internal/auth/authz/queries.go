@@ -239,7 +239,7 @@ func CanUpdateUnleash(ctx context.Context, teamSlug slug.Slug) error {
 }
 
 func CanStartServiceMaintenance(ctx context.Context, teamSlug slug.Slug) error {
-	return requireTeamAuthorization(ctx, teamSlug, "serviceMaintenance:update:start")
+	return requireTeamAuthorization(ctx, teamSlug, "service_maintenance:update:start")
 }
 
 func RequireGlobalAdmin(ctx context.Context) error {
