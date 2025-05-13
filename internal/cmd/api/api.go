@@ -154,12 +154,12 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			graph.WithLogger(log),
 		),
 		Complexity: gengql.NewComplexityRoot(),
-	}, log)
+	}, log.WithField("subsystem", "graph"))
 	if err != nil {
 		return fmt.Errorf("create graph handler: %w", err)
 	}
 
-	authHandler, err := setupAuthHandler(ctx, cfg.OAuth, log)
+	authHandler, err := setupAuthHandler(ctx, cfg.OAuth, log.WithField("subsystem", "auth"))
 	if err != nil {
 		return err
 	}
@@ -195,14 +195,14 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		hookdClient = hookd.New(cfg.Hookd.Endpoint, cfg.Hookd.PSK, log.WithField("client", "hookd"))
 	}
 
-	if err := leaderelection.Start(ctx, mgmtK8sClient, cfg.LeaseName, cfg.LeaseNamespace, log); err != nil {
+	if err := leaderelection.Start(ctx, mgmtK8sClient, cfg.LeaseName, cfg.LeaseNamespace, log.WithField("subsystem", "leaderelection")); err != nil {
 		return fmt.Errorf("starting leader election: %w", err)
 	}
 
 	wg, ctx := errgroup.WithContext(ctx)
 
 	// Notifier to use only one connection to the database for LISTEN/NOTIFY pattern
-	notifier := notify.New(pool, log)
+	notifier := notify.New(pool, log.WithField("subsystem", "notifier"))
 	go notifier.Run(ctx)
 
 	if !cfg.Fakes.WithFakeKubernetes {
@@ -212,7 +212,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		}
 
 		log.WithField("envs", len(k8sClients)).Info("Start event watcher")
-		eventWatcher, err := event.NewWatcher(pool, k8sClients, log)
+		eventWatcher, err := event.NewWatcher(pool, k8sClients, log.WithField("subsystem", "event_watcher"))
 		if err != nil {
 			return fmt.Errorf("creating event watcher: %w", err)
 		}
@@ -238,7 +238,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			cfg.Unleash.BifrostApiUrl,
 			cfg.Logging.DefaultLogDestinations(),
 			notifier,
-			log,
+			log.WithField("subsystem", "http"),
 		)
 	})
 	wg.Go(func() error {
@@ -246,12 +246,12 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			ctx,
 			cfg.InternalListenAddress,
 			promReg,
-			log,
+			log.WithField("subsystem", "internal_http"),
 		)
 	})
 
 	wg.Go(func() error {
-		if err := grpc.Run(ctx, cfg.GRPCListenAddress, pool, log); err != nil {
+		if err := grpc.Run(ctx, cfg.GRPCListenAddress, pool, log.WithField("subsystem", "grpc")); err != nil {
 			log.WithError(err).Errorf("error in GRPC server")
 			return err
 		}
@@ -259,15 +259,15 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	})
 
 	wg.Go(func() error {
-		return runUsersync(ctx, pool, cfg, log)
+		return runUsersync(ctx, pool, cfg, log.WithField("subsystem", "usersync"))
 	})
 
 	wg.Go(func() error {
-		return costUpdater(ctx, pool, cfg, log)
+		return costUpdater(ctx, pool, cfg, log.WithField("subsystem", "cost_updater"))
 	})
 
 	wg.Go(func() error {
-		deployment.RunCleaner(ctx, pool, log)
+		deployment.RunCleaner(ctx, pool, log.WithField("subsystem", "deployment_cleaner"))
 		return nil
 	})
 

@@ -111,6 +111,8 @@ spec:
               value: {{ .Values.zitadel.idp_id | quote }}
             - name: ZITADEL_DOMAIN
               value: {{ .Values.zitadel.domain | quote }}
+            - name: ZITADEL_ORGANIZATION_ID
+              value: {{ .Values.zitadel.organization_id | quote }}
           envFrom:
             - secretRef:
                 name: "{{ .Release.Name }}"

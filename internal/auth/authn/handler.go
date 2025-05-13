@@ -27,6 +27,7 @@ type OAuth2 interface {
 	Exchange(ctx context.Context, code string, opts ...oauth2.AuthCodeOption) (*oauth2.Token, error)
 	AuthCodeURL(state string, opts ...oauth2.AuthCodeOption) string
 	Verify(ctx context.Context, rawIDToken string) (*oidc.IDToken, error)
+	IsZitadel() bool
 }
 
 type Handler interface {
@@ -76,7 +77,17 @@ func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	})
 
-	http.Redirect(w, r, h.oauth2Config.AuthCodeURL(oauthState, oauth2.SetAuthURLParam("prompt", "select_account")), http.StatusFound)
+	opts := make([]oauth2.AuthCodeOption, 0)
+	if !h.oauth2Config.IsZitadel() {
+		opts = append(opts, oauth2.SetAuthURLParam("prompt", "select_account"))
+	}
+
+	loginHint := r.URL.Query().Get("login_hint")
+	if len(loginHint) > 0 {
+		opts = append(opts, oauth2.SetAuthURLParam("login_hint", loginHint))
+	}
+
+	http.Redirect(w, r, h.oauth2Config.AuthCodeURL(oauthState, opts...), http.StatusFound)
 }
 
 func (h *handler) Callback(w http.ResponseWriter, r *http.Request) {

@@ -10,6 +10,7 @@ import (
 type OIDC struct {
 	oauth2.Config
 	provider *oidc.Provider
+	issuer   string
 }
 
 func NewOIDC(ctx context.Context, issuer, clientID, clientSecret, redirectURL string, additionalScopes []string) (*OIDC, error) {
@@ -27,9 +28,14 @@ func NewOIDC(ctx context.Context, issuer, clientID, clientSecret, redirectURL st
 			RedirectURL:  redirectURL,
 			Scopes:       append([]string{oidc.ScopeOpenID, "profile", "email"}, additionalScopes...),
 		},
+		issuer: issuer,
 	}, nil
 }
 
 func (o *OIDC) Verify(ctx context.Context, rawIDToken string) (*oidc.IDToken, error) {
 	return o.provider.Verifier(&oidc.Config{ClientID: o.Config.ClientID}).Verify(ctx, rawIDToken)
+}
+
+func (o *OIDC) IsZitadel() bool {
+	return o.issuer == "https://auth.nais.io"
 }
