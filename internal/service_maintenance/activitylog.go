@@ -16,7 +16,7 @@ func init() {
 	activitylog.RegisterTransformer(activityLogResourceTypeValkeyServiceMaintenance, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		if entry.Action == activityLogEntryActionStartServiceMaintenance {
 			return ServiceMaintenanceActivityLogEntry{
-				GenericActivityLogEntry: entry.WithMessage("Started service maintenance maintenance updates"),
+				GenericActivityLogEntry: entry.WithMessage("Started service maintenance updates"),
 			}, nil
 		}
 		return nil, fmt.Errorf("unsupported maintenance activity log entry action: %q", entry.Action)
