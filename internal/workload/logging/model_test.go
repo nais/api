@@ -28,9 +28,9 @@ func TestLogDestinationLoki_GrafanaURL(t *testing.T) {
 	}
 
 	for _, param := range []string{
-		"var-ds%3Ddev-loki",
-		"var-filters%3Dservice_name%7C%3D%7Cmy-app",
-		"var-filters%3Dservice_namespace%7C%3D%7Cmy-team",
+		"?var-ds=dev-loki",
+		"&var-filters=service_name|%3D|my-app",
+		"&var-filters=service_namespace|%3D|my-team",
 	} {
 		if !strings.Contains(url, param) {
 			t.Errorf("URL missing expected query parameter: %s\nFull URL: %s", param, url)
