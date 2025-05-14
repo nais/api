@@ -3,6 +3,7 @@ package logging
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/slug"

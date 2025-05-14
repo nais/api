@@ -21,9 +21,8 @@ func TestLogDestinationLoki_GrafanaURL(t *testing.T) {
 	}
 
 	url := l.GrafanaURL(ctx)
-
 	expectedPrefix := "https://grafana.test-tenant.cloud.nais.io/a/grafana-lokiexplore-app/explore/service/my-app/logs?"
-	if len(url) < len(expectedPrefix) || url[:len(expectedPrefix)] != expectedPrefix {
+	if !strings.HasPrefix(url, expectedPrefix) {
 		t.Errorf("URL prefix mismatch. Got: %s, want prefix: %s", url, expectedPrefix)
 	}
 
@@ -49,8 +48,8 @@ func TestLogDestinationLoki_GrafanaURL_EnvNameMapping(t *testing.T) {
 		{"prod", "prod"},
 		{"preprod-fss", "preprod-gcp"},
 		{"test-fss", "test-gcp"},
-		{"fss", "fss"},             // should not match, as len("fss") < 4
-		{"prod-fssx", "prod-fssx"}, // should not match, as suffix is not exactly "-fss"
+		{"fss", "fss"},
+		{"prod-fssx", "prod-fssx"},
 	}
 
 	for _, tt := range tests {
@@ -66,7 +65,7 @@ func TestLogDestinationLoki_GrafanaURL_EnvNameMapping(t *testing.T) {
 		url := l.GrafanaURL(ctx)
 
 		expectedPrefix := "https://grafana.test-tenant.cloud.nais.io/a/grafana-lokiexplore-app/explore/service/my-app/logs?"
-		if len(url) < len(expectedPrefix) || url[:len(expectedPrefix)] != expectedPrefix {
+		if !strings.HasPrefix(url, expectedPrefix) {
 			t.Errorf("URL prefix mismatch for envName=%q. Got: %s, want prefix: %s", tt.envName, url, expectedPrefix)
 		}
 
