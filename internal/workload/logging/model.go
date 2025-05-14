@@ -67,8 +67,8 @@ func (l LogDestinationLoki) GrafanaURL(ctx context.Context) string {
 	tenantName := fromContext(ctx).tenantName
 	envName := l.EnvironmentName
 	// All loki logs are stored in gcp, update the envName to match the loki datasource
-	if len(envName) >= 4 && envName[len(envName)-4:] == "-fss" {
-		envName = envName[:len(envName)-4] + "-gcp"
+	if strings.HasSuffix(envName, "-fss") {
+		envName = strings.TrimSuffix(envName, "-fss") + "-gcp"
 	}
 	lokiURL := "https://grafana." + tenantName + ".cloud.nais.io/a/grafana-lokiexplore-app/explore/service/" + l.WorkloadName + "/logs?"
 
