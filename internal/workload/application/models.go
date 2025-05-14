@@ -283,6 +283,12 @@ func (a *Application) Resources() *ApplicationResources {
 				Threshold: 50,
 			})
 		}
+	} else {
+		ret.Scaling.MinInstances = 2
+		ret.Scaling.MaxInstances = 4
+		ret.Scaling.Strategies = append(ret.Scaling.Strategies, CPUScalingStrategy{
+			Threshold: 50,
+		})
 	}
 
 	return ret
