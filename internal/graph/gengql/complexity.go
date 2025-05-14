@@ -174,6 +174,9 @@ func NewComplexityRoot() ComplexityRoot {
 	c.ValkeyInstance.Access = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyInstanceAccessOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
+	c.ValkeyMaintenance.Updates = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
 
 	return c
 }

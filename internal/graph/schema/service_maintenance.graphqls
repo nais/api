@@ -1,41 +1,75 @@
-type RunAivenMaintenancePayload {
-	error: String
-}
-
-input RunValkeyMaintenanceInput {
-	project: String! # TODO: Remove
-	serviceName: String!
-	teamSlug: Slug!
-	environmentName: String!
-}
-
 extend type Mutation {
-	RunValkeyMaintenance(input: RunValkeyMaintenanceInput!): RunAivenMaintenancePayload
+	startValkeyMaintenance(input: StartValkeyMaintenanceInput!): StartValkeyMaintenancePayload
 }
 
-extend type ValkeyInstance {
-	"Fetch maintenances for the Valkey instance."
-	maintenance: ServiceMaintenance!
-	project: String!
+interface ServiceMaintenanceUpdate {
+	"Title of the maintenance."
+	title: String!
+
+	"Description of the maintenance."
+	description: String
 }
 
-type ServiceMaintenance {
-	updates: [ServiceMaintenanceUpdate]!
-}
-
-type ServiceMaintenanceUpdate {
-	"Deadline for installing the maintenance. If set, maintenance is mandatory and will be forcibly applied."
-	deadline: Time
-
+type ValkeyMaintenanceUpdate implements ServiceMaintenanceUpdate {
 	"Title of the maintenance."
 	title: String!
 
 	"Description of the maintenance."
 	description: String!
 
-	"Documentation link."
-	documentationLink: String
+	"Deadline for installing the maintenance. If set, maintenance is mandatory and will be forcibly applied."
+	deadline: Time
 
 	"The time when the update will be automatically applied. If set, maintenance is mandatory and will be forcibly applied."
 	startAt: Time
+}
+
+type ValkeyMaintenance {
+	updates(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): ValkeyMaintenanceUpdateConnection!
+}
+
+type ValkeyMaintenanceUpdateConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+
+	"List of nodes."
+	nodes: [ValkeyMaintenanceUpdate!]!
+
+	"List of edges."
+	edges: [ValkeyMaintenanceUpdateEdge!]!
+}
+
+type ValkeyMaintenanceUpdateEdge {
+	"Cursor for this edge that can be used for pagination."
+	cursor: Cursor!
+
+	"The ValkeyMaintenanceUpdate."
+	node: ValkeyMaintenanceUpdate!
+}
+
+extend type ValkeyInstance {
+	"Fetch maintenances updates for the Valkey instance."
+	maintenance: ValkeyMaintenance!
+}
+
+type StartValkeyMaintenancePayload {
+	error: String
+}
+
+input StartValkeyMaintenanceInput {
+	serviceName: String!
+	teamSlug: Slug!
+	environmentName: String!
 }
