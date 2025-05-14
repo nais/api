@@ -38,7 +38,10 @@ func (r *mutationResolver) StartOpenSearchMaintenance(ctx context.Context, input
 }
 
 func (r *openSearchResolver) Maintenance(ctx context.Context, obj *opensearch.OpenSearch) (*servicemaintenance.OpenSearchMaintenance, error) {
-	return servicemaintenance.GetOpenSearchMaintenance(ctx, *obj)
+	return servicemaintenance.GetAivenMaintenance[servicemaintenance.OpenSearchMaintenance, servicemaintenance.OpenSearchMaintenanceUpdate](ctx, servicemaintenance.AivenDataLoaderKey{
+		Project:     obj.AivenProject,
+		ServiceName: obj.Name,
+	})
 }
 
 func (r *valkeyInstanceResolver) Maintenance(ctx context.Context, obj *valkey.ValkeyInstance) (*servicemaintenance.ValkeyMaintenance, error) {

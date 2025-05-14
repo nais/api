@@ -55,8 +55,8 @@ func StartOpenSearchMaintenance(ctx context.Context, input StartOpenSearchMainte
 
 func GetValkeyMaintenance(ctx context.Context, valkey valkey.ValkeyInstance) (*ValkeyMaintenance, error) {
 	key := AivenDataLoaderKey{
-		project:     valkey.AivenProject,
-		serviceName: valkey.Name,
+		Project:     valkey.AivenProject,
+		ServiceName: valkey.Name,
 	}
 
 	aivenMaintenance, err := fromContext(ctx).maintenanceLoader.Load(ctx, &key)
@@ -88,20 +88,15 @@ func GetValkeyMaintenance(ctx context.Context, valkey valkey.ValkeyInstance) (*V
 	}, nil
 }
 
-func GetOpenSearchMaintenance(ctx context.Context, instance opensearch.OpenSearch) (*OpenSearchMaintenance, error) {
-	key := AivenDataLoaderKey{
-		project:     instance.AivenProject,
-		serviceName: instance.Name,
-	}
-
+func GetAivenMaintenance[MaintenanceType any, UpdateType any](ctx context.Context, key AivenDataLoaderKey) (*AivenMaintenance[MaintenanceType, UpdateType], error) {
 	aivenMaintenance, err := fromContext(ctx).maintenanceLoader.Load(ctx, &key)
 	if err != nil {
 		return nil, err
 	}
 
-	updates := make([]*OpenSearchMaintenanceUpdate, len(aivenMaintenance.Updates))
+	updates := make([]*AivenUpdate[UpdateType], len(aivenMaintenance.Updates))
 	for i, update := range aivenMaintenance.Updates {
-		updates[i] = &OpenSearchMaintenanceUpdate{
+		updates[i] = &AivenUpdate[UpdateType]{
 			Title:       *update.Description,
 			Description: *update.Impact,
 			StartAt:     update.StartAt,
@@ -118,7 +113,7 @@ func GetOpenSearchMaintenance(ctx context.Context, instance opensearch.OpenSearc
 		}
 	}
 
-	return &OpenSearchMaintenance{
+	return &AivenMaintenance[MaintenanceType, UpdateType]{
 		Updates: pagination.NewConnection(updates, nil, len(aivenMaintenance.Updates)),
 	}, nil
 }
