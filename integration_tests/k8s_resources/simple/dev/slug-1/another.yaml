@@ -6,6 +6,9 @@ spec:
   image: navikt/app-name:latest
   ingresses:
     - "https://another-app.external.server.com"
+  replicas:
+    max: 1
+    min: 1
 
 ---
 apiVersion: apps/v1

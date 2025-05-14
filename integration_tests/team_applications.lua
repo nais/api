@@ -14,6 +14,24 @@ Test.gql("Team with multiple applications", function(t)
 				applications {
 					nodes {
 						name
+						resources {
+							scaling {
+								maxInstances
+								minInstances
+								strategies {
+									__typename
+									... on KafkaLagScalingStrategy {
+										consumerGroup
+										threshold
+										topicName
+									}
+									... on CPUScalingStrategy {
+										threshold
+									}
+								}
+							}
+
+						}
 					}
 					pageInfo {
 						totalCount
@@ -30,9 +48,28 @@ Test.gql("Team with multiple applications", function(t)
 					nodes = {
 						{
 							name = "another-app",
+							resources = {
+								scaling = {
+									maxInstances = 1,
+									minInstances = 1,
+									strategies = {},
+								},
+							},
 						},
 						{
 							name = "app-name",
+							resources = {
+								scaling = {
+									maxInstances = 4,
+									minInstances = 2,
+									strategies = {
+										{
+											__typename = "CPUScalingStrategy",
+											threshold = 50,
+										},
+									},
+								},
+							},
 						},
 					},
 					pageInfo = {
