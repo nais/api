@@ -23,12 +23,12 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type AivenDataLoaderKey struct {
-	project     string
-	serviceName string
+	Project     string
+	ServiceName string
 }
 
 type loaders struct {
-	maintenanceLoader  *dataloadgen.Loader[*AivenDataLoaderKey, *AivenMaintenance]
+	maintenanceLoader  *dataloadgen.Loader[*AivenDataLoaderKey, *AivenAPIMaintenance]
 	log                logrus.FieldLogger
 	maintenanceMutator *Manager
 }
@@ -47,19 +47,19 @@ type dataloader struct {
 	log                       logrus.FieldLogger
 }
 
-func (l dataloader) aivenMaintenanceList(ctx context.Context, aivenDataLoaderKeys []*AivenDataLoaderKey) ([]*AivenMaintenance, []error) {
+func (l dataloader) aivenMaintenanceList(ctx context.Context, aivenDataLoaderKeys []*AivenDataLoaderKey) ([]*AivenAPIMaintenance, []error) {
 	wg := pool.New().WithContext(ctx)
-	rets := make([]*AivenMaintenance, len(aivenDataLoaderKeys))
+	rets := make([]*AivenAPIMaintenance, len(aivenDataLoaderKeys))
 	errs := make([]error, len(aivenDataLoaderKeys))
 
 	for i, pair := range aivenDataLoaderKeys {
 		wg.Go(func(ctx context.Context) error {
-			res, err := l.serviceMaintenanceManager.aivenClient.ServiceGet(ctx, pair.project, pair.serviceName)
+			res, err := l.serviceMaintenanceManager.aivenClient.ServiceGet(ctx, pair.Project, pair.ServiceName)
 			if err != nil {
 				errs[i] = err
 			} else {
 				if res.Maintenance != nil && res.Maintenance.Updates != nil {
-					rets[i] = &AivenMaintenance{Updates: res.Maintenance.Updates}
+					rets[i] = &AivenAPIMaintenance{Updates: res.Maintenance.Updates}
 				}
 			}
 			return nil
