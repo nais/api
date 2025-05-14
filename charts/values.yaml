@@ -77,3 +77,6 @@ zitadel:
   idp_id:
   key:
   domain:
+
+aiven:
+  token:

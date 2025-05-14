@@ -1,0 +1,41 @@
+type RunAivenMaintenancePayload {
+	error: String
+}
+
+input RunValkeyMaintenanceInput {
+	project: String! # TODO: Remove
+	serviceName: String!
+	teamSlug: Slug!
+	environmentName: String!
+}
+
+extend type Mutation {
+	RunValkeyMaintenance(input: RunValkeyMaintenanceInput!): RunAivenMaintenancePayload
+}
+
+extend type ValkeyInstance {
+	"Fetch maintenances for the Valkey instance."
+	maintenance: ServiceMaintenance!
+	project: String!
+}
+
+type ServiceMaintenance {
+	updates: [ServiceMaintenanceUpdate]!
+}
+
+type ServiceMaintenanceUpdate {
+	"Deadline for installing the maintenance. If set, maintenance is mandatory and will be forcibly applied."
+	deadline: Time
+
+	"Title of the maintenance."
+	title: String!
+
+	"Description of the maintenance."
+	description: String!
+
+	"Documentation link."
+	documentationLink: String
+
+	"The time when the update will be automatically applied. If set, maintenance is mandatory and will be forcibly applied."
+	startAt: Time
+}
