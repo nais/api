@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/pubsub"
+	aiven "github.com/aiven/go-client-codegen"
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/database"
@@ -165,11 +166,17 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return err
 	}
 
-	maintenanceManager, err := servicemaintenance.NewManager(
-		ctx,
-		cfg.AivenToken,
-		log.WithField("subsystem", "maintenance"),
-	)
+	var aivenClient servicemaintenance.AivenClient
+	if cfg.Fakes.WithFakeAivenClient {
+		aivenClient = servicemaintenance.NewFakeAivenClient()
+	} else {
+		aivenClient, err = aiven.NewClient(aiven.TokenOpt(cfg.AivenToken), aiven.UserAgentOpt("nais-api"))
+		if err != nil {
+			return err
+		}
+	}
+
+	serviceMaintenanceManager, err := servicemaintenance.NewManager(ctx, aivenClient, log.WithField("subsystem", "maintenance"))
 	if err != nil {
 		return err
 	}
@@ -243,7 +250,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			mgmtWatcher,
 			authHandler,
 			graphHandler,
-			maintenanceManager,
+			serviceMaintenanceManager,
 			vulnMgr,
 			hookdClient,
 			cfg.Unleash.BifrostApiUrl,

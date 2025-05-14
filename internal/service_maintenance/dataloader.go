@@ -49,7 +49,7 @@ func (l dataloader) maintenanceList(ctx context.Context, aivenDataLoaderKeys []*
 
 	for i, pair := range aivenDataLoaderKeys {
 		wg.Go(func(ctx context.Context) error {
-			res, err := l.serviceMaintenanceManager.client.ServiceGet(ctx, pair.project, pair.serviceName)
+			res, err := l.serviceMaintenanceManager.aivenClient.ServiceGet(ctx, pair.project, pair.serviceName)
 			if err != nil {
 				errs[i] = err
 			} else {

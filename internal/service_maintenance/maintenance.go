@@ -3,46 +3,28 @@ package servicemaintenance
 import (
 	"context"
 
-	aiven "github.com/aiven/go-client-codegen"
 	aivenservice "github.com/aiven/go-client-codegen/handler/service"
 	"github.com/nais/api/internal/service_maintenance/fake"
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	fakeAivenToken = "fake-aiven-token"
-)
-
-type Client interface {
+type AivenClient interface {
 	ServiceGet(context.Context, string, string, ...[2]string) (*aivenservice.ServiceGetOut, error)
 	ServiceMaintenanceStart(context.Context, string, string) error
 }
 
 type Manager struct {
-	client Client
-	log    *logrus.Entry
+	aivenClient AivenClient
+	log         *logrus.Entry
 }
 
-func NewManager(ctx context.Context, token string, log *logrus.Entry) (*Manager, error) {
-	if token == fakeAivenToken {
-		return NewFakeManager(ctx, log)
-	}
-
-	client, err := aiven.NewClient(aiven.TokenOpt(token), aiven.UserAgentOpt("nais-api"))
-	if err != nil {
-		return nil, err
-	}
-
+func NewManager(_ context.Context, client AivenClient, log *logrus.Entry) (*Manager, error) {
 	return &Manager{
-		client: client,
-
-		log: log,
+		aivenClient: client,
+		log:         log,
 	}, nil
 }
 
-func NewFakeManager(_ context.Context, log *logrus.Entry) (*Manager, error) {
-	return &Manager{
-		client: fake.NewFakeAivenClient(),
-		log:    log,
-	}, nil
+func NewFakeAivenClient() AivenClient {
+	return fake.NewFakeAivenClient()
 }

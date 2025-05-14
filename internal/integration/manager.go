@@ -22,7 +22,7 @@ import (
 	apiRunner "github.com/nais/api/internal/integration/runner"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
-	"github.com/nais/api/internal/service_maintenance"
+	servicemaintenance "github.com/nais/api/internal/service_maintenance"
 	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/user"
@@ -152,7 +152,7 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 		return nil, nil, fmt.Errorf("failed to create management watcher manager: %w", err)
 	}
 
-	mMgr, err := servicemaintenance.NewFakeManager(ctx, log.WithField("subsystem", "vulnerability"))
+	smMgr, err := servicemaintenance.NewManager(ctx, servicemaintenance.NewFakeAivenClient(), log.WithField("subsystem", "service_maintenance"))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -170,6 +170,7 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 		ctx,
 		api.Fakes{
 			WithFakeKubernetes:     true,
+			WithFakeAivenClient:    true,
 			WithFakeHookd:          true,
 			WithInsecureUserHeader: true,
 			WithFakeCloudSQL:       true,
@@ -181,7 +182,7 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 		managementWatcherMgr,
 		pool,
 		clusterConfig,
-		mMgr,
+		smMgr,
 		vMgr,
 		config.TenantName,
 		clusters(),
