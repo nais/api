@@ -74,7 +74,7 @@ func runHttpServer(
 	mgmtWatcherMgr *watcher.Manager,
 	authHandler authn.Handler,
 	graphHandler *handler.Server,
-	maintenanceManager *servicemaintenance.Manager,
+	serviceMaintenanceManager *servicemaintenance.Manager,
 	vulnMgr *vulnerability.Manager,
 	hookdClient hookd.Client,
 	bifrostAPIURL string,
@@ -94,7 +94,7 @@ func runHttpServer(
 		mgmtWatcherMgr,
 		pool,
 		k8sClients,
-		maintenanceManager,
+		serviceMaintenanceManager,
 		vulnMgr,
 		tenantName,
 		clusters,
@@ -184,7 +184,7 @@ func ConfigureGraph(
 	mgmtWatcherMgr *watcher.Manager,
 	pool *pgxpool.Pool,
 	k8sClients apik8s.ClusterConfigMap,
-	maintenananceManager *servicemaintenance.Manager,
+	serviceMaintenanceManager *servicemaintenance.Manager,
 	vulnMgr *vulnerability.Manager,
 	tenantName string,
 	clusters []string,
@@ -305,7 +305,7 @@ func ConfigureGraph(
 		ctx = authz.NewLoaderContext(ctx, pool)
 		ctx = activitylog.NewLoaderContext(ctx, pool)
 		ctx = vulnerability.NewLoaderContext(ctx, vulnMgr, prometheusClient, log)
-		ctx = servicemaintenance.NewLoaderContext(ctx, maintenananceManager, log)
+		ctx = servicemaintenance.NewLoaderContext(ctx, serviceMaintenanceManager, log)
 		ctx = reconciler.NewLoaderContext(ctx, pool)
 		ctx = deployment.NewLoaderContext(ctx, pool, hookdClient)
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)

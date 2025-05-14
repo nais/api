@@ -9,7 +9,7 @@ import (
 )
 
 func RunServiceMaintenance(ctx context.Context, service RunValkeyMaintenanceInput) error {
-	err := ctx.Value(loadersKey).(*loaders).maintenanceMutator.client.ServiceMaintenanceStart(ctx, service.Project, service.ServiceName)
+	err := ctx.Value(loadersKey).(*loaders).maintenanceMutator.aivenClient.ServiceMaintenanceStart(ctx, service.Project, service.ServiceName)
 	if err != nil {
 		return nil
 	}
