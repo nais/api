@@ -8,24 +8,20 @@ import (
 	servicemaintenance "github.com/nais/api/internal/service_maintenance"
 )
 
-func (r *mutationResolver) RunValkeyMaintenance(ctx context.Context, input servicemaintenance.RunValkeyMaintenanceInput) (*servicemaintenance.RunAivenMaintenancePayload, error) {
+func (r *mutationResolver) StartValkeyMaintenance(ctx context.Context, input servicemaintenance.StartValkeyMaintenanceInput) (*servicemaintenance.StartValkeyMaintenancePayload, error) {
 	if err := authz.CanStartServiceMaintenance(ctx, input.TeamSlug); err != nil {
 		return nil, err
 	}
-	err := servicemaintenance.RunServiceMaintenance(ctx, input)
-	if err != nil {
+
+	if err := servicemaintenance.StartValkeyMaintenance(ctx, input); err != nil {
 		return nil, err
 	}
 
-	return &servicemaintenance.RunAivenMaintenancePayload{
+	return &servicemaintenance.StartValkeyMaintenancePayload{
 		Error: new(string),
 	}, nil
 }
 
-func (r *valkeyInstanceResolver) Maintenance(ctx context.Context, obj *valkey.ValkeyInstance) (*servicemaintenance.ServiceMaintenance, error) {
-	return servicemaintenance.GetServiceMaintenances(ctx, *obj)
-}
-
-func (r *valkeyInstanceResolver) Project(ctx context.Context, obj *valkey.ValkeyInstance) (string, error) {
-	return obj.AivenProject, nil
+func (r *valkeyInstanceResolver) Maintenance(ctx context.Context, obj *valkey.ValkeyInstance) (*servicemaintenance.ValkeyMaintenance, error) {
+	return servicemaintenance.GetValkeyMaintenance(ctx, *obj)
 }

@@ -9,44 +9,42 @@ Test.gql("Show maintenance updates for Valkey", function(t)
 {
   team(slug: "%s") {
     valkeyInstances {
-      edges {
-        node {
-       	name
-        project
+      nodes {
+        name
         maintenance {
-            updates {
-              description
-              documentationLink
-              startAt
+          updates {
+            nodes {
+              title
               deadline
+              description
+              startAt
             }
           }
         }
       }
     }
   }
-}	]], team:slug()))
+}]], team:slug()))
 
 	t.check {
 		data = {
 			team = {
 				valkeyInstances = {
-					edges = {
+					nodes = {
 						{
-							node = {
-								name = "valkey-slug-1-contests",
-								project = "nav-dev",
-								maintenance = {
-									updates = {
+							name = "valkey-slug-1-contests",
+							maintenance = {
+								updates = {
+									nodes = {
 										{
+											title = "This is a description (Nais API call it title)",
 											description = "This is the impact (Nais API call it description)",
-											documentationLink = "https://nais.io",
 											startAt = Null,
 											deadline = Null,
 										},
 										{
+											title = "This is a description (Nais API call it title)",
 											description = "This is the impact (Nais API call it description)",
-											documentationLink = Null,
 											startAt = "1987-07-09T00:00:00Z",
 											deadline = "1987-07-10T00:00:00Z",
 										},
