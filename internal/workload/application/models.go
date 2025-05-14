@@ -253,10 +253,14 @@ func (a *Application) Resources() *ApplicationResources {
 	if replicas := a.Spec.Replicas; replicas != nil {
 		if replicas.Min != nil {
 			ret.Scaling.MinInstances = *replicas.Min
+		} else {
+			ret.Scaling.MinInstances = 2
 		}
 
 		if replicas.Max != nil {
 			ret.Scaling.MaxInstances = *replicas.Max
+		} else {
+			ret.Scaling.MaxInstances = 4
 		}
 
 		strategy := replicas.ScalingStrategy
@@ -273,6 +277,18 @@ func (a *Application) Resources() *ApplicationResources {
 				TopicName:     strategy.Kafka.Topic,
 			})
 		}
+
+		if len(ret.Scaling.Strategies) == 0 && ret.Scaling.MinInstances != ret.Scaling.MaxInstances {
+			ret.Scaling.Strategies = append(ret.Scaling.Strategies, CPUScalingStrategy{
+				Threshold: 50,
+			})
+		}
+	} else {
+		ret.Scaling.MinInstances = 2
+		ret.Scaling.MaxInstances = 4
+		ret.Scaling.Strategies = append(ret.Scaling.Strategies, CPUScalingStrategy{
+			Threshold: 50,
+		})
 	}
 
 	return ret
