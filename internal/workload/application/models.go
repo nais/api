@@ -260,7 +260,7 @@ func (a *Application) Resources() *ApplicationResources {
 		if replicas.Max != nil {
 			ret.Scaling.MaxInstances = *replicas.Max
 		} else {
-			ret.Scaling.MaxInstances = 4 
+			ret.Scaling.MaxInstances = 4
 		}
 
 		strategy := replicas.ScalingStrategy
@@ -268,7 +268,7 @@ func (a *Application) Resources() *ApplicationResources {
 			ret.Scaling.Strategies = append(ret.Scaling.Strategies, CPUScalingStrategy{
 				Threshold: strategy.Cpu.ThresholdPercentage,
 			})
-		} 
+		}
 
 		if strategy != nil && strategy.Kafka != nil && strategy.Kafka.Threshold > 0 {
 			ret.Scaling.Strategies = append(ret.Scaling.Strategies, KafkaLagScalingStrategy{
@@ -281,7 +281,7 @@ func (a *Application) Resources() *ApplicationResources {
 		if len(ret.Scaling.Strategies) == 0 && ret.Scaling.MinInstances != ret.Scaling.MaxInstances {
 			ret.Scaling.Strategies = append(ret.Scaling.Strategies, CPUScalingStrategy{
 				Threshold: 50,
-			})	
+			})
 		}
 	}
 
