@@ -176,6 +176,7 @@ type Config struct {
 	Logging            loggingConfig
 	Zitadel            zitadelConfig
 	Fakes              Fakes
+	JWT                JWTConfig
 }
 
 type Fakes struct {
@@ -196,6 +197,11 @@ func (f Fakes) Inform(log logrus.FieldLogger) {
 			log.Warnf("%s is true", field.Name)
 		}
 	}
+}
+
+type JWTConfig struct {
+	Issuer   string `env:"JWT_ISSUER,default=https://auth.nais.io"`
+	Audience string `env:"JWT_AUDIENCE,default=320114319427740585"`
 }
 
 // NewConfig creates a new configuration instance from environment variables
