@@ -21,7 +21,7 @@ import (
 )
 
 func TestJWTAuthorized(t *testing.T) {
-	now := time.Date(2025, 05, 15, 13, 48, 42, 0, time.UTC)
+	now := time.Date(2025, 5, 15, 13, 48, 42, 0, time.UTC)
 
 	tests := map[string]struct {
 		inputAudience string
