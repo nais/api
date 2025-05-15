@@ -13,3 +13,4 @@ node_modules
 hack/coverprofile.txt
 .eslintcache
 data/k8s/dev/tbd/
+data/k8s/dev/dolly/
