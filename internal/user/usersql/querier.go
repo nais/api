@@ -10,6 +10,7 @@ import (
 
 type Querier interface {
 	GetByEmail(ctx context.Context, email string) (*User, error)
+	GetByExternalID(ctx context.Context, externalID string) (*User, error)
 	GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error)
 	List(ctx context.Context, arg ListParams) ([]*ListRow, error)
 	ListGCPGroupsForUser(ctx context.Context, userID uuid.UUID) ([]string, error)

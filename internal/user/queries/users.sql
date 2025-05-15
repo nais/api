@@ -56,3 +56,12 @@ WHERE
 	user_roles.user_id = @user_id
 	AND teams.google_group_email IS NOT NULL
 ;
+
+-- name: GetByExternalID :one
+SELECT
+	*
+FROM
+	users
+WHERE
+	external_id = @external_id
+;

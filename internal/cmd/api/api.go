@@ -12,6 +12,7 @@ import (
 	"cloud.google.com/go/pubsub"
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/auth/authn"
+	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/notify"
 	"github.com/nais/api/internal/deployment"
@@ -219,6 +220,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		go eventWatcher.Run(ctx)
 	}
 
+	jwtMiddleware, err := middleware.JWTAuthentication(ctx, cfg.JWT.Issuer, cfg.JWT.Audience, log.WithField("subsystem", "jwt"))
+	if err != nil {
+		return fmt.Errorf("failed to create JWT authentication middleware: %w", err)
+	}
+
 	// HTTP server
 	wg.Go(func() error {
 		return runHttpServer(
@@ -231,6 +237,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			clusterConfig,
 			watcherMgr,
 			mgmtWatcher,
+			jwtMiddleware,
 			authHandler,
 			graphHandler,
 			vulnMgr,

@@ -71,6 +71,7 @@ func runHttpServer(
 	k8sClients apik8s.ClusterConfigMap,
 	watcherMgr *watcher.Manager,
 	mgmtWatcherMgr *watcher.Manager,
+	jwtMiddleware func(http.Handler) http.Handler,
 	authHandler authn.Handler,
 	graphHandler *handler.Server,
 	vulnMgr *vulnerability.Manager,
@@ -119,6 +120,10 @@ func runHttpServer(
 
 		if fakes.WithInsecureUserHeader {
 			middlewares = append(middlewares, middleware.InsecureUserHeader())
+		}
+
+		if jwtMiddleware != nil {
+			middlewares = append(middlewares, jwtMiddleware)
 		}
 
 		middlewares = append(

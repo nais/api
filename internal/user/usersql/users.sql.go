@@ -31,6 +31,28 @@ func (q *Queries) GetByEmail(ctx context.Context, email string) (*User, error) {
 	return &i, err
 }
 
+const getByExternalID = `-- name: GetByExternalID :one
+SELECT
+	id, email, name, external_id, admin
+FROM
+	users
+WHERE
+	external_id = $1
+`
+
+func (q *Queries) GetByExternalID(ctx context.Context, externalID string) (*User, error) {
+	row := q.db.QueryRow(ctx, getByExternalID, externalID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Name,
+		&i.ExternalID,
+		&i.Admin,
+	)
+	return &i, err
+}
+
 const getByIDs = `-- name: GetByIDs :many
 SELECT
 	id, email, name, external_id, admin

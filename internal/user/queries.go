@@ -57,3 +57,11 @@ func GetByEmail(ctx context.Context, email string) (*User, error) {
 func ListGCPGroupsForUser(ctx context.Context, userID uuid.UUID) ([]string, error) {
 	return db(ctx).ListGCPGroupsForUser(ctx, userID)
 }
+
+func GetByExternalID(ctx context.Context, externalID string) (*User, error) {
+	u, err := db(ctx).GetByExternalID(ctx, externalID)
+	if err != nil {
+		return nil, handleError(err)
+	}
+	return toGraphUser(u), nil
+}
