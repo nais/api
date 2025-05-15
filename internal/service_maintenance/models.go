@@ -4,6 +4,7 @@ import (
 	"time"
 
 	aiven_service "github.com/aiven/go-client-codegen/handler/service"
+	"github.com/nais/api/internal/graph/pagination"
 )
 
 type ServiceMaintenanceUpdate interface {
@@ -15,7 +16,7 @@ type AivenAPIMaintenance struct {
 }
 
 type AivenMaintenance[T any, E any] struct {
-	Updates []AivenUpdate[E]
+	Updates *pagination.Connection[*AivenUpdate[E]]
 }
 
 type AivenUpdate[T any] struct {
