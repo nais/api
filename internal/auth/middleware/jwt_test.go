@@ -86,6 +86,9 @@ func TestJWTAuthorized(t *testing.T) {
 			cache, err := jwk.NewCache(t.Context(), httprc.NewClient(
 				httprc.WithHTTPClient(mockJWKSetClient(jwkSet)),
 			))
+			if err != nil {
+				t.Fatal(err)
+			}
 			cache.Register(t.Context(), test.expectedIssuer)
 
 			mw := jwtAuth{
