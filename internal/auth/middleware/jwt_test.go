@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"bytes"
-	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -84,10 +83,10 @@ func TestJWTAuthorized(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			cache, err := jwk.NewCache(context.Background(), httprc.NewClient(
+			cache, err := jwk.NewCache(t.Context(), httprc.NewClient(
 				httprc.WithHTTPClient(mockJWKSetClient(jwkSet)),
 			))
-			cache.Register(context.Background(), test.expectedIssuer)
+			cache.Register(t.Context(), test.expectedIssuer)
 
 			mw := jwtAuth{
 				issuer:    test.expectedIssuer,
@@ -108,7 +107,7 @@ func TestJWTAuthorized(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			_, err = mw.validate(context.Background(), tok)
+			_, err = mw.validate(t.Context(), tok)
 			if err != nil {
 				if !errors.Is(err, test.expectedError) {
 					t.Fatal(err)
