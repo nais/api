@@ -26,6 +26,13 @@ type jwtAuth struct {
 	jwksURL   string
 	jwksCache *jwk.Cache
 	log       logrus.FieldLogger
+	now       clock
+}
+
+type clock func() time.Time
+
+func (c clock) Now() time.Time {
+	return c()
 }
 
 func (j *jwtAuth) validate(ctx context.Context, token string) (jwt.Token, error) {
@@ -37,6 +44,7 @@ func (j *jwtAuth) validate(ctx context.Context, token string) (jwt.Token, error)
 	parseOpts := []jwt.ParseOption{
 		jwt.WithKeySet(jwks),
 		jwt.WithAcceptableSkew(acceptableClockSkew),
+		jwt.WithClock(j.now),
 		// No need to add issuer and audience during parsing, as they are
 		// validated in the Validate method
 	}
@@ -56,6 +64,7 @@ func (j *jwtAuth) validate(ctx context.Context, token string) (jwt.Token, error)
 		jwt.WithAcceptableSkew(acceptableClockSkew),
 		jwt.WithIssuer(j.issuer),
 		jwt.WithAudience(j.audience),
+		jwt.WithClock(j.now),
 	)
 }
 
@@ -124,6 +133,7 @@ func JWTAuthentication(ctx context.Context, issuer, audience string, log logrus.
 		issuer:    issuer,
 		audience:  audience,
 		log:       log,
+		now:       time.Now,
 	}
 
 	return auth.handler, nil
