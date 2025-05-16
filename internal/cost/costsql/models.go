@@ -13,3 +13,10 @@ type CostMonthlyTeam struct {
 	LastRecordedDate pgtype.Date
 	DailyCost        float32
 }
+
+type CostMonthlyTenant struct {
+	Service          string
+	Month            pgtype.Date
+	LastRecordedDate pgtype.Date
+	DailyCost        float32
+}

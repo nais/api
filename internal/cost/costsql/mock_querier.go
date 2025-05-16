@@ -596,6 +596,64 @@ func (_c *MockQuerier_MonthlyCostForTeam_Call) RunAndReturn(run func(context.Con
 	return _c
 }
 
+// MonthlyCostForTenant provides a mock function with given fields: ctx
+func (_m *MockQuerier) MonthlyCostForTenant(ctx context.Context) ([]*CostMonthlyTenant, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MonthlyCostForTenant")
+	}
+
+	var r0 []*CostMonthlyTenant
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) ([]*CostMonthlyTenant, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) []*CostMonthlyTenant); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*CostMonthlyTenant)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_MonthlyCostForTenant_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'MonthlyCostForTenant'
+type MockQuerier_MonthlyCostForTenant_Call struct {
+	*mock.Call
+}
+
+// MonthlyCostForTenant is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockQuerier_Expecter) MonthlyCostForTenant(ctx interface{}) *MockQuerier_MonthlyCostForTenant_Call {
+	return &MockQuerier_MonthlyCostForTenant_Call{Call: _e.mock.On("MonthlyCostForTenant", ctx)}
+}
+
+func (_c *MockQuerier_MonthlyCostForTenant_Call) Run(run func(ctx context.Context)) *MockQuerier_MonthlyCostForTenant_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_MonthlyCostForTenant_Call) Return(_a0 []*CostMonthlyTenant, _a1 error) *MockQuerier_MonthlyCostForTenant_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_MonthlyCostForTenant_Call) RunAndReturn(run func(context.Context) ([]*CostMonthlyTenant, error)) *MockQuerier_MonthlyCostForTenant_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // MonthlyCostForWorkload provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) MonthlyCostForWorkload(ctx context.Context, arg MonthlyCostForWorkloadParams) ([]*MonthlyCostForWorkloadRow, error) {
 	ret := _m.Called(ctx, arg)

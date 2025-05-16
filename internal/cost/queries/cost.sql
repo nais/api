@@ -59,6 +59,17 @@ LIMIT
 	12
 ;
 
+-- name: MonthlyCostForTenant :many
+SELECT
+	*
+FROM
+	cost_monthly_tenant
+WHERE
+	MONTH >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '1 year'
+ORDER BY
+	MONTH DESC
+;
+
 -- name: CostUpsert :batchexec
 INSERT INTO
 	cost (
