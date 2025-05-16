@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -220,9 +221,12 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		go eventWatcher.Run(ctx)
 	}
 
-	jwtMiddleware, err := middleware.JWTAuthentication(ctx, cfg.JWT.Issuer, cfg.JWT.Audience, cfg.Zitadel.OrganizationID, log.WithField("subsystem", "jwt"))
-	if err != nil {
-		return fmt.Errorf("failed to create JWT authentication middleware: %w", err)
+	var jwtMiddleware func(next http.Handler) http.Handler
+	if !cfg.JWT.SkipMiddleware {
+		jwtMiddleware, err = middleware.JWTAuthentication(ctx, cfg.JWT.Issuer, cfg.JWT.Audience, cfg.Zitadel.OrganizationID, log.WithField("subsystem", "jwt"))
+		if err != nil {
+			return fmt.Errorf("failed to create JWT authentication middleware: %w", err)
+		}
 	}
 
 	// HTTP server
