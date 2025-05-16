@@ -168,31 +168,32 @@ type ComplexityRoot struct {
 	}
 
 	Application struct {
-		AuthIntegrations  func(childComplexity int) int
-		BigQueryDatasets  func(childComplexity int, orderBy *bigquery.BigQueryDatasetOrder) int
-		Buckets           func(childComplexity int, orderBy *bucket.BucketOrder) int
-		Cost              func(childComplexity int) int
-		DeletionStartedAt func(childComplexity int) int
-		Deployments       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Environment       func(childComplexity int) int
-		ID                func(childComplexity int) int
-		Image             func(childComplexity int) int
-		Ingresses         func(childComplexity int) int
-		Instances         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		KafkaTopicAcls    func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
-		LogDestinations   func(childComplexity int) int
-		Manifest          func(childComplexity int) int
-		Name              func(childComplexity int) int
-		NetworkPolicy     func(childComplexity int) int
-		OpenSearch        func(childComplexity int) int
-		Resources         func(childComplexity int) int
-		SQLInstances      func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
-		Secrets           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Status            func(childComplexity int) int
-		Team              func(childComplexity int) int
-		TeamEnvironment   func(childComplexity int) int
-		Utilization       func(childComplexity int) int
-		ValkeyInstances   func(childComplexity int, orderBy *valkey.ValkeyInstanceOrder) int
+		AuthIntegrations     func(childComplexity int) int
+		BigQueryDatasets     func(childComplexity int, orderBy *bigquery.BigQueryDatasetOrder) int
+		Buckets              func(childComplexity int, orderBy *bucket.BucketOrder) int
+		Cost                 func(childComplexity int) int
+		DeletionStartedAt    func(childComplexity int) int
+		Deployments          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Environment          func(childComplexity int) int
+		ID                   func(childComplexity int) int
+		Image                func(childComplexity int) int
+		Ingresses            func(childComplexity int) int
+		Instances            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		KafkaTopicAcls       func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
+		LogDestinations      func(childComplexity int) int
+		Manifest             func(childComplexity int) int
+		Name                 func(childComplexity int) int
+		NetworkPolicy        func(childComplexity int) int
+		OpenSearch           func(childComplexity int) int
+		Resources            func(childComplexity int) int
+		SQLInstances         func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
+		Secrets              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Status               func(childComplexity int) int
+		Team                 func(childComplexity int) int
+		TeamEnvironment      func(childComplexity int) int
+		Utilization          func(childComplexity int) int
+		ValkeyInstances      func(childComplexity int, orderBy *valkey.ValkeyInstanceOrder) int
+		VulnerabilityHistory func(childComplexity int) int
 	}
 
 	ApplicationConnection struct {
@@ -624,6 +625,11 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	ImageVulnerabilityHistory struct {
+		Date    func(childComplexity int) int
+		Summary func(childComplexity int) int
+	}
+
 	ImageVulnerabilitySummary struct {
 		Critical   func(childComplexity int) int
 		High       func(childComplexity int) int
@@ -644,30 +650,31 @@ type ComplexityRoot struct {
 	}
 
 	Job struct {
-		AuthIntegrations  func(childComplexity int) int
-		BigQueryDatasets  func(childComplexity int, orderBy *bigquery.BigQueryDatasetOrder) int
-		Buckets           func(childComplexity int, orderBy *bucket.BucketOrder) int
-		Cost              func(childComplexity int) int
-		DeletionStartedAt func(childComplexity int) int
-		Deployments       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Environment       func(childComplexity int) int
-		ID                func(childComplexity int) int
-		Image             func(childComplexity int) int
-		KafkaTopicAcls    func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
-		LogDestinations   func(childComplexity int) int
-		Manifest          func(childComplexity int) int
-		Name              func(childComplexity int) int
-		NetworkPolicy     func(childComplexity int) int
-		OpenSearch        func(childComplexity int) int
-		Resources         func(childComplexity int) int
-		Runs              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		SQLInstances      func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
-		Schedule          func(childComplexity int) int
-		Secrets           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Status            func(childComplexity int) int
-		Team              func(childComplexity int) int
-		TeamEnvironment   func(childComplexity int) int
-		ValkeyInstances   func(childComplexity int, orderBy *valkey.ValkeyInstanceOrder) int
+		AuthIntegrations     func(childComplexity int) int
+		BigQueryDatasets     func(childComplexity int, orderBy *bigquery.BigQueryDatasetOrder) int
+		Buckets              func(childComplexity int, orderBy *bucket.BucketOrder) int
+		Cost                 func(childComplexity int) int
+		DeletionStartedAt    func(childComplexity int) int
+		Deployments          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Environment          func(childComplexity int) int
+		ID                   func(childComplexity int) int
+		Image                func(childComplexity int) int
+		KafkaTopicAcls       func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
+		LogDestinations      func(childComplexity int) int
+		Manifest             func(childComplexity int) int
+		Name                 func(childComplexity int) int
+		NetworkPolicy        func(childComplexity int) int
+		OpenSearch           func(childComplexity int) int
+		Resources            func(childComplexity int) int
+		Runs                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		SQLInstances         func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
+		Schedule             func(childComplexity int) int
+		Secrets              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Status               func(childComplexity int) int
+		Team                 func(childComplexity int) int
+		TeamEnvironment      func(childComplexity int) int
+		ValkeyInstances      func(childComplexity int, orderBy *valkey.ValkeyInstanceOrder) int
+		VulnerabilityHistory func(childComplexity int) int
 	}
 
 	JobConnection struct {
@@ -2355,6 +2362,7 @@ type ApplicationResolver interface {
 	Status(ctx context.Context, obj *application.Application) (*status.WorkloadStatus, error)
 	Utilization(ctx context.Context, obj *application.Application) (*utilization.WorkloadUtilization, error)
 	ValkeyInstances(ctx context.Context, obj *application.Application, orderBy *valkey.ValkeyInstanceOrder) (*pagination.Connection[*valkey.ValkeyInstance], error)
+	VulnerabilityHistory(ctx context.Context, obj *application.Application) ([]*vulnerability.ImageVulnerabilityHistory, error)
 }
 type ApplicationInstanceResolver interface {
 	InstanceUtilization(ctx context.Context, obj *application.ApplicationInstance, resourceType utilization.UtilizationResourceType) (*utilization.ApplicationInstanceUtilization, error)
@@ -2430,6 +2438,7 @@ type JobResolver interface {
 	SQLInstances(ctx context.Context, obj *job.Job, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
 	Status(ctx context.Context, obj *job.Job) (*status.WorkloadStatus, error)
 	ValkeyInstances(ctx context.Context, obj *job.Job, orderBy *valkey.ValkeyInstanceOrder) (*pagination.Connection[*valkey.ValkeyInstance], error)
+	VulnerabilityHistory(ctx context.Context, obj *job.Job) ([]*vulnerability.ImageVulnerabilityHistory, error)
 }
 type JobRunResolver interface {
 	Duration(ctx context.Context, obj *job.JobRun) (int, error)
@@ -3028,6 +3037,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Application.ValkeyInstances(childComplexity, args["orderBy"].(*valkey.ValkeyInstanceOrder)), true
+
+	case "Application.vulnerabilityHistory":
+		if e.complexity.Application.VulnerabilityHistory == nil {
+			break
+		}
+
+		return e.complexity.Application.VulnerabilityHistory(childComplexity), true
 
 	case "ApplicationConnection.edges":
 		if e.complexity.ApplicationConnection.Edges == nil {
@@ -4539,6 +4555,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ImageVulnerabilityEdge.Node(childComplexity), true
 
+	case "ImageVulnerabilityHistory.date":
+		if e.complexity.ImageVulnerabilityHistory.Date == nil {
+			break
+		}
+
+		return e.complexity.ImageVulnerabilityHistory.Date(childComplexity), true
+
+	case "ImageVulnerabilityHistory.summary":
+		if e.complexity.ImageVulnerabilityHistory.Summary == nil {
+			break
+		}
+
+		return e.complexity.ImageVulnerabilityHistory.Summary(childComplexity), true
+
 	case "ImageVulnerabilitySummary.critical":
 		if e.complexity.ImageVulnerabilitySummary.Critical == nil {
 			break
@@ -4816,6 +4846,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Job.ValkeyInstances(childComplexity, args["orderBy"].(*valkey.ValkeyInstanceOrder)), true
+
+	case "Job.vulnerabilityHistory":
+		if e.complexity.Job.VulnerabilityHistory == nil {
+			break
+		}
+
+		return e.complexity.Job.VulnerabilityHistory(childComplexity), true
 
 	case "JobConnection.edges":
 		if e.complexity.JobConnection.Edges == nil {
@@ -18924,6 +18961,21 @@ extend enum SearchType {
 	updateImageVulnerability(input: UpdateImageVulnerabilityInput!): UpdateImageVulnerabilityPayload!
 }
 
+extend interface Workload {
+	"Get the vulnerability history for workload."
+	vulnerabilityHistory: [ImageVulnerabilityHistory!]!
+}
+
+extend type Application {
+	"Get the vulnerability history for application."
+	vulnerabilityHistory: [ImageVulnerabilityHistory!]!
+}
+
+extend type Job {
+	"Get the vulnerability history for job."
+	vulnerabilityHistory: [ImageVulnerabilityHistory!]!
+}
+
 extend type ContainerImage {
 	"Whether the image has a software bill of materials (SBOM) attached to it."
 	hasSBOM: Boolean!
@@ -19056,6 +19108,14 @@ type ImageVulnerabilityConnection {
 
 	"List of nodes."
 	nodes: [ImageVulnerability!]!
+}
+
+type ImageVulnerabilityHistory {
+	"The historic image vulnerability summary"
+	summary: ImageVulnerabilitySummary!
+
+	"Timestamp of the vulnerability summary."
+	date: Time!
 }
 
 type ContainerImageWorkloadReferenceConnection {
@@ -29692,6 +29752,56 @@ func (ec *executionContext) fieldContext_Application_valkeyInstances(ctx context
 	return fc, nil
 }
 
+func (ec *executionContext) _Application_vulnerabilityHistory(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Application_vulnerabilityHistory(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Application().VulnerabilityHistory(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*vulnerability.ImageVulnerabilityHistory)
+	fc.Result = res
+	return ec.marshalNImageVulnerabilityHistory2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistoryᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Application_vulnerabilityHistory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Application",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "summary":
+				return ec.fieldContext_ImageVulnerabilityHistory_summary(ctx, field)
+			case "date":
+				return ec.fieldContext_ImageVulnerabilityHistory_date(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityHistory", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ApplicationConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*application.Application]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ApplicationConnection_pageInfo(ctx, field)
 	if err != nil {
@@ -29841,6 +29951,8 @@ func (ec *executionContext) fieldContext_ApplicationConnection_nodes(_ context.C
 				return ec.fieldContext_Application_utilization(ctx, field)
 			case "valkeyInstances":
 				return ec.fieldContext_Application_valkeyInstances(ctx, field)
+			case "vulnerabilityHistory":
+				return ec.fieldContext_Application_vulnerabilityHistory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
 		},
@@ -30380,6 +30492,8 @@ func (ec *executionContext) fieldContext_ApplicationEdge_node(_ context.Context,
 				return ec.fieldContext_Application_utilization(ctx, field)
 			case "valkeyInstances":
 				return ec.fieldContext_Application_valkeyInstances(ctx, field)
+			case "vulnerabilityHistory":
+				return ec.fieldContext_Application_vulnerabilityHistory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
 		},
@@ -40426,6 +40540,110 @@ func (ec *executionContext) fieldContext_ImageVulnerabilityEdge_node(_ context.C
 	return fc, nil
 }
 
+func (ec *executionContext) _ImageVulnerabilityHistory_summary(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ImageVulnerabilityHistory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageVulnerabilityHistory_summary(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Summary, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*vulnerability.ImageVulnerabilitySummary)
+	fc.Result = res
+	return ec.marshalNImageVulnerabilitySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilitySummary(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImageVulnerabilityHistory_summary(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImageVulnerabilityHistory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_ImageVulnerabilitySummary_total(ctx, field)
+			case "riskScore":
+				return ec.fieldContext_ImageVulnerabilitySummary_riskScore(ctx, field)
+			case "low":
+				return ec.fieldContext_ImageVulnerabilitySummary_low(ctx, field)
+			case "medium":
+				return ec.fieldContext_ImageVulnerabilitySummary_medium(ctx, field)
+			case "high":
+				return ec.fieldContext_ImageVulnerabilitySummary_high(ctx, field)
+			case "critical":
+				return ec.fieldContext_ImageVulnerabilitySummary_critical(ctx, field)
+			case "unassigned":
+				return ec.fieldContext_ImageVulnerabilitySummary_unassigned(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilitySummary", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImageVulnerabilityHistory_date(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ImageVulnerabilityHistory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageVulnerabilityHistory_date(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Date, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImageVulnerabilityHistory_date(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImageVulnerabilityHistory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ImageVulnerabilitySummary_total(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ImageVulnerabilitySummary) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ImageVulnerabilitySummary_total(ctx, field)
 	if err != nil {
@@ -42293,6 +42511,56 @@ func (ec *executionContext) fieldContext_Job_valkeyInstances(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Job_vulnerabilityHistory(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Job_vulnerabilityHistory(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Job().VulnerabilityHistory(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*vulnerability.ImageVulnerabilityHistory)
+	fc.Result = res
+	return ec.marshalNImageVulnerabilityHistory2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistoryᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Job_vulnerabilityHistory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "summary":
+				return ec.fieldContext_ImageVulnerabilityHistory_summary(ctx, field)
+			case "date":
+				return ec.fieldContext_ImageVulnerabilityHistory_date(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityHistory", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _JobConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*job.Job]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_JobConnection_pageInfo(ctx, field)
 	if err != nil {
@@ -42440,6 +42708,8 @@ func (ec *executionContext) fieldContext_JobConnection_nodes(_ context.Context, 
 				return ec.fieldContext_Job_status(ctx, field)
 			case "valkeyInstances":
 				return ec.fieldContext_Job_valkeyInstances(ctx, field)
+			case "vulnerabilityHistory":
+				return ec.fieldContext_Job_vulnerabilityHistory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
 		},
@@ -42977,6 +43247,8 @@ func (ec *executionContext) fieldContext_JobEdge_node(_ context.Context, field g
 				return ec.fieldContext_Job_status(ctx, field)
 			case "valkeyInstances":
 				return ec.fieldContext_Job_valkeyInstances(ctx, field)
+			case "vulnerabilityHistory":
+				return ec.fieldContext_Job_vulnerabilityHistory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
 		},
@@ -56645,6 +56917,8 @@ func (ec *executionContext) fieldContext_RestartApplicationPayload_application(_
 				return ec.fieldContext_Application_utilization(ctx, field)
 			case "valkeyInstances":
 				return ec.fieldContext_Application_valkeyInstances(ctx, field)
+			case "vulnerabilityHistory":
+				return ec.fieldContext_Application_vulnerabilityHistory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
 		},
@@ -75127,6 +75401,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_application(ctx context
 				return ec.fieldContext_Application_utilization(ctx, field)
 			case "valkeyInstances":
 				return ec.fieldContext_Application_valkeyInstances(ctx, field)
+			case "vulnerabilityHistory":
+				return ec.fieldContext_Application_vulnerabilityHistory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
 		},
@@ -75488,6 +75764,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_job(ctx context.Context
 				return ec.fieldContext_Job_status(ctx, field)
 			case "valkeyInstances":
 				return ec.fieldContext_Job_valkeyInstances(ctx, field)
+			case "vulnerabilityHistory":
+				return ec.fieldContext_Job_vulnerabilityHistory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
 		},
@@ -82215,6 +82493,8 @@ func (ec *executionContext) fieldContext_TriggerJobPayload_job(_ context.Context
 				return ec.fieldContext_Job_status(ctx, field)
 			case "valkeyInstances":
 				return ec.fieldContext_Job_valkeyInstances(ctx, field)
+			case "vulnerabilityHistory":
+				return ec.fieldContext_Job_vulnerabilityHistory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
 		},
@@ -97538,6 +97818,42 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "vulnerabilityHistory":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Application_vulnerabilityHistory(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -101747,6 +102063,50 @@ func (ec *executionContext) _ImageVulnerabilityEdge(ctx context.Context, sel ast
 	return out
 }
 
+var imageVulnerabilityHistoryImplementors = []string{"ImageVulnerabilityHistory"}
+
+func (ec *executionContext) _ImageVulnerabilityHistory(ctx context.Context, sel ast.SelectionSet, obj *vulnerability.ImageVulnerabilityHistory) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, imageVulnerabilityHistoryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ImageVulnerabilityHistory")
+		case "summary":
+			out.Values[i] = ec._ImageVulnerabilityHistory_summary(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "date":
+			out.Values[i] = ec._ImageVulnerabilityHistory_date(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var imageVulnerabilitySummaryImplementors = []string{"ImageVulnerabilitySummary"}
 
 func (ec *executionContext) _ImageVulnerabilitySummary(ctx context.Context, sel ast.SelectionSet, obj *vulnerability.ImageVulnerabilitySummary) graphql.Marshaler {
@@ -102584,6 +102944,42 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 					}
 				}()
 				res = ec._Job_valkeyInstances(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "vulnerabilityHistory":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Job_vulnerabilityHistory(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -122777,6 +123173,60 @@ func (ec *executionContext) marshalNImageVulnerabilityEdge2ᚕgithubᚗcomᚋnai
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNImageVulnerabilityHistory2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistoryᚄ(ctx context.Context, sel ast.SelectionSet, v []*vulnerability.ImageVulnerabilityHistory) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNImageVulnerabilityHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistory(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNImageVulnerabilityHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistory(ctx context.Context, sel ast.SelectionSet, v *vulnerability.ImageVulnerabilityHistory) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ImageVulnerabilityHistory(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNImageVulnerabilityOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityOrderField(ctx context.Context, v any) (vulnerability.ImageVulnerabilityOrderField, error) {
