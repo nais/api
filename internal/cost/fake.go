@@ -191,8 +191,13 @@ func (c *FakeClient) MonthlySummaryForTenant(_ context.Context) (*TenantCostMont
 			Service: randomServices()[0],
 		})
 	}
+	sum := 0.0
+	for _, sample := range samples {
+		sum += sample.Cost
+	}
 	c.monthlySummaryTenantCache = &TenantCostMonthlySummary{
 		Series: samples,
+		Sum:    sum,
 	}
 	return c.monthlySummaryTenantCache, nil
 }
