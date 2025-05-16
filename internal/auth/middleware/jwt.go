@@ -21,12 +21,13 @@ import (
 const acceptableClockSkew = 3 * time.Second
 
 type jwtAuth struct {
-	issuer    string
-	audience  string
-	jwksURL   string
-	jwksCache *jwk.Cache
-	log       logrus.FieldLogger
-	now       clock
+	issuer       string
+	audience     string
+	zitadelOrgID string
+	jwksURL      string
+	jwksCache    *jwk.Cache
+	log          logrus.FieldLogger
+	now          clock
 }
 
 type clock func() time.Time
@@ -64,6 +65,7 @@ func (j *jwtAuth) validate(ctx context.Context, token string) (jwt.Token, error)
 		jwt.WithAcceptableSkew(acceptableClockSkew),
 		jwt.WithIssuer(j.issuer),
 		jwt.WithAudience(j.audience),
+		jwt.WithClaimValue("urn:zitadel:iam:user:resourceowner:id", j.zitadelOrgID),
 		jwt.WithClock(j.now),
 	)
 }
@@ -111,7 +113,17 @@ func (j *jwtAuth) handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func JWTAuthentication(ctx context.Context, issuer, audience string, log logrus.FieldLogger) (func(next http.Handler) http.Handler, error) {
+func JWTAuthentication(ctx context.Context, issuer, audience, zitadelOrgID string, log logrus.FieldLogger) (func(next http.Handler) http.Handler, error) {
+	if issuer == "" {
+		return nil, errors.New("issuer is required")
+	}
+	if audience == "" {
+		return nil, errors.New("audience is required")
+	}
+	if zitadelOrgID == "" {
+		return nil, errors.New("zitadelOrgID is required")
+	}
+
 	client, err := client.Discover(ctx, issuer, http.DefaultClient)
 	if err != nil {
 		return nil, fmt.Errorf("discovering oidc client: %w", err)
@@ -128,12 +140,13 @@ func JWTAuthentication(ctx context.Context, issuer, audience string, log logrus.
 	}
 
 	auth := jwtAuth{
-		jwksURL:   client.JwksURI,
-		jwksCache: cache,
-		issuer:    issuer,
-		audience:  audience,
-		log:       log,
-		now:       time.Now,
+		jwksURL:      client.JwksURI,
+		jwksCache:    cache,
+		issuer:       issuer,
+		audience:     audience,
+		zitadelOrgID: zitadelOrgID,
+		log:          log,
+		now:          time.Now,
 	}
 
 	return auth.handler, nil
