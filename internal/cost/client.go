@@ -20,6 +20,7 @@ type Client interface {
 	DailyForTeam(ctx context.Context, teamSlug slug.Slug, fromDate, toDate time.Time, filter *TeamCostDailyFilter) (*TeamCostPeriod, error)
 	MonthlySummaryForTeam(ctx context.Context, teamSlug slug.Slug) (*TeamCostMonthlySummary, error)
 	MonthlyForService(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName, service string) (float32, error)
+	MonthlySummaryForTenant(ctx context.Context) (*TenantCostMonthlySummary, error)
 }
 
 type client struct{}
@@ -175,6 +176,25 @@ func (client) DailyForTeam(ctx context.Context, teamSlug slug.Slug, fromDate, to
 	return &TeamCostPeriod{
 		Series: ret,
 	}, nil
+}
+
+func (client) MonthlySummaryForTenant(ctx context.Context) (*TenantCostMonthlySummary, error) {
+	rows, err := db(ctx).MonthlyCostForTenant(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := &TenantCostMonthlySummary{}
+
+	for _, row := range rows {
+		ret.Series = append(ret.Series, &TenantCostMonthlySample{
+			Date:    scalar.NewDate(row.LastRecordedDate.Time),
+			Cost:    float64(row.DailyCost),
+			Service: row.Service,
+		})
+	}
+
+	return ret, nil
 }
 
 func (client) MonthlySummaryForTeam(ctx context.Context, teamSlug slug.Slug) (*TeamCostMonthlySummary, error) {
