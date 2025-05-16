@@ -204,8 +204,9 @@ func (f Fakes) Inform(log logrus.FieldLogger) {
 }
 
 type JWTConfig struct {
-	Issuer   string `env:"JWT_ISSUER,default=https://auth.nais.io"`
-	Audience string `env:"JWT_AUDIENCE,default=320114319427740585"`
+	Issuer         string `env:"JWT_ISSUER,default=https://auth.nais.io"`
+	Audience       string `env:"JWT_AUDIENCE,default=320114319427740585"`
+	SkipMiddleware bool   `env:"JWT_SKIP_MIDDLEWARE,default=false"`
 }
 
 // NewConfig creates a new configuration instance from environment variables
