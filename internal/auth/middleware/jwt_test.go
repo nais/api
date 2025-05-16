@@ -24,43 +24,62 @@ func TestJWTAuthorized(t *testing.T) {
 	now := time.Date(2025, 5, 15, 13, 48, 42, 0, time.UTC)
 
 	tests := map[string]struct {
-		inputAudience string
-		inputIssuer   string
-		inputTime     time.Time
+		inputAudience     string
+		inputIssuer       string
+		inputZitadelOrgID string
+		inputTime         time.Time
 
-		expectedAudience string
-		expectedIssuer   string
-		expectedTime     time.Time
-		expectedError    error
+		expectedAudience     string
+		expectedIssuer       string
+		expectedZitadelOrgID string
+		expectedTime         time.Time
+		expectedError        error
 	}{
 		"valid token": {
-			inputAudience:    "aud",
-			inputIssuer:      "http://localhost:1234",
-			expectedAudience: "aud",
-			expectedIssuer:   "http://localhost:1234",
+			inputAudience:        "aud",
+			inputIssuer:          "http://localhost:1234",
+			inputZitadelOrgID:    "org-id",
+			expectedAudience:     "aud",
+			expectedIssuer:       "http://localhost:1234",
+			expectedZitadelOrgID: "org-id",
 		},
 		"invalid audience": {
-			inputAudience:    "invalid-audience",
-			inputIssuer:      "http://localhost:1234",
-			expectedAudience: "aud",
-			expectedIssuer:   "http://localhost:1234",
-			expectedError:    jwt.InvalidAudienceError(),
+			inputAudience:        "invalid-audience",
+			inputIssuer:          "http://localhost:1234",
+			inputZitadelOrgID:    "org-id",
+			expectedAudience:     "aud",
+			expectedIssuer:       "http://localhost:1234",
+			expectedZitadelOrgID: "org-id",
+			expectedError:        jwt.InvalidAudienceError(),
 		},
 		"invalid issuer": {
-			inputAudience:    "aud",
-			inputIssuer:      "http://invalid-issuer",
-			expectedAudience: "aud",
-			expectedIssuer:   "http://localhost:1234",
-			expectedError:    jwt.InvalidIssuerError(),
+			inputAudience:        "aud",
+			inputIssuer:          "http://invalid-issuer",
+			inputZitadelOrgID:    "org-id",
+			expectedAudience:     "aud",
+			expectedIssuer:       "http://localhost:1234",
+			expectedZitadelOrgID: "org-id",
+			expectedError:        jwt.InvalidIssuerError(),
+		},
+		"invalid zitadel org ID": {
+			inputAudience:        "aud",
+			inputIssuer:          "http://localhost:1234",
+			inputZitadelOrgID:    "invalid-org-id",
+			expectedAudience:     "aud",
+			expectedIssuer:       "http://localhost:1234",
+			expectedZitadelOrgID: "org-id",
+			expectedError:        jwt.ValidateError(),
 		},
 		"expired token": {
-			inputAudience:    "aud",
-			inputIssuer:      "http://localhost:1234",
-			inputTime:        now.Add(-time.Hour),
-			expectedAudience: "aud",
-			expectedIssuer:   "http://localhost:1234",
-			expectedTime:     now,
-			expectedError:    jwt.TokenExpiredError(),
+			inputAudience:        "aud",
+			inputIssuer:          "http://localhost:1234",
+			inputZitadelOrgID:    "org-id",
+			inputTime:            now.Add(-time.Hour),
+			expectedAudience:     "aud",
+			expectedIssuer:       "http://localhost:1234",
+			expectedZitadelOrgID: "org-id",
+			expectedTime:         now,
+			expectedError:        jwt.TokenExpiredError(),
 		},
 	}
 
@@ -92,11 +111,12 @@ func TestJWTAuthorized(t *testing.T) {
 			cache.Register(t.Context(), test.expectedIssuer)
 
 			mw := jwtAuth{
-				issuer:    test.expectedIssuer,
-				audience:  test.expectedAudience,
-				jwksURL:   test.expectedIssuer,
-				jwksCache: cache,
-				log:       log,
+				issuer:       test.expectedIssuer,
+				audience:     test.expectedAudience,
+				zitadelOrgID: test.expectedZitadelOrgID,
+				jwksURL:      test.expectedIssuer,
+				jwksCache:    cache,
+				log:          log,
 				now: func() time.Time {
 					return defaultTime(test.expectedTime)
 				},
@@ -105,6 +125,7 @@ func TestJWTAuthorized(t *testing.T) {
 			token := token(defaultTime(test.inputTime), time.Minute)
 			token.Set("aud", test.inputAudience)
 			token.Set("iss", test.inputIssuer)
+			token.Set("urn:zitadel:iam:user:resourceowner:id", test.inputZitadelOrgID)
 			tok, err := token.sign(jwkSet)
 			if err != nil {
 				t.Fatal(err)
