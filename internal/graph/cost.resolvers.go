@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/nais/api/internal/cost"
@@ -81,6 +82,10 @@ func (r *openSearchResolver) Cost(ctx context.Context, obj *opensearch.OpenSearc
 	}, nil
 }
 
+func (r *queryResolver) TenantCost(ctx context.Context) (*cost.TenantCostMonthlySummary, error) {
+	return cost.MonthlySummaryForTenant(ctx)
+}
+
 func (r *sqlInstanceResolver) Cost(ctx context.Context, obj *sqlinstance.SQLInstance) (*cost.SQLInstanceCost, error) {
 	if obj.WorkloadReference == nil {
 		return &cost.SQLInstanceCost{}, nil
@@ -126,6 +131,10 @@ func (r *teamEnvironmentCostResolver) Daily(ctx context.Context, obj *cost.TeamE
 	}
 
 	return cost.DailyForTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName, from.Time(), to.Time())
+}
+
+func (r *tenantCostMonthlySummaryResolver) Sum(ctx context.Context, obj *cost.TenantCostMonthlySummary) (float64, error) {
+	panic(fmt.Errorf("not implemented: Sum - sum"))
 }
 
 func (r *valkeyInstanceResolver) Cost(ctx context.Context, obj *valkey.ValkeyInstance) (*cost.ValkeyInstanceCost, error) {
@@ -180,6 +189,10 @@ func (r *Resolver) TeamEnvironmentCost() gengql.TeamEnvironmentCostResolver {
 	return &teamEnvironmentCostResolver{r}
 }
 
+func (r *Resolver) TenantCostMonthlySummary() gengql.TenantCostMonthlySummaryResolver {
+	return &tenantCostMonthlySummaryResolver{r}
+}
+
 func (r *Resolver) WorkloadCost() gengql.WorkloadCostResolver { return &workloadCostResolver{r} }
 
 func (r *Resolver) WorkloadCostSample() gengql.WorkloadCostSampleResolver {
@@ -187,8 +200,9 @@ func (r *Resolver) WorkloadCostSample() gengql.WorkloadCostSampleResolver {
 }
 
 type (
-	teamCostResolver            struct{ *Resolver }
-	teamEnvironmentCostResolver struct{ *Resolver }
-	workloadCostResolver        struct{ *Resolver }
-	workloadCostSampleResolver  struct{ *Resolver }
+	teamCostResolver                 struct{ *Resolver }
+	teamEnvironmentCostResolver      struct{ *Resolver }
+	tenantCostMonthlySummaryResolver struct{ *Resolver }
+	workloadCostResolver             struct{ *Resolver }
+	workloadCostSampleResolver       struct{ *Resolver }
 )

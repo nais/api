@@ -122,6 +122,7 @@ type ResolverRoot interface {
 	TeamServiceUtilizationSqlInstances() TeamServiceUtilizationSqlInstancesResolver
 	TeamUtilizationData() TeamUtilizationDataResolver
 	TeamVulnerabilitySummary() TeamVulnerabilitySummaryResolver
+	TenantCostMonthlySummary() TenantCostMonthlySummaryResolver
 	TriggerJobPayload() TriggerJobPayloadResolver
 	UnleashInstance() UnleashInstanceResolver
 	UnleashInstanceMetrics() UnleashInstanceMetricsResolver
@@ -971,6 +972,7 @@ type ComplexityRoot struct {
 		Team              func(childComplexity int, slug slug.Slug) int
 		Teams             func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) int
 		TeamsUtilization  func(childComplexity int, resourceType utilization.UtilizationResourceType) int
+		TenantCost        func(childComplexity int) int
 		User              func(childComplexity int, email *string) int
 		UserSyncLog       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Users             func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) int
@@ -1993,6 +1995,17 @@ type ComplexityRoot struct {
 		Unassigned     func(childComplexity int) int
 	}
 
+	TenantCostMonthlySample struct {
+		Cost    func(childComplexity int) int
+		Date    func(childComplexity int) int
+		Service func(childComplexity int) int
+	}
+
+	TenantCostMonthlySummary struct {
+		Series func(childComplexity int) int
+		Sum    func(childComplexity int) int
+	}
+
 	TokenXAuthIntegration struct {
 		Name func(childComplexity int) int
 	}
@@ -2504,6 +2517,7 @@ type OpenSearchAccessResolver interface {
 type QueryResolver interface {
 	Node(ctx context.Context, id ident.Ident) (model.Node, error)
 	Roles(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*authz.Role], error)
+	TenantCost(ctx context.Context) (*cost.TenantCostMonthlySummary, error)
 	Environments(ctx context.Context, orderBy *environment.EnvironmentOrder) (*pagination.Connection[*environment.Environment], error)
 	Environment(ctx context.Context, name string) (*environment.Environment, error)
 	Features(ctx context.Context) (*feature.Features, error)
@@ -2677,6 +2691,9 @@ type TeamVulnerabilitySummaryResolver interface {
 	Ranking(ctx context.Context, obj *vulnerability.TeamVulnerabilitySummary) (vulnerability.TeamVulnerabilityRanking, error)
 	RiskScoreTrend(ctx context.Context, obj *vulnerability.TeamVulnerabilitySummary) (vulnerability.TeamVulnerabilityRiskScoreTrend, error)
 	Status(ctx context.Context, obj *vulnerability.TeamVulnerabilitySummary) ([]*vulnerability.TeamVulnerabilityStatus, error)
+}
+type TenantCostMonthlySummaryResolver interface {
+	Sum(ctx context.Context, obj *cost.TenantCostMonthlySummary) (float64, error)
 }
 type TriggerJobPayloadResolver interface {
 	Job(ctx context.Context, obj *job.TriggerJobPayload) (*job.Job, error)
@@ -6321,6 +6338,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.TeamsUtilization(childComplexity, args["resourceType"].(utilization.UtilizationResourceType)), true
+
+	case "Query.tenantCost":
+		if e.complexity.Query.TenantCost == nil {
+			break
+		}
+
+		return e.complexity.Query.TenantCost(childComplexity), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -10768,6 +10792,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamVulnerabilitySummary.Unassigned(childComplexity), true
 
+	case "TenantCostMonthlySample.cost":
+		if e.complexity.TenantCostMonthlySample.Cost == nil {
+			break
+		}
+
+		return e.complexity.TenantCostMonthlySample.Cost(childComplexity), true
+
+	case "TenantCostMonthlySample.date":
+		if e.complexity.TenantCostMonthlySample.Date == nil {
+			break
+		}
+
+		return e.complexity.TenantCostMonthlySample.Date(childComplexity), true
+
+	case "TenantCostMonthlySample.service":
+		if e.complexity.TenantCostMonthlySample.Service == nil {
+			break
+		}
+
+		return e.complexity.TenantCostMonthlySample.Service(childComplexity), true
+
+	case "TenantCostMonthlySummary.series":
+		if e.complexity.TenantCostMonthlySummary.Series == nil {
+			break
+		}
+
+		return e.complexity.TenantCostMonthlySummary.Series(childComplexity), true
+
+	case "TenantCostMonthlySummary.sum":
+		if e.complexity.TenantCostMonthlySummary.Sum == nil {
+			break
+		}
+
+		return e.complexity.TenantCostMonthlySummary.Sum(childComplexity), true
+
 	case "TokenXAuthIntegration.name":
 		if e.complexity.TokenXAuthIntegration.Name == nil {
 			break
@@ -13254,6 +13313,13 @@ extend type TeamEnvironment {
 	cost: TeamEnvironmentCost!
 }
 
+extend type Query {
+	"""
+	Get the cost for a tenant.
+	"""
+	tenantCost: TenantCostMonthlySummary!
+}
+
 type TeamCost {
 	daily(
 		"Start date of the period, inclusive."
@@ -13267,6 +13333,25 @@ type TeamCost {
 	): TeamCostPeriod!
 
 	monthlySummary: TeamCostMonthlySummary!
+}
+
+type TenantCostMonthlySample {
+	"The last date with cost data in the month."
+	date: Date!
+
+	"The total cost for the month for the given service."
+	cost: Float!
+
+	"The service"
+	service: String!
+}
+
+type TenantCostMonthlySummary {
+	"The cost series."
+	series: [TenantCostMonthlySample!]!
+
+	"The total cost for the last 12 months."
+	sum: Float!
 }
 
 input TeamCostDailyFilter {
@@ -51261,6 +51346,56 @@ func (ec *executionContext) fieldContext_Query_roles(ctx context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_tenantCost(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_tenantCost(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().TenantCost(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*cost.TenantCostMonthlySummary)
+	fc.Result = res
+	return ec.marshalNTenantCostMonthlySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTenantCostMonthlySummary(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_tenantCost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "series":
+				return ec.fieldContext_TenantCostMonthlySummary_series(ctx, field)
+			case "sum":
+				return ec.fieldContext_TenantCostMonthlySummary_sum(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TenantCostMonthlySummary", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_environments(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_environments(ctx, field)
 	if err != nil {
@@ -82087,6 +82222,234 @@ func (ec *executionContext) fieldContext_TeamVulnerabilitySummary_status(_ conte
 	return fc, nil
 }
 
+func (ec *executionContext) _TenantCostMonthlySample_date(ctx context.Context, field graphql.CollectedField, obj *cost.TenantCostMonthlySample) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TenantCostMonthlySample_date(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Date, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Date)
+	fc.Result = res
+	return ec.marshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TenantCostMonthlySample_date(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TenantCostMonthlySample",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Date does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TenantCostMonthlySample_cost(ctx context.Context, field graphql.CollectedField, obj *cost.TenantCostMonthlySample) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TenantCostMonthlySample_cost(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cost, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TenantCostMonthlySample_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TenantCostMonthlySample",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TenantCostMonthlySample_service(ctx context.Context, field graphql.CollectedField, obj *cost.TenantCostMonthlySample) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TenantCostMonthlySample_service(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Service, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TenantCostMonthlySample_service(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TenantCostMonthlySample",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TenantCostMonthlySummary_series(ctx context.Context, field graphql.CollectedField, obj *cost.TenantCostMonthlySummary) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TenantCostMonthlySummary_series(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Series, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*cost.TenantCostMonthlySample)
+	fc.Result = res
+	return ec.marshalNTenantCostMonthlySample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTenantCostMonthlySampleᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TenantCostMonthlySummary_series(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TenantCostMonthlySummary",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "date":
+				return ec.fieldContext_TenantCostMonthlySample_date(ctx, field)
+			case "cost":
+				return ec.fieldContext_TenantCostMonthlySample_cost(ctx, field)
+			case "service":
+				return ec.fieldContext_TenantCostMonthlySample_service(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TenantCostMonthlySample", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TenantCostMonthlySummary_sum(ctx context.Context, field graphql.CollectedField, obj *cost.TenantCostMonthlySummary) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TenantCostMonthlySummary_sum(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TenantCostMonthlySummary().Sum(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TenantCostMonthlySummary_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TenantCostMonthlySummary",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TokenXAuthIntegration_name(ctx context.Context, field graphql.CollectedField, obj *workload.TokenXAuthIntegration) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TokenXAuthIntegration_name(ctx, field)
 	if err != nil {
@@ -105518,6 +105881,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "tenantCost":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_tenantCost(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "environments":
 			field := field
 
@@ -116580,6 +116965,130 @@ func (ec *executionContext) _TeamVulnerabilitySummary(ctx context.Context, sel a
 	return out
 }
 
+var tenantCostMonthlySampleImplementors = []string{"TenantCostMonthlySample"}
+
+func (ec *executionContext) _TenantCostMonthlySample(ctx context.Context, sel ast.SelectionSet, obj *cost.TenantCostMonthlySample) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, tenantCostMonthlySampleImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TenantCostMonthlySample")
+		case "date":
+			out.Values[i] = ec._TenantCostMonthlySample_date(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "cost":
+			out.Values[i] = ec._TenantCostMonthlySample_cost(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "service":
+			out.Values[i] = ec._TenantCostMonthlySample_service(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var tenantCostMonthlySummaryImplementors = []string{"TenantCostMonthlySummary"}
+
+func (ec *executionContext) _TenantCostMonthlySummary(ctx context.Context, sel ast.SelectionSet, obj *cost.TenantCostMonthlySummary) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, tenantCostMonthlySummaryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TenantCostMonthlySummary")
+		case "series":
+			out.Values[i] = ec._TenantCostMonthlySummary_series(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "sum":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TenantCostMonthlySummary_sum(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var tokenXAuthIntegrationImplementors = []string{"TokenXAuthIntegration", "ApplicationAuthIntegrations", "AuthIntegration"}
 
 func (ec *executionContext) _TokenXAuthIntegration(ctx context.Context, sel ast.SelectionSet, obj *workload.TokenXAuthIntegration) graphql.Marshaler {
@@ -127268,6 +127777,74 @@ func (ec *executionContext) marshalNTeamVulnerabilitySummary2ᚖgithubᚗcomᚋn
 		return graphql.Null
 	}
 	return ec._TeamVulnerabilitySummary(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTenantCostMonthlySample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTenantCostMonthlySampleᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.TenantCostMonthlySample) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTenantCostMonthlySample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTenantCostMonthlySample(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNTenantCostMonthlySample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTenantCostMonthlySample(ctx context.Context, sel ast.SelectionSet, v *cost.TenantCostMonthlySample) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TenantCostMonthlySample(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTenantCostMonthlySummary2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTenantCostMonthlySummary(ctx context.Context, sel ast.SelectionSet, v cost.TenantCostMonthlySummary) graphql.Marshaler {
+	return ec._TenantCostMonthlySummary(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTenantCostMonthlySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTenantCostMonthlySummary(ctx context.Context, sel ast.SelectionSet, v *cost.TenantCostMonthlySummary) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TenantCostMonthlySummary(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v any) (time.Time, error) {

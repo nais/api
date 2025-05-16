@@ -69,6 +69,11 @@ type TeamCostMonthlySummary struct {
 	Series []*TeamCostMonthlySample `json:"series"`
 }
 
+type TenantCost struct {
+	Series []*TenantCostMonthlySample `json:"series"`
+	Sum    float64                    `json:"sum"`
+}
+
 type TenantCostMonthlySample struct {
 	Date    scalar.Date `json:"date"`
 	Cost    float64     `json:"cost"`
