@@ -122,7 +122,6 @@ type ResolverRoot interface {
 	TeamServiceUtilizationSqlInstances() TeamServiceUtilizationSqlInstancesResolver
 	TeamUtilizationData() TeamUtilizationDataResolver
 	TeamVulnerabilitySummary() TeamVulnerabilitySummaryResolver
-	TenantCostMonthlySummary() TenantCostMonthlySummaryResolver
 	TriggerJobPayload() TriggerJobPayloadResolver
 	UnleashInstance() UnleashInstanceResolver
 	UnleashInstanceMetrics() UnleashInstanceMetricsResolver
@@ -2691,9 +2690,6 @@ type TeamVulnerabilitySummaryResolver interface {
 	Ranking(ctx context.Context, obj *vulnerability.TeamVulnerabilitySummary) (vulnerability.TeamVulnerabilityRanking, error)
 	RiskScoreTrend(ctx context.Context, obj *vulnerability.TeamVulnerabilitySummary) (vulnerability.TeamVulnerabilityRiskScoreTrend, error)
 	Status(ctx context.Context, obj *vulnerability.TeamVulnerabilitySummary) ([]*vulnerability.TeamVulnerabilityStatus, error)
-}
-type TenantCostMonthlySummaryResolver interface {
-	Sum(ctx context.Context, obj *cost.TenantCostMonthlySummary) (float64, error)
 }
 type TriggerJobPayloadResolver interface {
 	Job(ctx context.Context, obj *job.TriggerJobPayload) (*job.Job, error)
@@ -82420,7 +82416,7 @@ func (ec *executionContext) _TenantCostMonthlySummary_sum(ctx context.Context, f
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TenantCostMonthlySummary().Sum(rctx, obj)
+		return obj.Sum, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -82441,8 +82437,8 @@ func (ec *executionContext) fieldContext_TenantCostMonthlySummary_sum(_ context.
 	fc = &graphql.FieldContext{
 		Object:     "TenantCostMonthlySummary",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Float does not have child fields")
 		},
@@ -117028,44 +117024,13 @@ func (ec *executionContext) _TenantCostMonthlySummary(ctx context.Context, sel a
 		case "series":
 			out.Values[i] = ec._TenantCostMonthlySummary_series(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "sum":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._TenantCostMonthlySummary_sum(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._TenantCostMonthlySummary_sum(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

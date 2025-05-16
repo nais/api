@@ -81,6 +81,7 @@ type TenantCostMonthlySample struct {
 }
 type TenantCostMonthlySummary struct {
 	Series []*TenantCostMonthlySample `json:"series"`
+	Sum    float64                    `json:"sum"`
 }
 
 func (t *TeamCostMonthlySummary) Sum() float64 {

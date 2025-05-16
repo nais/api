@@ -194,6 +194,10 @@ func (client) MonthlySummaryForTenant(ctx context.Context) (*TenantCostMonthlySu
 		})
 	}
 
+	for _, sample := range ret.Series {
+		ret.Sum += sample.Cost
+	}
+
 	return ret, nil
 }
 
