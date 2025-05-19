@@ -130,6 +130,9 @@ func (l loggingConfig) DefaultLogDestinations() []logging.SupportedLogDestinatio
 }
 
 type Config struct {
+	// Aiven token is the token for the aiven token
+	AivenToken string `env:"AIVEN_TOKEN"`
+
 	// Tenant is the active tenant
 	Tenant string `env:"TENANT,default=dev-nais"`
 
@@ -181,6 +184,7 @@ type Config struct {
 
 type Fakes struct {
 	WithInsecureUserHeader bool `env:"WITH_INSECURE_USER_HEADER"`
+	WithFakeAivenClient    bool `env:"WITH_FAKE_AIVEN_CLIENT"`
 	WithFakeKubernetes     bool `env:"WITH_FAKE_KUBERNETES"`
 	WithFakeHookd          bool `env:"WITH_FAKE_HOOKD"`
 	WithFakeCloudSQL       bool `env:"WITH_FAKE_CLOUD_SQL"`

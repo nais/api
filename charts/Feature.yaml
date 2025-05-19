@@ -12,6 +12,16 @@ values:
     displayName: API server IP
     computed:
       template: '"{{.Env.apiserver_endpoint}}"'
+
+  aiven.token:
+    description: An API-token with full access to the relevant project
+    displayName: Aiven API-token
+    computed:
+      template: '"{{ .Env.aiven_application_token }}"'
+    config:
+      type: string
+      secret: true
+
   host:
     displayName: Ingress hostname
     computed:

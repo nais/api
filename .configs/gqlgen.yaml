@@ -52,6 +52,7 @@ autobind:
   - "github.com/nais/api/internal/usersync"
   - "github.com/nais/api/internal/utilization"
   - "github.com/nais/api/internal/vulnerability"
+  - "github.com/nais/api/internal/servicemaintenance"
   - "github.com/nais/api/internal/workload"
   - "github.com/nais/api/internal/workload/application"
   - "github.com/nais/api/internal/workload/job"
