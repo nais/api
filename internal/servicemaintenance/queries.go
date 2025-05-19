@@ -54,13 +54,13 @@ func StartOpenSearchMaintenance(ctx context.Context, input StartOpenSearchMainte
 }
 
 func GetAivenMaintenance[UpdateType OpenSearchMaintenanceUpdate | ValkeyMaintenanceUpdate](ctx context.Context, key AivenDataLoaderKey) (*pagination.Connection[*UpdateType], error) {
-	aivenMaintenance, err := fromContext(ctx).maintenanceLoader.Load(ctx, &key)
+	updatesFromAiven, err := fromContext(ctx).maintenanceLoader.Load(ctx, &key)
 	if err != nil {
 		return nil, err
 	}
 
-	updates := make([]*UpdateType, len(aivenMaintenance.Updates))
-	for i, update := range aivenMaintenance.Updates {
+	updates := make([]*UpdateType, len(updatesFromAiven))
+	for i, update := range updatesFromAiven {
 		au := &AivenUpdate{
 			Title:       *update.Description,
 			Description: *update.Impact,
@@ -79,5 +79,5 @@ func GetAivenMaintenance[UpdateType OpenSearchMaintenanceUpdate | ValkeyMaintena
 		updates[i] = &UpdateType{au}
 	}
 
-	return pagination.NewConnection(updates, nil, len(aivenMaintenance.Updates)), nil
+	return pagination.NewConnection(updates, nil, len(updatesFromAiven)), nil
 }

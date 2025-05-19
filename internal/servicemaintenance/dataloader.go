@@ -3,6 +3,7 @@ package servicemaintenance
 import (
 	"context"
 
+	aiven_service "github.com/aiven/go-client-codegen/handler/service"
 	"github.com/nais/api/internal/graph/loader"
 
 	"github.com/sirupsen/logrus"
@@ -28,7 +29,7 @@ type AivenDataLoaderKey struct {
 }
 
 type loaders struct {
-	maintenanceLoader  *dataloadgen.Loader[*AivenDataLoaderKey, *AivenAPIMaintenance]
+	maintenanceLoader  *dataloadgen.Loader[*AivenDataLoaderKey, []aiven_service.UpdateOut]
 	log                logrus.FieldLogger
 	maintenanceMutator *Manager
 }
@@ -47,9 +48,9 @@ type dataloader struct {
 	log                       logrus.FieldLogger
 }
 
-func (l dataloader) aivenMaintenanceList(ctx context.Context, aivenDataLoaderKeys []*AivenDataLoaderKey) ([]*AivenAPIMaintenance, []error) {
+func (l dataloader) aivenMaintenanceList(ctx context.Context, aivenDataLoaderKeys []*AivenDataLoaderKey) ([][]aiven_service.UpdateOut, []error) {
 	wg := pool.New().WithContext(ctx)
-	rets := make([]*AivenAPIMaintenance, len(aivenDataLoaderKeys))
+	rets := make([][]aiven_service.UpdateOut, len(aivenDataLoaderKeys))
 	errs := make([]error, len(aivenDataLoaderKeys))
 
 	for i, pair := range aivenDataLoaderKeys {
@@ -59,7 +60,7 @@ func (l dataloader) aivenMaintenanceList(ctx context.Context, aivenDataLoaderKey
 				errs[i] = err
 			} else {
 				if res.Maintenance != nil && res.Maintenance.Updates != nil {
-					rets[i] = &AivenAPIMaintenance{Updates: res.Maintenance.Updates}
+					rets[i] = res.Maintenance.Updates
 				}
 			}
 			return nil
