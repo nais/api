@@ -29,7 +29,7 @@ require (
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
-	github.com/jackc/pgx/v5 v5.7.2
+	github.com/jackc/pgx/v5 v5.7.4
 	github.com/joho/godotenv v1.5.1
 	github.com/lestrrat-go/httprc/v3 v3.0.0-beta2
 	github.com/lestrrat-go/jwx/v3 v3.0.1
@@ -55,6 +55,7 @@ require (
 	github.com/vektah/gqlparser/v2 v2.5.23
 	github.com/vikstrous/dataloadgen v0.0.6
 	github.com/yuin/gopher-lua v1.1.1
+	github.com/zitadel/oidc/v3 v3.33.1
 	github.com/zitadel/zitadel-go/v3 v3.4.3
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.60.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.60.0
@@ -67,7 +68,7 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.35.0
 	go.opentelemetry.io/otel/trace v1.35.0
 	go.uber.org/automaxprocs v1.6.0
-	golang.org/x/exp v0.0.0-20250218142911-aa4b98e5adaa
+	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394
 	golang.org/x/oauth2 v0.29.0
 	golang.org/x/sync v0.13.0
 	golang.org/x/text v0.24.0
@@ -162,7 +163,7 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.25.0 // indirect
-	github.com/go-sql-driver/mysql v1.8.1 // indirect
+	github.com/go-sql-driver/mysql v1.9.2 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
@@ -170,7 +171,7 @@ require (
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/btree v1.1.3 // indirect
-	github.com/google/cel-go v0.22.1 // indirect
+	github.com/google/cel-go v0.24.1 // indirect
 	github.com/google/flatbuffers v25.2.10+incompatible // indirect
 	github.com/google/generative-ai-go v0.19.0 // indirect
 	github.com/google/gnostic-models v0.6.9 // indirect
@@ -228,12 +229,12 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
-	github.com/pganalyze/pg_query_go/v5 v5.1.0 // indirect
+	github.com/pganalyze/pg_query_go/v6 v6.1.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pingcap/errors v0.11.5-0.20240311024730-e056997136bb // indirect
 	github.com/pingcap/failpoint v0.0.0-20240528011301-b51a646c7c86 // indirect
 	github.com/pingcap/log v1.1.0 // indirect
-	github.com/pingcap/tidb/pkg/parser v0.0.0-20241203170126-9812d85d0d25 // indirect
+	github.com/pingcap/tidb/pkg/parser v0.0.0-20250324122243-d51e00e5bbf0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
@@ -256,26 +257,25 @@ require (
 	github.com/spf13/cobra v1.9.1 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/spf13/viper v1.19.0 // indirect
-	github.com/sqlc-dev/sqlc v1.28.0 // indirect
+	github.com/sqlc-dev/sqlc v1.29.0 // indirect
 	github.com/stoewer/go-strcase v1.3.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	github.com/tetratelabs/wazero v1.8.2 // indirect
+	github.com/tetratelabs/wazero v1.9.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.14 // indirect
 	github.com/tklauser/numcpus v0.9.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/urfave/cli/v2 v2.27.6 // indirect
 	github.com/vektra/mockery/v2 v2.53.2 // indirect
-	github.com/wasilibs/go-pgquery v0.0.0-20240606042535-c0843d6592cc // indirect
-	github.com/wasilibs/wazero-helpers v0.0.0-20240604052452-61d7981e9a38 // indirect
+	github.com/wasilibs/go-pgquery v0.0.0-20250409022910-10ac41983c07 // indirect
+	github.com/wasilibs/wazero-helpers v0.0.0-20240620070341-3dff1577cd52 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
 	github.com/zitadel/logging v0.6.1 // indirect
-	github.com/zitadel/oidc/v3 v3.33.1
 	github.com/zitadel/schema v1.3.0 // indirect
 	go.etcd.io/bbolt v1.3.11 // indirect
 	go.opencensus.io v0.24.0 // indirect
@@ -308,10 +308,10 @@ require (
 	honnef.co/go/tools v0.6.1 // indirect
 	k8s.io/apiextensions-apiserver v0.32.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20241212222426-2c72e554b1e7 // indirect
-	modernc.org/libc v1.55.3 // indirect
-	modernc.org/mathutil v1.6.0 // indirect
-	modernc.org/memory v1.8.0 // indirect
-	modernc.org/sqlite v1.34.5 // indirect
+	modernc.org/libc v1.62.1 // indirect
+	modernc.org/mathutil v1.7.1 // indirect
+	modernc.org/memory v1.9.1 // indirect
+	modernc.org/sqlite v1.37.0 // indirect
 	mvdan.cc/gofumpt v0.7.0 // indirect
 	sigs.k8s.io/controller-runtime v0.20.3 // indirect
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8 // indirect

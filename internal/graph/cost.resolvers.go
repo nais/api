@@ -81,6 +81,10 @@ func (r *openSearchResolver) Cost(ctx context.Context, obj *opensearch.OpenSearc
 	}, nil
 }
 
+func (r *queryResolver) CostMonthlySummary(ctx context.Context) (*cost.CostMonthlySummary, error) {
+	return cost.MonthlySummaryForTenant(ctx)
+}
+
 func (r *sqlInstanceResolver) Cost(ctx context.Context, obj *sqlinstance.SQLInstance) (*cost.SQLInstanceCost, error) {
 	if obj.WorkloadReference == nil {
 		return &cost.SQLInstanceCost{}, nil
