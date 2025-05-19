@@ -20,6 +20,7 @@ require (
 	cloud.google.com/go/pubsub v1.47.0
 	github.com/99designs/gqlgen v0.17.68
 	github.com/GoogleCloudPlatform/k8s-config-connector v1.128.0
+	github.com/aiven/go-client-codegen v0.106.0
 	github.com/blevesearch/bleve/v2 v2.4.4
 	github.com/blevesearch/bleve_index_api v1.1.12
 	github.com/bombsimon/logrusr/v4 v4.1.0
@@ -102,7 +103,6 @@ require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/RoaringBitmap/roaring v1.9.3 // indirect
 	github.com/agnivade/levenshtein v1.2.1 // indirect
-	github.com/aiven/go-client-codegen v0.106.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/apache/arrow/go/v15 v15.0.2 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
