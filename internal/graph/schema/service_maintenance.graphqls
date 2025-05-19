@@ -1,5 +1,7 @@
 extend type Mutation {
+	"Start maintenance updates for a Valkey instance."
 	startValkeyMaintenance(input: StartValkeyMaintenanceInput!): StartValkeyMaintenancePayload
+	"Start maintenance updates for an OpenSearch instance."
 	startOpenSearchMaintenance(
 		input: StartOpenSearchMaintenanceInput!
 	): StartOpenSearchMaintenancePayload
