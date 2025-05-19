@@ -167,7 +167,7 @@ func (c *FakeClient) MonthlySummaryForTenant(_ context.Context) (*CostMonthlySum
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	if c.monthlySummaryTenantCache.Series != nil {
+	if c.monthlySummaryTenantCache != nil && c.monthlySummaryTenantCache.Series != nil {
 		return c.monthlySummaryTenantCache, nil
 	}
 
