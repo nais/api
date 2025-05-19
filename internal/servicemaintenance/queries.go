@@ -6,7 +6,6 @@ import (
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/valkey"
 )
@@ -53,7 +52,7 @@ func StartOpenSearchMaintenance(ctx context.Context, input StartOpenSearchMainte
 	})
 }
 
-func GetAivenMaintenance[UpdateType OpenSearchMaintenanceUpdate | ValkeyMaintenanceUpdate](ctx context.Context, key AivenDataLoaderKey) (*pagination.Connection[*UpdateType], error) {
+func GetAivenMaintenance[UpdateType OpenSearchMaintenanceUpdate | ValkeyMaintenanceUpdate](ctx context.Context, key AivenDataLoaderKey) ([]*UpdateType, error) {
 	updatesFromAiven, err := fromContext(ctx).maintenanceLoader.Load(ctx, &key)
 	if err != nil {
 		return nil, err
@@ -79,5 +78,5 @@ func GetAivenMaintenance[UpdateType OpenSearchMaintenanceUpdate | ValkeyMaintena
 		updates[i] = &UpdateType{au}
 	}
 
-	return pagination.NewConnection(updates, nil, len(updatesFromAiven)), nil
+	return updates, nil
 }

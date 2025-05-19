@@ -27,5 +27,6 @@ type StartValkeyMaintenancePayload struct {
 }
 
 type ValkeyMaintenance struct {
-	Updates *ValkeyMaintenanceUpdateConnection `json:"updates"`
+	AivenProject string `json:"-"`
+	ServiceName  string `json:"-"`
 }
