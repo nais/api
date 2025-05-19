@@ -1,0 +1,142 @@
+extend type Mutation {
+	startValkeyMaintenance(input: StartValkeyMaintenanceInput!): StartValkeyMaintenancePayload
+	startOpenSearchMaintenance(
+		input: StartOpenSearchMaintenanceInput!
+	): StartOpenSearchMaintenancePayload
+}
+
+interface ServiceMaintenanceUpdate {
+	"Title of the maintenance."
+	title: String!
+
+	"Description of the maintenance."
+	description: String
+}
+
+type ValkeyMaintenanceUpdate implements ServiceMaintenanceUpdate {
+	"Title of the maintenance."
+	title: String!
+
+	"Description of the maintenance."
+	description: String!
+
+	"Deadline for installing the maintenance. If set, maintenance is mandatory and will be forcibly applied."
+	deadline: Time
+
+	"The time when the update will be automatically applied. If set, maintenance is mandatory and will be forcibly applied."
+	startAt: Time
+}
+
+type ValkeyMaintenance {
+	updates(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): ValkeyMaintenanceUpdateConnection!
+}
+
+type ValkeyMaintenanceUpdateConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+
+	"List of nodes."
+	nodes: [ValkeyMaintenanceUpdate!]!
+
+	"List of edges."
+	edges: [ValkeyMaintenanceUpdateEdge!]!
+}
+
+type ValkeyMaintenanceUpdateEdge {
+	"Cursor for this edge that can be used for pagination."
+	cursor: Cursor!
+
+	"The ValkeyMaintenanceUpdate."
+	node: ValkeyMaintenanceUpdate!
+}
+
+extend type ValkeyInstance {
+	"Fetch maintenances updates for the Valkey instance."
+	maintenance: ValkeyMaintenance!
+}
+
+type StartValkeyMaintenancePayload {
+	error: String
+}
+
+input StartValkeyMaintenanceInput {
+	serviceName: String!
+	teamSlug: Slug!
+	environmentName: String!
+}
+
+type OpenSearchMaintenanceUpdate implements ServiceMaintenanceUpdate {
+	"Title of the maintenance."
+	title: String!
+
+	"Description of the maintenance."
+	description: String!
+
+	"Deadline for installing the maintenance. If set, maintenance is mandatory and will be forcibly applied."
+	deadline: Time
+
+	"The time when the update will be automatically applied. If set, maintenance is mandatory and will be forcibly applied."
+	startAt: Time
+}
+
+type OpenSearchMaintenance {
+	updates(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): OpenSearchMaintenanceUpdateConnection!
+}
+
+type OpenSearchMaintenanceUpdateConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+
+	"List of nodes."
+	nodes: [OpenSearchMaintenanceUpdate!]!
+
+	"List of edges."
+	edges: [OpenSearchMaintenanceUpdateEdge!]!
+}
+
+type OpenSearchMaintenanceUpdateEdge {
+	"Cursor for this edge that can be used for pagination."
+	cursor: Cursor!
+
+	"The OpenSearchMaintenanceUpdate."
+	node: OpenSearchMaintenanceUpdate!
+}
+
+extend type OpenSearch {
+	"Fetch maintenances updates for the OpenSearch instance."
+	maintenance: OpenSearchMaintenance!
+}
+
+type StartOpenSearchMaintenancePayload {
+	error: String
+}
+
+input StartOpenSearchMaintenanceInput {
+	serviceName: String!
+	teamSlug: Slug!
+	environmentName: String!
+}

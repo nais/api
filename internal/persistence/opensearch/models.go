@@ -31,6 +31,7 @@ type OpenSearch struct {
 	TeamSlug              slug.Slug           `json:"-"`
 	EnvironmentName       string              `json:"-"`
 	WorkloadReference     *workload.Reference `json:"-"`
+	AivenProject          string              `json:"-"`
 }
 
 func (OpenSearch) IsPersistence() {}
@@ -151,6 +152,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		},
 		TeamSlug:          slug.Slug(obj.GetNamespace()),
 		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
+		AivenProject:      obj.Spec.Project,
 	}, nil
 }
 

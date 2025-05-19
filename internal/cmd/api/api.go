@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/pubsub"
+	aiven "github.com/aiven/go-client-codegen"
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
@@ -27,6 +28,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/nais/api/internal/logger"
+	servicemaintenance "github.com/nais/api/internal/servicemaintenance"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/vulnerability"
@@ -166,6 +168,21 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return err
 	}
 
+	var aivenClient servicemaintenance.AivenClient
+	if cfg.Fakes.WithFakeAivenClient {
+		aivenClient = servicemaintenance.NewFakeAivenClient()
+	} else {
+		aivenClient, err = aiven.NewClient(aiven.TokenOpt(cfg.AivenToken), aiven.UserAgentOpt("nais-api"))
+		if err != nil {
+			return err
+		}
+	}
+
+	serviceMaintenanceManager, err := servicemaintenance.NewManager(ctx, aivenClient, log.WithField("subsystem", "maintenance"))
+	if err != nil {
+		return err
+	}
+
 	vulnMgr, err := vulnerability.NewManager(
 		ctx,
 		cfg.VulnerabilitiesApi.Endpoint,
@@ -244,6 +261,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			jwtMiddleware,
 			authHandler,
 			graphHandler,
+			serviceMaintenanceManager,
 			vulnMgr,
 			hookdClient,
 			cfg.Unleash.BifrostApiUrl,
