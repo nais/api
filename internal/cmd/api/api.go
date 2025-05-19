@@ -28,7 +28,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/nais/api/internal/logger"
-	servicemaintenance "github.com/nais/api/internal/service_maintenance"
+	servicemaintenance "github.com/nais/api/internal/servicemaintenance"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/vulnerability"

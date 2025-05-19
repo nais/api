@@ -4,7 +4,7 @@ import (
 	"context"
 
 	aivenservice "github.com/aiven/go-client-codegen/handler/service"
-	"github.com/nais/api/internal/service_maintenance/fake"
+	"github.com/nais/api/internal/servicemaintenance/fake"
 	"github.com/sirupsen/logrus"
 )
 
