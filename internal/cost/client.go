@@ -206,7 +206,6 @@ func (client) MonthlySummaryForTenant(ctx context.Context) (*CostMonthlySummary,
 	return &CostMonthlySummary{
 		Series: ret,
 	}, nil
-
 }
 
 func (client) MonthlySummaryForTeam(ctx context.Context, teamSlug slug.Slug) (*TeamCostMonthlySummary, error) {
