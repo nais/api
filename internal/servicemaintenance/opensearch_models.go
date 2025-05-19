@@ -27,5 +27,6 @@ type StartOpenSearchMaintenancePayload struct {
 }
 
 type OpenSearchMaintenance struct {
-	Updates *OpenSearchMaintenanceUpdateConnection `json:"updates"`
+	AivenProject string `json:"-"`
+	ServiceName  string `json:"-"`
 }
