@@ -463,6 +463,42 @@ func (q *Queries) MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([
 	return items, nil
 }
 
+const monthlyCostForTenant = `-- name: MonthlyCostForTenant :many
+SELECT
+	service, month, last_recorded_date, daily_cost
+FROM
+	cost_monthly_tenant
+WHERE
+	MONTH >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '1 year'
+ORDER BY
+	MONTH DESC
+`
+
+func (q *Queries) MonthlyCostForTenant(ctx context.Context) ([]*CostMonthlyTenant, error) {
+	rows, err := q.db.Query(ctx, monthlyCostForTenant)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*CostMonthlyTenant{}
+	for rows.Next() {
+		var i CostMonthlyTenant
+		if err := rows.Scan(
+			&i.Service,
+			&i.Month,
+			&i.LastRecordedDate,
+			&i.DailyCost,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const monthlyCostForWorkload = `-- name: MonthlyCostForWorkload :many
 WITH
 	last_run AS (
@@ -554,5 +590,14 @@ REFRESH MATERIALIZED VIEW CONCURRENTLY cost_monthly_team
 
 func (q *Queries) RefreshCostMonthlyTeam(ctx context.Context) error {
 	_, err := q.db.Exec(ctx, refreshCostMonthlyTeam)
+	return err
+}
+
+const refreshCostMonthlyTenant = `-- name: RefreshCostMonthlyTenant :exec
+REFRESH MATERIALIZED VIEW CONCURRENTLY cost_monthly_tenant
+`
+
+func (q *Queries) RefreshCostMonthlyTenant(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, refreshCostMonthlyTenant)
 	return err
 }

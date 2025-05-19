@@ -100,8 +100,8 @@ func runCostUpdateJob(ctx context.Context, updater *costupdater.Updater, log log
 	close(ch)
 	updateSuccess := <-done
 
-	if err := updater.RefreshView(ctx); err != nil {
-		log.WithError(err).Errorf("unable to refresh cost team monthly")
+	if err := updater.RefreshViews(ctx); err != nil {
+		log.WithError(err).Errorf("unable to refresh cost team monthly or cost tenant monthly views")
 	}
 
 	log.WithField("duration", time.Since(start)).Infof("cost update run finished")

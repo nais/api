@@ -179,8 +179,16 @@ func (u *Updater) UpdateCosts(ctx context.Context, ch <-chan costsql.CostUpsertP
 	return nil
 }
 
-func (u *Updater) RefreshView(ctx context.Context) error {
-	return u.querier.RefreshCostMonthlyTeam(ctx)
+func (u *Updater) RefreshViews(ctx context.Context) error {
+	err := u.querier.RefreshCostMonthlyTeam(ctx)
+	if err != nil {
+		return err
+	}
+	err = u.querier.RefreshCostMonthlyTenant(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // upsertBatch will upsert a batch of cost data
