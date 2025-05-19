@@ -21,7 +21,7 @@ type FakeClient struct {
 	monthlyForServiceCache       map[string]float32
 	monthlyForWorkloadCache      map[string]*WorkloadCostPeriod
 	monthlySummaryTeamCache      map[slug.Slug]*TeamCostMonthlySummary
-	monthlySummaryTenantCache    *TenantCostMonthlySummary
+	monthlySummaryTenantCache    *CostMonthlySummary
 	lock                         sync.Mutex
 }
 
@@ -33,7 +33,7 @@ func NewFakeClient() *FakeClient {
 		monthlyForServiceCache:       make(map[string]float32),
 		monthlyForWorkloadCache:      make(map[string]*WorkloadCostPeriod),
 		monthlySummaryTeamCache:      make(map[slug.Slug]*TeamCostMonthlySummary),
-		monthlySummaryTenantCache:    &TenantCostMonthlySummary{},
+		monthlySummaryTenantCache:    &CostMonthlySummary{},
 	}
 }
 
@@ -163,7 +163,7 @@ func (c *FakeClient) MonthlySummaryForTeam(_ context.Context, teamSlug slug.Slug
 	return c.monthlySummaryTeamCache[teamSlug], nil
 }
 
-func (c *FakeClient) MonthlySummaryForTenant(_ context.Context) (*TenantCostMonthlySummary, error) {
+func (c *FakeClient) MonthlySummaryForTenant(_ context.Context) (*CostMonthlySummary, error) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
@@ -172,12 +172,12 @@ func (c *FakeClient) MonthlySummaryForTenant(_ context.Context) (*TenantCostMont
 	}
 	numMonthsToReturn := rand.IntN(12)
 	if numMonthsToReturn == 0 {
-		return &TenantCostMonthlySummary{}, nil
+		return &CostMonthlySummary{}, nil
 	}
 
 	today := time.Now()
 	currentMonth := time.Date(today.Year(), today.Month(), today.Day()-2, 0, 0, 0, 0, today.Location())
-	samples := []*TenantCostMonthlySample{
+	samples := []*CostMonthlySample{
 		{
 			Date: scalar.Date(currentMonth),
 			Cost: rand.Float64(),
@@ -185,7 +185,7 @@ func (c *FakeClient) MonthlySummaryForTenant(_ context.Context) (*TenantCostMont
 	}
 	for i := 1; i <= numMonthsToReturn; i++ {
 		prevMonth := samples[i-1].Date.Time()
-		samples = append(samples, &TenantCostMonthlySample{
+		samples = append(samples, &CostMonthlySample{
 			Date:    scalar.Date(prevMonth.AddDate(0, 0, -prevMonth.Day())),
 			Cost:    rand.Float64(),
 			Service: randomServices()[0],
@@ -195,7 +195,7 @@ func (c *FakeClient) MonthlySummaryForTenant(_ context.Context) (*TenantCostMont
 	for _, sample := range samples {
 		sum += sample.Cost
 	}
-	c.monthlySummaryTenantCache = &TenantCostMonthlySummary{
+	c.monthlySummaryTenantCache = &CostMonthlySummary{
 		Series: samples,
 		Sum:    sum,
 	}

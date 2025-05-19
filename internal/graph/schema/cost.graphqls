@@ -10,9 +10,9 @@ extend type TeamEnvironment {
 
 extend type Query {
 	"""
-	Get the cost for a tenant.
+	Get the monthly cost summary for a tenant.
 	"""
-	tenantCost: TenantCostMonthlySummary!
+	costMonthlySummary: CostMonthlySummary!
 }
 
 type TeamCost {
@@ -30,7 +30,7 @@ type TeamCost {
 	monthlySummary: TeamCostMonthlySummary!
 }
 
-type TenantCostMonthlySample {
+type CostMonthlySample {
 	"The last date with cost data in the month."
 	date: Date!
 
@@ -41,9 +41,9 @@ type TenantCostMonthlySample {
 	service: String!
 }
 
-type TenantCostMonthlySummary {
+type CostMonthlySummary {
 	"The cost series."
-	series: [TenantCostMonthlySample!]!
+	series: [CostMonthlySample!]!
 
 	"The total cost for the last 12 months."
 	sum: Float!

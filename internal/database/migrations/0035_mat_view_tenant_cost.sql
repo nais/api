@@ -1,5 +1,4 @@
 -- +goose Up
--- Team range for resource utilization
 DROP MATERIALIZED VIEW IF EXISTS cost_monthly_tenant
 ;
 

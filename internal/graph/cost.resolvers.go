@@ -81,7 +81,7 @@ func (r *openSearchResolver) Cost(ctx context.Context, obj *opensearch.OpenSearc
 	}, nil
 }
 
-func (r *queryResolver) TenantCost(ctx context.Context) (*cost.TenantCostMonthlySummary, error) {
+func (r *queryResolver) CostMonthlySummary(ctx context.Context) (*cost.CostMonthlySummary, error) {
 	return cost.MonthlySummaryForTenant(ctx)
 }
 
