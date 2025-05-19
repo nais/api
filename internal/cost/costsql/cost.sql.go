@@ -592,3 +592,12 @@ func (q *Queries) RefreshCostMonthlyTeam(ctx context.Context) error {
 	_, err := q.db.Exec(ctx, refreshCostMonthlyTeam)
 	return err
 }
+
+const refreshCostMonthlyTenant = `-- name: RefreshCostMonthlyTenant :exec
+REFRESH MATERIALIZED VIEW CONCURRENTLY cost_monthly_tenant
+`
+
+func (q *Queries) RefreshCostMonthlyTenant(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, refreshCostMonthlyTenant)
+	return err
+}

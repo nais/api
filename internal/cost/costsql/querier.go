@@ -23,6 +23,7 @@ type Querier interface {
 	MonthlyCostForTenant(ctx context.Context) ([]*CostMonthlyTenant, error)
 	MonthlyCostForWorkload(ctx context.Context, arg MonthlyCostForWorkloadParams) ([]*MonthlyCostForWorkloadRow, error)
 	RefreshCostMonthlyTeam(ctx context.Context) error
+	RefreshCostMonthlyTenant(ctx context.Context) error
 }
 
 var _ Querier = (*Queries)(nil)

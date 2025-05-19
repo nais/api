@@ -215,6 +215,10 @@ WHERE
 REFRESH MATERIALIZED VIEW CONCURRENTLY cost_monthly_team
 ;
 
+-- name: RefreshCostMonthlyTenant :exec
+REFRESH MATERIALIZED VIEW CONCURRENTLY cost_monthly_tenant
+;
+
 -- name: DailyCostForTeamEnvironment :many
 WITH
 	date_range AS (
