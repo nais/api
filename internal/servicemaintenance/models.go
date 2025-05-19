@@ -2,21 +2,10 @@ package servicemaintenance
 
 import (
 	"time"
-
-	aiven_service "github.com/aiven/go-client-codegen/handler/service"
-	"github.com/nais/api/internal/graph/pagination"
 )
 
 type ServiceMaintenanceUpdate interface {
 	IsServiceMaintenanceUpdate()
-}
-
-type AivenAPIMaintenance struct {
-	Updates []aiven_service.UpdateOut
-}
-
-type AivenMaintenance[T any] struct {
-	Updates *pagination.Connection[*AivenUpdate]
 }
 
 type AivenUpdate struct {
