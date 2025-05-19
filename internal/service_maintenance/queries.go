@@ -53,20 +53,15 @@ func StartOpenSearchMaintenance(ctx context.Context, input StartOpenSearchMainte
 	})
 }
 
-func GetValkeyMaintenance(ctx context.Context, valkey valkey.ValkeyInstance) (*ValkeyMaintenance, error) {
-	key := AivenDataLoaderKey{
-		Project:     valkey.AivenProject,
-		ServiceName: valkey.Name,
-	}
-
+func GetAivenMaintenance[UpdateType OpenSearchMaintenanceUpdate | ValkeyMaintenanceUpdate](ctx context.Context, key AivenDataLoaderKey) (*pagination.Connection[*UpdateType], error) {
 	aivenMaintenance, err := fromContext(ctx).maintenanceLoader.Load(ctx, &key)
 	if err != nil {
 		return nil, err
 	}
 
-	updates := make([]*ValkeyMaintenanceUpdate, len(aivenMaintenance.Updates))
+	updates := make([]*UpdateType, len(aivenMaintenance.Updates))
 	for i, update := range aivenMaintenance.Updates {
-		updates[i] = &ValkeyMaintenanceUpdate{
+		au := &AivenUpdate{
 			Title:       *update.Description,
 			Description: *update.Impact,
 			StartAt:     update.StartAt,
@@ -79,41 +74,10 @@ func GetValkeyMaintenance(ctx context.Context, valkey valkey.ValkeyInstance) (*V
 				continue
 			}
 
-			updates[i].Deadline = &t
+			au.Deadline = &t
 		}
+		updates[i] = &UpdateType{au}
 	}
 
-	return &ValkeyMaintenance{
-		Updates: pagination.NewConnection(updates, nil, len(aivenMaintenance.Updates)),
-	}, nil
-}
-
-func GetAivenMaintenance[MaintenanceType any, UpdateType any](ctx context.Context, key AivenDataLoaderKey) (*AivenMaintenance[MaintenanceType, UpdateType], error) {
-	aivenMaintenance, err := fromContext(ctx).maintenanceLoader.Load(ctx, &key)
-	if err != nil {
-		return nil, err
-	}
-
-	updates := make([]*AivenUpdate[UpdateType], len(aivenMaintenance.Updates))
-	for i, update := range aivenMaintenance.Updates {
-		updates[i] = &AivenUpdate[UpdateType]{
-			Title:       *update.Description,
-			Description: *update.Impact,
-			StartAt:     update.StartAt,
-		}
-
-		if update.Deadline != nil {
-			t, err := time.Parse(time.RFC3339, *update.Deadline)
-			if err != nil {
-				fromContext(ctx).log.WithError(err).Error("Failed to parse deadline")
-				continue
-			}
-
-			updates[i].Deadline = &t
-		}
-	}
-
-	return &AivenMaintenance[MaintenanceType, UpdateType]{
-		Updates: pagination.NewConnection(updates, nil, len(aivenMaintenance.Updates)),
-	}, nil
+	return pagination.NewConnection(updates, nil, len(aivenMaintenance.Updates)), nil
 }
