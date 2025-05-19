@@ -15,11 +15,11 @@ type AivenAPIMaintenance struct {
 	Updates []aiven_service.UpdateOut
 }
 
-type AivenMaintenance[T any, E any] struct {
-	Updates *pagination.Connection[*AivenUpdate[E]]
+type AivenMaintenance[T any] struct {
+	Updates *pagination.Connection[*AivenUpdate]
 }
 
-type AivenUpdate[T any] struct {
+type AivenUpdate struct {
 	// Title of the maintenance.
 	Title string `json:"title"`
 	// Description of the maintenance.
