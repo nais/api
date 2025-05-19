@@ -471,7 +471,7 @@ FROM
 WHERE
 	MONTH >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '1 year'
 ORDER BY
-	MONTH DESC
+	MONTH ASC
 `
 
 func (q *Queries) MonthlyCostForTenant(ctx context.Context) ([]*CostMonthlyTenant, error) {

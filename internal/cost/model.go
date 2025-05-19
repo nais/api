@@ -31,6 +31,11 @@ func (w *ServiceCostSeries) Sum() float64 {
 	return sum
 }
 
+type CostMonthlySummary struct {
+	// The cost series.
+	Series []*ServiceCostSeries `json:"series"`
+}
+
 type WorkloadCostPeriod struct {
 	Series []*ServiceCostSeries `json:"series"`
 }
@@ -67,17 +72,6 @@ type TeamCostMonthlySample struct {
 
 type TeamCostMonthlySummary struct {
 	Series []*TeamCostMonthlySample `json:"series"`
-}
-
-type CostMonthlySample struct {
-	Date    scalar.Date `json:"date"`
-	Cost    float64     `json:"cost"`
-	Service string      `json:"service"`
-}
-
-type CostMonthlySummary struct {
-	Series []*CostMonthlySample `json:"series"`
-	Sum    float64              `json:"sum"`
 }
 
 func (t *TeamCostMonthlySummary) Sum() float64 {

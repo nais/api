@@ -67,7 +67,7 @@ FROM
 WHERE
 	MONTH >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '1 year'
 ORDER BY
-	MONTH DESC
+	MONTH ASC
 ;
 
 -- name: CostUpsert :batchexec
