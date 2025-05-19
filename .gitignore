@@ -12,3 +12,4 @@ node_modules
 hack/coverprofile.txt
 .eslintcache
 result*
+data/k8s/dev/tbd/

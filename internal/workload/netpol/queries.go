@@ -62,6 +62,9 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 			if strings.HasSuffix(rule.Application, "-token-generator") && rule.Namespace == "nais" && strings.Contains(environmentName, "dev") {
 				continue
 			}
+			if rule.Application == "logging" && rule.Namespace == "nais-system" {
+				continue
+			}
 			outbound.Rules = append(outbound.Rules, &NetworkPolicyRule{
 				TargetWorkloadName: rule.Application,
 				TargetTeamSlug:     defaultSlug(rule.Namespace),
