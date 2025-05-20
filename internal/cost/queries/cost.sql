@@ -65,7 +65,8 @@ SELECT
 FROM
 	cost_monthly_tenant
 WHERE
-	MONTH >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '1 year'
+	MONTH >= @from_date
+	AND MONTH <= @to_date
 ORDER BY
 	MONTH ASC
 ;

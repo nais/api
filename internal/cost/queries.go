@@ -31,6 +31,6 @@ func MonthlyForService(ctx context.Context, teamSlug slug.Slug, environmentName,
 	return fromContext(ctx).client.MonthlyForService(ctx, teamSlug, environmentName, workloadName, service)
 }
 
-func MonthlySummaryForTenant(ctx context.Context) (*CostMonthlySummary, error) {
-	return fromContext(ctx).client.MonthlySummaryForTenant(ctx)
+func MonthlySummaryForTenant(ctx context.Context, from, to time.Time) (*CostMonthlySummary, error) {
+	return fromContext(ctx).client.MonthlySummaryForTenant(ctx, from, to)
 }

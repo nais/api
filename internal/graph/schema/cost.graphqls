@@ -12,7 +12,12 @@ extend type Query {
 	"""
 	Get the monthly cost summary for a tenant.
 	"""
-	costMonthlySummary: CostMonthlySummary!
+	costMonthlySummary(
+		"Start month of the period, inclusive."
+		from: Date!
+		"End month of the period, inclusive."
+		to: Date!
+	): CostMonthlySummary!
 }
 
 type TeamCost {
