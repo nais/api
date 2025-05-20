@@ -61,9 +61,12 @@ func GetAivenMaintenance[UpdateType OpenSearchMaintenanceUpdate | ValkeyMaintena
 	updates := make([]*UpdateType, len(updatesFromAiven))
 	for i, update := range updatesFromAiven {
 		au := &AivenUpdate{
-			Title:       *update.Description,
-			Description: *update.Impact,
-			StartAt:     update.StartAt,
+			Title:   *update.Description,
+			StartAt: update.StartAt,
+		}
+
+		if update.Impact != nil {
+			au.Description = *update.Impact
 		}
 
 		if update.Deadline != nil {
