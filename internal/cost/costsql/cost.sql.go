@@ -469,13 +469,19 @@ SELECT
 FROM
 	cost_monthly_tenant
 WHERE
-	MONTH >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '1 year'
+	MONTH >= $1
+	AND MONTH <= $2
 ORDER BY
 	MONTH ASC
 `
 
-func (q *Queries) MonthlyCostForTenant(ctx context.Context) ([]*CostMonthlyTenant, error) {
-	rows, err := q.db.Query(ctx, monthlyCostForTenant)
+type MonthlyCostForTenantParams struct {
+	FromDate pgtype.Date
+	ToDate   pgtype.Date
+}
+
+func (q *Queries) MonthlyCostForTenant(ctx context.Context, arg MonthlyCostForTenantParams) ([]*CostMonthlyTenant, error) {
+	rows, err := q.db.Query(ctx, monthlyCostForTenant, arg.FromDate, arg.ToDate)
 	if err != nil {
 		return nil, err
 	}

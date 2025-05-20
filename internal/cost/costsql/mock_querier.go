@@ -596,9 +596,9 @@ func (_c *MockQuerier_MonthlyCostForTeam_Call) RunAndReturn(run func(context.Con
 	return _c
 }
 
-// MonthlyCostForTenant provides a mock function with given fields: ctx
-func (_m *MockQuerier) MonthlyCostForTenant(ctx context.Context) ([]*CostMonthlyTenant, error) {
-	ret := _m.Called(ctx)
+// MonthlyCostForTenant provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) MonthlyCostForTenant(ctx context.Context, arg MonthlyCostForTenantParams) ([]*CostMonthlyTenant, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for MonthlyCostForTenant")
@@ -606,19 +606,19 @@ func (_m *MockQuerier) MonthlyCostForTenant(ctx context.Context) ([]*CostMonthly
 
 	var r0 []*CostMonthlyTenant
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]*CostMonthlyTenant, error)); ok {
-		return rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, MonthlyCostForTenantParams) ([]*CostMonthlyTenant, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []*CostMonthlyTenant); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, MonthlyCostForTenantParams) []*CostMonthlyTenant); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*CostMonthlyTenant)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+	if rf, ok := ret.Get(1).(func(context.Context, MonthlyCostForTenantParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -633,13 +633,14 @@ type MockQuerier_MonthlyCostForTenant_Call struct {
 
 // MonthlyCostForTenant is a helper method to define mock.On call
 //   - ctx context.Context
-func (_e *MockQuerier_Expecter) MonthlyCostForTenant(ctx interface{}) *MockQuerier_MonthlyCostForTenant_Call {
-	return &MockQuerier_MonthlyCostForTenant_Call{Call: _e.mock.On("MonthlyCostForTenant", ctx)}
+//   - arg MonthlyCostForTenantParams
+func (_e *MockQuerier_Expecter) MonthlyCostForTenant(ctx interface{}, arg interface{}) *MockQuerier_MonthlyCostForTenant_Call {
+	return &MockQuerier_MonthlyCostForTenant_Call{Call: _e.mock.On("MonthlyCostForTenant", ctx, arg)}
 }
 
-func (_c *MockQuerier_MonthlyCostForTenant_Call) Run(run func(ctx context.Context)) *MockQuerier_MonthlyCostForTenant_Call {
+func (_c *MockQuerier_MonthlyCostForTenant_Call) Run(run func(ctx context.Context, arg MonthlyCostForTenantParams)) *MockQuerier_MonthlyCostForTenant_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
+		run(args[0].(context.Context), args[1].(MonthlyCostForTenantParams))
 	})
 	return _c
 }
@@ -649,7 +650,7 @@ func (_c *MockQuerier_MonthlyCostForTenant_Call) Return(_a0 []*CostMonthlyTenant
 	return _c
 }
 
-func (_c *MockQuerier_MonthlyCostForTenant_Call) RunAndReturn(run func(context.Context) ([]*CostMonthlyTenant, error)) *MockQuerier_MonthlyCostForTenant_Call {
+func (_c *MockQuerier_MonthlyCostForTenant_Call) RunAndReturn(run func(context.Context, MonthlyCostForTenantParams) ([]*CostMonthlyTenant, error)) *MockQuerier_MonthlyCostForTenant_Call {
 	_c.Call.Return(run)
 	return _c
 }
