@@ -167,38 +167,31 @@ func (c *FakeClient) MonthlySummaryForTenant(_ context.Context) (*CostMonthlySum
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	if c.monthlySummaryTenantCache != nil {
+	if c.monthlySummaryTenantCache != nil && c.monthlySummaryTenantCache.Series != nil {
 		return c.monthlySummaryTenantCache, nil
 	}
-	numMonthsToReturn := rand.IntN(12)
-	if numMonthsToReturn == 0 {
-		return &CostMonthlySummary{}, nil
+
+	series := make([]*ServiceCostSeries, 12)
+	now := time.Now()
+	currentMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+
+	for i := range 12 {
+		monthStart := currentMonth.AddDate(0, -i, 0)
+		var date time.Time
+		if i == 0 {
+			// Use the current date - 2 days for the current month
+			date = now.AddDate(0, 0, -2)
+		} else {
+			// Use the last day of the month
+			date = monthStart.AddDate(0, 1, -1)
+		}
+		series[i] = serviceCostSeries(date)
 	}
 
-	today := time.Now()
-	currentMonth := time.Date(today.Year(), today.Month(), today.Day()-2, 0, 0, 0, 0, today.Location())
-	samples := []*CostMonthlySample{
-		{
-			Date: scalar.Date(currentMonth),
-			Cost: rand.Float64(),
-		},
-	}
-	for i := 1; i <= numMonthsToReturn; i++ {
-		prevMonth := samples[i-1].Date.Time()
-		samples = append(samples, &CostMonthlySample{
-			Date:    scalar.Date(prevMonth.AddDate(0, 0, -prevMonth.Day())),
-			Cost:    rand.Float64(),
-			Service: randomServices()[0],
-		})
-	}
-	sum := 0.0
-	for _, sample := range samples {
-		sum += sample.Cost
-	}
 	c.monthlySummaryTenantCache = &CostMonthlySummary{
-		Series: samples,
-		Sum:    sum,
+		Series: series,
 	}
+
 	return c.monthlySummaryTenantCache, nil
 }
 

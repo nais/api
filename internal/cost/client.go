@@ -184,21 +184,28 @@ func (client) MonthlySummaryForTenant(ctx context.Context) (*CostMonthlySummary,
 		return nil, err
 	}
 
-	ret := &CostMonthlySummary{}
-
+	daily := make(map[pgtype.Date]*ServiceCostSeries)
 	for _, row := range rows {
-		ret.Series = append(ret.Series, &CostMonthlySample{
-			Date:    scalar.NewDate(row.LastRecordedDate.Time),
-			Cost:    float64(row.DailyCost),
+		if _, exists := daily[row.Month]; !exists {
+			daily[row.Month] = &ServiceCostSeries{
+				Date: scalar.NewDate(row.LastRecordedDate.Time),
+			}
+		}
+
+		daily[row.Month].Services = append(daily[row.Month].Services, &ServiceCostSample{
 			Service: row.Service,
+			Cost:    float64(row.DailyCost),
 		})
 	}
 
-	for _, sample := range ret.Series {
-		ret.Sum += sample.Cost
-	}
+	ret := maps.Values(daily)
+	slices.SortFunc(ret, func(a, b *ServiceCostSeries) int {
+		return a.Date.Time().Compare(b.Date.Time())
+	})
 
-	return ret, nil
+	return &CostMonthlySummary{
+		Series: ret,
+	}, nil
 }
 
 func (client) MonthlySummaryForTeam(ctx context.Context, teamSlug slug.Slug) (*TeamCostMonthlySummary, error) {
