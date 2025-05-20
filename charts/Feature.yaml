@@ -11,13 +11,15 @@ values:
   apiserverIP:
     displayName: API server IP
     computed:
-      template: '"{{.Env.apiserver_endpoint}}"'
+      template: |
+        {{.Env.apiserver_endpoint | quote }}
 
   aiven.token:
     description: An API-token with full access to the relevant project
     displayName: Aiven API-token
     computed:
-      template: '"{{ .Env.aiven_nais_api_user_token }}"'
+      template: |
+        {{ .Env.aiven_nais_api_user_token | quote }}
     config:
       type: string
       secret: true
@@ -92,9 +94,6 @@ values:
   oauth.clientID:
     displayName: OAuth client ID
     description: The client ID for the OAuth client
-    config:
-      type: string
-    required: true
     computed:
       template: |
         {{ .Env.api_zitadel_client_id | quote }}
@@ -102,10 +101,6 @@ values:
   oauth.clientSecret:
     displayName: OAuth client secret
     description: The client secret for the OAuth client
-    config:
-      type: string
-      secret: true
-    required: true
     computed:
       template: |
         {{ .Env.api_zitadel_client_secret | quote }}
@@ -182,7 +177,8 @@ values:
     config:
       type: string
     computed:
-      template: '"{{ .Management.bifrost_unleash_namespace}}"'
+      template: |
+        {{ .Management.bifrost_unleash_namespace | quote }}
 
   replaceEnvironmentNames:
     displayName: Replace environment names
