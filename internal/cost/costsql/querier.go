@@ -20,7 +20,7 @@ type Querier interface {
 	LastCostDate(ctx context.Context) (pgtype.Date, error)
 	ListTeamSlugsForCostUpdater(ctx context.Context) ([]slug.Slug, error)
 	MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*CostMonthlyTeam, error)
-	MonthlyCostForTenant(ctx context.Context) ([]*CostMonthlyTenant, error)
+	MonthlyCostForTenant(ctx context.Context, arg MonthlyCostForTenantParams) ([]*CostMonthlyTenant, error)
 	MonthlyCostForWorkload(ctx context.Context, arg MonthlyCostForWorkloadParams) ([]*MonthlyCostForWorkloadRow, error)
 	RefreshCostMonthlyTeam(ctx context.Context) error
 	RefreshCostMonthlyTenant(ctx context.Context) error

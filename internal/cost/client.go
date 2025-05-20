@@ -20,7 +20,7 @@ type Client interface {
 	DailyForTeam(ctx context.Context, teamSlug slug.Slug, fromDate, toDate time.Time, filter *TeamCostDailyFilter) (*TeamCostPeriod, error)
 	MonthlySummaryForTeam(ctx context.Context, teamSlug slug.Slug) (*TeamCostMonthlySummary, error)
 	MonthlyForService(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName, service string) (float32, error)
-	MonthlySummaryForTenant(ctx context.Context) (*CostMonthlySummary, error)
+	MonthlySummaryForTenant(ctx context.Context, from, to time.Time) (*CostMonthlySummary, error)
 }
 
 type client struct{}
@@ -178,8 +178,11 @@ func (client) DailyForTeam(ctx context.Context, teamSlug slug.Slug, fromDate, to
 	}, nil
 }
 
-func (client) MonthlySummaryForTenant(ctx context.Context) (*CostMonthlySummary, error) {
-	rows, err := db(ctx).MonthlyCostForTenant(ctx)
+func (client) MonthlySummaryForTenant(ctx context.Context, from, to time.Time) (*CostMonthlySummary, error) {
+	rows, err := db(ctx).MonthlyCostForTenant(ctx, costsql.MonthlyCostForTenantParams{
+		FromDate: pgtype.Date{Time: from, Valid: true},
+		ToDate:   pgtype.Date{Time: to, Valid: true},
+	})
 	if err != nil {
 		return nil, err
 	}

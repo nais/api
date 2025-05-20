@@ -163,7 +163,7 @@ func (c *FakeClient) MonthlySummaryForTeam(_ context.Context, teamSlug slug.Slug
 	return c.monthlySummaryTeamCache[teamSlug], nil
 }
 
-func (c *FakeClient) MonthlySummaryForTenant(_ context.Context) (*CostMonthlySummary, error) {
+func (c *FakeClient) MonthlySummaryForTenant(_ context.Context, from, to time.Time) (*CostMonthlySummary, error) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
@@ -171,11 +171,13 @@ func (c *FakeClient) MonthlySummaryForTenant(_ context.Context) (*CostMonthlySum
 		return c.monthlySummaryTenantCache, nil
 	}
 
-	series := make([]*ServiceCostSeries, 12)
+	numberOfMonths := (to.Year()-from.Year())*12 + int(to.Month()-from.Month()) + 1
+
+	series := make([]*ServiceCostSeries, numberOfMonths)
 	now := time.Now()
 	currentMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
 
-	for i := range 12 {
+	for i := range numberOfMonths {
 		monthStart := currentMonth.AddDate(0, -i, 0)
 		var date time.Time
 		if i == 0 {
