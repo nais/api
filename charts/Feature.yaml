@@ -17,7 +17,7 @@ values:
     description: An API-token with full access to the relevant project
     displayName: Aiven API-token
     computed:
-      template: '"{{ .Env.aiven_application_token }}"'
+      template: '"{{ .Env.aiven_nais_api_user_token }}"'
     config:
       type: string
       secret: true
