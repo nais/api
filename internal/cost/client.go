@@ -170,7 +170,7 @@ func (client) DailyForTeam(ctx context.Context, teamSlug slug.Slug, fromDate, to
 
 	ret := maps.Values(daily)
 	slices.SortFunc(ret, func(a, b *ServiceCostSeries) int {
-		return b.Date.Time().Compare(a.Date.Time())
+		return a.Date.Time().Compare(b.Date.Time())
 	})
 
 	return &TeamCostPeriod{
