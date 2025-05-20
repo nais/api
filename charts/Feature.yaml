@@ -12,7 +12,7 @@ values:
     displayName: API server IP
     computed:
       template: |
-        {{.Env.apiserver_endpoint | quote }}
+        {{ .Env.apiserver_endpoint | quote }}
 
   aiven.token:
     description: An API-token with full access to the relevant project
