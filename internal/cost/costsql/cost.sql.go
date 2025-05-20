@@ -469,8 +469,8 @@ SELECT
 FROM
 	cost_monthly_tenant
 WHERE
-	month >= $1
-	AND month <= $2
+	MONTH >= $1
+	AND MONTH <= $2
 ORDER BY
 	MONTH ASC
 `
