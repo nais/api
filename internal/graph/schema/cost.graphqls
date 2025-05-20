@@ -30,23 +30,9 @@ type TeamCost {
 	monthlySummary: TeamCostMonthlySummary!
 }
 
-type CostMonthlySample {
-	"The last date with cost data in the month."
-	date: Date!
-
-	"The total cost for the month for the given service."
-	cost: Float!
-
-	"The service"
-	service: String!
-}
-
 type CostMonthlySummary {
 	"The cost series."
-	series: [CostMonthlySample!]!
-
-	"The total cost for the last 12 months."
-	sum: Float!
+	series: [ServiceCostSeries!]!
 }
 
 input TeamCostDailyFilter {
