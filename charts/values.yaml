@@ -44,10 +44,9 @@ google:
   managementProjectID: "" # mapped in fasit
 
 oauth: # mapped in fasit
-  issuer: "https://accounts.google.com"
+  issuer: "https://auth.nais.io"
   clientID: ""
   clientSecret: ""
-  additionalScopes: []
 
 slack:
   feedbackChannel: "console-user-feedback"
@@ -74,9 +73,10 @@ logging:
   secure_logs: false
 
 zitadel:
-  idp_id:
-  key:
   domain:
+  idpID:
+  key:
+  organizationID:
 
 aiven:
   token:

@@ -74,7 +74,7 @@ spec:
             - name: OAUTH_FRONTEND_URL
               value: "https://{{ .Values.host }}"
             - name: OAUTH_ADDITIONAL_SCOPES
-              value: "{{ .Values.oauth.additionalScopes | join "," }}"
+              value: "urn:zitadel:iam:org:idp:id:{{ .Values.zitadel.idpID }},urn:zitadel:iam:org:id:{{ .Values.zitadel.organizationID }}"
             - name: LISTEN_ADDRESS
               value: ":3000"
             - name: INTERNAL_LISTEN_ADDRESS
@@ -108,11 +108,11 @@ spec:
               value: "true"
             {{- end }}
             - name: ZITADEL_IDP_ID
-              value: {{ .Values.zitadel.idp_id | quote }}
+              value: {{ .Values.zitadel.idpID | quote }}
             - name: ZITADEL_DOMAIN
               value: {{ .Values.zitadel.domain | quote }}
             - name: ZITADEL_ORGANIZATION_ID
-              value: {{ .Values.zitadel.organization_id | quote }}
+              value: {{ .Values.zitadel.organizationID | quote }}
           envFrom:
             - secretRef:
                 name: "{{ .Release.Name }}"
