@@ -82,7 +82,7 @@ func (r *openSearchResolver) Cost(ctx context.Context, obj *opensearch.OpenSearc
 }
 
 func (r *queryResolver) CostMonthlySummary(ctx context.Context, from scalar.Date, to scalar.Date) (*cost.CostMonthlySummary, error) {
-	if !to.Time().After(from.Time()) {
+	if to.Time().Before(from.Time()) {
 		return nil, apierror.Errorf("`to` must be after `from`.")
 	} else if to.Time().After(time.Now()) {
 		return nil, apierror.Errorf("`to` cannot be in the future.")

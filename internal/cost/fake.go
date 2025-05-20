@@ -171,7 +171,7 @@ func (c *FakeClient) MonthlySummaryForTenant(_ context.Context, from, to time.Ti
 		return c.monthlySummaryTenantCache, nil
 	}
 
-	numberOfMonths := int(to.Sub(from).Hours()/24/30) + 1 // inclusive
+	numberOfMonths := (to.Year()-from.Year())*12 + int(to.Month()-from.Month()) + 1
 
 	series := make([]*ServiceCostSeries, numberOfMonths)
 	now := time.Now()
