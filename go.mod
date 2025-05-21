@@ -26,6 +26,7 @@ require (
 	github.com/bombsimon/logrusr/v4 v4.1.0
 	github.com/btcsuite/btcutil v1.0.2
 	github.com/coreos/go-oidc/v3 v3.12.0
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/exaring/otelpgx v0.9.0
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/google/go-cmp v0.7.0
@@ -39,7 +40,7 @@ require (
 	github.com/nais/liberator v0.0.0-20250314133115-a00f5ff69f28
 	github.com/nais/tester v0.1.0-pre.13
 	github.com/nais/unleasherator v0.0.0-20240513081022-06f454638fc1
-	github.com/nais/v13s/pkg/api v0.0.0-20250508124628-82124a3052d1
+	github.com/nais/v13s/pkg/api v0.0.0-20250520123915-26ebc4ba7eef
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pressly/goose/v3 v3.24.1
 	github.com/prometheus/client_golang v1.21.1
@@ -135,7 +136,6 @@ require (
 	github.com/cpuguy83/dockercfg v0.3.2 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.6 // indirect
 	github.com/cubicdaiya/gonp v1.0.4 // indirect
-	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0 // indirect
 	github.com/dennwc/varint v1.0.0 // indirect
 	github.com/distribution/reference v0.6.0 // indirect

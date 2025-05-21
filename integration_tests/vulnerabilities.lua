@@ -9,26 +9,23 @@ Test.gql("List vulnerability history for image", function(t)
 			team(slug: "%s") {
 				environment(name: "%s") {
 					workload(name: "%s") {
-						vulnerabilityHistory {
-							nodes {
-								id
-								date
-								summary {
-									total
-									riskScore
-									critical
-									high
-									medium
-									low
-									unassigned
-								}
+						vulnerabilityHistory(from: "%s") {
+							summary {
+								riskScore
+								total
+								critical
+								high
+								medium
+								low
+								unassigned
 							}
+							date
 						}
 					}
 				}
 			}
 		}
-	]], team:slug(), "dev", "app-with-vulnerabilities"))
+	]], team:slug(), "dev", "app-with-vulnerabilities", os.date("%Y-%m-%d")))
 
 	t.check {
 		data = {
@@ -36,7 +33,7 @@ Test.gql("List vulnerability history for image", function(t)
 				environment = {
 					workload = {
 						vulnerabilityHistory = {
-							nodes = { { id = NotNull(), date = NotNull(), summary = { total = NotNull(), riskScore = NotNull(), critical = NotNull(), high = NotNull(), medium = NotNull(), low = NotNull(), unassigned = NotNull() } } },
+							{ date = NotNull(), summary = { total = NotNull(), riskScore = NotNull(), critical = NotNull(), high = NotNull(), medium = NotNull(), low = NotNull(), unassigned = NotNull() } },
 						},
 					},
 				},

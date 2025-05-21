@@ -494,10 +494,8 @@ github.com/nais/tester v0.1.0-pre.13 h1:nkoaNi/AxctcYaUtvFBeLBSQ6G0mFB1D0BK5bsDA
 github.com/nais/tester v0.1.0-pre.13/go.mod h1:VDHg4k++AIbuHjBhXS+ORrJxj71NBE1y2CPNN/ouYbA=
 github.com/nais/unleasherator v0.0.0-20240513081022-06f454638fc1 h1:Ei6o4MzKnaGys+uVHNcZd1ttV9lcmHGX3whH1GyPV8E=
 github.com/nais/unleasherator v0.0.0-20240513081022-06f454638fc1/go.mod h1:p5j21mYqhbtfQeTqs6lHgsuaL28tY5oNNf1r+gADFe0=
-github.com/nais/v13s/pkg/api v0.0.0-20250328111303-78a291150b39 h1:SrquN7l6YzCGU5jguTda6/ffTZZtsDTu+JVWoO4TFKY=
-github.com/nais/v13s/pkg/api v0.0.0-20250328111303-78a291150b39/go.mod h1:eNAmzXkJk7QGyLq+E46LbLj42OtlXRDsaWXGlXvKVpU=
-github.com/nais/v13s/pkg/api v0.0.0-20250508124628-82124a3052d1 h1:Xe9YszGRn/sRTydLR6EAOB39NLGgWhif5DhL8tgO0hE=
-github.com/nais/v13s/pkg/api v0.0.0-20250508124628-82124a3052d1/go.mod h1:eNAmzXkJk7QGyLq+E46LbLj42OtlXRDsaWXGlXvKVpU=
+github.com/nais/v13s/pkg/api v0.0.0-20250520123915-26ebc4ba7eef h1:RjX8+Qoa7YCrXSjozGe6g/SwrxjIO2GG9SAem7m6+cQ=
+github.com/nais/v13s/pkg/api v0.0.0-20250520123915-26ebc4ba7eef/go.mod h1:eNAmzXkJk7QGyLq+E46LbLj42OtlXRDsaWXGlXvKVpU=
 github.com/ncruces/go-strftime v0.1.9 h1:bY0MQC28UADQmHmaF5dgpLmImcShSi2kHU9XLdhx/f4=
 github.com/ncruces/go-strftime v0.1.9/go.mod h1:Fwc5htZGVVkseilnfgOVb9mKy6w1naJmn9CehxcKcls=
 github.com/oklog/ulid v1.3.1 h1:EGfNDEx6MqHz8B3uNV6QAib1UR2Lm97sHi3ocA6ESJ4=
