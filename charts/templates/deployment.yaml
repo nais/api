@@ -74,7 +74,7 @@ spec:
             - name: OAUTH_FRONTEND_URL
               value: "https://{{ .Values.host }}"
             - name: OAUTH_ADDITIONAL_SCOPES
-              value: "urn:zitadel:iam:org:idp:id:{{ .Values.zitadel.idpID }},urn:zitadel:iam:org:id:{{ .Values.zitadel.organizationID }}"
+              value: "urn:zitadel:iam:org:id:{{ .Values.zitadel.organizationID }}"
             - name: LISTEN_ADDRESS
               value: ":3000"
             - name: INTERNAL_LISTEN_ADDRESS
