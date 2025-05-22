@@ -2,6 +2,49 @@ Helper.readK8sResources("k8s_resources/vulnerability")
 local team = Team.new("slug-1", "purpose", "#channel")
 local user = User.new("authenticated", "authenticated@example.com", "some-id")
 
+Test.gql("List vulnerability history for image", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		{
+			team(slug: "%s") {
+				environment(name: "%s") {
+					workload(name: "%s") {
+						imageVulnerabilityHistory(from: "%s") {
+							samples {
+								summary {
+									riskScore
+									total
+									critical
+									high
+									medium
+									low
+									unassigned
+								}
+								date
+							}
+						}
+					}
+				}
+			}
+		}
+	]], team:slug(), "dev", "app-with-vulnerabilities", os.date("%Y-%m-%d")))
+
+	t.check {
+		data = {
+			team = {
+				environment = {
+					workload = {
+						imageVulnerabilityHistory = { samples = {
+							{ date = NotNull(), summary = { total = NotNull(), riskScore = NotNull(), critical = NotNull(), high = NotNull(), medium = NotNull(), low = NotNull(), unassigned = NotNull() } },
+						} },
+					},
+				},
+			},
+		},
+	}
+end)
+
+
 Test.gql("List vulnerability summaries for team", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query(string.format([[
