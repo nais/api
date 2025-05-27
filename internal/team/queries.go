@@ -139,7 +139,7 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*Team, error) {
 }
 
 func List(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder) (*TeamConnection, error) {
-	if SortFilter.SupportsSort(orderBy.Field) {
+	if orderBy != nil && SortFilter.SupportsSort(orderBy.Field) {
 		// These aren't available in the SQL database, so we need custom handling.
 		return listAndSortByExternalSort(ctx, page, orderBy)
 	}
