@@ -249,6 +249,46 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ListRow, error) 
 	return items, nil
 }
 
+const listAllForExternalSort = `-- name: ListAllForExternalSort :many
+SELECT
+	slug, purpose, last_successful_sync, slack_channel, google_group_email, entra_id_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
+FROM
+	teams
+ORDER BY
+	slug ASC
+`
+
+func (q *Queries) ListAllForExternalSort(ctx context.Context) ([]*Team, error) {
+	rows, err := q.db.Query(ctx, listAllForExternalSort)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*Team{}
+	for rows.Next() {
+		var i Team
+		if err := rows.Scan(
+			&i.Slug,
+			&i.Purpose,
+			&i.LastSuccessfulSync,
+			&i.SlackChannel,
+			&i.GoogleGroupEmail,
+			&i.EntraIDGroupID,
+			&i.GithubTeamSlug,
+			&i.GarRepository,
+			&i.CdnBucket,
+			&i.DeleteKeyConfirmedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listAllForSearch = `-- name: ListAllForSearch :many
 SELECT
 	slug,

@@ -139,6 +139,11 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*Team, error) {
 }
 
 func List(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder) (*TeamConnection, error) {
+	if SortFilter.SupportsSort(orderBy.Field) {
+		// These aren't available in the SQL database, so we need custom handling.
+		return listAndSortByExternalSort(ctx, page, orderBy)
+	}
+
 	q := db(ctx)
 
 	ret, err := q.List(ctx, teamsql.ListParams{
@@ -158,6 +163,22 @@ func List(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder) 
 	return pagination.NewConvertConnection(ret, page, total, func(from *teamsql.ListRow) *Team {
 		return toGraphTeam(&from.Team)
 	}), nil
+}
+
+func listAndSortByExternalSort(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder) (*TeamConnection, error) {
+	all, err := db(ctx).ListAllForExternalSort(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	teams := make([]*Team, len(all))
+	for i, t := range all {
+		teams[i] = toGraphTeam(t)
+	}
+
+	SortFilter.Sort(ctx, teams, orderBy.Field, orderBy.Direction)
+
+	return pagination.NewConnection(pagination.Slice(teams, page), page, len(all)), nil
 }
 
 func ListForUser(ctx context.Context, userID uuid.UUID, page *pagination.Pagination, orderBy *UserTeamOrder) (*TeamMemberConnection, error) {
