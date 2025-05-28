@@ -62,6 +62,15 @@ OFFSET
 	sqlc.arg('offset')
 ;
 
+-- name: ListAllForExternalSort :many
+SELECT
+	*
+FROM
+	teams
+ORDER BY
+	slug ASC
+;
+
 -- name: Get :one
 SELECT
 	*
