@@ -183,8 +183,6 @@ Test.gql("Create team with invalid slug", function(t)
 	}
 	testSlugWithTeamPrefix(invalidPrefix, Contains("The name prefix 'team' is redundant."))
 
-
-
 	local reservedPrefix = {
 		"naisteam",
 		"nais-foo",
