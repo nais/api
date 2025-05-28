@@ -84,12 +84,12 @@ const (
 	TeamOrderFieldSlug TeamOrderField = "SLUG"
 )
 
-var AllTeamOrderField = []TeamOrderField{
+var AllTeamOrderFields = []TeamOrderField{
 	TeamOrderFieldSlug,
 }
 
 func (e TeamOrderField) IsValid() bool {
-	return slices.Contains(AllTeamOrderField, e)
+	return slices.Contains(AllTeamOrderFields, e)
 }
 
 func (e TeamOrderField) String() string {
