@@ -414,7 +414,7 @@ input SetTeamMemberRoleInput {
 "Possible fields to order teams by."
 enum TeamOrderField {
 	"The unique slug of the team."
-	TEAM_SLUG
+	SLUG
 }
 
 "Possible fields to order team members by."
