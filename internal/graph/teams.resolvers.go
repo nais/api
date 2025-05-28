@@ -25,6 +25,18 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input team.CreateTeam
 		return nil, &slug.ErrInvalidSlug{Message: "The name prefix 'team' is redundant. When you create a team, it is by definition a team. Try again with a different name, perhaps just removing the prefix?"}
 	}
 
+	if strings.HasPrefix(input.Slug.String(), "nais") && input.Slug != "nais-verification" {
+		// The nais prefix is reserved for internal use, so we do not allow teams to be created with this prefix.
+		// atm. `nais-verification` is the only exception, as it is created by the nais-verification service
+		return nil, &slug.ErrInvalidSlug{Message: "The name prefix 'nais' is reserved."}
+	}
+
+	if strings.HasPrefix(input.Slug.String(), "pg-") {
+		// The pg- prefix is reserved for internal use, so we do not allow teams to be created with this prefix.
+		// These namespaces are used for Postgres databases in the environment.
+		return nil, &slug.ErrInvalidSlug{Message: "The name prefix 'pg-' is reserved."}
+	}
+
 	if team.NamespaceExists(ctx, input.Slug) {
 		return nil, &slug.ErrInvalidSlug{Message: "The team slug is not available."}
 	}
