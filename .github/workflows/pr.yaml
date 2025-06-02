@@ -33,6 +33,7 @@ jobs:
       - name: Check code format and run code generators
         run: |
           mise run fmt ::: generate
+          go mod tidy
           git diff --exit-code --name-only
 
   build_push:

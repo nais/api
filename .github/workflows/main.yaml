@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - main
-    paths-ignore: data/**
+    paths-ignore: [data/**]
   workflow_dispatch:
 env:
   NAME: nais-api
