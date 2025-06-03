@@ -125,3 +125,10 @@ extend enum JobOrderField {
 	"Order jobs by status."
 	STATUS
 }
+
+extend input TeamWorkloadsFilter {
+	"""
+	Filter workloads with workload status errors.
+	"""
+	withStates: [WorkloadState!]
+}
