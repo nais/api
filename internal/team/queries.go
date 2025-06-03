@@ -3,6 +3,8 @@ package team
 import (
 	"context"
 	"errors"
+	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -140,6 +142,10 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*Team, error) {
 
 func List(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder) (*TeamConnection, error) {
 	if orderBy != nil && SortFilter.SupportsSort(orderBy.Field) {
+		start := time.Now()
+		defer func() {
+			fmt.Println("Sorting teams took", time.Since(start))
+		}()
 		// These aren't available in the SQL database, so we need custom handling.
 		return listAndSortByExternalSort(ctx, page, orderBy)
 	}
