@@ -19,7 +19,7 @@ values:
     displayName: Aiven API-token
     computed:
       template: |
-        {{ .Env.aiven_nais_api_user_token | quote }}
+        {{ .Env.aiven_application_token_nais_api_user | quote }}
     config:
       type: string
       secret: true
