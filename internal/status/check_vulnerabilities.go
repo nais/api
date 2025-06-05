@@ -19,7 +19,7 @@ func (checkVulnerabilities) Run(ctx context.Context, w workload.Workload) ([]Wor
 		return []WorkloadStatusError{&WorkloadStatusMissingSBOM{Level: WorkloadStatusErrorLevelTodo}}, WorkloadStateNais
 	}
 
-	if md.Summary.Critical > 0 {
+	if md.Summary.Critical > 0 || md.Summary.RiskScore >= 100 {
 		return []WorkloadStatusError{
 			&WorkloadStatusVulnerable{
 				Level:   WorkloadStatusErrorLevelWarning,
