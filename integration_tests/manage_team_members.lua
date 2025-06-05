@@ -176,7 +176,7 @@ Test.gql("Change role", function(t)
 	}
 end)
 
-Test.pubsub("Check if pubsub message was sent", function(t)
+Test.pubsub("Check if pubsub message was sent after role change", function(t)
 	t.check("topic", {
 		attributes = {
 			CorrelationID = NotNull(),
