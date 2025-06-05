@@ -14,9 +14,12 @@ var (
 )
 
 func init() {
+	SortFilter.RegisterSort("_KIND", func(ctx context.Context, a, b Workload) int {
+		return strings.Compare(a.GetType().String(), b.GetType().String())
+	})
 	SortFilter.RegisterSort("NAME", func(ctx context.Context, a, b Workload) int {
 		return strings.Compare(a.GetName(), b.GetName())
-	}, "ENVIRONMENT")
+	}, "ENVIRONMENT", "_KIND")
 	SortFilter.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b Workload) int {
 		return strings.Compare(a.GetEnvironmentName(), b.GetEnvironmentName())
 	}, "NAME")
