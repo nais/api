@@ -75,6 +75,70 @@ Test.gql("app with deprecated ingress", function(t)
 	}
 end)
 
+Test.gql("app with deprecated cloud sql instance", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(statusQuery("slug-1", "dev-gcp", "deprecated-cloud-sql", [[
+		...on WorkloadStatusUnsupportedCloudSQLVersion {
+			level
+			version
+		}
+	]]))
+
+	t.check {
+		data = {
+			team = {
+				environment = {
+					application = {
+						status = {
+							state = "NOT_NAIS",
+							errors = {
+								{
+									__typename = "WorkloadStatusUnsupportedCloudSQLVersion",
+									version = "POSTGRES_13",
+									level = "WARNING",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("app with unsupported cloud sql instance", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(statusQuery("slug-1", "dev-gcp", "unsupported-cloud-sql", [[
+		...on WorkloadStatusUnsupportedCloudSQLVersion {
+			level
+			version
+		}
+	]]))
+
+	t.check {
+		data = {
+			team = {
+				environment = {
+					application = {
+						status = {
+							state = "NOT_NAIS",
+							errors = {
+								{
+									__typename = "WorkloadStatusUnsupportedCloudSQLVersion",
+									version = "POSTGRES_12",
+									level = "ERROR",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("app with deprecated registry", function(t)
 	t.addHeader("x-user-email", user:email())
 

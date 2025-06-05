@@ -24,4 +24,5 @@ var checksToRun = []Check{
 	// checkNetpol{},
 	checkAppNoRunningInstances{},
 	checkVulnerabilities{},
+	checkDeprecatedPostgresVersion{},
 }

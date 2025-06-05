@@ -46,6 +46,70 @@ Test.gql("job with no errors", function(t)
 	}
 end)
 
+Test.gql("job with deprecated cloud sql instance", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(statusQuery("slug-1", "dev-gcp", "jobname-1-deprecated-cloudsql", [[
+		...on WorkloadStatusUnsupportedCloudSQLVersion {
+			level
+			version
+		}
+	]]))
+
+	t.check {
+		data = {
+			team = {
+				environment = {
+					job = {
+						status = {
+							state = "NOT_NAIS",
+							errors = {
+								{
+									__typename = "WorkloadStatusUnsupportedCloudSQLVersion",
+									version = "POSTGRES_13",
+									level = "WARNING",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("job with unsupported cloud sql instance", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query(statusQuery("slug-1", "dev-gcp", "jobname-1-unsupported-cloudsql", [[
+		...on WorkloadStatusUnsupportedCloudSQLVersion {
+			level
+			version
+		}
+	]]))
+
+	t.check {
+		data = {
+			team = {
+				environment = {
+					job = {
+						status = {
+							state = "NOT_NAIS",
+							errors = {
+								{
+									__typename = "WorkloadStatusUnsupportedCloudSQLVersion",
+									version = "POSTGRES_12",
+									level = "ERROR",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("job with deprecated registry", function(t)
 	t.addHeader("x-user-email", user:email())
 
