@@ -70,6 +70,13 @@ type WorkloadStatusVulnerable struct {
 
 func (w WorkloadStatusVulnerable) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
+type WorkloadStatusUnsupportedCloudSQLVersion struct {
+	Level   WorkloadStatusErrorLevel `json:"level"`
+	Version string                   `json:"version"`
+}
+
+func (w WorkloadStatusUnsupportedCloudSQLVersion) GetLevel() WorkloadStatusErrorLevel { return w.Level }
+
 type WorkloadStatus struct {
 	State  WorkloadState         `json:"state"`
 	Errors []WorkloadStatusError `json:"errors"`

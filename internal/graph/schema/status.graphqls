@@ -34,6 +34,14 @@ type WorkloadStatusDeprecatedRegistry implements WorkloadStatusError {
 	tag: String!
 }
 
+"Error describing usage of an instance of Cloud SQL with a unsupported version"
+type WorkloadStatusUnsupportedCloudSQLVersion implements WorkloadStatusError {
+	"Error level. Warning if the version is deprecated, error if the version is unsupported."
+	level: WorkloadStatusErrorLevel!
+	"Postgres version"
+	version: String!
+}
+
 "Error describing usage of a deprecated ingress"
 type WorkloadStatusDeprecatedIngress implements WorkloadStatusError {
 	"Error level"
