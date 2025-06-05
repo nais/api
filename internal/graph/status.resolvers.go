@@ -17,14 +17,14 @@ func (r *jobResolver) Status(ctx context.Context, obj *job.Job) (*status.Workloa
 	return status.ForWorkload(ctx, obj), nil
 }
 
-func (r *teamWorkloadsFilterResolver) WithStates(ctx context.Context, obj *workload.TeamWorkloadsFilter, data []status.WorkloadState) error {
+func (r *teamWorkloadsFilterResolver) States(ctx context.Context, obj *workload.TeamWorkloadsFilter, data []status.WorkloadState) error {
 	if len(data) == 0 {
 		return nil
 	}
 
-	obj.WithStates = make([]string, len(data))
+	obj.States = make([]string, len(data))
 	for i, state := range data {
-		obj.WithStates[i] = state.String()
+		obj.States[i] = state.String()
 	}
 	return nil
 }

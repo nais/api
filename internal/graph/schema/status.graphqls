@@ -128,7 +128,7 @@ extend enum JobOrderField {
 
 extend input TeamWorkloadsFilter {
 	"""
-	Filter workloads with workload status errors.
+	Filter workloads with given workload states.
 	"""
-	withStates: [WorkloadState!]
+	states: [WorkloadState!]
 }

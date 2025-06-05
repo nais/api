@@ -23,11 +23,11 @@ func init() {
 	}, "NAME", "ENVIRONMENT")
 
 	workload.SortFilter.RegisterFilter(func(ctx context.Context, v workload.Workload, filter *workload.TeamWorkloadsFilter) bool {
-		if len(filter.WithStates) == 0 {
+		if len(filter.States) == 0 {
 			return true
 		}
 
 		workloadState := ForWorkload(ctx, v).State
-		return slices.Contains(filter.WithStates, workloadState.String())
+		return slices.Contains(filter.States, workloadState.String())
 	})
 }

@@ -8,7 +8,7 @@ local function statusQuery(slug, filter)
 	return string.format([[
 		query {
 			team(slug: "%s") {
-				workloads(filter: { withStates: [%s] }) {
+				workloads(filter: { states: [%s] }) {
 					nodes {
 						__typename
 						name

@@ -267,5 +267,5 @@ func ReferenceFromOwnerReferences(ownerReferences []metav1.OwnerReference) *Refe
 
 type TeamWorkloadsFilter struct {
 	Environments []string `json:"environments,omitempty"`
-	WithStates   []string `json:"withStates,omitempty"`
+	States       []string `json:"states,omitempty"`
 }
