@@ -24,7 +24,6 @@ func (checkJobRuns) run(ctx context.Context, w workload.Workload) WorkloadStatus
 	page, _ := pagination.ParsePage(ptr.To(5), nil, nil, nil)
 	runs, err := job.Runs(ctx, w.GetTeamSlug(), w.GetEnvironmentName(), w.GetName(), page)
 	if err != nil {
-		// TODO(chredvar): Unable to create label selector above, log?
 		return &WorkloadStatusSynchronizationFailing{
 			Level: WorkloadStatusErrorLevelUnknown,
 		}
@@ -41,13 +40,22 @@ func (checkJobRuns) run(ctx context.Context, w workload.Workload) WorkloadStatus
 		}
 	}
 
-	if tmpRun != nil {
-		if tmpRun.Failed {
-			return &WorkloadStatusFailedRun{
-				Level:  WorkloadStatusErrorLevelWarning,
-				Detail: tmpRun.Message,
-				Name:   tmpRun.Name,
-			}
+	if tmpRun == nil {
+		// No runs found, workload is not failing
+		return nil
+	}
+
+	if tmpRun.Status().State == job.JobRunStateRunning {
+		// Job is actively running
+		return nil
+	}
+
+	if tmpRun.Failed {
+		// Job run has failed
+		return &WorkloadStatusFailedRun{
+			Level:  WorkloadStatusErrorLevelWarning,
+			Detail: tmpRun.Message,
+			Name:   tmpRun.Name,
 		}
 	}
 
