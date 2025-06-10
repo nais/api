@@ -151,59 +151,23 @@ Test.gql("job with naiserator failed synchronization", function(t)
 	}
 end)
 
+Test.gql("job that failed, but is running", function(t)
+	t.addHeader("x-user-email", user:email())
 
--- Test.gql("job with failing netpols", function(t)
--- 	t.addHeader("x-user-email", user:email())
+	t.query(statusQuery("slug-1", "dev", "job-failed-running"))
 
--- 	t.query(statusQuery("slug-1", "dev", "failed-netpol", [[
--- 		... on WorkloadStatusInboundNetwork {
--- 			policy {
--- 				targetWorkloadName
--- 				targetTeamSlug
--- 				mutual
--- 			}
--- 		}
--- 		... on WorkloadStatusOutboundNetwork {
--- 			policy {
--- 				targetWorkloadName
--- 				targetTeamSlug
--- 				mutual
--- 			}
--- 		}
--- 	]]))
-
--- 	t.check {
--- 		data = {
--- 			team = {
--- 				environment = {
--- 					job = {
--- 						status = {
--- 							state = "NOT_NAIS",
--- 							errors = {
--- 								{
--- 									__typename = "WorkloadStatusInboundNetwork",
--- 									level = "WARNING",
--- 									policy = {
--- 										mutual = false,
--- 										targetTeamSlug = "other-namespace",
--- 										targetWorkloadName = "other-app",
--- 									},
--- 								},
--- 								{
--- 									__typename = "WorkloadStatusOutboundNetwork",
--- 									level = "WARNING",
--- 									policy = {
--- 										mutual = false,
--- 										targetTeamSlug = "other-namespace",
--- 										targetWorkloadName = "other-app",
--- 									},
--- 								},
--- 								expectedMissingSBOM,
--- 							},
--- 						},
--- 					},
--- 				},
--- 			},
--- 		},
--- 	}
--- end)
+	t.check {
+		data = {
+			team = {
+				environment = {
+					job = {
+						status = {
+							state = "NAIS",
+							errors = {},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
