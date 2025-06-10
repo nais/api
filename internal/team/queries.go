@@ -140,14 +140,14 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*Team, error) {
 	return Get(ctx, teamSlug)
 }
 
-func List(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder) (*TeamConnection, error) {
+func List(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder, filter *TeamFilter) (*TeamConnection, error) {
 	if orderBy != nil && SortFilter.SupportsSort(orderBy.Field) {
 		start := time.Now()
 		defer func() {
 			fmt.Println("Sorting teams took", time.Since(start))
 		}()
 		// These aren't available in the SQL database, so we need custom handling.
-		return listAndSortByExternalSort(ctx, page, orderBy)
+		return listAndSortByExternalSort(ctx, page, orderBy, filter)
 	}
 
 	q := db(ctx)
@@ -161,17 +161,21 @@ func List(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder) 
 		return nil, err
 	}
 
-	var total int64
-	if len(ret) > 0 {
-		total = ret[0].TotalCount
+	teams := make([]*Team, len(ret))
+	for i, t := range ret {
+		teams[i] = toGraphTeam(&t.Team)
 	}
 
-	return pagination.NewConvertConnection(ret, page, total, func(from *teamsql.ListRow) *Team {
-		return toGraphTeam(&from.Team)
-	}), nil
+	filteredTeams := SortFilter.Filter(ctx, teams, filter)
+
+	if orderBy != nil {
+		SortFilter.Sort(ctx, filteredTeams, orderBy.Field, orderBy.Direction)
+	}
+
+	return pagination.NewConnection(pagination.Slice(filteredTeams, page), page, len(filteredTeams)), nil
 }
 
-func listAndSortByExternalSort(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder) (*TeamConnection, error) {
+func listAndSortByExternalSort(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder, filter *TeamFilter) (*TeamConnection, error) {
 	all, err := db(ctx).ListAllForExternalSort(ctx)
 	if err != nil {
 		return nil, err
@@ -182,9 +186,11 @@ func listAndSortByExternalSort(ctx context.Context, page *pagination.Pagination,
 		teams[i] = toGraphTeam(t)
 	}
 
-	SortFilter.Sort(ctx, teams, orderBy.Field, orderBy.Direction)
+	filteredTeams := SortFilter.Filter(ctx, teams, filter)
 
-	return pagination.NewConnection(pagination.Slice(teams, page), page, len(all)), nil
+	SortFilter.Sort(ctx, filteredTeams, orderBy.Field, orderBy.Direction)
+
+	return pagination.NewConnection(pagination.Slice(filteredTeams, page), page, len(filteredTeams)), nil
 }
 
 func ListForUser(ctx context.Context, userID uuid.UUID, page *pagination.Pagination, orderBy *UserTeamOrder) (*TeamMemberConnection, error) {

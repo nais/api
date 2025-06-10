@@ -352,6 +352,10 @@ func (e UserTeamOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type TeamFilter struct {
+	HasWorkloads bool `json:"hasWorkloads"`
+}
+
 type CreateTeamInput struct {
 	Slug         slug.Slug `json:"slug"`
 	Purpose      string    `json:"purpose"`

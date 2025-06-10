@@ -87,7 +87,7 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Query.ServiceAccounts = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.Query.Teams = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) int {
+	c.Query.Teams = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder, filter *team.TeamFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Query.UserSyncLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {

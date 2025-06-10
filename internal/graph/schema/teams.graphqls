@@ -15,6 +15,9 @@ extend type Query {
 
 		"Ordering options for items returned from the connection."
 		orderBy: TeamOrder
+
+		"Filter options for the teams returned from the connection."
+		filter: TeamFilter
 	): TeamConnection!
 
 	"Get a team by its slug."
@@ -768,4 +771,14 @@ type TeamGoogleGroup {
 type TeamGoogleArtifactRegistry {
 	"The Google Artifact Registry for the team."
 	repository: String!
+}
+
+"""
+Input for filtering teams.
+"""
+input TeamFilter {
+	"""
+	Filter teams by the existence of workloads.
+	"""
+	hasWorkloads: Boolean!
 }
