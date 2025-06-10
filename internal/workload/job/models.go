@@ -78,7 +78,6 @@ type JobRun struct {
 	TeamSlug        slug.Slug      `json:"-"`
 	Failed          bool           `json:"-"`
 	Message         string         `json:"-"`
-	Ready           int            `json:"ready"`
 
 	spec *batchv1.Job
 }
