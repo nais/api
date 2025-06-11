@@ -164,7 +164,7 @@ func (c *FakeClient) Query(ctx context.Context, environment string, query string
 			return nil, err
 		}
 
-		teams, err := team.List(ctx, page, nil)
+		teams, err := team.List(ctx, page, nil, nil)
 		if err != nil {
 			return nil, err
 		}

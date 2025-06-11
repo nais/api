@@ -68,6 +68,12 @@ SELECT
 FROM
 	teams
 ORDER BY
+	CASE
+		WHEN @order_by::TEXT = 'slug:asc' THEN slug
+	END ASC,
+	CASE
+		WHEN @order_by::TEXT = 'slug:desc' THEN slug
+	END DESC,
 	slug ASC
 ;
 

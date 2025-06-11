@@ -251,13 +251,13 @@ func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, input team.Set
 	}, nil
 }
 
-func (r *queryResolver) Teams(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) (*pagination.Connection[*team.Team], error) {
+func (r *queryResolver) Teams(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder, filter *team.TeamFilter) (*pagination.Connection[*team.Team], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	return team.List(ctx, page, orderBy)
+	return team.List(ctx, page, orderBy, filter)
 }
 
 func (r *queryResolver) Team(ctx context.Context, slug slug.Slug) (*team.Team, error) {

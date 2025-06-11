@@ -464,7 +464,7 @@ func getAllTeams(ctx context.Context) ([]*team.Team, error) {
 		if err != nil {
 			return nil, err
 		}
-		conn, err := team.List(ctx, p, orderBy)
+		conn, err := team.List(ctx, p, orderBy, nil)
 		if err != nil {
 			return nil, err
 		}
