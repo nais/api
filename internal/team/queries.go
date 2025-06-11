@@ -163,7 +163,6 @@ func List(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder, 
 	return pagination.NewConvertConnection(ret, page, total, func(from *teamsql.ListRow) *Team {
 		return toGraphTeam(&from.Team)
 	}), nil
-
 }
 
 func listAndSortByExternalSort(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder, filter *TeamFilter) (*TeamConnection, error) {
