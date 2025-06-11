@@ -255,11 +255,17 @@ SELECT
 FROM
 	teams
 ORDER BY
+	CASE
+		WHEN $1::TEXT = 'slug:asc' THEN slug
+	END ASC,
+	CASE
+		WHEN $1::TEXT = 'slug:desc' THEN slug
+	END DESC,
 	slug ASC
 `
 
-func (q *Queries) ListAllForExternalSort(ctx context.Context) ([]*Team, error) {
-	rows, err := q.db.Query(ctx, listAllForExternalSort)
+func (q *Queries) ListAllForExternalSort(ctx context.Context, orderBy string) ([]*Team, error) {
+	rows, err := q.db.Query(ctx, listAllForExternalSort, orderBy)
 	if err != nil {
 		return nil, err
 	}

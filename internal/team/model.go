@@ -353,7 +353,7 @@ func (e UserTeamOrderField) MarshalGQL(w io.Writer) {
 }
 
 type TeamFilter struct {
-	HasWorkloads bool `json:"hasWorkloads"`
+	HasWorkloads *bool `json:"hasWorkloads"`
 }
 
 type CreateTeamInput struct {

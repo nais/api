@@ -780,5 +780,5 @@ input TeamFilter {
 	"""
 	Filter teams by the existence of workloads.
 	"""
-	hasWorkloads: Boolean!
+	hasWorkloads: Boolean
 }

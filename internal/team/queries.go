@@ -3,8 +3,6 @@ package team
 import (
 	"context"
 	"errors"
-	"fmt"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -13,6 +11,7 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team/teamsql"
@@ -141,12 +140,7 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*Team, error) {
 }
 
 func List(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder, filter *TeamFilter) (*TeamConnection, error) {
-	if orderBy != nil && SortFilter.SupportsSort(orderBy.Field) {
-		start := time.Now()
-		defer func() {
-			fmt.Println("Sorting teams took", time.Since(start))
-		}()
-		// These aren't available in the SQL database, so we need custom handling.
+	if (orderBy != nil && SortFilter.SupportsSort(orderBy.Field)) || filter != nil {
 		return listAndSortByExternalSort(ctx, page, orderBy, filter)
 	}
 
@@ -161,22 +155,19 @@ func List(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder, 
 		return nil, err
 	}
 
-	teams := make([]*Team, len(ret))
-	for i, t := range ret {
-		teams[i] = toGraphTeam(&t.Team)
+	var total int64
+	if len(ret) > 0 {
+		total = ret[0].TotalCount
 	}
 
-	filteredTeams := SortFilter.Filter(ctx, teams, filter)
+	return pagination.NewConvertConnection(ret, page, total, func(from *teamsql.ListRow) *Team {
+		return toGraphTeam(&from.Team)
+	}), nil
 
-	if orderBy != nil {
-		SortFilter.Sort(ctx, filteredTeams, orderBy.Field, orderBy.Direction)
-	}
-
-	return pagination.NewConnection(pagination.Slice(filteredTeams, page), page, len(filteredTeams)), nil
 }
 
 func listAndSortByExternalSort(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder, filter *TeamFilter) (*TeamConnection, error) {
-	all, err := db(ctx).ListAllForExternalSort(ctx)
+	all, err := db(ctx).ListAllForExternalSort(ctx, orderBy.String())
 	if err != nil {
 		return nil, err
 	}
@@ -188,8 +179,16 @@ func listAndSortByExternalSort(ctx context.Context, page *pagination.Pagination,
 
 	filteredTeams := SortFilter.Filter(ctx, teams, filter)
 
-	SortFilter.Sort(ctx, filteredTeams, orderBy.Field, orderBy.Direction)
+	if orderBy == nil {
+		orderBy = &TeamOrder{
+			Field:     "_SLUG",
+			Direction: model.OrderDirectionAsc,
+		}
+	} else if orderBy.Field == TeamOrderFieldSlug {
+		orderBy.Field = "_SLUG"
+	}
 
+	SortFilter.Sort(ctx, filteredTeams, orderBy.Field, orderBy.Direction)
 	return pagination.NewConnection(pagination.Slice(filteredTeams, page), page, len(filteredTeams)), nil
 }
 

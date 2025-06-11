@@ -17,16 +17,17 @@ func init() {
 	})
 
 	SortFilter.RegisterFilter(func(ctx context.Context, v *Team, filter *TeamFilter) bool {
-		if filter.HasWorkloads {
-			apps := application.ListAllForTeam(ctx, v.Slug, nil, nil)
-			if len(apps) > 0 {
-				return true
-			}
-			jobs := job.ListAllForTeam(ctx, v.Slug, nil, nil)
-			if len(jobs) > 0 {
-				return true
-			}
+		if filter.HasWorkloads == nil {
+			return true
 		}
-		return false
+		apps := application.ListAllForTeam(ctx, v.Slug, nil, nil)
+		if len(apps) > 0 {
+			return *filter.HasWorkloads
+		}
+		jobs := job.ListAllForTeam(ctx, v.Slug, nil, nil)
+		if len(jobs) > 0 {
+			return *filter.HasWorkloads
+		}
+		return !*filter.HasWorkloads
 	})
 }
