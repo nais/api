@@ -3,14 +3,17 @@ package graph
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/graph/model/donotuse"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/persistence/bigquery"
+	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
@@ -57,6 +60,10 @@ func (r *jobResolver) Cost(ctx context.Context, obj *job.Job) (*cost.WorkloadCos
 		WorkloadName:    obj.Name,
 		TeamSlug:        obj.TeamSlug,
 	}, nil
+}
+
+func (r *kafkaTopicResolver) Cost(ctx context.Context, obj *kafkatopic.KafkaTopic) (*donotuse.KafkaTopicCost, error) {
+	panic(fmt.Errorf("not implemented: Cost - cost"))
 }
 
 func (r *openSearchResolver) Cost(ctx context.Context, obj *opensearch.OpenSearch) (*cost.OpenSearchCost, error) {
