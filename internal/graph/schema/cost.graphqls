@@ -196,3 +196,11 @@ extend type SqlInstance {
 type SqlInstanceCost {
 	sum: Float!
 }
+
+extend type KafkaTopic {
+      cost: KafkaTopicCost!
+}
+
+type KafkaTopicCost {
+       sum: Float!
+}
