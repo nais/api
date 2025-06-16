@@ -28,3 +28,15 @@ func (r *teamWorkloadsFilterResolver) States(ctx context.Context, obj *workload.
 	}
 	return nil
 }
+
+func (r *teamWorkloadsFilterResolver) StatusErrorTypes(ctx context.Context, obj *workload.TeamWorkloadsFilter, data []status.WorkloadStatusErrorType) error {
+	if len(data) == 0 {
+		return nil
+	}
+
+	obj.WorkloadStatusErrorTypes = make([]string, len(data))
+	for i, errorType := range data {
+		obj.WorkloadStatusErrorTypes[i] = errorType.String()
+	}
+	return nil
+}

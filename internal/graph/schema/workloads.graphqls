@@ -372,9 +372,4 @@ input TeamWorkloadsFilter {
 	Only return workloads from the given named environments.
 	"""
 	environments: [String!]
-
-	"""
-	Only return workloads with status errors.
-	"""
-	hasStatusErrors: Boolean
 }
