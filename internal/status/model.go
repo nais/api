@@ -18,31 +18,10 @@ type WorkloadStatusDeprecatedIngress struct {
 	Ingress string                   `json:"ingress"`
 }
 
-/*
-
-DEPRECATED_REGISTRY
-	"Error describing usage of a deprecated ingress"
-	DEPRECATED_INGRESS
-	"Error describing usage of an instance of Cloud SQL with a unsupported version"
-	UNSUPPORTED_CLOUD_SQL_VERSION
-	"Error describing that the workload is failing to synchronize"
-	SYNCHRONIZATION_FAILING
-	"Error describing that the workload is failing to run"
-	FAILED_RUN
-	"Error describing that the workload is missing SBOM"
-	MISSING_SBOM
-	"Error describing that the workload is vulnerable"
-	VULNERABLE
-	"Workload does not have any active instances, but is requested to have some"
-	NO_RUNNING_INSTANCES
-	"Last deployed YAML is invalid"
-	INVALID_NAIS_YAML
-*/
-
 func (w WorkloadStatusDeprecatedIngress) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
 func (w WorkloadStatusDeprecatedIngress) GetName() string {
-	return "DEPRECATED_INGRESS"
+	return WorkloadStatusErrorTypeDeprecatedIngress.String()
 }
 
 type WorkloadStatusDeprecatedRegistry struct {
@@ -56,7 +35,7 @@ type WorkloadStatusDeprecatedRegistry struct {
 func (w WorkloadStatusDeprecatedRegistry) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
 func (w WorkloadStatusDeprecatedRegistry) GetName() string {
-	return "DEPRECATED_REGISTRY"
+	return WorkloadStatusErrorTypeDeprecatedRegistry.String()
 }
 
 type WorkloadStatusInvalidNaisYaml struct {
@@ -67,7 +46,7 @@ type WorkloadStatusInvalidNaisYaml struct {
 func (w WorkloadStatusInvalidNaisYaml) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
 func (w WorkloadStatusInvalidNaisYaml) GetName() string {
-	return "INVALID_NAIS_YAML"
+	return WorkloadStatusErrorTypeInvalidNaisYaml.String()
 }
 
 type WorkloadStatusNoRunningInstances struct {
@@ -77,7 +56,7 @@ type WorkloadStatusNoRunningInstances struct {
 func (w WorkloadStatusNoRunningInstances) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
 func (w WorkloadStatusNoRunningInstances) GetName() string {
-	return "NO_RUNNING_INSTANCES"
+	return WorkloadStatusErrorTypeNoRunningInstances.String()
 }
 
 type WorkloadStatusSynchronizationFailing struct {
@@ -88,7 +67,7 @@ type WorkloadStatusSynchronizationFailing struct {
 func (w WorkloadStatusSynchronizationFailing) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
 func (w WorkloadStatusSynchronizationFailing) GetName() string {
-	return "SYNCHRONIZATION_FAILING"
+	return WorkloadStatusErrorTypeSynchronizationFailing.String()
 }
 
 type WorkloadStatusFailedRun struct {
@@ -100,7 +79,7 @@ type WorkloadStatusFailedRun struct {
 func (w WorkloadStatusFailedRun) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
 func (w WorkloadStatusFailedRun) GetName() string {
-	return "FAILED_RUN"
+	return WorkloadStatusErrorTypeFailedRun.String()
 }
 
 type WorkloadStatusMissingSBOM struct {
@@ -110,7 +89,7 @@ type WorkloadStatusMissingSBOM struct {
 func (w WorkloadStatusMissingSBOM) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
 func (w WorkloadStatusMissingSBOM) GetName() string {
-	return "MISSING_SBOM"
+	return WorkloadStatusErrorTypeMissingSbom.String()
 }
 
 type WorkloadStatusVulnerable struct {
@@ -121,7 +100,7 @@ type WorkloadStatusVulnerable struct {
 func (w WorkloadStatusVulnerable) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
 func (w WorkloadStatusVulnerable) GetName() string {
-	return "VULNERABLE"
+	return WorkloadStatusErrorTypeVulnerable.String()
 }
 
 type WorkloadStatusUnsupportedCloudSQLVersion struct {
@@ -132,7 +111,7 @@ type WorkloadStatusUnsupportedCloudSQLVersion struct {
 func (w WorkloadStatusUnsupportedCloudSQLVersion) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
 func (w WorkloadStatusUnsupportedCloudSQLVersion) GetName() string {
-	return "UNSUPPORTED_CLOUD_SQL_VERSION"
+	return WorkloadStatusErrorTypeUnsupportedCloudSQLVersion.String()
 }
 
 type WorkloadStatus struct {
