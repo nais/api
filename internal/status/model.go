@@ -10,6 +10,7 @@ import (
 
 type WorkloadStatusError interface {
 	GetLevel() WorkloadStatusErrorLevel
+	GetName() string
 }
 
 type WorkloadStatusDeprecatedIngress struct {
@@ -18,6 +19,10 @@ type WorkloadStatusDeprecatedIngress struct {
 }
 
 func (w WorkloadStatusDeprecatedIngress) GetLevel() WorkloadStatusErrorLevel { return w.Level }
+
+func (w WorkloadStatusDeprecatedIngress) GetName() string {
+	return WorkloadStatusErrorTypeDeprecatedIngress.String()
+}
 
 type WorkloadStatusDeprecatedRegistry struct {
 	Level      WorkloadStatusErrorLevel `json:"level"`
@@ -29,6 +34,10 @@ type WorkloadStatusDeprecatedRegistry struct {
 
 func (w WorkloadStatusDeprecatedRegistry) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
+func (w WorkloadStatusDeprecatedRegistry) GetName() string {
+	return WorkloadStatusErrorTypeDeprecatedRegistry.String()
+}
+
 type WorkloadStatusInvalidNaisYaml struct {
 	Level  WorkloadStatusErrorLevel `json:"level"`
 	Detail string                   `json:"detail"`
@@ -36,11 +45,19 @@ type WorkloadStatusInvalidNaisYaml struct {
 
 func (w WorkloadStatusInvalidNaisYaml) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
+func (w WorkloadStatusInvalidNaisYaml) GetName() string {
+	return WorkloadStatusErrorTypeInvalidNaisYaml.String()
+}
+
 type WorkloadStatusNoRunningInstances struct {
 	Level WorkloadStatusErrorLevel `json:"level"`
 }
 
 func (w WorkloadStatusNoRunningInstances) GetLevel() WorkloadStatusErrorLevel { return w.Level }
+
+func (w WorkloadStatusNoRunningInstances) GetName() string {
+	return WorkloadStatusErrorTypeNoRunningInstances.String()
+}
 
 type WorkloadStatusSynchronizationFailing struct {
 	Level  WorkloadStatusErrorLevel `json:"level"`
@@ -48,6 +65,10 @@ type WorkloadStatusSynchronizationFailing struct {
 }
 
 func (w WorkloadStatusSynchronizationFailing) GetLevel() WorkloadStatusErrorLevel { return w.Level }
+
+func (w WorkloadStatusSynchronizationFailing) GetName() string {
+	return WorkloadStatusErrorTypeSynchronizationFailing.String()
+}
 
 type WorkloadStatusFailedRun struct {
 	Level  WorkloadStatusErrorLevel `json:"level"`
@@ -57,11 +78,19 @@ type WorkloadStatusFailedRun struct {
 
 func (w WorkloadStatusFailedRun) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
+func (w WorkloadStatusFailedRun) GetName() string {
+	return WorkloadStatusErrorTypeFailedRun.String()
+}
+
 type WorkloadStatusMissingSBOM struct {
 	Level WorkloadStatusErrorLevel `json:"level"`
 }
 
 func (w WorkloadStatusMissingSBOM) GetLevel() WorkloadStatusErrorLevel { return w.Level }
+
+func (w WorkloadStatusMissingSBOM) GetName() string {
+	return WorkloadStatusErrorTypeMissingSbom.String()
+}
 
 type WorkloadStatusVulnerable struct {
 	Level   WorkloadStatusErrorLevel                 `json:"level"`
@@ -70,12 +99,20 @@ type WorkloadStatusVulnerable struct {
 
 func (w WorkloadStatusVulnerable) GetLevel() WorkloadStatusErrorLevel { return w.Level }
 
+func (w WorkloadStatusVulnerable) GetName() string {
+	return WorkloadStatusErrorTypeVulnerable.String()
+}
+
 type WorkloadStatusUnsupportedCloudSQLVersion struct {
 	Level   WorkloadStatusErrorLevel `json:"level"`
 	Version string                   `json:"version"`
 }
 
 func (w WorkloadStatusUnsupportedCloudSQLVersion) GetLevel() WorkloadStatusErrorLevel { return w.Level }
+
+func (w WorkloadStatusUnsupportedCloudSQLVersion) GetName() string {
+	return WorkloadStatusErrorTypeUnsupportedCloudSQLVersion.String()
+}
 
 type WorkloadStatus struct {
 	State  WorkloadState         `json:"state"`
@@ -197,5 +234,69 @@ func (e *WorkloadStatusErrorLevel) UnmarshalGQL(v interface{}) error {
 }
 
 func (e WorkloadStatusErrorLevel) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type WorkloadStatusErrorType string
+
+const (
+	// Error describing usage of a deprecated registry
+	WorkloadStatusErrorTypeDeprecatedRegistry WorkloadStatusErrorType = "DEPRECATED_REGISTRY"
+	// Error describing usage of a deprecated ingress
+	WorkloadStatusErrorTypeDeprecatedIngress WorkloadStatusErrorType = "DEPRECATED_INGRESS"
+	// Error describing usage of an instance of Cloud SQL with a unsupported version
+	WorkloadStatusErrorTypeUnsupportedCloudSQLVersion WorkloadStatusErrorType = "UNSUPPORTED_CLOUD_SQL_VERSION"
+	// Error describing that the workload is failing to synchronize
+	WorkloadStatusErrorTypeSynchronizationFailing WorkloadStatusErrorType = "SYNCHRONIZATION_FAILING"
+	// Error describing that the workload is failing to run
+	WorkloadStatusErrorTypeFailedRun WorkloadStatusErrorType = "FAILED_RUN"
+	// Error describing that the workload is missing SBOM
+	WorkloadStatusErrorTypeMissingSbom WorkloadStatusErrorType = "MISSING_SBOM"
+	// Error describing that the workload is vulnerable
+	WorkloadStatusErrorTypeVulnerable WorkloadStatusErrorType = "VULNERABLE"
+	// Workload does not have any active instances, but is requested to have some
+	WorkloadStatusErrorTypeNoRunningInstances WorkloadStatusErrorType = "NO_RUNNING_INSTANCES"
+	// Last deployed YAML is invalid
+	WorkloadStatusErrorTypeInvalidNaisYaml WorkloadStatusErrorType = "INVALID_NAIS_YAML"
+)
+
+var AllWorkloadStatusErrorType = []WorkloadStatusErrorType{
+	WorkloadStatusErrorTypeDeprecatedRegistry,
+	WorkloadStatusErrorTypeDeprecatedIngress,
+	WorkloadStatusErrorTypeUnsupportedCloudSQLVersion,
+	WorkloadStatusErrorTypeSynchronizationFailing,
+	WorkloadStatusErrorTypeFailedRun,
+	WorkloadStatusErrorTypeMissingSbom,
+	WorkloadStatusErrorTypeVulnerable,
+	WorkloadStatusErrorTypeNoRunningInstances,
+	WorkloadStatusErrorTypeInvalidNaisYaml,
+}
+
+func (e WorkloadStatusErrorType) IsValid() bool {
+	switch e {
+	case WorkloadStatusErrorTypeDeprecatedRegistry, WorkloadStatusErrorTypeDeprecatedIngress, WorkloadStatusErrorTypeUnsupportedCloudSQLVersion, WorkloadStatusErrorTypeSynchronizationFailing, WorkloadStatusErrorTypeFailedRun, WorkloadStatusErrorTypeMissingSbom, WorkloadStatusErrorTypeVulnerable, WorkloadStatusErrorTypeNoRunningInstances, WorkloadStatusErrorTypeInvalidNaisYaml:
+		return true
+	}
+	return false
+}
+
+func (e WorkloadStatusErrorType) String() string {
+	return string(e)
+}
+
+func (e *WorkloadStatusErrorType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = WorkloadStatusErrorType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid WorkloadStatusErrorType", str)
+	}
+	return nil
+}
+
+func (e WorkloadStatusErrorType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
