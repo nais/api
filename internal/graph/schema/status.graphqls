@@ -34,6 +34,9 @@ type WorkloadStatusDeprecatedRegistry implements WorkloadStatusError {
 	tag: String!
 }
 
+"""
+This enum represents types of errors implementing WorkloadStatusError for use in workload filtering.
+"""
 enum WorkloadStatusErrorType {
 	"Error describing usage of a deprecated registry"
 	DEPRECATED_REGISTRY
