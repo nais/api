@@ -98,6 +98,39 @@ Test.gql("List vulnerability summaries for team", function(t)
 	}
 end)
 
+Test.gql("Get vulnerability summary for tenant", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		{
+			vulnerabilitySummary{
+				critical
+				high
+				medium
+				low
+				unassigned
+				riskScore
+				sbomCount
+				coverage
+			}
+		}
+	]]))
+
+	t.check {
+		data = {
+			vulnerabilitySummary = {
+				critical = NotNull(),
+				high = NotNull(),
+				medium = NotNull(),
+				low = NotNull(),
+				unassigned = NotNull(),
+				riskScore = NotNull(),
+				sbomCount = NotNull(),
+				coverage = NotNull(),
+			},
+		},
+	}
+end)
+
 Test.gql("Get vulnerability summary for team", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query(string.format([[
@@ -110,6 +143,7 @@ Test.gql("Get vulnerability summary for team", function(t)
 				low
 				unassigned
 				riskScore
+				coverage
 			  }
 			}
 		}
@@ -125,6 +159,7 @@ Test.gql("Get vulnerability summary for team", function(t)
 					low = NotNull(),
 					unassigned = NotNull(),
 					riskScore = NotNull(),
+					coverage = NotNull(),
 				},
 			},
 		},
