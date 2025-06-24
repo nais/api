@@ -45,7 +45,7 @@ extend enum ActivityLogEntryResourceType {
 
 input TeamJobsFilter {
 	"""
-	Filter by the name of the application.
+	Filter by the name of the job.
 	"""
 	name: String!
 
@@ -106,7 +106,7 @@ type Job implements Node & Workload {
 	deletionStartedAt: Time
 
 	"""
-	Activity log associated with the application.
+	Activity log associated with the job.
 	"""
 	activityLog(
 		"""
@@ -340,7 +340,7 @@ type DeleteJobPayload {
 	"The team that owned the deleted job."
 	team: Team
 
-	"Whether or not the application was deleted."
+	"Whether or not the job was deleted."
 	success: Boolean
 }
 

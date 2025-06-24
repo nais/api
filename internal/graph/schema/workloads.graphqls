@@ -129,7 +129,7 @@ interface Workload implements Node {
 	deletionStartedAt: Time
 
 	"""
-	Activity log associated with the application.
+	Activity log associated with the workload.
 	"""
 	activityLog(
 		"""
