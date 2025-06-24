@@ -1,5 +1,7 @@
 -- +goose Up
-DROP VIEW IF EXISTS activity_log_combined_view;
+DROP VIEW IF EXISTS activity_log_combined_view
+;
+
 DROP MATERIALIZED VIEW IF EXISTS activity_log_subset_mat_view
 ;
 
@@ -70,31 +72,31 @@ ORDER BY
 
 CREATE OR REPLACE VIEW activity_log_combined_view AS
 SELECT
-			id,
-			created_at,
-			actor,
-			action,
-			resource_type,
-			resource_name,
-			team_slug,
-			data,
-			environment
-		FROM
-			activity_log_entries
-		UNION ALL
+	id,
+	created_at,
+	actor,
+	action,
+	resource_type,
+	resource_name,
+	team_slug,
+	data,
+	environment
+FROM
+	activity_log_entries
+UNION ALL
 SELECT
-			id,
-			created_at,
-			actor,
-			action,
-			resource_type,
-			resource_name,
-			team_slug,
-			data,
-			environment
-		FROM
-			activity_log_subset_mat_view
-		;
+	id,
+	created_at,
+	actor,
+	action,
+	resource_type,
+	resource_name,
+	team_slug,
+	data,
+	environment
+FROM
+	activity_log_subset_mat_view
+;
 
 CREATE UNIQUE INDEX ON activity_log_subset_mat_view (id)
 ;

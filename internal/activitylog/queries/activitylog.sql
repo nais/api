@@ -94,4 +94,5 @@ ORDER BY
 ;
 
 -- name: RefreshMaterializedView :exec
-REFRESH MATERIALIZED VIEW CONCURRENTLY activity_log_subset_mat_view;
+REFRESH MATERIALIZED VIEW CONCURRENTLY activity_log_subset_mat_view
+;
