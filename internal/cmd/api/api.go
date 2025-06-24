@@ -13,6 +13,7 @@ import (
 	"cloud.google.com/go/pubsub"
 	aiven "github.com/aiven/go-client-codegen"
 	"github.com/joho/godotenv"
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
@@ -297,6 +298,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	wg.Go(func() error {
 		deployment.RunCleaner(ctx, pool, log.WithField("subsystem", "deployment_cleaner"))
+		return nil
+	})
+
+	wg.Go(func() error {
+		activitylog.RunRefresher(ctx, pool, log.WithField("subsystem", "activitylog_refresher"))
 		return nil
 	})
 

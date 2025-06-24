@@ -24,6 +24,9 @@ import (
 func NewComplexityRoot() ComplexityRoot {
 	c := ComplexityRoot{}
 
+	c.Application.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
 	c.Application.Deployments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
@@ -52,6 +55,9 @@ func NewComplexityRoot() ComplexityRoot {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.ImageVulnerabilityAnalysisTrail.Comments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.Job.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Job.Deployments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {

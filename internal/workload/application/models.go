@@ -468,3 +468,46 @@ type TeamApplicationsFilter struct {
 	Name         string   `json:"name"`
 	Environments []string `json:"environments"`
 }
+
+type ScalingDirection string
+
+const (
+	// The scaling direction is up.
+	ScalingDirectionUp ScalingDirection = "UP"
+	// The scaling direction is down.
+	ScalingDirectionDown ScalingDirection = "DOWN"
+)
+
+var AllScalingDirection = []ScalingDirection{
+	ScalingDirectionUp,
+	ScalingDirectionDown,
+}
+
+func (e ScalingDirection) IsValid() bool {
+	switch e {
+	case ScalingDirectionUp, ScalingDirectionDown:
+		return true
+	}
+	return false
+}
+
+func (e ScalingDirection) String() string {
+	return string(e)
+}
+
+func (e *ScalingDirection) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ScalingDirection(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ScalingDirection", str)
+	}
+	return nil
+}
+
+func (e ScalingDirection) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}

@@ -94,7 +94,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		total = ret[0].TotalCount
 	}
 	return pagination.NewConvertConnectionWithError(ret, page, total, func(from *activitylogsql.ListForTeamRow) (ActivityLogEntry, error) {
-		return toGraphActivityLogEntry(&from.ActivityLogEntry)
+		return toGraphActivityLogEntry(&from.ActivityLogCombinedView)
 	})
 }
 
@@ -116,11 +116,35 @@ func ListForResource(ctx context.Context, resourceType ActivityLogEntryResourceT
 		total = ret[0].TotalCount
 	}
 	return pagination.NewConvertConnectionWithError(ret, page, total, func(from *activitylogsql.ListForResourceRow) (ActivityLogEntry, error) {
-		return toGraphActivityLogEntry(&from.ActivityLogEntry)
+		return toGraphActivityLogEntry(&from.ActivityLogCombinedView)
 	})
 }
 
-func toGraphActivityLogEntry(row *activitylogsql.ActivityLogEntry) (ActivityLogEntry, error) {
+func ListForResourceTeamAndEnvironment(ctx context.Context, resourceType ActivityLogEntryResourceType, teamSlug slug.Slug, resourceName, environmentName string, page *pagination.Pagination) (*ActivityLogEntryConnection, error) {
+	q := db(ctx)
+
+	ret, err := q.ListForResourceTeamAndEnvironment(ctx, activitylogsql.ListForResourceTeamAndEnvironmentParams{
+		ResourceType:    string(resourceType),
+		ResourceName:    resourceName,
+		EnvironmentName: ptr.To(environmentName),
+		TeamSlug:        ptr.To(teamSlug),
+		Offset:          page.Offset(),
+		Limit:           page.Limit(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var total int64
+	if len(ret) > 0 {
+		total = ret[0].TotalCount
+	}
+	return pagination.NewConvertConnectionWithError(ret, page, total, func(from *activitylogsql.ListForResourceTeamAndEnvironmentRow) (ActivityLogEntry, error) {
+		return toGraphActivityLogEntry(&from.ActivityLogCombinedView)
+	})
+}
+
+func toGraphActivityLogEntry(row *activitylogsql.ActivityLogCombinedView) (ActivityLogEntry, error) {
 	titler := cases.Title(language.English)
 	entry := GenericActivityLogEntry{
 		Action:          ActivityLogEntryAction(row.Action),

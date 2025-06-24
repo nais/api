@@ -10,10 +10,12 @@ import (
 
 type Querier interface {
 	Create(ctx context.Context, arg CreateParams) error
-	Get(ctx context.Context, id uuid.UUID) (*ActivityLogEntry, error)
-	ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*ActivityLogEntry, error)
+	Get(ctx context.Context, id uuid.UUID) (*ActivityLogCombinedView, error)
+	ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*ActivityLogCombinedView, error)
 	ListForResource(ctx context.Context, arg ListForResourceParams) ([]*ListForResourceRow, error)
+	ListForResourceTeamAndEnvironment(ctx context.Context, arg ListForResourceTeamAndEnvironmentParams) ([]*ListForResourceTeamAndEnvironmentRow, error)
 	ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*ListForTeamRow, error)
+	RefreshMaterializedView(ctx context.Context) error
 }
 
 var _ Querier = (*Queries)(nil)
