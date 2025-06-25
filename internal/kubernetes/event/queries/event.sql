@@ -21,5 +21,5 @@ VALUES
 		@reason,
 		@triggered_at
 	)
-ON CONFLICT (uid) DO NOTHING
+ON CONFLICT (uid, triggered_at) DO NOTHING
 ;

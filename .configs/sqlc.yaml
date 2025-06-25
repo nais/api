@@ -191,4 +191,4 @@ sql:
       go:
         <<: *default_go
         package: "eventsql"
-        out: "../internal/kubernetes/event/searchsql"
+        out: "../internal/kubernetes/event/eventsql"
