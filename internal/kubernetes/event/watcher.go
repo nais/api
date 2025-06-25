@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
-	eventsql "github.com/nais/api/internal/kubernetes/event/searchsql"
+	"github.com/nais/api/internal/kubernetes/event/eventsql"
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/sirupsen/logrus"
 	"github.com/sourcegraph/conc/pool"
@@ -221,10 +221,6 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 			)
 
 			handleEvent(event, func(e *eventv1.Event) (eventsql.UpsertParams, bool) {
-				if !strings.HasPrefix(e.Note, "New size") {
-					w.log.WithField("note", e.Note).Debug("ignoring event")
-				}
-
 				matches := regHorizontalPodAutoscaler.FindStringSubmatch(e.Note)
 				if len(matches) != 4 {
 					return eventsql.UpsertParams{}, false
@@ -318,6 +314,11 @@ func (w *Watcher) toUpsertParams(environmentName string, e *eventv1.Event, data 
 		return eventsql.UpsertParams{}, false
 	}
 
+	ts := lastEventTimestamp(e)
+	if ts.Time.IsZero() {
+		return eventsql.UpsertParams{}, false
+	}
+
 	return eventsql.UpsertParams{
 		Uid:               uid,
 		EnvironmentName:   environmentName,
@@ -327,9 +328,31 @@ func (w *Watcher) toUpsertParams(environmentName string, e *eventv1.Event, data 
 		Data:              b,
 		Reason:            e.Reason,
 
-		TriggeredAt: pgtype.Timestamptz{
-			Time:  e.CreationTimestamp.Time, // This should be the last time the event was updated/created
-			Valid: !e.CreationTimestamp.IsZero(),
-		},
+		TriggeredAt: ts,
 	}, true
+}
+
+func lastEventTimestamp(e *eventv1.Event) pgtype.Timestamptz {
+	if e.Series != nil && !e.Series.LastObservedTime.IsZero() {
+		return pgtype.Timestamptz{
+			Time:  e.Series.LastObservedTime.Time,
+			Valid: true,
+		}
+	}
+
+	if !e.DeprecatedLastTimestamp.IsZero() {
+		return pgtype.Timestamptz{
+			Time:  e.DeprecatedLastTimestamp.Time,
+			Valid: true,
+		}
+	}
+
+	if !e.CreationTimestamp.IsZero() {
+		return pgtype.Timestamptz{
+			Time:  e.CreationTimestamp.Time,
+			Valid: true,
+		}
+	}
+
+	return pgtype.Timestamptz{Valid: false}
 }

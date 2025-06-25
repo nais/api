@@ -39,7 +39,7 @@ VALUES
 		$7,
 		$8
 	)
-ON CONFLICT (uid) DO NOTHING
+ON CONFLICT (uid, triggered_at) DO NOTHING
 `
 
 type UpsertBatchResults struct {
