@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/deployment/deploymentactivity"
 	"github.com/nais/api/internal/deployment/deploymentsql"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
@@ -124,7 +125,7 @@ func ChangeDeploymentKey(ctx context.Context, teamSlug slug.Slug) (*DeploymentKe
 	err = activitylog.Create(ctx, activitylog.CreateInput{
 		Action:       activitylog.ActivityLogEntryActionUpdated,
 		Actor:        authz.ActorFromContext(ctx).User,
-		ResourceType: activityLogEntryResourceTypeDeployKey,
+		ResourceType: deploymentactivity.ActivityLogEntryResourceTypeDeployKey,
 		ResourceName: "deploy-key",
 		TeamSlug:     ptr.To(teamSlug),
 	})

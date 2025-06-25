@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
@@ -62,6 +63,14 @@ func (r *applicationResolver) Instances(ctx context.Context, obj *application.Ap
 		return nil, err
 	}
 	return application.ListInstances(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, page)
+}
+
+func (r *applicationResolver) ActivityLog(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+	return activitylog.ListForResourceTeamAndEnvironment(ctx, "APP", obj.TeamSlug, obj.Name, obj.EnvironmentName, page)
 }
 
 func (r *deleteApplicationPayloadResolver) Team(ctx context.Context, obj *application.DeleteApplicationPayload) (*team.Team, error) {

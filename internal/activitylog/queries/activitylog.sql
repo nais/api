@@ -1,9 +1,9 @@
 -- name: ListForTeam :many
 SELECT
-	sqlc.embed(activity_log_entries),
+	sqlc.embed(activity_log_combined_view),
 	COUNT(*) OVER () AS total_count
 FROM
-	activity_log_entries
+	activity_log_combined_view
 WHERE
 	team_slug = @team_slug
 ORDER BY
@@ -16,13 +16,32 @@ OFFSET
 
 -- name: ListForResource :many
 SELECT
-	sqlc.embed(activity_log_entries),
+	sqlc.embed(activity_log_combined_view),
 	COUNT(*) OVER () AS total_count
 FROM
-	activity_log_entries
+	activity_log_combined_view
 WHERE
 	resource_type = @resource_type
 	AND resource_name = @resource_name
+ORDER BY
+	created_at DESC
+LIMIT
+	sqlc.arg('limit')
+OFFSET
+	sqlc.arg('offset')
+;
+
+-- name: ListForResourceTeamAndEnvironment :many
+SELECT
+	sqlc.embed(activity_log_combined_view),
+	COUNT(*) OVER () AS total_count
+FROM
+	activity_log_combined_view
+WHERE
+	resource_type = @resource_type
+	AND team_slug = @team_slug
+	AND resource_name = @resource_name
+	AND environment = @environment_name
 ORDER BY
 	created_at DESC
 LIMIT
@@ -58,7 +77,7 @@ VALUES
 SELECT
 	*
 FROM
-	activity_log_entries
+	activity_log_combined_view
 WHERE
 	id = @id
 ;
@@ -67,9 +86,13 @@ WHERE
 SELECT
 	*
 FROM
-	activity_log_entries
+	activity_log_combined_view
 WHERE
 	id = ANY (@ids::UUID[])
 ORDER BY
 	created_at DESC
+;
+
+-- name: RefreshMaterializedView :exec
+REFRESH MATERIALIZED VIEW CONCURRENTLY activity_log_subset_mat_view
 ;

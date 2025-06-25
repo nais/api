@@ -4,6 +4,7 @@ import (
 	"context"
 	"math"
 
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
@@ -57,6 +58,14 @@ func (r *jobResolver) Runs(ctx context.Context, obj *job.Job, first *int, after 
 
 func (r *jobResolver) Manifest(ctx context.Context, obj *job.Job) (*job.JobManifest, error) {
 	return job.Manifest(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
+}
+
+func (r *jobResolver) ActivityLog(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+	return activitylog.ListForResourceTeamAndEnvironment(ctx, "JOB", obj.TeamSlug, obj.Name, obj.EnvironmentName, page)
 }
 
 func (r *jobRunResolver) Duration(ctx context.Context, obj *job.JobRun) (int, error) {

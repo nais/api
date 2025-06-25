@@ -45,7 +45,7 @@ extend enum ActivityLogEntryResourceType {
 
 input TeamJobsFilter {
 	"""
-	Filter by the name of the application.
+	Filter by the name of the job.
 	"""
 	name: String!
 
@@ -104,6 +104,31 @@ type Job implements Node & Workload {
 	If set, when the job was marked for deletion.
 	"""
 	deletionStartedAt: Time
+
+	"""
+	Activity log associated with the job.
+	"""
+	activityLog(
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
+		first: Int
+
+		"""
+		Get items after this cursor.
+		"""
+		after: Cursor
+
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
+		last: Int
+
+		"""
+		Get items before this cursor.
+		"""
+		before: Cursor
+	): ActivityLogEntryConnection!
 }
 
 type JobManifest implements WorkloadManifest {
@@ -315,7 +340,7 @@ type DeleteJobPayload {
 	"The team that owned the deleted job."
 	team: Team
 
-	"Whether or not the application was deleted."
+	"Whether or not the job was deleted."
 	success: Boolean
 }
 

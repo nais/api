@@ -60,14 +60,14 @@ const get = `-- name: Get :one
 SELECT
 	id, created_at, actor, action, resource_type, resource_name, team_slug, data, environment
 FROM
-	activity_log_entries
+	activity_log_combined_view
 WHERE
 	id = $1
 `
 
-func (q *Queries) Get(ctx context.Context, id uuid.UUID) (*ActivityLogEntry, error) {
+func (q *Queries) Get(ctx context.Context, id uuid.UUID) (*ActivityLogCombinedView, error) {
 	row := q.db.QueryRow(ctx, get, id)
-	var i ActivityLogEntry
+	var i ActivityLogCombinedView
 	err := row.Scan(
 		&i.ID,
 		&i.CreatedAt,
@@ -86,22 +86,22 @@ const listByIDs = `-- name: ListByIDs :many
 SELECT
 	id, created_at, actor, action, resource_type, resource_name, team_slug, data, environment
 FROM
-	activity_log_entries
+	activity_log_combined_view
 WHERE
 	id = ANY ($1::UUID[])
 ORDER BY
 	created_at DESC
 `
 
-func (q *Queries) ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*ActivityLogEntry, error) {
+func (q *Queries) ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*ActivityLogCombinedView, error) {
 	rows, err := q.db.Query(ctx, listByIDs, ids)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*ActivityLogEntry{}
+	items := []*ActivityLogCombinedView{}
 	for rows.Next() {
-		var i ActivityLogEntry
+		var i ActivityLogCombinedView
 		if err := rows.Scan(
 			&i.ID,
 			&i.CreatedAt,
@@ -125,10 +125,10 @@ func (q *Queries) ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*ActivityLo
 
 const listForResource = `-- name: ListForResource :many
 SELECT
-	activity_log_entries.id, activity_log_entries.created_at, activity_log_entries.actor, activity_log_entries.action, activity_log_entries.resource_type, activity_log_entries.resource_name, activity_log_entries.team_slug, activity_log_entries.data, activity_log_entries.environment,
+	activity_log_combined_view.id, activity_log_combined_view.created_at, activity_log_combined_view.actor, activity_log_combined_view.action, activity_log_combined_view.resource_type, activity_log_combined_view.resource_name, activity_log_combined_view.team_slug, activity_log_combined_view.data, activity_log_combined_view.environment,
 	COUNT(*) OVER () AS total_count
 FROM
-	activity_log_entries
+	activity_log_combined_view
 WHERE
 	resource_type = $1
 	AND resource_name = $2
@@ -148,8 +148,8 @@ type ListForResourceParams struct {
 }
 
 type ListForResourceRow struct {
-	ActivityLogEntry ActivityLogEntry
-	TotalCount       int64
+	ActivityLogCombinedView ActivityLogCombinedView
+	TotalCount              int64
 }
 
 func (q *Queries) ListForResource(ctx context.Context, arg ListForResourceParams) ([]*ListForResourceRow, error) {
@@ -167,15 +167,86 @@ func (q *Queries) ListForResource(ctx context.Context, arg ListForResourceParams
 	for rows.Next() {
 		var i ListForResourceRow
 		if err := rows.Scan(
-			&i.ActivityLogEntry.ID,
-			&i.ActivityLogEntry.CreatedAt,
-			&i.ActivityLogEntry.Actor,
-			&i.ActivityLogEntry.Action,
-			&i.ActivityLogEntry.ResourceType,
-			&i.ActivityLogEntry.ResourceName,
-			&i.ActivityLogEntry.TeamSlug,
-			&i.ActivityLogEntry.Data,
-			&i.ActivityLogEntry.Environment,
+			&i.ActivityLogCombinedView.ID,
+			&i.ActivityLogCombinedView.CreatedAt,
+			&i.ActivityLogCombinedView.Actor,
+			&i.ActivityLogCombinedView.Action,
+			&i.ActivityLogCombinedView.ResourceType,
+			&i.ActivityLogCombinedView.ResourceName,
+			&i.ActivityLogCombinedView.TeamSlug,
+			&i.ActivityLogCombinedView.Data,
+			&i.ActivityLogCombinedView.Environment,
+			&i.TotalCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listForResourceTeamAndEnvironment = `-- name: ListForResourceTeamAndEnvironment :many
+SELECT
+	activity_log_combined_view.id, activity_log_combined_view.created_at, activity_log_combined_view.actor, activity_log_combined_view.action, activity_log_combined_view.resource_type, activity_log_combined_view.resource_name, activity_log_combined_view.team_slug, activity_log_combined_view.data, activity_log_combined_view.environment,
+	COUNT(*) OVER () AS total_count
+FROM
+	activity_log_combined_view
+WHERE
+	resource_type = $1
+	AND team_slug = $2
+	AND resource_name = $3
+	AND environment = $4
+ORDER BY
+	created_at DESC
+LIMIT
+	$6
+OFFSET
+	$5
+`
+
+type ListForResourceTeamAndEnvironmentParams struct {
+	ResourceType    string
+	TeamSlug        *slug.Slug
+	ResourceName    string
+	EnvironmentName *string
+	Offset          int32
+	Limit           int32
+}
+
+type ListForResourceTeamAndEnvironmentRow struct {
+	ActivityLogCombinedView ActivityLogCombinedView
+	TotalCount              int64
+}
+
+func (q *Queries) ListForResourceTeamAndEnvironment(ctx context.Context, arg ListForResourceTeamAndEnvironmentParams) ([]*ListForResourceTeamAndEnvironmentRow, error) {
+	rows, err := q.db.Query(ctx, listForResourceTeamAndEnvironment,
+		arg.ResourceType,
+		arg.TeamSlug,
+		arg.ResourceName,
+		arg.EnvironmentName,
+		arg.Offset,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ListForResourceTeamAndEnvironmentRow{}
+	for rows.Next() {
+		var i ListForResourceTeamAndEnvironmentRow
+		if err := rows.Scan(
+			&i.ActivityLogCombinedView.ID,
+			&i.ActivityLogCombinedView.CreatedAt,
+			&i.ActivityLogCombinedView.Actor,
+			&i.ActivityLogCombinedView.Action,
+			&i.ActivityLogCombinedView.ResourceType,
+			&i.ActivityLogCombinedView.ResourceName,
+			&i.ActivityLogCombinedView.TeamSlug,
+			&i.ActivityLogCombinedView.Data,
+			&i.ActivityLogCombinedView.Environment,
 			&i.TotalCount,
 		); err != nil {
 			return nil, err
@@ -190,10 +261,10 @@ func (q *Queries) ListForResource(ctx context.Context, arg ListForResourceParams
 
 const listForTeam = `-- name: ListForTeam :many
 SELECT
-	activity_log_entries.id, activity_log_entries.created_at, activity_log_entries.actor, activity_log_entries.action, activity_log_entries.resource_type, activity_log_entries.resource_name, activity_log_entries.team_slug, activity_log_entries.data, activity_log_entries.environment,
+	activity_log_combined_view.id, activity_log_combined_view.created_at, activity_log_combined_view.actor, activity_log_combined_view.action, activity_log_combined_view.resource_type, activity_log_combined_view.resource_name, activity_log_combined_view.team_slug, activity_log_combined_view.data, activity_log_combined_view.environment,
 	COUNT(*) OVER () AS total_count
 FROM
-	activity_log_entries
+	activity_log_combined_view
 WHERE
 	team_slug = $1
 ORDER BY
@@ -211,8 +282,8 @@ type ListForTeamParams struct {
 }
 
 type ListForTeamRow struct {
-	ActivityLogEntry ActivityLogEntry
-	TotalCount       int64
+	ActivityLogCombinedView ActivityLogCombinedView
+	TotalCount              int64
 }
 
 func (q *Queries) ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*ListForTeamRow, error) {
@@ -225,15 +296,15 @@ func (q *Queries) ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*Li
 	for rows.Next() {
 		var i ListForTeamRow
 		if err := rows.Scan(
-			&i.ActivityLogEntry.ID,
-			&i.ActivityLogEntry.CreatedAt,
-			&i.ActivityLogEntry.Actor,
-			&i.ActivityLogEntry.Action,
-			&i.ActivityLogEntry.ResourceType,
-			&i.ActivityLogEntry.ResourceName,
-			&i.ActivityLogEntry.TeamSlug,
-			&i.ActivityLogEntry.Data,
-			&i.ActivityLogEntry.Environment,
+			&i.ActivityLogCombinedView.ID,
+			&i.ActivityLogCombinedView.CreatedAt,
+			&i.ActivityLogCombinedView.Actor,
+			&i.ActivityLogCombinedView.Action,
+			&i.ActivityLogCombinedView.ResourceType,
+			&i.ActivityLogCombinedView.ResourceName,
+			&i.ActivityLogCombinedView.TeamSlug,
+			&i.ActivityLogCombinedView.Data,
+			&i.ActivityLogCombinedView.Environment,
 			&i.TotalCount,
 		); err != nil {
 			return nil, err
@@ -244,4 +315,13 @@ func (q *Queries) ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*Li
 		return nil, err
 	}
 	return items, nil
+}
+
+const refreshMaterializedView = `-- name: RefreshMaterializedView :exec
+REFRESH MATERIALIZED VIEW CONCURRENTLY activity_log_subset_mat_view
+`
+
+func (q *Queries) RefreshMaterializedView(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, refreshMaterializedView)
+	return err
 }
