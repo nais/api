@@ -6,6 +6,10 @@ FROM
 	activity_log_combined_view
 WHERE
 	team_slug = @team_slug
+	AND CASE
+		WHEN sqlc.narg('filter')::TEXT[] [] IS NULL THEN TRUE
+		ELSE sqlc.narg('filter')::TEXT[] [] @> ARRAY[resource_type, action]
+	END
 ORDER BY
 	created_at DESC
 LIMIT
@@ -23,6 +27,10 @@ FROM
 WHERE
 	resource_type = @resource_type
 	AND resource_name = @resource_name
+	AND CASE
+		WHEN sqlc.narg('filter')::TEXT[] [] IS NULL THEN TRUE
+		ELSE sqlc.narg('filter')::TEXT[] [] @> ARRAY[resource_type, action]
+	END
 ORDER BY
 	created_at DESC
 LIMIT
@@ -42,6 +50,10 @@ WHERE
 	AND team_slug = @team_slug
 	AND resource_name = @resource_name
 	AND environment = @environment_name
+	AND CASE
+		WHEN sqlc.narg('filter')::TEXT[] [] IS NULL THEN TRUE
+		ELSE sqlc.narg('filter')::TEXT[] [] @> ARRAY[resource_type, action]
+	END
 ORDER BY
 	created_at DESC
 LIMIT

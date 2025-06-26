@@ -38,6 +38,9 @@ func init() {
 			return nil, fmt.Errorf("unsupported unleash activity log entry action: %q", entry.Action)
 		}
 	})
+
+	activitylog.RegisterFilter("UNLEASH_INSTANCE_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeUnleash)
+	activitylog.RegisterFilter("UNLEASH_INSTANCE_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeUnleash)
 }
 
 type UnleashInstanceCreatedActivityLogEntry struct {

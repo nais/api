@@ -158,3 +158,11 @@ type RepositoryRemovedActivityLogEntry implements ActivityLogEntry & Node {
 	"The environment name that the entry belongs to."
 	environmentName: String
 }
+
+extend enum ActivityLogActivityType {
+	"Repository was added to a team."
+	REPOSITORY_ADDED
+
+	"Repository was removed from a team."
+	REPOSITORY_REMOVED
+}

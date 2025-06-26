@@ -108,6 +108,15 @@ func init() {
 			return nil, fmt.Errorf("unsupported service account activity log entry action: %q", entry.Action)
 		}
 	})
+
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_TOKEN_CREATED", activityLogEntryActionCreateServiceAccountToken, activityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_TOKEN_UPDATED", activityLogEntryActionUpdateServiceAccountToken, activityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_TOKEN_DELETED", activityLogEntryActionDeleteServiceAccountToken, activityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_ROLE_ASSIGNED", activityLogEntryActionAssignServiceAccountRole, activityLogEntryResourceTypeServiceAccount)
+	activitylog.RegisterFilter("SERVICE_ACCOUNT_ROLE_REVOKED", activityLogEntryActionRevokeServiceAccountRole, activityLogEntryResourceTypeServiceAccount)
 }
 
 type RoleAssignedToServiceAccountActivityLogEntry struct {

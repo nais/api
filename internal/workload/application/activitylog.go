@@ -59,6 +59,11 @@ func init() {
 			return nil, fmt.Errorf("unsupported application activity log entry action: %q", entry.Action)
 		}
 	})
+
+	activitylog.RegisterFilter("APPLICATION_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeApplication)
+	activitylog.RegisterFilter("APPLICATION_RESTARTED", activityLogEntryActionRestartApplication, activityLogEntryResourceTypeApplication)
+	activitylog.RegisterFilter("APPLICATION_SCALED", activityLogEntryActionAutoScaleApplication, activityLogEntryResourceTypeApplication)
+	activitylog.RegisterFilter("DEPLOYMENT", deploymentactivity.ActivityLogEntryActionDeployment, activityLogEntryResourceTypeApplication)
 }
 
 type ApplicationRestartedActivityLogEntry struct {

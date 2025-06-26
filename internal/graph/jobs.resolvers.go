@@ -60,12 +60,12 @@ func (r *jobResolver) Manifest(ctx context.Context, obj *job.Job) (*job.JobManif
 	return job.Manifest(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
 }
 
-func (r *jobResolver) ActivityLog(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
+func (r *jobResolver) ActivityLog(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
-	return activitylog.ListForResourceTeamAndEnvironment(ctx, "JOB", obj.TeamSlug, obj.Name, obj.EnvironmentName, page)
+	return activitylog.ListForResourceTeamAndEnvironment(ctx, "JOB", obj.TeamSlug, obj.Name, obj.EnvironmentName, page, filter)
 }
 
 func (r *jobRunResolver) Duration(ctx context.Context, obj *job.JobRun) (int, error) {

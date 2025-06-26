@@ -64,6 +64,12 @@ func init() {
 			return nil, fmt.Errorf("unsupported secret activity log entry action: %q", entry.Action)
 		}
 	})
+
+	activitylog.RegisterFilter("SECRET_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeSecret)
+	activitylog.RegisterFilter("SECRET_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeSecret)
+	activitylog.RegisterFilter("SECRET_VALUE_ADDED", activityLogEntryActionAddSecretValue, activityLogEntryResourceTypeSecret)
+	activitylog.RegisterFilter("SECRET_VALUE_UPDATED", activityLogEntryActionUpdateSecretValue, activityLogEntryResourceTypeSecret)
+	activitylog.RegisterFilter("SECRET_VALUE_REMOVED", activityLogEntryActionRemoveSecretValue, activityLogEntryResourceTypeSecret)
 }
 
 type SecretCreatedActivityLogEntry struct {

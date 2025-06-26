@@ -782,3 +782,22 @@ input TeamFilter {
 	"""
 	hasWorkloads: Boolean
 }
+
+extend enum ActivityLogActivityType {
+	"Team was created."
+	TEAM_CREATED
+	"Team was updated."
+	TEAM_UPDATED
+	"Team delete key was created."
+	TEAM_CREATE_DELETE_KEY
+	"Team delete key was confirmed."
+	TEAM_CONFIRM_DELETE_KEY
+	"Team member was added."
+	TEAM_MEMBER_ADDED
+	"Team member was removed."
+	TEAM_MEMBER_REMOVED
+	"Team member role was set."
+	TEAM_MEMBER_SET_ROLE
+	"Team environment was updated."
+	TEAM_ENVIRONMENT_UPDATED
+}

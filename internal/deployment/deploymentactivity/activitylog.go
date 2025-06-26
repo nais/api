@@ -22,6 +22,8 @@ func init() {
 			return nil, fmt.Errorf("unsupported deploy key activity log entry action: %q", entry.Action)
 		}
 	})
+
+	activitylog.RegisterFilter("TEAM_DEPLOY_KEY_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeDeployKey)
 }
 
 type TeamDeployKeyUpdatedActivityLogEntry struct {

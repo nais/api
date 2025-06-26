@@ -201,6 +201,11 @@ type Application implements Node & Workload {
 		Get items before this cursor.
 		"""
 		before: Cursor
+
+		"""
+		Filter items.
+		"""
+		filter: ActivityLogFilter
 	): ActivityLogEntryConnection!
 }
 
@@ -607,4 +612,21 @@ enum ScalingDirection {
 type ApplicationScaledActivityLogEntryData {
 	newSize: Int!
 	direction: ScalingDirection!
+}
+
+extend enum ActivityLogActivityType {
+	"""
+	An application was deleted.
+	"""
+	APPLICATION_DELETED
+
+	"""
+	An application was restarted.
+	"""
+	APPLICATION_RESTARTED
+
+	"""
+	An application was scaled.
+	"""
+	APPLICATION_SCALED
 }

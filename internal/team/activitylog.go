@@ -96,6 +96,15 @@ func init() {
 			return nil, fmt.Errorf("unsupported team activity log entry action: %q", entry.Action)
 		}
 	})
+
+	activitylog.RegisterFilter("TEAM_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeTeam)
+	activitylog.RegisterFilter("TEAM_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeTeam)
+	activitylog.RegisterFilter("TEAM_CREATE_DELETE_KEY", activityLogEntryActionCreateDeleteKey, activityLogEntryResourceTypeTeam)
+	activitylog.RegisterFilter("TEAM_CONFIRM_DELETE_KEY", activityLogEntryActionConfirmDeleteKey, activityLogEntryResourceTypeTeam)
+	activitylog.RegisterFilter("TEAM_MEMBER_ADDED", activitylog.ActivityLogEntryActionAdded, activityLogEntryResourceTypeTeam)
+	activitylog.RegisterFilter("TEAM_MEMBER_REMOVED", activitylog.ActivityLogEntryActionRemoved, activityLogEntryResourceTypeTeam)
+	activitylog.RegisterFilter("TEAM_MEMBER_SET_ROLE", activityLogEntryActionSetMemberRole, activityLogEntryResourceTypeTeam)
+	activitylog.RegisterFilter("TEAM_ENVIRONMENT_UPDATED", activityLogEntryActionUpdateEnvironment, activityLogEntryResourceTypeTeam)
 }
 
 type TeamCreatedActivityLogEntry struct {

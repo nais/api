@@ -43,6 +43,10 @@ func init() {
 			return nil, fmt.Errorf("unsupported reconciler activity log entry action: %q", entry.Action)
 		}
 	})
+
+	activitylog.RegisterFilter("RECONCILER_ENABLED", activityLogEntryActionEnableReconciler, ActivityLogEntryResourceTypeReconciler)
+	activitylog.RegisterFilter("RECONCILER_DISABLED", activityLogEntryActionDisableReconciler, ActivityLogEntryResourceTypeReconciler)
+	activitylog.RegisterFilter("RECONCILER_CONFIGURED", activityLogEntryActionConfigureReconciler, ActivityLogEntryResourceTypeReconciler)
 }
 
 type ReconcilerEnabledActivityLogEntry struct {
