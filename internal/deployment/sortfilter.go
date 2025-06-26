@@ -20,17 +20,17 @@ func init() {
 
 	application.SortFilter.RegisterConcurrentSort("DEPLOYMENT_TIME", func(ctx context.Context, a *application.Application) int {
 		return sortByTimestamp(ctx, a)
-	})
+	}, "NAME", "ENVIRONMENT")
 
 	job.SortFilter.RegisterConcurrentSort("DEPLOYMENT_TIME", func(ctx context.Context, a *job.Job) int {
 		return sortByTimestamp(ctx, a)
-	})
+	}, "NAME", "ENVIRONMENT")
 
 	workload.SortFilter.RegisterConcurrentSort("DEPLOYMENT_TIME", func(ctx context.Context, a workload.Workload) int {
 		return sortByTimestamp(ctx, a)
-	})
+	}, "NAME", "ENVIRONMENT", "_KIND")
 
 	workload.SortFilterEnvironment.RegisterConcurrentSort("DEPLOYMENT_TIME", func(ctx context.Context, a workload.Workload) int {
 		return sortByTimestamp(ctx, a)
-	})
+	}, "NAME", "TEAM_SLUG")
 }
