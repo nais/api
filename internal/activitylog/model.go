@@ -3,6 +3,8 @@ package activitylog
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -82,4 +84,36 @@ func TransformData[T any](entry GenericActivityLogEntry, f func(*T) *T) (*T, err
 	}
 
 	return f(data), nil
+}
+
+type ActivityLogFilter struct {
+	ActivityTypes []ActivityLogActivityType `json:"activityTypes,omitempty"`
+}
+
+type ActivityLogActivityType string
+
+func (e ActivityLogActivityType) IsValid() bool {
+	_, ok := knownFilters[e]
+	return ok
+}
+
+func (e ActivityLogActivityType) String() string {
+	return string(e)
+}
+
+func (e *ActivityLogActivityType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ActivityLogActivityType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ActivityLogActivityType", str)
+	}
+	return nil
+}
+
+func (e ActivityLogActivityType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

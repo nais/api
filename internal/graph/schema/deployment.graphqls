@@ -408,3 +408,11 @@ type DeploymentActivityLogEntry implements ActivityLogEntry & Node {
 type DeploymentActivityLogEntryData {
 	triggerURL: String
 }
+
+extend enum ActivityLogActivityType {
+	"Activity log entry for deployment activity."
+	DEPLOYMENT
+
+	"Activity log entry for team deploy key updates."
+	TEAM_DEPLOY_KEY_UPDATED
+}

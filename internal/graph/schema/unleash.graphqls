@@ -149,3 +149,11 @@ type UnleashInstanceUpdatedActivityLogEntryData {
 	"Allowed team slug."
 	allowedTeamSlug: Slug
 }
+
+extend enum ActivityLogActivityType {
+	"Unleash instance was created."
+	UNLEASH_INSTANCE_CREATED
+
+	"Unleash instance was updated."
+	UNLEASH_INSTANCE_UPDATED
+}

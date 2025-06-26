@@ -26,6 +26,9 @@ func init() {
 			return nil, fmt.Errorf("unsupported repository activity log entry action: %q", entry.Action)
 		}
 	})
+
+	activitylog.RegisterFilter("REPOSITORY_ADDED", activitylog.ActivityLogEntryActionAdded, activityLogEntryResourceTypeRepository)
+	activitylog.RegisterFilter("REPOSITORY_REMOVED", activitylog.ActivityLogEntryActionRemoved, activityLogEntryResourceTypeRepository)
 }
 
 type RepositoryAddedActivityLogEntry struct {

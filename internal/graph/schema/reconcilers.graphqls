@@ -276,3 +276,14 @@ input ConfigureReconcilerInput {
 	"List of reconciler config inputs."
 	config: [ReconcilerConfigInput!]!
 }
+
+extend enum ActivityLogActivityType {
+	"Reconciler enabled activity log entry."
+	RECONCILER_ENABLED
+
+	"Reconciler disabled activity log entry."
+	RECONCILER_DISABLED
+
+	"Reconciler configured activity log entry."
+	RECONCILER_CONFIGURED
+}

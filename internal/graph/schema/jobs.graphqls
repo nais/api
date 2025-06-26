@@ -128,6 +128,11 @@ type Job implements Node & Workload {
 		Get items before this cursor.
 		"""
 		before: Cursor
+
+		"""
+		Filter items.
+		"""
+		filter: ActivityLogFilter
 	): ActivityLogEntryConnection!
 }
 
@@ -416,4 +421,12 @@ type JobTriggeredActivityLogEntry implements ActivityLogEntry & Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
+}
+
+extend enum ActivityLogActivityType {
+	"Activity log entries related to job deletion."
+	JOB_DELETED
+
+	"Activity log entries related to job triggering."
+	JOB_TRIGGERED
 }

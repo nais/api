@@ -132,17 +132,22 @@ FROM
 WHERE
 	resource_type = $1
 	AND resource_name = $2
+	AND CASE
+		WHEN $3::TEXT[] [] IS NULL THEN TRUE
+		ELSE $3::TEXT[] [] @> ARRAY[resource_type, action]
+	END
 ORDER BY
 	created_at DESC
 LIMIT
-	$4
+	$5
 OFFSET
-	$3
+	$4
 `
 
 type ListForResourceParams struct {
 	ResourceType string
 	ResourceName string
+	Filter       [][]string
 	Offset       int32
 	Limit        int32
 }
@@ -156,6 +161,7 @@ func (q *Queries) ListForResource(ctx context.Context, arg ListForResourceParams
 	rows, err := q.db.Query(ctx, listForResource,
 		arg.ResourceType,
 		arg.ResourceName,
+		arg.Filter,
 		arg.Offset,
 		arg.Limit,
 	)
@@ -199,12 +205,16 @@ WHERE
 	AND team_slug = $2
 	AND resource_name = $3
 	AND environment = $4
+	AND CASE
+		WHEN $5::TEXT[] [] IS NULL THEN TRUE
+		ELSE $5::TEXT[] [] @> ARRAY[resource_type, action]
+	END
 ORDER BY
 	created_at DESC
 LIMIT
-	$6
+	$7
 OFFSET
-	$5
+	$6
 `
 
 type ListForResourceTeamAndEnvironmentParams struct {
@@ -212,6 +222,7 @@ type ListForResourceTeamAndEnvironmentParams struct {
 	TeamSlug        *slug.Slug
 	ResourceName    string
 	EnvironmentName *string
+	Filter          [][]string
 	Offset          int32
 	Limit           int32
 }
@@ -227,6 +238,7 @@ func (q *Queries) ListForResourceTeamAndEnvironment(ctx context.Context, arg Lis
 		arg.TeamSlug,
 		arg.ResourceName,
 		arg.EnvironmentName,
+		arg.Filter,
 		arg.Offset,
 		arg.Limit,
 	)
@@ -267,16 +279,21 @@ FROM
 	activity_log_combined_view
 WHERE
 	team_slug = $1
+	AND CASE
+		WHEN $2::TEXT[] [] IS NULL THEN TRUE
+		ELSE $2::TEXT[] [] @> ARRAY[resource_type, action]
+	END
 ORDER BY
 	created_at DESC
 LIMIT
-	$3
+	$4
 OFFSET
-	$2
+	$3
 `
 
 type ListForTeamParams struct {
 	TeamSlug *slug.Slug
+	Filter   [][]string
 	Offset   int32
 	Limit    int32
 }
@@ -287,7 +304,12 @@ type ListForTeamRow struct {
 }
 
 func (q *Queries) ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*ListForTeamRow, error) {
-	rows, err := q.db.Query(ctx, listForTeam, arg.TeamSlug, arg.Offset, arg.Limit)
+	rows, err := q.db.Query(ctx, listForTeam,
+		arg.TeamSlug,
+		arg.Filter,
+		arg.Offset,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}

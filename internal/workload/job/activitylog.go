@@ -37,6 +37,10 @@ func init() {
 			return nil, fmt.Errorf("unsupported job activity log entry action: %q", entry.Action)
 		}
 	})
+
+	activitylog.RegisterFilter("JOB_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeJob)
+	activitylog.RegisterFilter("JOB_TRIGGERED", activityLogEntryActionTriggerJob, activityLogEntryResourceTypeJob)
+	activitylog.RegisterFilter("DEPLOYMENT", deploymentactivity.ActivityLogEntryActionDeployment, activityLogEntryResourceTypeJob)
 }
 
 type JobTriggeredActivityLogEntry struct {
