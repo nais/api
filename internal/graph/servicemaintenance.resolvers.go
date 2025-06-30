@@ -52,7 +52,7 @@ func (r *openSearchMaintenanceResolver) Updates(ctx context.Context, obj *servic
 		return nil, err
 	}
 
-	allUpdates, err := servicemaintenance.GetAivenMaintenance[servicemaintenance.OpenSearchMaintenanceUpdate](ctx, servicemaintenance.AivenDataLoaderKey{
+	allUpdates, err := servicemaintenance.GetAivenMaintenanceUpdates[servicemaintenance.OpenSearchMaintenanceUpdate](ctx, servicemaintenance.AivenDataLoaderKey{
 		Project:     obj.AivenProject,
 		ServiceName: obj.ServiceName,
 	})
@@ -76,7 +76,7 @@ func (r *valkeyMaintenanceResolver) Updates(ctx context.Context, obj *servicemai
 		return nil, err
 	}
 
-	allUpdates, err := servicemaintenance.GetAivenMaintenance[servicemaintenance.ValkeyMaintenanceUpdate](ctx, servicemaintenance.AivenDataLoaderKey{
+	allUpdates, err := servicemaintenance.GetAivenMaintenanceUpdates[servicemaintenance.ValkeyMaintenanceUpdate](ctx, servicemaintenance.AivenDataLoaderKey{
 		Project:     obj.AivenProject,
 		ServiceName: obj.ServiceName,
 	})

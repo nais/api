@@ -52,14 +52,14 @@ func StartOpenSearchMaintenance(ctx context.Context, input StartOpenSearchMainte
 	})
 }
 
-func GetAivenMaintenance[UpdateType OpenSearchMaintenanceUpdate | ValkeyMaintenanceUpdate](ctx context.Context, key AivenDataLoaderKey) ([]*UpdateType, error) {
+func GetAivenMaintenanceUpdates[UpdateType OpenSearchMaintenanceUpdate | ValkeyMaintenanceUpdate](ctx context.Context, key AivenDataLoaderKey) ([]*UpdateType, error) {
 	updatesFromAiven, err := fromContext(ctx).maintenanceLoader.Load(ctx, &key)
 	if err != nil {
 		return nil, err
 	}
 
-	updates := make([]*UpdateType, len(updatesFromAiven))
-	for i, update := range updatesFromAiven {
+	updates := make([]*UpdateType, len(updatesFromAiven.Updates))
+	for i, update := range updatesFromAiven.Updates {
 		au := &AivenUpdate{
 			Title:   *update.Description,
 			StartAt: update.StartAt,
