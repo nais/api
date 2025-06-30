@@ -2,7 +2,7 @@ Helper.readK8sResources("./k8s_resources/simple")
 local user = User.new()
 local team = Team.new("slug-1", "purpose", "#channel")
 
-Test.gql("Show maintenance updates for Valkey", function(t)
+Test.gql("Show maintenance window and updates for Valkey", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query(string.format([[
@@ -12,6 +12,8 @@ Test.gql("Show maintenance updates for Valkey", function(t)
       nodes {
         name
         maintenance {
+          dayOfWeek
+          timeOfDay
           updates {
             nodes {
               title
@@ -34,6 +36,8 @@ Test.gql("Show maintenance updates for Valkey", function(t)
 						{
 							name = "valkey-slug-1-contests",
 							maintenance = {
+								dayOfWeek = "sunday",
+								timeOfDay = "12:34:56",
 								updates = {
 									nodes = {
 										{
@@ -59,7 +63,7 @@ Test.gql("Show maintenance updates for Valkey", function(t)
 	}
 end)
 
-Test.gql("Show maintenance updates for OpenSearch", function(t)
+Test.gql("Show maintenance window and updates for OpenSearch", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query(string.format([[
@@ -69,6 +73,8 @@ Test.gql("Show maintenance updates for OpenSearch", function(t)
       nodes {
         name
         maintenance {
+          dayOfWeek
+          timeOfDay
           updates {
             nodes {
               title
@@ -91,6 +97,8 @@ Test.gql("Show maintenance updates for OpenSearch", function(t)
 						{
 							name = "opensearch-slug-1-opensearch",
 							maintenance = {
+								dayOfWeek = "sunday",
+								timeOfDay = "12:34:56",
 								updates = {
 									nodes = {
 										{

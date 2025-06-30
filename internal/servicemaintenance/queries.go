@@ -4,8 +4,10 @@ import (
 	"context"
 	"time"
 
+	aiven_service "github.com/aiven/go-client-codegen/handler/service"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/valkey"
 )
@@ -50,6 +52,39 @@ func StartOpenSearchMaintenance(ctx context.Context, input StartOpenSearchMainte
 		ResourceName:    input.ServiceName,
 		Actor:           authz.ActorFromContext(ctx).User,
 	})
+}
+
+func GetAivenMaintenanceWindowWeekOfDay(ctx context.Context, key AivenDataLoaderKey) (*model.Weekday, error) {
+	windowFromAiven, err := fromContext(ctx).maintenanceLoader.Load(ctx, &key)
+	if err != nil {
+		return nil, err
+	}
+
+	if windowFromAiven.Dow == aiven_service.MaintenanceDowTypeNever {
+		return nil, nil
+	}
+
+	weekday := model.Weekday(windowFromAiven.Dow)
+	return &weekday, nil
+}
+
+func GetAivenMaintenanceWindowTimeOfDay(ctx context.Context, key AivenDataLoaderKey) (*string, error) {
+	windowFromAiven, err := fromContext(ctx).maintenanceLoader.Load(ctx, &key)
+	if err != nil {
+		return nil, err
+	}
+
+	if windowFromAiven.Dow == aiven_service.MaintenanceDowTypeNever {
+		return nil, nil
+	}
+
+	parsedTime, err := time.Parse(time.TimeOnly, windowFromAiven.Time)
+	if err != nil {
+		return nil, err
+	}
+
+	parsedTimeAsString := parsedTime.Format(time.TimeOnly)
+	return &parsedTimeAsString, nil
 }
 
 func GetAivenMaintenanceUpdates[UpdateType OpenSearchMaintenanceUpdate | ValkeyMaintenanceUpdate](ctx context.Context, key AivenDataLoaderKey) ([]*UpdateType, error) {
