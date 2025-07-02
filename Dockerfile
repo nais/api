@@ -4,7 +4,9 @@ WORKDIR /src
 COPY go.* /src/
 COPY pkg/apiclient/go.* /src/pkg/apiclient/
 RUN go mod download
-COPY . /src
+COPY internal /src/internal
+COPY pkg /src/pkg
+COPY cmd /src/cmd
 RUN go build -o bin/api ./cmd/api
 
 FROM gcr.io/distroless/base
