@@ -4,6 +4,10 @@ inputs:
   key: # id of input
     description: "Cache tag, without os and hashed go.sum"
     required: true
+  restore-keys:
+    description: "Restore keys, without os and hashed go.sum"
+    required: false
+    default: ""
 runs:
   using: "composite"
   steps:
@@ -13,6 +17,37 @@ runs:
       run: |
         echo "gocache=$(go env GOCACHE)" >> $GITHUB_OUTPUT
         echo "gomodcache=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
+    - name: Create restore keys
+      shell: bash
+      id: restore-keys
+      run: |
+        # Initialize an empty array to store processed lines
+        PROCESSED_LINES=()
+
+        # Split the input string by newline and process each line
+        # Using printf with %s (string) format to handle special characters within lines
+        # and then piping to a while loop to read each line safely.
+        # This prevents issues with lines containing spaces or other special shell characters.
+        while IFS= read -r line; do
+          if [[ -n "$line" ]]; then # Process non-empty lines
+            # Construct the new line with prefix and suffix
+            PROCESSED_LINE="${RUNNER_OS}-${line}"
+            PROCESSED_LINES+=("$PROCESSED_LINE")
+          fi
+        done <<< "${{ inputs.restore-keys }}"
+
+        # Join the processed lines with newline characters
+        # This is a common way to join array elements with a delimiter in bash
+        IFS=$'\n' # Set Internal Field Separator to newline
+        RESULT_OUTPUT="${PROCESSED_LINES[*]}"
+
+        # Escape special characters for GitHub Actions output
+        # % -> %25, \n -> %0A, \r -> %0D
+        ESCAPED_RESULT_OUTPUT=$(echo "${RESULT_OUTPUT}" | sed 's/%/%25/g; s/\n/%0A/g; s/\r/%0D/g')
+
+        # Set the output for the action
+        echo "result=${ESCAPED_RESULT_OUTPUT}"
+
     - name: Cache go modules
       uses: actions/cache@v4
       with:
@@ -21,5 +56,6 @@ runs:
           ${{ steps.go-cache.outputs.gomodcache }}
         key: ${{ runner.os }}-go-${{ inputs.key }}-${{ hashFiles('**/go.sum') }}
         restore-keys: |
+          ${{ steps.restore-keys.outputs.result }}
           ${{ runner.os }}-go-${{ inputs.key }}
           ${{ runner.os }}-go
