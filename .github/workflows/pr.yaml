@@ -77,12 +77,6 @@ jobs:
           install: false
       - id: go_version
         run: echo "go_version=$(mise current go)" >> $GITHUB_OUTPUT
-      - name: Cache go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            .cache
-          key: ${{ runner.os }}-docker-${{ hashFiles('Dockerfile') }}
       - uses: nais/platform-build-push-sign@docker_cache
         id: build-push-sign
         with:
@@ -92,8 +86,8 @@ jobs:
           google_service_account: gh-api
           workload_identity_provider: ${{ secrets.NAIS_IO_WORKLOAD_IDENTITY_PROVIDER }}
           push: true
-          cache_from: type=local,src=.cache
-          cache_to: type=local,dest=.cache
+          cache_from: type=gha
+          cache_to: type=gha,mode=max
       - name: Build Chart
         run: |-
           sed -i "s/^version: .*/version: ${{ steps.build-push-sign.outputs.version }}/g" charts/Chart.yaml
