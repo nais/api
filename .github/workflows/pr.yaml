@@ -73,10 +73,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
         with:
-          cache_key_prefix: "pr_bp_"
+          cache: false
+          install: false
       - id: go_version
         run: echo "go_version=$(mise current go)" >> $GITHUB_OUTPUT
-      - uses: nais/platform-build-push-sign@main
+      - uses: nais/platform-build-push-sign@docker_cache
         id: build-push-sign
         with:
           name: nais-api
