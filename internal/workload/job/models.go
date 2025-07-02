@@ -42,9 +42,10 @@ type Job struct {
 	Spec *nais_io_v1.NaisjobSpec `json:"-"`
 }
 
-func (Job) IsNode()       {}
-func (Job) IsSearchNode() {}
-func (Job) IsWorkload()   {}
+func (Job) IsNode()           {}
+func (Job) IsSearchNode()     {}
+func (Job) IsWorkload()       {}
+func (Job) IsActivityLogger() {}
 
 // GetSecrets returns a list of secret names used by the job
 func (j *Job) GetSecrets() []string {

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
@@ -22,6 +23,7 @@ type (
 
 type Workload interface {
 	model.Node
+	activitylog.ActivityLogger
 	IsWorkload()
 	GetName() string
 	GetEnvironmentName() string

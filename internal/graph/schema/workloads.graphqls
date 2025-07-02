@@ -82,7 +82,7 @@ extend type TeamEnvironment {
 """
 Interface for workloads.
 """
-interface Workload implements Node {
+interface Workload implements Node & ActivityLogger {
 	"""
 	The globally unique ID of the workload.
 	"""
@@ -151,6 +151,11 @@ interface Workload implements Node {
 		Get items before this cursor.
 		"""
 		before: Cursor
+
+		"""
+		Filter items.
+		"""
+		filter: ActivityLogFilter
 	): ActivityLogEntryConnection!
 }
 

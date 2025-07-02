@@ -117,3 +117,7 @@ func (e *ActivityLogActivityType) UnmarshalGQL(v any) error {
 func (e ActivityLogActivityType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
+
+type ActivityLogger interface {
+	IsActivityLogger()
+}
