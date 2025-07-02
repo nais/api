@@ -43,6 +43,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    if: github.triggering_actor != 'dependabot[bot]'
     name: Build and push
     runs-on: ubuntu-latest
     steps:
