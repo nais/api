@@ -12,7 +12,6 @@ jobs:
       - uses: jdx/mise-action@v2
         with:
           cache_key_prefix: mise-test
-          install_args: go
       - uses: ./.github/actions/go-cache
         with:
           key: pr
@@ -51,7 +50,6 @@ jobs:
       - uses: jdx/mise-action@v2
         with:
           cache_key_prefix: mise-build-push
-          install_args: go
       - uses: ./.github/actions/go-cache
         with:
           key: build
