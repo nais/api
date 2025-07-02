@@ -54,21 +54,7 @@ func StartOpenSearchMaintenance(ctx context.Context, input StartOpenSearchMainte
 	})
 }
 
-func GetAivenMaintenanceWindowWeekOfDay(ctx context.Context, key AivenDataLoaderKey) (*model.Weekday, error) {
-	windowFromAiven, err := fromContext(ctx).maintenanceLoader.Load(ctx, &key)
-	if err != nil {
-		return nil, err
-	}
-
-	if windowFromAiven.Dow == aiven_service.MaintenanceDowTypeNever {
-		return nil, nil
-	}
-
-	weekday := model.Weekday(windowFromAiven.Dow)
-	return &weekday, nil
-}
-
-func GetAivenMaintenanceWindowTimeOfDay(ctx context.Context, key AivenDataLoaderKey) (*string, error) {
+func GetAivenMaintenanceWindow(ctx context.Context, key AivenDataLoaderKey) (*MaintenanceWindow, error) {
 	windowFromAiven, err := fromContext(ctx).maintenanceLoader.Load(ctx, &key)
 	if err != nil {
 		return nil, err
@@ -84,7 +70,10 @@ func GetAivenMaintenanceWindowTimeOfDay(ctx context.Context, key AivenDataLoader
 	}
 
 	parsedTimeAsString := parsedTime.Format(time.TimeOnly)
-	return &parsedTimeAsString, nil
+	return &MaintenanceWindow{
+		DayOfWeek: model.Weekday(windowFromAiven.Dow),
+		TimeOfDay: parsedTimeAsString,
+	}, nil
 }
 
 func GetAivenMaintenanceUpdates[UpdateType OpenSearchMaintenanceUpdate | ValkeyMaintenanceUpdate](ctx context.Context, key AivenDataLoaderKey) ([]*UpdateType, error) {

@@ -5,7 +5,6 @@ import (
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
-	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/valkey"
@@ -47,15 +46,8 @@ func (r *openSearchResolver) Maintenance(ctx context.Context, obj *opensearch.Op
 	}, nil
 }
 
-func (r *openSearchMaintenanceResolver) DayOfWeek(ctx context.Context, obj *servicemaintenance.OpenSearchMaintenance) (*model.Weekday, error) {
-	return servicemaintenance.GetAivenMaintenanceWindowWeekOfDay(ctx, servicemaintenance.AivenDataLoaderKey{
-		Project:     obj.AivenProject,
-		ServiceName: obj.ServiceName,
-	})
-}
-
-func (r *openSearchMaintenanceResolver) TimeOfDay(ctx context.Context, obj *servicemaintenance.OpenSearchMaintenance) (*string, error) {
-	return servicemaintenance.GetAivenMaintenanceWindowTimeOfDay(ctx, servicemaintenance.AivenDataLoaderKey{
+func (r *openSearchMaintenanceResolver) Window(ctx context.Context, obj *servicemaintenance.OpenSearchMaintenance) (*servicemaintenance.MaintenanceWindow, error) {
+	return servicemaintenance.GetAivenMaintenanceWindow(ctx, servicemaintenance.AivenDataLoaderKey{
 		Project:     obj.AivenProject,
 		ServiceName: obj.ServiceName,
 	})
@@ -85,15 +77,8 @@ func (r *valkeyInstanceResolver) Maintenance(ctx context.Context, obj *valkey.Va
 	}, nil
 }
 
-func (r *valkeyMaintenanceResolver) DayOfWeek(ctx context.Context, obj *servicemaintenance.ValkeyMaintenance) (*model.Weekday, error) {
-	return servicemaintenance.GetAivenMaintenanceWindowWeekOfDay(ctx, servicemaintenance.AivenDataLoaderKey{
-		Project:     obj.AivenProject,
-		ServiceName: obj.ServiceName,
-	})
-}
-
-func (r *valkeyMaintenanceResolver) TimeOfDay(ctx context.Context, obj *servicemaintenance.ValkeyMaintenance) (*string, error) {
-	return servicemaintenance.GetAivenMaintenanceWindowTimeOfDay(ctx, servicemaintenance.AivenDataLoaderKey{
+func (r *valkeyMaintenanceResolver) Window(ctx context.Context, obj *servicemaintenance.ValkeyMaintenance) (*servicemaintenance.MaintenanceWindow, error) {
+	return servicemaintenance.GetAivenMaintenanceWindow(ctx, servicemaintenance.AivenDataLoaderKey{
 		Project:     obj.AivenProject,
 		ServiceName: obj.ServiceName,
 	})

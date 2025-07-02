@@ -12,8 +12,10 @@ Test.gql("Show maintenance window and updates for Valkey", function(t)
       nodes {
         name
         maintenance {
-          dayOfWeek
-          timeOfDay
+          window {
+            dayOfWeek
+            timeOfDay
+          }
           updates {
             nodes {
               title
@@ -36,8 +38,10 @@ Test.gql("Show maintenance window and updates for Valkey", function(t)
 						{
 							name = "valkey-slug-1-contests",
 							maintenance = {
-								dayOfWeek = "sunday",
-								timeOfDay = "12:34:56",
+								window = {
+									dayOfWeek = "sunday",
+									timeOfDay = "12:34:56",
+								},
 								updates = {
 									nodes = {
 										{
@@ -73,8 +77,10 @@ Test.gql("Show maintenance window and updates for OpenSearch", function(t)
       nodes {
         name
         maintenance {
-          dayOfWeek
-          timeOfDay
+          window {
+            dayOfWeek
+            timeOfDay
+          }
           updates {
             nodes {
               title
@@ -97,8 +103,10 @@ Test.gql("Show maintenance window and updates for OpenSearch", function(t)
 						{
 							name = "opensearch-slug-1-opensearch",
 							maintenance = {
-								dayOfWeek = "sunday",
-								timeOfDay = "12:34:56",
+								window = {
+									dayOfWeek = "sunday",
+									timeOfDay = "12:34:56",
+								},
 								updates = {
 									nodes = {
 										{
