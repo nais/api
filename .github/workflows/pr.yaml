@@ -10,29 +10,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
-      - name: Find go cache dir
-        id: go-cache
-        run: |
-          echo "gocache=$(go env GOCACHE)" >> $GITHUB_OUTPUT
-          echo "gomodcache=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
-      - name: Cache go modules
-        uses: actions/cache@v4
+      - uses: ./.github/actions/go-cache
         with:
-          path: |
-            ${{ steps.go-cache.outputs.gocache }}
-            ${{ steps.go-cache.outputs.gomodcache }}
-          key: ${{ runner.os }}-go-pr-${{ hashFiles('**/go.sum') }}
+          key: pr
       - run: mise run test
-      - name: Trim Go cache
-        if: ${{ github.ref == 'refs/heads/main' }}
-        shell: bash
-        # As the go command works, it either creates build cache files or touches
-        # ones it uses at most once an hour. When it trims the cache, it trims
-        # files that have not been modified/touched in 5+ days.
-        # To keep our saved cache lean, trim all files except ones that were just
-        # created/touched as part of this run.
-        run: |
-          find ~/.cache/go-build -type f -mmin +90 -delete
 
   lint:
     name: Lint
@@ -40,18 +21,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
-      - name: Find go cache dir
-        id: go-cache
-        run: |
-          echo "gocache=$(go env GOCACHE)" >> $GITHUB_OUTPUT
-          echo "gomodcache=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
-      - name: Cache go modules
-        uses: actions/cache@v4
+      - uses: ./.github/actions/go-cache
         with:
-          path: |
-            ${{ steps.go-cache.outputs.gocache }}
-            ${{ steps.go-cache.outputs.gomodcache }}
-          key: ${{ runner.os }}-go-lint-${{ hashFiles('**/go.sum') }}
+          key: lint
       - run: helm lint --strict ./charts
       - run: mise run check:staticcheck
       - run: mise run check:vulncheck
@@ -62,8 +34,6 @@ jobs:
           git diff --exit-code --name-only
 
   build_push:
-    outputs:
-      version: ${{ steps.build-push-sign.outputs.version }}
     permissions:
       contents: read
       id-token: write
@@ -72,28 +42,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
+      - uses: ./.github/actions/go-cache
         with:
-          cache: false
-          install: false
-      - id: go_version
-        run: echo "go_version=$(mise current go)" >> $GITHUB_OUTPUT
-      - name: Cache go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            .cache
-          key: ${{ runner.os }}-docker-dance-${{ hashFiles('Dockerfile') }}
+          key: pr
+      - run: mise run build:api
       - uses: nais/platform-build-push-sign@docker_cache
         id: build-push-sign
         with:
           name: nais-api
-          build_args: |
-            GO_VERSION=${{ steps.go_version.outputs.go_version }}-
+          dockerfile: Dockerfile.ci
           google_service_account: gh-api
           workload_identity_provider: ${{ secrets.NAIS_IO_WORKLOAD_IDENTITY_PROVIDER }}
           push: true
-          cache_from: type=local,src=.cache
-          cache_to: type=local,dest=.cache
       - name: Build Chart
         run: |-
           sed -i "s/^version: .*/version: ${{ steps.build-push-sign.outputs.version }}/g" charts/Chart.yaml

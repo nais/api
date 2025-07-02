@@ -1,0 +1,25 @@
+name: "Go cache"
+description: "Custom go cache"
+inputs:
+  key: # id of input
+    description: "Cache tag, without os and hashed go.sum"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Find go cache dir
+      shell: bash
+      id: go-cache
+      run: |
+        echo "gocache=$(go env GOCACHE)" >> $GITHUB_OUTPUT
+        echo "gomodcache=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
+    - name: Cache go modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ steps.go-cache.outputs.gocache }}
+          ${{ steps.go-cache.outputs.gomodcache }}
+        key: ${{ runner.os }}-go-${{ inputs.key }}-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-${{ inputs.key }}
+          ${{ runner.os }}-go
