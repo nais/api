@@ -24,7 +24,8 @@ type Reconciler struct {
 	Enabled     bool   `json:"enabled"`
 }
 
-func (Reconciler) IsNode() {}
+func (Reconciler) IsNode()           {}
+func (Reconciler) IsActivityLogger() {}
 
 func (r Reconciler) ID() ident.Ident {
 	return newReconcilerIdent(r.Name)

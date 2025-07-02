@@ -48,8 +48,9 @@ type ExternalReferences struct {
 	CdnBucket        *string
 }
 
-func (Team) IsNode()       {}
-func (Team) IsSearchNode() {}
+func (Team) IsNode()           {}
+func (Team) IsSearchNode()     {}
+func (Team) IsActivityLogger() {}
 
 func (t Team) DeletionInProgress() bool {
 	return t.DeleteKeyConfirmedAt != nil
