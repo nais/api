@@ -9,9 +9,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: docker compose up bigquery -d
       - uses: jdx/mise-action@v2
+      - name: Find go cache dir
+        id: go-cache
+        run: |
+          echo "gocache=$(go env GOCACHE)" >> $GITHUB_OUTPUT
+          echo "gomodcache=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
+      - name: Cache go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ steps.go-cache.outputs.gocache }}
+            ${{ steps.go-cache.outputs.gomodcache }}
+          key: ${{ runner.os }}-go-pr-${{ hashFiles('**/go.sum') }}
       - run: mise run test
+      - name: Trim Go cache
+        if: ${{ github.ref == 'refs/heads/main' }}
+        shell: bash
+        # As the go command works, it either creates build cache files or touches
+        # ones it uses at most once an hour. When it trims the cache, it trims
+        # files that have not been modified/touched in 5+ days.
+        # To keep our saved cache lean, trim all files except ones that were just
+        # created/touched as part of this run.
+        run: |
+          find ~/.cache/go-build -type f -mmin +90 -delete
 
   lint:
     name: Lint
@@ -19,6 +40,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
+      - name: Find go cache dir
+        id: go-cache
+        run: |
+          echo "gocache=$(go env GOCACHE)" >> $GITHUB_OUTPUT
+          echo "gomodcache=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
+      - name: Cache go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ steps.go-cache.outputs.gocache }}
+            ${{ steps.go-cache.outputs.gomodcache }}
+          key: ${{ runner.os }}-go-pr-${{ hashFiles('**/go.sum') }}
       - run: helm lint --strict ./charts
       - run: mise run check:staticcheck
       - run: mise run check:vulncheck
