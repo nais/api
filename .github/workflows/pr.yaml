@@ -11,22 +11,14 @@ jobs:
       - uses: actions/checkout@v4
       - run: docker compose up bigquery -d
       - uses: jdx/mise-action@v2
-      - name: Find go cache dir
-        id: go-cache
-        run: |
-          go version
-          # Clear cache dirs to avoid error when restoring
-          go clean -cache -modcache
-          echo "gocache=$(go env GOCACHE)" >> $GITHUB_OUTPUT
-          echo "gomodcache=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
-      - name: Cache go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ steps.go-cache.outputs.gocache }}
-            ${{ steps.go-cache.outputs.gomodcache }}
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
       - run: mise run test
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v2
       - run: helm lint --strict ./charts
       - run: mise run check:staticcheck
       - run: mise run check:vulncheck
