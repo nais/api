@@ -85,8 +85,8 @@ jobs:
           google_service_account: gh-api
           workload_identity_provider: ${{ secrets.NAIS_IO_WORKLOAD_IDENTITY_PROVIDER }}
           push: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache_from: type=gha
+          cache_to: type=gha,mode=max
       - name: Build Chart
         run: |-
           sed -i "s/^version: .*/version: ${{ steps.build-push-sign.outputs.version }}/g" charts/Chart.yaml
