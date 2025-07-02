@@ -46,7 +46,7 @@ runs:
         ESCAPED_RESULT_OUTPUT=$(echo "${RESULT_OUTPUT}" | sed 's/%/%25/g; s/\n/%0A/g; s/\r/%0D/g')
 
         # Set the output for the action
-        echo "result=${ESCAPED_RESULT_OUTPUT}"
+        echo "result=${ESCAPED_RESULT_OUTPUT}" >> "$GITHUB_OUTPUT"
 
     - name: Cache go modules
       uses: actions/cache@v4
