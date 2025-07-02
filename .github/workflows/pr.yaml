@@ -51,7 +51,7 @@ jobs:
           path: |
             ${{ steps.go-cache.outputs.gocache }}
             ${{ steps.go-cache.outputs.gomodcache }}
-          key: ${{ runner.os }}-go-pr-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-go-lint-${{ hashFiles('**/go.sum') }}
       - run: helm lint --strict ./charts
       - run: mise run check:staticcheck
       - run: mise run check:vulncheck
@@ -85,6 +85,8 @@ jobs:
           google_service_account: gh-api
           workload_identity_provider: ${{ secrets.NAIS_IO_WORKLOAD_IDENTITY_PROVIDER }}
           push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: Build Chart
         run: |-
           sed -i "s/^version: .*/version: ${{ steps.build-push-sign.outputs.version }}/g" charts/Chart.yaml
