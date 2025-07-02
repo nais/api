@@ -1,4 +1,9 @@
 """
+TimeOfDay is the time of day, represented as a string in the format HH:MM:SS.
+"""
+scalar TimeOfDay
+
+"""
 Time is a string in [RFC 3339](https://rfc-editor.org/rfc/rfc3339.html) format, with sub-second precision added if present.
 """
 scalar Time

@@ -30,6 +30,9 @@ type ValkeyMaintenanceUpdate implements ServiceMaintenanceUpdate {
 }
 
 type ValkeyMaintenance {
+	"The day and time of the week when the maintenance will be scheduled."
+	window: MaintenanceWindow
+
 	updates(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
@@ -93,7 +96,18 @@ type OpenSearchMaintenanceUpdate implements ServiceMaintenanceUpdate {
 	startAt: Time
 }
 
+type MaintenanceWindow {
+	"Day of the week when the maintenance is scheduled."
+	dayOfWeek: Weekday!
+
+	"Time of day when the maintenance is scheduled."
+	timeOfDay: TimeOfDay!
+}
+
 type OpenSearchMaintenance {
+	"The day and time of the week when the maintenance will be scheduled."
+	window: MaintenanceWindow
+
 	updates(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int

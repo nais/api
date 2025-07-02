@@ -4,8 +4,10 @@ import (
 	"context"
 	"time"
 
+	aiven_service "github.com/aiven/go-client-codegen/handler/service"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/valkey"
 )
@@ -52,14 +54,36 @@ func StartOpenSearchMaintenance(ctx context.Context, input StartOpenSearchMainte
 	})
 }
 
-func GetAivenMaintenance[UpdateType OpenSearchMaintenanceUpdate | ValkeyMaintenanceUpdate](ctx context.Context, key AivenDataLoaderKey) ([]*UpdateType, error) {
+func GetAivenMaintenanceWindow(ctx context.Context, key AivenDataLoaderKey) (*MaintenanceWindow, error) {
+	windowFromAiven, err := fromContext(ctx).maintenanceLoader.Load(ctx, &key)
+	if err != nil {
+		return nil, err
+	}
+
+	if windowFromAiven.Dow == aiven_service.MaintenanceDowTypeNever {
+		return nil, nil
+	}
+
+	parsedTime, err := time.Parse(time.TimeOnly, windowFromAiven.Time)
+	if err != nil {
+		return nil, err
+	}
+
+	parsedTimeAsString := parsedTime.Format(time.TimeOnly)
+	return &MaintenanceWindow{
+		DayOfWeek: model.Weekday(windowFromAiven.Dow),
+		TimeOfDay: parsedTimeAsString,
+	}, nil
+}
+
+func GetAivenMaintenanceUpdates[UpdateType OpenSearchMaintenanceUpdate | ValkeyMaintenanceUpdate](ctx context.Context, key AivenDataLoaderKey) ([]*UpdateType, error) {
 	updatesFromAiven, err := fromContext(ctx).maintenanceLoader.Load(ctx, &key)
 	if err != nil {
 		return nil, err
 	}
 
-	updates := make([]*UpdateType, len(updatesFromAiven))
-	for i, update := range updatesFromAiven {
+	updates := make([]*UpdateType, len(updatesFromAiven.Updates))
+	for i, update := range updatesFromAiven.Updates {
 		au := &AivenUpdate{
 			Title:   *update.Description,
 			StartAt: update.StartAt,

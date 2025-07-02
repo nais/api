@@ -2,10 +2,19 @@ package servicemaintenance
 
 import (
 	"time"
+
+	"github.com/nais/api/internal/graph/model"
 )
 
 type ServiceMaintenanceUpdate interface {
 	IsServiceMaintenanceUpdate()
+}
+
+type MaintenanceWindow struct {
+	// Day of the week when the maintenance is scheduled.
+	DayOfWeek model.Weekday `json:"dayOfWeek"`
+	// Time of day when the maintenance is scheduled.
+	TimeOfDay string `json:"timeOfDay"`
 }
 
 type AivenUpdate struct {

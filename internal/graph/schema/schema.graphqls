@@ -84,3 +84,43 @@ enum OrderDirection {
 	"""
 	DESC
 }
+
+"""
+The days of the week.
+"""
+enum Weekday {
+	"""
+	Monday
+	"""
+	MONDAY
+
+	"""
+	Tuesday
+	"""
+	TUESDAY
+
+	"""
+	Wednesday
+	"""
+	WEDNESDAY
+
+	"""
+	Thursday
+	"""
+	THURSDAY
+
+	"""
+	Friday
+	"""
+	FRIDAY
+
+	"""
+	Saturday
+	"""
+	SATURDAY
+
+	"""
+	Sunday
+	"""
+	SUNDAY
+}

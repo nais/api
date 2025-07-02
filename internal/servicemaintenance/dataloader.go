@@ -29,7 +29,7 @@ type AivenDataLoaderKey struct {
 }
 
 type loaders struct {
-	maintenanceLoader  *dataloadgen.Loader[*AivenDataLoaderKey, []aiven_service.UpdateOut]
+	maintenanceLoader  *dataloadgen.Loader[*AivenDataLoaderKey, aiven_service.MaintenanceOut]
 	log                logrus.FieldLogger
 	maintenanceMutator *Manager
 }
@@ -48,9 +48,9 @@ type dataloader struct {
 	log                       logrus.FieldLogger
 }
 
-func (l dataloader) aivenMaintenanceList(ctx context.Context, aivenDataLoaderKeys []*AivenDataLoaderKey) ([][]aiven_service.UpdateOut, []error) {
+func (l dataloader) aivenMaintenanceList(ctx context.Context, aivenDataLoaderKeys []*AivenDataLoaderKey) ([]aiven_service.MaintenanceOut, []error) {
 	wg := pool.New().WithContext(ctx)
-	rets := make([][]aiven_service.UpdateOut, len(aivenDataLoaderKeys))
+	rets := make([]aiven_service.MaintenanceOut, len(aivenDataLoaderKeys))
 	errs := make([]error, len(aivenDataLoaderKeys))
 
 	for i, pair := range aivenDataLoaderKeys {
@@ -59,8 +59,8 @@ func (l dataloader) aivenMaintenanceList(ctx context.Context, aivenDataLoaderKey
 			if err != nil {
 				errs[i] = err
 			} else {
-				if res.Maintenance != nil && res.Maintenance.Updates != nil {
-					rets[i] = res.Maintenance.Updates
+				if res.Maintenance != nil {
+					rets[i] = *res.Maintenance
 				}
 			}
 			return nil

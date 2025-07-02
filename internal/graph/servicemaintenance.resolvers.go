@@ -46,13 +46,20 @@ func (r *openSearchResolver) Maintenance(ctx context.Context, obj *opensearch.Op
 	}, nil
 }
 
+func (r *openSearchMaintenanceResolver) Window(ctx context.Context, obj *servicemaintenance.OpenSearchMaintenance) (*servicemaintenance.MaintenanceWindow, error) {
+	return servicemaintenance.GetAivenMaintenanceWindow(ctx, servicemaintenance.AivenDataLoaderKey{
+		Project:     obj.AivenProject,
+		ServiceName: obj.ServiceName,
+	})
+}
+
 func (r *openSearchMaintenanceResolver) Updates(ctx context.Context, obj *servicemaintenance.OpenSearchMaintenance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*servicemaintenance.OpenSearchMaintenanceUpdate], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	allUpdates, err := servicemaintenance.GetAivenMaintenance[servicemaintenance.OpenSearchMaintenanceUpdate](ctx, servicemaintenance.AivenDataLoaderKey{
+	allUpdates, err := servicemaintenance.GetAivenMaintenanceUpdates[servicemaintenance.OpenSearchMaintenanceUpdate](ctx, servicemaintenance.AivenDataLoaderKey{
 		Project:     obj.AivenProject,
 		ServiceName: obj.ServiceName,
 	})
@@ -70,13 +77,20 @@ func (r *valkeyInstanceResolver) Maintenance(ctx context.Context, obj *valkey.Va
 	}, nil
 }
 
+func (r *valkeyMaintenanceResolver) Window(ctx context.Context, obj *servicemaintenance.ValkeyMaintenance) (*servicemaintenance.MaintenanceWindow, error) {
+	return servicemaintenance.GetAivenMaintenanceWindow(ctx, servicemaintenance.AivenDataLoaderKey{
+		Project:     obj.AivenProject,
+		ServiceName: obj.ServiceName,
+	})
+}
+
 func (r *valkeyMaintenanceResolver) Updates(ctx context.Context, obj *servicemaintenance.ValkeyMaintenance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*servicemaintenance.ValkeyMaintenanceUpdate], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	allUpdates, err := servicemaintenance.GetAivenMaintenance[servicemaintenance.ValkeyMaintenanceUpdate](ctx, servicemaintenance.AivenDataLoaderKey{
+	allUpdates, err := servicemaintenance.GetAivenMaintenanceUpdates[servicemaintenance.ValkeyMaintenanceUpdate](ctx, servicemaintenance.AivenDataLoaderKey{
 		Project:     obj.AivenProject,
 		ServiceName: obj.ServiceName,
 	})
