@@ -1,5 +1,6 @@
 name: Build and push image and chart
 on:
+  pull_request:
   push:
     branches:
       - main
@@ -9,50 +10,63 @@ env:
   NAME: nais-api
   IMAGE_REPOSITORY: oci://europe-north1-docker.pkg.dev/nais-io/nais
 jobs:
-  build_push:
-    outputs:
-      version: ${{ steps.build-push-sign.outputs.version }}
-    permissions:
-      contents: read
-      id-token: write
-    name: Build and push
-    runs-on: ubuntu-latest-16-cores
+  test:
+    name: Check pull request
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: docker compose up bigquery -d
       - uses: jdx/mise-action@v2
-      - name: Find go cache dir
-        id: go-cache
-        run: |
-          go version
-          # Clear cache dirs to avoid error when restoring
-          go clean -cache -modcache
-          echo "gocache=$(go env GOCACHE)" >> $GITHUB_OUTPUT
-          echo "gomodcache=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
-      - name: Cache go modules
-        uses: actions/cache@v4
         with:
-          path: |
-            ${{ steps.go-cache.outputs.gocache }}
-            ${{ steps.go-cache.outputs.gomodcache }}
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          cache_key_prefix: mise-test
+      - uses: ./.github/actions/go-cache
+        with:
+          key: test
+      - run: mise run build:api
       - run: mise run test
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v2
+        with:
+          cache_key_prefix: mise-lint
+      - uses: ./.github/actions/go-cache
+        with:
+          key: lint
+          restore-keys: test
       - run: helm lint --strict ./charts
       - run: mise run check:staticcheck
       - run: mise run check:vulncheck
       - name: Check code format and run code generators
         run: |
           mise run fmt ::: generate
-          echo "checking for diff after running formatters, if this fails, run 'mise run fmt'"
+          echo "checking for diff after running generators and formatters, if this fails, run 'mise run fmt'"
           git diff --exit-code --name-only
-      - id: go_version
-        run: echo "go_version=$(mise current go)" >> $GITHUB_OUTPUT
-      - uses: nais/platform-build-push-sign@main
+
+  build_push:
+    permissions:
+      contents: read
+      id-token: write
+    if: github.triggering_actor != 'dependabot[bot]'
+    name: Build and push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v2
+        with:
+          cache_key_prefix: mise-build-push
+      - uses: ./.github/actions/go-cache
+        with:
+          key: build
+          restore-keys: test
+      - run: mise run build:api
+      - uses: nais/platform-build-push-sign@docker_cache
         id: build-push-sign
         with:
           name: nais-api
-          build_args: |
-            GO_VERSION=${{ steps.go_version.outputs.go_version }}-
+          dockerfile: Dockerfile.ci
           google_service_account: gh-api
           workload_identity_provider: ${{ secrets.NAIS_IO_WORKLOAD_IDENTITY_PROVIDER }}
           push: true
@@ -67,8 +81,11 @@ jobs:
 
   rollout:
     needs:
+      - test
+      - lint
       - build_push
     runs-on: fasit-deploy
+    if: github.ref == 'refs/heads/main'
     permissions:
       id-token: write
     steps:
