@@ -1,0 +1,8 @@
+FROM gcr.io/distroless/base AS builder
+WORKDIR /app
+COPY go.* /app/
+
+FROM gcr.io/distroless/base
+WORKDIR /app
+COPY ./bin/api /app/api
+ENTRYPOINT ["/app/api"]
