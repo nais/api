@@ -302,6 +302,10 @@ func (r *teamResolver) Environment(ctx context.Context, obj *team.Team, name str
 }
 
 func (r *teamResolver) DeleteKey(ctx context.Context, obj *team.Team, key string) (*team.TeamDeleteKey, error) {
+	if err := authz.CanDeleteTeam(ctx, obj.Slug); err != nil {
+		return nil, err
+	}
+
 	uid, err := uuid.Parse(key)
 	if err != nil {
 		return nil, apierror.Errorf("Invalid delete key: %s", key)
