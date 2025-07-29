@@ -23,6 +23,6 @@ func teamInit() {
 			return -1
 		}
 
-		return int(tc.Sum() * 1000) // multiply by 1000 to preserve precision
+		return int(tc.Sum() * 1000000) // multiply by 1000000 to preserve precision
 	}, "_SLUG")
 }
