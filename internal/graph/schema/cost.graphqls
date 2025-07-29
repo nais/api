@@ -20,6 +20,11 @@ extend type Query {
 	): CostMonthlySummary!
 }
 
+extend enum TeamOrderField {
+	"The team's accumulated cost over the last 12 months"
+	ACCUMULATED_COST
+}
+
 type TeamCost {
 	daily(
 		"Start date of the period, inclusive."
