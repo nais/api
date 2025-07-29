@@ -22,7 +22,7 @@ extend type Query {
 
 extend enum TeamOrderField {
 	"The team's accumulated cost over the last 12 months"
-	SUM_COST
+	ACCUMULATED_COST
 }
 
 type TeamCost {

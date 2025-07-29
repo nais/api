@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	TeamOrderSumCost team.TeamOrderField = "SUM_COST"
+	TeamOrderAccumulatedCost team.TeamOrderField = "ACCUMULATED_COST"
 )
 
 func init() {
@@ -15,9 +15,9 @@ func init() {
 }
 
 func teamInit() {
-	team.AllTeamOrderFields = append(team.AllTeamOrderFields, TeamOrderSumCost)
+	team.AllTeamOrderFields = append(team.AllTeamOrderFields, TeamOrderAccumulatedCost)
 
-	team.SortFilter.RegisterConcurrentSort(TeamOrderSumCost, func(ctx context.Context, a *team.Team) int {
+	team.SortFilter.RegisterConcurrentSort(TeamOrderAccumulatedCost, func(ctx context.Context, a *team.Team) int {
 		tc, err := MonthlySummaryForTeam(ctx, a.Slug)
 		if err != nil || tc == nil {
 			return -1
