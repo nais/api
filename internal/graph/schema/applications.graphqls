@@ -451,6 +451,23 @@ type Ingress {
 	Type of ingress.
 	"""
 	type: IngressType!
+
+	"""
+	Metrics for the ingress.
+	"""
+	metrics: IngressMetrics!
+}
+
+type IngressMetrics {
+	"""
+	Number of requests to the ingress per second.
+	"""
+	requestsPerSecond: Float!
+
+	"""
+	Number of errors in the ingress per second.
+	"""
+	errorsPerSecond: Float!
 }
 
 enum IngressType {

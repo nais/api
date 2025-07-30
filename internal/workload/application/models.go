@@ -216,6 +216,12 @@ func (a *Application) Ingresses() []*Ingress {
 			EnvironmentName: a.EnvironmentName,
 			TeamSlug:        a.TeamSlug,
 			ApplicationName: a.Name,
+			Metrics: IngressMetrics{
+				EnvironmentName: a.EnvironmentName,
+				TeamSlug:        a.TeamSlug,
+				ApplicationName: a.Name,
+				URL:             string(ingress),
+			},
 		}
 	}
 	return ret
@@ -409,10 +415,11 @@ type TeamInventoryCountApplications struct {
 }
 
 type Ingress struct {
-	URL             string    `json:"url"`
-	EnvironmentName string    `json:"-"`
-	TeamSlug        slug.Slug `json:"-"`
-	ApplicationName string    `json:"-"`
+	URL             string         `json:"url"`
+	Metrics         IngressMetrics `json:"metrics"`
+	EnvironmentName string         `json:"-"`
+	TeamSlug        slug.Slug      `json:"-"`
+	ApplicationName string         `json:"-"`
 }
 
 type IngressType string
@@ -458,6 +465,13 @@ func (e *IngressType) UnmarshalGQL(v interface{}) error {
 
 func (e IngressType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type IngressMetrics struct {
+	EnvironmentName string    `json:"-"`
+	TeamSlug        slug.Slug `json:"-"`
+	ApplicationName string    `json:"-"`
+	URL             string    `json:"-"`
 }
 
 type ApplicationInstanceStatus struct {
