@@ -41,6 +41,7 @@ import (
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/thirdparty/promclient"
+	promfake "github.com/nais/api/internal/thirdparty/promclient/fake"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/usersync"
@@ -253,7 +254,7 @@ func ConfigureGraph(
 
 	var prometheusClient promclient.Client
 	if fakes.WithFakePrometheus {
-		prometheusClient = promclient.NewFakeClient(clusters, nil, nil)
+		prometheusClient = promfake.NewFakeClient(clusters, nil, nil)
 	} else {
 		var err error
 		prometheusClient, err = promclient.New(clusters, tenantName, log)

@@ -1,4 +1,4 @@
-package promclient
+package fake
 
 import (
 	"context"
@@ -10,6 +10,7 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/thirdparty/promclient"
 	"github.com/nais/api/internal/workload/application"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/common/model"
@@ -36,7 +37,7 @@ func NewFakeClient(environments []string, random *rand.Rand, nowFunc func() prom
 	return &FakeClient{environments: environments, random: random, now: nowFunc}
 }
 
-func (c *FakeClient) QueryAll(ctx context.Context, query string, opts ...QueryOption) (map[string]prom.Vector, error) {
+func (c *FakeClient) QueryAll(ctx context.Context, query string, opts ...promclient.QueryOption) (map[string]prom.Vector, error) {
 	ret := map[string]prom.Vector{}
 	for _, env := range c.environments {
 		v, err := c.Query(ctx, env, query, opts...)
@@ -50,9 +51,9 @@ func (c *FakeClient) QueryAll(ctx context.Context, query string, opts ...QueryOp
 	return ret, nil
 }
 
-func (c *FakeClient) Query(ctx context.Context, environment string, query string, opts ...QueryOption) (prom.Vector, error) {
-	opt := queryOpts{
-		time: c.now().Time(),
+func (c *FakeClient) Query(ctx context.Context, environment string, query string, opts ...promclient.QueryOption) (prom.Vector, error) {
+	opt := promclient.QueryOpts{
+		Time: c.now().Time(),
 	}
 	for _, o := range opts {
 		o(&opt)
@@ -143,7 +144,7 @@ func (c *FakeClient) Query(ctx context.Context, environment string, query string
 				}
 				workload = app.Name
 				ret = append(ret, &prom.Sample{
-					Timestamp: prom.TimeFromUnix(opt.time.Unix()),
+					Timestamp: prom.TimeFromUnix(opt.Time.Unix()),
 					Metric:    makeLabels(),
 					Value:     value(),
 				})
@@ -153,7 +154,7 @@ func (c *FakeClient) Query(ctx context.Context, environment string, query string
 		}
 		ret = prom.Vector{
 			{
-				Timestamp: prom.TimeFromUnix(opt.time.Unix()),
+				Timestamp: prom.TimeFromUnix(opt.Time.Unix()),
 				Metric:    makeLabels(),
 				Value:     value(),
 			},
@@ -172,7 +173,7 @@ func (c *FakeClient) Query(ctx context.Context, environment string, query string
 		for _, t := range teams.Nodes() {
 			teamSlug = t.Slug
 			ret = append(ret, &prom.Sample{
-				Timestamp: prom.TimeFromUnix(opt.time.Unix()),
+				Timestamp: prom.TimeFromUnix(opt.Time.Unix()),
 				Metric:    makeLabels(),
 				Value:     value(),
 			})

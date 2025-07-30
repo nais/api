@@ -1,6 +1,6 @@
 //go:build integration_test
 
-package promclient
+package fake
 
 import (
 	"context"

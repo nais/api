@@ -19,15 +19,15 @@ type Client interface {
 	QueryRange(ctx context.Context, environment string, query string, promRange promv1.Range) (prom.Value, promv1.Warnings, error)
 }
 
-type queryOpts struct {
-	time time.Time
+type QueryOpts struct {
+	Time time.Time
 }
 
-type QueryOption func(*queryOpts)
+type QueryOption func(*QueryOpts)
 
 func WithTime(t time.Time) QueryOption {
-	return func(opts *queryOpts) {
-		opts.time = t
+	return func(opts *QueryOpts) {
+		opts.Time = t
 	}
 }
 
@@ -91,14 +91,14 @@ func (c *RealClient) Query(ctx context.Context, environment string, query string
 		return nil, fmt.Errorf("no prometheus client for environment %s", environment)
 	}
 
-	opt := &queryOpts{
-		time: time.Now().Add(-5 * time.Minute),
+	opt := &QueryOpts{
+		Time: time.Now().Add(-5 * time.Minute),
 	}
 	for _, fn := range opts {
 		fn(opt)
 	}
 
-	v, warnings, err := client.Query(ctx, query, opt.time)
+	v, warnings, err := client.Query(ctx, query, opt.Time)
 	if err != nil {
 		return nil, err
 	}
