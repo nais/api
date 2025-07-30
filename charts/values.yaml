@@ -9,7 +9,7 @@ image:
   repository: europe-north1-docker.pkg.dev/nais-io/nais/images
   name: nais-api
 
-  cloudsql_proxy: gcr.io/cloudsql-docker/gce-proxy:1.33.16
+  cloudsql_proxy: gcr.io/cloudsql-docker/gce-proxy:1.37.8
 
 host: ""
 
