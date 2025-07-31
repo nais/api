@@ -75,7 +75,7 @@ func transformIngress(in any) (any, error) {
 
 	ingressClassName, _, _ := unstructured.NestedString(ingress.Object, "spec", "ingressClassName")
 
-	// We only need to keep Host and path
+	// We only need to keep Host
 	newRules := []any{}
 	for _, rule := range rules {
 		r, ok := rule.(map[string]any)
@@ -84,7 +84,6 @@ func transformIngress(in any) (any, error) {
 		}
 		newRule := map[string]any{
 			"host": r["host"],
-			"http": r["http"],
 		}
 		newRules = append(newRules, newRule)
 	}

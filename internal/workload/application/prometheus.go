@@ -4,13 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"regexp"
+	"strings"
 
-	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/thirdparty/promclient"
 	prom "github.com/prometheus/common/model"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/selection"
 )
 
 type IngressMetricsClient interface {
@@ -29,75 +26,27 @@ func ensuredVal(v prom.Vector) float64 {
 	return float64(v[0].Value)
 }
 
-func labelSelectorFor(team, app string) (labels.Selector, error) {
-	teamReq, err := labels.NewRequirement("team", selection.Equals, []string{team})
-	if err != nil {
-		return nil, fmt.Errorf("failed to create team label requirement: %w", err)
-	}
-	appReq, err := labels.NewRequirement("app", selection.Equals, []string{app})
-	if err != nil {
-		return nil, fmt.Errorf("failed to create app label requirement: %w", err)
-	}
-
-	return labels.NewSelector().Add(*teamReq, *appReq), nil
-}
-
 // ingressMetric finds the best-matching ingress path (longest regex match) and queries Prometheus using it.
 func ingressMetric(ctx context.Context, obj *IngressMetrics, promQueryFmt string) (float64, error) {
 	c := fromContext(ctx).client
 
-	selector, err := labelSelectorFor(obj.TeamSlug.String(), obj.ApplicationName)
+	ingressURL, err := url.Parse(obj.Ingress.URL)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to parse ingress URL %q: %w", obj.Ingress.URL, err)
 	}
 
-	ingressURL, err := url.Parse(obj.URL)
+	if len(ingressURL.Path) > 1 {
+		ingressURL.Path = strings.TrimRight(ingressURL.Path, "/") + "(/.*)?"
+	} else {
+		ingressURL.Path = "/"
+	}
+
+	query := fmt.Sprintf(promQueryFmt, ingressURL.Host, ingressURL.Path)
+	a, err := c.Query(ctx, obj.Ingress.EnvironmentName, query)
 	if err != nil {
-		return 0, fmt.Errorf("failed to parse ingress URL %q: %w", obj.URL, err)
+		return 0, fmt.Errorf("failed to query Prometheus for ingress %q: %w", obj.Ingress.URL, err)
 	}
-
-	urlPath := ingressURL.EscapedPath()
-	if urlPath == "" {
-		urlPath = "/"
-	}
-
-	ingresses := fromContext(ctx).ingressWatcher.GetByCluster(obj.EnvironmentName, watcher.WithLabels(selector))
-
-	var bestMatch string
-	var bestHost string
-	maxLength := -1
-
-	for _, ing := range ingresses {
-		for _, rule := range ing.Obj.Spec.Rules {
-			if rule.Host != ingressURL.Hostname() || rule.HTTP == nil {
-				continue
-			}
-			for _, p := range rule.HTTP.Paths {
-				re, err := regexp.Compile("^" + p.Path + "$")
-				if err != nil {
-					continue // skip invalid regex
-				}
-				if re.MatchString(urlPath) {
-					if len(p.Path) > maxLength {
-						bestMatch = p.Path
-						bestHost = rule.Host
-						maxLength = len(p.Path)
-					}
-				}
-			}
-		}
-	}
-
-	if bestMatch != "" {
-		query := fmt.Sprintf(promQueryFmt, bestHost, bestMatch)
-		v, err := c.Query(ctx, obj.EnvironmentName, query)
-		if err != nil {
-			return 0, err
-		}
-		return ensuredVal(v), nil
-	}
-
-	return 0, nil
+	return ensuredVal(a), nil
 }
 
 func RequestsPerSecondForIngress(ctx context.Context, obj *IngressMetrics) (float64, error) {

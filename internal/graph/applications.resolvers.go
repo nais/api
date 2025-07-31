@@ -85,6 +85,12 @@ func (r *ingressResolver) Type(ctx context.Context, obj *application.Ingress) (a
 	return application.GetIngressType(ctx, obj), nil
 }
 
+func (r *ingressResolver) Metrics(ctx context.Context, obj *application.Ingress) (*application.IngressMetrics, error) {
+	return &application.IngressMetrics{
+		Ingress: obj,
+	}, nil
+}
+
 func (r *ingressMetricsResolver) RequestsPerSecond(ctx context.Context, obj *application.IngressMetrics) (float64, error) {
 	return application.RequestsPerSecondForIngress(ctx, obj)
 }
