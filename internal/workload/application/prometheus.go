@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"strings"
+	"regexp"
 
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/thirdparty/promclient"
@@ -15,8 +15,6 @@ import (
 
 type IngressMetricsClient interface {
 	Query(ctx context.Context, environment string, query string, opts ...promclient.QueryOption) (prom.Vector, error)
-	// QueryAll(ctx context.Context, query string, opts ...promclient.QueryOption) (map[string]prom.Vector, error)
-	// QueryRange(ctx context.Context, environment string, query string, promRange promv1.Range) (prom.Value, promv1.Warnings, error)
 }
 
 const (
@@ -28,86 +26,84 @@ func ensuredVal(v prom.Vector) float64 {
 	if len(v) == 0 {
 		return 0
 	}
-
 	return float64(v[0].Value)
 }
 
-func RequestsPerSecondForIngress(ctx context.Context, obj *IngressMetrics) (float64, error) {
-	q := ingressRequests
+func labelSelectorFor(team, app string) (labels.Selector, error) {
+	teamReq, err := labels.NewRequirement("team", selection.Equals, []string{team})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create team label requirement: %w", err)
+	}
+	appReq, err := labels.NewRequirement("app", selection.Equals, []string{app})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create app label requirement: %w", err)
+	}
+
+	return labels.NewSelector().Add(*teamReq, *appReq), nil
+}
+
+// ingressMetric finds the best-matching ingress path (longest regex match) and queries Prometheus using it.
+func ingressMetric(ctx context.Context, obj *IngressMetrics, promQueryFmt string) (float64, error) {
 	c := fromContext(ctx).client
 
-	teamRequirement, err := labels.NewRequirement("team", selection.Equals, []string{obj.TeamSlug.String()})
+	selector, err := labelSelectorFor(obj.TeamSlug.String(), obj.ApplicationName)
 	if err != nil {
-		return 0, fmt.Errorf("failed to create label requirement: %w", err)
+		return 0, err
 	}
-	appRequirement, err := labels.NewRequirement("app", selection.Equals, []string{obj.ApplicationName})
-	if err != nil {
-		return 0, fmt.Errorf("failed to create label requirement: %w", err)
-	}
-	
-	selector := labels.NewSelector()
-	selector = selector.Add(*teamRequirement, *appRequirement)
-	
+
 	ingressURL, err := url.Parse(obj.URL)
 	if err != nil {
 		return 0, fmt.Errorf("failed to parse ingress URL %q: %w", obj.URL, err)
 	}
 
-	ingress := fromContext(ctx).ingressWatcher.GetByCluster(obj.EnvironmentName, watcher.WithLabels(selector))
-	for _, ingress := range ingress {
-		for _, rules := range ingress.Obj.Spec.Rules {
-			if rules.Host == ingressURL.Hostname() {
-				for _, path := range rules.HTTP.Paths {
-					if strings.HasPrefix(path.Path, ingressURL.EscapedPath()) {
-						v, err := c.Query(ctx, obj.EnvironmentName, fmt.Sprintf(q, rules.Host, path.Path))
-						if err != nil {
-							return 0, err
-						}
-						return ensuredVal(v), nil
+	urlPath := ingressURL.EscapedPath()
+	if urlPath == "" {
+		urlPath = "/"
+	}
+
+	ingresses := fromContext(ctx).ingressWatcher.GetByCluster(obj.EnvironmentName, watcher.WithLabels(selector))
+
+	var bestMatch string
+	var bestHost string
+	maxLength := -1
+
+	for _, ing := range ingresses {
+		for _, rule := range ing.Obj.Spec.Rules {
+			if rule.Host != ingressURL.Hostname() || rule.HTTP == nil {
+				continue
+			}
+			for _, p := range rule.HTTP.Paths {
+				re, err := regexp.Compile("^" + p.Path + "$")
+				if err != nil {
+					continue // skip invalid regex
+				}
+				if re.MatchString(urlPath) {
+					if len(p.Path) > maxLength {
+						bestMatch = p.Path
+						bestHost = rule.Host
+						maxLength = len(p.Path)
 					}
 				}
 			}
 		}
 	}
+
+	if bestMatch != "" {
+		query := fmt.Sprintf(promQueryFmt, bestHost, bestMatch)
+		v, err := c.Query(ctx, obj.EnvironmentName, query)
+		if err != nil {
+			return 0, err
+		}
+		return ensuredVal(v), nil
+	}
+
 	return 0, nil
 }
 
+func RequestsPerSecondForIngress(ctx context.Context, obj *IngressMetrics) (float64, error) {
+	return ingressMetric(ctx, obj, ingressRequests)
+}
+
 func ErrorsPerSecondForIngress(ctx context.Context, obj *IngressMetrics) (float64, error) {
-	q := errorRate
-	c := fromContext(ctx).client
-
-	teamRequirement, err := labels.NewRequirement("team", selection.Equals, []string{obj.TeamSlug.String()})
-	if err != nil {
-		return 0, fmt.Errorf("failed to create label requirement: %w", err)
-	}
-	appRequirement, err := labels.NewRequirement("app", selection.Equals, []string{obj.ApplicationName})
-	if err != nil {
-		return 0, fmt.Errorf("failed to create label requirement: %w", err)
-	}
-	
-	selector := labels.NewSelector()
-	selector = selector.Add(*teamRequirement, *appRequirement)
-	
-	ingressURL, err := url.Parse(obj.URL)
-	if err != nil {
-		return 0, fmt.Errorf("failed to parse ingress URL %q: %w", obj.URL, err)
-	}
-
-	ingress := fromContext(ctx).ingressWatcher.GetByCluster(obj.EnvironmentName, watcher.WithLabels(selector))
-	for _, ingress := range ingress {
-		for _, rules := range ingress.Obj.Spec.Rules {
-			if rules.Host == ingressURL.Hostname() {
-				for _, path := range rules.HTTP.Paths {
-					if strings.HasPrefix(path.Path, ingressURL.EscapedPath()) {
-						v, err := c.Query(ctx, obj.EnvironmentName, fmt.Sprintf(q, rules.Host, path.Path))
-						if err != nil {
-							return 0, err
-						}
-						return ensuredVal(v), nil
-					}
-				}
-			}
-		}
-	}
-	return 0, nil
+	return ingressMetric(ctx, obj, errorRate)
 }
