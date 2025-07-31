@@ -86,11 +86,11 @@ func (r *ingressResolver) Type(ctx context.Context, obj *application.Ingress) (a
 }
 
 func (r *ingressMetricsResolver) RequestsPerSecond(ctx context.Context, obj *application.IngressMetrics) (float64, error) {
-	return application.RequestsPerSecondForIngress(ctx), nil
+	return application.RequestsPerSecondForIngress(ctx, obj)
 }
 
 func (r *ingressMetricsResolver) ErrorsPerSecond(ctx context.Context, obj *application.IngressMetrics) (float64, error) {
-	return application.ErrorsPerSecondForIngress(ctx), nil
+	return application.ErrorsPerSecondForIngress(ctx, obj)
 }
 
 func (r *mutationResolver) DeleteApplication(ctx context.Context, input application.DeleteApplicationInput) (*application.DeleteApplicationPayload, error) {
