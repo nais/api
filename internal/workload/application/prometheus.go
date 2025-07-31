@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/thirdparty/promclient"
 	prom "github.com/prometheus/common/model"
 )
@@ -42,7 +43,7 @@ func ingressMetric(ctx context.Context, obj *IngressMetrics, promQueryFmt string
 	}
 
 	query := fmt.Sprintf(promQueryFmt, ingressURL.Host, ingressURL.Path)
-	a, err := c.Query(ctx, obj.Ingress.EnvironmentName, query)
+	a, err := c.Query(ctx, environmentmapper.ClusterName(obj.Ingress.EnvironmentName), query)
 	if err != nil {
 		return 0, fmt.Errorf("failed to query Prometheus for ingress %q: %w", obj.Ingress.URL, err)
 	}
