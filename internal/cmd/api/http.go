@@ -41,6 +41,7 @@ import (
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/thirdparty/promclient"
+	promfake "github.com/nais/api/internal/thirdparty/promclient/fake"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/usersync"
@@ -253,7 +254,7 @@ func ConfigureGraph(
 
 	var prometheusClient promclient.Client
 	if fakes.WithFakePrometheus {
-		prometheusClient = promclient.NewFakeClient(clusters, nil, nil)
+		prometheusClient = promfake.NewFakeClient(clusters, nil, nil)
 	} else {
 		var err error
 		prometheusClient, err = promclient.New(clusters, tenantName, log)
@@ -289,7 +290,7 @@ func ConfigureGraph(
 
 	setupContext := func(ctx context.Context) context.Context {
 		ctx = podlog.NewLoaderContext(ctx, podLogStreamer)
-		ctx = application.NewLoaderContext(ctx, appWatcher, ingressWatcher)
+		ctx = application.NewLoaderContext(ctx, appWatcher, ingressWatcher, prometheusClient)
 		ctx = bigquery.NewLoaderContext(ctx, bqWatcher)
 		ctx = bucket.NewLoaderContext(ctx, bucketWatcher)
 		ctx = job.NewLoaderContext(ctx, jobWatcher, runWatcher)

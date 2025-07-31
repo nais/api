@@ -15,8 +15,8 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingressWatcher *watcher.Watcher[*netv1.Ingress]) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(appWatcher, ingressWatcher))
+func NewLoaderContext(ctx context.Context, appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingressWatcher *watcher.Watcher[*netv1.Ingress], client IngressMetricsClient) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(appWatcher, ingressWatcher, client))
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*nais_io_v1alpha1.Application] {
@@ -38,12 +38,14 @@ func fromContext(ctx context.Context) *loaders {
 type loaders struct {
 	appWatcher     *watcher.Watcher[*nais_io_v1alpha1.Application]
 	ingressWatcher *watcher.Watcher[*netv1.Ingress]
+	client         IngressMetricsClient
 }
 
-func newLoaders(appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingressWatcher *watcher.Watcher[*netv1.Ingress]) *loaders {
+func newLoaders(appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingressWatcher *watcher.Watcher[*netv1.Ingress], client IngressMetricsClient) *loaders {
 	return &loaders{
 		appWatcher:     appWatcher,
 		ingressWatcher: ingressWatcher,
+		client:         client,
 	}
 }
 

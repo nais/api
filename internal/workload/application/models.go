@@ -460,6 +460,10 @@ func (e IngressType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type IngressMetrics struct {
+	Ingress *Ingress `json:"-"`
+}
+
 type ApplicationInstanceStatus struct {
 	State   ApplicationInstanceState `json:"state"`
 	Message string                   `json:"message"`

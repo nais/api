@@ -13,3 +13,4 @@ hack/coverprofile.txt
 .eslintcache
 result*
 data/k8s/dev/tbd/
+data/k8s/prod-gcp/
