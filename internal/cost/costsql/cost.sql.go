@@ -85,40 +85,47 @@ WITH
 			date
 		FROM
 			GENERATE_SERIES(
-				$3::date,
-				$4::date,
+				$1::date,
+				$2::date,
 				'1 day'::INTERVAL
 			) AS date
+	),
+	cost_data AS (
+		SELECT
+			cost.date AS date,
+			cost.service AS service,
+			COALESCE(SUM(cost.daily_cost), 0)::REAL AS daily_cost
+		FROM
+			cost
+		WHERE
+			cost.date >= $1::date
+			AND cost.date <= $2::date
+			AND team_slug = $3::slug
+			AND CASE
+				WHEN $4::TEXT[] IS NOT NULL THEN cost.service = ANY ($4)
+				ELSE TRUE
+			END
+		GROUP BY
+			cost.date,
+			cost.service
 	)
 SELECT
 	date_range.date::date AS date,
-	cost.service,
-	COALESCE(SUM(cost.daily_cost), 0)::REAL AS cost
+	cost_data.service,
+	COALESCE(cost_data.daily_cost, 0) AS cost
 FROM
 	date_range
-	LEFT OUTER JOIN cost ON cost.date = date_range.date
-WHERE
-	(
-		team_slug IS NULL
-		OR team_slug = $1::slug
-	)
-	AND CASE
-		WHEN $2::TEXT[] IS NOT NULL THEN cost.service = ANY ($2)
-		ELSE TRUE
-	END
-GROUP BY
-	date_range.date,
-	cost.service
+	LEFT OUTER JOIN cost_data ON cost_data.date = date_range.date
 ORDER BY
 	date_range.date,
-	cost.service ASC
+	cost_data.service ASC
 `
 
 type DailyCostForTeamParams struct {
-	TeamSlug slug.Slug
-	Services []string
 	FromDate pgtype.Date
 	ToDate   pgtype.Date
+	TeamSlug slug.Slug
+	Services []string
 }
 
 type DailyCostForTeamRow struct {
@@ -129,10 +136,10 @@ type DailyCostForTeamRow struct {
 
 func (q *Queries) DailyCostForTeam(ctx context.Context, arg DailyCostForTeamParams) ([]*DailyCostForTeamRow, error) {
 	rows, err := q.db.Query(ctx, dailyCostForTeam,
-		arg.TeamSlug,
-		arg.Services,
 		arg.FromDate,
 		arg.ToDate,
+		arg.TeamSlug,
+		arg.Services,
 	)
 	if err != nil {
 		return nil, err
@@ -159,41 +166,50 @@ WITH
 			date
 		FROM
 			GENERATE_SERIES(
-				$3::date,
-				$4::date,
+				$1::date,
+				$2::date,
 				'1 day'::INTERVAL
 			) AS date
+	),
+	cost_data AS (
+		SELECT
+			cost.date AS date,
+			cost.environment AS environment,
+			cost.team_slug AS team_slug,
+			cost.app_label AS app_label,
+			COALESCE(SUM(cost.daily_cost), 0)::REAL AS daily_cost
+		FROM
+			cost
+		WHERE
+			cost.date >= $1::date
+			AND cost.date <= $2::date
+			AND environment = $3::TEXT
+			AND team_slug = $4::slug
+		GROUP BY
+			cost.date,
+			cost.environment,
+			cost.team_slug,
+			cost.app_label
 	)
 SELECT
 	date_range.date::date AS date,
-	cost.environment,
-	cost.team_slug,
-	cost.app_label,
-	SUM(cost.daily_cost)::REAL AS daily_cost
+	cost_data.environment,
+	cost_data.team_slug,
+	cost_data.app_label,
+	COALESCE(cost_data.daily_cost, 0) AS daily_cost
 FROM
 	date_range
-	LEFT OUTER JOIN cost ON cost.date = date_range.date
-WHERE
-	environment IS NULL
-	OR (
-		environment = $1::TEXT
-		AND team_slug = $2::slug
-	)
-GROUP BY
-	date_range.date,
-	cost.environment,
-	cost.team_slug,
-	cost.app_label
+	LEFT OUTER JOIN cost_data ON cost_data.date = date_range.date
 ORDER BY
 	date_range.date,
-	cost.app_label ASC
+	cost_data.app_label ASC
 `
 
 type DailyCostForTeamEnvironmentParams struct {
-	Environment string
-	TeamSlug    slug.Slug
 	FromDate    pgtype.Date
 	ToDate      pgtype.Date
+	Environment string
+	TeamSlug    slug.Slug
 }
 
 type DailyCostForTeamEnvironmentRow struct {
@@ -206,10 +222,10 @@ type DailyCostForTeamEnvironmentRow struct {
 
 func (q *Queries) DailyCostForTeamEnvironment(ctx context.Context, arg DailyCostForTeamEnvironmentParams) ([]*DailyCostForTeamEnvironmentRow, error) {
 	rows, err := q.db.Query(ctx, dailyCostForTeamEnvironment,
-		arg.Environment,
-		arg.TeamSlug,
 		arg.FromDate,
 		arg.ToDate,
+		arg.Environment,
+		arg.TeamSlug,
 	)
 	if err != nil {
 		return nil, err
@@ -242,55 +258,73 @@ WITH
 			date
 		FROM
 			GENERATE_SERIES(
-				$4::date,
-				$5::date,
+				$1::date,
+				$2::date,
 				'1 day'::INTERVAL
 			) AS date
+	),
+	cost_data AS (
+		SELECT
+			cost.date AS date,
+			cost.environment AS environment,
+			cost.team_slug AS team_slug,
+			cost.app_label AS app_label,
+			cost.service AS service,
+			COALESCE(SUM(cost.daily_cost), 0)::REAL AS daily_cost
+		FROM
+			cost
+		WHERE
+			cost.date >= $1::date
+			AND cost.date <= $2::date
+			AND environment = $3::TEXT
+			AND team_slug = $4::slug
+			AND app_label = $5
+		GROUP BY
+			cost.date,
+			cost.environment,
+			cost.team_slug,
+			cost.app_label,
+			cost.service
 	)
 SELECT
 	date_range.date::date AS date,
-	cost.environment,
-	cost.team_slug,
-	cost.service,
-	cost.daily_cost
+	cost_data.environment,
+	cost_data.team_slug,
+	cost_data.app_label,
+	cost_data.service,
+	cost_data.daily_cost
 FROM
 	date_range
-	LEFT OUTER JOIN cost ON cost.date = date_range.date
-WHERE
-	environment IS NULL
-	OR (
-		environment = $1::TEXT
-		AND team_slug = $2::slug
-		AND app_label = $3
-	)
+	LEFT OUTER JOIN cost_data ON cost_data.date = date_range.date
 ORDER BY
 	date_range.date,
-	cost.service ASC
+	cost_data.service ASC
 `
 
 type DailyCostForWorkloadParams struct {
+	FromDate    pgtype.Date
+	ToDate      pgtype.Date
 	Environment string
 	TeamSlug    slug.Slug
 	AppLabel    string
-	FromDate    pgtype.Date
-	ToDate      pgtype.Date
 }
 
 type DailyCostForWorkloadRow struct {
 	Date        pgtype.Date
 	Environment *string
 	TeamSlug    *slug.Slug
+	AppLabel    *string
 	Service     *string
 	DailyCost   *float32
 }
 
 func (q *Queries) DailyCostForWorkload(ctx context.Context, arg DailyCostForWorkloadParams) ([]*DailyCostForWorkloadRow, error) {
 	rows, err := q.db.Query(ctx, dailyCostForWorkload,
+		arg.FromDate,
+		arg.ToDate,
 		arg.Environment,
 		arg.TeamSlug,
 		arg.AppLabel,
-		arg.FromDate,
-		arg.ToDate,
 	)
 	if err != nil {
 		return nil, err
@@ -303,6 +337,7 @@ func (q *Queries) DailyCostForWorkload(ctx context.Context, arg DailyCostForWork
 			&i.Date,
 			&i.Environment,
 			&i.TeamSlug,
+			&i.AppLabel,
 			&i.Service,
 			&i.DailyCost,
 		); err != nil {

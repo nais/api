@@ -106,26 +106,43 @@ WITH
 				@to_date::date,
 				'1 day'::INTERVAL
 			) AS date
+	),
+	cost_data AS (
+		SELECT
+			cost.date AS date,
+			cost.environment AS environment,
+			cost.team_slug AS team_slug,
+			cost.app_label AS app_label,
+			cost.service AS service,
+			COALESCE(SUM(cost.daily_cost), 0)::REAL AS daily_cost
+		FROM
+			cost
+		WHERE
+			cost.date >= @from_date::date
+			AND cost.date <= @to_date::date
+			AND environment = @environment::TEXT
+			AND team_slug = @team_slug::slug
+			AND app_label = @app_label
+		GROUP BY
+			cost.date,
+			cost.environment,
+			cost.team_slug,
+			cost.app_label,
+			cost.service
 	)
 SELECT
 	date_range.date::date AS date,
-	cost.environment,
-	cost.team_slug,
-	cost.service,
-	cost.daily_cost
+	cost_data.environment,
+	cost_data.team_slug,
+	cost_data.app_label,
+	cost_data.service,
+	cost_data.daily_cost
 FROM
 	date_range
-	LEFT OUTER JOIN cost ON cost.date = date_range.date
-WHERE
-	environment IS NULL
-	OR (
-		environment = @environment::TEXT
-		AND team_slug = @team_slug::slug
-		AND app_label = @app_label
-	)
+	LEFT OUTER JOIN cost_data ON cost_data.date = date_range.date
 ORDER BY
 	date_range.date,
-	cost.service ASC
+	cost_data.service ASC
 ;
 
 -- name: DailyCostForTeam :many
@@ -139,29 +156,36 @@ WITH
 				@to_date::date,
 				'1 day'::INTERVAL
 			) AS date
+	),
+	cost_data AS (
+		SELECT
+			cost.date AS date,
+			cost.service AS service,
+			COALESCE(SUM(cost.daily_cost), 0)::REAL AS daily_cost
+		FROM
+			cost
+		WHERE
+			cost.date >= @from_date::date
+			AND cost.date <= @to_date::date
+			AND team_slug = @team_slug::slug
+			AND CASE
+				WHEN sqlc.narg(services)::TEXT[] IS NOT NULL THEN cost.service = ANY (@services)
+				ELSE TRUE
+			END
+		GROUP BY
+			cost.date,
+			cost.service
 	)
 SELECT
 	date_range.date::date AS date,
-	cost.service,
-	COALESCE(SUM(cost.daily_cost), 0)::REAL AS cost
+	cost_data.service,
+	COALESCE(cost_data.daily_cost, 0) AS cost
 FROM
 	date_range
-	LEFT OUTER JOIN cost ON cost.date = date_range.date
-WHERE
-	(
-		team_slug IS NULL
-		OR team_slug = @team_slug::slug
-	)
-	AND CASE
-		WHEN sqlc.narg(services)::TEXT[] IS NOT NULL THEN cost.service = ANY (@services)
-		ELSE TRUE
-	END
-GROUP BY
-	date_range.date,
-	cost.service
+	LEFT OUTER JOIN cost_data ON cost_data.date = date_range.date
 ORDER BY
 	date_range.date,
-	cost.service ASC
+	cost_data.service ASC
 ;
 
 -- name: DailyEnvCostForTeam :many
@@ -231,30 +255,39 @@ WITH
 				@to_date::date,
 				'1 day'::INTERVAL
 			) AS date
+	),
+	cost_data AS (
+		SELECT
+			cost.date AS date,
+			cost.environment AS environment,
+			cost.team_slug AS team_slug,
+			cost.app_label AS app_label,
+			COALESCE(SUM(cost.daily_cost), 0)::REAL AS daily_cost
+		FROM
+			cost
+		WHERE
+			cost.date >= @from_date::date
+			AND cost.date <= @to_date::date
+			AND environment = @environment::TEXT
+			AND team_slug = @team_slug::slug
+		GROUP BY
+			cost.date,
+			cost.environment,
+			cost.team_slug,
+			cost.app_label
 	)
 SELECT
 	date_range.date::date AS date,
-	cost.environment,
-	cost.team_slug,
-	cost.app_label,
-	SUM(cost.daily_cost)::REAL AS daily_cost
+	cost_data.environment,
+	cost_data.team_slug,
+	cost_data.app_label,
+	COALESCE(cost_data.daily_cost, 0) AS daily_cost
 FROM
 	date_range
-	LEFT OUTER JOIN cost ON cost.date = date_range.date
-WHERE
-	environment IS NULL
-	OR (
-		environment = @environment::TEXT
-		AND team_slug = @team_slug::slug
-	)
-GROUP BY
-	date_range.date,
-	cost.environment,
-	cost.team_slug,
-	cost.app_label
+	LEFT OUTER JOIN cost_data ON cost_data.date = date_range.date
 ORDER BY
 	date_range.date,
-	cost.app_label ASC
+	cost_data.app_label ASC
 ;
 
 -- name: ListTeamSlugsForCostUpdater :many
