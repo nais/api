@@ -168,10 +168,10 @@ WITH
 			cost.date >= @from_date::date
 			AND cost.date <= @to_date::date
 			AND team_slug = @team_slug::slug
-			AND CASE
-				WHEN sqlc.narg(services)::TEXT[] IS NOT NULL THEN cost.service = ANY (@services)
-				ELSE TRUE
-			END
+			AND (
+				sqlc.narg(services)::TEXT[] IS NULL
+				OR cost.service = ANY (@services)
+			)
 		GROUP BY
 			cost.date,
 			cost.service
