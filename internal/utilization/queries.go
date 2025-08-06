@@ -296,31 +296,12 @@ func WorkloadResourceRecommendations(ctx context.Context, env string, teamSlug s
 
 	start := time.Date(now.Year(), now.Month(), now.Day(), 6, 0, 0, 0, fromContext(ctx).location).UTC()
 
-	v, err := c.Query(ctx, env, fmt.Sprintf(cpuRequestRecommendation, workloadName, teamSlug, start.Hour(), start.Add(time.Hour*12).Hour()))
-	if err != nil {
-		return nil, err
-	}
-
-	cpuReq := ensuredVal(v)
-
-	v, err = c.Query(ctx, env, fmt.Sprintf(memoryRequestRecommendation, workloadName, teamSlug, start.Hour(), start.Add(time.Hour*12).Hour()))
-	if err != nil {
-		return nil, err
-	}
-
-	memReq := ensuredVal(v)
-
-	v, err = c.Query(ctx, env, fmt.Sprintf(memoryLimitRecommendation, workloadName, teamSlug, start.Hour(), start.Add(time.Hour*12).Hour()))
-	if err != nil {
-		return nil, err
-	}
-
-	memLimit := ensuredVal(v)
-
 	return &WorkloadUtilizationRecommendations{
-		CPURequestCores:    math.Max(cpuReq, minCPURequest),
-		MemoryRequestBytes: int64(math.Max(roundUpToNearest32MiB(memReq), minMemoryRequestBytes)),
-		MemoryLimitBytes:   int64(math.Max(roundUpToNearest32MiB(memLimit), minMemoryRequestBytes)),
+		client:          c,
+		environmentName: env,
+		workloadName:    workloadName,
+		teamSlug:        teamSlug,
+		start:           start,
 	}, nil
 }
 

@@ -1,8 +1,10 @@
 package utilization
 
 import (
+	"context"
 	"fmt"
 	"io"
+	"math"
 	"strconv"
 	"time"
 
@@ -124,7 +126,40 @@ type ApplicationInstanceUtilization struct {
 }
 
 type WorkloadUtilizationRecommendations struct {
-	CPURequestCores    float64 `json:"cpuRequest"`
-	MemoryRequestBytes int64   `json:"memoryRequest"`
-	MemoryLimitBytes   int64   `json:"memoryLimit"`
+	client          ResourceUsageClient
+	environmentName string
+	workloadName    string
+	teamSlug        slug.Slug
+	start           time.Time
+}
+
+func (w WorkloadUtilizationRecommendations) CPURequestCores(ctx context.Context) (float64, error) {
+	v, err := w.client.Query(ctx, w.environmentName, fmt.Sprintf(cpuRequestRecommendation, w.workloadName, w.teamSlug, w.start.Hour(), w.start.Add(time.Hour*12).Hour()))
+	if err != nil {
+		return 0, err
+	}
+
+	cpuReq := ensuredVal(v)
+
+	return math.Max(cpuReq, minCPURequest), nil
+}
+
+func (w WorkloadUtilizationRecommendations) MemoryRequestBytes(ctx context.Context) (int64, error) {
+	v, err := w.client.Query(ctx, w.environmentName, fmt.Sprintf(memoryRequestRecommendation, w.workloadName, w.teamSlug, w.start.Hour(), w.start.Add(time.Hour*12).Hour()))
+	if err != nil {
+		return 0, err
+	}
+
+	memReq := ensuredVal(v)
+	return int64(math.Max(roundUpToNearest32MiB(memReq), minMemoryRequestBytes)), nil
+}
+
+func (w WorkloadUtilizationRecommendations) MemoryLimitBytes(ctx context.Context) (int64, error) {
+	v, err := w.client.Query(ctx, w.environmentName, fmt.Sprintf(memoryLimitRecommendation, w.workloadName, w.teamSlug, w.start.Hour(), w.start.Add(time.Hour*12).Hour()))
+	if err != nil {
+		return 0, err
+	}
+
+	memLimit := ensuredVal(v)
+	return int64(math.Max(roundUpToNearest32MiB(memLimit), minMemoryRequestBytes)), nil
 }
