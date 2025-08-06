@@ -1,3 +1,4 @@
+-- +goose NO TRANSACTION
 -- +goose Up
 CREATE INDEX cost_team_app_env_date_idx ON cost (
 	team_slug,
