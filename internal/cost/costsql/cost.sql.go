@@ -101,10 +101,10 @@ WITH
 			cost.date >= $1::date
 			AND cost.date <= $2::date
 			AND team_slug = $3::slug
-			AND CASE
-				WHEN $4::TEXT[] IS NOT NULL THEN cost.service = ANY ($4)
-				ELSE TRUE
-			END
+			AND (
+				$4::TEXT[] IS NULL
+				OR cost.service = ANY ($4)
+			)
 		GROUP BY
 			cost.date,
 			cost.service
