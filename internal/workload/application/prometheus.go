@@ -8,16 +8,19 @@ import (
 
 	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/thirdparty/promclient"
+	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/common/model"
 )
 
 type IngressMetricsClient interface {
 	Query(ctx context.Context, environment string, query string, opts ...promclient.QueryOption) (prom.Vector, error)
+	QueryRange(ctx context.Context, environment string, query string, promRange promv1.Range) (prom.Value, promv1.Warnings, error)
 }
 
 const (
 	ingressRequests = `sum(rate(nginx_ingress_controller_requests{host=%q, path=%q}[2m]))`
 	errorRate       = `sum(rate(nginx_ingress_controller_requests{status!~"^[23].*", host=%q, path=%q}[2m]))`
+	_               = `sum(rate(nginx_ingress_controller_requests{service="$app"}[5m])) by (service)`
 )
 
 func ensuredVal(v prom.Vector) float64 {
