@@ -468,6 +468,47 @@ type IngressMetrics {
 	Number of errors in the ingress per second.
 	"""
 	errorsPerSecond: Float!
+	"""
+	Ingress metrics between start and end with step size.
+	"""
+	series(input: IngressMetricsInput!): [IngressMetricSample!]!
+}
+
+input IngressMetricsInput {
+	"""
+	Fetch metrics from this timestamp.
+	"""
+	start: Time!
+
+	"""
+	Fetch metrics until this timestamp.
+	"""
+	end: Time!
+
+	"""
+	Type of metric to fetch.
+	"""
+	type: IngressMetricsType!
+}
+
+"""
+Type of ingress metrics to fetch.
+"""
+enum IngressMetricsType {
+	"""
+	Number of requests to the ingress per second.
+	"""
+	REQUESTS_PER_SECOND
+	"""
+	Number of errors in the ingress per second.
+	"""
+	ERRORS_PER_SECOND
+}
+
+type IngressMetricSample {
+	timestamp: Time!
+	value: Float!
+	instance: String!
 }
 
 enum IngressType {

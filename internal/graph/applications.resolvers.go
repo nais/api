@@ -7,6 +7,7 @@ import (
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/graph/model/donotuse"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/status"
 	"github.com/nais/api/internal/team"
@@ -97,6 +98,10 @@ func (r *ingressMetricsResolver) RequestsPerSecond(ctx context.Context, obj *app
 
 func (r *ingressMetricsResolver) ErrorsPerSecond(ctx context.Context, obj *application.IngressMetrics) (float64, error) {
 	return application.ErrorsPerSecondForIngress(ctx, obj)
+}
+
+func (r *ingressMetricsResolver) Series(ctx context.Context, obj *application.IngressMetrics, input donotuse.IngressMetricsInput) ([]*donotuse.IngressMetricSample, error) {
+	panic(fmt.Errorf("not implemented: Series - series"))
 }
 
 func (r *mutationResolver) DeleteApplication(ctx context.Context, input application.DeleteApplicationInput) (*application.DeleteApplicationPayload, error) {
