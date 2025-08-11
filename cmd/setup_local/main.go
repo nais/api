@@ -118,7 +118,6 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			}
 		}
 
-		client.Topic("nais-api-log-topic").Delete(ctx)
 		if _, err := client.CreateTopic(ctx, "nais-api-log-topic"); err != nil {
 			if s, ok := status.FromError(err); !ok || s.Code() != codes.AlreadyExists {
 				return err
