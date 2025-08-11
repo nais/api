@@ -516,3 +516,62 @@ func (e *ScalingDirection) UnmarshalGQL(v any) error {
 func (e ScalingDirection) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
+
+type IngressMetricSample struct {
+	Timestamp time.Time `json:"timestamp"`
+	Value     float64   `json:"value"`
+	Instance  string    `json:"instance"`
+}
+
+type IngressMetricsInput struct {
+	// Fetch metrics from this timestamp.
+	Start time.Time `json:"start"`
+	// Fetch metrics until this timestamp.
+	End time.Time `json:"end"`
+	// Type of metric to fetch.
+	Type IngressMetricsType `json:"type"`
+}
+
+// Type of ingress metrics to fetch.
+type IngressMetricsType string
+
+const (
+	// Number of requests to the ingress per second.
+	IngressMetricsTypeRequestsPerSecond IngressMetricsType = "REQUESTS_PER_SECOND"
+	// Number of errors in the ingress per second.
+	IngressMetricsTypeErrorsPerSecond IngressMetricsType = "ERRORS_PER_SECOND"
+)
+
+var AllIngressMetricsType = []IngressMetricsType{
+	IngressMetricsTypeRequestsPerSecond,
+	IngressMetricsTypeErrorsPerSecond,
+}
+
+func (e IngressMetricsType) IsValid() bool {
+	switch e {
+	case IngressMetricsTypeRequestsPerSecond, IngressMetricsTypeErrorsPerSecond:
+		return true
+	}
+	return false
+}
+
+func (e IngressMetricsType) String() string {
+	return string(e)
+}
+
+func (e *IngressMetricsType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = IngressMetricsType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid IngressMetricsType", str)
+	}
+	return nil
+}
+
+func (e IngressMetricsType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
