@@ -32,7 +32,6 @@ Test.gql("Ingress metrics", function(t)
 								requestsPerSecondSeries: series(input: {type: REQUESTS_PER_SECOND, start: "%s", end: "%s"}) {
 									timestamp
 									value
-									instance
 								}
 							}
 
