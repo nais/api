@@ -33,6 +33,7 @@ type ClusterAuditActivityLogEntry implements ActivityLogEntry & Node {
 	"The environment name that the entry belongs to."
 	environmentName: String
 
+	"Data associated with the entry."
 	data: ClusterAuditActivityLogEntryData!
 }
 
