@@ -33,12 +33,7 @@ WITH
 			involved_name AS resource_name,
 			involved_namespace AS team_slug,
 			(
-				JSONB_BUILD_OBJECT(
-					'action',
-					reason,
-					'resourceKind',
-					involved_kind
-				)::TEXT
+				JSONB_BUILD_OBJECT('action', reason, 'resourceKind', involved_kind)::TEXT
 			)::BYTEA AS data,
 			environment_name AS environment
 		FROM
