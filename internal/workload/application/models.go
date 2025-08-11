@@ -518,7 +518,6 @@ func (e ScalingDirection) MarshalGQL(w io.Writer) {
 type IngressMetricSample struct {
 	Timestamp time.Time `json:"timestamp"`
 	Value     float64   `json:"value"`
-	Instance  string    `json:"instance"`
 }
 
 type IngressMetricsInput struct {

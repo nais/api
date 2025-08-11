@@ -23,8 +23,8 @@ const (
 	ingressRequests = `sum(rate(nginx_ingress_controller_requests{host=%q, path=%q}[2m]))`
 	errorRate       = `sum(rate(nginx_ingress_controller_requests{status!~"^[23].*", host=%q, path=%q}[2m]))`
 
-	errorsSeries   = `sum(rate(nginx_ingress_controller_requests{service=%q, host=%q, status=~"[4-5].*"}[2m])) by (host)`
-	requestsSeries = `sum(rate(nginx_ingress_controller_requests{service=%q, host=%q}[2m])) by (host)`
+	errorsSeries   = `sum(rate(nginx_ingress_controller_requests{host=%q, path=%q, status!~"^[23].*"}[2m]))`
+	requestsSeries = `sum(rate(nginx_ingress_controller_requests{host=%q, path=%q}[2m]))`
 )
 
 func ensuredVal(v prom.Vector) float64 {
@@ -35,10 +35,20 @@ func ensuredVal(v prom.Vector) float64 {
 }
 
 func SeriesForIngress(ctx context.Context, obj *IngressMetrics, input IngressMetricsInput) ([]*IngressMetricSample, error) {
-	url := strings.Split(obj.Ingress.URL, "https://")[1]
-	query := fmt.Sprintf(errorsSeries, obj.Ingress.ApplicationName, url)
+	ingressURL, err := url.Parse(obj.Ingress.URL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse ingress URL %q: %w", obj.Ingress.URL, err)
+	}
+
+	if len(ingressURL.Path) > 1 {
+		ingressURL.Path = strings.TrimRight(ingressURL.Path, "/") + "(/.*)?"
+	} else {
+		ingressURL.Path = "/"
+	}
+
+	query := fmt.Sprintf(errorsSeries, ingressURL.Host, ingressURL.Path)
 	if input.Type == IngressMetricsTypeRequestsPerSecond {
-		query = fmt.Sprintf(requestsSeries, obj.Ingress.ApplicationName, url)
+		query = fmt.Sprintf(requestsSeries, ingressURL.Host, ingressURL.Path)
 	}
 
 	c := fromContext(ctx).client
@@ -65,7 +75,6 @@ func SeriesForIngress(ctx context.Context, obj *IngressMetrics, input IngressMet
 			ret = append(ret, &IngressMetricSample{
 				Value:     float64(value.Value),
 				Timestamp: value.Timestamp.Time(),
-				Instance:  "https://" + string(sample.Metric["host"]),
 			})
 		}
 	}

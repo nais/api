@@ -513,8 +513,6 @@ type IngressMetricSample {
 	timestamp: Time!
 	"Value of the IngressMetricsType at the given timestamp."
 	value: Float!
-	"The ingress instance for the utilization data."
-	instance: String!
 }
 
 enum IngressType {
