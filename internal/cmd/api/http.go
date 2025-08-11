@@ -290,7 +290,7 @@ func ConfigureGraph(
 
 	setupContext := func(ctx context.Context) context.Context {
 		ctx = podlog.NewLoaderContext(ctx, podLogStreamer)
-		ctx = application.NewLoaderContext(ctx, appWatcher, ingressWatcher, prometheusClient)
+		ctx = application.NewLoaderContext(ctx, appWatcher, ingressWatcher, prometheusClient, log)
 		ctx = bigquery.NewLoaderContext(ctx, bqWatcher)
 		ctx = bucket.NewLoaderContext(ctx, bucketWatcher)
 		ctx = job.NewLoaderContext(ctx, jobWatcher, runWatcher)
@@ -300,7 +300,7 @@ func ConfigureGraph(
 		ctx = opensearch.NewLoaderContext(ctx, openSearchWatcher)
 		ctx = valkey.NewLoaderContext(ctx, valkeyWatcher)
 		ctx = price.NewLoaderContext(ctx, priceRetriever, log)
-		ctx = utilization.NewLoaderContext(ctx, prometheusClient)
+		ctx = utilization.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, sqlDatabaseWatcher, sqlInstanceWatcher)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, namespaceWatcher)

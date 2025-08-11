@@ -22,10 +22,10 @@ import (
 
 type FakeClient struct {
 	environments []string
-	random       *rand.Rand
 	now          func() prom.Time
 
-	mu sync.Mutex // protects random
+	mu     sync.Mutex
+	random *rand.Rand
 }
 
 func NewFakeClient(environments []string, random *rand.Rand, nowFunc func() prom.Time) *FakeClient {

@@ -11,6 +11,7 @@ import (
 	"github.com/nais/api/internal/thirdparty/promclient"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/common/model"
+	"github.com/sirupsen/logrus"
 )
 
 type IngressMetricsClient interface {
@@ -47,7 +48,10 @@ func SeriesForIngress(ctx context.Context, obj *IngressMetrics, input IngressMet
 		return nil, err
 	}
 	if len(warnings) > 0 {
-		return nil, fmt.Errorf("prometheus query warnings: %s", strings.Join(warnings, ", "))
+		fromContext(ctx).log.WithFields(logrus.Fields{
+			"environment": obj.Ingress.EnvironmentName,
+			"warnings":    strings.Join(warnings, ", "),
+		}).Warn("prometheus query warnings")
 	}
 
 	matrix, ok := v.(prom.Matrix)

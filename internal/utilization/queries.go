@@ -13,6 +13,7 @@ import (
 	"github.com/nais/api/internal/thirdparty/promclient"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/common/model"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -244,19 +245,22 @@ func WorkloadResourceUsage(ctx context.Context, env string, teamSlug slug.Slug, 
 	return ensuredVal(v), nil
 }
 
-func queryPrometheusRange(ctx context.Context, env string, teamSlug slug.Slug, workloadName string, queryTemplate string, start time.Time, end time.Time, step int) ([]*UtilizationSample, error) {
+func queryPrometheusRange(ctx context.Context, environmentName string, teamSlug slug.Slug, workloadName string, queryTemplate string, start time.Time, end time.Time, step int) ([]*UtilizationSample, error) {
 	c := fromContext(ctx).client
 
 	// Format the query
 	query := fmt.Sprintf(queryTemplate, teamSlug, workloadName)
 
 	// Perform the query
-	v, warnings, err := c.QueryRange(ctx, env, query, promv1.Range{Start: start, End: end, Step: time.Duration(step) * time.Second})
+	v, warnings, err := c.QueryRange(ctx, environmentName, query, promv1.Range{Start: start, End: end, Step: time.Duration(step) * time.Second})
 	if err != nil {
 		return nil, err
 	}
 	if len(warnings) > 0 {
-		return nil, fmt.Errorf("prometheus query warnings: %s", strings.Join(warnings, ", "))
+		fromContext(ctx).log.WithFields(logrus.Fields{
+			"environment": environmentName,
+			"warnings":    strings.Join(warnings, ", "),
+		}).Warn("prometheus query warnings")
 	}
 
 	// Process the results

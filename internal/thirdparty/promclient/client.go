@@ -85,10 +85,10 @@ func (c *RealClient) QueryAll(ctx context.Context, query string, opts ...QueryOp
 	return ret, nil
 }
 
-func (c *RealClient) Query(ctx context.Context, environment string, query string, opts ...QueryOption) (prom.Vector, error) {
-	client, ok := c.prometheuses[environment]
+func (c *RealClient) Query(ctx context.Context, environmentName string, query string, opts ...QueryOption) (prom.Vector, error) {
+	client, ok := c.prometheuses[environmentName]
 	if !ok {
-		return nil, fmt.Errorf("no prometheus client for environment %s", environment)
+		return nil, fmt.Errorf("no prometheus client for environment %s", environmentName)
 	}
 
 	opt := &QueryOpts{
@@ -104,7 +104,10 @@ func (c *RealClient) Query(ctx context.Context, environment string, query string
 	}
 
 	if len(warnings) > 0 {
-		return nil, fmt.Errorf("prometheus query warnings: %s", strings.Join(warnings, ", "))
+		c.log.WithFields(logrus.Fields{
+			"environment": environmentName,
+			"warnings":    strings.Join(warnings, ", "),
+		}).Warn("prometheus query warnings")
 	}
 
 	vector, ok := v.(prom.Vector)
