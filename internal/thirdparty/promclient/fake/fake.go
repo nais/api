@@ -6,6 +6,7 @@ import (
 	"math/rand/v2"
 	"slices"
 	"strings"
+	"sync"
 
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
@@ -21,20 +22,24 @@ import (
 
 type FakeClient struct {
 	environments []string
-	random       *rand.Rand
 	now          func() prom.Time
+
+	mu     sync.Mutex
+	random *rand.Rand
 }
 
 func NewFakeClient(environments []string, random *rand.Rand, nowFunc func() prom.Time) *FakeClient {
 	if nowFunc == nil {
 		nowFunc = prom.Now
 	}
-
 	if random == nil {
 		random = rand.New(rand.NewPCG(rand.Uint64(), rand.Uint64()))
 	}
-
-	return &FakeClient{environments: environments, random: random, now: nowFunc}
+	return &FakeClient{
+		environments: environments,
+		random:       random,
+		now:          nowFunc,
+	}
 }
 
 func (c *FakeClient) QueryAll(ctx context.Context, query string, opts ...promclient.QueryOption) (map[string]prom.Vector, error) {
@@ -44,10 +49,8 @@ func (c *FakeClient) QueryAll(ctx context.Context, query string, opts ...promcli
 		if err != nil {
 			return nil, err
 		}
-
 		ret[env] = v
 	}
-
 	return ret, nil
 }
 
@@ -74,13 +77,14 @@ func (c *FakeClient) Query(ctx context.Context, environment string, query string
 	switch expr := expr.(type) {
 	case *parser.AggregateExpr:
 		labelsToCreate = expr.Grouping
-
 		teamSlug, workload, unit, err = c.selector(expr.Expr)
+
 	case *parser.VectorSelector:
 		for _, matcher := range expr.LabelMatchers {
 			labelsToCreate = append(labelsToCreate, matcher.Name)
 		}
 		teamSlug, workload, unit, err = c.selector(expr)
+
 	case *parser.Call:
 		vectorSelector, ok := expr.Args[0].(*parser.VectorSelector)
 		if !ok {
@@ -102,7 +106,6 @@ func (c *FakeClient) Query(ctx context.Context, environment string, query string
 	default:
 		return nil, fmt.Errorf("query: unexpected expression type %T", expr)
 	}
-
 	if err != nil {
 		return nil, err
 	}
@@ -125,6 +128,9 @@ func (c *FakeClient) Query(ctx context.Context, environment string, query string
 	}
 
 	value := func() prom.SampleValue {
+		c.mu.Lock()
+		defer c.mu.Unlock()
+
 		switch unit {
 		case "core":
 			return prom.SampleValue(c.random.Float64() * 2)
@@ -149,16 +155,14 @@ func (c *FakeClient) Query(ctx context.Context, environment string, query string
 					Value:     value(),
 				})
 			}
-
 			return ret, nil
 		}
-		ret = prom.Vector{
-			{
-				Timestamp: prom.TimeFromUnix(opt.Time.Unix()),
-				Metric:    makeLabels(),
-				Value:     value(),
-			},
-		}
+
+		ret = append(ret, &prom.Sample{
+			Timestamp: prom.TimeFromUnix(opt.Time.Unix()),
+			Metric:    makeLabels(),
+			Value:     value(),
+		})
 	} else {
 		page, err := pagination.ParsePage(ptr.To(10000), nil, nil, nil)
 		if err != nil {
@@ -185,17 +189,9 @@ func (c *FakeClient) Query(ctx context.Context, environment string, query string
 func (c *FakeClient) QueryRange(ctx context.Context, environment string, query string, promRange promv1.Range) (prom.Value, promv1.Warnings, error) {
 	matrix := prom.Matrix{}
 
-	prevNow := c.now
-	defer func() {
-		c.now = prevNow
-	}()
-
+	// start inclusive, end exclusive (Prometheus convention)
 	for start := promRange.Start; start.Before(promRange.End); start = start.Add(promRange.Step) {
-		c.now = func() prom.Time {
-			return prom.TimeFromUnix(start.Unix())
-		}
-
-		vector, err := c.Query(ctx, environment, query)
+		vector, err := c.Query(ctx, environment, query, promclient.WithTime(start))
 		if err != nil {
 			return nil, nil, err
 		}
@@ -205,14 +201,19 @@ func (c *FakeClient) QueryRange(ctx context.Context, environment string, query s
 				return i.Metric.Equal(sample.Metric)
 			})
 			if exists >= 0 {
-				matrix[exists].Values = append(matrix[exists].Values, prom.SamplePair{Timestamp: c.now(), Value: sample.Value})
-				continue
-			} else {
-				matrix = append(matrix, &prom.SampleStream{
-					Metric: sample.Metric,
-					Values: []prom.SamplePair{{Timestamp: c.now(), Value: sample.Value}},
+				matrix[exists].Values = append(matrix[exists].Values, prom.SamplePair{
+					Timestamp: prom.TimeFromUnix(start.Unix()),
+					Value:     sample.Value,
 				})
+				continue
 			}
+			matrix = append(matrix, &prom.SampleStream{
+				Metric: sample.Metric,
+				Values: []prom.SamplePair{{
+					Timestamp: prom.TimeFromUnix(start.Unix()),
+					Value:     sample.Value,
+				}},
+			})
 		}
 	}
 
@@ -226,7 +227,6 @@ func (c *FakeClient) selector(expr parser.Expr) (teamSlug slug.Slug, workload st
 			if m.Type != labels.MatchEqual {
 				continue
 			}
-
 			switch m.Name {
 			case "namespace":
 				teamSlug = slug.Slug(m.Value)
@@ -245,18 +245,24 @@ func (c *FakeClient) selector(expr parser.Expr) (teamSlug slug.Slug, workload st
 				unit = "core"
 			}
 		}
+
 	case *parser.Call:
 		return c.selector(expr.Args[0])
+
 	case *parser.MatrixSelector:
 		return c.selector(expr.VectorSelector)
+
 	case *parser.BinaryExpr:
 		teamSlug, workload, unit, err = c.selector(expr.LHS)
 		if err != nil {
 			return "", "", "", err
 		}
+
 	case *parser.SubqueryExpr:
 		return c.selector(expr.Expr)
+
 	case *parser.NumberLiteral:
+		// no-op
 
 	default:
 		return "", "", "", fmt.Errorf("selector: unexpected expression type %T", expr)

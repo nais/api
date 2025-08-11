@@ -477,9 +477,7 @@ type TeamApplicationsFilter struct {
 type ScalingDirection string
 
 const (
-	// The scaling direction is up.
-	ScalingDirectionUp ScalingDirection = "UP"
-	// The scaling direction is down.
+	ScalingDirectionUp   ScalingDirection = "UP"
 	ScalingDirectionDown ScalingDirection = "DOWN"
 )
 
@@ -514,5 +512,75 @@ func (e *ScalingDirection) UnmarshalGQL(v any) error {
 }
 
 func (e ScalingDirection) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type IngressMetricSample struct {
+	Timestamp time.Time `json:"timestamp"`
+	Value     float64   `json:"value"`
+	Instance  string    `json:"instance"`
+}
+
+type IngressMetricsInput struct {
+	Start time.Time          `json:"start"`
+	End   time.Time          `json:"end"`
+	Type  IngressMetricsType `json:"type"`
+}
+
+func (w *IngressMetricsInput) Step() int {
+	diff := w.End.Sub(w.Start)
+
+	switch {
+	case diff <= time.Hour:
+		return 18
+	case diff <= 6*time.Hour:
+		return 108
+	case diff <= 24*time.Hour:
+		return 432
+	case diff <= 7*24*time.Hour:
+		return 1008
+	default:
+		return 12960
+	}
+}
+
+type IngressMetricsType string
+
+const (
+	IngressMetricsTypeRequestsPerSecond IngressMetricsType = "REQUESTS_PER_SECOND"
+	IngressMetricsTypeErrorsPerSecond   IngressMetricsType = "ERRORS_PER_SECOND"
+)
+
+var AllIngressMetricsType = []IngressMetricsType{
+	IngressMetricsTypeRequestsPerSecond,
+	IngressMetricsTypeErrorsPerSecond,
+}
+
+func (e IngressMetricsType) IsValid() bool {
+	switch e {
+	case IngressMetricsTypeRequestsPerSecond, IngressMetricsTypeErrorsPerSecond:
+		return true
+	}
+	return false
+}
+
+func (e IngressMetricsType) String() string {
+	return string(e)
+}
+
+func (e *IngressMetricsType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = IngressMetricsType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid IngressMetricsType", str)
+	}
+	return nil
+}
+
+func (e IngressMetricsType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

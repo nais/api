@@ -99,6 +99,10 @@ func (r *ingressMetricsResolver) ErrorsPerSecond(ctx context.Context, obj *appli
 	return application.ErrorsPerSecondForIngress(ctx, obj)
 }
 
+func (r *ingressMetricsResolver) Series(ctx context.Context, obj *application.IngressMetrics, input application.IngressMetricsInput) ([]*application.IngressMetricSample, error) {
+	return application.SeriesForIngress(ctx, obj, input)
+}
+
 func (r *mutationResolver) DeleteApplication(ctx context.Context, input application.DeleteApplicationInput) (*application.DeleteApplicationPayload, error) {
 	if err := authz.CanDeleteApplications(ctx, input.TeamSlug); err != nil {
 		return nil, err

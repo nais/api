@@ -7,6 +7,7 @@ import (
 
 	"github.com/nais/api/internal/kubernetes/watcher"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	"github.com/sirupsen/logrus"
 	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
@@ -15,8 +16,8 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingressWatcher *watcher.Watcher[*netv1.Ingress], client IngressMetricsClient) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(appWatcher, ingressWatcher, client))
+func NewLoaderContext(ctx context.Context, appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingressWatcher *watcher.Watcher[*netv1.Ingress], client IngressMetricsClient, log logrus.FieldLogger) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(appWatcher, ingressWatcher, client, log))
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*nais_io_v1alpha1.Application] {
@@ -39,13 +40,15 @@ type loaders struct {
 	appWatcher     *watcher.Watcher[*nais_io_v1alpha1.Application]
 	ingressWatcher *watcher.Watcher[*netv1.Ingress]
 	client         IngressMetricsClient
+	log            logrus.FieldLogger
 }
 
-func newLoaders(appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingressWatcher *watcher.Watcher[*netv1.Ingress], client IngressMetricsClient) *loaders {
+func newLoaders(appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingressWatcher *watcher.Watcher[*netv1.Ingress], client IngressMetricsClient, log logrus.FieldLogger) *loaders {
 	return &loaders{
 		appWatcher:     appWatcher,
 		ingressWatcher: ingressWatcher,
 		client:         client,
+		log:            log,
 	}
 }
 

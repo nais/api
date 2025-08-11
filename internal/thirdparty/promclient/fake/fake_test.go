@@ -212,7 +212,7 @@ func TestFakeQueryAll(t *testing.T) {
 	}
 
 	prometheusClient := NewFakeClient(clusters, nil, nil)
-	ctx = application.NewLoaderContext(ctx, application.NewWatcher(ctx, mgr), application.NewIngressWatcher(ctx, mgr), prometheusClient)
+	ctx = application.NewLoaderContext(ctx, application.NewWatcher(ctx, mgr), application.NewIngressWatcher(ctx, mgr), prometheusClient, logrus.New())
 	ctx = team.NewLoaderContext(ctx, pool, nil)
 
 	ctxWait, cancel := context.WithTimeout(ctx, 1*time.Second)
