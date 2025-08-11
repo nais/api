@@ -477,9 +477,7 @@ type TeamApplicationsFilter struct {
 type ScalingDirection string
 
 const (
-	// The scaling direction is up.
-	ScalingDirectionUp ScalingDirection = "UP"
-	// The scaling direction is down.
+	ScalingDirectionUp   ScalingDirection = "UP"
 	ScalingDirectionDown ScalingDirection = "DOWN"
 )
 
@@ -524,22 +522,33 @@ type IngressMetricSample struct {
 }
 
 type IngressMetricsInput struct {
-	// Fetch metrics from this timestamp.
-	Start time.Time `json:"start"`
-	// Fetch metrics until this timestamp.
-	End time.Time `json:"end"`
-	// Type of metric to fetch.
-	Type IngressMetricsType `json:"type"`
+	Start time.Time          `json:"start"`
+	End   time.Time          `json:"end"`
+	Type  IngressMetricsType `json:"type"`
 }
 
-// Type of ingress metrics to fetch.
+func (w *IngressMetricsInput) Step() int {
+	diff := w.End.Sub(w.Start)
+
+	switch {
+	case diff <= time.Hour:
+		return 18
+	case diff <= 6*time.Hour:
+		return 108
+	case diff <= 24*time.Hour:
+		return 432
+	case diff <= 7*24*time.Hour:
+		return 1008
+	default:
+		return 12960
+	}
+}
+
 type IngressMetricsType string
 
 const (
-	// Number of requests to the ingress per second.
 	IngressMetricsTypeRequestsPerSecond IngressMetricsType = "REQUESTS_PER_SECOND"
-	// Number of errors in the ingress per second.
-	IngressMetricsTypeErrorsPerSecond IngressMetricsType = "ERRORS_PER_SECOND"
+	IngressMetricsTypeErrorsPerSecond   IngressMetricsType = "ERRORS_PER_SECOND"
 )
 
 var AllIngressMetricsType = []IngressMetricsType{

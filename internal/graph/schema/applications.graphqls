@@ -505,9 +505,15 @@ enum IngressMetricsType {
 	ERRORS_PER_SECOND
 }
 
+"""
+Ingress metric type.
+"""
 type IngressMetricSample {
+	"Timestamp of the value."
 	timestamp: Time!
+	"Value of the IngressMetricsType at the given timestamp."
 	value: Float!
+	"The ingress instance for the utilization data."
 	instance: String!
 }
 
