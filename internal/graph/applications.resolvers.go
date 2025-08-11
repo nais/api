@@ -100,7 +100,7 @@ func (r *ingressMetricsResolver) ErrorsPerSecond(ctx context.Context, obj *appli
 }
 
 func (r *ingressMetricsResolver) Series(ctx context.Context, obj *application.IngressMetrics, input application.IngressMetricsInput) ([]*application.IngressMetricSample, error) {
-	panic(fmt.Errorf("not implemented: Series - series"))
+	return application.SeriesForIngress(ctx, obj, input)
 }
 
 func (r *mutationResolver) DeleteApplication(ctx context.Context, input application.DeleteApplicationInput) (*application.DeleteApplicationPayload, error) {
