@@ -8,10 +8,13 @@ import (
 	"strings"
 	"time"
 
+	"cloud.google.com/go/pubsub"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/kubernetes/event/eventsql"
+	"github.com/nais/api/internal/kubernetes/event/pubsublog"
+	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/sirupsen/logrus"
 	"github.com/sourcegraph/conc/pool"
@@ -27,11 +30,12 @@ import (
 )
 
 type Watcher struct {
-	queries eventsql.Querier
-	clients map[string]kubernetes.Interface
-	events  chan eventsql.UpsertParams
-	log     logrus.FieldLogger
-	wg      *pool.ContextPool
+	queries        eventsql.Querier
+	clients        map[string]kubernetes.Interface
+	events         chan eventsql.UpsertParams
+	log            logrus.FieldLogger
+	logsSubscriber *pubsublog.Subscriber
+	wg             *pool.ContextPool
 
 	// State returns true when the watcher should be started/continue running and false when it should stop.
 	state           []chan bool
@@ -39,7 +43,7 @@ type Watcher struct {
 	handlersCounter metric.Int64UpDownCounter
 }
 
-func NewWatcher(pool *pgxpool.Pool, clients map[string]kubernetes.Interface, log logrus.FieldLogger) (*Watcher, error) {
+func NewWatcher(pool *pgxpool.Pool, logsSubscription *pubsub.Subscription, clients map[string]kubernetes.Interface, restMappers map[string]watcher.KindResolver, log logrus.FieldLogger) (*Watcher, error) {
 	chs := make([]chan bool, 0, len(clients))
 	for range clients {
 		chs = append(chs, make(chan bool, 1))
@@ -56,14 +60,22 @@ func NewWatcher(pool *pgxpool.Pool, clients map[string]kubernetes.Interface, log
 		return nil, fmt.Errorf("creating handlers counter: %w", err)
 	}
 
+	queries := eventsql.New(pool)
+
+	logSub, err := pubsublog.NewSubscriber(logsSubscription, queries, restMappers, log.WithField("sub", "pubsub_log"))
+	if err != nil {
+		return nil, fmt.Errorf("creating pubsub log subscriber: %w", err)
+	}
+
 	return &Watcher{
 		clients:         clients,
 		events:          make(chan eventsql.UpsertParams, 20),
-		queries:         eventsql.New(pool),
+		queries:         queries,
 		log:             log,
 		state:           chs,
 		eventsCounter:   eventsCounter,
 		handlersCounter: handlersCounter,
+		logsSubscriber:  logSub,
 	}, nil
 }
 
@@ -79,6 +91,8 @@ func (w *Watcher) Run(ctx context.Context) {
 	w.wg.Go(func(ctx context.Context) error {
 		return w.batchInsert(ctx)
 	})
+
+	w.wg.Go(w.logsSubscriber.Start)
 
 	i := 0
 	for env, client := range w.clients {

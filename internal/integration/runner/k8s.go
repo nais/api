@@ -80,13 +80,13 @@ func (k *K8s) HelperFunctions() []*spec.Function {
 	}
 }
 
-func (k *K8s) ClientCreator(cluster string) (dynamic.Interface, watcher.Discovery, *rest.Config, error) {
+func (k *K8s) ClientCreator(cluster string) (dynamic.Interface, watcher.KindResolver, *rest.Config, error) {
 	c, ok := k.clients[cluster]
 	if !ok {
 		return nil, nil, nil, fmt.Errorf("cluster %q not found", cluster)
 	}
 
-	return c, &fake.DiscoveryClient{}, nil, nil
+	return c, nil, nil, nil
 }
 
 func (k *K8s) check(L *lua.LState) int {
