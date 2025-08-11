@@ -213,7 +213,7 @@ type JWTConfig struct {
 
 type pubSubConfig struct {
 	APITopic           string `env:"PUBSUB_API_TOPIC,default=nais-api"`
-	EventsSubscription string `env:"PUBSUB_EVENTS_TOPIC,default=nais-api-log-topic-subscription"`
+	EventsSubscription string `env:"PUBSUB_EVENTS_SUBSCRIPTION,default=nais-api-log-topic-subscription"`
 }
 
 // NewConfig creates a new configuration instance from environment variables
