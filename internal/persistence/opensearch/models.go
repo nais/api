@@ -156,6 +156,6 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 	}, nil
 }
 
-type TeamInventoryCountOpenSearchInstances struct {
+type TeamInventoryCountOpenSearches struct {
 	Total int
 }

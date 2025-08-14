@@ -49,7 +49,7 @@ func (r *openSearchAccessResolver) Workload(ctx context.Context, obj *opensearch
 	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
-func (r *teamResolver) OpenSearchInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) (*pagination.Connection[*opensearch.OpenSearch], error) {
+func (r *teamResolver) OpenSearches(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) (*pagination.Connection[*opensearch.OpenSearch], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -58,12 +58,12 @@ func (r *teamResolver) OpenSearchInstances(ctx context.Context, obj *team.Team, 
 	return opensearch.ListForTeam(ctx, obj.Slug, page, orderBy)
 }
 
-func (r *teamEnvironmentResolver) OpenSearchInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*opensearch.OpenSearch, error) {
+func (r *teamEnvironmentResolver) OpenSearch(ctx context.Context, obj *team.TeamEnvironment, name string) (*opensearch.OpenSearch, error) {
 	return opensearch.Get(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
-func (r *teamInventoryCountsResolver) OpenSearchInstances(ctx context.Context, obj *team.TeamInventoryCounts) (*opensearch.TeamInventoryCountOpenSearchInstances, error) {
-	return &opensearch.TeamInventoryCountOpenSearchInstances{
+func (r *teamInventoryCountsResolver) OpenSearches(ctx context.Context, obj *team.TeamInventoryCounts) (*opensearch.TeamInventoryCountOpenSearches, error) {
+	return &opensearch.TeamInventoryCountOpenSearches{
 		Total: len(opensearch.ListAllForTeam(ctx, obj.TeamSlug)),
 	}, nil
 }

@@ -73,7 +73,7 @@ Test.gql("Show maintenance window and updates for OpenSearch", function(t)
 	t.query(string.format([[
 {
   team(slug: "%s") {
-    openSearchInstances {
+    openSearches {
       nodes {
         name
         maintenance {
@@ -98,7 +98,7 @@ Test.gql("Show maintenance window and updates for OpenSearch", function(t)
 	t.check {
 		data = {
 			team = {
-				openSearchInstances = {
+				openSearches = {
 					nodes = {
 						{
 							name = "opensearch-slug-1-opensearch",
