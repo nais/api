@@ -8,7 +8,7 @@ Test.gql("Show maintenance window and updates for Valkey", function(t)
 	t.query(string.format([[
 {
   team(slug: "%s") {
-    valkeyInstances {
+    valkeys {
       nodes {
         name
         maintenance {
@@ -33,7 +33,7 @@ Test.gql("Show maintenance window and updates for Valkey", function(t)
 	t.check {
 		data = {
 			team = {
-				valkeyInstances = {
+				valkeys = {
 					nodes = {
 						{
 							name = "valkey-slug-1-contests",
