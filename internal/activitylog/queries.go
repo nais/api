@@ -162,7 +162,12 @@ func toGraphActivityLogEntry(row *activitylogsql.ActivityLogCombinedView) (Activ
 		Data:            row.Data,
 	}
 
-	transformer, ok := knownTransformers[ActivityLogEntryResourceType(row.ResourceType)]
+	transformer, ok := knownTransformersForAction[ActivityLogEntryAction(row.Action)]
+	if ok {
+		return transformer(entry)
+	}
+
+	transformer, ok = knownTransformers[ActivityLogEntryResourceType(row.ResourceType)]
 	if !ok {
 		return nil, fmt.Errorf("no transformer registered for activity log resource type: %q", row.ResourceType)
 	}

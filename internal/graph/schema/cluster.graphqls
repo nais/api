@@ -1,0 +1,45 @@
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to direct cluster changes."
+	CLUSTER_AUDIT
+}
+
+extend enum ActivityLogActivityType {
+	"All activity log entries related to direct cluster changes."
+	CLUSTER_AUDIT
+}
+
+type ClusterAuditActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the entry."
+	data: ClusterAuditActivityLogEntryData!
+}
+
+type ClusterAuditActivityLogEntryData {
+	"The action that was performed."
+	action: String!
+	"The kind of resource that was affected by the action."
+	resourceKind: String!
+}

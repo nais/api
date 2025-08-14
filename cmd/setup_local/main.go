@@ -118,10 +118,24 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			}
 		}
 
+		if _, err := client.CreateTopic(ctx, "nais-api-log-topic"); err != nil {
+			if s, ok := status.FromError(err); !ok || s.Code() != codes.AlreadyExists {
+				return err
+			}
+		}
+
 		log.Infof("creating subscription")
 
 		if _, err := client.CreateSubscription(ctx, "nais-api-reconcilers-api-events", pubsub.SubscriptionConfig{
 			Topic:             client.Topic("nais-api"),
+			RetentionDuration: 1 * time.Hour,
+		}); err != nil {
+			if s, ok := status.FromError(err); !ok || s.Code() != codes.AlreadyExists {
+				return err
+			}
+		}
+		if _, err := client.CreateSubscription(ctx, "nais-api-log-topic-subscription", pubsub.SubscriptionConfig{
+			Topic:             client.Topic("nais-api-log-topic"),
 			RetentionDuration: 1 * time.Hour,
 		}); err != nil {
 			if s, ok := status.FromError(err); !ok || s.Code() != codes.AlreadyExists {

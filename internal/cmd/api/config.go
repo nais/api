@@ -169,6 +169,8 @@ type Config struct {
 	// configuration value is only used by the nav.no tenant.
 	ReplaceEnvironmentNames map[string]string `env:"REPLACE_ENVIRONMENT_NAMES, noinit"`
 
+	PubSub pubSubConfig
+
 	K8s                k8sConfig
 	Usersync           usersyncConfig
 	Cost               costConfig
@@ -207,6 +209,11 @@ type JWTConfig struct {
 	Issuer         string `env:"JWT_ISSUER,default=https://auth.nais.io"`
 	Audience       string `env:"JWT_AUDIENCE,default=320114319427740585"`
 	SkipMiddleware bool   `env:"JWT_SKIP_MIDDLEWARE,default=false"`
+}
+
+type pubSubConfig struct {
+	APITopic           string `env:"PUBSUB_API_TOPIC,default=nais-api"`
+	EventsSubscription string `env:"PUBSUB_EVENTS_SUBSCRIPTION,default=nais-api-log-topic-subscription"`
 }
 
 // NewConfig creates a new configuration instance from environment variables

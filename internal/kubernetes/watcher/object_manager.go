@@ -18,20 +18,20 @@ import (
 type clusterManager struct {
 	config                   *rest.Config
 	client                   dynamic.Interface
-	discovery                Discovery
+	resourceMapper           KindResolver
 	createdInformer          dynamicinformer.DynamicSharedInformerFactory
 	createdFilteredInformers []dynamicinformer.DynamicSharedInformerFactory
 	scheme                   *runtime.Scheme
 	log                      logrus.FieldLogger
 }
 
-func newClusterManager(scheme *runtime.Scheme, client dynamic.Interface, discoveryClient Discovery, config *rest.Config, log logrus.FieldLogger) (*clusterManager, error) {
+func newClusterManager(scheme *runtime.Scheme, client dynamic.Interface, discoveryClient KindResolver, config *rest.Config, log logrus.FieldLogger) (*clusterManager, error) {
 	return &clusterManager{
-		config:    config,
-		client:    client,
-		scheme:    scheme,
-		log:       log,
-		discovery: discoveryClient,
+		config:         config,
+		client:         client,
+		scheme:         scheme,
+		log:            log,
+		resourceMapper: discoveryClient,
 	}, nil
 }
 
@@ -71,9 +71,9 @@ func (c *clusterManager) createInformer(obj runtime.Object, gvr *schema.GroupVer
 		gvr = &gvrs
 	}
 
-	if c.discovery != nil {
+	if c.resourceMapper != nil {
 		// Check if the resource is available in the cluster. Will only be used when client is not a fake client
-		_, err := c.discovery.ServerResourcesForGroupVersion(gvr.GroupVersion().String())
+		_, err := c.resourceMapper.KindsFor(*gvr)
 		if err != nil {
 			c.log.WithError(err).WithField("resource", gvr.String()).Error("resource not available in cluster")
 			return nil, *gvr, fmt.Errorf("resource not available in cluster")

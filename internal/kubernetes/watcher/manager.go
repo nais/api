@@ -8,27 +8,29 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/metric"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/client-go/discovery"
+	"k8s.io/client-go/discovery/cached/memory"
 	"k8s.io/client-go/dynamic"
 	schemepkg "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/cache"
 )
 
-type Discovery interface {
-	ServerResourcesForGroupVersion(groupVersion string) (*metav1.APIResourceList, error)
+type settings struct {
+	clientCreator func(cluster string) (dynamic.Interface, KindResolver, *rest.Config, error)
 }
 
-type settings struct {
-	clientCreator func(cluster string) (dynamic.Interface, Discovery, *rest.Config, error)
+type KindResolver interface {
+	KindsFor(resource schema.GroupVersionResource) ([]schema.GroupVersionKind, error)
 }
 
 type Option func(*settings)
 
-func WithClientCreator(fn func(cluster string) (dynamic.Interface, Discovery, *rest.Config, error)) Option {
+func WithClientCreator(fn func(cluster string) (dynamic.Interface, KindResolver, *rest.Config, error)) Option {
 	return func(m *settings) {
 		m.clientCreator = fn
 	}
@@ -51,7 +53,7 @@ func NewManager(scheme *runtime.Scheme, clusterConfig kubernetes.ClusterConfigMa
 	}
 
 	s := &settings{
-		clientCreator: func(cluster string) (dynamic.Interface, Discovery, *rest.Config, error) {
+		clientCreator: func(cluster string) (dynamic.Interface, KindResolver, *rest.Config, error) {
 			config, ok := clusterConfig[cluster]
 			if !ok {
 				return nil, nil, nil, fmt.Errorf("no config for cluster %s", cluster)
@@ -74,11 +76,13 @@ func NewManager(scheme *runtime.Scheme, clusterConfig kubernetes.ClusterConfigMa
 			if err != nil {
 				return nil, nil, nil, fmt.Errorf("creating REST client: %w", err)
 			}
-			dynamicClient, err := discovery.NewDiscoveryClientForConfig(config)
+			discoveryClient, err := discovery.NewDiscoveryClientForConfig(config)
 			if err != nil {
 				return nil, nil, nil, fmt.Errorf("creating discovery client: %w", err)
 			}
-			return client, dynamicClient, config, nil
+			cachedDiscoveryClient := memory.NewMemCacheClient(discoveryClient)
+
+			return client, restmapper.NewDeferredDiscoveryRESTMapper(cachedDiscoveryClient), config, nil
 		},
 	}
 	for _, opt := range opts {
@@ -127,6 +131,15 @@ func (m *Manager) GetDynamicClients() map[string]dynamic.Interface {
 	clients := map[string]dynamic.Interface{}
 	for cluster, mgr := range m.managers {
 		clients[cluster] = mgr.client
+	}
+
+	return clients
+}
+
+func (m *Manager) ResourceMappers() map[string]KindResolver {
+	clients := map[string]KindResolver{}
+	for cluster, mgr := range m.managers {
+		clients[cluster] = mgr.resourceMapper
 	}
 
 	return clients

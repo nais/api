@@ -132,10 +132,10 @@ FROM
 WHERE
 	resource_type = $1
 	AND resource_name = $2
-	AND CASE
-		WHEN $3::TEXT[] [] IS NULL THEN TRUE
-		ELSE $3::TEXT[] [] @> ARRAY[resource_type, action]
-	END
+	AND (
+		$3::TEXT[] [] IS NULL
+		OR $3::TEXT[] [] @> ARRAY[resource_type, action]
+	)
 ORDER BY
 	created_at DESC
 LIMIT
@@ -205,10 +205,10 @@ WHERE
 	AND team_slug = $2
 	AND resource_name = $3
 	AND environment = $4
-	AND CASE
-		WHEN $5::TEXT[] [] IS NULL THEN TRUE
-		ELSE $5::TEXT[] [] @> ARRAY[resource_type, action]
-	END
+	AND (
+		$5::TEXT[] [] IS NULL
+		OR $5::TEXT[] [] @> ARRAY[resource_type, action]
+	)
 ORDER BY
 	created_at DESC
 LIMIT
@@ -279,10 +279,10 @@ FROM
 	activity_log_combined_view
 WHERE
 	team_slug = $1
-	AND CASE
-		WHEN $2::TEXT[] [] IS NULL THEN TRUE
-		ELSE $2::TEXT[] [] @> ARRAY[resource_type, action]
-	END
+	AND (
+		$2::TEXT[] [] IS NULL
+		OR $2::TEXT[] [] @> ARRAY[resource_type, action]
+	)
 ORDER BY
 	created_at DESC
 LIMIT
