@@ -18,7 +18,7 @@ type LogEntry struct {
 }
 
 func main() {
-	f, err := os.OpenFile("logs.json", os.O_RDONLY, 0o644)
+	f, err := os.OpenFile("logs.json", os.O_RDONLY, 0o600)
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 		fmt.Println("Please create one by running the following command:")
@@ -26,7 +26,10 @@ func main() {
 		os.Exit(1)
 	}
 	defer f.Close()
-	os.Setenv("PUBSUB_EMULATOR_HOST", "localhost:3004")
+	if err := os.Setenv("PUBSUB_EMULATOR_HOST", "localhost:3004"); err != nil {
+		fmt.Println("Error setting PUBSUB_EMULATOR_HOST environment variable:", err)
+		os.Exit(1)
+	}
 
 	ctx := context.Background()
 	client, err := pubsub.NewClient(ctx, "nais-local-dev")

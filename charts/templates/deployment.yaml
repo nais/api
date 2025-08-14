@@ -23,25 +23,6 @@ spec:
         seccompProfile:
           type: RuntimeDefault
       containers:
-        - name: cloud-sql-proxy
-          image: {{ .Values.image.cloudsql_proxy }}
-          command:
-            - "/cloud_sql_proxy"
-            - "-log_debug_stdout"
-            - "-instances={{ .Values.database.instance }}=tcp:5432"
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 1000
-            runAsGroup: 1000
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop:
-                - ALL
-          resources:
-            requests:
-              memory: "256Mi"
-              cpu: "0.22"
         - name: "{{ .Chart.Name }}"
           env:
             - name: KUBERNETES_CLUSTERS
@@ -113,6 +94,8 @@ spec:
               value: {{ .Values.zitadel.domain | quote }}
             - name: ZITADEL_ORGANIZATION_ID
               value: {{ .Values.zitadel.organizationID | quote }}
+            - name: CLOUD_SQL_INSTANCE
+              value: {{ .Values.database.instance | quote }}
           envFrom:
             - secretRef:
                 name: "{{ .Release.Name }}"

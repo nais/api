@@ -93,17 +93,20 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	ctx, signalStop := signal.NotifyContext(ctx, syscall.SIGTERM, syscall.SIGINT)
 	defer signalStop()
 
-	dbSettings := []database.OptFunc{}
-	if cfg.WithSlowQueryLogger {
-		dbSettings = append(dbSettings, database.WithSlowQueryLogger(10*time.Millisecond))
-	}
-
 	_, promReg, err := newMeterProvider(ctx)
 	if err != nil {
 		return fmt.Errorf("create metric meter: %w", err)
 	}
 
 	log.Info("connecting to database")
+	dbSettings := []database.OptFunc{}
+	if cfg.WithSlowQueryLogger {
+		dbSettings = append(dbSettings, database.WithSlowQueryLogger(10*time.Millisecond))
+	}
+	if cfg.CloudSQLInstance != "" {
+		dbSettings = append(dbSettings, database.WithCloudSQLInstance(cfg.CloudSQLInstance))
+	}
+
 	pool, err := database.New(ctx, cfg.DatabaseConnectionString, log.WithField("subsystem", "database"), dbSettings...)
 	if err != nil {
 		return fmt.Errorf("setting up database: %w", err)
