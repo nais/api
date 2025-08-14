@@ -7,22 +7,22 @@ import (
 )
 
 const (
-	activityLogResourceTypeValkeyServiceMaintenance     activitylog.ActivityLogEntryResourceType = "VALKEY_MAINTENANCE"
-	activityLogResourceTypeOpenSearchServiceMaintenance activitylog.ActivityLogEntryResourceType = "OPENSEARCH_MAINTENANCE"
-	activityLogEntryActionStartServiceMaintenance       activitylog.ActivityLogEntryAction       = "STARTED"
+	activityLogResourceTypeValkeyInstance    activitylog.ActivityLogEntryResourceType = "VALKEY_INSTANCE"
+	activityLogResourceTypeOpenSearch        activitylog.ActivityLogEntryResourceType = "OPENSEARCH"
+	activityLogEntryActionMaintenanceStarted activitylog.ActivityLogEntryAction       = "MAINTENANCE_STARTED"
 )
 
 func init() {
-	activitylog.RegisterTransformer(activityLogResourceTypeValkeyServiceMaintenance, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
-		if entry.Action == activityLogEntryActionStartServiceMaintenance {
+	activitylog.RegisterTransformer(activityLogResourceTypeValkeyInstance, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
+		if entry.Action == activityLogEntryActionMaintenanceStarted {
 			return ServiceMaintenanceActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Started service maintenance"),
 			}, nil
 		}
 		return nil, fmt.Errorf("unsupported maintenance activity log entry action: %q", entry.Action)
 	})
-	activitylog.RegisterTransformer(activityLogResourceTypeOpenSearchServiceMaintenance, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
-		if entry.Action == activityLogEntryActionStartServiceMaintenance {
+	activitylog.RegisterTransformer(activityLogResourceTypeOpenSearch, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
+		if entry.Action == activityLogEntryActionMaintenanceStarted {
 			return ServiceMaintenanceActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Started service maintenance"),
 			}, nil
