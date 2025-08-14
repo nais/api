@@ -94,7 +94,7 @@ func (s *Subscriber) receive(ctx context.Context, msg *pubsub.Message) {
 
 	decoder := decoders[res.GVR.Group+"/"+res.GVR.Resource]
 	if decoder == nil {
-		log.WithField("resourceName", line.ProtoPayload.ResourceName).Info("no decoder found for resource, skipping")
+		log.WithField("resourceName", line.ProtoPayload.ResourceName).Debug("no decoder found for resource, using default")
 		decoder = parseGeneric
 	}
 
