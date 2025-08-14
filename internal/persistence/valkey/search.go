@@ -9,8 +9,8 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-func AddSearch(client search.Client, watcher *watcher.Watcher[*ValkeyInstance]) {
-	createIdent := func(env string, obj *ValkeyInstance) ident.Ident {
+func AddSearch(client search.Client, watcher *watcher.Watcher[*Valkey]) {
+	createIdent := func(env string, obj *Valkey) ident.Ident {
 		return newIdent(slug.Slug(obj.GetNamespace()), env, obj.GetName())
 	}
 

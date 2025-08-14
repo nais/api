@@ -90,7 +90,7 @@ type OpenSearchCost struct {
 	Sum float64 `json:"sum"`
 }
 
-type ValkeyInstanceCost struct {
+type ValkeyCost struct {
 	Sum float64 `json:"sum"`
 }
 

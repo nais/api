@@ -18,121 +18,121 @@ import (
 )
 
 type (
-	ValkeyInstanceConnection       = pagination.Connection[*ValkeyInstance]
-	ValkeyInstanceEdge             = pagination.Edge[*ValkeyInstance]
-	ValkeyInstanceAccessConnection = pagination.Connection[*ValkeyInstanceAccess]
-	ValkeyInstanceAccessEdge       = pagination.Edge[*ValkeyInstanceAccess]
+	ValkeyConnection       = pagination.Connection[*Valkey]
+	ValkeyEdge             = pagination.Edge[*Valkey]
+	ValkeyAccessConnection = pagination.Connection[*ValkeyAccess]
+	ValkeyAccessEdge       = pagination.Edge[*ValkeyAccess]
 )
 
-type ValkeyInstance struct {
-	Name                  string                `json:"name"`
-	Status                *ValkeyInstanceStatus `json:"status"`
-	TerminationProtection bool                  `json:"terminationProtection"`
-	TeamSlug              slug.Slug             `json:"-"`
-	EnvironmentName       string                `json:"-"`
-	WorkloadReference     *workload.Reference   `json:"-"`
-	AivenProject          string                `json:"-"`
+type Valkey struct {
+	Name                  string              `json:"name"`
+	Status                *ValkeyStatus       `json:"status"`
+	TerminationProtection bool                `json:"terminationProtection"`
+	TeamSlug              slug.Slug           `json:"-"`
+	EnvironmentName       string              `json:"-"`
+	WorkloadReference     *workload.Reference `json:"-"`
+	AivenProject          string              `json:"-"`
 }
 
-func (ValkeyInstance) IsPersistence() {}
-func (ValkeyInstance) IsSearchNode()  {}
-func (ValkeyInstance) IsNode()        {}
+func (Valkey) IsPersistence() {}
+func (Valkey) IsSearchNode()  {}
+func (Valkey) IsNode()        {}
 
-func (r *ValkeyInstance) GetName() string { return r.Name }
+func (r *Valkey) GetName() string { return r.Name }
 
-func (r *ValkeyInstance) GetNamespace() string { return r.TeamSlug.String() }
+func (r *Valkey) GetNamespace() string { return r.TeamSlug.String() }
 
-func (r *ValkeyInstance) GetLabels() map[string]string { return nil }
+func (r *Valkey) GetLabels() map[string]string { return nil }
 
-func (r *ValkeyInstance) GetObjectKind() schema.ObjectKind {
+func (r *Valkey) GetObjectKind() schema.ObjectKind {
 	return schema.EmptyObjectKind
 }
 
-func (r *ValkeyInstance) DeepCopyObject() runtime.Object {
+func (r *Valkey) DeepCopyObject() runtime.Object {
 	return r
 }
 
-func (r ValkeyInstance) ID() ident.Ident {
+func (r Valkey) ID() ident.Ident {
 	return newIdent(r.TeamSlug, r.EnvironmentName, r.Name)
 }
 
-type ValkeyInstanceAccess struct {
+type ValkeyAccess struct {
 	Access            string              `json:"access"`
 	TeamSlug          slug.Slug           `json:"-"`
 	EnvironmentName   string              `json:"-"`
 	WorkloadReference *workload.Reference `json:"-"`
 }
 
-type ValkeyInstanceStatus struct {
+type ValkeyStatus struct {
 	State      string             `json:"state"`
 	Conditions []metav1.Condition `json:"conditions"`
 }
 
-type ValkeyInstanceOrder struct {
-	Field     ValkeyInstanceOrderField `json:"field"`
-	Direction model.OrderDirection     `json:"direction"`
+type ValkeyOrder struct {
+	Field     ValkeyOrderField     `json:"field"`
+	Direction model.OrderDirection `json:"direction"`
 }
 
-type ValkeyInstanceOrderField string
+type ValkeyOrderField string
 
-func (e ValkeyInstanceOrderField) IsValid() bool {
-	return SortFilterValkeyInstance.SupportsSort(e)
+func (e ValkeyOrderField) IsValid() bool {
+	return SortFilterValkey.SupportsSort(e)
 }
 
-func (e ValkeyInstanceOrderField) String() string {
+func (e ValkeyOrderField) String() string {
 	return string(e)
 }
 
-func (e *ValkeyInstanceOrderField) UnmarshalGQL(v interface{}) error {
+func (e *ValkeyOrderField) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = ValkeyInstanceOrderField(str)
+	*e = ValkeyOrderField(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ValkeyInstanceOrderField", str)
+		return fmt.Errorf("%s is not a valid ValkeyOrderField", str)
 	}
 	return nil
 }
 
-func (e ValkeyInstanceOrderField) MarshalGQL(w io.Writer) {
+func (e ValkeyOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-type ValkeyInstanceAccessOrder struct {
-	Field     ValkeyInstanceAccessOrderField `json:"field"`
-	Direction model.OrderDirection           `json:"direction"`
+type ValkeyAccessOrder struct {
+	Field     ValkeyAccessOrderField `json:"field"`
+	Direction model.OrderDirection   `json:"direction"`
 }
 
-type ValkeyInstanceAccessOrderField string
+type ValkeyAccessOrderField string
 
-func (e ValkeyInstanceAccessOrderField) IsValid() bool {
-	return SortFilterValkeyInstanceAccess.SupportsSort(e)
+func (e ValkeyAccessOrderField) IsValid() bool {
+	return SortFilterValkeyAccess.SupportsSort(e)
 }
 
-func (e ValkeyInstanceAccessOrderField) String() string {
+func (e ValkeyAccessOrderField) String() string {
 	return string(e)
 }
 
-func (e *ValkeyInstanceAccessOrderField) UnmarshalGQL(v interface{}) error {
+func (e *ValkeyAccessOrderField) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = ValkeyInstanceAccessOrderField(str)
+	*e = ValkeyAccessOrderField(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ValkeyInstanceAccessOrderField", str)
+		return fmt.Errorf("%s is not a valid ValkeyAccessOrderField", str)
 	}
 	return nil
 }
 
-func (e ValkeyInstanceAccessOrderField) MarshalGQL(w io.Writer) {
+func (e ValkeyAccessOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-func toValkeyInstance(u *unstructured.Unstructured, envName string) (*ValkeyInstance, error) {
+func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 	obj := &aiven_io_v1alpha1.Valkey{}
 
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, obj); err != nil {
@@ -142,11 +142,11 @@ func toValkeyInstance(u *unstructured.Unstructured, envName string) (*ValkeyInst
 	// Liberator doesn't contain this field, so we read it directly from the unstructured object
 	terminationProtection, _, _ := unstructured.NestedBool(u.Object, "spec", "terminationProtection")
 
-	return &ValkeyInstance{
+	return &Valkey{
 		Name:                  obj.Name,
 		EnvironmentName:       envName,
 		TerminationProtection: terminationProtection,
-		Status: &ValkeyInstanceStatus{
+		Status: &ValkeyStatus{
 			Conditions: obj.Status.Conditions,
 			State:      obj.Status.State,
 		},
@@ -156,6 +156,6 @@ func toValkeyInstance(u *unstructured.Unstructured, envName string) (*ValkeyInst
 	}, nil
 }
 
-type TeamInventoryCountValkeyInstances struct {
+type TeamInventoryCountValkeys struct {
 	Total int
 }

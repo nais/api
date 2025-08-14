@@ -8,22 +8,22 @@ import (
 )
 
 var (
-	SortFilterValkeyInstance       = sortfilter.New[*ValkeyInstance, ValkeyInstanceOrderField, struct{}]()
-	SortFilterValkeyInstanceAccess = sortfilter.New[*ValkeyInstanceAccess, ValkeyInstanceAccessOrderField, struct{}]()
+	SortFilterValkey       = sortfilter.New[*Valkey, ValkeyOrderField, struct{}]()
+	SortFilterValkeyAccess = sortfilter.New[*ValkeyAccess, ValkeyAccessOrderField, struct{}]()
 )
 
 func init() {
-	SortFilterValkeyInstance.RegisterSort("NAME", func(ctx context.Context, a, b *ValkeyInstance) int {
+	SortFilterValkey.RegisterSort("NAME", func(ctx context.Context, a, b *Valkey) int {
 		return strings.Compare(a.GetName(), b.GetName())
 	}, "ENVIRONMENT")
-	SortFilterValkeyInstance.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *ValkeyInstance) int {
+	SortFilterValkey.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *Valkey) int {
 		return strings.Compare(a.EnvironmentName, b.EnvironmentName)
 	}, "NAME")
 
-	SortFilterValkeyInstanceAccess.RegisterSort("ACCESS", func(ctx context.Context, a, b *ValkeyInstanceAccess) int {
+	SortFilterValkeyAccess.RegisterSort("ACCESS", func(ctx context.Context, a, b *ValkeyAccess) int {
 		return strings.Compare(a.Access, b.Access)
 	})
-	SortFilterValkeyInstanceAccess.RegisterSort("WORKLOAD", func(ctx context.Context, a, b *ValkeyInstanceAccess) int {
+	SortFilterValkeyAccess.RegisterSort("WORKLOAD", func(ctx context.Context, a, b *ValkeyAccess) int {
 		return strings.Compare(a.WorkloadReference.Name, b.WorkloadReference.Name)
 	})
 }
