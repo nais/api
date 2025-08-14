@@ -2,7 +2,6 @@ package pubsublog
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -162,15 +161,8 @@ func (s *Subscriber) receive(ctx context.Context, msg *pubsub.Message) {
 }
 
 func parseMsg(msg *pubsub.Message) (*LogLine, error) {
-	jsonBytes := make([]byte, base64.StdEncoding.DecodedLen(len(msg.Data)))
-
-	n, err := base64.StdEncoding.Decode(jsonBytes, msg.Data)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode base64 message data: %w", err)
-	}
-
 	line := &LogLine{}
-	if err := json.Unmarshal(jsonBytes[:n], line); err != nil {
+	if err := json.Unmarshal(msg.Data, line); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal JSON message data: %w", err)
 	}
 
