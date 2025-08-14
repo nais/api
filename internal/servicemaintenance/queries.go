@@ -24,8 +24,8 @@ func StartValkeyMaintenance(ctx context.Context, input StartValkeyMaintenanceInp
 	}
 
 	return activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activityLogEntryActionStartServiceMaintenance,
-		ResourceType:    activityLogResourceTypeValkeyServiceMaintenance,
+		Action:          activityLogEntryActionMaintenanceStarted,
+		ResourceType:    activityLogResourceTypeValkeyInstance,
 		TeamSlug:        &input.TeamSlug,
 		EnvironmentName: &input.EnvironmentName,
 		ResourceName:    input.ServiceName,
@@ -45,8 +45,8 @@ func StartOpenSearchMaintenance(ctx context.Context, input StartOpenSearchMainte
 	}
 
 	return activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activityLogEntryActionStartServiceMaintenance,
-		ResourceType:    activityLogResourceTypeOpenSearchServiceMaintenance,
+		Action:          activityLogEntryActionMaintenanceStarted,
+		ResourceType:    activityLogResourceTypeOpenSearch,
 		TeamSlug:        &input.TeamSlug,
 		EnvironmentName: &input.EnvironmentName,
 		ResourceName:    input.ServiceName,
