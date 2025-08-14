@@ -137,7 +137,7 @@ func (r *teamEnvironmentCostResolver) Daily(ctx context.Context, obj *cost.TeamE
 	return cost.DailyForTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName, from.Time(), to.Time())
 }
 
-func (r *valkeyInstanceResolver) Cost(ctx context.Context, obj *valkey.Valkey) (*cost.ValkeyCost, error) {
+func (r *valkeyResolver) Cost(ctx context.Context, obj *valkey.Valkey) (*cost.ValkeyCost, error) {
 	if obj.WorkloadReference == nil {
 		return &cost.ValkeyCost{}, nil
 	}
