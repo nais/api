@@ -3,6 +3,6 @@
 
 set -e
 
-go run ./cmd/tester_spec
+go run --tags integration_test ./cmd/tester_spec
 
 mise run fmt:lua

@@ -3,5 +3,5 @@
 
 set -e
 
-go run ./cmd/tester_run --ui || true
+go run --tags integration_test ./cmd/tester_run --ui || true
 exit 0
