@@ -1,6 +1,6 @@
 extend type Team {
 	"Valkey instances owned by the team."
-	valkeyInstances(
+	valkeys(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
 
@@ -14,49 +14,49 @@ extend type Team {
 		before: Cursor
 
 		"Ordering options for items returned from the connection."
-		orderBy: ValkeyInstanceOrder
-	): ValkeyInstanceConnection!
+		orderBy: ValkeyOrder
+	): ValkeyConnection!
 }
 
 extend type TeamEnvironment {
 	"Valkey instance in the team environment."
-	valkeyInstance(name: String!): ValkeyInstance!
+	valkey(name: String!): Valkey!
 }
 
 extend interface Workload {
 	"Valkey instances referenced by the workload. This does not currently support pagination, but will return all available Valkey instances."
-	valkeyInstances(
+	valkeys(
 		"Ordering options for items returned from the connection."
-		orderBy: ValkeyInstanceOrder
-	): ValkeyInstanceConnection!
+		orderBy: ValkeyOrder
+	): ValkeyConnection!
 }
 
 extend type Application {
 	"Valkey instances referenced by the application. This does not currently support pagination, but will return all available Valkey instances."
-	valkeyInstances(
+	valkeys(
 		"Ordering options for items returned from the connection."
-		orderBy: ValkeyInstanceOrder
-	): ValkeyInstanceConnection!
+		orderBy: ValkeyOrder
+	): ValkeyConnection!
 }
 
 extend type Job {
 	"Valkey instances referenced by the job. This does not currently support pagination, but will return all available Valkey instances."
-	valkeyInstances(
+	valkeys(
 		"Ordering options for items returned from the connection."
-		orderBy: ValkeyInstanceOrder
-	): ValkeyInstanceConnection!
+		orderBy: ValkeyOrder
+	): ValkeyConnection!
 }
 
 extend type TeamInventoryCounts {
-	valkeyInstances: TeamInventoryCountValkeyInstances!
+	valkeys: TeamInventoryCountValkeys!
 }
 
-type TeamInventoryCountValkeyInstances {
+type TeamInventoryCountValkeys {
 	"Total number of Valkey instances."
 	total: Int!
 }
 
-type ValkeyInstance implements Persistence & Node {
+type Valkey implements Persistence & Node {
 	id: ID!
 	name: String!
 	terminationProtection: Boolean!
@@ -68,65 +68,65 @@ type ValkeyInstance implements Persistence & Node {
 		after: Cursor
 		last: Int
 		before: Cursor
-		orderBy: ValkeyInstanceAccessOrder
-	): ValkeyInstanceAccessConnection!
+		orderBy: ValkeyAccessOrder
+	): ValkeyAccessConnection!
 	workload: Workload
-	status: ValkeyInstanceStatus!
+	status: ValkeyStatus!
 }
 
-type ValkeyInstanceAccess {
+type ValkeyAccess {
 	workload: Workload!
 	access: String!
 }
 
-type ValkeyInstanceStatus {
+type ValkeyStatus {
 	state: String!
 }
 
-type ValkeyInstanceAccessConnection {
+type ValkeyAccessConnection {
 	pageInfo: PageInfo!
-	nodes: [ValkeyInstanceAccess!]!
-	edges: [ValkeyInstanceAccessEdge!]!
+	nodes: [ValkeyAccess!]!
+	edges: [ValkeyAccessEdge!]!
 }
 
-type ValkeyInstanceConnection {
+type ValkeyConnection {
 	pageInfo: PageInfo!
-	nodes: [ValkeyInstance!]!
-	edges: [ValkeyInstanceEdge!]!
+	nodes: [Valkey!]!
+	edges: [ValkeyEdge!]!
 }
 
-type ValkeyInstanceAccessEdge {
+type ValkeyAccessEdge {
 	cursor: Cursor!
-	node: ValkeyInstanceAccess!
+	node: ValkeyAccess!
 }
 
-type ValkeyInstanceEdge {
+type ValkeyEdge {
 	cursor: Cursor!
-	node: ValkeyInstance!
+	node: Valkey!
 }
 
-input ValkeyInstanceAccessOrder {
-	field: ValkeyInstanceAccessOrderField!
+input ValkeyAccessOrder {
+	field: ValkeyAccessOrderField!
 	direction: OrderDirection!
 }
 
-input ValkeyInstanceOrder {
-	field: ValkeyInstanceOrderField!
+input ValkeyOrder {
+	field: ValkeyOrderField!
 	direction: OrderDirection!
 }
 
-enum ValkeyInstanceAccessOrderField {
+enum ValkeyAccessOrderField {
 	ACCESS
 	WORKLOAD
 }
 
-enum ValkeyInstanceOrderField {
+enum ValkeyOrderField {
 	NAME
 	ENVIRONMENT
 }
 
-extend union SearchNode = ValkeyInstance
+extend union SearchNode = Valkey
 
 extend enum SearchType {
-	VALKEY_INSTANCE
+	VALKEY
 }

@@ -178,11 +178,11 @@ type OpenSearchCost {
 	sum: Float!
 }
 
-extend type ValkeyInstance {
-	cost: ValkeyInstanceCost!
+extend type Valkey {
+	cost: ValkeyCost!
 }
 
-type ValkeyInstanceCost {
+type ValkeyCost {
 	sum: Float!
 }
 
