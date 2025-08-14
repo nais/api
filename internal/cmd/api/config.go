@@ -145,14 +145,18 @@ type Config struct {
 	// DatabaseConnectionString is the database DSN
 	DatabaseConnectionString string `env:"DATABASE_URL,default=postgres://api:api@127.0.0.1:3002/api?sslmode=disable"`
 
+	// WithSlowQueryLogger enables slow query logging.
+	WithSlowQueryLogger bool `env:"WITH_SLOW_QUERY_LOGGER"`
+
+	// CloudSQLInstance is the Cloud SQL instance ID to connect to.
+	CloudSQLInstance string `env:"CLOUD_SQL_INSTANCE"`
+
 	LogFormat string `env:"LOG_FORMAT,default=json"`
 	LogLevel  string `env:"LOG_LEVEL,default=info"`
 
 	// StaticServiceAccounts A JSON-encoded value describing a set of service accounts to be created when the
 	// application starts. Refer to the README for the format.
 	StaticServiceAccounts StaticServiceAccounts `env:"STATIC_SERVICE_ACCOUNTS"`
-
-	WithSlowQueryLogger bool `env:"WITH_SLOW_QUERY_LOGGER"`
 
 	// ListenAddress is host:port combination used by the http server
 	ListenAddress         string `env:"LISTEN_ADDRESS,default=127.0.0.1:3000"`

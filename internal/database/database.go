@@ -4,16 +4,17 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"net"
 	"regexp"
 	"time"
 
+	"cloud.google.com/go/cloudsqlconn"
 	"github.com/exaring/otelpgx"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
 	"github.com/sirupsen/logrus"
-
-	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 //go:embed migrations/0*.sql
@@ -24,7 +25,8 @@ const databaseConnectRetries = 5
 var regParseSQLName = regexp.MustCompile(`\-\-\s*name:\s+(\S+)`)
 
 type settings struct {
-	slowQueryLogger time.Duration
+	slowQueryLogger  time.Duration
+	cloudSQLInstance string
 }
 
 type OptFunc func(*settings)
@@ -34,6 +36,12 @@ type OptFunc func(*settings)
 func WithSlowQueryLogger(d time.Duration) OptFunc {
 	return func(s *settings) {
 		s.slowQueryLogger = d
+	}
+}
+
+func WithCloudSQLInstance(id string) OptFunc {
+	return func(s *settings) {
+		s.cloudSQLInstance = id
 	}
 }
 
@@ -51,16 +59,24 @@ func NewPool(ctx context.Context, dsn string, log logrus.FieldLogger, migrate bo
 		o(settings)
 	}
 
-	if migrate {
-		if err := migrateDatabaseSchema("pgx", dsn, log); err != nil {
-			return nil, err
-		}
-	}
-
 	config, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse dsn config: %w", err)
 	}
+
+	if settings.cloudSQLInstance != "" {
+		// Create a new dialer with any options
+		d, err := cloudsqlconn.NewDialer(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create cloudsql dialer: %w", err)
+		}
+
+		// Tell the driver to use the Cloud SQL Go Connector to create connections
+		config.ConnConfig.DialFunc = func(ctx context.Context, _ string, instance string) (net.Conn, error) {
+			return d.Dial(ctx, settings.cloudSQLInstance)
+		}
+	}
+
 	config.MaxConns = 25
 	config.ConnConfig.Tracer = otelpgx.NewTracer(
 		otelpgx.WithTrimSQLInSpanName(),
@@ -83,17 +99,12 @@ func NewPool(ctx context.Context, dsn string, log logrus.FieldLogger, migrate bo
 	}
 
 	config.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		t, err := conn.LoadType(ctx, "slug") // slug type
+		types, err := conn.LoadTypes(ctx, []string{"slug", "_slug"})
 		if err != nil {
-			return fmt.Errorf("failed to load type: %w", err)
+			return fmt.Errorf("failed to load types: %w", err)
 		}
-		conn.TypeMap().RegisterType(t)
 
-		t, err = conn.LoadType(ctx, "_slug") // array of slug type
-		if err != nil {
-			return fmt.Errorf("failed to load type: %w", err)
-		}
-		conn.TypeMap().RegisterType(t)
+		conn.TypeMap().RegisterTypes(types)
 		return nil
 	}
 
@@ -102,8 +113,14 @@ func NewPool(ctx context.Context, dsn string, log logrus.FieldLogger, migrate bo
 		return nil, fmt.Errorf("failed to connect: %w", err)
 	}
 
+	if migrate {
+		if err := migrateDatabaseSchema(conn, log); err != nil {
+			return nil, err
+		}
+	}
+
 	connected := false
-	for i := 0; i < databaseConnectRetries; i++ {
+	for i := range databaseConnectRetries {
 		if err = conn.Ping(ctx); err == nil {
 			connected = true
 			break
@@ -120,23 +137,20 @@ func NewPool(ctx context.Context, dsn string, log logrus.FieldLogger, migrate bo
 }
 
 // migrateDatabaseSchema runs database migrations
-func migrateDatabaseSchema(driver, dsn string, log logrus.FieldLogger) error {
+func migrateDatabaseSchema(pool *pgxpool.Pool, log logrus.FieldLogger) error {
+	db := stdlib.OpenDBFromPool(pool)
+	defer func() {
+		if err := db.Close(); err != nil {
+			log.WithError(err).Error("closing database migration connection")
+		}
+	}()
+
 	goose.SetBaseFS(embedMigrations)
 	goose.SetLogger(log)
 
 	if err := goose.SetDialect("postgres"); err != nil {
 		return err
 	}
-
-	db, err := goose.OpenDBWithDriver(driver, dsn)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		if err := db.Close(); err != nil {
-			log.WithError(err).Error("closing database migration connection")
-		}
-	}()
 
 	return goose.Up(db, "migrations")
 }
