@@ -29,7 +29,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/nais/api/internal/logger"
-	"github.com/nais/api/internal/opensearchversion"
+	opensearchversion "github.com/nais/api/internal/persistence/opensearch/version"
 	"github.com/nais/api/internal/servicemaintenance"
 	"github.com/nais/api/internal/thirdparty/aivencache"
 	"github.com/nais/api/internal/thirdparty/hookd"

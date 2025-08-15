@@ -3,8 +3,8 @@ package graph
 import (
 	"context"
 
-	"github.com/nais/api/internal/opensearchversion"
 	"github.com/nais/api/internal/persistence/opensearch"
+	opensearchversion "github.com/nais/api/internal/persistence/opensearch/version"
 )
 
 func (r *openSearchResolver) Version(ctx context.Context, obj *opensearch.OpenSearch) (string, error) {

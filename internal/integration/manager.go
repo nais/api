@@ -24,7 +24,7 @@ import (
 	apiRunner "github.com/nais/api/internal/integration/runner"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
-	"github.com/nais/api/internal/opensearchversion"
+	opensearchversion "github.com/nais/api/internal/persistence/opensearch/version"
 	servicemaintenance "github.com/nais/api/internal/servicemaintenance"
 	"github.com/nais/api/internal/thirdparty/aivencache"
 	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"

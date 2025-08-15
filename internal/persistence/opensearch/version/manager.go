@@ -1,4 +1,4 @@
-package opensearchversion
+package version
 
 import (
 	"context"
