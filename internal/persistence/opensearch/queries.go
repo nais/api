@@ -66,6 +66,10 @@ func ListAccess(ctx context.Context, openSearch *OpenSearch, page *pagination.Pa
 	return pagination.NewConnection(ret, page, len(all)), nil
 }
 
+func GetOpenSearchVersion(ctx context.Context, key AivenDataLoaderKey) (string, error) {
+	return fromContext(ctx).versionLoader.Load(ctx, &key)
+}
+
 func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environment string, reference *nais_io_v1.OpenSearch) (*OpenSearch, error) {
 	if reference == nil {
 		return nil, nil
