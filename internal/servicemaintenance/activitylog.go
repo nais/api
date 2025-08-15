@@ -7,13 +7,13 @@ import (
 )
 
 const (
-	activityLogResourceTypeValkeyInstance    activitylog.ActivityLogEntryResourceType = "VALKEY_INSTANCE"
+	activityLogResourceTypeValkey            activitylog.ActivityLogEntryResourceType = "VALKEY"
 	activityLogResourceTypeOpenSearch        activitylog.ActivityLogEntryResourceType = "OPENSEARCH"
 	activityLogEntryActionMaintenanceStarted activitylog.ActivityLogEntryAction       = "MAINTENANCE_STARTED"
 )
 
 func init() {
-	activitylog.RegisterTransformer(activityLogResourceTypeValkeyInstance, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
+	activitylog.RegisterTransformer(activityLogResourceTypeValkey, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		if entry.Action == activityLogEntryActionMaintenanceStarted {
 			return ServiceMaintenanceActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Started service maintenance"),

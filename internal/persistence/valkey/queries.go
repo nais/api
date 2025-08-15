@@ -26,7 +26,7 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Va
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *ValkeyOrder) (*ValkeyConnection, error) {
 	all := ListAllForTeam(ctx, teamSlug)
-	orderValkeyInstance(ctx, all, orderBy)
+	orderInstance(ctx, all, orderBy)
 
 	instances := pagination.Slice(all, page)
 	return pagination.NewConnection(instances, page, len(all)), nil
@@ -72,17 +72,17 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 
 	for _, ref := range references {
 		for _, d := range all {
-			if d.Obj.Name == valkeyInstanceNamer(teamSlug, ref.Instance) {
+			if d.Obj.Name == valkeyNamer(teamSlug, ref.Instance) {
 				ret = append(ret, d.Obj)
 			}
 		}
 	}
 
-	orderValkeyInstance(ctx, ret, orderBy)
+	orderInstance(ctx, ret, orderBy)
 	return pagination.NewConnectionWithoutPagination(ret), nil
 }
 
-func orderValkeyInstance(ctx context.Context, instances []*Valkey, orderBy *ValkeyOrder) {
+func orderInstance(ctx context.Context, instances []*Valkey, orderBy *ValkeyOrder) {
 	if orderBy == nil {
 		orderBy = &ValkeyOrder{
 			Field:     "NAME",
