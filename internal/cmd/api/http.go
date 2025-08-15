@@ -25,6 +25,7 @@ import (
 	"github.com/nais/api/internal/graph/loader"
 	apik8s "github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
+	"github.com/nais/api/internal/opensearchversion"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/kafkatopic"
@@ -77,6 +78,7 @@ func runHttpServer(
 	authHandler authn.Handler,
 	graphHandler *handler.Server,
 	serviceMaintenanceManager *servicemaintenance.Manager,
+	opensearchVersionManager *opensearchversion.Manager,
 	vulnMgr *vulnerability.Manager,
 	hookdClient hookd.Client,
 	bifrostAPIURL string,
@@ -97,6 +99,7 @@ func runHttpServer(
 		pool,
 		k8sClients,
 		serviceMaintenanceManager,
+		opensearchVersionManager,
 		vulnMgr,
 		tenantName,
 		clusters,
@@ -191,6 +194,7 @@ func ConfigureGraph(
 	pool *pgxpool.Pool,
 	k8sClients apik8s.ClusterConfigMap,
 	serviceMaintenanceManager *servicemaintenance.Manager,
+	opensearchVersionManager *opensearchversion.Manager,
 	vulnMgr *vulnerability.Manager,
 	tenantName string,
 	clusters []string,
@@ -312,6 +316,7 @@ func ConfigureGraph(
 		ctx = activitylog.NewLoaderContext(ctx, pool)
 		ctx = vulnerability.NewLoaderContext(ctx, vulnMgr, prometheusClient, log)
 		ctx = servicemaintenance.NewLoaderContext(ctx, serviceMaintenanceManager, log)
+		ctx = opensearchversion.NewLoaderContext(ctx, opensearchVersionManager, log)
 		ctx = reconciler.NewLoaderContext(ctx, pool)
 		ctx = deployment.NewLoaderContext(ctx, pool, hookdClient)
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)

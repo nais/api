@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/aivencache"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/cmd/api"
@@ -24,6 +25,7 @@ import (
 	apiRunner "github.com/nais/api/internal/integration/runner"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
+	"github.com/nais/api/internal/opensearchversion"
 	servicemaintenance "github.com/nais/api/internal/servicemaintenance"
 	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/unleash"
@@ -154,7 +156,14 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 		return nil, nil, fmt.Errorf("failed to create management watcher manager: %w", err)
 	}
 
-	smMgr, err := servicemaintenance.NewManager(ctx, servicemaintenance.NewFakeAivenClient(), log.WithField("subsystem", "service_maintenance"))
+	fakeAivenClient := aivencache.NewFakeAivenClient()
+
+	smMgr, err := servicemaintenance.NewManager(ctx, fakeAivenClient, log.WithField("subsystem", "service_maintenance"))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	osVMgr, err := opensearchversion.NewManager(ctx, fakeAivenClient, log.WithField("subsystem", "opensearch_version"))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -185,6 +194,7 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 		pool,
 		clusterConfig,
 		smMgr,
+		osVMgr,
 		vMgr,
 		config.TenantName,
 		clusters(),

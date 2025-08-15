@@ -1,0 +1,4 @@
+extend type OpenSearch {
+	"Fetch version for the OpenSearch instance."
+	version: String!
+}
