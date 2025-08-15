@@ -13,7 +13,6 @@ import (
 	"testing"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/nais/api/internal/aivencache"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/cmd/api"
@@ -27,6 +26,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/opensearchversion"
 	servicemaintenance "github.com/nais/api/internal/servicemaintenance"
+	"github.com/nais/api/internal/thirdparty/aivencache"
 	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/user"

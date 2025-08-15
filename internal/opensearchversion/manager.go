@@ -3,7 +3,7 @@ package opensearchversion
 import (
 	"context"
 
-	"github.com/nais/api/internal/aivencache"
+	"github.com/nais/api/internal/thirdparty/aivencache"
 	"github.com/sirupsen/logrus"
 )
 
