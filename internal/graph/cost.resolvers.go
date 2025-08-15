@@ -137,9 +137,9 @@ func (r *teamEnvironmentCostResolver) Daily(ctx context.Context, obj *cost.TeamE
 	return cost.DailyForTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName, from.Time(), to.Time())
 }
 
-func (r *valkeyInstanceResolver) Cost(ctx context.Context, obj *valkey.ValkeyInstance) (*cost.ValkeyInstanceCost, error) {
+func (r *valkeyResolver) Cost(ctx context.Context, obj *valkey.Valkey) (*cost.ValkeyCost, error) {
 	if obj.WorkloadReference == nil {
-		return &cost.ValkeyInstanceCost{}, nil
+		return &cost.ValkeyCost{}, nil
 	}
 
 	sum, err := cost.MonthlyForService(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name, "Valkey")
@@ -149,12 +149,12 @@ func (r *valkeyInstanceResolver) Cost(ctx context.Context, obj *valkey.ValkeyIns
 			"TeamSlug":        obj.TeamSlug,
 			"Valkey":          obj.Name,
 		}).Warn("failed to get monthly cost for Valkey instance")
-		return &cost.ValkeyInstanceCost{
+		return &cost.ValkeyCost{
 			Sum: 0,
 		}, nil
 	}
 
-	return &cost.ValkeyInstanceCost{
+	return &cost.ValkeyCost{
 		Sum: float64(sum),
 	}, nil
 }

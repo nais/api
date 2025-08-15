@@ -1,6 +1,6 @@
 extend type Team {
 	"OpenSearch instances owned by the team."
-	openSearchInstances(
+	openSearches(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
 
@@ -20,7 +20,7 @@ extend type Team {
 
 extend type TeamEnvironment {
 	"OpenSearch instance in the team environment."
-	openSearchInstance(name: String!): OpenSearch!
+	openSearch(name: String!): OpenSearch!
 }
 
 extend interface Workload {
@@ -39,10 +39,10 @@ extend type Job {
 }
 
 extend type TeamInventoryCounts {
-	openSearchInstances: TeamInventoryCountOpenSearchInstances!
+	openSearches: TeamInventoryCountOpenSearches!
 }
 
-type TeamInventoryCountOpenSearchInstances {
+type TeamInventoryCountOpenSearches {
 	"Total number of OpenSearch instances."
 	total: Int!
 }

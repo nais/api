@@ -13,19 +13,19 @@ import (
 )
 
 func StartValkeyMaintenance(ctx context.Context, input StartValkeyMaintenanceInput) error {
-	valkeyInstance, err := valkey.Get(ctx, input.TeamSlug, input.EnvironmentName, input.ServiceName)
+	valkey, err := valkey.Get(ctx, input.TeamSlug, input.EnvironmentName, input.ServiceName)
 	if err != nil {
 		return err
 	}
 
-	if err := fromContext(ctx).maintenanceMutator.aivenClient.ServiceMaintenanceStart(ctx, valkeyInstance.AivenProject, input.ServiceName); err != nil {
+	if err := fromContext(ctx).maintenanceMutator.aivenClient.ServiceMaintenanceStart(ctx, valkey.AivenProject, input.ServiceName); err != nil {
 		fromContext(ctx).log.WithError(err).Error("Failed to start Valkey maintenance")
 		return err
 	}
 
 	return activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          activityLogEntryActionMaintenanceStarted,
-		ResourceType:    activityLogResourceTypeValkeyInstance,
+		ResourceType:    activityLogResourceTypeValkey,
 		TeamSlug:        &input.TeamSlug,
 		EnvironmentName: &input.EnvironmentName,
 		ResourceName:    input.ServiceName,

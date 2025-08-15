@@ -9,8 +9,8 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-func AddSearch(client search.Client, watcher *watcher.Watcher[*ValkeyInstance]) {
-	createIdent := func(env string, obj *ValkeyInstance) ident.Ident {
+func AddSearch(client search.Client, watcher *watcher.Watcher[*Valkey]) {
+	createIdent := func(env string, obj *Valkey) ident.Ident {
 		return newIdent(slug.Slug(obj.GetNamespace()), env, obj.GetName())
 	}
 
@@ -18,5 +18,5 @@ func AddSearch(client search.Client, watcher *watcher.Watcher[*ValkeyInstance]) 
 		return GetByIdent(ctx, id)
 	}
 
-	client.AddClient("VALKEY_INSTANCE", search.NewK8sSearch("VALKEY_INSTANCE", watcher, gbi, createIdent))
+	client.AddClient("VALKEY", search.NewK8sSearch("VALKEY", watcher, gbi, createIdent))
 }

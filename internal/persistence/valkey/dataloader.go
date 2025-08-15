@@ -12,13 +12,13 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, valkeyWatcher *watcher.Watcher[*ValkeyInstance]) context.Context {
+func NewLoaderContext(ctx context.Context, valkeyWatcher *watcher.Watcher[*Valkey]) context.Context {
 	return context.WithValue(ctx, loadersKey, newLoaders(valkeyWatcher))
 }
 
-func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*ValkeyInstance] {
-	w := watcher.Watch(mgr, &ValkeyInstance{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
-		ret, err := toValkeyInstance(o, environmentName)
+func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*Valkey] {
+	w := watcher.Watch(mgr, &Valkey{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
+		ret, err := toValkey(o, environmentName)
 		if err != nil {
 			return nil, false
 		}
@@ -40,7 +40,7 @@ type loaders struct {
 	client *client
 }
 
-func newLoaders(watcher *watcher.Watcher[*ValkeyInstance]) *loaders {
+func newLoaders(watcher *watcher.Watcher[*Valkey]) *loaders {
 	client := &client{
 		watcher: watcher,
 	}

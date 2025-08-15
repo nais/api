@@ -67,7 +67,7 @@ type ValkeyMaintenanceUpdateEdge {
 	node: ValkeyMaintenanceUpdate!
 }
 
-extend type ValkeyInstance {
+extend type Valkey {
 	"Fetch maintenances updates for the Valkey instance."
 	maintenance: ValkeyMaintenance!
 }
@@ -159,7 +159,7 @@ input StartOpenSearchMaintenanceInput {
 
 extend enum ActivityLogEntryResourceType {
 	"Activity log entries related to valkey instances."
-	VALKEY_INSTANCE
+	VALKEY
 
 	"Activity log entries related to OpenSearch instances."
 	OPENSEARCH

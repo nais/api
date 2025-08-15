@@ -70,7 +70,7 @@ func (r *openSearchMaintenanceResolver) Updates(ctx context.Context, obj *servic
 	return pagination.NewConnection(pagination.Slice(allUpdates, page), page, len(allUpdates)), nil
 }
 
-func (r *valkeyInstanceResolver) Maintenance(ctx context.Context, obj *valkey.ValkeyInstance) (*servicemaintenance.ValkeyMaintenance, error) {
+func (r *valkeyResolver) Maintenance(ctx context.Context, obj *valkey.Valkey) (*servicemaintenance.ValkeyMaintenance, error) {
 	return &servicemaintenance.ValkeyMaintenance{
 		AivenProject: obj.AivenProject,
 		ServiceName:  obj.Name,
