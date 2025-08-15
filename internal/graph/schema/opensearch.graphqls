@@ -63,6 +63,8 @@ type OpenSearch implements Persistence & Node {
 		before: Cursor
 		orderBy: OpenSearchAccessOrder
 	): OpenSearchAccessConnection!
+	"Fetch version for the OpenSearch instance."
+	version: String!
 }
 
 type OpenSearchAccess {

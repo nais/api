@@ -29,7 +29,6 @@ import (
 	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/persistence/opensearch"
-	opensearchversion "github.com/nais/api/internal/persistence/opensearch/version"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/price"
@@ -40,6 +39,7 @@ import (
 	"github.com/nais/api/internal/servicemaintenance"
 	"github.com/nais/api/internal/session"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/thirdparty/aivencache"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/thirdparty/promclient"
 	promfake "github.com/nais/api/internal/thirdparty/promclient/fake"
@@ -78,7 +78,7 @@ func runHttpServer(
 	authHandler authn.Handler,
 	graphHandler *handler.Server,
 	serviceMaintenanceManager *servicemaintenance.Manager,
-	opensearchVersionManager *opensearchversion.Manager,
+	aivenClient aivencache.AivenClient,
 	vulnMgr *vulnerability.Manager,
 	hookdClient hookd.Client,
 	bifrostAPIURL string,
@@ -99,7 +99,7 @@ func runHttpServer(
 		pool,
 		k8sClients,
 		serviceMaintenanceManager,
-		opensearchVersionManager,
+		aivenClient,
 		vulnMgr,
 		tenantName,
 		clusters,
@@ -194,7 +194,7 @@ func ConfigureGraph(
 	pool *pgxpool.Pool,
 	k8sClients apik8s.ClusterConfigMap,
 	serviceMaintenanceManager *servicemaintenance.Manager,
-	opensearchVersionManager *opensearchversion.Manager,
+	aivenClient aivencache.AivenClient,
 	vulnMgr *vulnerability.Manager,
 	tenantName string,
 	clusters []string,
@@ -301,7 +301,7 @@ func ConfigureGraph(
 		ctx = kafkatopic.NewLoaderContext(ctx, kafkaTopicWatcher)
 		ctx = workload.NewLoaderContext(ctx, podWatcher)
 		ctx = secret.NewLoaderContext(ctx, secretClientCreator, clusters, log)
-		ctx = opensearch.NewLoaderContext(ctx, openSearchWatcher)
+		ctx = opensearch.NewLoaderContext(ctx, openSearchWatcher, aivenClient, log)
 		ctx = valkey.NewLoaderContext(ctx, valkeyWatcher)
 		ctx = price.NewLoaderContext(ctx, priceRetriever, log)
 		ctx = utilization.NewLoaderContext(ctx, prometheusClient, log)
@@ -316,7 +316,6 @@ func ConfigureGraph(
 		ctx = activitylog.NewLoaderContext(ctx, pool)
 		ctx = vulnerability.NewLoaderContext(ctx, vulnMgr, prometheusClient, log)
 		ctx = servicemaintenance.NewLoaderContext(ctx, serviceMaintenanceManager, log)
-		ctx = opensearchversion.NewLoaderContext(ctx, opensearchVersionManager, log)
 		ctx = reconciler.NewLoaderContext(ctx, pool)
 		ctx = deployment.NewLoaderContext(ctx, pool, hookdClient)
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)

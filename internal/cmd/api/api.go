@@ -29,7 +29,6 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/nais/api/internal/logger"
-	opensearchversion "github.com/nais/api/internal/persistence/opensearch/version"
 	"github.com/nais/api/internal/servicemaintenance"
 	"github.com/nais/api/internal/thirdparty/aivencache"
 	"github.com/nais/api/internal/thirdparty/hookd"
@@ -190,11 +189,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return err
 	}
 
-	opensearchVersionManager, err := opensearchversion.NewManager(ctx, aivenClient, log.WithField("subsystem", "opensearch_version"))
-	if err != nil {
-		return err
-	}
-
 	vulnMgr, err := vulnerability.NewManager(
 		ctx,
 		cfg.VulnerabilitiesApi.Endpoint,
@@ -281,7 +275,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			authHandler,
 			graphHandler,
 			serviceMaintenanceManager,
-			opensearchVersionManager,
+			aivenClient,
 			vulnMgr,
 			hookdClient,
 			cfg.Unleash.BifrostApiUrl,

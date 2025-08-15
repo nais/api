@@ -24,7 +24,6 @@ import (
 	apiRunner "github.com/nais/api/internal/integration/runner"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
-	opensearchversion "github.com/nais/api/internal/persistence/opensearch/version"
 	servicemaintenance "github.com/nais/api/internal/servicemaintenance"
 	"github.com/nais/api/internal/thirdparty/aivencache"
 	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"
@@ -163,11 +162,6 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 		return nil, nil, err
 	}
 
-	osVMgr, err := opensearchversion.NewManager(ctx, fakeAivenClient, log.WithField("subsystem", "opensearch_version"))
-	if err != nil {
-		return nil, nil, err
-	}
-
 	vMgr, err := vulnerability.NewFakeManager(ctx, log.WithField("subsystem", "vulnerability"))
 	if err != nil {
 		return nil, nil, err
@@ -194,7 +188,7 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 		pool,
 		clusterConfig,
 		smMgr,
-		osVMgr,
+		fakeAivenClient,
 		vMgr,
 		config.TenantName,
 		clusters(),
