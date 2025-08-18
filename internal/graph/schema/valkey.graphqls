@@ -172,7 +172,13 @@ enum ValkeyMaxMemoryPolicy {
 input CreateValkeyInput {
 	"Name of the Valkey instance."
 	name: String!
+	"The environment name that the entry belongs to."
+	environmentName: String!
+	"The team that owns the Valkey instance."
+	teamSlug: Slug!
+	"Size of the Valkey instance."
 	size: ValkeySize!
+	"Maximum memory policy for the Valkey instance."
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 }
 

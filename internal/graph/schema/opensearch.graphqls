@@ -123,3 +123,42 @@ extend union SearchNode = OpenSearch
 extend enum SearchType {
 	OPENSEARCH
 }
+
+enum OpenSearchSize {
+	"Small OpenSearch instance."
+	SMALL
+
+	"Medium OpenSearch instance."
+	MEDIUM
+
+	"Large OpenSearch instance."
+	LARGE
+}
+
+enum OpenSearchMajorVersion {
+	"OpenSearch Version 2.x"
+	V2
+}
+
+input CreateOpenSearchInput {
+	"Name of the OpenSearch instance."
+	name: String!
+	"The environment name that the OpenSearch instance belongs to."
+	environmentName: String!
+	"The team that owns the OpenSearch instance."
+	teamSlug: Slug!
+	"Size of the OpenSearch instance."
+	size: OpenSearchSize!
+	"Major version of the OpenSearch instance."
+	version: OpenSearchMajorVersion
+}
+
+type CreateOpenSearchPayload {
+	"OpenSearch instance that was created."
+	openSearch: OpenSearch!
+}
+
+extend type Mutation {
+	"Create a new OpenSearch instance."
+	createOpenSearch(input: CreateOpenSearchInput!): CreateOpenSearchPayload!
+}

@@ -159,3 +159,107 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 type TeamInventoryCountOpenSearches struct {
 	Total int
 }
+
+type CreateOpenSearchInput struct {
+	// Name of the OpenSearch instance.
+	Name string `json:"name"`
+	// The environment name that the OpenSearch instance belongs to.
+	EnvironmentName string `json:"environmentName"`
+	// The team that owns the OpenSearch instance.
+	TeamSlug slug.Slug `json:"teamSlug"`
+	// Size of the OpenSearch instance.
+	Size OpenSearchSize `json:"size"`
+	// Major version of the OpenSearch instance.
+	Version *OpenSearchMajorVersion `json:"version,omitempty"`
+}
+
+type CreateOpenSearchPayload struct {
+	// OpenSearch instance that was created.
+	OpenSearch *OpenSearch `json:"openSearch"`
+}
+
+type OpenSearchMajorVersion string
+
+const (
+	// OpenSearch Version 2.x
+	OpenSearchMajorVersionV2 OpenSearchMajorVersion = "V2"
+)
+
+var AllOpenSearchMajorVersion = []OpenSearchMajorVersion{
+	OpenSearchMajorVersionV2,
+}
+
+func (e OpenSearchMajorVersion) IsValid() bool {
+	switch e {
+	case OpenSearchMajorVersionV2:
+		return true
+	}
+	return false
+}
+
+func (e OpenSearchMajorVersion) String() string {
+	return string(e)
+}
+
+func (e *OpenSearchMajorVersion) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OpenSearchMajorVersion(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OpenSearchMajorVersion", str)
+	}
+	return nil
+}
+
+func (e OpenSearchMajorVersion) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type OpenSearchSize string
+
+const (
+	// Small OpenSearch instance.
+	OpenSearchSizeSmall OpenSearchSize = "SMALL"
+	// Medium OpenSearch instance.
+	OpenSearchSizeMedium OpenSearchSize = "MEDIUM"
+	// Large OpenSearch instance.
+	OpenSearchSizeLarge OpenSearchSize = "LARGE"
+)
+
+var AllOpenSearchSize = []OpenSearchSize{
+	OpenSearchSizeSmall,
+	OpenSearchSizeMedium,
+	OpenSearchSizeLarge,
+}
+
+func (e OpenSearchSize) IsValid() bool {
+	switch e {
+	case OpenSearchSizeSmall, OpenSearchSizeMedium, OpenSearchSizeLarge:
+		return true
+	}
+	return false
+}
+
+func (e OpenSearchSize) String() string {
+	return string(e)
+}
+
+func (e *OpenSearchSize) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OpenSearchSize(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OpenSearchSize", str)
+	}
+	return nil
+}
+
+func (e OpenSearchSize) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
