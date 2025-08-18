@@ -29,7 +29,8 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/nais/api/internal/logger"
-	servicemaintenance "github.com/nais/api/internal/servicemaintenance"
+	"github.com/nais/api/internal/servicemaintenance"
+	"github.com/nais/api/internal/thirdparty/aivencache"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/vulnerability"
@@ -172,14 +173,15 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return err
 	}
 
-	var aivenClient servicemaintenance.AivenClient
+	var aivenClient aivencache.AivenClient
 	if cfg.Fakes.WithFakeAivenClient {
-		aivenClient = servicemaintenance.NewFakeAivenClient()
+		aivenClient = aivencache.NewFakeAivenClient()
 	} else {
-		aivenClient, err = aiven.NewClient(aiven.TokenOpt(cfg.AivenToken), aiven.UserAgentOpt("nais-api"))
+		pureClient, err := aiven.NewClient(aiven.TokenOpt(cfg.AivenToken), aiven.UserAgentOpt("nais-api"))
 		if err != nil {
 			return err
 		}
+		aivenClient = aivencache.NewClient(pureClient)
 	}
 
 	serviceMaintenanceManager, err := servicemaintenance.NewManager(ctx, aivenClient, log.WithField("subsystem", "maintenance"))
@@ -273,6 +275,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			authHandler,
 			graphHandler,
 			serviceMaintenanceManager,
+			aivenClient,
 			vulnMgr,
 			hookdClient,
 			cfg.Unleash.BifrostApiUrl,

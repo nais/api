@@ -25,6 +25,7 @@ import (
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	servicemaintenance "github.com/nais/api/internal/servicemaintenance"
+	"github.com/nais/api/internal/thirdparty/aivencache"
 	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/user"
@@ -154,7 +155,9 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 		return nil, nil, fmt.Errorf("failed to create management watcher manager: %w", err)
 	}
 
-	smMgr, err := servicemaintenance.NewManager(ctx, servicemaintenance.NewFakeAivenClient(), log.WithField("subsystem", "service_maintenance"))
+	fakeAivenClient := aivencache.NewFakeAivenClient()
+
+	smMgr, err := servicemaintenance.NewManager(ctx, fakeAivenClient, log.WithField("subsystem", "service_maintenance"))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -185,6 +188,7 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 		pool,
 		clusterConfig,
 		smMgr,
+		fakeAivenClient,
 		vMgr,
 		config.TenantName,
 		clusters(),

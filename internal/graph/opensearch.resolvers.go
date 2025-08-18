@@ -45,6 +45,13 @@ func (r *openSearchResolver) Access(ctx context.Context, obj *opensearch.OpenSea
 	return opensearch.ListAccess(ctx, obj, page, orderBy)
 }
 
+func (r *openSearchResolver) Version(ctx context.Context, obj *opensearch.OpenSearch) (string, error) {
+	return opensearch.GetOpenSearchVersion(ctx, opensearch.AivenDataLoaderKey{
+		Project:     obj.AivenProject,
+		ServiceName: obj.Name,
+	})
+}
+
 func (r *openSearchAccessResolver) Workload(ctx context.Context, obj *opensearch.OpenSearchAccess) (workload.Workload, error) {
 	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
