@@ -159,3 +159,109 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 type TeamInventoryCountValkeys struct {
 	Total int
 }
+
+type CreateValkeyInput struct {
+	Name            string                 `json:"name"`
+	Size            ValkeySize             `json:"size"`
+	MaxMemoryPolicy *ValkeyMaxMemoryPolicy `json:"maxMemoryPolicy,omitempty"`
+}
+
+type CreateValkeyPayload struct {
+	Valkey *Valkey `json:"valkey"`
+}
+
+type ValkeyMaxMemoryPolicy string
+
+const (
+	ValkeyMaxMemoryPolicyAllkeysLfu     ValkeyMaxMemoryPolicy = "ALLKEYS_LFU"
+	ValkeyMaxMemoryPolicyAllkeysLru     ValkeyMaxMemoryPolicy = "ALLKEYS_LRU"
+	ValkeyMaxMemoryPolicyAllkeysRandom  ValkeyMaxMemoryPolicy = "ALLKEYS_RANDOM"
+	ValkeyMaxMemoryPolicyNoEviction     ValkeyMaxMemoryPolicy = "NO_EVICTION"
+	ValkeyMaxMemoryPolicyVolatileLfu    ValkeyMaxMemoryPolicy = "VOLATILE_LFU"
+	ValkeyMaxMemoryPolicyVolatileLru    ValkeyMaxMemoryPolicy = "VOLATILE_LRU"
+	ValkeyMaxMemoryPolicyVolatileRandom ValkeyMaxMemoryPolicy = "VOLATILE_RANDOM"
+	ValkeyMaxMemoryPolicyVolatileTTL    ValkeyMaxMemoryPolicy = "VOLATILE_TTL"
+)
+
+var AllValkeyMaxMemoryPolicy = []ValkeyMaxMemoryPolicy{
+	ValkeyMaxMemoryPolicyAllkeysLfu,
+	ValkeyMaxMemoryPolicyAllkeysLru,
+	ValkeyMaxMemoryPolicyAllkeysRandom,
+	ValkeyMaxMemoryPolicyNoEviction,
+	ValkeyMaxMemoryPolicyVolatileLfu,
+	ValkeyMaxMemoryPolicyVolatileLru,
+	ValkeyMaxMemoryPolicyVolatileRandom,
+	ValkeyMaxMemoryPolicyVolatileTTL,
+}
+
+func (e ValkeyMaxMemoryPolicy) IsValid() bool {
+	switch e {
+	case ValkeyMaxMemoryPolicyAllkeysLfu, ValkeyMaxMemoryPolicyAllkeysLru, ValkeyMaxMemoryPolicyAllkeysRandom, ValkeyMaxMemoryPolicyNoEviction, ValkeyMaxMemoryPolicyVolatileLfu, ValkeyMaxMemoryPolicyVolatileLru, ValkeyMaxMemoryPolicyVolatileRandom, ValkeyMaxMemoryPolicyVolatileTTL:
+		return true
+	}
+	return false
+}
+
+func (e ValkeyMaxMemoryPolicy) String() string {
+	return string(e)
+}
+
+func (e *ValkeyMaxMemoryPolicy) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ValkeyMaxMemoryPolicy(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ValkeyMaxMemoryPolicy", str)
+	}
+	return nil
+}
+
+func (e ValkeyMaxMemoryPolicy) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ValkeySize string
+
+const (
+	ValkeySizeSmall  ValkeySize = "SMALL"
+	ValkeySizeMedium ValkeySize = "MEDIUM"
+	ValkeySizeLarge  ValkeySize = "LARGE"
+)
+
+var AllValkeySize = []ValkeySize{
+	ValkeySizeSmall,
+	ValkeySizeMedium,
+	ValkeySizeLarge,
+}
+
+func (e ValkeySize) IsValid() bool {
+	switch e {
+	case ValkeySizeSmall, ValkeySizeMedium, ValkeySizeLarge:
+		return true
+	}
+	return false
+}
+
+func (e ValkeySize) String() string {
+	return string(e)
+}
+
+func (e *ValkeySize) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ValkeySize(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ValkeySize", str)
+	}
+	return nil
+}
+
+func (e ValkeySize) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}

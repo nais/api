@@ -2,7 +2,9 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/valkey"
@@ -18,6 +20,12 @@ func (r *applicationResolver) Valkeys(ctx context.Context, obj *application.Appl
 
 func (r *jobResolver) Valkeys(ctx context.Context, obj *job.Job, orderBy *valkey.ValkeyOrder) (*pagination.Connection[*valkey.Valkey], error) {
 	return valkey.ListForWorkload(ctx, obj.TeamSlug, obj.GetEnvironmentName(), obj.Spec.Valkey, orderBy)
+}
+
+func (r *mutationResolver) CreateValkey(ctx context.Context, input valkey.CreateValkeyInput) (*valkey.CreateValkeyPayload, error) {
+	spew.Dump(input)
+
+	return nil, fmt.Errorf("not implemented: CreateValkey - create a Valkey instance is not yet implemented")
 }
 
 func (r *teamResolver) Valkeys(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder) (*pagination.Connection[*valkey.Valkey], error) {
