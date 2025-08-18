@@ -161,8 +161,15 @@ type TeamInventoryCountValkeys struct {
 }
 
 type CreateValkeyInput struct {
-	Name            string                 `json:"name"`
-	Size            ValkeySize             `json:"size"`
+	// Name of the Valkey instance.
+	Name string `json:"name"`
+	// The environment name that the OpenSearch instance belongs to.
+	EnvironmentName string `json:"environmentName"`
+	// The team that owns the OpenSearch instance.
+	TeamSlug slug.Slug `json:"teamSlug"`
+	// Size of the Valkey instance.
+	Size ValkeySize `json:"size"`
+	// Maximum memory policy for the Valkey instance.
 	MaxMemoryPolicy *ValkeyMaxMemoryPolicy `json:"maxMemoryPolicy,omitempty"`
 }
 

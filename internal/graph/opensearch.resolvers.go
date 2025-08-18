@@ -2,7 +2,9 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/opensearch"
@@ -18,6 +20,12 @@ func (r *applicationResolver) OpenSearch(ctx context.Context, obj *application.A
 
 func (r *jobResolver) OpenSearch(ctx context.Context, obj *job.Job) (*opensearch.OpenSearch, error) {
 	return opensearch.GetForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.OpenSearch)
+}
+
+func (r *mutationResolver) CreateOpenSearch(ctx context.Context, input opensearch.CreateOpenSearchInput) (*opensearch.CreateOpenSearchPayload, error) {
+	spew.Dump(input)
+
+	return nil, fmt.Errorf("CreateOpenSearch is not implemented")
 }
 
 func (r *openSearchResolver) Team(ctx context.Context, obj *opensearch.OpenSearch) (*team.Team, error) {
