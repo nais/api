@@ -130,3 +130,58 @@ extend union SearchNode = Valkey
 extend enum SearchType {
 	VALKEY
 }
+
+enum ValkeySize {
+	"Small Valkey instance."
+	SMALL
+
+	"Medium Valkey instance."
+	MEDIUM
+
+	"Large Valkey instance."
+	LARGE
+}
+
+# TODO(thokra): Double check descriptions
+enum ValkeyMaxMemoryPolicy {
+	"Evict keys using the least frequently used algorithm."
+	ALLKEYS_LFU
+
+	"Evict keys using the least recently used algorithm."
+	ALLKEYS_LRU
+
+	"Evict keys randomly."
+	ALLKEYS_RANDOM
+
+	"No eviction policy, will return an error when memory limit is reached."
+	NO_EVICTION
+
+	"Evict volatile keys using the least frequently used algorithm."
+	VOLATILE_LFU
+
+	"Evict volatile keys using the least recently used algorithm."
+	VOLATILE_LRU
+
+	"Evict volatile keys randomly."
+	VOLATILE_RANDOM
+
+	"Evict volatile keys based on their time to live."
+	VOLATILE_TTL
+}
+
+input CreateValkeyInput {
+	"Name of the Valkey instance."
+	name: String!
+	size: ValkeySize!
+	maxMemoryPolicy: ValkeyMaxMemoryPolicy
+}
+
+type CreateValkeyPayload {
+	"Valkey instance that was created."
+	valkey: Valkey!
+}
+
+extend type Mutation {
+	"Create a new Valkey instance."
+	createValkey(input: CreateValkeyInput!): CreateValkeyPayload!
+}
