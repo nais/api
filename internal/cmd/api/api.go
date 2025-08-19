@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/pubsub"
-	aiven "github.com/aiven/go-client-codegen"
+	aiven_service "github.com/aiven/go-client-codegen"
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authn"
@@ -30,7 +30,7 @@ import (
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/servicemaintenance"
-	"github.com/nais/api/internal/thirdparty/aivencache"
+	"github.com/nais/api/internal/thirdparty/aiven"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/vulnerability"
@@ -173,15 +173,18 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return err
 	}
 
-	var aivenClient aivencache.AivenClient
+	var aivenClient aiven.AivenClient
 	if cfg.Fakes.WithFakeAivenClient {
-		aivenClient = aivencache.NewFakeAivenClient()
+		aivenClient = aiven.NewFakeAivenClient()
 	} else {
-		pureClient, err := aiven.NewClient(aiven.TokenOpt(cfg.Aiven.Token), aiven.UserAgentOpt("nais-api"))
+		pureClient, err := aiven_service.NewClient(
+			aiven_service.TokenOpt(cfg.Aiven.Token),
+			aiven_service.UserAgentOpt("nais-api"),
+		)
 		if err != nil {
 			return err
 		}
-		aivenClient = aivencache.NewClient(pureClient)
+		aivenClient = aiven.NewClient(pureClient)
 	}
 
 	serviceMaintenanceManager, err := servicemaintenance.NewManager(ctx, aivenClient, log.WithField("subsystem", "maintenance"))
@@ -276,6 +279,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			graphHandler,
 			serviceMaintenanceManager,
 			aivenClient,
+			cfg.Aiven.Projects,
 			vulnMgr,
 			hookdClient,
 			cfg.Unleash.BifrostApiUrl,

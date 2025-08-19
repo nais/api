@@ -40,7 +40,7 @@ import (
 	"github.com/nais/api/internal/servicemaintenance"
 	"github.com/nais/api/internal/session"
 	"github.com/nais/api/internal/team"
-	"github.com/nais/api/internal/thirdparty/aivencache"
+	"github.com/nais/api/internal/thirdparty/aiven"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/thirdparty/promclient"
 	promfake "github.com/nais/api/internal/thirdparty/promclient/fake"
@@ -79,7 +79,8 @@ func runHttpServer(
 	authHandler authn.Handler,
 	graphHandler *handler.Server,
 	serviceMaintenanceManager *servicemaintenance.Manager,
-	aivenClient aivencache.AivenClient,
+	aivenClient aiven.AivenClient,
+	aivenProjects aiven.Projects,
 	vulnMgr *vulnerability.Manager,
 	hookdClient hookd.Client,
 	bifrostAPIURL string,
@@ -101,6 +102,7 @@ func runHttpServer(
 		k8sClients,
 		serviceMaintenanceManager,
 		aivenClient,
+		aivenProjects,
 		vulnMgr,
 		tenantName,
 		clusters,
@@ -195,7 +197,8 @@ func ConfigureGraph(
 	pool *pgxpool.Pool,
 	k8sClients apik8s.ClusterConfigMap,
 	serviceMaintenanceManager *servicemaintenance.Manager,
-	aivenClient aivencache.AivenClient,
+	aivenClient aiven.AivenClient,
+	aivenProjects aiven.Projects,
 	vulnMgr *vulnerability.Manager,
 	tenantName string,
 	clusters []string,
@@ -302,8 +305,9 @@ func ConfigureGraph(
 		ctx = kafkatopic.NewLoaderContext(ctx, kafkaTopicWatcher)
 		ctx = workload.NewLoaderContext(ctx, podWatcher)
 		ctx = secret.NewLoaderContext(ctx, secretClientCreator, clusters, log)
-		ctx = opensearch.NewLoaderContext(ctx, openSearchWatcher, aivenClient, log)
-		ctx = valkey.NewLoaderContext(ctx, valkeyWatcher)
+		ctx = aiven.NewLoaderContext(ctx, aivenProjects)
+		ctx = opensearch.NewLoaderContext(ctx, tenantName, openSearchWatcher, aivenClient, log)
+		ctx = valkey.NewLoaderContext(ctx, tenantName, valkeyWatcher)
 		ctx = price.NewLoaderContext(ctx, priceRetriever, log)
 		ctx = utilization.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = alerts.NewLoaderContext(ctx, prometheusClient, log)

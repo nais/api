@@ -3,12 +3,18 @@ package valkey
 import (
 	"context"
 
+	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/thirdparty/aiven"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*Valkey, error) {
@@ -91,4 +97,95 @@ func orderValkey(ctx context.Context, instances []*Valkey, orderBy *ValkeyOrder)
 	}
 
 	SortFilterValkey.Sort(ctx, instances, orderBy.Field, orderBy.Direction)
+}
+
+func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload, error) {
+	client, err := fromContext(ctx).watcher.ImpersonatedClient(ctx, input.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
+
+	plan, err := createPlanID(input)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &unstructured.Unstructured{}
+	res.SetAPIVersion("aiven.io/v1alpha1")
+	res.SetKind("Valkey")
+	res.SetName(valkeyNamer(input.TeamSlug, input.Name))
+	res.SetNamespace(input.TeamSlug.String())
+	res.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
+	kubernetes.SetManagedByConsoleLabel(res)
+
+	aivenProject, err := aiven.GetProject(ctx, input.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
+
+	res.Object["spec"] = map[string]any{
+		"cloudName":             "google-europe-north1",
+		"plan":                  plan,
+		"project":               aivenProject.ID,
+		"projectVpcId":          aivenProject.VPC,
+		"terminationProtection": true,
+		"tags": map[string]any{
+			"environment": input.EnvironmentName,
+			"team":        input.TeamSlug.String(),
+			"tenant":      fromContext(ctx).tenantName,
+		},
+	}
+
+	ret, err := client.Namespace(input.TeamSlug.String()).Create(ctx, res, metav1.CreateOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	valkey, err := toValkey(ret, input.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &CreateValkeyPayload{
+		Valkey: valkey,
+	}, nil
+}
+
+func createPlanID(input CreateValkeyInput) (string, error) {
+	plan := ""
+
+	switch input.Tier {
+	case ValkeyTierHighAvailability:
+		plan = "business-"
+	case ValkeyTierSingleNode:
+		plan = "startup-"
+	default:
+		return "", apierror.Errorf("invalid Valkey tier: %s", input.Tier)
+	}
+
+	switch input.Size {
+	case ValkeySizeRAM1gb:
+		if input.Tier == ValkeyTierHighAvailability {
+			return "", apierror.Errorf("invalid Valkey size for tier %s: %s", input.Tier, input.Size)
+		}
+		plan += "1"
+	case ValkeySizeRAM4gb:
+		plan += "4"
+	case ValkeySizeRAM8gb:
+		plan += "8"
+	case ValkeySizeRAM14gb:
+		plan += "14"
+	case ValkeySizeRAM28gb:
+		plan += "28"
+	case ValkeySizeRAM56gb:
+		plan += "56"
+	case ValkeySizeRAM112gb:
+		plan += "112"
+	case ValkeySizeRAM200gb:
+		plan += "200"
+	default:
+		return "", apierror.Errorf("invalid Valkey size: %s", input.Size)
+	}
+
+	return plan, nil
 }

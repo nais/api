@@ -163,10 +163,12 @@ type TeamInventoryCountValkeys struct {
 type CreateValkeyInput struct {
 	// Name of the Valkey instance.
 	Name string `json:"name"`
-	// The environment name that the OpenSearch instance belongs to.
+	// The environment name that the entry belongs to.
 	EnvironmentName string `json:"environmentName"`
-	// The team that owns the OpenSearch instance.
+	// The team that owns the Valkey instance.
 	TeamSlug slug.Slug `json:"teamSlug"`
+	// Tier of the Valkey instance.
+	Tier ValkeyTier `json:"tier"`
 	// Size of the Valkey instance.
 	Size ValkeySize `json:"size"`
 	// Maximum memory policy for the Valkey instance.
@@ -174,20 +176,29 @@ type CreateValkeyInput struct {
 }
 
 type CreateValkeyPayload struct {
+	// Valkey instance that was created.
 	Valkey *Valkey `json:"valkey"`
 }
 
 type ValkeyMaxMemoryPolicy string
 
 const (
-	ValkeyMaxMemoryPolicyAllkeysLfu     ValkeyMaxMemoryPolicy = "ALLKEYS_LFU"
-	ValkeyMaxMemoryPolicyAllkeysLru     ValkeyMaxMemoryPolicy = "ALLKEYS_LRU"
-	ValkeyMaxMemoryPolicyAllkeysRandom  ValkeyMaxMemoryPolicy = "ALLKEYS_RANDOM"
-	ValkeyMaxMemoryPolicyNoEviction     ValkeyMaxMemoryPolicy = "NO_EVICTION"
-	ValkeyMaxMemoryPolicyVolatileLfu    ValkeyMaxMemoryPolicy = "VOLATILE_LFU"
-	ValkeyMaxMemoryPolicyVolatileLru    ValkeyMaxMemoryPolicy = "VOLATILE_LRU"
+	// Evict keys using the least frequently used algorithm.
+	ValkeyMaxMemoryPolicyAllkeysLfu ValkeyMaxMemoryPolicy = "ALLKEYS_LFU"
+	// Evict keys using the least recently used algorithm.
+	ValkeyMaxMemoryPolicyAllkeysLru ValkeyMaxMemoryPolicy = "ALLKEYS_LRU"
+	// Evict keys randomly.
+	ValkeyMaxMemoryPolicyAllkeysRandom ValkeyMaxMemoryPolicy = "ALLKEYS_RANDOM"
+	// No eviction policy, will return an error when memory limit is reached.
+	ValkeyMaxMemoryPolicyNoEviction ValkeyMaxMemoryPolicy = "NO_EVICTION"
+	// Evict volatile keys using the least frequently used algorithm.
+	ValkeyMaxMemoryPolicyVolatileLfu ValkeyMaxMemoryPolicy = "VOLATILE_LFU"
+	// Evict volatile keys using the least recently used algorithm.
+	ValkeyMaxMemoryPolicyVolatileLru ValkeyMaxMemoryPolicy = "VOLATILE_LRU"
+	// Evict volatile keys randomly.
 	ValkeyMaxMemoryPolicyVolatileRandom ValkeyMaxMemoryPolicy = "VOLATILE_RANDOM"
-	ValkeyMaxMemoryPolicyVolatileTTL    ValkeyMaxMemoryPolicy = "VOLATILE_TTL"
+	// Evict volatile keys based on their time to live.
+	ValkeyMaxMemoryPolicyVolatileTTL ValkeyMaxMemoryPolicy = "VOLATILE_TTL"
 )
 
 var AllValkeyMaxMemoryPolicy = []ValkeyMaxMemoryPolicy{
@@ -233,20 +244,30 @@ func (e ValkeyMaxMemoryPolicy) MarshalGQL(w io.Writer) {
 type ValkeySize string
 
 const (
-	ValkeySizeSmall  ValkeySize = "SMALL"
-	ValkeySizeMedium ValkeySize = "MEDIUM"
-	ValkeySizeLarge  ValkeySize = "LARGE"
+	ValkeySizeRAM1gb   ValkeySize = "RAM_1GB"
+	ValkeySizeRAM4gb   ValkeySize = "RAM_4GB"
+	ValkeySizeRAM8gb   ValkeySize = "RAM_8GB"
+	ValkeySizeRAM14gb  ValkeySize = "RAM_14GB"
+	ValkeySizeRAM28gb  ValkeySize = "RAM_28GB"
+	ValkeySizeRAM56gb  ValkeySize = "RAM_56GB"
+	ValkeySizeRAM112gb ValkeySize = "RAM_112GB"
+	ValkeySizeRAM200gb ValkeySize = "RAM_200GB"
 )
 
 var AllValkeySize = []ValkeySize{
-	ValkeySizeSmall,
-	ValkeySizeMedium,
-	ValkeySizeLarge,
+	ValkeySizeRAM1gb,
+	ValkeySizeRAM4gb,
+	ValkeySizeRAM8gb,
+	ValkeySizeRAM14gb,
+	ValkeySizeRAM28gb,
+	ValkeySizeRAM56gb,
+	ValkeySizeRAM112gb,
+	ValkeySizeRAM200gb,
 }
 
 func (e ValkeySize) IsValid() bool {
 	switch e {
-	case ValkeySizeSmall, ValkeySizeMedium, ValkeySizeLarge:
+	case ValkeySizeRAM1gb, ValkeySizeRAM4gb, ValkeySizeRAM8gb, ValkeySizeRAM14gb, ValkeySizeRAM28gb, ValkeySizeRAM56gb, ValkeySizeRAM112gb, ValkeySizeRAM200gb:
 		return true
 	}
 	return false
@@ -270,5 +291,46 @@ func (e *ValkeySize) UnmarshalGQL(v any) error {
 }
 
 func (e ValkeySize) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ValkeyTier string
+
+const (
+	ValkeyTierSingleNode       ValkeyTier = "SINGLE_NODE"
+	ValkeyTierHighAvailability ValkeyTier = "HIGH_AVAILABILITY"
+)
+
+var AllValkeyTier = []ValkeyTier{
+	ValkeyTierSingleNode,
+	ValkeyTierHighAvailability,
+}
+
+func (e ValkeyTier) IsValid() bool {
+	switch e {
+	case ValkeyTierSingleNode, ValkeyTierHighAvailability:
+		return true
+	}
+	return false
+}
+
+func (e ValkeyTier) String() string {
+	return string(e)
+}
+
+func (e *ValkeyTier) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ValkeyTier(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ValkeyTier", str)
+	}
+	return nil
+}
+
+func (e ValkeyTier) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

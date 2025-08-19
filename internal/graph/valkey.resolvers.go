@@ -2,7 +2,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/nais/api/internal/graph/gengql"
@@ -23,9 +22,10 @@ func (r *jobResolver) Valkeys(ctx context.Context, obj *job.Job, orderBy *valkey
 }
 
 func (r *mutationResolver) CreateValkey(ctx context.Context, input valkey.CreateValkeyInput) (*valkey.CreateValkeyPayload, error) {
+	// FIXME: validation, authz
 	spew.Dump(input)
 
-	return nil, fmt.Errorf("not implemented: CreateValkey - create a Valkey instance is not yet implemented")
+	return valkey.Create(ctx, input)
 }
 
 func (r *teamResolver) Valkeys(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder) (*pagination.Connection[*valkey.Valkey], error) {
