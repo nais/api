@@ -13,6 +13,7 @@ import (
 	"github.com/nais/api/internal/validate"
 	"github.com/sirupsen/logrus"
 	"github.com/vektah/gqlparser/v2/gqlerror"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 )
 
 type graphError interface {
@@ -40,6 +41,11 @@ func Errorf(format string, args ...any) Error {
 	}
 }
 
+var (
+	ErrAlreadyExists = Errorf("Resource already exists.")
+	ErrNotFound      = Errorf("Resource not found.")
+)
+
 // GetErrorPresenter returns a GraphQL error presenter that filters out error messages not intended for end users.
 // All filtered errors are logged.
 func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
@@ -49,6 +55,12 @@ func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
 
 		if unwrappedError == nil {
 			return err
+		}
+
+		if k8serrors.IsAlreadyExists(unwrappedError) {
+			unwrappedError = ErrAlreadyExists
+		} else if k8serrors.IsNotFound(unwrappedError) {
+			unwrappedError = ErrNotFound
 		}
 
 		switch originalError := unwrappedError.(type) {

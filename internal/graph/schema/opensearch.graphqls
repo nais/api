@@ -162,7 +162,29 @@ type CreateOpenSearchPayload {
 	openSearch: OpenSearch!
 }
 
+input UpdateOpenSearchInput {
+	"Name of the OpenSearch instance."
+	name: String!
+	"The environment name that the OpenSearch instance belongs to."
+	environmentName: String!
+	"The team that owns the OpenSearch instance."
+	teamSlug: Slug!
+	"Tier of the OpenSearch instance."
+	tier: OpenSearchTier!
+	"Size of the OpenSearch instance."
+	size: OpenSearchSize!
+	"Major version of the OpenSearch instance."
+	version: OpenSearchMajorVersion
+}
+
+type UpdateOpenSearchPayload {
+	"OpenSearch instance that was updated."
+	openSearch: OpenSearch!
+}
+
 extend type Mutation {
 	"Create a new OpenSearch instance."
 	createOpenSearch(input: CreateOpenSearchInput!): CreateOpenSearchPayload!
+	"Update an existing OpenSearch instance."
+	updateOpenSearch(input: UpdateOpenSearchInput!): UpdateOpenSearchPayload!
 }
