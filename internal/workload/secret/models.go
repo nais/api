@@ -16,8 +16,6 @@ import (
 )
 
 const (
-	secretLabelManagedByKey        = "nais.io/managed-by"
-	secretLabelManagedByVal        = "console"
 	secretAnnotationLastModifiedAt = "console.nais.io/last-modified-at"
 	secretAnnotationLastModifiedBy = "console.nais.io/last-modified-by"
 )

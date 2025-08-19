@@ -8,6 +8,12 @@ import (
 	"k8s.io/client-go/rest"
 )
 
+const (
+	labelManagedByKey           = "nais.io/managed-by"
+	labelManagedByVal           = "console"
+	labelKubernetesManagedByKey = "app.kubernetes.io/managed-by"
+)
+
 func NewClientSets(clusterConfig ClusterConfigMap) (map[string]kubernetes.Interface, error) {
 	k8sClientSets := make(map[string]kubernetes.Interface)
 	for cluster, cfg := range clusterConfig {
@@ -26,4 +32,36 @@ func NewClientSets(clusterConfig ClusterConfigMap) (map[string]kubernetes.Interf
 	}
 
 	return k8sClientSets, nil
+}
+
+func IsManagedByConsoleLabelSelector() string {
+	return labelManagedByKey + "=" + labelManagedByVal
+}
+
+type LabeledObject interface {
+	GetLabels() map[string]string
+	SetLabels(map[string]string)
+}
+
+func HasManagedByConsoleLabel(obj LabeledObject) bool {
+	lbls := obj.GetLabels()
+	if lbls == nil {
+		return false
+	}
+	managedBy, ok := lbls[labelManagedByKey]
+	if !ok {
+		return false
+	}
+
+	return managedBy == labelManagedByVal
+}
+
+func SetManagedByConsoleLabel(obj LabeledObject) {
+	lbls := obj.GetLabels()
+	if lbls == nil {
+		lbls = make(map[string]string)
+	}
+	lbls[labelManagedByKey] = labelManagedByVal
+	lbls[labelKubernetesManagedByKey] = labelManagedByVal
+	obj.SetLabels(lbls)
 }
