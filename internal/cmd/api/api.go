@@ -23,12 +23,15 @@ import (
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/grpc"
+	"github.com/nais/api/internal/issue/checker"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/event"
 	"github.com/nais/api/internal/kubernetes/fake"
 	"github.com/nais/api/internal/kubernetes/watcher"
+	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/nais/api/internal/logger"
+	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/servicemaintenance"
 	"github.com/nais/api/internal/thirdparty/aivencache"
 	"github.com/nais/api/internal/thirdparty/hookd"
@@ -151,6 +154,8 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 	defer mgmtWatcher.Stop()
 
+	watchers := watchers.SetupWatchers(ctx, watcherMgr, mgmtWatcher)
+
 	pubsubClient, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
 	if err != nil {
 		return err
@@ -269,8 +274,8 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			cfg.K8s.AllClusterNames(),
 			pool,
 			clusterConfig,
+			watchers,
 			watcherMgr,
-			mgmtWatcher,
 			jwtMiddleware,
 			authHandler,
 			graphHandler,
@@ -316,6 +321,35 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	wg.Go(func() error {
 		activitylog.RunRefresher(ctx, pool, log.WithField("subsystem", "activitylog_refresher"))
+		return nil
+	})
+
+	sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(cfg.Fakes.WithFakeCloudSQL), sqlinstance.WithInstanceWatcher(watchers.SqlInstanceWatcher))
+	if err != nil {
+		return fmt.Errorf("create SQL Admin service: %w", err)
+	}
+
+	issueChecker, err := checker.New(
+		checker.Config{
+			AivenClient:    aivenClient,
+			CloudSQLClient: sqlAdminService,
+			Tenant:         cfg.Tenant,
+			Clusters:       cfg.K8s.AllClusterNames(),
+		},
+		pool,
+		watchers,
+		log.WithField("subsystem", "issue_checker"),
+	)
+	if err != nil {
+		log.WithError(err).Error("setting up issue checker")
+		return err
+	}
+
+	wg.Go(func() error {
+		err = issueChecker.RunChecks(ctx)
+		if err != nil {
+			log.WithError(err).Error("running issue checks")
+		}
 		return nil
 	})
 

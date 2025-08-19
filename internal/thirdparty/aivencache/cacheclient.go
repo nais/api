@@ -7,6 +7,7 @@ import (
 	"time"
 
 	aiven "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/project"
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/patrickmn/go-cache"
 )
@@ -56,6 +57,10 @@ func (c *client) ServiceMaintenanceStart(ctx context.Context, projectName string
 	key := makeKey(projectName, serviceName)
 	c.cache.Delete(key)
 	return c.aivenClient.ServiceMaintenanceStart(ctx, projectName, serviceName)
+}
+
+func (c *client) ProjectAlertsList(ctx context.Context, project string) ([]project.AlertOut, error) {
+	return c.aivenClient.ProjectAlertsList(ctx, project)
 }
 
 func makeKey(projectName, serviceName string) string {

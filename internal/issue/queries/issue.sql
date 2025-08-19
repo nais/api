@@ -1,0 +1,71 @@
+-- name: GetIssueByID :one
+SELECT
+	*
+FROM
+	issues
+WHERE
+	id = @id
+;
+
+-- name: ListIssuesForTeam :many
+SELECT
+	*,
+	COUNT(*) OVER () AS total_count
+FROM
+	issues
+WHERE
+	team = @team
+	AND (
+		sqlc.narg('env')::TEXT[] IS NULL
+		OR env = ANY (sqlc.narg('env')::TEXT[])
+	)
+	AND (
+		sqlc.narg('issue_type')::TEXT IS NULL
+		OR issue_type = sqlc.narg('issue_type')::TEXT
+	)
+	AND (
+		sqlc.narg('severity')::TEXT IS NULL
+		OR severity = sqlc.narg('severity')::TEXT
+	)
+	AND (
+		sqlc.narg('resource_type')::TEXT IS NULL
+		OR resource_type = sqlc.narg('resource_type')::TEXT
+	)
+ORDER BY
+	CASE
+		WHEN @order_by::TEXT = 'env:asc' THEN env
+	END ASC,
+	CASE
+		WHEN @order_by::TEXT = 'env:desc' THEN env
+	END DESC,
+	CASE
+		WHEN @order_by::TEXT = 'issue_type:asc' THEN issue_type
+	END ASC,
+	CASE
+		WHEN @order_by::TEXT = 'issue_type:desc' THEN issue_type
+	END DESC,
+	CASE
+		WHEN @order_by::TEXT = 'resource_type:asc' THEN resource_type
+	END ASC,
+	CASE
+		WHEN @order_by::TEXT = 'resource_type:desc' THEN resource_type
+	END DESC,
+	CASE
+		WHEN @order_by::TEXT = 'resource_name:asc' THEN resource_name
+	END ASC,
+	CASE
+		WHEN @order_by::TEXT = 'resource_name:desc' THEN resource_name
+	END DESC,
+	CASE
+		WHEN @order_by::TEXT = 'severity:asc' THEN severity
+	END ASC,
+	CASE
+		WHEN @order_by::TEXT = 'severity:desc' THEN severity
+	END DESC,
+	severity,
+	id
+OFFSET
+	sqlc.arg('offset')
+LIMIT
+	sqlc.arg('limit')
+;

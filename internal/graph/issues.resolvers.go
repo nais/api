@@ -1,0 +1,60 @@
+package graph
+
+import (
+	"context"
+
+	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/issue"
+	"github.com/nais/api/internal/persistence/opensearch"
+	"github.com/nais/api/internal/persistence/sqlinstance"
+	"github.com/nais/api/internal/persistence/valkey"
+	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/workload/application"
+)
+
+func (r *deprecatedIngressIssueResolver) Application(ctx context.Context, obj *issue.DeprecatedIngressIssue) (*application.Application, error) {
+	return application.Get(ctx, obj.Team, obj.Environment, obj.ResourceName)
+}
+
+func (r *openSearchIssueResolver) OpenSearch(ctx context.Context, obj *issue.OpenSearchIssue) (*opensearch.OpenSearch, error) {
+	return opensearch.Get(ctx, obj.Team, obj.Environment, obj.ResourceName)
+}
+
+func (r *sqlInstanceIssueResolver) SQLInstance(ctx context.Context, obj *issue.SqlInstanceIssue) (*sqlinstance.SQLInstance, error) {
+	return sqlinstance.Get(ctx, obj.Team, obj.Environment, obj.ResourceName)
+}
+
+func (r *teamResolver) Issues(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.IssueFilter) (*pagination.Connection[issue.Issue], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return issue.ListForTeam(ctx, obj.Slug, page, orderBy, filter)
+}
+
+func (r *valkeyIssueResolver) Valkey(ctx context.Context, obj *issue.ValkeyIssue) (*valkey.Valkey, error) {
+	return valkey.Get(ctx, obj.Team, obj.Environment, obj.ResourceName)
+}
+
+func (r *Resolver) DeprecatedIngressIssue() gengql.DeprecatedIngressIssueResolver {
+	return &deprecatedIngressIssueResolver{r}
+}
+
+func (r *Resolver) OpenSearchIssue() gengql.OpenSearchIssueResolver {
+	return &openSearchIssueResolver{r}
+}
+
+func (r *Resolver) SqlInstanceIssue() gengql.SqlInstanceIssueResolver {
+	return &sqlInstanceIssueResolver{r}
+}
+
+func (r *Resolver) ValkeyIssue() gengql.ValkeyIssueResolver { return &valkeyIssueResolver{r} }
+
+type (
+	deprecatedIngressIssueResolver struct{ *Resolver }
+	openSearchIssueResolver        struct{ *Resolver }
+	sqlInstanceIssueResolver       struct{ *Resolver }
+	valkeyIssueResolver            struct{ *Resolver }
+)
