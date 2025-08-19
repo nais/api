@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"slices"
 	"strings"
-	"time"
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
@@ -459,11 +458,10 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) e
 }
 
 func annotations(user string) map[string]string {
-	return map[string]string{
-		secretAnnotationLastModifiedBy: user,
-		secretAnnotationLastModifiedAt: time.Now().Format(time.RFC3339),
-		"reloader.stakater.com/match":  "true",
+	m := map[string]string{
+		"reloader.stakater.com/match": "true",
 	}
+	return kubernetes.WithCommonAnnotations(m, user)
 }
 
 func validateSecretValue(value *SecretValueInput) error {

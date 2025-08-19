@@ -48,7 +48,13 @@ func fromContext(ctx context.Context) *loaders {
 
 type loaders struct {
 	client        *client
+	watcher       *watcher.Watcher[*OpenSearch]
 	versionLoader *dataloadgen.Loader[*AivenDataLoaderKey, string]
+	aivenProjects map[string]struct {
+		ID  string
+		VPC string
+	} // Maps our environment names to Aiven project names
+	tenantName string
 }
 
 func newLoaders(watcher *watcher.Watcher[*OpenSearch], aivenClient aivencache.AivenClient, logger logrus.FieldLogger) *loaders {
@@ -60,6 +66,7 @@ func newLoaders(watcher *watcher.Watcher[*OpenSearch], aivenClient aivencache.Ai
 
 	return &loaders{
 		client:        client,
+		watcher:       watcher,
 		versionLoader: dataloadgen.NewLoader(versionLoader.getVersions, loader.DefaultDataLoaderOptions...),
 	}
 }

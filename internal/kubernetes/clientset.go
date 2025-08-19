@@ -2,6 +2,7 @@ package kubernetes
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/nais/api/internal/environmentmapper"
 	"k8s.io/client-go/kubernetes"
@@ -12,6 +13,9 @@ const (
 	labelManagedByKey           = "nais.io/managed-by"
 	labelManagedByVal           = "console"
 	labelKubernetesManagedByKey = "app.kubernetes.io/managed-by"
+
+	annotationLastModifiedAt = "console.nais.io/last-modified-at"
+	annotationLastModifiedBy = "console.nais.io/last-modified-by"
 )
 
 func NewClientSets(clusterConfig ClusterConfigMap) (map[string]kubernetes.Interface, error) {
@@ -64,4 +68,16 @@ func SetManagedByConsoleLabel(obj LabeledObject) {
 	lbls[labelManagedByKey] = labelManagedByVal
 	lbls[labelKubernetesManagedByKey] = labelManagedByVal
 	obj.SetLabels(lbls)
+}
+
+func WithCommonAnnotations(mp map[string]string, user string) map[string]string {
+	if mp == nil {
+		mp = make(map[string]string)
+	}
+	mp[annotationLastModifiedAt] = time.Now().Format(time.RFC3339)
+	if user != "" {
+		mp[annotationLastModifiedBy] = user
+	}
+
+	return mp
 }
