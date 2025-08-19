@@ -2,11 +2,10 @@ package api
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"reflect"
 
 	"github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/thirdparty/aiven"
 	"github.com/nais/api/internal/workload/logging"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
@@ -131,35 +130,11 @@ func (l loggingConfig) DefaultLogDestinations() []logging.SupportedLogDestinatio
 	return destinations
 }
 
-type AivenProject struct {
-	ID         string `json:"id"`
-	VPC        string `json:"vpc"`
-	EndpointID string `json:"endpoint_id"`
-}
-
-type AivenProjects map[string]AivenProject
-
-var _ json.Unmarshaler = (*AivenProjects)(nil)
-
-func (p *AivenProjects) UnmarshalJSON(data []byte) error {
-	if len(data) == 0 || string(data) == "null" {
-		return nil
-	}
-
-	var projects map[string]AivenProject
-	if err := json.Unmarshal(data, &projects); err != nil {
-		return fmt.Errorf("unmarshalling Aiven projects: %w", err)
-	}
-
-	*p = projects
-	return nil
-}
-
 type Aiven struct {
 	// Aiven token is the token for the aiven token
 	Token string `env:"AIVEN_TOKEN"`
 
-	Projects AivenProjects `env:"AIVEN_PROJECTS"`
+	Projects aiven.Projects `env:"AIVEN_PROJECTS"`
 }
 
 type Config struct {

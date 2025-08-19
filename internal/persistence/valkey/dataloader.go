@@ -12,8 +12,8 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, valkeyWatcher *watcher.Watcher[*Valkey]) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(valkeyWatcher))
+func NewLoaderContext(ctx context.Context, tenantName string, valkeyWatcher *watcher.Watcher[*Valkey]) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(tenantName, valkeyWatcher))
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*Valkey] {
@@ -37,15 +37,19 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	client *client
+	client     *client
+	tenantName string
+	watcher    *watcher.Watcher[*Valkey]
 }
 
-func newLoaders(watcher *watcher.Watcher[*Valkey]) *loaders {
+func newLoaders(tenantName string, watcher *watcher.Watcher[*Valkey]) *loaders {
 	client := &client{
 		watcher: watcher,
 	}
 
 	return &loaders{
-		client: client,
+		client:     client,
+		tenantName: tenantName,
+		watcher:    watcher,
 	}
 }

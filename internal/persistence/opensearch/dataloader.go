@@ -5,7 +5,7 @@ import (
 
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/kubernetes/watcher"
-	"github.com/nais/api/internal/thirdparty/aivencache"
+	"github.com/nais/api/internal/thirdparty/aiven"
 	"github.com/sirupsen/logrus"
 	"github.com/sourcegraph/conc/pool"
 	"github.com/vikstrous/dataloadgen"
@@ -22,8 +22,8 @@ type AivenDataLoaderKey struct {
 	ServiceName string
 }
 
-func NewLoaderContext(ctx context.Context, watcher *watcher.Watcher[*OpenSearch], aivenClient aivencache.AivenClient, logger logrus.FieldLogger) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(watcher, aivenClient, logger))
+func NewLoaderContext(ctx context.Context, tenantName string, watcher *watcher.Watcher[*OpenSearch], aivenClient aiven.AivenClient, logger logrus.FieldLogger) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(tenantName, watcher, aivenClient, logger))
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*OpenSearch] {
@@ -50,14 +50,10 @@ type loaders struct {
 	client        *client
 	watcher       *watcher.Watcher[*OpenSearch]
 	versionLoader *dataloadgen.Loader[*AivenDataLoaderKey, string]
-	aivenProjects map[string]struct {
-		ID  string
-		VPC string
-	} // Maps our environment names to Aiven project names
-	tenantName string
+	tenantName    string
 }
 
-func newLoaders(watcher *watcher.Watcher[*OpenSearch], aivenClient aivencache.AivenClient, logger logrus.FieldLogger) *loaders {
+func newLoaders(tenantName string, watcher *watcher.Watcher[*OpenSearch], aivenClient aiven.AivenClient, logger logrus.FieldLogger) *loaders {
 	client := &client{
 		watcher: watcher,
 	}
@@ -67,12 +63,13 @@ func newLoaders(watcher *watcher.Watcher[*OpenSearch], aivenClient aivencache.Ai
 	return &loaders{
 		client:        client,
 		watcher:       watcher,
+		tenantName:    tenantName,
 		versionLoader: dataloadgen.NewLoader(versionLoader.getVersions, loader.DefaultDataLoaderOptions...),
 	}
 }
 
 type dataloader struct {
-	aivenClient aivencache.AivenClient
+	aivenClient aiven.AivenClient
 	log         logrus.FieldLogger
 }
 

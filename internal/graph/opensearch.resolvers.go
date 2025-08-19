@@ -2,7 +2,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/nais/api/internal/graph/gengql"
@@ -23,9 +22,10 @@ func (r *jobResolver) OpenSearch(ctx context.Context, obj *job.Job) (*opensearch
 }
 
 func (r *mutationResolver) CreateOpenSearch(ctx context.Context, input opensearch.CreateOpenSearchInput) (*opensearch.CreateOpenSearchPayload, error) {
+	// FIXME: validation, authz
 	spew.Dump(input)
 
-	return nil, fmt.Errorf("CreateOpenSearch is not implemented")
+	return opensearch.Create(ctx, input)
 }
 
 func (r *openSearchResolver) Team(ctx context.Context, obj *opensearch.OpenSearch) (*team.Team, error) {

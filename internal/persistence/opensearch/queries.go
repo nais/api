@@ -11,6 +11,7 @@ import (
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/thirdparty/aiven"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -94,7 +95,7 @@ func orderOpenSearch(ctx context.Context, ret []*OpenSearch, orderBy *OpenSearch
 	SortFilterOpenSearch.Sort(ctx, ret, orderBy.Field, orderBy.Direction)
 }
 
-func Create(ctx context.Context, input *CreateOpenSearchInput) (*CreateOpenSearchPayload, error) {
+func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearchPayload, error) {
 	client, err := fromContext(ctx).watcher.ImpersonatedClient(ctx, input.EnvironmentName)
 	if err != nil {
 		return nil, err
@@ -113,7 +114,10 @@ func Create(ctx context.Context, input *CreateOpenSearchInput) (*CreateOpenSearc
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
 	kubernetes.SetManagedByConsoleLabel(res)
 
-	aivenProject := fromContext(ctx).aivenProjects[input.EnvironmentName]
+	aivenProject, err := aiven.GetProject(ctx, input.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
 
 	res.Object["spec"] = map[string]any{
 		"cloudName":             "google-europe-north1",
@@ -121,14 +125,14 @@ func Create(ctx context.Context, input *CreateOpenSearchInput) (*CreateOpenSearc
 		"project":               aivenProject.ID,
 		"projectVpcId":          aivenProject.VPC,
 		"terminationProtection": true,
-		"tags": map[string]string{
+		"tags": map[string]any{
 			"environment": input.EnvironmentName,
 			"team":        input.TeamSlug.String(),
 			"tenant":      fromContext(ctx).tenantName,
 		},
 	}
 
-	ret, err := client.Create(ctx, res, metav1.CreateOptions{})
+	ret, err := client.Namespace(input.TeamSlug.String()).Create(ctx, res, metav1.CreateOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +147,7 @@ func Create(ctx context.Context, input *CreateOpenSearchInput) (*CreateOpenSearc
 	}, nil
 }
 
-func createPlanID(input *CreateOpenSearchInput) (string, error) {
+func createPlanID(input CreateOpenSearchInput) (string, error) {
 	plan := ""
 
 	switch input.Tier {
@@ -156,6 +160,8 @@ func createPlanID(input *CreateOpenSearchInput) (string, error) {
 	}
 
 	switch input.Size {
+	case OpenSearchSizeRAM4gb:
+		plan += "4"
 	case OpenSearchSizeRAM8gb:
 		plan += "8"
 	case OpenSearchSizeRAM16gb:

@@ -131,15 +131,20 @@ extend enum SearchType {
 	VALKEY
 }
 
+enum ValkeyTier {
+	SINGLE_NODE
+	HIGH_AVAILABILITY
+}
+
 enum ValkeySize {
-	"Small Valkey instance."
-	SMALL
-
-	"Medium Valkey instance."
-	MEDIUM
-
-	"Large Valkey instance."
-	LARGE
+	RAM_1GB
+	RAM_4GB
+	RAM_8GB
+	RAM_14GB
+	RAM_28GB
+	RAM_56GB
+	RAM_112GB
+	RAM_200GB
 }
 
 # TODO(thokra): Double check descriptions
@@ -176,6 +181,8 @@ input CreateValkeyInput {
 	environmentName: String!
 	"The team that owns the Valkey instance."
 	teamSlug: Slug!
+	"Tier of the Valkey instance."
+	tier: ValkeyTier!
 	"Size of the Valkey instance."
 	size: ValkeySize!
 	"Maximum memory policy for the Valkey instance."
