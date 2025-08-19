@@ -299,3 +299,23 @@ func (e *OpenSearchTier) UnmarshalGQL(v any) error {
 func (e OpenSearchTier) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
+
+type UpdateOpenSearchInput struct {
+	// Name of the OpenSearch instance.
+	Name string `json:"name"`
+	// The environment name that the OpenSearch instance belongs to.
+	EnvironmentName string `json:"environmentName"`
+	// The team that owns the OpenSearch instance.
+	TeamSlug slug.Slug `json:"teamSlug"`
+	// Tier of the OpenSearch instance.
+	Tier OpenSearchTier `json:"tier"`
+	// Size of the OpenSearch instance.
+	Size OpenSearchSize `json:"size"`
+	// Major version of the OpenSearch instance.
+	Version *OpenSearchMajorVersion `json:"version,omitempty"`
+}
+
+type UpdateOpenSearchPayload struct {
+	// OpenSearch instance that was updated.
+	OpenSearch *OpenSearch `json:"openSearch"`
+}

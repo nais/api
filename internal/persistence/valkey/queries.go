@@ -2,6 +2,7 @@ package valkey
 
 import (
 	"context"
+	"strings"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
@@ -13,6 +14,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
@@ -105,7 +107,7 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 		return nil, err
 	}
 
-	plan, err := createPlanID(input)
+	plan, err := aivenPlan(input.Tier, input.Size)
 	if err != nil {
 		return nil, err
 	}
@@ -136,8 +138,19 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 		},
 	}
 
+	if input.MaxMemoryPolicy != nil {
+		maxMemoryPolicy := strings.ReplaceAll(strings.ToLower(input.MaxMemoryPolicy.String()), "_", "-")
+		err := unstructured.SetNestedField(res.Object, maxMemoryPolicy, "spec", "userConfig", "valkey_maxmemory_policy")
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	ret, err := client.Namespace(input.TeamSlug.String()).Create(ctx, res, metav1.CreateOptions{})
 	if err != nil {
+		if k8serrors.IsAlreadyExists(err) {
+			return nil, apierror.ErrAlreadyExists
+		}
 		return nil, err
 	}
 
@@ -151,22 +164,69 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 	}, nil
 }
 
-func createPlanID(input CreateValkeyInput) (string, error) {
+func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload, error) {
+	client, err := fromContext(ctx).watcher.ImpersonatedClient(ctx, input.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
+
+	valkey, err := client.Namespace(input.TeamSlug.String()).Get(ctx, valkeyNamer(input.TeamSlug, input.Name), metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	if !kubernetes.HasManagedByConsoleLabel(valkey) {
+		return nil, apierror.Errorf("Valkey %s/%s is not managed by Console", input.TeamSlug, input.Name)
+	}
+
+	plan, err := aivenPlan(input.Tier, input.Size)
+	if err != nil {
+		return nil, err
+	}
+
+	err = unstructured.SetNestedField(valkey.Object, plan, "spec", "plan")
+	if err != nil {
+		return nil, err
+	}
+
+	if input.MaxMemoryPolicy != nil {
+		maxMemoryPolicy := strings.ReplaceAll(strings.ToLower(input.MaxMemoryPolicy.String()), "_", "-")
+		err := unstructured.SetNestedField(valkey.Object, maxMemoryPolicy, "spec", "userConfig", "valkey_maxmemory_policy")
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	ret, err := client.Namespace(input.TeamSlug.String()).Update(ctx, valkey, metav1.UpdateOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	valkeyUpdated, err := toValkey(ret, input.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &UpdateValkeyPayload{
+		Valkey: valkeyUpdated,
+	}, nil
+}
+
+func aivenPlan(tier ValkeyTier, size ValkeySize) (string, error) {
 	plan := ""
 
-	switch input.Tier {
+	switch tier {
 	case ValkeyTierHighAvailability:
 		plan = "business-"
 	case ValkeyTierSingleNode:
 		plan = "startup-"
 	default:
-		return "", apierror.Errorf("invalid Valkey tier: %s", input.Tier)
+		return "", apierror.Errorf("invalid Valkey tier: %s", tier)
 	}
 
-	switch input.Size {
+	switch size {
 	case ValkeySizeRAM1gb:
-		if input.Tier == ValkeyTierHighAvailability {
-			return "", apierror.Errorf("invalid Valkey size for tier %s: %s", input.Tier, input.Size)
+		if tier == ValkeyTierHighAvailability {
+			return "", apierror.Errorf("invalid Valkey size for tier %s: %s", tier, size)
 		}
 		plan += "1"
 	case ValkeySizeRAM4gb:
@@ -184,7 +244,7 @@ func createPlanID(input CreateValkeyInput) (string, error) {
 	case ValkeySizeRAM200gb:
 		plan += "200"
 	default:
-		return "", apierror.Errorf("invalid Valkey size: %s", input.Size)
+		return "", apierror.Errorf("invalid Valkey size: %s", size)
 	}
 
 	return plan, nil

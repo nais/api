@@ -2,6 +2,7 @@ package opensearch
 
 import (
 	"context"
+	"strings"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
@@ -13,6 +14,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
@@ -101,7 +103,7 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		return nil, err
 	}
 
-	plan, err := createPlanID(input)
+	plan, err := aivenPlan(input.Tier, input.Size)
 	if err != nil {
 		return nil, err
 	}
@@ -131,9 +133,19 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 			"tenant":      fromContext(ctx).tenantName,
 		},
 	}
+	if input.Version != nil {
+		version := strings.TrimLeft(input.Version.String(), "V")
+		err := unstructured.SetNestedField(res.Object, version, "spec", "userConfig", "opensearch_version")
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	ret, err := client.Namespace(input.TeamSlug.String()).Create(ctx, res, metav1.CreateOptions{})
 	if err != nil {
+		if k8serrors.IsAlreadyExists(err) {
+			return nil, apierror.ErrAlreadyExists
+		}
 		return nil, err
 	}
 
@@ -147,19 +159,65 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 	}, nil
 }
 
-func createPlanID(input CreateOpenSearchInput) (string, error) {
+func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearchPayload, error) {
+	client, err := fromContext(ctx).watcher.ImpersonatedClient(ctx, input.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
+
+	openSearch, err := client.Namespace(input.TeamSlug.String()).Get(ctx, openSearchNamer(input.TeamSlug, input.Name), metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	if !kubernetes.HasManagedByConsoleLabel(openSearch) {
+		return nil, apierror.Errorf("OpenSearch %s/%s is not managed by Console", input.TeamSlug, input.Name)
+	}
+
+	plan, err := aivenPlan(input.Tier, input.Size)
+	if err != nil {
+		return nil, err
+	}
+	err = unstructured.SetNestedField(openSearch.Object, plan, "spec", "plan")
+	if err != nil {
+		return nil, err
+	}
+
+	if input.Version != nil {
+		version := strings.TrimLeft(input.Version.String(), "V")
+		err = unstructured.SetNestedField(openSearch.Object, version, "spec", "userConfig", "opensearch_version")
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	ret, err := client.Namespace(input.TeamSlug.String()).Update(ctx, openSearch, metav1.UpdateOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	os, err := toOpenSearch(ret, input.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &UpdateOpenSearchPayload{
+		OpenSearch: os,
+	}, nil
+}
+
+func aivenPlan(tier OpenSearchTier, size OpenSearchSize) (string, error) {
 	plan := ""
 
-	switch input.Tier {
+	switch tier {
 	case OpenSearchTierHighAvailability:
 		plan = "business-"
 	case OpenSearchTierSingleNode:
 		plan = "startup-"
 	default:
-		return "", apierror.Errorf("invalid OpenSearch tier: %s", input.Tier)
+		return "", apierror.Errorf("invalid OpenSearch tier: %s", tier)
 	}
 
-	switch input.Size {
+	switch size {
 	case OpenSearchSizeRAM4gb:
 		plan += "4"
 	case OpenSearchSizeRAM8gb:
@@ -171,7 +229,7 @@ func createPlanID(input CreateOpenSearchInput) (string, error) {
 	case OpenSearchSizeRAM64gb:
 		plan += "64"
 	default:
-		return "", apierror.Errorf("invalid OpenSearch size: %s", input.Size)
+		return "", apierror.Errorf("invalid OpenSearch size: %s", size)
 	}
 
 	return plan, nil

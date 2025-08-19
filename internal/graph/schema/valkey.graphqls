@@ -194,7 +194,29 @@ type CreateValkeyPayload {
 	valkey: Valkey!
 }
 
+input UpdateValkeyInput {
+	"Name of the Valkey instance."
+	name: String!
+	"The environment name that the entry belongs to."
+	environmentName: String!
+	"The team that owns the Valkey instance."
+	teamSlug: Slug!
+	"Tier of the Valkey instance."
+	tier: ValkeyTier!
+	"Size of the Valkey instance."
+	size: ValkeySize!
+	"Maximum memory policy for the Valkey instance."
+	maxMemoryPolicy: ValkeyMaxMemoryPolicy
+}
+
+type UpdateValkeyPayload {
+	"Valkey instance that was updated."
+	valkey: Valkey!
+}
+
 extend type Mutation {
 	"Create a new Valkey instance."
 	createValkey(input: CreateValkeyInput!): CreateValkeyPayload!
+	"Update an existing Valkey instance."
+	updateValkey(input: UpdateValkeyInput!): UpdateValkeyPayload!
 }
