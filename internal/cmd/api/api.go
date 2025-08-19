@@ -177,7 +177,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	if cfg.Fakes.WithFakeAivenClient {
 		aivenClient = aivencache.NewFakeAivenClient()
 	} else {
-		pureClient, err := aiven.NewClient(aiven.TokenOpt(cfg.AivenToken), aiven.UserAgentOpt("nais-api"))
+		pureClient, err := aiven.NewClient(aiven.TokenOpt(cfg.Aiven.Token), aiven.UserAgentOpt("nais-api"))
 		if err != nil {
 			return err
 		}

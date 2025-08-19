@@ -124,15 +124,17 @@ extend enum SearchType {
 	OPENSEARCH
 }
 
+enum OpenSearchTier {
+	SINGLE_NODE
+	HIGH_AVAILABILITY
+}
+
 enum OpenSearchSize {
-	"Small OpenSearch instance."
-	SMALL
-
-	"Medium OpenSearch instance."
-	MEDIUM
-
-	"Large OpenSearch instance."
-	LARGE
+	RAM_4GB
+	RAM_8GB
+	RAM_16GB
+	RAM_32GB
+	RAM_64GB
 }
 
 enum OpenSearchMajorVersion {
@@ -147,6 +149,8 @@ input CreateOpenSearchInput {
 	environmentName: String!
 	"The team that owns the OpenSearch instance."
 	teamSlug: Slug!
+	"Tier of the OpenSearch instance."
+	tier: OpenSearchTier!
 	"Size of the OpenSearch instance."
 	size: OpenSearchSize!
 	"Major version of the OpenSearch instance."
