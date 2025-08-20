@@ -287,6 +287,8 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 		}, nil
 	}
 
+	valkey.SetAnnotations(kubernetes.WithCommonAnnotations(valkey.GetAnnotations(), authz.ActorFromContext(ctx).User.Identity()))
+
 	ret, err := client.Namespace(input.TeamSlug.String()).Update(ctx, valkey, metav1.UpdateOptions{})
 	if err != nil {
 		return nil, err
