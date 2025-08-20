@@ -116,7 +116,7 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 
 	plan, err := planFromTierAndSize(input.Tier, input.Size)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("converting to plan: %w", err)
 	}
 
 	res := &unstructured.Unstructured{}
@@ -205,7 +205,7 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 
 	plan, err := planFromTierAndSize(input.Tier, input.Size)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("converting to plan: %w", err)
 	}
 
 	oldPlan, found, err := unstructured.NestedString(valkey.Object, "spec", "plan")
@@ -216,7 +216,7 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 	if !found || oldPlan != plan {
 		tier, size, err := tierAndSizeFromPlan(oldPlan)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("converting from plan: %w", err)
 		}
 
 		if input.Tier != tier {

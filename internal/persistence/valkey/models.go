@@ -149,7 +149,7 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 
 	tier, size, err := tierAndSizeFromPlan(obj.Spec.Plan)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("converting from plan: %w", err)
 	}
 
 	return &Valkey{
