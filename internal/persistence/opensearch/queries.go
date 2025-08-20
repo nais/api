@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
@@ -18,6 +19,7 @@ import (
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/utils/ptr"
 )
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*OpenSearch, error) {
@@ -154,6 +156,18 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		return nil, err
 	}
 
+	err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.ActivityLogEntryActionCreated,
+		Actor:           authz.ActorFromContext(ctx).User,
+		ResourceType:    ActivityLogEntryResourceTypeOpenSearch,
+		ResourceName:    input.Name,
+		EnvironmentName: ptr.To(input.EnvironmentName),
+		TeamSlug:        ptr.To(input.TeamSlug),
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	os, err := toOpenSearch(ret, input.EnvironmentName)
 	if err != nil {
 		return nil, err
@@ -182,24 +196,108 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 		return nil, apierror.Errorf("OpenSearch %s/%s is not managed by Console", input.TeamSlug, input.Name)
 	}
 
+	changes := []*OpenSearchUpdatedActivityLogEntryDataUpdatedField{}
+
 	plan, err := aivenPlan(input.Tier, input.Size)
 	if err != nil {
 		return nil, err
 	}
-	err = unstructured.SetNestedField(openSearch.Object, plan, "spec", "plan")
+
+	oldPlan, found, err := unstructured.NestedString(openSearch.Object, "spec", "plan")
 	if err != nil {
 		return nil, err
 	}
 
-	if input.Version != nil {
-		version := strings.TrimLeft(input.Version.String(), "V")
-		err = unstructured.SetNestedField(openSearch.Object, version, "spec", "userConfig", "opensearch_version")
+	if !found || oldPlan != plan {
+		err = unstructured.SetNestedField(openSearch.Object, plan, "spec", "plan")
 		if err != nil {
 			return nil, err
 		}
+
+		tier, size, err := tierAndSizeFromPlan(oldPlan)
+		if err != nil {
+			return nil, err
+		}
+
+		if input.Tier != tier {
+			changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
+				Field: "tier",
+				OldValue: func() *string {
+					if found {
+						return ptr.To(tier.String())
+					}
+					return nil
+				}(),
+				NewValue: ptr.To(input.Tier.String()),
+			})
+		}
+		if input.Size != size {
+			changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
+				Field: "size",
+				OldValue: func() *string {
+					if found {
+						return ptr.To(size.String())
+					}
+					return nil
+				}(),
+				NewValue: ptr.To(input.Size.String()),
+			})
+		}
+	}
+
+	if input.Version != nil {
+		oldVersion, found, err := unstructured.NestedString(openSearch.Object, "spec", "userConfig", "opensearch_version")
+		if err != nil {
+			return nil, err
+		}
+
+		if !found || oldVersion != input.Version.String() {
+			changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
+				Field: "version",
+				OldValue: func() *string {
+					if found {
+						return ptr.To(oldVersion)
+					}
+					return nil
+				}(),
+				NewValue: ptr.To(input.Version.String()),
+			})
+			version := strings.TrimLeft(input.Version.String(), "V")
+			err = unstructured.SetNestedField(openSearch.Object, version, "spec", "userConfig", "opensearch_version")
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	if len(changes) == 0 {
+		// No changes to update
+		os, err := toOpenSearch(openSearch, input.EnvironmentName)
+		if err != nil {
+			return nil, err
+		}
+
+		return &UpdateOpenSearchPayload{
+			OpenSearch: os,
+		}, nil
 	}
 
 	ret, err := client.Namespace(input.TeamSlug.String()).Update(ctx, openSearch, metav1.UpdateOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.ActivityLogEntryActionUpdated,
+		Actor:           authz.ActorFromContext(ctx).User,
+		ResourceType:    ActivityLogEntryResourceTypeOpenSearch,
+		ResourceName:    input.Name,
+		EnvironmentName: ptr.To(input.EnvironmentName),
+		TeamSlug:        ptr.To(input.TeamSlug),
+		Data: &OpenSearchUpdatedActivityLogEntryData{
+			UpdatedFields: changes,
+		},
+	})
 	if err != nil {
 		return nil, err
 	}

@@ -222,3 +222,93 @@ extend type Mutation {
 	"Update an existing Valkey instance."
 	updateValkey(input: UpdateValkeyInput!): UpdateValkeyPayload!
 }
+
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to Valkeys will use this resource type."
+	VALKEY
+}
+
+extend enum ActivityLogActivityType {
+	"Valkey was created."
+	VALKEY_CREATED
+	"Valkey was updated."
+	VALKEY_UPDATED
+}
+
+type ValkeyCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+}
+
+type ValkeyUpdatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"""
+	Data associated with the entry.
+	"""
+	data: ValkeyUpdatedActivityLogEntryData!
+}
+
+type ValkeyUpdatedActivityLogEntryDataUpdatedField {
+	"""
+	The name of the field.
+	"""
+	field: String!
+
+	"""
+	The old value of the field.
+	"""
+	oldValue: String
+
+	"""
+	The new value of the field.
+	"""
+	newValue: String
+}
+
+type ValkeyUpdatedActivityLogEntryData {
+	updatedFields: [ValkeyUpdatedActivityLogEntryDataUpdatedField!]!
+}
