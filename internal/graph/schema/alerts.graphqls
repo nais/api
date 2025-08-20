@@ -1,0 +1,17 @@
+extend type TeamEnvironment {
+	"The cost for the team environment."
+	alerts: [Alerts!]!
+}
+
+type Alerts {
+	"The name of the alert."
+	name: String!
+	"The severity level of the alert."
+	severity: String!
+	"The current status of the alert."
+	status: String!
+	"The time when the alert was created."
+	createdAt: Time!
+	"The time when the alert was last updated."
+	updatedAt: Time!
+}

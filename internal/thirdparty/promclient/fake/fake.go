@@ -7,6 +7,7 @@ import (
 	"slices"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
@@ -269,4 +270,173 @@ func (c *FakeClient) selector(expr parser.Expr) (teamSlug slug.Slug, workload st
 	}
 
 	return teamSlug, workload, unit, nil
+}
+
+func (c *FakeClient) Rules(ctx context.Context, environment, team string) (promv1.RulesResult, error) {
+	page, err := pagination.ParsePage(ptr.To(10000), nil, nil, nil)
+	if err != nil {
+		return promv1.RulesResult{}, err
+	}
+	teams, err := team.List(ctx, page, nil, nil)
+	if err != nil {
+		return promv1.RulesResult{}, err
+	}
+
+	now := c.now().Time()
+	groups := make([]promv1.RuleGroup, 0, teams.PageInfo.TotalCount)
+
+	for _, t := range teams.Nodes() {
+		if team != "" && string(t.Slug) != team {
+			continue
+		}
+		groupName := fmt.Sprintf("team-%s.rules", t.Slug)
+		file := fmt.Sprintf("/etc/prometheus/rules/%s.yaml", t.Slug)
+
+		labelsFor := func(sev string) prom.LabelSet {
+			return prom.LabelSet{
+				teamLabelKey:  prom.LabelValue(t.Slug),
+				"environment": prom.LabelValue(environment),
+				"severity":    prom.LabelValue(sev),
+			}
+		}
+
+		var rules promv1.Rules
+		rules = append(rules, promv1.AlertingRule{
+			Name:           "HighCPUSaturation",
+			Query:          `avg by (namespace) (rate(container_cpu_usage_seconds_total{container!=""}[5m])) > 0.8`,
+			Labels:         labelsFor("warning"),
+			Annotations:    prom.LabelSet{"summary": "High CPU usage"},
+			Health:         promv1.RuleHealthGood,
+			LastEvaluation: now,
+			Alerts:         []*promv1.Alert{},
+		})
+		rules = append(rules, promv1.AlertingRule{
+			Name:           "HighMemoryUsage",
+			Query:          `avg by (namespace) (container_memory_working_set_bytes{container!=""}) > 1.5e+9`,
+			Labels:         labelsFor("critical"),
+			Annotations:    prom.LabelSet{"summary": "High memory usage"},
+			Health:         promv1.RuleHealthGood,
+			LastEvaluation: now,
+			Alerts:         []*promv1.Alert{},
+		})
+		rules = append(rules, promv1.AlertingRule{
+			Name:           "HTTPErrorRateTooHigh",
+			Query:          `sum(rate(http_requests_total{code=~"5.."}[5m])) by (namespace) / sum(rate(http_requests_total[5m])) by (namespace) > 0.05`,
+			Labels:         labelsFor("high"),
+			Annotations:    prom.LabelSet{"summary": "HTTP 5xx ratio > 5%"},
+			Health:         promv1.RuleHealthGood,
+			LastEvaluation: now,
+			Alerts:         []*promv1.Alert{},
+		})
+
+		groups = append(groups, promv1.RuleGroup{
+			Name:  groupName,
+			File:  file,
+			Rules: rules,
+		})
+	}
+	return promv1.RulesResult{Groups: groups}, nil
+}
+
+func (c *FakeClient) RulesAll(ctx context.Context, team string) (map[string]promv1.RulesResult, error) {
+	out := make(map[string]promv1.RulesResult, len(c.environments))
+	for _, env := range c.environments {
+		res, err := c.Rules(ctx, env, team)
+		if err != nil {
+			return nil, err
+		}
+		out[env] = res
+	}
+	return out, nil
+}
+
+func (c *FakeClient) Alerts(ctx context.Context, environment, team string) (promv1.AlertsResult, error) {
+	now := c.now().Time()
+	page, err := pagination.ParsePage(ptr.To(1000), nil, nil, nil)
+	if err != nil {
+		return promv1.AlertsResult{}, err
+	}
+	teams, err := team.List(ctx, page, nil, nil)
+	if err != nil {
+		return promv1.AlertsResult{}, err
+	}
+
+	var alerts []promv1.Alert
+	add := func(ns slug.Slug, name, severity string, state promv1.AlertState, minutesAgo int) {
+		lbls := prom.LabelSet{
+			"alertname":                  prom.LabelValue(name),
+			prom.LabelName(teamLabelKey): prom.LabelValue(ns),
+			"environment":                prom.LabelValue(environment),
+			"severity":                   prom.LabelValue(severity),
+		}
+		anns := prom.LabelSet{
+			"summary":     prom.LabelValue(fmt.Sprintf("%s in %s", name, ns)),
+			"description": prom.LabelValue("Synthetic alert from FakeClient"),
+		}
+		alerts = append(alerts, promv1.Alert{
+			Labels:      lbls,
+			Annotations: anns,
+			State:       state,
+			ActiveAt:    now.Add(-time.Duration(minutesAgo) * time.Minute),
+		})
+	}
+
+	total := 0
+	for _, t := range teams.Nodes() {
+		if team != "" && string(t.Slug) != team {
+			continue
+		}
+		apps := application.ListAllForTeam(ctx, t.Slug, nil, nil)
+		hasEnv := false
+		for _, a := range apps {
+			if a.EnvironmentName == environment {
+				hasEnv = true
+				break
+			}
+		}
+		if !hasEnv {
+			continue
+		}
+
+		n := 1 + c.random.IntN(3)
+		for i := 0; i < n; i++ {
+			switch c.random.IntN(3) {
+			case 0:
+				add(t.Slug, "HighCPUSaturation", "warning", promv1.AlertStateFiring, 5+c.random.IntN(20))
+			case 1:
+				add(t.Slug, "HighMemoryUsage", "critical", promv1.AlertStateFiring, 10+c.random.IntN(60))
+			default:
+				add(t.Slug, "HTTPErrorRateTooHigh", "high", promv1.AlertStatePending, 1+c.random.IntN(5))
+			}
+			total++
+			if total > 40 {
+				break
+			}
+		}
+		if total > 40 {
+			break
+		}
+	}
+	return promv1.AlertsResult{Alerts: alerts}, nil
+}
+
+func (c *FakeClient) AlertsAll(ctx context.Context, team string) (map[string]promv1.AlertsResult, error) {
+	out := make(map[string]promv1.AlertsResult, len(c.environments))
+	for _, env := range c.environments {
+		res, err := c.Alerts(ctx, env, team)
+		if err != nil {
+			return nil, err
+		}
+		out[env] = res
+	}
+	return out, nil
+}
+
+func stringifyLabels(ls prom.LabelSet) string {
+	parts := make([]string, 0, len(ls))
+	for k, v := range ls {
+		parts = append(parts, fmt.Sprintf(`%s="%s"`, k, v))
+	}
+	slices.Sort(parts)
+	return "{" + strings.Join(parts, ",") + "}"
 }
