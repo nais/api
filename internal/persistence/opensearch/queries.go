@@ -282,6 +282,8 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 		}, nil
 	}
 
+	openSearch.SetAnnotations(kubernetes.WithCommonAnnotations(openSearch.GetAnnotations(), authz.ActorFromContext(ctx).User.Identity()))
+
 	ret, err := client.Namespace(input.TeamSlug.String()).Update(ctx, openSearch, metav1.UpdateOptions{})
 	if err != nil {
 		return nil, err
