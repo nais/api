@@ -149,7 +149,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 
 	tier, size, err := tierAndSizeFromPlan(obj.Spec.Plan)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("converting to plan: %w", err)
 	}
 
 	return &OpenSearch{
