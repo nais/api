@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
@@ -18,6 +19,7 @@ import (
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/utils/ptr"
 )
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*Valkey, error) {
@@ -159,6 +161,18 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 		return nil, err
 	}
 
+	err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.ActivityLogEntryActionCreated,
+		Actor:           authz.ActorFromContext(ctx).User,
+		ResourceType:    ActivityLogEntryResourceTypeValkey,
+		ResourceName:    input.Name,
+		EnvironmentName: ptr.To(input.EnvironmentName),
+		TeamSlug:        ptr.To(input.TeamSlug),
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	valkey, err := toValkey(ret, input.EnvironmentName)
 	if err != nil {
 		return nil, err
@@ -187,25 +201,108 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 		return nil, apierror.Errorf("Valkey %s/%s is not managed by Console", input.TeamSlug, input.Name)
 	}
 
+	changes := []*ValkeyUpdatedActivityLogEntryDataUpdatedField{}
+
 	plan, err := aivenPlan(input.Tier, input.Size)
 	if err != nil {
 		return nil, err
 	}
 
-	err = unstructured.SetNestedField(valkey.Object, plan, "spec", "plan")
+	oldPlan, found, err := unstructured.NestedString(valkey.Object, "spec", "plan")
 	if err != nil {
 		return nil, err
 	}
 
-	if input.MaxMemoryPolicy != nil {
-		maxMemoryPolicy := strings.ReplaceAll(strings.ToLower(input.MaxMemoryPolicy.String()), "_", "-")
-		err := unstructured.SetNestedField(valkey.Object, maxMemoryPolicy, "spec", "userConfig", "valkey_maxmemory_policy")
+	if !found || oldPlan != plan {
+		tier, size, err := tierAndSizeFromPlan(oldPlan)
+		if err != nil {
+			return nil, err
+		}
+
+		if input.Tier != tier {
+			changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
+				Field: "tier",
+				OldValue: func() *string {
+					if found {
+						return ptr.To(tier.String())
+					}
+					return nil
+				}(),
+				NewValue: ptr.To(input.Tier.String()),
+			})
+		}
+		if input.Size != size {
+			changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
+				Field: "size",
+				OldValue: func() *string {
+					if found {
+						return ptr.To(size.String())
+					}
+					return nil
+				}(),
+				NewValue: ptr.To(input.Size.String()),
+			})
+		}
+
+		err = unstructured.SetNestedField(valkey.Object, plan, "spec", "plan")
 		if err != nil {
 			return nil, err
 		}
 	}
 
+	if input.MaxMemoryPolicy != nil {
+		oldMMP, found, err := unstructured.NestedString(valkey.Object, "spec", "userConfig", "valkey_maxmemory_policy")
+		if err != nil {
+			return nil, err
+		}
+
+		if !found || oldMMP != input.MaxMemoryPolicy.String() {
+			changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
+				Field: "maxMemoryPolicy",
+				OldValue: func() *string {
+					if found {
+						return ptr.To(strings.ReplaceAll(strings.ToUpper(oldMMP), "-", "_"))
+					}
+					return nil
+				}(),
+				NewValue: ptr.To(input.MaxMemoryPolicy.String()),
+			})
+
+			maxMemoryPolicy := strings.ReplaceAll(strings.ToLower(input.MaxMemoryPolicy.String()), "_", "-")
+			err := unstructured.SetNestedField(valkey.Object, maxMemoryPolicy, "spec", "userConfig", "valkey_maxmemory_policy")
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	if len(changes) == 0 {
+		vk, err := toValkey(valkey, input.EnvironmentName)
+		if err != nil {
+			return nil, err
+		}
+
+		return &UpdateValkeyPayload{
+			Valkey: vk,
+		}, nil
+	}
+
 	ret, err := client.Namespace(input.TeamSlug.String()).Update(ctx, valkey, metav1.UpdateOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.ActivityLogEntryActionUpdated,
+		Actor:           authz.ActorFromContext(ctx).User,
+		ResourceType:    ActivityLogEntryResourceTypeValkey,
+		ResourceName:    input.Name,
+		EnvironmentName: ptr.To(input.EnvironmentName),
+		TeamSlug:        ptr.To(input.TeamSlug),
+		Data: ValkeyUpdatedActivityLogEntryData{
+			UpdatedFields: changes,
+		},
+	})
 	if err != nil {
 		return nil, err
 	}
