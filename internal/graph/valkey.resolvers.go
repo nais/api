@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/valkey"
@@ -21,12 +22,16 @@ func (r *jobResolver) Valkeys(ctx context.Context, obj *job.Job, orderBy *valkey
 }
 
 func (r *mutationResolver) CreateValkey(ctx context.Context, input valkey.CreateValkeyInput) (*valkey.CreateValkeyPayload, error) {
-	// FIXME: validation, authz
+	if err := authz.CanCreateValkey(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
 	return valkey.Create(ctx, input)
 }
 
 func (r *mutationResolver) UpdateValkey(ctx context.Context, input valkey.UpdateValkeyInput) (*valkey.UpdateValkeyPayload, error) {
-	// FIXME: validation, authz
+	if err := authz.CanUpdateValkey(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
 	return valkey.Update(ctx, input)
 }
 

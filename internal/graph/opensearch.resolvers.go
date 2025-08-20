@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/opensearch"
@@ -21,12 +22,16 @@ func (r *jobResolver) OpenSearch(ctx context.Context, obj *job.Job) (*opensearch
 }
 
 func (r *mutationResolver) CreateOpenSearch(ctx context.Context, input opensearch.CreateOpenSearchInput) (*opensearch.CreateOpenSearchPayload, error) {
-	// FIXME: validation, authz
+	if err := authz.CanCreateOpenSearch(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
 	return opensearch.Create(ctx, input)
 }
 
 func (r *mutationResolver) UpdateOpenSearch(ctx context.Context, input opensearch.UpdateOpenSearchInput) (*opensearch.UpdateOpenSearchPayload, error) {
-	// FIXME: validation, authz
+	if err := authz.CanUpdateOpenSearch(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
 	return opensearch.Update(ctx, input)
 }
 
