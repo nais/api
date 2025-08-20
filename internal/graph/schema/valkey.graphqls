@@ -72,6 +72,8 @@ type Valkey implements Persistence & Node {
 	): ValkeyAccessConnection!
 	workload: Workload
 	status: ValkeyStatus!
+	tier: ValkeyTier!
+	size: ValkeySize!
 }
 
 type ValkeyAccess {

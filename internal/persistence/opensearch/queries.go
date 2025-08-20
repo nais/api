@@ -2,6 +2,7 @@ package opensearch
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/nais/api/internal/auth/authz"
@@ -98,6 +99,10 @@ func orderOpenSearch(ctx context.Context, ret []*OpenSearch, orderBy *OpenSearch
 }
 
 func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearchPayload, error) {
+	if err := input.Validate(ctx); err != nil {
+		return nil, err
+	}
+
 	client, err := fromContext(ctx).watcher.ImpersonatedClient(ctx, input.EnvironmentName)
 	if err != nil {
 		return nil, err
@@ -160,6 +165,10 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 }
 
 func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearchPayload, error) {
+	if err := input.Validate(ctx); err != nil {
+		return nil, err
+	}
+
 	client, err := fromContext(ctx).watcher.ImpersonatedClient(ctx, input.EnvironmentName)
 	if err != nil {
 		return nil, err
@@ -233,4 +242,36 @@ func aivenPlan(tier OpenSearchTier, size OpenSearchSize) (string, error) {
 	}
 
 	return plan, nil
+}
+
+var aivenPlans = map[string]OpenSearchTier{
+	"business": OpenSearchTierHighAvailability,
+	"startup":  OpenSearchTierSingleNode,
+}
+
+var aivenSizes = map[string]OpenSearchSize{
+	"4":  OpenSearchSizeRAM4gb,
+	"8":  OpenSearchSizeRAM8gb,
+	"16": OpenSearchSizeRAM16gb,
+	"32": OpenSearchSizeRAM32gb,
+	"64": OpenSearchSizeRAM64gb,
+}
+
+func tierAndSizeFromPlan(plan string) (OpenSearchTier, OpenSearchSize, error) {
+	t, s, ok := strings.Cut(plan, "-")
+	if !ok {
+		return "", "", fmt.Errorf("invalid OpenSearch plan: %s", plan)
+	}
+
+	tier, ok := aivenPlans[t]
+	if !ok {
+		return "", "", fmt.Errorf("invalid OpenSearch tier: %s", t)
+	}
+
+	size, ok := aivenSizes[s]
+	if !ok {
+		return "", "", fmt.Errorf("invalid OpenSearch size: %s", s)
+	}
+
+	return tier, size, nil
 }
