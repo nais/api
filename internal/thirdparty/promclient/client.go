@@ -13,6 +13,8 @@ import (
 	"github.com/sourcegraph/conc/pool"
 )
 
+const teamLabelKey = "team"
+
 type QueryClient interface {
 	Query(ctx context.Context, environment string, query string, opts ...QueryOption) (prom.Vector, error)
 	QueryAll(ctx context.Context, query string, opts ...QueryOption) (map[string]prom.Vector, error)
@@ -142,8 +144,6 @@ func (c *RealClient) QueryRange(ctx context.Context, environment string, query s
 
 	return client.QueryRange(ctx, query, promRange)
 }
-
-const teamLabelKey = "team" // adjust if you use another key
 
 func (c *RealClient) Rules(ctx context.Context, environment, team string) (promv1.RulesResult, error) {
 	api, ok := c.prometheuses[environment]

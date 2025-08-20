@@ -12,6 +12,7 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
+	teampkg "github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/thirdparty/promclient"
 	"github.com/nais/api/internal/workload/application"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
@@ -20,6 +21,8 @@ import (
 	parser "github.com/prometheus/prometheus/promql/parser"
 	"k8s.io/utils/ptr"
 )
+
+const teamLabelKey = "team"
 
 type FakeClient struct {
 	environments []string
@@ -277,7 +280,7 @@ func (c *FakeClient) Rules(ctx context.Context, environment, team string) (promv
 	if err != nil {
 		return promv1.RulesResult{}, err
 	}
-	teams, err := team.List(ctx, page, nil, nil)
+	teams, err := teampkg.List(ctx, page, nil, nil)
 	if err != nil {
 		return promv1.RulesResult{}, err
 	}
@@ -356,7 +359,7 @@ func (c *FakeClient) Alerts(ctx context.Context, environment, team string) (prom
 	if err != nil {
 		return promv1.AlertsResult{}, err
 	}
-	teams, err := team.List(ctx, page, nil, nil)
+	teams, err := teampkg.List(ctx, page, nil, nil)
 	if err != nil {
 		return promv1.AlertsResult{}, err
 	}
