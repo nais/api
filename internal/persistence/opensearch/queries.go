@@ -110,7 +110,7 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		return nil, err
 	}
 
-	plan, err := aivenPlan(input.Tier, input.Size)
+	plan, err := planFromTierAndSize(input.Tier, input.Size)
 	if err != nil {
 		return nil, err
 	}
@@ -198,7 +198,7 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 
 	changes := []*OpenSearchUpdatedActivityLogEntryDataUpdatedField{}
 
-	plan, err := aivenPlan(input.Tier, input.Size)
+	plan, err := planFromTierAndSize(input.Tier, input.Size)
 	if err != nil {
 		return nil, err
 	}
@@ -314,36 +314,6 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 	}, nil
 }
 
-func aivenPlan(tier OpenSearchTier, size OpenSearchSize) (string, error) {
-	plan := ""
-
-	switch tier {
-	case OpenSearchTierHighAvailability:
-		plan = "business-"
-	case OpenSearchTierSingleNode:
-		plan = "startup-"
-	default:
-		return "", apierror.Errorf("invalid OpenSearch tier: %s", tier)
-	}
-
-	switch size {
-	case OpenSearchSizeRAM4gb:
-		plan += "4"
-	case OpenSearchSizeRAM8gb:
-		plan += "8"
-	case OpenSearchSizeRAM16gb:
-		plan += "16"
-	case OpenSearchSizeRAM32gb:
-		plan += "32"
-	case OpenSearchSizeRAM64gb:
-		plan += "64"
-	default:
-		return "", apierror.Errorf("invalid OpenSearch size: %s", size)
-	}
-
-	return plan, nil
-}
-
 var aivenPlans = map[string]OpenSearchTier{
 	"business": OpenSearchTierHighAvailability,
 	"startup":  OpenSearchTierSingleNode,
@@ -355,6 +325,33 @@ var aivenSizes = map[string]OpenSearchSize{
 	"16": OpenSearchSizeRAM16gb,
 	"32": OpenSearchSizeRAM32gb,
 	"64": OpenSearchSizeRAM64gb,
+}
+
+func planFromTierAndSize(tier OpenSearchTier, size OpenSearchSize) (string, error) {
+	plan := ""
+
+	for name, planTier := range aivenPlans {
+		if planTier == tier {
+			plan = name + "-"
+			break
+		}
+	}
+	if plan == "" {
+		return "", apierror.Errorf("invalid OpenSearch tier: %s", tier)
+	}
+
+	planSize := ""
+	for name, sz := range aivenSizes {
+		if sz == size {
+			planSize = name
+			break
+		}
+	}
+	if planSize == "" {
+		return "", apierror.Errorf("invalid OpenSearch size: %s", size)
+	}
+
+	return plan, nil
 }
 
 func tierAndSizeFromPlan(plan string) (OpenSearchTier, OpenSearchSize, error) {

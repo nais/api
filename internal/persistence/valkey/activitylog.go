@@ -55,10 +55,7 @@ type ValkeyUpdatedActivityLogEntryData struct {
 }
 
 type ValkeyUpdatedActivityLogEntryDataUpdatedField struct {
-	// The name of the field.
-	Field string `json:"field"`
-	// The old value of the field.
+	Field    string  `json:"field"`
 	OldValue *string `json:"oldValue,omitempty"`
-	// The new value of the field.
 	NewValue *string `json:"newValue,omitempty"`
 }
