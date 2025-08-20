@@ -189,6 +189,7 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 		clusterConfig,
 		smMgr,
 		fakeAivenClient,
+		aiven.Projects{},
 		vMgr,
 		config.TenantName,
 		clusters(),
