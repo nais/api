@@ -114,7 +114,7 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 		return nil, err
 	}
 
-	plan, err := aivenPlan(input.Tier, input.Size)
+	plan, err := planFromTierAndSize(input.Tier, input.Size)
 	if err != nil {
 		return nil, err
 	}
@@ -203,7 +203,7 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 
 	changes := []*ValkeyUpdatedActivityLogEntryDataUpdatedField{}
 
-	plan, err := aivenPlan(input.Tier, input.Size)
+	plan, err := planFromTierAndSize(input.Tier, input.Size)
 	if err != nil {
 		return nil, err
 	}
@@ -319,45 +319,6 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 	}, nil
 }
 
-func aivenPlan(tier ValkeyTier, size ValkeySize) (string, error) {
-	plan := ""
-
-	switch tier {
-	case ValkeyTierHighAvailability:
-		plan = "business-"
-	case ValkeyTierSingleNode:
-		plan = "startup-"
-	default:
-		return "", apierror.Errorf("invalid Valkey tier: %s", tier)
-	}
-
-	switch size {
-	case ValkeySizeRAM1gb:
-		if tier == ValkeyTierSingleNode {
-			return "", apierror.Errorf("invalid Valkey size for tier %s: %s", tier, size)
-		}
-		plan += "1"
-	case ValkeySizeRAM4gb:
-		plan += "4"
-	case ValkeySizeRAM8gb:
-		plan += "8"
-	case ValkeySizeRAM14gb:
-		plan += "14"
-	case ValkeySizeRAM28gb:
-		plan += "28"
-	case ValkeySizeRAM56gb:
-		plan += "56"
-	case ValkeySizeRAM112gb:
-		plan += "112"
-	case ValkeySizeRAM200gb:
-		plan += "200"
-	default:
-		return "", apierror.Errorf("invalid Valkey size: %s", size)
-	}
-
-	return plan, nil
-}
-
 var aivenPlans = map[string]ValkeyTier{
 	"business": ValkeyTierHighAvailability,
 	"startup":  ValkeyTierSingleNode,
@@ -372,6 +333,39 @@ var aivenSizes = map[string]ValkeySize{
 	"56":  ValkeySizeRAM56gb,
 	"112": ValkeySizeRAM112gb,
 	"200": ValkeySizeRAM200gb,
+}
+
+func planFromTierAndSize(tier ValkeyTier, size ValkeySize) (string, error) {
+	plan := ""
+
+	if size == ValkeySizeRAM1gb && tier == ValkeyTierSingleNode {
+		return "", apierror.Errorf("invalid Valkey size for tier %s: %s",
+			tier, size)
+	}
+
+	for name, planTier := range aivenPlans {
+		if planTier == tier {
+			plan += name + "-"
+			break
+		}
+	}
+	if plan == "" {
+		return "", apierror.Errorf("invalid Valkey tier: %s", tier)
+	}
+
+	planSize := ""
+	for aivenSize, sz := range aivenSizes {
+		if sz == size {
+			planSize = aivenSize
+			break
+		}
+	}
+	if planSize == "" {
+		return "", apierror.Errorf("invalid Valkey size: %s", size)
+	}
+	plan += planSize
+
+	return plan, nil
 }
 
 func tierAndSizeFromPlan(plan string) (ValkeyTier, ValkeySize, error) {
