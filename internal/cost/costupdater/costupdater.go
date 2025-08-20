@@ -22,12 +22,13 @@ const (
 
 // bigQueryCostTableRow is a struct that represents a row in the BigQuery table
 type bigQueryCostTableRow struct {
-	Env      bigquery.NullString `bigquery:"env"`
-	Team     bigquery.NullString `bigquery:"team"`
-	App      bigquery.NullString `bigquery:"app"`
-	CostType string              `bigquery:"cost_type"`
-	Date     civil.Date          `bigquery:"date"`
-	Cost     float32             `bigquery:"cost"`
+	Env         bigquery.NullString `bigquery:"env"`
+	Team        bigquery.NullString `bigquery:"team"`
+	App         bigquery.NullString `bigquery:"app"`
+	CostType    string              `bigquery:"cost_type"`
+	Date        civil.Date          `bigquery:"date"`
+	Cost        float32             `bigquery:"cost"`
+	ServiceName bigquery.NullString `bigquery:"service_name"`
 }
 
 // Updater is the cost updater struct
@@ -139,6 +140,7 @@ func (u *Updater) FetchBigQueryData(ctx context.Context, ch chan<- costsql.CostU
 			Service:     row.CostType,
 			Date:        pgtype.Date{Time: row.Date.In(time.UTC), Valid: true},
 			DailyCost:   row.Cost,
+			ServiceName: nullToStringPointer(row.ServiceName),
 		}:
 			// entry sent to the channel
 		}
