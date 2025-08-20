@@ -13,7 +13,7 @@ import (
 	"github.com/sourcegraph/conc/pool"
 )
 
-const teamLabelKey = "team"
+const teamLabelKey = "namespace"
 
 type QueryClient interface {
 	Query(ctx context.Context, environment string, query string, opts ...QueryOption) (prom.Vector, error)
@@ -245,14 +245,13 @@ func filterRulesByTeam(in promv1.RulesResult, team string) promv1.RulesResult {
 					filtered = append(filtered, ar)
 				}
 			}
-			// (Recording rules are ignored on purpose)
 		}
 		if len(filtered) > 0 {
 			out.Groups = append(out.Groups, promv1.RuleGroup{
-				Name:  g.Name,
-				File:  g.File,
-				Rules: filtered,
-				// Skip Interval/LastEvaluation for cross-version compatibility
+				Name:     g.Name,
+				File:     g.File,
+				Rules:    filtered,
+				Interval: g.Interval,
 			})
 		}
 	}

@@ -22,7 +22,7 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-const teamLabelKey = "team"
+const teamLabelKey = "namespace"
 
 type FakeClient struct {
 	environments []string

@@ -1,17 +1,112 @@
 extend type TeamEnvironment {
-	"The cost for the team environment."
-	alerts: [Alerts!]!
+	alerts(
+		"""
+		Get the first n items in the connection. This can be used in combination with the after parameter.
+		"""
+		first: Int
+
+		"""
+		Get items after this cursor.
+		"""
+		after: Cursor
+
+		"""
+		Get the last n items in the connection. This can be used in combination with the before parameter.
+		"""
+		last: Int
+
+		"""
+		Get items before this cursor.
+		"""
+		before: Cursor
+
+		"""
+		Ordering options for items returned from the connection.
+		"""
+		orderBy: AlertOrder
+	): AlertConnection!
 }
 
-type Alerts {
+interface Alert implements Node {
+	"The unique identifier for the alert."
+	id: ID!
 	"The name of the alert."
 	name: String!
-	"The severity level of the alert."
-	severity: String!
-	"The current status of the alert."
-	status: String!
-	"The time when the alert was created."
-	createdAt: Time!
-	"The time when the alert was last updated."
-	updatedAt: Time!
+}
+
+type PrometheusAlert implements Node & Alert {
+	"The unique identifier for the alert."
+	id: ID!
+	"The name of the alert."
+	name: String!
+	# "The expression that defines the alert."
+	# expression: String!
+	# "The severity of the alert."
+	# severity: String!
+	# "The health status of the alert."
+	# health: String!
+	# "The last evaluation time of the alert."
+	# lastEvaluation: Time
+	# "Instances of the alert."
+	# alerts: [AlertInstance!]!
+}
+
+"""
+Workload connection.
+"""
+type AlertConnection {
+	"""
+	Pagination information.
+	"""
+	pageInfo: PageInfo!
+
+	"""
+	List of nodes.
+	"""
+	nodes: [Alert!]!
+
+	"""
+	List of edges.
+	"""
+	edges: [AlertEdge!]!
+}
+
+"""
+Alert edge.
+"""
+type AlertEdge {
+	"""
+	Cursor for this edge that can be used for pagination.
+	"""
+	cursor: Cursor!
+
+	"""
+	The Alert.
+	"""
+	node: Alert!
+}
+
+"""
+Fields to order alerts in an environment by.
+"""
+enum AlertOrderField {
+	"""
+	Order by name.
+	"""
+	NAME
+}
+
+"""
+Ordering options when fetching alerts.
+"""
+input AlertOrder {
+	"""
+	The field to order items by.
+	"""
+	field: AlertOrderField!
+
+	"""
+	The direction to order items by.
+	"""
+	direction: OrderDirection!
 }
