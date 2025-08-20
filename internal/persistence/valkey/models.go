@@ -1,14 +1,17 @@
 package valkey
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/validate"
 	"github.com/nais/api/internal/workload"
 	aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -28,6 +31,8 @@ type Valkey struct {
 	Name                  string              `json:"name"`
 	Status                *ValkeyStatus       `json:"status"`
 	TerminationProtection bool                `json:"terminationProtection"`
+	Tier                  ValkeyTier          `json:"tier"`
+	Size                  ValkeySize          `json:"size"`
 	TeamSlug              slug.Slug           `json:"-"`
 	EnvironmentName       string              `json:"-"`
 	WorkloadReference     *workload.Reference `json:"-"`
@@ -83,7 +88,7 @@ func (e ValkeyOrderField) String() string {
 	return string(e)
 }
 
-func (e *ValkeyOrderField) UnmarshalGQL(v interface{}) error {
+func (e *ValkeyOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -115,7 +120,7 @@ func (e ValkeyAccessOrderField) String() string {
 	return string(e)
 }
 
-func (e *ValkeyAccessOrderField) UnmarshalGQL(v interface{}) error {
+func (e *ValkeyAccessOrderField) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -142,6 +147,11 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 	// Liberator doesn't contain this field, so we read it directly from the unstructured object
 	terminationProtection, _, _ := unstructured.NestedBool(u.Object, "spec", "terminationProtection")
 
+	tier, size, err := tierAndSizeFromPlan(obj.Spec.Plan)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Valkey{
 		Name:                  obj.Name,
 		EnvironmentName:       envName,
@@ -153,6 +163,8 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 		TeamSlug:          slug.Slug(obj.GetNamespace()),
 		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
 		AivenProject:      obj.Spec.Project,
+		Tier:              tier,
+		Size:              size,
 	}, nil
 }
 
@@ -160,45 +172,63 @@ type TeamInventoryCountValkeys struct {
 	Total int
 }
 
-type CreateValkeyInput struct {
-	// Name of the Valkey instance.
-	Name string `json:"name"`
-	// The environment name that the entry belongs to.
-	EnvironmentName string `json:"environmentName"`
-	// The team that owns the Valkey instance.
-	TeamSlug slug.Slug `json:"teamSlug"`
-	// Tier of the Valkey instance.
-	Tier ValkeyTier `json:"tier"`
-	// Size of the Valkey instance.
-	Size ValkeySize `json:"size"`
-	// Maximum memory policy for the Valkey instance.
+type ValkeyInput struct {
+	Name            string                 `json:"name"`
+	EnvironmentName string                 `json:"environmentName"`
+	TeamSlug        slug.Slug              `json:"teamSlug"`
+	Tier            ValkeyTier             `json:"tier"`
+	Size            ValkeySize             `json:"size"`
 	MaxMemoryPolicy *ValkeyMaxMemoryPolicy `json:"maxMemoryPolicy,omitempty"`
 }
 
+func (v *ValkeyInput) Validate(ctx context.Context) error {
+	verr := validate.New()
+	v.Name = strings.TrimSpace(v.Name)
+	v.EnvironmentName = strings.TrimSpace(v.EnvironmentName)
+
+	if v.Name == "" {
+		verr.Add("name", "Name must not be empty.")
+	}
+	if v.EnvironmentName == "" {
+		verr.Add("environmentName", "Environment name must not be empty.")
+	}
+	if v.TeamSlug == "" {
+		verr.Add("teamSlug", "Team slug must not be empty.")
+	}
+
+	if !v.Tier.IsValid() {
+		verr.Add("tier", "Invalid Valkey tier: %s.", v.Tier)
+	}
+
+	if !v.Size.IsValid() {
+		verr.Add("size", "Invalid Valkey size: %s.", v.Size)
+	}
+	if v.MaxMemoryPolicy != nil && !v.MaxMemoryPolicy.IsValid() {
+		verr.Add("version", "Invalid Valkey version: %s.", v.MaxMemoryPolicy.String())
+	}
+
+	return verr.NilIfEmpty()
+}
+
+type CreateValkeyInput struct {
+	ValkeyInput
+}
+
 type CreateValkeyPayload struct {
-	// Valkey instance that was created.
 	Valkey *Valkey `json:"valkey"`
 }
 
 type ValkeyMaxMemoryPolicy string
 
 const (
-	// Evict keys using the least frequently used algorithm.
-	ValkeyMaxMemoryPolicyAllkeysLfu ValkeyMaxMemoryPolicy = "ALLKEYS_LFU"
-	// Evict keys using the least recently used algorithm.
-	ValkeyMaxMemoryPolicyAllkeysLru ValkeyMaxMemoryPolicy = "ALLKEYS_LRU"
-	// Evict keys randomly.
-	ValkeyMaxMemoryPolicyAllkeysRandom ValkeyMaxMemoryPolicy = "ALLKEYS_RANDOM"
-	// No eviction policy, will return an error when memory limit is reached.
-	ValkeyMaxMemoryPolicyNoEviction ValkeyMaxMemoryPolicy = "NO_EVICTION"
-	// Evict volatile keys using the least frequently used algorithm.
-	ValkeyMaxMemoryPolicyVolatileLfu ValkeyMaxMemoryPolicy = "VOLATILE_LFU"
-	// Evict volatile keys using the least recently used algorithm.
-	ValkeyMaxMemoryPolicyVolatileLru ValkeyMaxMemoryPolicy = "VOLATILE_LRU"
-	// Evict volatile keys randomly.
+	ValkeyMaxMemoryPolicyAllkeysLfu     ValkeyMaxMemoryPolicy = "ALLKEYS_LFU"
+	ValkeyMaxMemoryPolicyAllkeysLru     ValkeyMaxMemoryPolicy = "ALLKEYS_LRU"
+	ValkeyMaxMemoryPolicyAllkeysRandom  ValkeyMaxMemoryPolicy = "ALLKEYS_RANDOM"
+	ValkeyMaxMemoryPolicyNoEviction     ValkeyMaxMemoryPolicy = "NO_EVICTION"
+	ValkeyMaxMemoryPolicyVolatileLfu    ValkeyMaxMemoryPolicy = "VOLATILE_LFU"
+	ValkeyMaxMemoryPolicyVolatileLru    ValkeyMaxMemoryPolicy = "VOLATILE_LRU"
 	ValkeyMaxMemoryPolicyVolatileRandom ValkeyMaxMemoryPolicy = "VOLATILE_RANDOM"
-	// Evict volatile keys based on their time to live.
-	ValkeyMaxMemoryPolicyVolatileTTL ValkeyMaxMemoryPolicy = "VOLATILE_TTL"
+	ValkeyMaxMemoryPolicyVolatileTTL    ValkeyMaxMemoryPolicy = "VOLATILE_TTL"
 )
 
 var AllValkeyMaxMemoryPolicy = []ValkeyMaxMemoryPolicy{
@@ -214,7 +244,14 @@ var AllValkeyMaxMemoryPolicy = []ValkeyMaxMemoryPolicy{
 
 func (e ValkeyMaxMemoryPolicy) IsValid() bool {
 	switch e {
-	case ValkeyMaxMemoryPolicyAllkeysLfu, ValkeyMaxMemoryPolicyAllkeysLru, ValkeyMaxMemoryPolicyAllkeysRandom, ValkeyMaxMemoryPolicyNoEviction, ValkeyMaxMemoryPolicyVolatileLfu, ValkeyMaxMemoryPolicyVolatileLru, ValkeyMaxMemoryPolicyVolatileRandom, ValkeyMaxMemoryPolicyVolatileTTL:
+	case ValkeyMaxMemoryPolicyAllkeysLfu,
+		ValkeyMaxMemoryPolicyAllkeysLru,
+		ValkeyMaxMemoryPolicyAllkeysRandom,
+		ValkeyMaxMemoryPolicyNoEviction,
+		ValkeyMaxMemoryPolicyVolatileLfu,
+		ValkeyMaxMemoryPolicyVolatileLru,
+		ValkeyMaxMemoryPolicyVolatileRandom,
+		ValkeyMaxMemoryPolicyVolatileTTL:
 		return true
 	}
 	return false
@@ -225,14 +262,16 @@ func (e ValkeyMaxMemoryPolicy) String() string {
 }
 
 func (e *ValkeyMaxMemoryPolicy) UnmarshalGQL(v any) error {
-	str, ok := v.(string)
+	str,
+		ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
 	*e = ValkeyMaxMemoryPolicy(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ValkeyMaxMemoryPolicy", str)
+		return fmt.Errorf("%s is not a valid ValkeyMaxMemoryPolicy",
+			str)
 	}
 	return nil
 }
@@ -336,21 +375,9 @@ func (e ValkeyTier) MarshalGQL(w io.Writer) {
 }
 
 type UpdateValkeyInput struct {
-	// Name of the Valkey instance.
-	Name string `json:"name"`
-	// The environment name that the entry belongs to.
-	EnvironmentName string `json:"environmentName"`
-	// The team that owns the Valkey instance.
-	TeamSlug slug.Slug `json:"teamSlug"`
-	// Tier of the Valkey instance.
-	Tier ValkeyTier `json:"tier"`
-	// Size of the Valkey instance.
-	Size ValkeySize `json:"size"`
-	// Maximum memory policy for the Valkey instance.
-	MaxMemoryPolicy *ValkeyMaxMemoryPolicy `json:"maxMemoryPolicy,omitempty"`
+	ValkeyInput
 }
 
 type UpdateValkeyPayload struct {
-	// Valkey instance that was updated.
 	Valkey *Valkey `json:"valkey"`
 }

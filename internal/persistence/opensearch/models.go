@@ -1,14 +1,17 @@
 package opensearch
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/validate"
 	"github.com/nais/api/internal/workload"
 	aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -28,6 +31,8 @@ type OpenSearch struct {
 	Name                  string              `json:"name"`
 	Status                *OpenSearchStatus   `json:"status"`
 	TerminationProtection bool                `json:"terminationProtection"`
+	Tier                  OpenSearchTier      `json:"tier"`
+	Size                  OpenSearchSize      `json:"size"`
 	TeamSlug              slug.Slug           `json:"-"`
 	EnvironmentName       string              `json:"-"`
 	WorkloadReference     *workload.Reference `json:"-"`
@@ -142,6 +147,11 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 	// Liberator doesn't contain this field, so we read it directly from the unstructured object
 	terminationProtection, _, _ := unstructured.NestedBool(u.Object, "spec", "terminationProtection")
 
+	tier, size, err := tierAndSizeFromPlan(obj.Spec.Plan)
+	if err != nil {
+		return nil, err
+	}
+
 	return &OpenSearch{
 		Name:                  obj.Name,
 		EnvironmentName:       envName,
@@ -153,6 +163,8 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		TeamSlug:          slug.Slug(obj.GetNamespace()),
 		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
 		AivenProject:      obj.Spec.Project,
+		Tier:              tier,
+		Size:              size,
 	}, nil
 }
 
@@ -160,13 +172,46 @@ type TeamInventoryCountOpenSearches struct {
 	Total int
 }
 
-type CreateOpenSearchInput struct {
+type OpenSearchInput struct {
 	Name            string                  `json:"name"`
 	EnvironmentName string                  `json:"environmentName"`
 	TeamSlug        slug.Slug               `json:"teamSlug"`
 	Tier            OpenSearchTier          `json:"tier"`
 	Size            OpenSearchSize          `json:"size"`
 	Version         *OpenSearchMajorVersion `json:"version,omitempty"`
+}
+
+func (o *OpenSearchInput) Validate(ctx context.Context) error {
+	verr := validate.New()
+	o.Name = strings.TrimSpace(o.Name)
+	o.EnvironmentName = strings.TrimSpace(o.EnvironmentName)
+
+	if o.Name == "" {
+		verr.Add("name", "Name must not be empty.")
+	}
+	if o.EnvironmentName == "" {
+		verr.Add("environmentName", "Environment name must not be empty.")
+	}
+	if o.TeamSlug == "" {
+		verr.Add("teamSlug", "Team slug must not be empty.")
+	}
+
+	if !o.Tier.IsValid() {
+		verr.Add("tier", "Invalid OpenSearch tier: %s.", o.Tier)
+	}
+
+	if !o.Size.IsValid() {
+		verr.Add("size", "Invalid OpenSearch size: %s.", o.Size)
+	}
+	if o.Version != nil && !o.Version.IsValid() {
+		verr.Add("version", "Invalid OpenSearch version: %s.", o.Version.String())
+	}
+
+	return verr.NilIfEmpty()
+}
+
+type CreateOpenSearchInput struct {
+	OpenSearchInput
 }
 
 type CreateOpenSearchPayload struct {
@@ -300,20 +345,7 @@ func (e OpenSearchTier) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-type UpdateOpenSearchInput struct {
-	// Name of the OpenSearch instance.
-	Name string `json:"name"`
-	// The environment name that the OpenSearch instance belongs to.
-	EnvironmentName string `json:"environmentName"`
-	// The team that owns the OpenSearch instance.
-	TeamSlug slug.Slug `json:"teamSlug"`
-	// Tier of the OpenSearch instance.
-	Tier OpenSearchTier `json:"tier"`
-	// Size of the OpenSearch instance.
-	Size OpenSearchSize `json:"size"`
-	// Major version of the OpenSearch instance.
-	Version *OpenSearchMajorVersion `json:"version,omitempty"`
-}
+type UpdateOpenSearchInput struct{ OpenSearchInput }
 
 type UpdateOpenSearchPayload struct {
 	// OpenSearch instance that was updated.

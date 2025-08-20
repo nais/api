@@ -65,6 +65,8 @@ type OpenSearch implements Persistence & Node {
 	): OpenSearchAccessConnection!
 	"Fetch version for the OpenSearch instance."
 	version: String!
+	tier: OpenSearchTier!
+	size: OpenSearchSize!
 }
 
 type OpenSearchAccess {

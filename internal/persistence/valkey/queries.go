@@ -2,6 +2,7 @@ package valkey
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/nais/api/internal/auth/authz"
@@ -102,6 +103,10 @@ func orderValkey(ctx context.Context, instances []*Valkey, orderBy *ValkeyOrder)
 }
 
 func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload, error) {
+	if err := input.Validate(ctx); err != nil {
+		return nil, err
+	}
+
 	client, err := fromContext(ctx).watcher.ImpersonatedClient(ctx, input.EnvironmentName)
 	if err != nil {
 		return nil, err
@@ -165,6 +170,10 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 }
 
 func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload, error) {
+	if err := input.Validate(ctx); err != nil {
+		return nil, err
+	}
+
 	client, err := fromContext(ctx).watcher.ImpersonatedClient(ctx, input.EnvironmentName)
 	if err != nil {
 		return nil, err
@@ -225,7 +234,7 @@ func aivenPlan(tier ValkeyTier, size ValkeySize) (string, error) {
 
 	switch size {
 	case ValkeySizeRAM1gb:
-		if tier == ValkeyTierHighAvailability {
+		if tier == ValkeyTierSingleNode {
 			return "", apierror.Errorf("invalid Valkey size for tier %s: %s", tier, size)
 		}
 		plan += "1"
@@ -248,4 +257,42 @@ func aivenPlan(tier ValkeyTier, size ValkeySize) (string, error) {
 	}
 
 	return plan, nil
+}
+
+var aivenPlans = map[string]ValkeyTier{
+	"business": ValkeyTierHighAvailability,
+	"startup":  ValkeyTierSingleNode,
+}
+
+var aivenSizes = map[string]ValkeySize{
+	"1":   ValkeySizeRAM1gb,
+	"4":   ValkeySizeRAM4gb,
+	"8":   ValkeySizeRAM8gb,
+	"14":  ValkeySizeRAM14gb,
+	"28":  ValkeySizeRAM28gb,
+	"56":  ValkeySizeRAM56gb,
+	"112": ValkeySizeRAM112gb,
+	"200": ValkeySizeRAM200gb,
+}
+
+func tierAndSizeFromPlan(plan string) (ValkeyTier, ValkeySize, error) {
+	t, s, ok := strings.Cut(plan, "-")
+	if !ok {
+		return "", "", fmt.Errorf("invalid Valkey plan: %s", plan)
+	}
+
+	tier, ok := aivenPlans[t]
+	if !ok {
+		return "", "", fmt.Errorf("invalid Valkey tier: %s", t)
+	}
+
+	size, ok := aivenSizes[s]
+	if !ok {
+		return "", "", fmt.Errorf("invalid Valkey size: %s", s)
+	}
+	if size == ValkeySizeRAM1gb && tier == ValkeyTierSingleNode {
+		return "", "", fmt.Errorf("invalid Valkey size for tier %s: %s", tier, s)
+	}
+
+	return tier, size, nil
 }
