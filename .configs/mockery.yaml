@@ -1,10 +1,8 @@
-with-expecter: true
-disable-version-string: true
-resolve-type-alias: false
-issue-845-fix: true
-inpackage: true
-dir: "{{.InterfaceDir}}"
-filename: "mock_{{.InterfaceNameSnake}}.go"
+dir: "{{ .InterfaceDir }}"
+filename: "mock_{{.InterfaceName | snakecase }}.go"
+template: testify
+template-data:
+  unroll-variadic: true
 packages:
   github.com/nais/api/internal/thirdparty/hookd:
     interfaces:
@@ -17,8 +15,8 @@ packages:
       AuthenticatedUser:
   github.com/nais/api/pkg/apiclient/protoapi:
     config:
-      include-regex: ".*Server"
-      exclude-regex: "Unsafe.*"
+      include-interface-regex: .*Server
+      exclude-interface-regex: Unsafe.*
   github.com/nais/api/internal/cost/costsql:
     interfaces:
       Querier:
