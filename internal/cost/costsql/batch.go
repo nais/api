@@ -24,7 +24,8 @@ INSERT INTO
 		app_label,
 		service,
 		date,
-		daily_cost
+		daily_cost,
+		service_name
 	)
 VALUES
 	(
@@ -33,7 +34,8 @@ VALUES
 		$3,
 		$4,
 		$5,
-		$6
+		$6,
+		$7
 	)
 ON CONFLICT ON CONSTRAINT daily_cost_key DO UPDATE
 SET
@@ -53,6 +55,7 @@ type CostUpsertParams struct {
 	Service     string
 	Date        pgtype.Date
 	DailyCost   float32
+	ServiceName *string
 }
 
 func (q *Queries) CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostUpsertBatchResults {
@@ -65,6 +68,7 @@ func (q *Queries) CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostU
 			a.Service,
 			a.Date,
 			a.DailyCost,
+			a.ServiceName,
 		}
 		batch.Queue(costUpsert, vals...)
 	}

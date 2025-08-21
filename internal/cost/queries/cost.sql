@@ -79,7 +79,8 @@ INSERT INTO
 		app_label,
 		service,
 		date,
-		daily_cost
+		daily_cost,
+		service_name
 	)
 VALUES
 	(
@@ -88,7 +89,8 @@ VALUES
 		@app_label,
 		@service,
 		@date,
-		@daily_cost
+		@daily_cost,
+		@service_name
 	)
 ON CONFLICT ON CONSTRAINT daily_cost_key DO UPDATE
 SET
