@@ -1,6 +1,6 @@
 -- +goose Up
-
-TRUNCATE TABLE cost;
+TRUNCATE TABLE cost
+;
 
 ALTER TABLE cost
 DROP CONSTRAINT daily_cost_key
