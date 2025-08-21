@@ -21,19 +21,22 @@ type Alert interface {
 	GetName() string
 	GetEnvironmentName() string
 	GetTeamSlug() slug.Slug
+	GetState() AlertState
 	IsNode()
 	IsAlert()
 }
 
 type BaseAlert struct {
-	Name            string    `json:"name"`
-	EnvironmentName string    `json:"environmentName"`
-	TeamSlug        slug.Slug `json:"teamSlug"`
+	Name            string     `json:"name"`
+	EnvironmentName string     `json:"environmentName"`
+	TeamSlug        slug.Slug  `json:"teamSlug"`
+	State           AlertState `json:"state"`
 }
 
 func (b BaseAlert) GetName() string            { return b.Name }
 func (b BaseAlert) GetEnvironmentName() string { return b.EnvironmentName }
 func (b BaseAlert) GetTeamSlug() slug.Slug     { return b.TeamSlug }
+func (b BaseAlert) GetState() AlertState       { return b.State }
 
 type AlertOrder struct {
 	Field     AlertOrderField      `json:"field"`
@@ -144,8 +147,8 @@ func (e PrometheusAlertOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-type AlertsFilter struct {
-	State *AlertState `json:"state,omitempty"`
+type TeamAlertsFilter struct {
+	States []AlertState `json:"states,omitempty"`
 }
 
 type AlertState string

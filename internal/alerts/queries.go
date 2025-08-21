@@ -2,6 +2,7 @@ package alerts
 
 import (
 	"context"
+	"strings"
 
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/slug"
@@ -20,7 +21,14 @@ func ListPrometheusAlerts(ctx context.Context, environmentName string, teamSlug 
 		for _, anyRule := range rg.Rules {
 			switch ar := anyRule.(type) {
 			case promv1.AlertingRule:
-				retVal = append(retVal, PrometheusAlert{BaseAlert{Name: ar.Name}})
+				retVal = append(retVal, PrometheusAlert{
+					BaseAlert{
+						Name:            ar.Name,
+						EnvironmentName: environmentName,
+						TeamSlug:        teamSlug,
+						State:           AlertState(strings.ToUpper(ar.State)),
+					},
+				})
 			case promv1.RecordingRule:
 				continue
 			default:

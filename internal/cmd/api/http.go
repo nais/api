@@ -12,7 +12,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/activitylog"
-	"github.com/nais/api/internal/alerts/prometheus_alerts"
+	"github.com/nais/api/internal/alerts"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/middleware"
@@ -306,7 +306,7 @@ func ConfigureGraph(
 		ctx = valkey.NewLoaderContext(ctx, valkeyWatcher)
 		ctx = price.NewLoaderContext(ctx, priceRetriever, log)
 		ctx = utilization.NewLoaderContext(ctx, prometheusClient, log)
-		ctx = prometheus_alerts.NewLoaderContext(ctx, prometheusClient, log)
+		ctx = alerts.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, sqlDatabaseWatcher, sqlInstanceWatcher)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, namespaceWatcher)

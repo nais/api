@@ -28,7 +28,7 @@ extend type TeamEnvironment {
 		"""
 		Filter the returned objects
 		"""
-		filter: AlertsFilter
+		filter: TeamAlertsFilter
 	): AlertConnection!
 }
 
@@ -40,6 +40,15 @@ interface Alert implements Node {
 	id: ID!
 	"The name of the alert."
 	name: String!
+
+	"The environment slug that the alert belongs to."
+	environmentName: String!
+
+	"The team slug that the alert belongs to."
+	teamSlug: Slug!
+
+	"The state of the alert."
+	state: AlertState!
 }
 
 """
@@ -57,6 +66,9 @@ type PrometheusAlert implements Node & Alert {
 
 	"The team slug that the alert belongs to."
 	teamSlug: Slug!
+
+	"The state of the alert."
+	state: AlertState!
 }
 
 """
@@ -126,11 +138,11 @@ input AlertOrder {
 """
 Input for filtering alerts.
 """
-input AlertsFilter {
+input TeamAlertsFilter {
 	"""
 	Only return alerts from the given named states.
 	"""
-	state: AlertState
+	states: [AlertState!]
 }
 
 enum AlertState {
