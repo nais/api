@@ -6,6 +6,7 @@ import (
 	activitylog "github.com/nais/api/internal/activitylog"
 	alerts "github.com/nais/api/internal/alerts"
 	repository "github.com/nais/api/internal/github/repository"
+	donotuse "github.com/nais/api/internal/graph/model/donotuse"
 	pagination "github.com/nais/api/internal/graph/pagination"
 	bigquery "github.com/nais/api/internal/persistence/bigquery"
 	bucket "github.com/nais/api/internal/persistence/bucket"
@@ -176,7 +177,7 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Team.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.TeamEnvironment.Alerts = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder) int {
+	c.TeamEnvironment.Alerts = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *donotuse.AlertsFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.UnleashInstance.AllowedTeams = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {

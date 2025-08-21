@@ -24,6 +24,11 @@ extend type TeamEnvironment {
 		Ordering options for items returned from the connection.
 		"""
 		orderBy: AlertOrder
+
+		"""
+		Filter the returned objects
+		"""
+		filter: AlertsFilter
 	): AlertConnection!
 }
 
@@ -116,4 +121,31 @@ input AlertOrder {
 	The direction to order items by.
 	"""
 	direction: OrderDirection!
+}
+
+"""
+Input for filtering alerts.
+"""
+input AlertsFilter {
+	"""
+	Only return alerts from the given named states.
+	"""
+	state: AlertState
+}
+
+enum AlertState {
+	"""
+	Only return alerts that are firing.
+	"""
+	FIRING
+
+	"""
+	Only return alerts that are inactive.
+	"""
+	INACTIVE
+
+	"""
+	Only return alerts that are pending.
+	"""
+	PENDING
 }

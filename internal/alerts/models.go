@@ -143,3 +143,50 @@ func (e *PrometheusAlertOrderField) UnmarshalGQL(v any) error {
 func (e PrometheusAlertOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
+
+type AlertsFilter struct {
+	State *AlertState `json:"state,omitempty"`
+}
+
+type AlertState string
+
+const (
+	AlertStateFiring   AlertState = "FIRING"
+	AlertStateInactive AlertState = "INACTIVE"
+	AlertStatePending  AlertState = "PENDING"
+)
+
+var AllAlertState = []AlertState{
+	AlertStateFiring,
+	AlertStateInactive,
+	AlertStatePending,
+}
+
+func (e AlertState) IsValid() bool {
+	switch e {
+	case AlertStateFiring, AlertStateInactive, AlertStatePending:
+		return true
+	}
+	return false
+}
+
+func (e AlertState) String() string {
+	return string(e)
+}
+
+func (e *AlertState) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AlertState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AlertState", str)
+	}
+	return nil
+}
+
+func (e AlertState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}

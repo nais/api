@@ -8,8 +8,8 @@ import (
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 )
 
-func ListPrometheusAlerts(ctx context.Context, environmentName string, teamSlug slug.Slug) ([]*PrometheusAlert, error) {
-	retVal := make([]*PrometheusAlert, 0)
+func ListPrometheusAlerts(ctx context.Context, environmentName string, teamSlug slug.Slug) ([]PrometheusAlert, error) {
+	retVal := make([]PrometheusAlert, 0)
 	c := fromContext(ctx).client
 
 	r, err := c.Rules(ctx, environmentName, teamSlug.String())
@@ -20,7 +20,7 @@ func ListPrometheusAlerts(ctx context.Context, environmentName string, teamSlug 
 		for _, anyRule := range rg.Rules {
 			switch ar := anyRule.(type) {
 			case promv1.AlertingRule:
-				retVal = append(retVal, &PrometheusAlert{BaseAlert{Name: ar.Name}})
+				retVal = append(retVal, PrometheusAlert{BaseAlert{Name: ar.Name}})
 			case promv1.RecordingRule:
 				continue
 			default:
