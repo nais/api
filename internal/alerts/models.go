@@ -27,10 +27,14 @@ type Alert interface {
 }
 
 type BaseAlert struct {
-	Name            string     `json:"name"`
-	EnvironmentName string     `json:"environmentName"`
-	TeamSlug        slug.Slug  `json:"teamSlug"`
-	State           AlertState `json:"state"`
+	Name            string           `json:"name"`
+	EnvironmentName string           `json:"environmentName"`
+	TeamSlug        slug.Slug        `json:"teamSlug"`
+	State           AlertState       `json:"state"`
+	Annotations     []*AlertKeyValue `json:"annotations,omitempty"`
+	Labels          []*AlertKeyValue `json:"labels,omitempty"`
+	Query           string           `json:"query"`
+	Duration        float64          `json:"duration"`
 }
 
 func (b BaseAlert) GetName() string            { return b.Name }
@@ -46,18 +50,18 @@ type AlertOrder struct {
 type AlertOrderField string
 
 const (
-	AlertOrderFieldName        AlertOrderField = "NAME"
-	AlertOrderFieldEnvironment AlertOrderField = "ENVIRONMENT"
+	AlertOrderFieldName  AlertOrderField = "NAME"
+	AlertOrderFieldState AlertOrderField = "STATE"
 )
 
 var AllAlertOrderField = []AlertOrderField{
 	AlertOrderFieldName,
-	AlertOrderFieldEnvironment,
+	AlertOrderFieldState,
 }
 
 func (e AlertOrderField) IsValid() bool {
 	switch e {
-	case AlertOrderFieldName, AlertOrderFieldEnvironment:
+	case AlertOrderFieldName, AlertOrderFieldState:
 		return true
 	}
 	return false
@@ -91,6 +95,8 @@ type (
 
 type PrometheusAlert struct {
 	BaseAlert
+
+	RuleGroup string `json:"ruleGroup"`
 }
 
 func (e PrometheusAlert) ID() ident.Ident {
@@ -109,18 +115,18 @@ type PrometheusAlertOrder struct {
 type PrometheusAlertOrderField string
 
 const (
-	PrometheusAlertOrderFieldName        PrometheusAlertOrderField = "NAME"
-	PrometheusAlertOrderFieldEnvironment PrometheusAlertOrderField = "ENVIRONMENT"
+	PrometheusAlertOrderFieldName  PrometheusAlertOrderField = "NAME"
+	PrometheusAlertOrderFieldState PrometheusAlertOrderField = "STATE"
 )
 
 var AllPrometheusAlertOrderField = []PrometheusAlertOrderField{
 	PrometheusAlertOrderFieldName,
-	PrometheusAlertOrderFieldEnvironment,
+	PrometheusAlertOrderFieldState,
 }
 
 func (e PrometheusAlertOrderField) IsValid() bool {
 	switch e {
-	case PrometheusAlertOrderFieldName, PrometheusAlertOrderFieldEnvironment:
+	case PrometheusAlertOrderFieldName, PrometheusAlertOrderFieldState:
 		return true
 	}
 	return false
@@ -192,4 +198,11 @@ func (e *AlertState) UnmarshalGQL(v any) error {
 
 func (e AlertState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type AlertKeyValue struct {
+	// The key for the label or annotation.
+	Key string `json:"key"`
+	// The value for the label or annotation.
+	Value string `json:"value"`
 }

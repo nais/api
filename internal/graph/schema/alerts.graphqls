@@ -49,6 +49,17 @@ interface Alert implements Node {
 
 	"The state of the alert."
 	state: AlertState!
+	"The query for the alert."
+	query: String!
+
+	"The duration for the alert."
+	duration: Float!
+
+	"The labels for the alert."
+	labels: [AlertKeyValue!]!
+
+	"The annotations for the alert."
+	annotations: [AlertKeyValue!]!
 }
 
 """
@@ -69,6 +80,21 @@ type PrometheusAlert implements Node & Alert {
 
 	"The state of the alert."
 	state: AlertState!
+
+	"The query for the alert."
+	query: String!
+
+	"The duration for the alert."
+	duration: Float!
+
+	"The labels for the alert."
+	labels: [AlertKeyValue!]!
+
+	"The annotations for the alert."
+	annotations: [AlertKeyValue!]!
+
+	"The prometheus rule group for the alert."
+	ruleGroup: String!
 }
 
 """
@@ -115,9 +141,9 @@ enum AlertOrderField {
 	"""
 	NAME
 	"""
-	Order by creation time.
+	Order by state.
 	"""
-	ENVIRONMENT
+	STATE
 }
 
 """
@@ -160,4 +186,12 @@ enum AlertState {
 	Only return alerts that are pending.
 	"""
 	PENDING
+}
+
+type AlertKeyValue {
+	"The key for the label or annotation."
+	key: String!
+
+	"The value for the label or annotation."
+	value: String!
 }

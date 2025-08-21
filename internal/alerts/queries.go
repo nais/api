@@ -21,14 +21,35 @@ func ListPrometheusAlerts(ctx context.Context, environmentName string, teamSlug 
 		for _, anyRule := range rg.Rules {
 			switch ar := anyRule.(type) {
 			case promv1.AlertingRule:
+				var labels []*AlertKeyValue
+				for k, v := range ar.Labels {
+					labels = append(labels, &AlertKeyValue{
+						Key:   string(k),
+						Value: string(v),
+					})
+				}
+
+				var annotations []*AlertKeyValue
+				for k, v := range ar.Annotations {
+					annotations = append(annotations, &AlertKeyValue{
+						Key:   string(k),
+						Value: string(v),
+					})
+				}
 				retVal = append(retVal, PrometheusAlert{
-					BaseAlert{
+					BaseAlert: BaseAlert{
 						Name:            ar.Name,
 						EnvironmentName: environmentName,
 						TeamSlug:        teamSlug,
 						State:           AlertState(strings.ToUpper(ar.State)),
+						Labels:          labels,
+						Query:           ar.Query,
+						Annotations:     annotations,
+						Duration:        ar.Duration,
 					},
-				})
+					RuleGroup: rg.Name,
+				},
+				)
 			case promv1.RecordingRule:
 				continue
 			default:
