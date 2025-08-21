@@ -6,7 +6,7 @@ import (
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 )
 
-type AlertsClient interface {
+type PrometheusAlertsClient interface {
 	Alerts(ctx context.Context, environment, team string) (promv1.AlertsResult, error)
 	AlertsAll(ctx context.Context, team string) (map[string]promv1.AlertsResult, error)
 

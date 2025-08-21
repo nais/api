@@ -3,12 +3,13 @@ package alerts
 import (
 	"context"
 
+	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/slug"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 )
 
-func ListGrafanaAlerts(ctx context.Context, environmentName string, teamSlug slug.Slug) ([]Alert, error) {
-	retVal := make([]Alert, 0)
+func ListPrometheusAlerts(ctx context.Context, environmentName string, teamSlug slug.Slug) ([]*PrometheusAlert, error) {
+	retVal := make([]*PrometheusAlert, 0)
 	c := fromContext(ctx).client
 
 	r, err := c.Rules(ctx, environmentName, teamSlug.String())
@@ -19,7 +20,7 @@ func ListGrafanaAlerts(ctx context.Context, environmentName string, teamSlug slu
 		for _, anyRule := range rg.Rules {
 			switch ar := anyRule.(type) {
 			case promv1.AlertingRule:
-				retVal = append(retVal, &PrometheusAlert{Name: ar.Name})
+				retVal = append(retVal, &PrometheusAlert{BaseAlert{Name: ar.Name}})
 			case promv1.RecordingRule:
 				continue
 			default:
@@ -28,4 +29,17 @@ func ListGrafanaAlerts(ctx context.Context, environmentName string, teamSlug slu
 		}
 	}
 	return retVal, nil
+}
+
+func GetByIdent(ctx context.Context, id ident.Ident) (Alert, error) {
+	team, env, alertType, alertName, err := parseIdent(id)
+	if err != nil {
+		return nil, err
+	}
+	return Get(ctx, team, env, alertType, alertName)
+}
+
+func Get(ctx context.Context, team slug.Slug, env, name, alertType string) (Alert, error) {
+	// TODO: implement this
+	return nil, nil
 }

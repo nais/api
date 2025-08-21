@@ -15,7 +15,7 @@ func (r *teamEnvironmentResolver) Alerts(ctx context.Context, obj *team.TeamEnvi
 		return nil, err
 	}
 
-	a, err := alerts.ListGrafanaAlerts(ctx, obj.EnvironmentName, obj.TeamSlug)
+	a, err := alerts.ListPrometheusAlerts(ctx, obj.EnvironmentName, obj.TeamSlug)
 	if err != nil {
 		return nil, err
 	}

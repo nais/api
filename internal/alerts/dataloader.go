@@ -10,7 +10,7 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, client AlertsClient, log logrus.FieldLogger) context.Context {
+func NewLoaderContext(ctx context.Context, client PrometheusAlertsClient, log logrus.FieldLogger) context.Context {
 	return context.WithValue(ctx, loadersKey, newLoaders(client, log))
 }
 
@@ -20,10 +20,10 @@ func fromContext(ctx context.Context) *loaders {
 
 type loaders struct {
 	log    logrus.FieldLogger
-	client AlertsClient
+	client PrometheusAlertsClient
 }
 
-func newLoaders(client AlertsClient, log logrus.FieldLogger) *loaders {
+func newLoaders(client PrometheusAlertsClient, log logrus.FieldLogger) *loaders {
 	return &loaders{
 		client: client,
 		log:    log,

@@ -27,6 +27,9 @@ extend type TeamEnvironment {
 	): AlertConnection!
 }
 
+"""
+Alert interface.
+"""
 interface Alert implements Node {
 	"The unique identifier for the alert."
 	id: ID!
@@ -34,25 +37,25 @@ interface Alert implements Node {
 	name: String!
 }
 
+"""
+PrometheusAlert type
+"""
 type PrometheusAlert implements Node & Alert {
 	"The unique identifier for the alert."
 	id: ID!
+
 	"The name of the alert."
 	name: String!
-	# "The expression that defines the alert."
-	# expression: String!
-	# "The severity of the alert."
-	# severity: String!
-	# "The health status of the alert."
-	# health: String!
-	# "The last evaluation time of the alert."
-	# lastEvaluation: Time
-	# "Instances of the alert."
-	# alerts: [AlertInstance!]!
+
+	"The environment slug that the alert belongs to."
+	environmentName: String!
+
+	"The team slug that the alert belongs to."
+	teamSlug: Slug!
 }
 
 """
-Workload connection.
+AlertConnection connection.
 """
 type AlertConnection {
 	"""
@@ -94,6 +97,10 @@ enum AlertOrderField {
 	Order by name.
 	"""
 	NAME
+	"""
+	Order by creation time.
+	"""
+	ENVIRONMENT
 }
 
 """
