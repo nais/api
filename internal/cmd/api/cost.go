@@ -75,7 +75,7 @@ func runCostUpdateJob(ctx context.Context, updater *costupdater.Updater, log log
 	log.Infof("start scheduled cost update run")
 	start := time.Now()
 
-	ctx, cancel := context.WithTimeout(ctx, 15*time.Minute)
+	ctx, cancel := context.WithTimeout(ctx, time.Hour)
 	defer cancel()
 
 	done := make(chan bool)
