@@ -434,12 +434,3 @@ func (c *FakeClient) AlertsAll(ctx context.Context, team string) (map[string]pro
 	}
 	return out, nil
 }
-
-func stringifyLabels(ls prom.LabelSet) string {
-	parts := make([]string, 0, len(ls))
-	for k, v := range ls {
-		parts = append(parts, fmt.Sprintf(`%s="%s"`, k, v))
-	}
-	slices.Sort(parts)
-	return "{" + strings.Join(parts, ",") + "}"
-}

@@ -107,52 +107,6 @@ func (PrometheusAlert) IsNode() {}
 
 func (PrometheusAlert) IsAlert() {}
 
-type PrometheusAlertOrder struct {
-	Field     PrometheusAlertOrderField `json:"field"`
-	Direction model.OrderDirection      `json:"direction"`
-}
-
-type PrometheusAlertOrderField string
-
-const (
-	PrometheusAlertOrderFieldName  PrometheusAlertOrderField = "NAME"
-	PrometheusAlertOrderFieldState PrometheusAlertOrderField = "STATE"
-)
-
-var AllPrometheusAlertOrderField = []PrometheusAlertOrderField{
-	PrometheusAlertOrderFieldName,
-	PrometheusAlertOrderFieldState,
-}
-
-func (e PrometheusAlertOrderField) IsValid() bool {
-	switch e {
-	case PrometheusAlertOrderFieldName, PrometheusAlertOrderFieldState:
-		return true
-	}
-	return false
-}
-
-func (e PrometheusAlertOrderField) String() string {
-	return string(e)
-}
-
-func (e *PrometheusAlertOrderField) UnmarshalGQL(v any) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = PrometheusAlertOrderField(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid PrometheusAlertOrderField", str)
-	}
-	return nil
-}
-
-func (e PrometheusAlertOrderField) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
 type TeamAlertsFilter struct {
 	States []AlertState `json:"states,omitempty"`
 }
