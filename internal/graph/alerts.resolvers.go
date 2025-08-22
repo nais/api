@@ -2,12 +2,27 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/nais/api/internal/alerts"
+	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/team"
 )
+
+func (r *prometheusAlertResolver) Team(ctx context.Context, obj *alerts.PrometheusAlert) (*team.Team, error) {
+	team, err := team.Get(ctx, obj.TeamSlug)
+	if err != nil {
+		fmt.Println("Error getting team: ", obj.TeamSlug, err)
+	}
+
+	return team, err
+}
+
+func (r *prometheusAlertResolver) TeamEnvironment(ctx context.Context, obj *alerts.PrometheusAlert) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
 
 func (r *teamEnvironmentResolver) Alerts(ctx context.Context, obj *team.TeamEnvironment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) (*pagination.Connection[alerts.Alert], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
@@ -37,3 +52,9 @@ func (r *teamEnvironmentResolver) Alerts(ctx context.Context, obj *team.TeamEnvi
 	ret := pagination.Slice(filtered, page)
 	return pagination.NewConnection(ret, page, len(filtered)), nil
 }
+
+func (r *Resolver) PrometheusAlert() gengql.PrometheusAlertResolver {
+	return &prometheusAlertResolver{r}
+}
+
+type prometheusAlertResolver struct{ *Resolver }

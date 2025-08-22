@@ -36,29 +36,41 @@ extend type TeamEnvironment {
 Alert interface.
 """
 interface Alert implements Node {
-	"The unique identifier for the alert."
+	"""
+	The unique identifier for the alert.
+	"""
 	id: ID!
-	"The name of the alert."
+	"""
+	The name of the alert.
+	"""
 	name: String!
-
-	"The environment slug that the alert belongs to."
-	environmentName: String!
-
-	"The team slug that the alert belongs to."
-	teamSlug: Slug!
-
-	"The state of the alert."
+	"""
+	The team that owns the alert.
+	"""
+	team: Team!
+	"""
+	The team environment for the alert.
+	"""
+	teamEnvironment: TeamEnvironment!
+	"""
+	The state of the alert.
+	"""
 	state: AlertState!
-	"The query for the alert."
+	"""
+	The query for the alert.
+	"""
 	query: String!
-
-	"The duration for the alert."
+	"""
+	The duration for the alert.
+	"""
 	duration: Float!
-
-	"The labels for the alert."
+	"""
+	The labels for the alert.
+	"""
 	labels: [AlertKeyValue!]!
-
-	"The annotations for the alert."
+	"""
+	The annotations for the alert.
+	"""
 	annotations: [AlertKeyValue!]!
 }
 
@@ -68,32 +80,43 @@ PrometheusAlert type
 type PrometheusAlert implements Node & Alert {
 	"The unique identifier for the alert."
 	id: ID!
-
 	"The name of the alert."
 	name: String!
-
-	"The environment slug that the alert belongs to."
-	environmentName: String!
-
-	"The team slug that the alert belongs to."
-	teamSlug: Slug!
-
-	"The state of the alert."
+	"""
+	The team that owns the alert.
+	"""
+	team: Team!
+	"""
+	The team environment for the alert.
+	"""
+	teamEnvironment: TeamEnvironment!
+	"""
+	The state of the alert.
+	"""
 	state: AlertState!
 
-	"The query for the alert."
+	"""
+	The query for the alert.
+	"""
 	query: String!
-
-	"The duration for the alert."
+	"""
+	The duration for the alert.
+	"""
 	duration: Float!
 
-	"The labels for the alert."
+	"""
+	The labels for the alert.
+	"""
 	labels: [AlertKeyValue!]!
 
-	"The annotations for the alert."
+	"""
+	The annotations for the alert.
+	"""
 	annotations: [AlertKeyValue!]!
 
-	"The prometheus rule group for the alert."
+	"""
+	The prometheus rule group for the alert.
+	"""
 	ruleGroup: String!
 }
 
