@@ -13,7 +13,6 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 
-	// teampkg "github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/thirdparty/promclient"
 	"github.com/nais/api/internal/workload/application"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
