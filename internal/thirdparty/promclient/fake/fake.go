@@ -7,7 +7,6 @@ import (
 	"slices"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
@@ -345,88 +344,6 @@ func (c *FakeClient) RulesAll(ctx context.Context, teamSlug slug.Slug) (map[stri
 	out := make(map[string]promv1.RulesResult, len(c.environments))
 	for _, env := range c.environments {
 		res, err := c.Rules(ctx, env, teamSlug)
-		if err != nil {
-			return nil, err
-		}
-		out[env] = res
-	}
-	return out, nil
-}
-
-func (c *FakeClient) Alerts(ctx context.Context, environment string, teamSlug slug.Slug) (promv1.AlertsResult, error) {
-	now := c.now().Time()
-	page, err := pagination.ParsePage(ptr.To(1000), nil, nil, nil)
-	if err != nil {
-		return promv1.AlertsResult{}, err
-	}
-	teams, err := team.List(ctx, page, nil, nil)
-	if err != nil {
-		return promv1.AlertsResult{}, err
-	}
-
-	var alerts []promv1.Alert
-	add := func(ns slug.Slug, name, severity string, state promv1.AlertState, minutesAgo int) {
-		lbls := prom.LabelSet{
-			"alertname":                  prom.LabelValue(name),
-			prom.LabelName(teamLabelKey): prom.LabelValue(ns),
-			"environment":                prom.LabelValue(environment),
-			"severity":                   prom.LabelValue(severity),
-		}
-		anns := prom.LabelSet{
-			"summary":     prom.LabelValue(fmt.Sprintf("%s in %s", name, ns)),
-			"description": prom.LabelValue("Synthetic alert from FakeClient"),
-		}
-		alerts = append(alerts, promv1.Alert{
-			Labels:      lbls,
-			Annotations: anns,
-			State:       state,
-			ActiveAt:    now.Add(-time.Duration(minutesAgo) * time.Minute),
-		})
-	}
-
-	total := 0
-	for _, t := range teams.Nodes() {
-		if t.Slug != teamSlug {
-			continue
-		}
-		apps := application.ListAllForTeam(ctx, t.Slug, nil, nil)
-		hasEnv := false
-		for _, a := range apps {
-			if a.EnvironmentName == environment {
-				hasEnv = true
-				break
-			}
-		}
-		if !hasEnv {
-			continue
-		}
-
-		n := 1 + c.random.IntN(3)
-		for i := 0; i < n; i++ {
-			switch c.random.IntN(3) {
-			case 0:
-				add(t.Slug, "HighCPUSaturation", "warning", promv1.AlertStateFiring, 5+c.random.IntN(20))
-			case 1:
-				add(t.Slug, "HighMemoryUsage", "critical", promv1.AlertStateFiring, 10+c.random.IntN(60))
-			default:
-				add(t.Slug, "HTTPErrorRateTooHigh", "high", promv1.AlertStatePending, 1+c.random.IntN(5))
-			}
-			total++
-			if total > 40 {
-				break
-			}
-		}
-		if total > 40 {
-			break
-		}
-	}
-	return promv1.AlertsResult{Alerts: alerts}, nil
-}
-
-func (c *FakeClient) AlertsAll(ctx context.Context, teamSlug slug.Slug) (map[string]promv1.AlertsResult, error) {
-	out := make(map[string]promv1.AlertsResult, len(c.environments))
-	for _, env := range c.environments {
-		res, err := c.Alerts(ctx, env, teamSlug)
 		if err != nil {
 			return nil, err
 		}

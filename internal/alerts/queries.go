@@ -8,6 +8,7 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/slug"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
+	"github.com/prometheus/common/model"
 )
 
 func ListPrometheusRules(ctx context.Context, environmentName string, teamSlug slug.Slug) ([]PrometheusAlert, error) {
@@ -18,40 +19,15 @@ func ListPrometheusRules(ctx context.Context, environmentName string, teamSlug s
 	if err != nil {
 		return nil, err
 	}
+
 	for _, rg := range r.Groups {
 		for _, anyRule := range rg.Rules {
 			switch ar := anyRule.(type) {
 			case promv1.AlertingRule:
-				var labels []*AlertKeyValue
-				for k, v := range ar.Labels {
-					labels = append(labels, &AlertKeyValue{
-						Key:   string(k),
-						Value: string(v),
-					})
-				}
-
-				var annotations []*AlertKeyValue
-				for k, v := range ar.Annotations {
-					annotations = append(annotations, &AlertKeyValue{
-						Key:   string(k),
-						Value: string(v),
-					})
-				}
-				retVal = append(retVal, PrometheusAlert{
-					BaseAlert: BaseAlert{
-						Name:            ar.Name,
-						EnvironmentName: environmentName,
-						TeamSlug:        teamSlug,
-						State:           AlertState(strings.ToUpper(ar.State)),
-						Labels:          labels,
-						Query:           ar.Query,
-						Annotations:     annotations,
-						Duration:        ar.Duration,
-					},
-					RuleGroup: rg.Name,
-				},
-				)
-			case promv1.RecordingRule:
+				retVal = append(retVal, buildPromAlert(&ar, environmentName, teamSlug, rg.Name))
+			case *promv1.AlertingRule:
+				retVal = append(retVal, buildPromAlert(ar, environmentName, teamSlug, rg.Name))
+			case promv1.RecordingRule, *promv1.RecordingRule:
 				continue
 			default:
 				continue
@@ -59,6 +35,43 @@ func ListPrometheusRules(ctx context.Context, environmentName string, teamSlug s
 		}
 	}
 	return retVal, nil
+}
+
+func buildPromAlert(ar *promv1.AlertingRule, env string, team slug.Slug, group string) PrometheusAlert {
+	details := extractDetails(ar)
+
+	return PrometheusAlert{
+		BaseAlert: BaseAlert{
+			Name:            ar.Name,
+			EnvironmentName: env,
+			TeamSlug:        team,
+			State:           AlertState(strings.ToUpper(ar.State)),
+			Query:           ar.Query,
+			Duration:        ar.Duration,
+		},
+		RuleGroup: group,
+		Details:   details,
+	}
+}
+
+func extractDetails(ar *promv1.AlertingRule) []*PrometheusAlertDetails {
+	details := make([]*PrometheusAlertDetails, 0, len(ar.Alerts))
+	for _, a := range ar.Alerts {
+		get := func(key model.LabelName) string {
+			if v := a.Annotations[key]; v != "" {
+				return string(v)
+			}
+			return string(ar.Annotations[key])
+		}
+
+		details = append(details, &PrometheusAlertDetails{
+			Action:      get(model.LabelName("action")),
+			Consequence: get(model.LabelName("consequence")),
+			Summary:     get(model.LabelName("summary")),
+			Since:       a.ActiveAt,
+		})
+	}
+	return details
 }
 
 func GetByIdent(ctx context.Context, id ident.Ident) (Alert, error) {
@@ -70,14 +83,10 @@ func GetByIdent(ctx context.Context, id ident.Ident) (Alert, error) {
 }
 
 func Get(ctx context.Context, alertType AlertType, teamSlug slug.Slug, environmentName, ruleName string) (Alert, error) {
-	if alertType == AlertTypePrometheus {
-		a, err := getPrometheusRule(ctx, environmentName, teamSlug, ruleName)
-		if err != nil {
-			return nil, err
-		}
-		return a, nil
+	if alertType != AlertTypePrometheus {
+		return nil, fmt.Errorf("unsupported alert type: %s", alertType)
 	}
-	return nil, fmt.Errorf("unsupported alert type: %s", alertType)
+	return getPrometheusRule(ctx, environmentName, teamSlug, ruleName)
 }
 
 func getPrometheusRule(ctx context.Context, environmentName string, teamSlug slug.Slug, ruleName string) (Alert, error) {
@@ -93,39 +102,12 @@ func getPrometheusRule(ctx context.Context, environmentName string, teamSlug slu
 			switch ar := anyRule.(type) {
 			case promv1.AlertingRule:
 				if ar.Name == ruleName {
-					var labels []*AlertKeyValue
-					for k, v := range ar.Labels {
-						labels = append(labels, &AlertKeyValue{
-							Key:   string(k),
-							Value: string(v),
-						})
-					}
-
-					var annotations []*AlertKeyValue
-					for k, v := range ar.Annotations {
-						annotations = append(annotations, &AlertKeyValue{
-							Key:   string(k),
-							Value: string(v),
-						})
-					}
-					return PrometheusAlert{
-						BaseAlert: BaseAlert{
-							Name:            ar.Name,
-							EnvironmentName: environmentName,
-							TeamSlug:        teamSlug,
-							State:           AlertState(strings.ToUpper(ar.State)),
-							Labels:          labels,
-							Query:           ar.Query,
-							Annotations:     annotations,
-							Duration:        ar.Duration,
-						},
-						RuleGroup: rg.Name,
-					}, nil
+					return buildPromAlert(&ar, environmentName, teamSlug, rg.Name), nil
 				}
-			case promv1.RecordingRule:
-				continue
-			default:
-				continue
+			case *promv1.AlertingRule:
+				if ar.Name == ruleName {
+					return buildPromAlert(ar, environmentName, teamSlug, rg.Name), nil
+				}
 			}
 		}
 	}

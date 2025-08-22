@@ -64,14 +64,6 @@ interface Alert implements Node {
 	The duration for the alert.
 	"""
 	duration: Float!
-	"""
-	The labels for the alert.
-	"""
-	labels: [AlertKeyValue!]!
-	"""
-	The annotations for the alert.
-	"""
-	annotations: [AlertKeyValue!]!
 }
 
 """
@@ -105,19 +97,36 @@ type PrometheusAlert implements Node & Alert {
 	duration: Float!
 
 	"""
-	The labels for the alert.
-	"""
-	labels: [AlertKeyValue!]!
-
-	"""
-	The annotations for the alert.
-	"""
-	annotations: [AlertKeyValue!]!
-
-	"""
 	The prometheus rule group for the alert.
 	"""
 	ruleGroup: String!
+
+	"""
+	The details of the alert available if state is firing.
+	"""
+	details: [PrometheusAlertDetails!]!
+}
+
+type PrometheusAlertDetails {
+	"""
+	The action to take when the alert fires.
+	"""
+	action: String!
+
+	"""
+	The consequence of the alert firing.
+	"""
+	consequence: String!
+
+	"""
+	A summary of the alert.
+	"""
+	summary: String!
+
+	"""
+	The time when the alert started firing.
+	"""
+	since: Time!
 }
 
 """
@@ -209,12 +218,4 @@ enum AlertState {
 	Only return alerts that are pending.
 	"""
 	PENDING
-}
-
-type AlertKeyValue {
-	"The key for the label or annotation."
-	key: String!
-
-	"The value for the label or annotation."
-	value: String!
 }

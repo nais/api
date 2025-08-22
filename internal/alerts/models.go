@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
@@ -27,14 +28,13 @@ type Alert interface {
 }
 
 type BaseAlert struct {
-	Name            string           `json:"name"`
-	State           AlertState       `json:"state"`
-	Annotations     []*AlertKeyValue `json:"annotations,omitempty"`
-	Labels          []*AlertKeyValue `json:"labels,omitempty"`
-	Query           string           `json:"query"`
-	Duration        float64          `json:"duration"`
-	TeamSlug        slug.Slug        `json:"-"`
-	EnvironmentName string           `json:"-"`
+	Name     string     `json:"name"`
+	State    AlertState `json:"state"`
+	Query    string     `json:"query"`
+	Duration float64    `json:"duration"`
+
+	TeamSlug        slug.Slug `json:"-"`
+	EnvironmentName string    `json:"-"`
 }
 
 func (b BaseAlert) GetName() string            { return b.Name }
@@ -96,7 +96,15 @@ type (
 type PrometheusAlert struct {
 	BaseAlert
 
-	RuleGroup string `json:"ruleGroup"`
+	Details   []*PrometheusAlertDetails `json:"alertDetails"`
+	RuleGroup string                    `json:"ruleGroup"`
+}
+
+type PrometheusAlertDetails struct {
+	Action      string    `json:"action"`
+	Consequence string    `json:"consequence"`
+	Summary     string    `json:"summary"`
+	Since       time.Time `json:"since"`
 }
 
 func (e PrometheusAlert) ID() ident.Ident {
@@ -152,13 +160,6 @@ func (e *AlertState) UnmarshalGQL(v any) error {
 
 func (e AlertState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type AlertKeyValue struct {
-	// The key for the label or annotation.
-	Key string `json:"key"`
-	// The value for the label or annotation.
-	Value string `json:"value"`
 }
 
 type AlertType int

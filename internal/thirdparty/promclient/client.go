@@ -27,15 +27,9 @@ type RulesClient interface {
 	RulesAll(ctx context.Context, teamSlug slug.Slug) (map[string]promv1.RulesResult, error)
 }
 
-type AlertsClient interface {
-	Alerts(ctx context.Context, environment string, teamSlug slug.Slug) (promv1.AlertsResult, error)
-	AlertsAll(ctx context.Context, teamSlug slug.Slug) (map[string]promv1.AlertsResult, error)
-}
-
 type Client interface {
 	QueryClient
 	RulesClient
-	AlertsClient
 }
 
 type QueryOpts struct {
@@ -184,50 +178,6 @@ func (c *RealClient) RulesAll(ctx context.Context, teamSlug slug.Slug) (map[stri
 		return nil, err
 	}
 	out := make(map[string]promv1.RulesResult, len(items))
-	for _, it := range items {
-		out[it.env] = it.res
-	}
-	return out, nil
-}
-
-func (c *RealClient) Alerts(ctx context.Context, environment string, teamSlug slug.Slug) (promv1.AlertsResult, error) {
-	api, ok := c.prometheuses[environment]
-	if !ok {
-		return promv1.AlertsResult{}, fmt.Errorf("no prometheus client for environment %s", environment)
-	}
-	res, err := api.Alerts(ctx)
-	if err != nil {
-		return promv1.AlertsResult{}, err
-	}
-	if teamSlug == "" {
-		return res, nil
-	}
-	return filterAlertsByTeam(res, teamSlug), nil
-}
-
-func (c *RealClient) AlertsAll(ctx context.Context, teamSlug slug.Slug) (map[string]promv1.AlertsResult, error) {
-	type item struct {
-		env string
-		res promv1.AlertsResult
-	}
-	wg := pool.NewWithResults[*item]().WithContext(ctx)
-
-	for env := range c.prometheuses {
-		env := env
-		wg.Go(func(ctx context.Context) (*item, error) {
-			res, err := c.Alerts(ctx, env, teamSlug)
-			if err != nil {
-				c.log.WithError(err).Errorf("failed to get alerts in %s", env)
-				return nil, err
-			}
-			return &item{env: env, res: res}, nil
-		})
-	}
-	items, err := wg.Wait()
-	if err != nil {
-		return nil, err
-	}
-	out := make(map[string]promv1.AlertsResult, len(items))
 	for _, it := range items {
 		out[it.env] = it.res
 	}
