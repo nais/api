@@ -163,7 +163,6 @@ func (c *RealClient) RulesAll(ctx context.Context, teamSlug slug.Slug) (map[stri
 	wg := pool.NewWithResults[*item]().WithContext(ctx)
 
 	for env := range c.prometheuses {
-		env := env
 		wg.Go(func(ctx context.Context) (*item, error) {
 			res, err := c.Rules(ctx, env, teamSlug)
 			if err != nil {

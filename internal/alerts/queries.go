@@ -11,7 +11,35 @@ import (
 	"github.com/prometheus/common/model"
 )
 
-func ListPrometheusRules(ctx context.Context, environmentName string, teamSlug slug.Slug) ([]PrometheusAlert, error) {
+func ListPrometheusRulesForTeam(ctx context.Context, teamSlug slug.Slug) ([]PrometheusAlert, error) {
+	retVal := make([]PrometheusAlert, 0)
+	c := fromContext(ctx).client
+
+	r, err := c.RulesAll(ctx, teamSlug)
+	if err != nil {
+		return nil, err
+	}
+
+	for env, rules := range r {
+		for _, rg := range rules.Groups {
+			for _, anyRule := range rg.Rules {
+				switch ar := anyRule.(type) {
+				case promv1.AlertingRule:
+					retVal = append(retVal, buildPromAlert(&ar, env, teamSlug, rg.Name))
+				case *promv1.AlertingRule:
+					retVal = append(retVal, buildPromAlert(ar, env, teamSlug, rg.Name))
+				case promv1.RecordingRule, *promv1.RecordingRule:
+					continue
+				default:
+					continue
+				}
+			}
+		}
+	}
+	return retVal, nil
+}
+
+func ListPrometheusRulesForTeamInEnvironment(ctx context.Context, environmentName string, teamSlug slug.Slug) ([]PrometheusAlert, error) {
 	retVal := make([]PrometheusAlert, 0)
 	c := fromContext(ctx).client
 

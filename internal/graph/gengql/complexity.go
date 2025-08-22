@@ -134,6 +134,9 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Team.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
+	c.Team.Alerts = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
 	c.Team.Applications = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder, filter *application.TeamApplicationsFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}

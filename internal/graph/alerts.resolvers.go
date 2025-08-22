@@ -24,13 +24,42 @@ func (r *prometheusAlertResolver) TeamEnvironment(ctx context.Context, obj *aler
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
+func (r *teamResolver) Alerts(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) (*pagination.Connection[alerts.Alert], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	prometheusAlerts, err := alerts.ListPrometheusRulesForTeam(ctx, obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	a := make([]alerts.Alert, 0, len(prometheusAlerts))
+	for _, alert := range prometheusAlerts {
+		a = append(a, alert)
+	}
+
+	filtered := alerts.SortFilter.Filter(ctx, a, filter)
+	if orderBy == nil {
+		orderBy = &alerts.AlertOrder{
+			Field:     "NAME",
+			Direction: model.OrderDirectionAsc,
+		}
+	}
+	alerts.SortFilter.Sort(ctx, filtered, orderBy.Field, orderBy.Direction)
+
+	ret := pagination.Slice(filtered, page)
+	return pagination.NewConnection(ret, page, len(filtered)), nil
+}
+
 func (r *teamEnvironmentResolver) Alerts(ctx context.Context, obj *team.TeamEnvironment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) (*pagination.Connection[alerts.Alert], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	prometheusAlerts, err := alerts.ListPrometheusRules(ctx, obj.EnvironmentName, obj.TeamSlug)
+	prometheusAlerts, err := alerts.ListPrometheusRulesForTeamInEnvironment(ctx, obj.EnvironmentName, obj.TeamSlug)
 	if err != nil {
 		return nil, err
 	}
