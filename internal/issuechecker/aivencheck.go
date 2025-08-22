@@ -11,6 +11,10 @@ type AivenCheck struct {
 	Projects    []string
 }
 
+type AivenAlert struct {
+	Message string `json:"message"`
+}
+
 func (a AivenCheck) Run(ctx context.Context) ([]Issue, error) {
 	ret := make([]Issue, 0)
 	for _, project := range a.Projects {
@@ -19,17 +23,22 @@ func (a AivenCheck) Run(ctx context.Context) ([]Issue, error) {
 			return nil, err
 		}
 
+		mapAlerts := make(map[string]Issue)
+
 		for _, alert := range alerts {
+			key := *alert.ServiceType + "-" + *alert.ServiceName + "-" + alert.Event
 			issue := Issue{
 				ResourceName: *alert.ServiceName,
 				ResourceType: *alert.ServiceType, // TODO: assume these are ok, may have to map
 				Environment:  project,
 				Team:         "unknown", // lookup team by project and service type and name
-				Type:         "AivenError",
-				IssueData:    alert,
+				Type:         "AivenAlert",
+				IssueData:    AivenAlert{Message: alert.Event}, // TODO: map to something that makes sense to users
 				Severity:     severity(alert.Severity),
 			}
-
+			mapAlerts[key] = issue
+		}
+		for _, issue := range mapAlerts {
 			ret = append(ret, issue)
 		}
 	}

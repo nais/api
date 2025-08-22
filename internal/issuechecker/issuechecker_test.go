@@ -8,6 +8,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/issuechecker"
+	"github.com/nais/api/internal/persistence/sqlinstance"
 )
 
 func TestRunChecks(t *testing.T) {
@@ -15,13 +16,26 @@ func TestRunChecks(t *testing.T) {
 
 	if err := godotenv.Load("../../.env"); err != nil {
 		log.Fatalf("Failed to load .env file: %v", err)
-
 	}
 	token := os.Getenv("AIVEN_TOKEN")
 
-	issuechecker.New(issuechecker.Config{
+	i := issuechecker.New(issuechecker.Config{
 		AivenToken:    token,
 		AivenProjects: []string{"nav-prod", "nav-dev"},
-	}).RunChecks(ctx)
+	})
 
+	i.SQLInstanceLister = &MockSQLInstanceLister{}
+	i.RunChecks(ctx)
+}
+
+type MockSQLInstanceLister struct{}
+
+func (m *MockSQLInstanceLister) List(ctx context.Context) []*sqlinstance.SQLInstance {
+	return []*sqlinstance.SQLInstance{
+		{
+			Name:      "contests",
+			TeamSlug:  "nais",
+			ProjectID: "nais-prod-020f",
+		},
+	}
 }
