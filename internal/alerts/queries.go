@@ -2,6 +2,7 @@ package alerts
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -61,14 +62,25 @@ func ListPrometheusRules(ctx context.Context, environmentName string, teamSlug s
 }
 
 func GetByIdent(ctx context.Context, id ident.Ident) (Alert, error) {
-	team, env, alertName, err := parseIdent(id)
+	alertType, team, env, alertName, err := parseIdent(id)
 	if err != nil {
 		return nil, err
 	}
-	return Get(ctx, team, env, alertName)
+	return Get(ctx, alertType, team, env, alertName)
 }
 
-func Get(ctx context.Context, teamSlug slug.Slug, environmentName, ruleName string) (Alert, error) {
+func Get(ctx context.Context, alertType AlertType, teamSlug slug.Slug, environmentName, ruleName string) (Alert, error) {
+	if alertType == AlertTypePrometheus {
+		a, err := getPrometheusRule(ctx, environmentName, teamSlug, ruleName)
+		if err != nil {
+			return nil, err
+		}
+		return a, nil
+	}
+	return nil, fmt.Errorf("unsupported alert type: %s", alertType)
+}
+
+func getPrometheusRule(ctx context.Context, environmentName string, teamSlug slug.Slug, ruleName string) (Alert, error) {
 	c := fromContext(ctx).client
 
 	r, err := c.Rules(ctx, environmentName, teamSlug)
@@ -117,5 +129,5 @@ func Get(ctx context.Context, teamSlug slug.Slug, environmentName, ruleName stri
 			}
 		}
 	}
-	return nil, nil
+	return nil, fmt.Errorf("alert not found: %s", ruleName)
 }

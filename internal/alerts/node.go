@@ -17,15 +17,20 @@ func init() {
 	ident.RegisterIdentType(identKey, "ALRT", GetByIdent)
 }
 
-func newIdent(teamSlug slug.Slug, environment, alertName string) ident.Ident {
-	return ident.NewIdent(identKey, teamSlug.String(), environment, alertName)
+func newIdent(alertType AlertType, teamSlug slug.Slug, environment, alertName string) ident.Ident {
+	return ident.NewIdent(identKey, alertType.String(), teamSlug.String(), environment, alertName)
 }
 
-func parseIdent(id ident.Ident) (teamSlug slug.Slug, environment, alertName string, err error) {
+func parseIdent(id ident.Ident) (alertType AlertType, teamSlug slug.Slug, environment, alertName string, err error) {
 	parts := id.Parts()
-	if len(parts) != 3 {
-		return "", "", "", fmt.Errorf("invalid ident")
+	if len(parts) != 4 {
+		return -1, "", "", "", fmt.Errorf("invalid alert ident")
 	}
 
-	return slug.Slug(parts[0]), parts[1], parts[2], nil
+	alertType, err = AlertTypeFromString(parts[0])
+	if err != nil {
+		return -1, "", "", "", fmt.Errorf("invalid alert ident: %w", err)
+	}
+
+	return alertType, slug.Slug(parts[1]), parts[2], parts[3], nil
 }

@@ -100,7 +100,7 @@ type PrometheusAlert struct {
 }
 
 func (e PrometheusAlert) ID() ident.Ident {
-	return newIdent(e.TeamSlug, e.EnvironmentName, e.Name)
+	return newIdent(AlertTypePrometheus, e.TeamSlug, e.EnvironmentName, e.Name)
 }
 
 func (PrometheusAlert) IsNode() {}
@@ -159,4 +159,34 @@ type AlertKeyValue struct {
 	Key string `json:"key"`
 	// The value for the label or annotation.
 	Value string `json:"value"`
+}
+
+type AlertType int
+
+const (
+	AlertTypePrometheus AlertType = iota
+	AlertTypeGrafana
+)
+
+func (t AlertType) String() string {
+	switch t {
+	case AlertTypePrometheus:
+		return "Prometheus"
+	case AlertTypeGrafana:
+		return "Grafana"
+	default:
+		return "Unknown"
+	}
+}
+
+// AlertTypeFromString returns the AlertType for the given string. If the string does not match any known type, -1 is returned.
+func AlertTypeFromString(s string) (AlertType, error) {
+	switch s {
+	case "Prometheus":
+		return AlertTypePrometheus, nil
+	case "Grafana":
+		return AlertTypeGrafana, nil
+	default:
+		return -1, fmt.Errorf("unknown workload type: %s", s)
+	}
 }
