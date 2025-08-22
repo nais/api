@@ -15,7 +15,7 @@ func (r *teamEnvironmentResolver) Alerts(ctx context.Context, obj *team.TeamEnvi
 		return nil, err
 	}
 
-	prometheusAlerts, err := alerts.ListPrometheusAlerts(ctx, obj.EnvironmentName, obj.TeamSlug)
+	prometheusAlerts, err := alerts.ListPrometheusRules(ctx, obj.EnvironmentName, obj.TeamSlug)
 	if err != nil {
 		return nil, err
 	}

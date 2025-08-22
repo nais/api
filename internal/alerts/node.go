@@ -21,11 +21,11 @@ func newIdent(teamSlug slug.Slug, environment, alertName string) ident.Ident {
 	return ident.NewIdent(identKey, teamSlug.String(), environment, alertName)
 }
 
-func parseIdent(id ident.Ident) (teamSlug slug.Slug, environment, alertType, alertName string, err error) {
+func parseIdent(id ident.Ident) (teamSlug slug.Slug, environment, alertName string, err error) {
 	parts := id.Parts()
-	if len(parts) != 4 {
-		return "", "", "", "", fmt.Errorf("invalid ident")
+	if len(parts) != 3 {
+		return "", "", "", fmt.Errorf("invalid ident")
 	}
 
-	return slug.Slug(parts[0]), parts[1], parts[2], parts[3], nil
+	return slug.Slug(parts[0]), parts[1], parts[2], nil
 }
