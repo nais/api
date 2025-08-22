@@ -172,16 +172,17 @@ type TeamInventoryCountOpenSearches struct {
 	Total int
 }
 
-type OpenSearchInput struct {
-	Name            string                  `json:"name"`
-	EnvironmentName string                  `json:"environmentName"`
-	TeamSlug        slug.Slug               `json:"teamSlug"`
-	Tier            OpenSearchTier          `json:"tier"`
-	Size            OpenSearchSize          `json:"size"`
-	Version         *OpenSearchMajorVersion `json:"version,omitempty"`
+type OpenSearchMetadataInput struct {
+	Name            string    `json:"name"`
+	EnvironmentName string    `json:"environmentName"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
 }
 
-func (o *OpenSearchInput) Validate(ctx context.Context) error {
+func (v *OpenSearchMetadataInput) Validate(ctx context.Context) error {
+	return v.ValidationErrors(ctx).NilIfEmpty()
+}
+
+func (o *OpenSearchMetadataInput) ValidationErrors(ctx context.Context) *validate.ValidationErrors {
 	verr := validate.New()
 	o.Name = strings.TrimSpace(o.Name)
 	o.EnvironmentName = strings.TrimSpace(o.EnvironmentName)
@@ -195,6 +196,19 @@ func (o *OpenSearchInput) Validate(ctx context.Context) error {
 	if o.TeamSlug == "" {
 		verr.Add("teamSlug", "Team slug must not be empty.")
 	}
+
+	return verr
+}
+
+type OpenSearchInput struct {
+	OpenSearchMetadataInput
+	Tier    OpenSearchTier          `json:"tier"`
+	Size    OpenSearchSize          `json:"size"`
+	Version *OpenSearchMajorVersion `json:"version,omitempty"`
+}
+
+func (o *OpenSearchInput) Validate(ctx context.Context) error {
+	verr := o.OpenSearchMetadataInput.ValidationErrors(ctx)
 
 	if !o.Tier.IsValid() {
 		verr.Add("tier", "Invalid OpenSearch tier: %s.", o.Tier)
@@ -348,6 +362,13 @@ func (e OpenSearchTier) MarshalGQL(w io.Writer) {
 type UpdateOpenSearchInput struct{ OpenSearchInput }
 
 type UpdateOpenSearchPayload struct {
-	// OpenSearch instance that was updated.
 	OpenSearch *OpenSearch `json:"openSearch"`
+}
+
+type DeleteOpenSearchInput struct {
+	OpenSearchMetadataInput
+}
+
+type DeleteOpenSearchPayload struct {
+	OpenSearchDeleted *bool `json:"openSearchDeleted,omitempty"`
 }

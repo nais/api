@@ -157,14 +157,6 @@ input StartOpenSearchMaintenanceInput {
 	environmentName: String!
 }
 
-extend enum ActivityLogEntryResourceType {
-	"Activity log entries related to valkey instances."
-	VALKEY
-
-	"Activity log entries related to OpenSearch instances."
-	OPENSEARCH
-}
-
 extend enum ActivityLogActivityType {
 	"Maintenance started for the service."
 	MAINTENANCE_STARTED

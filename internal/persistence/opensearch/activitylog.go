@@ -58,3 +58,7 @@ type OpenSearchUpdatedActivityLogEntryDataUpdatedField struct {
 	OldValue *string `json:"oldValue,omitempty"`
 	NewValue *string `json:"newValue,omitempty"`
 }
+
+type OpenSearchDeletedActivityLogEntry struct {
+	activitylog.GenericActivityLogEntry
+}

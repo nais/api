@@ -35,6 +35,13 @@ func (r *mutationResolver) UpdateOpenSearch(ctx context.Context, input opensearc
 	return opensearch.Update(ctx, input)
 }
 
+func (r *mutationResolver) DeleteOpenSearch(ctx context.Context, input opensearch.DeleteOpenSearchInput) (*opensearch.DeleteOpenSearchPayload, error) {
+	if err := authz.CanDeleteOpenSearch(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+	return opensearch.Delete(ctx, input)
+}
+
 func (r *openSearchResolver) Team(ctx context.Context, obj *opensearch.OpenSearch) (*team.Team, error) {
 	return team.Get(ctx, obj.TeamSlug)
 }

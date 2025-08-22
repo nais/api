@@ -59,3 +59,7 @@ type ValkeyUpdatedActivityLogEntryDataUpdatedField struct {
 	OldValue *string `json:"oldValue,omitempty"`
 	NewValue *string `json:"newValue,omitempty"`
 }
+
+type ValkeyDeletedActivityLogEntry struct {
+	activitylog.GenericActivityLogEntry
+}
