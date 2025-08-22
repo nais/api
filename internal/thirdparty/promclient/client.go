@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/nais/api/internal/slug"
 	"github.com/prometheus/client_golang/api"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/common/model"
@@ -22,13 +23,13 @@ type QueryClient interface {
 }
 
 type RulesClient interface {
-	Rules(ctx context.Context, environment, team string) (promv1.RulesResult, error)
-	RulesAll(ctx context.Context, team string) (map[string]promv1.RulesResult, error)
+	Rules(ctx context.Context, environment string, teamSlug slug.Slug) (promv1.RulesResult, error)
+	RulesAll(ctx context.Context, teamSlug slug.Slug) (map[string]promv1.RulesResult, error)
 }
 
 type AlertsClient interface {
-	Alerts(ctx context.Context, environment, team string) (promv1.AlertsResult, error)
-	AlertsAll(ctx context.Context, team string) (map[string]promv1.AlertsResult, error)
+	Alerts(ctx context.Context, environment string, teamSlug slug.Slug) (promv1.AlertsResult, error)
+	AlertsAll(ctx context.Context, teamSlug slug.Slug) (map[string]promv1.AlertsResult, error)
 }
 
 type Client interface {
@@ -145,7 +146,7 @@ func (c *RealClient) QueryRange(ctx context.Context, environment string, query s
 	return client.QueryRange(ctx, query, promRange)
 }
 
-func (c *RealClient) Rules(ctx context.Context, environment, team string) (promv1.RulesResult, error) {
+func (c *RealClient) Rules(ctx context.Context, environment string, teamSlug slug.Slug) (promv1.RulesResult, error) {
 	api, ok := c.prometheuses[environment]
 	if !ok {
 		return promv1.RulesResult{}, fmt.Errorf("no prometheus client for environment %s", environment)
@@ -154,13 +155,13 @@ func (c *RealClient) Rules(ctx context.Context, environment, team string) (promv
 	if err != nil {
 		return promv1.RulesResult{}, err
 	}
-	if team == "" {
+	if teamSlug == "" {
 		return res, nil
 	}
-	return filterRulesByTeam(res, team), nil
+	return filterRulesByTeam(res, teamSlug), nil
 }
 
-func (c *RealClient) RulesAll(ctx context.Context, team string) (map[string]promv1.RulesResult, error) {
+func (c *RealClient) RulesAll(ctx context.Context, teamSlug slug.Slug) (map[string]promv1.RulesResult, error) {
 	type item struct {
 		env string
 		res promv1.RulesResult
@@ -170,7 +171,7 @@ func (c *RealClient) RulesAll(ctx context.Context, team string) (map[string]prom
 	for env := range c.prometheuses {
 		env := env
 		wg.Go(func(ctx context.Context) (*item, error) {
-			res, err := c.Rules(ctx, env, team)
+			res, err := c.Rules(ctx, env, teamSlug)
 			if err != nil {
 				c.log.WithError(err).Errorf("failed to get rules in %s", env)
 				return nil, err
@@ -189,7 +190,7 @@ func (c *RealClient) RulesAll(ctx context.Context, team string) (map[string]prom
 	return out, nil
 }
 
-func (c *RealClient) Alerts(ctx context.Context, environment, team string) (promv1.AlertsResult, error) {
+func (c *RealClient) Alerts(ctx context.Context, environment string, teamSlug slug.Slug) (promv1.AlertsResult, error) {
 	api, ok := c.prometheuses[environment]
 	if !ok {
 		return promv1.AlertsResult{}, fmt.Errorf("no prometheus client for environment %s", environment)
@@ -198,13 +199,13 @@ func (c *RealClient) Alerts(ctx context.Context, environment, team string) (prom
 	if err != nil {
 		return promv1.AlertsResult{}, err
 	}
-	if team == "" {
+	if teamSlug == "" {
 		return res, nil
 	}
-	return filterAlertsByTeam(res, team), nil
+	return filterAlertsByTeam(res, teamSlug), nil
 }
 
-func (c *RealClient) AlertsAll(ctx context.Context, team string) (map[string]promv1.AlertsResult, error) {
+func (c *RealClient) AlertsAll(ctx context.Context, teamSlug slug.Slug) (map[string]promv1.AlertsResult, error) {
 	type item struct {
 		env string
 		res promv1.AlertsResult
@@ -214,7 +215,7 @@ func (c *RealClient) AlertsAll(ctx context.Context, team string) (map[string]pro
 	for env := range c.prometheuses {
 		env := env
 		wg.Go(func(ctx context.Context) (*item, error) {
-			res, err := c.Alerts(ctx, env, team)
+			res, err := c.Alerts(ctx, env, teamSlug)
 			if err != nil {
 				c.log.WithError(err).Errorf("failed to get alerts in %s", env)
 				return nil, err
@@ -233,7 +234,7 @@ func (c *RealClient) AlertsAll(ctx context.Context, team string) (map[string]pro
 	return out, nil
 }
 
-func filterRulesByTeam(in promv1.RulesResult, team string) promv1.RulesResult {
+func filterRulesByTeam(in promv1.RulesResult, teamSlug slug.Slug) promv1.RulesResult {
 	out := promv1.RulesResult{}
 	out.Groups = make([]promv1.RuleGroup, 0, len(in.Groups))
 
@@ -241,7 +242,7 @@ func filterRulesByTeam(in promv1.RulesResult, team string) promv1.RulesResult {
 		var filtered promv1.Rules
 		for _, r := range g.Rules {
 			if ar, ok := r.(promv1.AlertingRule); ok {
-				if string(ar.Labels[prom.LabelName(teamLabelKey)]) == team {
+				if string(ar.Labels[prom.LabelName(teamLabelKey)]) == teamSlug.String() {
 					filtered = append(filtered, ar)
 				}
 			}
@@ -258,10 +259,10 @@ func filterRulesByTeam(in promv1.RulesResult, team string) promv1.RulesResult {
 	return out
 }
 
-func filterAlertsByTeam(in promv1.AlertsResult, team string) promv1.AlertsResult {
+func filterAlertsByTeam(in promv1.AlertsResult, teamSlug slug.Slug) promv1.AlertsResult {
 	out := promv1.AlertsResult{}
 	for _, a := range in.Alerts {
-		if string(a.Labels[prom.LabelName(teamLabelKey)]) == team {
+		if string(a.Labels[prom.LabelName(teamLabelKey)]) == teamSlug.String() {
 			out.Alerts = append(out.Alerts, a)
 		}
 	}

@@ -13,7 +13,7 @@ func ListPrometheusAlerts(ctx context.Context, environmentName string, teamSlug 
 	retVal := make([]PrometheusAlert, 0)
 	c := fromContext(ctx).client
 
-	r, err := c.Rules(ctx, environmentName, teamSlug.String())
+	r, err := c.Rules(ctx, environmentName, teamSlug)
 	if err != nil {
 		return nil, err
 	}

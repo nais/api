@@ -12,7 +12,8 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
-	teampkg "github.com/nais/api/internal/team"
+
+	// teampkg "github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/thirdparty/promclient"
 	"github.com/nais/api/internal/workload/application"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
@@ -275,12 +276,12 @@ func (c *FakeClient) selector(expr parser.Expr) (teamSlug slug.Slug, workload st
 	return teamSlug, workload, unit, nil
 }
 
-func (c *FakeClient) Rules(ctx context.Context, environment, team string) (promv1.RulesResult, error) {
+func (c *FakeClient) Rules(ctx context.Context, environment string, teamSlug slug.Slug) (promv1.RulesResult, error) {
 	page, err := pagination.ParsePage(ptr.To(10000), nil, nil, nil)
 	if err != nil {
 		return promv1.RulesResult{}, err
 	}
-	teams, err := teampkg.List(ctx, page, nil, nil)
+	teams, err := team.List(ctx, page, nil, nil)
 	if err != nil {
 		return promv1.RulesResult{}, err
 	}
@@ -289,7 +290,7 @@ func (c *FakeClient) Rules(ctx context.Context, environment, team string) (promv
 	groups := make([]promv1.RuleGroup, 0, teams.PageInfo.TotalCount)
 
 	for _, t := range teams.Nodes() {
-		if team != "" && string(t.Slug) != team {
+		if t.Slug != teamSlug {
 			continue
 		}
 		groupName := fmt.Sprintf("team-%s.rules", t.Slug)
@@ -341,10 +342,10 @@ func (c *FakeClient) Rules(ctx context.Context, environment, team string) (promv
 	return promv1.RulesResult{Groups: groups}, nil
 }
 
-func (c *FakeClient) RulesAll(ctx context.Context, team string) (map[string]promv1.RulesResult, error) {
+func (c *FakeClient) RulesAll(ctx context.Context, teamSlug slug.Slug) (map[string]promv1.RulesResult, error) {
 	out := make(map[string]promv1.RulesResult, len(c.environments))
 	for _, env := range c.environments {
-		res, err := c.Rules(ctx, env, team)
+		res, err := c.Rules(ctx, env, teamSlug)
 		if err != nil {
 			return nil, err
 		}
@@ -353,13 +354,13 @@ func (c *FakeClient) RulesAll(ctx context.Context, team string) (map[string]prom
 	return out, nil
 }
 
-func (c *FakeClient) Alerts(ctx context.Context, environment, team string) (promv1.AlertsResult, error) {
+func (c *FakeClient) Alerts(ctx context.Context, environment string, teamSlug slug.Slug) (promv1.AlertsResult, error) {
 	now := c.now().Time()
 	page, err := pagination.ParsePage(ptr.To(1000), nil, nil, nil)
 	if err != nil {
 		return promv1.AlertsResult{}, err
 	}
-	teams, err := teampkg.List(ctx, page, nil, nil)
+	teams, err := team.List(ctx, page, nil, nil)
 	if err != nil {
 		return promv1.AlertsResult{}, err
 	}
@@ -386,7 +387,7 @@ func (c *FakeClient) Alerts(ctx context.Context, environment, team string) (prom
 
 	total := 0
 	for _, t := range teams.Nodes() {
-		if team != "" && string(t.Slug) != team {
+		if t.Slug != teamSlug {
 			continue
 		}
 		apps := application.ListAllForTeam(ctx, t.Slug, nil, nil)
@@ -423,10 +424,10 @@ func (c *FakeClient) Alerts(ctx context.Context, environment, team string) (prom
 	return promv1.AlertsResult{Alerts: alerts}, nil
 }
 
-func (c *FakeClient) AlertsAll(ctx context.Context, team string) (map[string]promv1.AlertsResult, error) {
+func (c *FakeClient) AlertsAll(ctx context.Context, teamSlug slug.Slug) (map[string]promv1.AlertsResult, error) {
 	out := make(map[string]promv1.AlertsResult, len(c.environments))
 	for _, env := range c.environments {
-		res, err := c.Alerts(ctx, env, team)
+		res, err := c.Alerts(ctx, env, teamSlug)
 		if err != nil {
 			return nil, err
 		}
