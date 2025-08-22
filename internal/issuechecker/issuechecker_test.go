@@ -6,6 +6,9 @@ import (
 	"os"
 	"testing"
 
+	"github.com/nais/api/internal/database"
+	"github.com/sirupsen/logrus"
+
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/issuechecker"
 	"github.com/nais/api/internal/persistence/sqlinstance"
@@ -18,11 +21,18 @@ func TestRunChecks(t *testing.T) {
 		log.Fatalf("Failed to load .env file: %v", err)
 	}
 	token := os.Getenv("AIVEN_TOKEN")
+	connString := "postgres://api:api@127.0.0.1:3002/api?sslmode=disable"
+	pool, err := database.NewPool(ctx, connString, logrus.New(), true)
+	if err != nil {
+		log.Fatalf("failed to create pool: %v", err)
+	}
+
+	defer pool.Close()
 
 	i := issuechecker.New(issuechecker.Config{
 		AivenToken:    token,
 		AivenProjects: []string{"nav-prod", "nav-dev"},
-	})
+	}, pool)
 
 	i.SQLInstanceLister = &MockSQLInstanceLister{}
 	i.RunChecks(ctx)

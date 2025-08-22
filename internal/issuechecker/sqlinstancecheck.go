@@ -63,7 +63,7 @@ func (s SQLInstanceCheck) Run(ctx context.Context) ([]Issue, error) {
 				State:            i.State,
 				ActivationPolicy: i.Settings.ActivationPolicy,
 			},
-			Severity: SeverityError,
+			Severity: SeverityError, // TODO: determine severity based on state
 		})
 	}
 

@@ -192,3 +192,13 @@ sql:
         <<: *default_go
         package: "eventsql"
         out: "../internal/kubernetes/event/eventsql"
+
+  - <<: *default_domain
+    name: "issuechecker SQL"
+    queries: "../internal/issuechecker/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "issuecheckersql"
+        out: "../internal/issuechecker/issuecheckersql"
+

@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"log"
 
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/issuechecker/issuecheckersql"
+
 	aiven "github.com/aiven/go-client-codegen"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"google.golang.org/api/sqladmin/v1"
@@ -38,6 +41,7 @@ type Check interface {
 
 type IssueChecker struct {
 	Config            Config
+	Db                issuecheckersql.Querier
 	SQLInstanceLister KubernetesLister[*sqlinstance.SQLInstance]
 }
 
@@ -50,9 +54,10 @@ type Config struct {
 	AivenProjects []string
 }
 
-func New(config Config) *IssueChecker {
+func New(config Config, pool *pgxpool.Pool) *IssueChecker {
 	return &IssueChecker{
 		Config:            config,
+		Db:                issuecheckersql.New(pool),
 		SQLInstanceLister: &SQLInstanceLister{},
 	}
 }
@@ -82,13 +87,37 @@ func (i IssueChecker) RunChecks(ctx context.Context) {
 		issues = append(issues, checkIssues...)
 	}
 
+	batchIssues := make([]issuecheckersql.BatchInsertIssuesParams, 0)
 	for _, issue := range issues {
 		println("Found issue:", issue.ResourceName, "of type", issue.Type)
+		// TODO: use regular marshalling instead of json.MarshalIndent for production code
 		d, err := json.MarshalIndent(issue.IssueData, "", "  ")
 		if err != nil {
 			panic(err)
 		}
 		println("Issue data:", string(d))
+
+		batchIssues = append(batchIssues, issuecheckersql.BatchInsertIssuesParams{
+			IssueType:    string(issue.Type),
+			ResourceName: issue.ResourceName,
+			ResourceType: issue.ResourceType,
+			Team:         issue.Team,
+			Env:          issue.Environment,
+			Severity:     string(issue.Severity),
+			IssueDetails: d,
+		})
 	}
-	// TODO: store issues in a database
+	err = i.Db.DeleteIssues(ctx)
+	if err != nil {
+		log.Fatalf("Failed to delete existing issues: %v", err)
+	}
+
+	// TODO: may need to use a channel to handle large batches
+	i.Db.BatchInsertIssues(ctx, batchIssues).Exec(func(i int, err error) {
+		if err != nil {
+			log.Printf("Failed to insert issue %d: %v", i, err)
+		} else {
+			log.Printf("Successfully inserted issue %d", i)
+		}
+	})
 }
