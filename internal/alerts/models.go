@@ -9,7 +9,6 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/team"
 )
 
 type (
@@ -28,16 +27,14 @@ type Alert interface {
 }
 
 type BaseAlert struct {
-	Name            string                `json:"name"`
-	State           AlertState            `json:"state"`
-	TeamEnvironment *team.TeamEnvironment `json:"teamEnvironment"`
-	Team            *team.Team            `json:"team"`
-	Annotations     []*AlertKeyValue      `json:"annotations,omitempty"`
-	Labels          []*AlertKeyValue      `json:"labels,omitempty"`
-	Query           string                `json:"query"`
-	Duration        float64               `json:"duration"`
-	TeamSlug        slug.Slug             `json:"-"`
-	EnvironmentName string                `json:"-"`
+	Name            string           `json:"name"`
+	State           AlertState       `json:"state"`
+	Annotations     []*AlertKeyValue `json:"annotations,omitempty"`
+	Labels          []*AlertKeyValue `json:"labels,omitempty"`
+	Query           string           `json:"query"`
+	Duration        float64          `json:"duration"`
+	TeamSlug        slug.Slug        `json:"-"`
+	EnvironmentName string           `json:"-"`
 }
 
 func (b BaseAlert) GetName() string            { return b.Name }
