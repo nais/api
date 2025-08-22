@@ -314,6 +314,61 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 	}, nil
 }
 
+func Delete(ctx context.Context, input DeleteOpenSearchInput) (*DeleteOpenSearchPayload, error) {
+	if err := input.Validate(ctx); err != nil {
+		return nil, err
+	}
+
+	name := openSearchNamer(input.TeamSlug, input.Name)
+	client, err := fromContext(ctx).watcher.ImpersonatedClient(ctx, input.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
+	nsclient := client.Namespace(input.TeamSlug.String())
+
+	os, err := nsclient.Get(ctx, name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	if !kubernetes.HasManagedByConsoleLabel(os) {
+		return nil, apierror.Errorf("OpenSearch %s/%s is not managed by Console", input.TeamSlug, input.Name)
+	}
+
+	terminationProtection, found, err := unstructured.NestedBool(os.Object, "spec", "terminationProtection")
+	if err != nil {
+		return nil, err
+	}
+	if found && terminationProtection {
+		if err := unstructured.SetNestedField(os.Object, false, "spec", "terminationProtection"); err != nil {
+			return nil, err
+		}
+
+		if _, err = nsclient.Update(ctx, os, metav1.UpdateOptions{}); err != nil {
+			return nil, fmt.Errorf("removing deletion protection: %w", err)
+		}
+	}
+
+	if err := nsclient.Delete(ctx, name, metav1.DeleteOptions{}); err != nil {
+		return nil, err
+	}
+
+	if err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.ActivityLogEntryActionDeleted,
+		Actor:           authz.ActorFromContext(ctx).User,
+		ResourceType:    ActivityLogEntryResourceTypeOpenSearch,
+		ResourceName:    input.Name,
+		EnvironmentName: ptr.To(input.EnvironmentName),
+		TeamSlug:        ptr.To(input.TeamSlug),
+	}); err != nil {
+		return nil, err
+	}
+
+	return &DeleteOpenSearchPayload{
+		OpenSearchDeleted: ptr.To(true),
+	}, nil
+}
+
 var aivenPlans = map[string]OpenSearchTier{
 	"business": OpenSearchTierHighAvailability,
 	"startup":  OpenSearchTierSingleNode,

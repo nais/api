@@ -172,16 +172,17 @@ type TeamInventoryCountValkeys struct {
 	Total int
 }
 
-type ValkeyInput struct {
-	Name            string                 `json:"name"`
-	EnvironmentName string                 `json:"environmentName"`
-	TeamSlug        slug.Slug              `json:"teamSlug"`
-	Tier            ValkeyTier             `json:"tier"`
-	Size            ValkeySize             `json:"size"`
-	MaxMemoryPolicy *ValkeyMaxMemoryPolicy `json:"maxMemoryPolicy,omitempty"`
+type ValkeyMetadataInput struct {
+	Name            string    `json:"name"`
+	EnvironmentName string    `json:"environmentName"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
 }
 
-func (v *ValkeyInput) Validate(ctx context.Context) error {
+func (v *ValkeyMetadataInput) Validate(ctx context.Context) error {
+	return v.ValidationErrors(ctx).NilIfEmpty()
+}
+
+func (v *ValkeyMetadataInput) ValidationErrors(ctx context.Context) *validate.ValidationErrors {
 	verr := validate.New()
 	v.Name = strings.TrimSpace(v.Name)
 	v.EnvironmentName = strings.TrimSpace(v.EnvironmentName)
@@ -195,6 +196,19 @@ func (v *ValkeyInput) Validate(ctx context.Context) error {
 	if v.TeamSlug == "" {
 		verr.Add("teamSlug", "Team slug must not be empty.")
 	}
+
+	return verr
+}
+
+type ValkeyInput struct {
+	ValkeyMetadataInput
+	Tier            ValkeyTier             `json:"tier"`
+	Size            ValkeySize             `json:"size"`
+	MaxMemoryPolicy *ValkeyMaxMemoryPolicy `json:"maxMemoryPolicy,omitempty"`
+}
+
+func (v *ValkeyInput) Validate(ctx context.Context) error {
+	verr := v.ValkeyMetadataInput.ValidationErrors(ctx)
 
 	if !v.Tier.IsValid() {
 		verr.Add("tier", "Invalid Valkey tier: %s.", v.Tier)
@@ -380,4 +394,12 @@ type UpdateValkeyInput struct {
 
 type UpdateValkeyPayload struct {
 	Valkey *Valkey `json:"valkey"`
+}
+
+type DeleteValkeyInput struct {
+	ValkeyMetadataInput
+}
+
+type DeleteValkeyPayload struct {
+	ValkeyDeleted *bool `json:"valkeyDeleted,omitempty"`
 }

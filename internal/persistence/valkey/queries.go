@@ -319,6 +319,62 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 	}, nil
 }
 
+func Delete(ctx context.Context, input DeleteValkeyInput) (*DeleteValkeyPayload, error) {
+	if err := input.Validate(ctx); err != nil {
+		return nil, err
+	}
+
+	name := valkeyNamer(input.TeamSlug, input.Name)
+	client, err := fromContext(ctx).watcher.ImpersonatedClient(ctx, input.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
+	nsclient := client.Namespace(input.TeamSlug.String())
+
+	valkey, err := nsclient.Get(ctx, name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	if !kubernetes.HasManagedByConsoleLabel(valkey) {
+		return nil, apierror.Errorf("Valkey %s/%s is not managed by Console", input.TeamSlug, input.Name)
+	}
+
+	terminationProtection, found, err := unstructured.NestedBool(valkey.Object, "spec", "terminationProtection")
+	if err != nil {
+		return nil, err
+	}
+	if found && terminationProtection {
+		if err := unstructured.SetNestedField(valkey.Object, false, "spec", "terminationProtection"); err != nil {
+			return nil, err
+		}
+
+		_, err = nsclient.Update(ctx, valkey, metav1.UpdateOptions{})
+		if err != nil {
+			return nil, fmt.Errorf("removing deletion protection: %w", err)
+		}
+	}
+
+	if err = nsclient.Delete(ctx, name, metav1.DeleteOptions{}); err != nil {
+		return nil, err
+	}
+
+	if err = activitylog.Create(ctx, activitylog.CreateInput{
+		Action:          activitylog.ActivityLogEntryActionDeleted,
+		Actor:           authz.ActorFromContext(ctx).User,
+		ResourceType:    ActivityLogEntryResourceTypeValkey,
+		ResourceName:    input.Name,
+		EnvironmentName: ptr.To(input.EnvironmentName),
+		TeamSlug:        ptr.To(input.TeamSlug),
+	}); err != nil {
+		return nil, err
+	}
+
+	return &DeleteValkeyPayload{
+		ValkeyDeleted: ptr.To(true),
+	}, nil
+}
+
 var aivenPlans = map[string]ValkeyTier{
 	"business": ValkeyTierHighAvailability,
 	"startup":  ValkeyTierSingleNode,

@@ -35,6 +35,13 @@ func (r *mutationResolver) UpdateValkey(ctx context.Context, input valkey.Update
 	return valkey.Update(ctx, input)
 }
 
+func (r *mutationResolver) DeleteValkey(ctx context.Context, input valkey.DeleteValkeyInput) (*valkey.DeleteValkeyPayload, error) {
+	if err := authz.CanDeleteValkey(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+	return valkey.Delete(ctx, input)
+}
+
 func (r *teamResolver) Valkeys(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder) (*pagination.Connection[*valkey.Valkey], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
