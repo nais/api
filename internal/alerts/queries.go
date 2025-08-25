@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/slug"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
@@ -71,7 +72,7 @@ func buildPromAlert(ar *promv1.AlertingRule, env string, team slug.Slug, group s
 	return PrometheusAlert{
 		BaseAlert: BaseAlert{
 			Name:            ar.Name,
-			EnvironmentName: env,
+			EnvironmentName: environmentmapper.EnvironmentName(env),
 			TeamSlug:        team,
 			State:           AlertState(strings.ToUpper(ar.State)),
 			Query:           ar.Query,
