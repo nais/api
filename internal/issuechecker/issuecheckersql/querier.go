@@ -9,6 +9,7 @@ import (
 type Querier interface {
 	BatchInsertIssues(ctx context.Context, arg []BatchInsertIssuesParams) *BatchInsertIssuesBatchResults
 	DeleteIssues(ctx context.Context) error
+	ListIssuesForTeam(ctx context.Context, team string) ([]*Issue, error)
 }
 
 var _ Querier = (*Queries)(nil)

@@ -15,3 +15,39 @@ func (q *Queries) DeleteIssues(ctx context.Context) error {
 	_, err := q.db.Exec(ctx, deleteIssues)
 	return err
 }
+
+const listIssuesForTeam = `-- name: ListIssuesForTeam :many
+SELECT id, issue_type, resource_name, resource_type, team, env, severity, issue_details, created_at FROM issues
+WHERE team = $1
+ORDER BY id DESC
+`
+
+func (q *Queries) ListIssuesForTeam(ctx context.Context, team string) ([]*Issue, error) {
+	rows, err := q.db.Query(ctx, listIssuesForTeam, team)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*Issue{}
+	for rows.Next() {
+		var i Issue
+		if err := rows.Scan(
+			&i.ID,
+			&i.IssueType,
+			&i.ResourceName,
+			&i.ResourceType,
+			&i.Team,
+			&i.Env,
+			&i.Severity,
+			&i.IssueDetails,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

@@ -322,7 +322,7 @@ func (r *teamResolver) InventoryCounts(ctx context.Context, obj *team.Team) (*te
 }
 
 func (r *teamResolver) Issues(ctx context.Context, obj *team.Team) ([]*issuechecker.Issue, error) {
-	return issuechecker.GetIssues(ctx, obj.Slug.String())
+	return issuechecker.GetIssuesForTeam(ctx, obj.Slug.String())
 }
 
 func (r *teamDeleteKeyResolver) CreatedBy(ctx context.Context, obj *team.TeamDeleteKey) (*user.User, error) {
