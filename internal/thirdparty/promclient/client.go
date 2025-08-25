@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/nais/api/internal/slug"
 	"github.com/prometheus/client_golang/api"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/common/model"
@@ -13,10 +14,22 @@ import (
 	"github.com/sourcegraph/conc/pool"
 )
 
-type Client interface {
+const teamLabelKey = "namespace"
+
+type QueryClient interface {
 	Query(ctx context.Context, environment string, query string, opts ...QueryOption) (prom.Vector, error)
 	QueryAll(ctx context.Context, query string, opts ...QueryOption) (map[string]prom.Vector, error)
 	QueryRange(ctx context.Context, environment string, query string, promRange promv1.Range) (prom.Value, promv1.Warnings, error)
+}
+
+type RulesClient interface {
+	Rules(ctx context.Context, environment string, teamSlug slug.Slug) (promv1.RulesResult, error)
+	RulesAll(ctx context.Context, teamSlug slug.Slug) (map[string]promv1.RulesResult, error)
+}
+
+type Client interface {
+	QueryClient
+	RulesClient
 }
 
 type QueryOpts struct {
@@ -125,4 +138,72 @@ func (c *RealClient) QueryRange(ctx context.Context, environment string, query s
 	}
 
 	return client.QueryRange(ctx, query, promRange)
+}
+
+func (c *RealClient) Rules(ctx context.Context, environment string, teamSlug slug.Slug) (promv1.RulesResult, error) {
+	api, ok := c.prometheuses[environment]
+	if !ok {
+		return promv1.RulesResult{}, fmt.Errorf("no prometheus client for environment %s", environment)
+	}
+	res, err := api.Rules(ctx)
+	if err != nil {
+		return promv1.RulesResult{}, err
+	}
+	if teamSlug == "" {
+		return res, nil
+	}
+	return filterRulesByTeam(res, teamSlug), nil
+}
+
+func (c *RealClient) RulesAll(ctx context.Context, teamSlug slug.Slug) (map[string]promv1.RulesResult, error) {
+	type item struct {
+		env string
+		res promv1.RulesResult
+	}
+	wg := pool.NewWithResults[*item]().WithContext(ctx)
+
+	for env := range c.prometheuses {
+		wg.Go(func(ctx context.Context) (*item, error) {
+			res, err := c.Rules(ctx, env, teamSlug)
+			if err != nil {
+				c.log.WithError(err).Errorf("failed to get rules in %s", env)
+				return nil, err
+			}
+			return &item{env: env, res: res}, nil
+		})
+	}
+	items, err := wg.Wait()
+	if err != nil {
+		return nil, err
+	}
+	out := make(map[string]promv1.RulesResult, len(items))
+	for _, it := range items {
+		out[it.env] = it.res
+	}
+	return out, nil
+}
+
+func filterRulesByTeam(in promv1.RulesResult, teamSlug slug.Slug) promv1.RulesResult {
+	out := promv1.RulesResult{}
+	out.Groups = make([]promv1.RuleGroup, 0, len(in.Groups))
+
+	for _, g := range in.Groups {
+		var filtered promv1.Rules
+		for _, r := range g.Rules {
+			if ar, ok := r.(promv1.AlertingRule); ok {
+				if string(ar.Labels[prom.LabelName(teamLabelKey)]) == teamSlug.String() {
+					filtered = append(filtered, ar)
+				}
+			}
+		}
+		if len(filtered) > 0 {
+			out.Groups = append(out.Groups, promv1.RuleGroup{
+				Name:     g.Name,
+				File:     g.File,
+				Rules:    filtered,
+				Interval: g.Interval,
+			})
+		}
+	}
+	return out
 }

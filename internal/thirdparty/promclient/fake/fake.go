@@ -11,6 +11,7 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
+
 	"github.com/nais/api/internal/thirdparty/promclient"
 	"github.com/nais/api/internal/workload/application"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
@@ -19,6 +20,8 @@ import (
 	parser "github.com/prometheus/prometheus/promql/parser"
 	"k8s.io/utils/ptr"
 )
+
+const teamLabelKey = "namespace"
 
 type FakeClient struct {
 	environments []string
@@ -269,4 +272,82 @@ func (c *FakeClient) selector(expr parser.Expr) (teamSlug slug.Slug, workload st
 	}
 
 	return teamSlug, workload, unit, nil
+}
+
+func (c *FakeClient) Rules(ctx context.Context, environment string, teamSlug slug.Slug) (promv1.RulesResult, error) {
+	page, err := pagination.ParsePage(ptr.To(10000), nil, nil, nil)
+	if err != nil {
+		return promv1.RulesResult{}, err
+	}
+	teams, err := team.List(ctx, page, nil, nil)
+	if err != nil {
+		return promv1.RulesResult{}, err
+	}
+
+	now := c.now().Time()
+	groups := make([]promv1.RuleGroup, 0, teams.PageInfo.TotalCount)
+
+	for _, t := range teams.Nodes() {
+		if t.Slug != teamSlug {
+			continue
+		}
+		groupName := fmt.Sprintf("team-%s.rules", t.Slug)
+		file := fmt.Sprintf("/etc/prometheus/rules/%s.yaml", t.Slug)
+
+		labelsFor := func(sev string) prom.LabelSet {
+			return prom.LabelSet{
+				teamLabelKey:  prom.LabelValue(t.Slug),
+				"environment": prom.LabelValue(environment),
+				"severity":    prom.LabelValue(sev),
+			}
+		}
+
+		var rules promv1.Rules
+		rules = append(rules, promv1.AlertingRule{
+			Name:           "HighCPUSaturation",
+			Query:          `avg by (namespace) (rate(container_cpu_usage_seconds_total{container!=""}[5m])) > 0.8`,
+			Labels:         labelsFor("warning"),
+			Annotations:    prom.LabelSet{"summary": "High CPU usage"},
+			Health:         promv1.RuleHealthGood,
+			LastEvaluation: now,
+			Alerts:         []*promv1.Alert{},
+		})
+		rules = append(rules, promv1.AlertingRule{
+			Name:           "HighMemoryUsage",
+			Query:          `avg by (namespace) (container_memory_working_set_bytes{container!=""}) > 1.5e+9`,
+			Labels:         labelsFor("critical"),
+			Annotations:    prom.LabelSet{"summary": "High memory usage"},
+			Health:         promv1.RuleHealthGood,
+			LastEvaluation: now,
+			Alerts:         []*promv1.Alert{},
+		})
+		rules = append(rules, promv1.AlertingRule{
+			Name:           "HTTPErrorRateTooHigh",
+			Query:          `sum(rate(http_requests_total{code=~"5.."}[5m])) by (namespace) / sum(rate(http_requests_total[5m])) by (namespace) > 0.05`,
+			Labels:         labelsFor("high"),
+			Annotations:    prom.LabelSet{"summary": "HTTP 5xx ratio > 5%"},
+			Health:         promv1.RuleHealthGood,
+			LastEvaluation: now,
+			Alerts:         []*promv1.Alert{},
+		})
+
+		groups = append(groups, promv1.RuleGroup{
+			Name:  groupName,
+			File:  file,
+			Rules: rules,
+		})
+	}
+	return promv1.RulesResult{Groups: groups}, nil
+}
+
+func (c *FakeClient) RulesAll(ctx context.Context, teamSlug slug.Slug) (map[string]promv1.RulesResult, error) {
+	out := make(map[string]promv1.RulesResult, len(c.environments))
+	for _, env := range c.environments {
+		res, err := c.Rules(ctx, env, teamSlug)
+		if err != nil {
+			return nil, err
+		}
+		out[env] = res
+	}
+	return out, nil
 }
