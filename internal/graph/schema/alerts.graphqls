@@ -71,7 +71,7 @@ Alert interface.
 """
 interface Alert implements Node {
 	"""
-	The unique identifier for the alert.
+	The unique identifier of the alert.
 	"""
 	id: ID!
 	"""
@@ -79,23 +79,23 @@ interface Alert implements Node {
 	"""
 	name: String!
 	"""
-	The team that owns the alert.
+	The team responsible for the alert.
 	"""
 	team: Team!
 	"""
-	The team environment for the alert.
+	The team environment associated with the alert.
 	"""
 	teamEnvironment: TeamEnvironment!
 	"""
-	The state of the alert.
+	The current state of the alert (e.g. FIRING, PENDING, INACTIVE).
 	"""
 	state: AlertState!
 	"""
-	The query for the alert.
+	The query or expression evaluated for the alert.
 	"""
 	query: String!
 	"""
-	The duration for the alert.
+	The time in seconds the alert condition must be met before it activates.
 	"""
 	duration: Float!
 }
@@ -210,6 +210,10 @@ enum AlertOrderField {
 	Order by state.
 	"""
 	STATE
+	"""
+	ENVIRONMENT
+	"""
+	ENVIRONMENT
 }
 
 """

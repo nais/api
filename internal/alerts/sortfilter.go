@@ -13,7 +13,7 @@ var SortFilter = sortfilter.New[Alert, AlertOrderField, *TeamAlertsFilter]()
 func init() {
 	SortFilter.RegisterSort("NAME", func(ctx context.Context, a, b Alert) int {
 		return strings.Compare(a.GetName(), b.GetName())
-	}, "STATE")
+	}, "STATE", "ENVIRONMENT")
 	SortFilter.RegisterSort("STATE", func(ctx context.Context, a, b Alert) int {
 		order := map[AlertState]int{
 			AlertStateFiring:   0,
@@ -32,7 +32,10 @@ func init() {
 		default:
 			return 0
 		}
-	}, "NAME")
+	}, "NAME", "ENVIRONMENT")
+	SortFilter.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b Alert) int {
+		return strings.Compare(a.GetEnvironmentName(), b.GetEnvironmentName())
+	})
 
 	SortFilter.RegisterFilter(func(ctx context.Context, v Alert, filter *TeamAlertsFilter) bool {
 		if len(filter.States) == 0 {

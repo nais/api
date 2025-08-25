@@ -50,18 +50,20 @@ type AlertOrder struct {
 type AlertOrderField string
 
 const (
-	AlertOrderFieldName  AlertOrderField = "NAME"
-	AlertOrderFieldState AlertOrderField = "STATE"
+	AlertOrderFieldName        AlertOrderField = "NAME"
+	AlertOrderFieldState       AlertOrderField = "STATE"
+	AlertOrderFieldEnvironment AlertOrderField = "ENVIRONMENT"
 )
 
 var AllAlertOrderField = []AlertOrderField{
 	AlertOrderFieldName,
 	AlertOrderFieldState,
+	AlertOrderFieldEnvironment,
 }
 
 func (e AlertOrderField) IsValid() bool {
 	switch e {
-	case AlertOrderFieldName, AlertOrderFieldState:
+	case AlertOrderFieldName, AlertOrderFieldState, AlertOrderFieldEnvironment:
 		return true
 	}
 	return false
