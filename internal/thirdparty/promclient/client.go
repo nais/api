@@ -207,13 +207,3 @@ func filterRulesByTeam(in promv1.RulesResult, teamSlug slug.Slug) promv1.RulesRe
 	}
 	return out
 }
-
-func filterAlertsByTeam(in promv1.AlertsResult, teamSlug slug.Slug) promv1.AlertsResult {
-	out := promv1.AlertsResult{}
-	for _, a := range in.Alerts {
-		if string(a.Labels[prom.LabelName(teamLabelKey)]) == teamSlug.String() {
-			out.Alerts = append(out.Alerts, a)
-		}
-	}
-	return out
-}
