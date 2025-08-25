@@ -115,11 +115,14 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		return nil, fmt.Errorf("converting to plan: %w", err)
 	}
 
+	name := openSearchNamer(input.TeamSlug, input.Name)
+	namespace := input.TeamSlug.String()
+
 	res := &unstructured.Unstructured{}
 	res.SetAPIVersion("aiven.io/v1alpha1")
 	res.SetKind("OpenSearch")
-	res.SetName(openSearchNamer(input.TeamSlug, input.Name))
-	res.SetNamespace(input.TeamSlug.String())
+	res.SetName(name)
+	res.SetNamespace(namespace)
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
 	kubernetes.SetManagedByConsoleLabel(res)
 
@@ -136,7 +139,7 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		"terminationProtection": true,
 		"tags": map[string]any{
 			"environment": input.EnvironmentName,
-			"team":        input.TeamSlug.String(),
+			"team":        namespace,
 			"tenant":      fromContext(ctx).tenantName,
 		},
 	}
@@ -148,12 +151,17 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		}
 	}
 
-	ret, err := client.Namespace(input.TeamSlug.String()).Create(ctx, res, metav1.CreateOptions{})
+	ret, err := client.Namespace(namespace).Create(ctx, res, metav1.CreateOptions{})
 	if err != nil {
 		if k8serrors.IsAlreadyExists(err) {
 			return nil, apierror.ErrAlreadyExists
 		}
 		return nil, err
+	}
+
+	err = aiven.UpsertPrometheusServiceIntegration(ctx, fromContext(ctx).watcher, ret, aivenProject, input.EnvironmentName)
+	if err != nil {
+		return nil, fmt.Errorf("creating Prometheus service integration: %w", err)
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
@@ -188,7 +196,10 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 		return nil, err
 	}
 
-	openSearch, err := client.Namespace(input.TeamSlug.String()).Get(ctx, openSearchNamer(input.TeamSlug, input.Name), metav1.GetOptions{})
+	name := openSearchNamer(input.TeamSlug, input.Name)
+	namespace := input.TeamSlug.String()
+
+	openSearch, err := client.Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -284,9 +295,19 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 
 	openSearch.SetAnnotations(kubernetes.WithCommonAnnotations(openSearch.GetAnnotations(), authz.ActorFromContext(ctx).User.Identity()))
 
-	ret, err := client.Namespace(input.TeamSlug.String()).Update(ctx, openSearch, metav1.UpdateOptions{})
+	ret, err := client.Namespace(namespace).Update(ctx, openSearch, metav1.UpdateOptions{})
 	if err != nil {
 		return nil, err
+	}
+
+	aivenProject, err := aiven.GetProject(ctx, input.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
+
+	err = aiven.UpsertPrometheusServiceIntegration(ctx, fromContext(ctx).watcher, ret, aivenProject, input.EnvironmentName)
+	if err != nil {
+		return nil, fmt.Errorf("creating Prometheus service integration: %w", err)
 	}
 
 	err = activitylog.Create(ctx, activitylog.CreateInput{
