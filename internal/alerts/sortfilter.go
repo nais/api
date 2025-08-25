@@ -35,7 +35,7 @@ func init() {
 	}, "NAME", "ENVIRONMENT")
 	SortFilter.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b Alert) int {
 		return strings.Compare(a.GetEnvironmentName(), b.GetEnvironmentName())
-	})
+	}, "NAME")
 
 	SortFilter.RegisterFilter(func(ctx context.Context, v Alert, filter *TeamAlertsFilter) bool {
 		if len(filter.States) == 0 {
