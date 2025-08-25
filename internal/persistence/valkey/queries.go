@@ -116,7 +116,7 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 
 	plan, err := planFromTierAndSize(input.Tier, input.Size)
 	if err != nil {
-		return nil, fmt.Errorf("converting to plan: %w", err)
+		return nil, err
 	}
 
 	name := valkeyNamer(input.TeamSlug, input.Name)
@@ -216,7 +216,7 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 
 	plan, err := planFromTierAndSize(input.Tier, input.Size)
 	if err != nil {
-		return nil, fmt.Errorf("converting to plan: %w", err)
+		return nil, err
 	}
 
 	oldPlan, found, err := unstructured.NestedString(valkey.Object, "spec", "plan")
@@ -416,7 +416,7 @@ func planFromTierAndSize(tier ValkeyTier, size ValkeySize) (string, error) {
 	plan := ""
 
 	if size == ValkeySizeRAM1gb && tier == ValkeyTierSingleNode {
-		return "", apierror.Errorf("invalid Valkey size for tier %s: %s",
+		return "", apierror.Errorf("Invalid Valkey size for tier. %v cannot have size %v",
 			tier, size)
 	}
 
@@ -427,7 +427,7 @@ func planFromTierAndSize(tier ValkeyTier, size ValkeySize) (string, error) {
 		}
 	}
 	if plan == "" {
-		return "", apierror.Errorf("invalid Valkey tier: %s", tier)
+		return "", apierror.Errorf("Invalid Valkey tier: %s", tier)
 	}
 
 	planSize := ""
@@ -438,7 +438,7 @@ func planFromTierAndSize(tier ValkeyTier, size ValkeySize) (string, error) {
 		}
 	}
 	if planSize == "" {
-		return "", apierror.Errorf("invalid Valkey size: %s", size)
+		return "", apierror.Errorf("Invalid Valkey size: %s", size)
 	}
 	plan += planSize
 
