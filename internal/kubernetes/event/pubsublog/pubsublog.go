@@ -63,7 +63,7 @@ func (s *Subscriber) receive(ctx context.Context, msg *pubsub.Message) {
 	line, err := parseMsg(msg)
 	if err != nil {
 		log.WithError(err).Error("failed to parse log line")
-		msg.Nack()
+		msg.Ack()
 		return
 	}
 
@@ -71,7 +71,7 @@ func (s *Subscriber) receive(ctx context.Context, msg *pubsub.Message) {
 	if err != nil {
 		log.WithError(err).WithField("resourceName", line.ProtoPayload.ResourceName).
 			Error("failed to parse resource name")
-		msg.Nack()
+		msg.Ack()
 		return
 	}
 
@@ -101,28 +101,28 @@ func (s *Subscriber) receive(ctx context.Context, msg *pubsub.Message) {
 	auditData, err := decoder(line.ProtoPayload.MethodName, *line)
 	if err != nil {
 		log.WithError(err).WithField("resourceName", line.ProtoPayload.ResourceName).Error("failed to decode resource")
-		msg.Nack()
+		msg.Ack()
 		return
 	}
 
 	client, ok := s.mappers[environmentmapper.ClusterName(cluster)]
 	if !ok {
 		log.WithField("cluster_client", environmentmapper.ClusterName(cluster)).Error("no client found for cluster")
-		msg.Nack()
+		msg.Ack()
 		return
 	}
 
 	gvks, err := client.KindsFor(*res.GVR)
 	if err != nil || len(gvks) == 0 {
 		log.WithError(err).WithField("resourceName", line.ProtoPayload.ResourceName).Error("failed to get kind for resource")
-		msg.Nack()
+		msg.Ack()
 		return
 	}
 
 	b, err := json.Marshal(auditData.Data)
 	if err != nil {
 		log.WithError(err).WithField("resourceName", line.ProtoPayload.ResourceName).Error("failed to marshal audit data")
-		msg.Nack()
+		msg.Ack()
 		return
 	}
 
@@ -153,7 +153,7 @@ func (s *Subscriber) receive(ctx context.Context, msg *pubsub.Message) {
 
 	if upsertErr != nil {
 		log.WithError(upsertErr).Error("failed to upsert event")
-		msg.Nack()
+		msg.Ack()
 		return
 	}
 
