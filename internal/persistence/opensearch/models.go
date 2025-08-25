@@ -10,6 +10,7 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/validate"
 	"github.com/nais/api/internal/workload"
@@ -152,8 +153,12 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		return nil, fmt.Errorf("converting to plan: %w", err)
 	}
 
+	name := obj.Name
+	if kubernetes.HasManagedByConsoleLabel(obj) {
+		name = strings.TrimPrefix(obj.GetName(), "opensearch-"+obj.GetNamespace()+"-")
+	}
 	return &OpenSearch{
-		Name:                  obj.Name,
+		Name:                  name,
 		EnvironmentName:       envName,
 		TerminationProtection: terminationProtection,
 		Status: &OpenSearchStatus{
