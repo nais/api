@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/team"
 	"google.golang.org/api/sqladmin/v1"
@@ -36,9 +37,10 @@ func (s *SQLInstanceLister) List(ctx context.Context) []*sqlinstance.SQLInstance
 	return instances
 }
 
-type SQLInstanceState struct {
-	State            string `json:"state"`
-	ActivationPolicy string `json:"activationPolicy"`
+type SQLInstanceStateDetails struct {
+	ID               ident.Ident `json:"id"`
+	State            string      `json:"state"`
+	ActivationPolicy string      `json:"activationPolicy"`
 }
 
 func (s SQLInstanceCheck) Run(ctx context.Context) ([]Issue, error) {
@@ -58,12 +60,13 @@ func (s SQLInstanceCheck) Run(ctx context.Context) ([]Issue, error) {
 			ResourceType: "sqlinstance",
 			Environment:  instance.EnvironmentName,
 			Team:         instance.TeamSlug.String(),
-			Type:         "SQLInstanceState",
-			IssueData: SQLInstanceState{
+			IssueType:    IssueTypeCloudSQL,
+			Details: SQLInstanceStateDetails{
+				ID:               newIdent("base"),
 				State:            i.State,
 				ActivationPolicy: i.Settings.ActivationPolicy,
 			},
-			Severity: SeverityError, // TODO: determine severity based on state
+			Severity: SeverityCritical, // TODO: determine severity based on state
 		})
 	}
 

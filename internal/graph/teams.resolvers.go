@@ -9,6 +9,7 @@ import (
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/issuechecker"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/user"
@@ -318,6 +319,10 @@ func (r *teamResolver) InventoryCounts(ctx context.Context, obj *team.Team) (*te
 	return &team.TeamInventoryCounts{
 		TeamSlug: obj.Slug,
 	}, nil
+}
+
+func (r *teamResolver) Issues(ctx context.Context, obj *team.Team) ([]*issuechecker.Issue, error) {
+	return issuechecker.GetIssues(ctx, obj.Slug.String())
 }
 
 func (r *teamDeleteKeyResolver) CreatedBy(ctx context.Context, obj *team.TeamDeleteKey) (*user.User, error) {

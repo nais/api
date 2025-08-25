@@ -33,7 +33,6 @@ type WorkloadStatusDeprecatedRegistry implements WorkloadStatusError {
 	"Image tag"
 	tag: String!
 }
-
 """
 This enum represents types of errors implementing WorkloadStatusError for use in workload filtering.
 """

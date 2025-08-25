@@ -165,6 +165,9 @@ type Team implements Node {
 
 	"Overall inventory of resources for the team."
 	inventoryCounts: TeamInventoryCounts!
+
+	"List all issues for this team."
+	issues: [Issue]!
 }
 
 type TeamEnvironment implements Node {

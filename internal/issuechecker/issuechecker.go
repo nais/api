@@ -13,28 +13,6 @@ import (
 	"google.golang.org/api/sqladmin/v1"
 )
 
-type Issue struct {
-	// identifiers
-	ResourceName string
-	ResourceType string
-	Environment  string
-	Team         string
-
-	Severity  Severity
-	Type      IssueType
-	IssueData any
-}
-
-type Severity string
-
-const (
-	SeverityError   Severity = "error"
-	SeverityWarning Severity = "warning"
-	SeverityTodo    Severity = "todo"
-)
-
-type IssueType string
-
 type Check interface {
 	Run(ctx context.Context) ([]Issue, error)
 }
@@ -89,16 +67,16 @@ func (i IssueChecker) RunChecks(ctx context.Context) {
 
 	batchIssues := make([]issuecheckersql.BatchInsertIssuesParams, 0)
 	for _, issue := range issues {
-		println("Found issue:", issue.ResourceName, "of type", issue.Type)
+		println("Found issue:", issue.ResourceName, "of type", issue.IssueType)
 		// TODO: use regular marshalling instead of json.MarshalIndent for production code
-		d, err := json.MarshalIndent(issue.IssueData, "", "  ")
+		d, err := json.MarshalIndent(issue.Details, "", "  ")
 		if err != nil {
 			panic(err)
 		}
 		println("Issue data:", string(d))
 
 		batchIssues = append(batchIssues, issuecheckersql.BatchInsertIssuesParams{
-			IssueType:    string(issue.Type),
+			IssueType:    string(issue.IssueType),
 			ResourceName: issue.ResourceName,
 			ResourceType: issue.ResourceType,
 			Team:         issue.Team,

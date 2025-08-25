@@ -1,0 +1,35 @@
+type Issue implements Node {
+	id: ID!
+	resourceName: String!
+	resourceType: String!
+	environment: String!
+	team: String!
+	severity: Severity!
+	issueType: IssueType!
+	details: IssueDetails!
+}
+
+interface IssueDetails {
+	id: ID!
+}
+
+enum IssueType {
+	AIVEN_ALERT
+	CLOUD_SQL
+}
+
+enum Severity {
+	CRITICAL
+	WARNING
+	TODO
+}
+
+type AivenAlertDetails implements IssueDetails {
+	id: ID!
+	message: String!
+}
+type SQLInstanceStateDetails implements IssueDetails {
+	id: ID!
+	state: String!
+	activationPolicy: String!
+}

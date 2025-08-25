@@ -2,6 +2,7 @@ package issuechecker
 
 import (
 	"context"
+	"strings"
 
 	aiven "github.com/aiven/go-client-codegen"
 )
@@ -9,10 +10,6 @@ import (
 type AivenCheck struct {
 	AivenClient aiven.Client
 	Projects    []string
-}
-
-type AivenAlert struct {
-	Message string `json:"message"`
 }
 
 func (a AivenCheck) Run(ctx context.Context) ([]Issue, error) {
@@ -31,10 +28,13 @@ func (a AivenCheck) Run(ctx context.Context) ([]Issue, error) {
 				ResourceName: *alert.ServiceName,
 				ResourceType: *alert.ServiceType, // TODO: assume these are ok, may have to map
 				Environment:  project,
-				Team:         "unknown", // lookup team by project and service type and name
-				Type:         "AivenAlert",
-				IssueData:    AivenAlert{Message: alert.Event}, // TODO: map to something that makes sense to users
-				Severity:     severity(alert.Severity),
+				Team:         getTeamFromServiceName(*alert.ServiceName), // lookup team by project and service type and name
+				IssueType:    IssueTypeAivenAlert,
+				Details: AivenAlertDetails{
+					ID:      newIdent("id string"),
+					Message: alert.Event,
+				},
+				Severity: severity(alert.Severity),
 			}
 			mapAlerts[key] = issue
 		}
@@ -46,10 +46,18 @@ func (a AivenCheck) Run(ctx context.Context) ([]Issue, error) {
 	return ret, nil
 }
 
+func getTeamFromServiceName(s string) string {
+	parts := strings.Split(s, "-")
+	if len(parts) >= 3 {
+		return parts[1]
+	}
+	return "unknown"
+}
+
 func severity(severity string) Severity {
 	switch severity {
 	case "critical":
-		return SeverityError
+		return SeverityCritical
 	case "warning":
 		return SeverityWarning
 	default:
