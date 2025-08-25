@@ -112,7 +112,7 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 
 	plan, err := planFromTierAndSize(input.Tier, input.Size)
 	if err != nil {
-		return nil, fmt.Errorf("converting to plan: %w", err)
+		return nil, err
 	}
 
 	name := openSearchNamer(input.TeamSlug, input.Name)
@@ -211,7 +211,7 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 
 	plan, err := planFromTierAndSize(input.Tier, input.Size)
 	if err != nil {
-		return nil, fmt.Errorf("converting to plan: %w", err)
+		return nil, err
 	}
 
 	oldPlan, found, err := unstructured.NestedString(openSearch.Object, "spec", "plan")
@@ -227,7 +227,7 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 
 		tier, size, err := tierAndSizeFromPlan(oldPlan)
 		if err != nil {
-			return nil, fmt.Errorf("converting from plan: %w", err)
+			return nil, err
 		}
 
 		if input.Tier != tier {
