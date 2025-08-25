@@ -21,13 +21,13 @@ func GetIssuesForTeam(ctx context.Context, teamSlug string) ([]*Issue, error) {
 		return nil, err
 	}
 
-	result := make([]*Issue, 0, len(issues))
+	ret := make([]*Issue, 0, len(issues))
 	for _, issue := range issues {
 		details, err := details(issue.IssueType, issue.IssueDetails)
 		if err != nil {
 			return nil, fmt.Errorf("unmarshal issue details: %w", err)
 		}
-		result = append(result, &Issue{
+		ret = append(ret, &Issue{
 			ID:           newIdent(issue.ID.String()),
 			Team:         issue.Team,
 			ResourceName: issue.ResourceName,
@@ -38,23 +38,15 @@ func GetIssuesForTeam(ctx context.Context, teamSlug string) ([]*Issue, error) {
 			Details:      details,
 		})
 	}
-	return result, nil
+	return ret, nil
 }
 
 func details(issueType string, data []byte) (IssueDetails, error) {
 	switch IssueType(issueType) {
 	case IssueTypeAivenAlert:
-		details := &AivenAlertDetails{}
-		if err := json.Unmarshal(data, details); err != nil {
-			return nil, err
-		}
-		return details, nil
+		return unmarshal[AivenAlertDetails](data)
 	case IssueTypeCloudSQL:
-		details := &SQLInstanceStateDetails{}
-		if err := json.Unmarshal(data, details); err != nil {
-			return nil, err
-		}
-		return details, nil
+		return unmarshal[SQLInstanceStateDetails](data)
 	default:
 		return nil, fmt.Errorf("unknown issue type: %s", issueType)
 	}
@@ -62,4 +54,12 @@ func details(issueType string, data []byte) (IssueDetails, error) {
 
 func db(ctx context.Context) *issuecheckersql.Queries {
 	return ctx.Value(Key).(*issuecheckersql.Queries)
+}
+
+func unmarshal[T any](data []byte) (*T, error) {
+	var t T
+	if err := json.Unmarshal(data, &t); err != nil {
+		return nil, err
+	}
+	return &t, nil
 }
