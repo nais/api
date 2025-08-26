@@ -6,30 +6,40 @@ import (
 	"strconv"
 
 	"github.com/nais/api/internal/graph/ident"
+	"github.com/nais/api/internal/graph/model"
 )
 
-type IssueDetails interface {
-	IsIssueDetails()
+type Issue interface {
+	model.Node
 }
 
-type AivenAlertDetails struct {
-	ID      ident.Ident `json:"id"`
-	Message string      `json:"message"`
+type AivenIssue struct {
+	ID           ident.Ident `json:"id"`
+	ResourceName string      `json:"resourceName"`
+	ResourceType string      `json:"resourceType"`
+	Environment  string      `json:"environment"`
+	Team         string      `json:"team"`
+	Severity     Severity    `json:"severity"`
+	Message      string      `json:"message"`
 }
 
-func (AivenAlertDetails) IsIssueDetails()       {}
-func (SQLInstanceStateDetails) IsIssueDetails() {}
+func (AivenIssue) IsIssue() {}
 
-type Issue struct {
-	ID           ident.Ident  `json:"id"`
-	ResourceName string       `json:"resourceName"`
-	ResourceType string       `json:"resourceType"`
-	Environment  string       `json:"environment"`
-	Team         string       `json:"team"`
-	Severity     Severity     `json:"severity"`
-	IssueType    IssueType    `json:"issueType"`
-	Details      IssueDetails `json:"details"`
+func (AivenIssue) IsNode() {}
+
+type SQLInstanceIssue struct {
+	ID           ident.Ident `json:"id"`
+	ResourceName string      `json:"resourceName"`
+	ResourceType string      `json:"resourceType"`
+	Environment  string      `json:"environment"`
+	Team         string      `json:"team"`
+	Severity     Severity    `json:"severity"`
+	Message      string      `json:"message"`
 }
+
+func (SQLInstanceIssue) IsIssue() {}
+
+func (SQLInstanceIssue) IsNode() {}
 
 type IssueType string
 
@@ -114,5 +124,3 @@ func (e *Severity) UnmarshalGQL(v any) error {
 func (e Severity) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
-
-func (Issue) IsNode() {}

@@ -321,7 +321,7 @@ func (r *teamResolver) InventoryCounts(ctx context.Context, obj *team.Team) (*te
 	}, nil
 }
 
-func (r *teamResolver) Issues(ctx context.Context, obj *team.Team) ([]*issuechecker.Issue, error) {
+func (r *teamResolver) Issues(ctx context.Context, obj *team.Team) ([]issuechecker.Issue, error) {
 	return issuechecker.GetIssuesForTeam(ctx, obj.Slug.String())
 }
 
