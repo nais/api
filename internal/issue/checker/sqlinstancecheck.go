@@ -37,8 +37,8 @@ func (s *SQLInstanceLister) List(ctx context.Context) []*sqlinstance.SQLInstance
 }
 
 type SQLInstanceIssueDetails struct {
-	State            string `json:"state"`
-	ActivationPolicy string `json:"activationPolicy"`
+	State   string `json:"state"`
+	Message string `json:"message"`
 }
 
 func (s SQLInstanceCheck) Run(ctx context.Context) ([]Issue, error) {
@@ -53,6 +53,7 @@ func (s SQLInstanceCheck) Run(ctx context.Context) ([]Issue, error) {
 			log.Printf("Skipping instance %s in project %s, state is RUNNABLE and activation policy is ALWAYS", instance.Name, instance.ProjectID)
 			continue
 		}
+		state, message, severity := parseState(i.State, i.Settings.ActivationPolicy)
 		ret = append(ret, Issue{
 			ResourceName: instance.Name,
 			ResourceType: "sqlinstance",
@@ -60,14 +61,36 @@ func (s SQLInstanceCheck) Run(ctx context.Context) ([]Issue, error) {
 			Team:         instance.TeamSlug.String(),
 			IssueType:    IssueTypeSQLInstanceIssue,
 
-			// TODO: determine severity based on state and use a state stopped instead of adding activation policy also
 			IssueDetails: SQLInstanceIssueDetails{
-				State:            i.State,
-				ActivationPolicy: i.Settings.ActivationPolicy,
+				State:   state,
+				Message: message,
 			},
-			Severity: SeverityCritical, // TODO: determine severity based on state
+			Severity: severity,
 		})
 	}
 
 	return ret, nil
+}
+
+func parseState(state, ap string) (string, string, Severity) {
+	type compound struct {
+		severity, message string
+	}
+	lookup := map[string]compound{
+		"SQL_INSTANCE_STATE_UNSPECIFIED": {severity: string(SeverityCritical), message: "The state of the instance is unknown."},
+		"SUSPENDED":                      {severity: string(SeverityCritical), message: "The instance is not available, for example due to problems with billing."},
+		"PENDING_DELETE":                 {severity: string(SeverityWarning), message: "The instance is being deleted."},
+		"PENDING_CREATE":                 {severity: string(SeverityWarning), message: "The instance is being created."},
+		"MAINTENANCE":                    {severity: string(SeverityCritical), message: "The instance is down for maintenance."},
+		"FAILED":                         {severity: string(SeverityCritical), message: "The creation of the instance failed or a fatal error occurred during maintenance."},
+		"REPAIRING":                      {severity: string(SeverityWarning), message: "(Applicable to read pool nodes only.) The read pool node needs to be repaired. The database might be unavailable."},
+		"STOPPED":                        {severity: string(SeverityCritical), message: "The instance has been stopped"},
+	}
+	if state == "RUNNABLE" && ap != "ALWAYS" {
+		state = "STOPPED"
+	}
+	if s, found := lookup[state]; found {
+		return state, s.message, Severity(s.severity)
+	}
+	return "UNKNOWN", "Unknown state", SeverityCritical
 }

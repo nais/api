@@ -4,8 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/nais/api/internal/issue/checker/checkersql"
 	"log"
+
+	"github.com/nais/api/internal/issue/checker/checkersql"
 
 	aiven "github.com/aiven/go-client-codegen"
 	"github.com/jackc/pgx/v5/pgxpool"

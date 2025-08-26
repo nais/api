@@ -2,11 +2,12 @@ package checker_test
 
 import (
 	"context"
-	"github.com/nais/api/internal/issue/checker"
-	"github.com/stretchr/testify/assert"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/nais/api/internal/issue/checker"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/nais/api/internal/database"
 	"github.com/sirupsen/logrus"
@@ -45,9 +46,10 @@ type MockSQLInstanceLister struct{}
 func (m *MockSQLInstanceLister) List(ctx context.Context) []*sqlinstance.SQLInstance {
 	return []*sqlinstance.SQLInstance{
 		{
-			Name:      "contests",
-			TeamSlug:  "nais",
-			ProjectID: "nais-prod-020f",
+			Name:            "contests",
+			TeamSlug:        "nais",
+			ProjectID:       "nais-prod-020f",
+			EnvironmentName: "prod-gcp",
 		},
 	}
 }

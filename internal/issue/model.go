@@ -35,6 +35,7 @@ type SQLInstanceIssue struct {
 	Team         string                `json:"team"`
 	Severity     Severity              `json:"severity"`
 	State        SQLInstanceIssueState `json:"state"`
+	Message      string                `json:"message"`
 }
 
 func (SQLInstanceIssue) IsIssue() {}
