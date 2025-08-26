@@ -5,11 +5,26 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/issuechecker/issuecheckersql"
 )
 
-const Key = "issuechecker"
+const depKey ctxKey = iota
+
+type ctxKey int
+
+type dependencies struct {
+	db *issuecheckersql.Queries
+}
+
+func NewContext(ctx context.Context, dbConn *pgxpool.Pool) context.Context {
+	return context.WithValue(ctx, depKey, &dependencies{db: issuecheckersql.New(dbConn)})
+}
+
+func fromContext(ctx context.Context) *dependencies {
+	return ctx.Value(depKey).(*dependencies)
+}
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*Issue, error) {
 	return nil, nil
@@ -53,7 +68,7 @@ func details(issueType string, data []byte) (IssueDetails, error) {
 }
 
 func db(ctx context.Context) *issuecheckersql.Queries {
-	return ctx.Value(Key).(*issuecheckersql.Queries)
+	return fromContext(ctx).db
 }
 
 func unmarshal[T any](data []byte) (*T, error) {
