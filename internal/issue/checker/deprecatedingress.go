@@ -4,7 +4,6 @@ import (
 	"context"
 	"strings"
 
-	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
@@ -40,7 +39,8 @@ var deprecatedIngresses = map[string][]string{
 }
 
 type DeprecatedIngress struct {
-	applicationLister KubernetesLister[*application.Application]
+	ApplicationLister KubernetesLister[*application.Application]
+	Environments      []string
 }
 
 var _ Check = DeprecatedIngress{}
@@ -50,22 +50,18 @@ type DeprecatedIngressIssueDetails struct {
 }
 
 func (d DeprecatedIngress) Run(ctx context.Context) ([]Issue, error) {
-	envs, err := environment.List(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
 	ret := []Issue{}
-	for _, env := range envs {
-		apps := d.applicationLister.List(ctx, env.Name)
+	for _, env := range d.Environments {
+		apps := d.ApplicationLister.List(ctx, env)
 		for _, app := range apps {
-			di := deprecated(app.Spec.Ingresses, env.Name)
+			di := deprecated(app.Spec.Ingresses, env)
 			if len(di) > 0 {
 				ret = append(ret, Issue{
 					IssueType:    IssueTypeDeprecatedIngress,
 					ResourceName: app.Name,
 					ResourceType: "application",
 					Team:         string(app.TeamSlug),
-					Env:          env.Name,
+					Env:          env,
 					Severity:     SeverityTodo,
 					IssueDetails: DeprecatedIngressIssueDetails{
 						Ingresses: di,

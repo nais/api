@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/issue/checker/checkersql"
 	"github.com/nais/api/internal/workload/application"
 
@@ -49,6 +50,7 @@ type IssueChecker struct {
 	Db                checkersql.Querier
 	SQLInstanceLister KubernetesLister[*sqlinstance.SQLInstance]
 	applicationLister KubernetesLister[*application.Application]
+	Environments      []string
 }
 
 type KubernetesLister[T any] interface {
@@ -57,6 +59,22 @@ type KubernetesLister[T any] interface {
 
 type applicationLister struct{}
 
+func New(config Config, pool *pgxpool.Pool) *IssueChecker {
+	ctx := environment.NewLoaderContext(context.Background(), pool)
+	envs, err := environment.List(ctx, nil)
+	if err != nil {
+		panic(fmt.Sprintf("failed to list environments: %v", err))
+	}
+
+	return &IssueChecker{
+		Config:            config,
+		Db:                checkersql.New(pool),
+		SQLInstanceLister: &SQLInstanceLister{},
+		applicationLister: &applicationLister{},
+		Environments:      Map(envs, func(e *environment.Environment) string { return e.Name }),
+	}
+}
+
 func (a *applicationLister) List(ctx context.Context, env string) []*application.Application {
 	return application.ListAllInEnvironment(ctx, env)
 }
@@ -64,15 +82,6 @@ func (a *applicationLister) List(ctx context.Context, env string) []*application
 type Config struct {
 	AivenToken    string
 	AivenProjects []string
-}
-
-func New(config Config, pool *pgxpool.Pool) *IssueChecker {
-	return &IssueChecker{
-		Config:            config,
-		Db:                checkersql.New(pool),
-		SQLInstanceLister: &SQLInstanceLister{},
-		applicationLister: &applicationLister{},
-	}
 }
 
 func (i IssueChecker) RunChecks(ctx context.Context) error {
@@ -89,7 +98,7 @@ func (i IssueChecker) RunChecks(ctx context.Context) error {
 	checks := []Check{
 		Aiven{AivenClient: c, Projects: i.Config.AivenProjects},
 		SQLInstance{SQLInstanceClient: sqladmin.Instances, SQLInstanceLister: i.SQLInstanceLister},
-		DeprecatedIngress{applicationLister: i.applicationLister},
+		DeprecatedIngress{ApplicationLister: i.applicationLister, Environments: i.Environments},
 	}
 
 	var issues []Issue
@@ -121,7 +130,7 @@ func (i IssueChecker) RunChecks(ctx context.Context) error {
 	}
 	err = i.Db.DeleteIssues(ctx)
 	if err != nil {
-		fmt.Errorf("failed to delete existing issues: %w", err)
+		return fmt.Errorf("failed to delete existing issues: %w", err)
 	}
 
 	// TODO: may need to use a channel to handle large batches
@@ -135,4 +144,12 @@ func (i IssueChecker) RunChecks(ctx context.Context) error {
 
 	// TODO: count and handle batch insert errors
 	return nil
+}
+
+func Map[T any, U any](input []T, f func(T) U) []U {
+	output := make([]U, len(input))
+	for i, v := range input {
+		output[i] = f(v)
+	}
+	return output
 }
