@@ -1,36 +1,49 @@
 interface Issue implements Node {
-	id: ID!
-	resourceName: String!
-	resourceType: String!
-	environment: String!
-	team: String!
-	severity: Severity!
+    id: ID!
+    resourceName: String!
+    resourceType: String!
+    environment: String!
+    team: String!
+    severity: Severity!
 }
 
 enum Severity {
-	CRITICAL
-	WARNING
-	TODO
+    CRITICAL
+    WARNING
+    TODO
 }
 
 type AivenIssue implements Issue & Node {
-	id: ID!
-	resourceName: String!
-	resourceType: String!
-	environment: String!
-	team: String!
-	severity: Severity!
+    id: ID!
+    resourceName: String!
+    resourceType: String!
+    environment: String!
+    team: String!
+    severity: Severity!
 
     message: String!
 }
 
 type SQLInstanceIssue implements Issue & Node {
-	id: ID!
-	resourceName: String!
-	resourceType: String!
-	environment: String!
-	team: String!
-	severity: Severity!
+    id: ID!
+    resourceName: String!
+    resourceType: String!
+    environment: String!
+    team: String!
+    severity: Severity!
 
-	message: String!
+    state: SQLInstanceIssueState!
+}
+
+enum SQLInstanceIssueState {
+    STOPPED
+    SQL_INSTANCE_STATE_UNSPECIFIED
+    RUNNABLE
+    SUSPENDED
+    PENDING_DELETE
+    PENDING_CREATE
+    MAINTENANCE
+    FAILED
+    ONLINE_MAINTENANCE
+    REPAIRING
 }

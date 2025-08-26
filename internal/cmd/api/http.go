@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/nais/api/internal/issue"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
@@ -23,7 +25,6 @@ import (
 	"github.com/nais/api/internal/feature"
 	"github.com/nais/api/internal/github/repository"
 	"github.com/nais/api/internal/graph/loader"
-	"github.com/nais/api/internal/issuechecker"
 	apik8s "github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/persistence/bigquery"
@@ -308,7 +309,7 @@ func ConfigureGraph(
 		ctx = utilization.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, sqlDatabaseWatcher, sqlInstanceWatcher)
 		ctx = database.NewLoaderContext(ctx, pool)
-		ctx = issuechecker.NewContext(ctx, pool)
+		ctx = issue.NewContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, namespaceWatcher)
 		ctx = user.NewLoaderContext(ctx, pool)
 		ctx = usersync.NewLoaderContext(ctx, pool)
