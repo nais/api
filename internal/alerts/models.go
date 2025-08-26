@@ -98,7 +98,7 @@ type (
 type PrometheusAlert struct {
 	BaseAlert
 
-	Details   []*PrometheusAlarm `json:"alertDetails"`
+	Alarms    []*PrometheusAlarm `json:"alarms"`
 	RuleGroup string             `json:"ruleGroup"`
 }
 

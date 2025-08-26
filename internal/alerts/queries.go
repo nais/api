@@ -67,7 +67,7 @@ func ListPrometheusRulesForTeamInEnvironment(ctx context.Context, environmentNam
 }
 
 func buildPromAlert(ar *promv1.AlertingRule, env string, team slug.Slug, group string) PrometheusAlert {
-	details := extractDetails(ar)
+	alarms := extractAlarms(ar)
 
 	return PrometheusAlert{
 		BaseAlert: BaseAlert{
@@ -79,12 +79,12 @@ func buildPromAlert(ar *promv1.AlertingRule, env string, team slug.Slug, group s
 			Duration:        ar.Duration,
 		},
 		RuleGroup: group,
-		Details:   details,
+		Alarms:    alarms,
 	}
 }
 
-func extractDetails(ar *promv1.AlertingRule) []*PrometheusAlarm {
-	details := make([]*PrometheusAlarm, 0, len(ar.Alerts))
+func extractAlarms(ar *promv1.AlertingRule) []*PrometheusAlarm {
+	alarms := make([]*PrometheusAlarm, 0, len(ar.Alerts))
 	for _, a := range ar.Alerts {
 		get := func(key model.LabelName) string {
 			if v := a.Annotations[key]; v != "" {
@@ -93,7 +93,7 @@ func extractDetails(ar *promv1.AlertingRule) []*PrometheusAlarm {
 			return string(ar.Annotations[key])
 		}
 
-		details = append(details, &PrometheusAlarm{
+		alarms = append(alarms, &PrometheusAlarm{
 			Action:      get(model.LabelName("action")),
 			Consequence: get(model.LabelName("consequence")),
 			Summary:     get(model.LabelName("summary")),
@@ -101,7 +101,7 @@ func extractDetails(ar *promv1.AlertingRule) []*PrometheusAlarm {
 			State:       AlertState(strings.ToUpper(string(a.State))),
 		})
 	}
-	return details
+	return alarms
 }
 
 func GetByIdent(ctx context.Context, id ident.Ident) (Alert, error) {
