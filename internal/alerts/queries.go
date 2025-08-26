@@ -105,29 +105,32 @@ func extractAlarms(ar *promv1.AlertingRule) []*PrometheusAlarm {
 }
 
 func GetByIdent(ctx context.Context, id ident.Ident) (Alert, error) {
-	alertType, team, env, alertName, err := parseIdent(id)
+	alertType, team, env, ruleGroup, alertName, err := parseIdent(id)
 	if err != nil {
 		return nil, err
 	}
-	return Get(ctx, alertType, team, env, alertName)
+	return Get(ctx, alertType, team, env, ruleGroup, alertName)
 }
 
-func Get(ctx context.Context, alertType AlertType, teamSlug slug.Slug, environmentName, ruleName string) (Alert, error) {
+func Get(ctx context.Context, alertType AlertType, teamSlug slug.Slug, environmentName, ruleGroup, alertName string) (Alert, error) {
 	if alertType != AlertTypePrometheus {
 		return nil, fmt.Errorf("unsupported alert type: %s", alertType)
 	}
-	return getPrometheusRule(ctx, environmentName, teamSlug, ruleName)
+	return getPrometheusRule(ctx, environmentName, teamSlug, ruleGroup, alertName)
 }
 
-func getPrometheusRule(ctx context.Context, environmentName string, teamSlug slug.Slug, ruleName string) (Alert, error) {
+func getPrometheusRule(ctx context.Context, environmentName string, teamSlug slug.Slug, ruleGroup, ruleName string) (Alert, error) {
 	c := fromContext(ctx).client
 
-	r, err := c.Rules(ctx, environmentName, teamSlug)
+	r, err := c.Rules(ctx, environmentmapper.ClusterName(environmentName), teamSlug)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, rg := range r.Groups {
+		if rg.Name != ruleGroup {
+			continue
+		}
 		for _, anyRule := range rg.Rules {
 			switch ar := anyRule.(type) {
 			case promv1.AlertingRule:

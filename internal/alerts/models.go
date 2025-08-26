@@ -111,7 +111,7 @@ type PrometheusAlarm struct {
 }
 
 func (e PrometheusAlert) ID() ident.Ident {
-	return newIdent(AlertTypePrometheus, e.TeamSlug, e.EnvironmentName, e.Name)
+	return newIdent(AlertTypePrometheus, e.TeamSlug, e.EnvironmentName, e.RuleGroup, e.Name)
 }
 
 func (PrometheusAlert) IsNode() {}
