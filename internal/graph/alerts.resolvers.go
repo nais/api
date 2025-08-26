@@ -24,6 +24,10 @@ func (r *prometheusAlertResolver) TeamEnvironment(ctx context.Context, obj *aler
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
+func (r *prometheusAlertResolver) Alarms(ctx context.Context, obj *alerts.PrometheusAlert) ([]*alerts.PrometheusAlarm, error) {
+	panic(fmt.Errorf("not implemented: Alarms - alarms"))
+}
+
 func (r *teamResolver) Alerts(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) (*pagination.Connection[alerts.Alert], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {

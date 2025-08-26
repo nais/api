@@ -98,15 +98,16 @@ type (
 type PrometheusAlert struct {
 	BaseAlert
 
-	Details   []*PrometheusAlertDetails `json:"alertDetails"`
-	RuleGroup string                    `json:"ruleGroup"`
+	Details   []*PrometheusAlarm `json:"alertDetails"`
+	RuleGroup string             `json:"ruleGroup"`
 }
 
-type PrometheusAlertDetails struct {
-	Action      string    `json:"action"`
-	Consequence string    `json:"consequence"`
-	Summary     string    `json:"summary"`
-	Since       time.Time `json:"since"`
+type PrometheusAlarm struct {
+	Action      string     `json:"action"`
+	Consequence string     `json:"consequence"`
+	Summary     string     `json:"summary"`
+	State       AlertState `json:"state"`
+	Since       time.Time  `json:"since"`
 }
 
 func (e PrometheusAlert) ID() ident.Ident {

@@ -83,8 +83,8 @@ func buildPromAlert(ar *promv1.AlertingRule, env string, team slug.Slug, group s
 	}
 }
 
-func extractDetails(ar *promv1.AlertingRule) []*PrometheusAlertDetails {
-	details := make([]*PrometheusAlertDetails, 0, len(ar.Alerts))
+func extractDetails(ar *promv1.AlertingRule) []*PrometheusAlarm {
+	details := make([]*PrometheusAlarm, 0, len(ar.Alerts))
 	for _, a := range ar.Alerts {
 		get := func(key model.LabelName) string {
 			if v := a.Annotations[key]; v != "" {
@@ -93,11 +93,12 @@ func extractDetails(ar *promv1.AlertingRule) []*PrometheusAlertDetails {
 			return string(ar.Annotations[key])
 		}
 
-		details = append(details, &PrometheusAlertDetails{
+		details = append(details, &PrometheusAlarm{
 			Action:      get(model.LabelName("action")),
 			Consequence: get(model.LabelName("consequence")),
 			Summary:     get(model.LabelName("summary")),
 			Since:       a.ActiveAt,
+			State:       AlertState(strings.ToUpper(string(a.State))),
 		})
 	}
 	return details

@@ -1,4 +1,7 @@
 extend type TeamEnvironment {
+	"""
+	EXPERIMENTAL: DO NOT USE
+	"""
 	alerts(
 		"""
 		Get the first n items in the connection. This can be used in combination with the after parameter.
@@ -33,6 +36,9 @@ extend type TeamEnvironment {
 }
 
 extend type Team {
+	"""
+	EXPERIMENTAL: DO NOT USE
+	"""
 	alerts(
 		"""
 		Get the first n items in the connection. This can be used in combination with the after parameter.
@@ -136,12 +142,12 @@ type PrometheusAlert implements Node & Alert {
 	ruleGroup: String!
 
 	"""
-	The details of the alert available if state is firing.
+	The alarms of the alert available if state is firing.
 	"""
-	details: [PrometheusAlertDetails!]!
+	alarms: [PrometheusAlarm!]!
 }
 
-type PrometheusAlertDetails {
+type PrometheusAlarm {
 	"""
 	The action to take when the alert fires.
 	"""
@@ -156,6 +162,11 @@ type PrometheusAlertDetails {
 	A summary of the alert.
 	"""
 	summary: String!
+
+	"""
+	The state of the alert.
+	"""
+	state: AlertState!
 
 	"""
 	The time when the alert started firing.
