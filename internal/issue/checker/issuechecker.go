@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/nais/api/internal/issue/checker/checkersql"
+	"github.com/nais/api/internal/workload/application"
 
 	aiven "github.com/aiven/go-client-codegen"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -26,8 +27,9 @@ type Issue struct {
 type IssueType string
 
 const (
-	IssueTypeAivenIssue       IssueType = "AIVEN_ISSUE"
-	IssueTypeSQLInstanceIssue IssueType = "SQLINSTANCE_ISSUE"
+	IssueTypeAivenIssue        IssueType = "AIVEN_ISSUE"
+	IssueTypeSQLInstanceIssue  IssueType = "SQLINSTANCE_ISSUE"
+	IssueTypeDeprecatedIngress IssueType = "DEPRECATED_INGRESS"
 )
 
 type Severity string
@@ -46,10 +48,17 @@ type IssueChecker struct {
 	Config            Config
 	Db                checkersql.Querier
 	SQLInstanceLister KubernetesLister[*sqlinstance.SQLInstance]
+	applicationLister KubernetesLister[*application.Application]
 }
 
 type KubernetesLister[T any] interface {
-	List(context.Context) []T
+	List(ctx context.Context, env string) []T
+}
+
+type applicationLister struct{}
+
+func (a *applicationLister) List(ctx context.Context, env string) []*application.Application {
+	return application.ListAllInEnvironment(ctx, env)
 }
 
 type Config struct {
@@ -62,6 +71,7 @@ func New(config Config, pool *pgxpool.Pool) *IssueChecker {
 		Config:            config,
 		Db:                checkersql.New(pool),
 		SQLInstanceLister: &SQLInstanceLister{},
+		applicationLister: &applicationLister{},
 	}
 }
 
@@ -77,8 +87,9 @@ func (i IssueChecker) RunChecks(ctx context.Context) error {
 	}
 
 	checks := []Check{
-		AivenCheck{AivenClient: c, Projects: i.Config.AivenProjects},
-		SQLInstanceCheck{SQLInstanceClient: sqladmin.Instances, SQLInstanceLister: i.SQLInstanceLister},
+		Aiven{AivenClient: c, Projects: i.Config.AivenProjects},
+		SQLInstance{SQLInstanceClient: sqladmin.Instances, SQLInstanceLister: i.SQLInstanceLister},
+		DeprecatedIngress{applicationLister: i.applicationLister},
 	}
 
 	var issues []Issue

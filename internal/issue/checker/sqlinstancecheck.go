@@ -9,14 +9,14 @@ import (
 	"google.golang.org/api/sqladmin/v1"
 )
 
-type SQLInstanceCheck struct {
+type SQLInstance struct {
 	SQLInstanceClient *sqladmin.InstancesService
 	SQLInstanceLister KubernetesLister[*sqlinstance.SQLInstance]
 }
 
 type SQLInstanceLister struct{}
 
-func (s *SQLInstanceLister) List(ctx context.Context) []*sqlinstance.SQLInstance {
+func (s *SQLInstanceLister) List(ctx context.Context, _ string) []*sqlinstance.SQLInstance {
 	teams, err := team.ListAllSlugs(ctx)
 	if err != nil {
 		panic(err)
@@ -41,10 +41,10 @@ type SQLInstanceIssueDetails struct {
 	Message string `json:"message"`
 }
 
-func (s SQLInstanceCheck) Run(ctx context.Context) ([]Issue, error) {
+func (s SQLInstance) Run(ctx context.Context) ([]Issue, error) {
 	ret := make([]Issue, 0)
 
-	for _, instance := range s.SQLInstanceLister.List(ctx) {
+	for _, instance := range s.SQLInstanceLister.List(ctx, "TODO") {
 		i, err := s.SQLInstanceClient.Get(instance.ProjectID, instance.Name).Context(ctx).Do()
 		if err != nil {
 			return nil, err

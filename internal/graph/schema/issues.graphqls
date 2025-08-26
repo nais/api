@@ -36,6 +36,17 @@ type SQLInstanceIssue implements Issue & Node {
 	message: String!
 }
 
+type DeprecatedIngressIssue implements Issue & Node {
+	id: ID!
+	resourceName: String!
+	resourceType: String!
+	environment: String!
+	team: String!
+	severity: Severity!
+
+	ingresses: [String!]!
+}
+
 enum SQLInstanceIssueState {
 	STOPPED
 	SQL_INSTANCE_STATE_UNSPECIFIED

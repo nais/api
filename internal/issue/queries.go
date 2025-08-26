@@ -78,6 +78,21 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 			Severity:     Severity(issue.Severity),
 			State:        SQLInstanceIssueState(d.State),
 		}, nil
+	case checker.IssueTypeDeprecatedIngress:
+		d, err := unmarshal[checker.DeprecatedIngressIssueDetails](issue.IssueDetails)
+		if err != nil {
+			return nil, err
+		}
+		return &DeprecatedIngressIssue{
+			ID:           newIdent(issue.ID.String()),
+			ResourceName: issue.ResourceName,
+			ResourceType: issue.ResourceType,
+			Environment:  issue.Env,
+			Team:         issue.Team,
+			Severity:     Severity(issue.Severity),
+			Ingresses:    d.Ingresses,
+		}, nil
+
 	default:
 		return nil, fmt.Errorf("unknown issue type: %s", issue.IssueType)
 	}

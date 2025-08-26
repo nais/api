@@ -141,3 +141,17 @@ func (e *SQLInstanceIssueState) UnmarshalGQL(v any) error {
 func (e SQLInstanceIssueState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
+
+type DeprecatedIngressIssue struct {
+	ID           ident.Ident `json:"id"`
+	ResourceName string      `json:"resourceName"`
+	ResourceType string      `json:"resourceType"`
+	Environment  string      `json:"environment"`
+	Team         string      `json:"team"`
+	Severity     Severity    `json:"severity"`
+	Ingresses    []string    `json:"ingresses"`
+}
+
+func (DeprecatedIngressIssue) IsIssue() {}
+
+func (DeprecatedIngressIssue) IsNode() {}

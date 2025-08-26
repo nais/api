@@ -7,7 +7,7 @@ import (
 	aiven "github.com/aiven/go-client-codegen"
 )
 
-type AivenCheck struct {
+type Aiven struct {
 	AivenClient aiven.Client
 	Projects    []string
 }
@@ -16,7 +16,7 @@ type AivenIssueDetails struct {
 	Message string `json:"message"`
 }
 
-func (a AivenCheck) Run(ctx context.Context) ([]Issue, error) {
+func (a Aiven) Run(ctx context.Context) ([]Issue, error) {
 	ret := make([]Issue, 0)
 	for _, project := range a.Projects {
 		alerts, err := a.AivenClient.ProjectAlertsList(ctx, project)
