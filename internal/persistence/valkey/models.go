@@ -29,15 +29,16 @@ type (
 )
 
 type Valkey struct {
-	Name                  string              `json:"name"`
-	Status                *ValkeyStatus       `json:"status"`
-	TerminationProtection bool                `json:"terminationProtection"`
-	Tier                  ValkeyTier          `json:"tier"`
-	Size                  ValkeySize          `json:"size"`
-	TeamSlug              slug.Slug           `json:"-"`
-	EnvironmentName       string              `json:"-"`
-	WorkloadReference     *workload.Reference `json:"-"`
-	AivenProject          string              `json:"-"`
+	Name                  string                `json:"name"`
+	Status                *ValkeyStatus         `json:"status"`
+	TerminationProtection bool                  `json:"terminationProtection"`
+	Tier                  ValkeyTier            `json:"tier"`
+	Size                  ValkeySize            `json:"size"`
+	MaxMemoryPolicy       ValkeyMaxMemoryPolicy `json:"maxMemoryPolicy,omitempty"`
+	TeamSlug              slug.Slug             `json:"-"`
+	EnvironmentName       string                `json:"-"`
+	WorkloadReference     *workload.Reference   `json:"-"`
+	AivenProject          string                `json:"-"`
 }
 
 func (Valkey) IsPersistence() {}
@@ -147,6 +148,11 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 
 	// Liberator doesn't contain this field, so we read it directly from the unstructured object
 	terminationProtection, _, _ := unstructured.NestedBool(u.Object, "spec", "terminationProtection")
+	maxMemoryPolicyStr, _, _ := unstructured.NestedString(u.Object, "spec", "userConfig", "valkey_maxmemory_policy")
+	maxMemoryPolicy, err := ValkeyMaxMemoryPolicyFromAivenString(maxMemoryPolicyStr)
+	if err != nil {
+		maxMemoryPolicy = ""
+	}
 
 	tier, size, err := tierAndSizeFromPlan(obj.Spec.Plan)
 	if err != nil {
@@ -171,6 +177,7 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 		AivenProject:      obj.Spec.Project,
 		Tier:              tier,
 		Size:              size,
+		MaxMemoryPolicy:   maxMemoryPolicy,
 	}, nil
 }
 
@@ -224,7 +231,7 @@ func (v *ValkeyInput) Validate(ctx context.Context) error {
 		verr.Add("size", "Invalid Valkey size: %s.", v.Size)
 	}
 	if v.MaxMemoryPolicy != nil && !v.MaxMemoryPolicy.IsValid() {
-		verr.Add("version", "Invalid Valkey version: %s.", v.MaxMemoryPolicy.String())
+		verr.Add("version", "Invalid Valkey max memory policy: %s.", v.MaxMemoryPolicy.String())
 	}
 
 	return verr.NilIfEmpty()
@@ -298,6 +305,19 @@ func (e *ValkeyMaxMemoryPolicy) UnmarshalGQL(v any) error {
 
 func (e ValkeyMaxMemoryPolicy) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func ValkeyMaxMemoryPolicyFromAivenString(s string) (ValkeyMaxMemoryPolicy, error) {
+	for _, policy := range AllValkeyMaxMemoryPolicy {
+		if policy.String() == strings.ReplaceAll(strings.ToUpper(s), "-", "_") {
+			return policy, nil
+		}
+	}
+	return "", fmt.Errorf("invalid ValkeyMaxMemoryPolicy: %s", s)
+}
+
+func (e ValkeyMaxMemoryPolicy) ToAivenString() string {
+	return strings.ReplaceAll(strings.ToLower(e.String()), "_", "-")
 }
 
 type ValkeySize string

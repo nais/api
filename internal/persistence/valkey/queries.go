@@ -153,7 +153,7 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 	}
 
 	if input.MaxMemoryPolicy != nil {
-		maxMemoryPolicy := strings.ReplaceAll(strings.ToLower(input.MaxMemoryPolicy.String()), "_", "-")
+		maxMemoryPolicy := input.MaxMemoryPolicy.ToAivenString()
 		err := unstructured.SetNestedField(res.Object, maxMemoryPolicy, "spec", "userConfig", "valkey_maxmemory_policy")
 		if err != nil {
 			return nil, err
@@ -276,14 +276,15 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 				Field: "maxMemoryPolicy",
 				OldValue: func() *string {
 					if found {
-						return ptr.To(strings.ReplaceAll(strings.ToUpper(oldMMP), "-", "_"))
+						policy, _ := ValkeyMaxMemoryPolicyFromAivenString(oldMMP)
+						return ptr.To(policy.String())
 					}
 					return nil
 				}(),
 				NewValue: ptr.To(input.MaxMemoryPolicy.String()),
 			})
 
-			maxMemoryPolicy := strings.ReplaceAll(strings.ToLower(input.MaxMemoryPolicy.String()), "_", "-")
+			maxMemoryPolicy := input.MaxMemoryPolicy.ToAivenString()
 			err := unstructured.SetNestedField(valkey.Object, maxMemoryPolicy, "spec", "userConfig", "valkey_maxmemory_policy")
 			if err != nil {
 				return nil, err

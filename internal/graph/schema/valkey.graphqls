@@ -74,6 +74,7 @@ type Valkey implements Persistence & Node {
 	status: ValkeyStatus!
 	tier: ValkeyTier!
 	size: ValkeySize!
+	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 }
 
 type ValkeyAccess {
