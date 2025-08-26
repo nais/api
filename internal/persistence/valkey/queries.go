@@ -32,6 +32,10 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*Valkey, error) {
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Valkey, error) {
+	prefix := valkeyNamer(teamSlug, "")
+	if !strings.HasPrefix(name, prefix) {
+		name = valkeyNamer(teamSlug, name)
+	}
 	return fromContext(ctx).client.watcher.Get(environment, teamSlug.String(), name)
 }
 

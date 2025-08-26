@@ -32,6 +32,10 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*OpenSearch, error) {
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*OpenSearch, error) {
+	prefix := openSearchNamer(teamSlug, "")
+	if !strings.HasPrefix(name, prefix) {
+		name = openSearchNamer(teamSlug, name)
+	}
 	return fromContext(ctx).client.watcher.Get(environment, teamSlug.String(), name)
 }
 
