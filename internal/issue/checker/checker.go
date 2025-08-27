@@ -46,23 +46,21 @@ type Check interface {
 }
 
 type Checker struct {
-	Config            Config
-	Db                checkersql.Querier
-	SQLInstanceLister KubernetesLister[*sqlinstance.SQLInstance]
-	ApplicationLister KubernetesLister[*application.Application]
+	Checks []Check
+	Db     checkersql.Querier
 }
 
-type Option func(*Checker)
+type Option func(*options)
 
 func WithSQLInstanceLister(lister KubernetesLister[*sqlinstance.SQLInstance]) Option {
-	return func(c *Checker) {
-		c.SQLInstanceLister = lister
+	return func(o *options) {
+		o.SQLInstanceLister = lister
 	}
 }
 
 func WithApplicationLister(lister KubernetesLister[*application.Application]) Option {
-	return func(c *Checker) {
-		c.ApplicationLister = lister
+	return func(o *options) {
+		o.ApplicationLister = lister
 	}
 }
 
@@ -74,24 +72,47 @@ type ApplicationLister struct {
 	Environments []string
 }
 
-func New(config Config, pool *pgxpool.Pool, opts ...Option) *Checker {
-	ctx := environment.NewLoaderContext(context.Background(), pool)
-	envs, err := environment.List(ctx, nil)
+type options struct {
+	SQLInstanceLister KubernetesLister[*sqlinstance.SQLInstance]
+	ApplicationLister KubernetesLister[*application.Application]
+}
+
+func New(ctx context.Context, config Config, pool *pgxpool.Pool, opts ...Option) (*Checker, error) {
+	ctx = environment.NewLoaderContext(ctx, pool)
+	e, err := environment.List(ctx, nil)
 	if err != nil {
 		panic(fmt.Sprintf("failed to list environments: %v", err))
 	}
 	checker := &Checker{
-		Config:            config,
-		Db:                checkersql.New(pool),
+		Db: checkersql.New(pool),
+	}
+	envs := Map(e, func(e *environment.Environment) string { return e.Name })
+	options := &options{
 		SQLInstanceLister: &SQLInstanceLister{},
-		ApplicationLister: &ApplicationLister{Environments: Map(envs, func(e *environment.Environment) string { return e.Name })},
+		ApplicationLister: &ApplicationLister{Environments: envs},
 	}
 
 	for _, opt := range opts {
-		opt(checker)
+		opt(options)
 	}
 
-	return checker
+	a, err := aiven.NewClient(aiven.TokenOpt(config.AivenToken), aiven.UserAgentOpt("nais-api"))
+	if err != nil {
+		return nil, err
+	}
+
+	sqladmin, err := sqladmin.NewService(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create SQL Admin service: %w", err)
+	}
+
+	checker.Checks = []Check{
+		Aiven{AivenClient: a, Tenant: config.Tenant, Environments: envs},
+		SQLInstance{SQLInstanceClient: sqladmin.Instances, SQLInstanceLister: options.SQLInstanceLister},
+		DeprecatedIngress{ApplicationLister: options.ApplicationLister},
+	}
+
+	return checker, nil
 }
 
 func (a *ApplicationLister) List(ctx context.Context) []*application.Application {
@@ -103,29 +124,13 @@ func (a *ApplicationLister) List(ctx context.Context) []*application.Application
 }
 
 type Config struct {
-	AivenToken    string
-	AivenProjects []string
+	AivenToken string
+	Tenant     string
 }
 
 func (c *Checker) RunChecks(ctx context.Context) error {
-	a, err := aiven.NewClient(aiven.TokenOpt(c.Config.AivenToken), aiven.UserAgentOpt("nais-api"))
-	if err != nil {
-		return err
-	}
-
-	sqladmin, err := sqladmin.NewService(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to create SQL Admin service: %w", err)
-	}
-
-	checks := []Check{
-		Aiven{AivenClient: a, Projects: c.Config.AivenProjects},
-		SQLInstance{SQLInstanceClient: sqladmin.Instances, SQLInstanceLister: c.SQLInstanceLister},
-		DeprecatedIngress{ApplicationLister: c.ApplicationLister},
-	}
-
 	var issues []Issue
-	for _, check := range checks {
+	for _, check := range c.Checks {
 		checkIssues, err := check.Run(ctx)
 		if err != nil {
 			return fmt.Errorf("failed to run check: %w", err)
@@ -151,7 +156,7 @@ func (c *Checker) RunChecks(ctx context.Context) error {
 			IssueDetails: d,
 		})
 	}
-	err = c.Db.DeleteIssues(ctx)
+	err := c.Db.DeleteIssues(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to delete existing issues: %w", err)
 	}

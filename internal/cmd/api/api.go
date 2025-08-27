@@ -23,6 +23,7 @@ import (
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/grpc"
+	"github.com/nais/api/internal/issue/checker"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/event"
 	"github.com/nais/api/internal/kubernetes/fake"
@@ -316,6 +317,16 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	wg.Go(func() error {
 		activitylog.RunRefresher(ctx, pool, log.WithField("subsystem", "activitylog_refresher"))
+		return nil
+	})
+
+	issueChecker, err := checker.New(ctx, checker.Config{
+		AivenToken: cfg.AivenToken,
+		Tenant:     cfg.Tenant,
+	}, pool)
+
+	wg.Go(func() error {
+		issueChecker.RunChecks(ctx)
 		return nil
 	})
 

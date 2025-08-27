@@ -2,14 +2,17 @@ package checker
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	aiven "github.com/aiven/go-client-codegen"
+	"github.com/nais/api/internal/environmentmapper"
 )
 
 type Aiven struct {
-	AivenClient aiven.Client
-	Projects    []string
+	AivenClient  aiven.Client
+	Tenant       string
+	Environments []string
 }
 
 type AivenIssueDetails struct {
@@ -18,10 +21,11 @@ type AivenIssueDetails struct {
 
 func (a Aiven) Run(ctx context.Context) ([]Issue, error) {
 	ret := make([]Issue, 0)
-	for _, project := range a.Projects {
-		alerts, err := a.AivenClient.ProjectAlertsList(ctx, project)
+
+	for _, p := range projects(a.Tenant, a.Environments) {
+		alerts, err := a.AivenClient.ProjectAlertsList(ctx, p)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("listing aiven alerts for project %s: %w", p, err)
 		}
 
 		mapAlerts := make(map[string]Issue)
@@ -31,7 +35,7 @@ func (a Aiven) Run(ctx context.Context) ([]Issue, error) {
 			issue := Issue{
 				ResourceName: *alert.ServiceName,
 				ResourceType: *alert.ServiceType, // TODO: assume these are ok, may have to map
-				Env:          project,
+				Env:          p,
 				Team:         getTeamFromServiceName(*alert.ServiceName), // lookup team by project and service type and name
 				IssueType:    IssueTypeAivenIssue,
 				IssueDetails: AivenIssueDetails{
@@ -47,6 +51,17 @@ func (a Aiven) Run(ctx context.Context) ([]Issue, error) {
 	}
 
 	return ret, nil
+}
+
+func projects(tenant string, envs []string) []string {
+	ret := []string{}
+	for _, env := range envs {
+		if tenant == "nav" && strings.HasSuffix(env, "-fss") {
+			continue
+		}
+		ret = append(ret, tenant+"-"+environmentmapper.ClusterName(env))
+	}
+	return ret
 }
 
 func getTeamFromServiceName(s string) string {

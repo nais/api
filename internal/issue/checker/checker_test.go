@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/issue/checker"
 	"github.com/stretchr/testify/assert"
 
@@ -29,16 +30,25 @@ func TestRunChecks(t *testing.T) {
 		log.Fatalf("failed to create pool: %v", err)
 	}
 
+	environmentmapper.SetMapping(environmentmapper.EnvironmentMapping{
+		"prod": "prod-gcp",
+		"dev":  "dev-gcp",
+	})
+
 	defer pool.Close()
 
-	i := checker.New(checker.Config{
-		AivenToken:    token,
-		AivenProjects: []string{"nav-prod", "nav-dev"},
+	i, err := checker.New(ctx, checker.Config{
+		AivenToken: token,
+		Tenant:     "nav",
 	},
 		pool,
 		checker.WithSQLInstanceLister(&MockSQLInstanceLister{}),
 		checker.WithApplicationLister(&MockApplicationLister{}),
 	)
+
+	if err != nil {
+		log.Fatalf("failed to create checker: %v", err)
+	}
 
 	err = i.RunChecks(ctx)
 	assert.NoError(t, err)
