@@ -34,9 +34,12 @@ func TestRunChecks(t *testing.T) {
 	i := checker.New(checker.Config{
 		AivenToken:    token,
 		AivenProjects: []string{"nav-prod", "nav-dev"},
-	}, pool)
+	},
+		pool,
+		checker.WithSQLInstanceLister(&MockSQLInstanceLister{}),
+		checker.WithApplicationLister(&MockApplicationLister{}),
+	)
 
-	i.SQLInstanceLister = &MockSQLInstanceLister{}
 	err = i.RunChecks(ctx)
 	assert.NoError(t, err)
 }

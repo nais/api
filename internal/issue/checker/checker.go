@@ -49,34 +49,52 @@ type Checker struct {
 	Config            Config
 	Db                checkersql.Querier
 	SQLInstanceLister KubernetesLister[*sqlinstance.SQLInstance]
-	applicationLister KubernetesLister[*application.Application]
-	Environments      []string
+	ApplicationLister KubernetesLister[*application.Application]
+}
+
+type Option func(*Checker)
+
+func WithSQLInstanceLister(lister KubernetesLister[*sqlinstance.SQLInstance]) Option {
+	return func(c *Checker) {
+		c.SQLInstanceLister = lister
+	}
+}
+
+func WithApplicationLister(lister KubernetesLister[*application.Application]) Option {
+	return func(c *Checker) {
+		c.ApplicationLister = lister
+	}
 }
 
 type KubernetesLister[T any] interface {
 	List(ctx context.Context) []T
 }
 
-type applicationLister struct {
+type ApplicationLister struct {
 	Environments []string
 }
 
-func New(config Config, pool *pgxpool.Pool) *Checker {
+func New(config Config, pool *pgxpool.Pool, opts ...Option) *Checker {
 	ctx := environment.NewLoaderContext(context.Background(), pool)
 	envs, err := environment.List(ctx, nil)
 	if err != nil {
 		panic(fmt.Sprintf("failed to list environments: %v", err))
 	}
-
-	return &Checker{
+	checker := &Checker{
 		Config:            config,
 		Db:                checkersql.New(pool),
 		SQLInstanceLister: &SQLInstanceLister{},
-		applicationLister: &applicationLister{Environments: Map(envs, func(e *environment.Environment) string { return e.Name })},
+		ApplicationLister: &ApplicationLister{Environments: Map(envs, func(e *environment.Environment) string { return e.Name })},
 	}
+
+	for _, opt := range opts {
+		opt(checker)
+	}
+
+	return checker
 }
 
-func (a *applicationLister) List(ctx context.Context) []*application.Application {
+func (a *ApplicationLister) List(ctx context.Context) []*application.Application {
 	ret := []*application.Application{}
 	for _, env := range a.Environments {
 		ret = append(ret, application.ListAllInEnvironment(ctx, env)...)
@@ -103,7 +121,7 @@ func (c *Checker) RunChecks(ctx context.Context) error {
 	checks := []Check{
 		Aiven{AivenClient: a, Projects: c.Config.AivenProjects},
 		SQLInstance{SQLInstanceClient: sqladmin.Instances, SQLInstanceLister: c.SQLInstanceLister},
-		DeprecatedIngress{ApplicationLister: c.applicationLister, Environments: c.Environments},
+		DeprecatedIngress{ApplicationLister: c.ApplicationLister},
 	}
 
 	var issues []Issue

@@ -31,7 +31,7 @@ func (m MockApplicationLister) List(ctx context.Context) []*application.Applicat
 		{
 			Base: workload.Base{
 				Name:            "my-app",
-				TeamSlug:        slug.Slug("nais"),
+				TeamSlug:        slug.Slug("tbd"),
 				EnvironmentName: "prod-gcp",
 			},
 			Spec: &nais_io_v1alpha1.ApplicationSpec{
