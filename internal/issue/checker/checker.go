@@ -45,7 +45,7 @@ type Check interface {
 	Run(ctx context.Context) ([]Issue, error)
 }
 
-type IssueChecker struct {
+type Checker struct {
 	Config            Config
 	Db                checkersql.Querier
 	SQLInstanceLister KubernetesLister[*sqlinstance.SQLInstance]
@@ -61,14 +61,14 @@ type applicationLister struct {
 	Environments []string
 }
 
-func New(config Config, pool *pgxpool.Pool) *IssueChecker {
+func New(config Config, pool *pgxpool.Pool) *Checker {
 	ctx := environment.NewLoaderContext(context.Background(), pool)
 	envs, err := environment.List(ctx, nil)
 	if err != nil {
 		panic(fmt.Sprintf("failed to list environments: %v", err))
 	}
 
-	return &IssueChecker{
+	return &Checker{
 		Config:            config,
 		Db:                checkersql.New(pool),
 		SQLInstanceLister: &SQLInstanceLister{},
@@ -89,8 +89,8 @@ type Config struct {
 	AivenProjects []string
 }
 
-func (i IssueChecker) RunChecks(ctx context.Context) error {
-	c, err := aiven.NewClient(aiven.TokenOpt(i.Config.AivenToken), aiven.UserAgentOpt("nais-api"))
+func (c *Checker) RunChecks(ctx context.Context) error {
+	a, err := aiven.NewClient(aiven.TokenOpt(c.Config.AivenToken), aiven.UserAgentOpt("nais-api"))
 	if err != nil {
 		return err
 	}
@@ -101,9 +101,9 @@ func (i IssueChecker) RunChecks(ctx context.Context) error {
 	}
 
 	checks := []Check{
-		Aiven{AivenClient: c, Projects: i.Config.AivenProjects},
-		SQLInstance{SQLInstanceClient: sqladmin.Instances, SQLInstanceLister: i.SQLInstanceLister},
-		DeprecatedIngress{ApplicationLister: i.applicationLister, Environments: i.Environments},
+		Aiven{AivenClient: a, Projects: c.Config.AivenProjects},
+		SQLInstance{SQLInstanceClient: sqladmin.Instances, SQLInstanceLister: c.SQLInstanceLister},
+		DeprecatedIngress{ApplicationLister: c.applicationLister, Environments: c.Environments},
 	}
 
 	var issues []Issue
@@ -133,13 +133,13 @@ func (i IssueChecker) RunChecks(ctx context.Context) error {
 			IssueDetails: d,
 		})
 	}
-	err = i.Db.DeleteIssues(ctx)
+	err = c.Db.DeleteIssues(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to delete existing issues: %w", err)
 	}
 
 	// TODO: may need to use a channel to handle large batches
-	i.Db.BatchInsertIssues(ctx, batchIssues).Exec(func(i int, err error) {
+	c.Db.BatchInsertIssues(ctx, batchIssues).Exec(func(i int, err error) {
 		if err != nil {
 			log.Printf("Failed to insert issue %d: %v", i, err)
 		} else {
