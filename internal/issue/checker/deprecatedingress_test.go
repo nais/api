@@ -5,11 +5,10 @@ import (
 	"testing"
 
 	"github.com/nais/api/internal/issue/checker"
-	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/workload"
-	"github.com/nais/api/internal/workload/application"
+	"github.com/nais/api/internal/kubernetes/watcher"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func TestDeprecatedIngress(t *testing.T) {
@@ -26,16 +25,18 @@ func TestDeprecatedIngress(t *testing.T) {
 
 type MockApplicationLister struct{}
 
-func (m MockApplicationLister) List(ctx context.Context) []*application.Application {
-	return []*application.Application{
+func (m MockApplicationLister) List(ctx context.Context) []*watcher.EnvironmentWrapper[*nais_io_v1alpha1.Application] {
+	return []*watcher.EnvironmentWrapper[*nais_io_v1alpha1.Application]{
 		{
-			Base: workload.Base{
-				Name:            "my-app",
-				TeamSlug:        slug.Slug("tbd"),
-				EnvironmentName: "prod-gcp",
-			},
-			Spec: &nais_io_v1alpha1.ApplicationSpec{
-				Ingresses: []nais_io_v1.Ingress{"test.dev.intern.nav.no"},
+			Cluster: "prod-gcp",
+			Obj: &nais_io_v1alpha1.Application{
+				ObjectMeta: v1.ObjectMeta{
+					Name:      "my-app",
+					Namespace: "tbd",
+				},
+				Spec: nais_io_v1alpha1.ApplicationSpec{
+					Ingresses: []nais_io_v1.Ingress{"test.dev.intern.nav.no"},
+				},
 			},
 		},
 	}
