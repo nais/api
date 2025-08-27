@@ -51,23 +51,21 @@ type DeprecatedIngressIssueDetails struct {
 
 func (d DeprecatedIngress) Run(ctx context.Context) ([]Issue, error) {
 	ret := []Issue{}
-	for _, env := range d.Environments {
-		apps := d.ApplicationLister.List(ctx, env)
-		for _, app := range apps {
-			di := deprecated(app.Spec.Ingresses, env)
-			if len(di) > 0 {
-				ret = append(ret, Issue{
-					IssueType:    IssueTypeDeprecatedIngress,
-					ResourceName: app.Name,
-					ResourceType: "application",
-					Team:         string(app.TeamSlug),
-					Env:          env,
-					Severity:     SeverityTodo,
-					IssueDetails: DeprecatedIngressIssueDetails{
-						Ingresses: di,
-					},
-				})
-			}
+	apps := d.ApplicationLister.List(ctx)
+	for _, app := range apps {
+		di := deprecated(app.Spec.Ingresses, app.EnvironmentName)
+		if len(di) > 0 {
+			ret = append(ret, Issue{
+				IssueType:    IssueTypeDeprecatedIngress,
+				ResourceName: app.Name,
+				ResourceType: "application",
+				Team:         string(app.TeamSlug),
+				Env:          app.EnvironmentName,
+				Severity:     SeverityTodo,
+				IssueDetails: DeprecatedIngressIssueDetails{
+					Ingresses: di,
+				},
+			})
 		}
 	}
 	return ret, nil

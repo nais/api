@@ -13,7 +13,7 @@ import (
 )
 
 func TestDeprecatedIngress(t *testing.T) {
-	check := checker.DeprecatedIngress{ApplicationLister: MockApplicationLister{}, Environments: []string{"prod-gcp"}}
+	check := checker.DeprecatedIngress{ApplicationLister: MockApplicationLister{}}
 	issues, err := check.Run(context.Background())
 
 	if err != nil {
@@ -26,7 +26,7 @@ func TestDeprecatedIngress(t *testing.T) {
 
 type MockApplicationLister struct{}
 
-func (m MockApplicationLister) List(ctx context.Context, env string) []*application.Application {
+func (m MockApplicationLister) List(ctx context.Context) []*application.Application {
 	return []*application.Application{
 		{
 			Base: workload.Base{

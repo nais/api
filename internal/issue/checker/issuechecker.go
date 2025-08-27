@@ -54,10 +54,12 @@ type IssueChecker struct {
 }
 
 type KubernetesLister[T any] interface {
-	List(ctx context.Context, env string) []T
+	List(ctx context.Context) []T
 }
 
-type applicationLister struct{}
+type applicationLister struct {
+	Environments []string
+}
 
 func New(config Config, pool *pgxpool.Pool) *IssueChecker {
 	ctx := environment.NewLoaderContext(context.Background(), pool)
@@ -70,13 +72,16 @@ func New(config Config, pool *pgxpool.Pool) *IssueChecker {
 		Config:            config,
 		Db:                checkersql.New(pool),
 		SQLInstanceLister: &SQLInstanceLister{},
-		applicationLister: &applicationLister{},
-		Environments:      Map(envs, func(e *environment.Environment) string { return e.Name }),
+		applicationLister: &applicationLister{Environments: Map(envs, func(e *environment.Environment) string { return e.Name })},
 	}
 }
 
-func (a *applicationLister) List(ctx context.Context, env string) []*application.Application {
-	return application.ListAllInEnvironment(ctx, env)
+func (a *applicationLister) List(ctx context.Context) []*application.Application {
+	ret := []*application.Application{}
+	for _, env := range a.Environments {
+		ret = append(ret, application.ListAllInEnvironment(ctx, env)...)
+	}
+	return ret
 }
 
 type Config struct {

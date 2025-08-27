@@ -43,7 +43,7 @@ func TestRunChecks(t *testing.T) {
 
 type MockSQLInstanceLister struct{}
 
-func (m *MockSQLInstanceLister) List(ctx context.Context, env string) []*sqlinstance.SQLInstance {
+func (m *MockSQLInstanceLister) List(ctx context.Context) []*sqlinstance.SQLInstance {
 	return []*sqlinstance.SQLInstance{
 		{
 			Name:            "contests",
