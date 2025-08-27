@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/nais/api/internal/kubernetes/watchers"
 	"net/http"
 	"time"
 
@@ -66,28 +67,7 @@ import (
 )
 
 // runHttpServer will start the HTTP server
-func runHttpServer(
-	ctx context.Context,
-	fakes Fakes,
-	listenAddress string,
-	tenantName string,
-	clusters []string,
-	pool *pgxpool.Pool,
-	k8sClients apik8s.ClusterConfigMap,
-	watcherMgr *watcher.Manager,
-	mgmtWatcherMgr *watcher.Manager,
-	jwtMiddleware func(http.Handler) http.Handler,
-	authHandler authn.Handler,
-	graphHandler *handler.Server,
-	serviceMaintenanceManager *servicemaintenance.Manager,
-	aivenClient aivencache.AivenClient,
-	vulnMgr *vulnerability.Manager,
-	hookdClient hookd.Client,
-	bifrostAPIURL string,
-	defaultLogDestinations []logging.SupportedLogDestination,
-	notifier *notify.Notifier,
-	log logrus.FieldLogger,
-) error {
+func runHttpServer(ctx context.Context, fakes Fakes, listenAddress string, tenantName string, clusters []string, pool *pgxpool.Pool, k8sClients apik8s.ClusterConfigMap, watchers *watchers.Watchers, watcherMgr *watcher.Manager, mgmtWatcherMgr *watcher.Manager, jwtMiddleware func(http.Handler) http.Handler, authHandler authn.Handler, graphHandler *handler.Server, serviceMaintenanceManager *servicemaintenance.Manager, aivenClient aivencache.AivenClient, vulnMgr *vulnerability.Manager, hookdClient hookd.Client, bifrostAPIURL string, defaultLogDestinations []logging.SupportedLogDestination, notifier *notify.Notifier, log logrus.FieldLogger) error {
 	router := chi.NewRouter()
 	router.Method("GET", "/",
 		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL playground", "/graphql"), "playground")),
@@ -96,8 +76,8 @@ func runHttpServer(
 	contextDependencies, err := ConfigureGraph(
 		ctx,
 		fakes,
+		watchers,
 		watcherMgr,
-		mgmtWatcherMgr,
 		pool,
 		k8sClients,
 		serviceMaintenanceManager,
@@ -191,8 +171,8 @@ func runHttpServer(
 func ConfigureGraph(
 	ctx context.Context,
 	fakes Fakes,
+	watchers *watchers.Watchers,
 	watcherMgr *watcher.Manager,
-	mgmtWatcherMgr *watcher.Manager,
 	pool *pgxpool.Pool,
 	k8sClients apik8s.ClusterConfigMap,
 	serviceMaintenanceManager *servicemaintenance.Manager,
@@ -206,35 +186,20 @@ func ConfigureGraph(
 	notifier *notify.Notifier,
 	log logrus.FieldLogger,
 ) (func(http.Handler) http.Handler, error) {
-	appWatcher := application.NewWatcher(ctx, watcherMgr)
-	jobWatcher := job.NewWatcher(ctx, watcherMgr)
-	runWatcher := job.NewRunWatcher(ctx, watcherMgr)
-	bqWatcher := bigquery.NewWatcher(ctx, watcherMgr)
-	valkeyWatcher := valkey.NewWatcher(ctx, watcherMgr)
-	openSearchWatcher := opensearch.NewWatcher(ctx, watcherMgr)
-	bucketWatcher := bucket.NewWatcher(ctx, watcherMgr)
-	sqlDatabaseWatcher := sqlinstance.NewDatabaseWatcher(ctx, watcherMgr)
-	sqlInstanceWatcher := sqlinstance.NewInstanceWatcher(ctx, watcherMgr)
-	kafkaTopicWatcher := kafkatopic.NewWatcher(ctx, watcherMgr)
-	podWatcher := workload.NewWatcher(ctx, watcherMgr)
-	ingressWatcher := application.NewIngressWatcher(ctx, watcherMgr)
-	namespaceWatcher := team.NewNamespaceWatcher(ctx, watcherMgr)
-	unleashWatcher := unleash.NewWatcher(ctx, mgmtWatcherMgr)
-
 	searcher, err := search.New(ctx, pool, log.WithField("subsystem", "search_bleve"))
 	if err != nil {
 		return nil, fmt.Errorf("init bleve: %w", err)
 	}
 
 	// Searchers searchers
-	application.AddSearch(searcher, appWatcher)
-	job.AddSearch(searcher, jobWatcher)
-	bigquery.AddSearch(searcher, bqWatcher)
-	bucket.AddSearch(searcher, bucketWatcher)
-	kafkatopic.AddSearch(searcher, kafkaTopicWatcher)
-	opensearch.AddSearch(searcher, openSearchWatcher)
-	sqlinstance.AddSearch(searcher, sqlInstanceWatcher)
-	valkey.AddSearch(searcher, valkeyWatcher)
+	application.AddSearch(searcher, watchers.AppWatcher)
+	job.AddSearch(searcher, watchers.JobWatcher)
+	bigquery.AddSearch(searcher, watchers.BqWatcher)
+	bucket.AddSearch(searcher, watchers.BucketWatcher)
+	kafkatopic.AddSearch(searcher, watchers.KafkaTopicWatcher)
+	opensearch.AddSearch(searcher, watchers.OpenSearchWatcher)
+	sqlinstance.AddSearch(searcher, watchers.SqlInstanceWatcher)
+	valkey.AddSearch(searcher, watchers.ValkeyWatcher)
 	team.AddSearch(searcher, pool, notifier, log.WithField("subsystem", "team_search"))
 
 	// Re-index all to initialize the search index
@@ -242,7 +207,7 @@ func ConfigureGraph(
 		return nil, fmt.Errorf("reindex all: %w", err)
 	}
 
-	sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(fakes.WithFakeCloudSQL), sqlinstance.WithInstanceWatcher(sqlInstanceWatcher))
+	sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(fakes.WithFakeCloudSQL), sqlinstance.WithInstanceWatcher(watchers.SqlInstanceWatcher))
 	if err != nil {
 		return nil, fmt.Errorf("create SQL Admin service: %w", err)
 	}
@@ -296,21 +261,21 @@ func ConfigureGraph(
 
 	setupContext := func(ctx context.Context) context.Context {
 		ctx = podlog.NewLoaderContext(ctx, podLogStreamer)
-		ctx = application.NewLoaderContext(ctx, appWatcher, ingressWatcher, prometheusClient, log)
-		ctx = bigquery.NewLoaderContext(ctx, bqWatcher)
-		ctx = bucket.NewLoaderContext(ctx, bucketWatcher)
-		ctx = job.NewLoaderContext(ctx, jobWatcher, runWatcher)
-		ctx = kafkatopic.NewLoaderContext(ctx, kafkaTopicWatcher)
-		ctx = workload.NewLoaderContext(ctx, podWatcher)
+		ctx = application.NewLoaderContext(ctx, watchers.AppWatcher, watchers.IngressWatcher, prometheusClient, log)
+		ctx = bigquery.NewLoaderContext(ctx, watchers.BqWatcher)
+		ctx = bucket.NewLoaderContext(ctx, watchers.BucketWatcher)
+		ctx = job.NewLoaderContext(ctx, watchers.JobWatcher, watchers.RunWatcher)
+		ctx = kafkatopic.NewLoaderContext(ctx, watchers.KafkaTopicWatcher)
+		ctx = workload.NewLoaderContext(ctx, watchers.PodWatcher)
 		ctx = secret.NewLoaderContext(ctx, secretClientCreator, clusters, log)
-		ctx = opensearch.NewLoaderContext(ctx, openSearchWatcher, aivenClient, log)
-		ctx = valkey.NewLoaderContext(ctx, valkeyWatcher)
+		ctx = opensearch.NewLoaderContext(ctx, watchers.OpenSearchWatcher, aivenClient, log)
+		ctx = valkey.NewLoaderContext(ctx, watchers.ValkeyWatcher)
 		ctx = price.NewLoaderContext(ctx, priceRetriever, log)
 		ctx = utilization.NewLoaderContext(ctx, prometheusClient, log)
-		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, sqlDatabaseWatcher, sqlInstanceWatcher)
+		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, watchers.SqlDatabaseWatcher, watchers.SqlInstanceWatcher)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = issue.NewContext(ctx, pool)
-		ctx = team.NewLoaderContext(ctx, pool, namespaceWatcher)
+		ctx = team.NewLoaderContext(ctx, pool, watchers.NamespaceWatcher)
 		ctx = user.NewLoaderContext(ctx, pool)
 		ctx = usersync.NewLoaderContext(ctx, pool)
 		ctx = cost.NewLoaderContext(ctx, pool, costOpts...)
@@ -324,15 +289,15 @@ func ConfigureGraph(
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)
 		ctx = session.NewLoaderContext(ctx, pool)
 		ctx = search.NewLoaderContext(ctx, pool, searcher)
-		ctx = unleash.NewLoaderContext(ctx, tenantName, unleashWatcher, bifrostAPIURL, log)
+		ctx = unleash.NewLoaderContext(ctx, tenantName, watchers.UnleashWatcher, bifrostAPIURL, log)
 		ctx = logging.NewPackageContext(ctx, tenantName, defaultLogDestinations)
 		ctx = environment.NewLoaderContext(ctx, pool)
 		ctx = feature.NewLoaderContext(
 			ctx,
-			unleashWatcher.Enabled(),
-			valkeyWatcher.Enabled(),
-			kafkaTopicWatcher.Enabled(),
-			openSearchWatcher.Enabled(),
+			watchers.UnleashWatcher.Enabled(),
+			watchers.ValkeyWatcher.Enabled(),
+			watchers.KafkaTopicWatcher.Enabled(),
+			watchers.OpenSearchWatcher.Enabled(),
 		)
 		return ctx
 	}

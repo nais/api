@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/nais/api/internal/issue/checker"
+	"github.com/nais/api/internal/kubernetes/watchers"
 	"net/http"
 	"os"
 	"os/signal"
@@ -23,7 +25,6 @@ import (
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/grpc"
-	"github.com/nais/api/internal/issue/checker"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/event"
 	"github.com/nais/api/internal/kubernetes/fake"
@@ -152,6 +153,8 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 	defer mgmtWatcher.Stop()
 
+	watchers := watchers.SetupWatchers(ctx, watcherMgr, mgmtWatcher)
+
 	pubsubClient, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
 	if err != nil {
 		return err
@@ -262,28 +265,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	// HTTP server
 	wg.Go(func() error {
-		return runHttpServer(
-			ctx,
-			cfg.Fakes,
-			cfg.ListenAddress,
-			cfg.Tenant,
-			cfg.K8s.AllClusterNames(),
-			pool,
-			clusterConfig,
-			watcherMgr,
-			mgmtWatcher,
-			jwtMiddleware,
-			authHandler,
-			graphHandler,
-			serviceMaintenanceManager,
-			aivenClient,
-			vulnMgr,
-			hookdClient,
-			cfg.Unleash.BifrostApiUrl,
-			cfg.Logging.DefaultLogDestinations(),
-			notifier,
-			log.WithField("subsystem", "http"),
-		)
+		return runHttpServer(ctx, cfg.Fakes, cfg.ListenAddress, cfg.Tenant, cfg.K8s.AllClusterNames(), pool, clusterConfig, watchers, watcherMgr, mgmtWatcher, jwtMiddleware, authHandler, graphHandler, serviceMaintenanceManager, aivenClient, vulnMgr, hookdClient, cfg.Unleash.BifrostApiUrl, cfg.Logging.DefaultLogDestinations(), notifier, log.WithField("subsystem", "http"))
 	})
 	wg.Go(func() error {
 		return runInternalHTTPServer(
@@ -323,10 +305,13 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	issueChecker, err := checker.New(ctx, checker.Config{
 		AivenToken: cfg.AivenToken,
 		Tenant:     cfg.Tenant,
-	}, pool)
+	}, pool, watchers)
 
 	wg.Go(func() error {
-		issueChecker.RunChecks(ctx)
+		err = issueChecker.RunChecks(ctx)
+		if err != nil {
+			log.WithError(err).Error("issue checker failed")
+		}
 		return nil
 	})
 

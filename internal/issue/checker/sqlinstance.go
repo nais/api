@@ -2,10 +2,10 @@ package checker
 
 import (
 	"context"
+	"github.com/nais/api/internal/kubernetes/watchers"
 	"log"
 
 	"github.com/nais/api/internal/persistence/sqlinstance"
-	"github.com/nais/api/internal/team"
 	"google.golang.org/api/sqladmin/v1"
 )
 
@@ -14,24 +14,19 @@ type SQLInstance struct {
 	SQLInstanceLister KubernetesLister[*sqlinstance.SQLInstance]
 }
 
-type SQLInstanceLister struct{}
+type SQLInstanceLister struct {
+	watcher *watchers.SqlInstanceWatcher
+}
 
 func (s *SQLInstanceLister) List(ctx context.Context) []*sqlinstance.SQLInstance {
-	teams, err := team.ListAllSlugs(ctx)
-	if err != nil {
-		panic(err)
-	}
 	instances := make([]*sqlinstance.SQLInstance, 0)
-	for _, team := range teams {
-		sqlInstances := sqlinstance.ListAllForTeam(ctx, team)
-		for _, instance := range sqlInstances {
-			instances = append(instances, &sqlinstance.SQLInstance{
-				Name:            instance.Name,
-				ProjectID:       instance.ProjectID,
-				EnvironmentName: instance.EnvironmentName,
-				TeamSlug:        team,
-			})
-		}
+	for _, instance := range s.watcher.All() {
+		instances = append(instances, &sqlinstance.SQLInstance{
+			Name:            instance.Obj.Name,
+			ProjectID:       instance.Obj.ProjectID,
+			EnvironmentName: instance.Obj.EnvironmentName,
+			TeamSlug:        instance.Obj.TeamSlug,
+		})
 	}
 	return instances
 }
