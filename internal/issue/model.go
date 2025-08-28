@@ -11,6 +11,7 @@ import (
 
 type Issue interface {
 	model.Node
+	IsIssue()
 }
 
 type AivenIssue struct {
