@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/aiven/go-client-codegen/handler/project"
 	aiven "github.com/aiven/go-client-codegen/handler/service"
 )
 
@@ -15,6 +16,22 @@ func NewFakeAivenClient() *FakeAivenClient {
 
 func (f *FakeAivenClient) ServiceMaintenanceStart(_ context.Context, _ string, _ string) error {
 	return nil
+}
+
+// ProjectAlertsList list active alerts for a project
+func (f *FakeAivenClient) ProjectAlertsList(ctx context.Context, p string) ([]project.AlertOut, error) {
+	return []project.AlertOut{
+		{
+			ServiceName: stringPtr("opensearch-myteam-name"),
+			ServiceType: stringPtr("opensearch"),
+			Severity:    "critical",
+			Event:       "error message from aiven",
+		},
+	}, nil
+
+}
+func stringPtr(s string) *string {
+	return &s
 }
 
 // ServiceGet returns hardcoded example dataset

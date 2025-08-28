@@ -4,13 +4,13 @@ import (
 	"context"
 	"strings"
 
-	aiven "github.com/aiven/go-client-codegen"
 	"github.com/nais/api/internal/environmentmapper"
+	"github.com/nais/api/internal/thirdparty/aivencache"
 	"github.com/sirupsen/logrus"
 )
 
 type Aiven struct {
-	AivenClient  aiven.Client
+	AivenClient  aivencache.AivenClient
 	Tenant       string
 	Environments []string
 }
@@ -23,10 +23,10 @@ func (a Aiven) Run(ctx context.Context) ([]Issue, error) {
 	ret := make([]Issue, 0)
 
 	for _, p := range projects(a.Tenant, a.Environments) {
-		logrus.Infof("listing aiven alerts for project %s\n", p)
+		logrus.WithField("issues", "aiven").Infof("listing aiven alerts for project %s\n", p)
 		alerts, err := a.AivenClient.ProjectAlertsList(ctx, p)
 		if err != nil {
-			logrus.Errorf("listing aiven alerts for project %s: %w", p, err)
+			logrus.WithError(err).WithField("issues", "aiven").Errorf("failed listing aiven alerts for project %s", p)
 			continue
 		}
 

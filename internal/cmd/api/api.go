@@ -4,13 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/nais/api/internal/issue/checker"
-	"github.com/nais/api/internal/kubernetes/watchers"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/nais/api/internal/issue/checker"
+	"github.com/nais/api/internal/kubernetes/watchers"
+	"github.com/nais/api/internal/persistence/sqlinstance"
 
 	"cloud.google.com/go/pubsub"
 	aiven "github.com/aiven/go-client-codegen"
@@ -302,9 +304,15 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return nil
 	})
 
+	sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(cfg.Fakes.WithFakeCloudSQL), sqlinstance.WithInstanceWatcher(watchers.SqlInstanceWatcher))
+	if err != nil {
+		return fmt.Errorf("create SQL Admin service: %w", err)
+	}
+
 	issueChecker, err := checker.New(ctx, checker.Config{
-		AivenToken: cfg.AivenToken,
-		Tenant:     cfg.Tenant,
+		AivenClient:    aivenClient,
+		CloudSQLClient: sqlAdminService,
+		Tenant:         cfg.Tenant,
 	}, pool, watchers)
 
 	wg.Go(func() error {

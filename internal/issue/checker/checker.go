@@ -7,15 +7,14 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	aiven "github.com/aiven/go-client-codegen"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/issue/checker/checkersql"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/nais/api/internal/persistence/sqlinstance"
+	"github.com/nais/api/internal/thirdparty/aivencache"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
-	"google.golang.org/api/sqladmin/v1"
 )
 
 type Issue struct {
@@ -99,19 +98,9 @@ func New(ctx context.Context, config Config, pool *pgxpool.Pool, watchers *watch
 		opt(options)
 	}
 
-	a, err := aiven.NewClient(aiven.TokenOpt(config.AivenToken), aiven.UserAgentOpt("nais-api"))
-	if err != nil {
-		return nil, err
-	}
-
-	sqladmin, err := sqladmin.NewService(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create SQL Admin service: %w", err)
-	}
-
 	checker.Checks = []Check{
-		Aiven{AivenClient: a, Tenant: config.Tenant, Environments: envs},
-		SQLInstance{SQLInstanceClient: sqladmin.Instances, SQLInstanceLister: options.SQLInstanceLister},
+		Aiven{AivenClient: config.AivenClient, Tenant: config.Tenant, Environments: envs},
+		SQLInstance{Client: config.CloudSQLClient, SQLInstanceLister: options.SQLInstanceLister},
 		DeprecatedIngress{ApplicationLister: options.ApplicationLister},
 	}
 
@@ -123,8 +112,9 @@ func (a *ApplicationLister) List(ctx context.Context) []*watcher.EnvironmentWrap
 }
 
 type Config struct {
-	AivenToken string
-	Tenant     string
+	AivenClient    aivencache.AivenClient
+	CloudSQLClient *sqlinstance.Client
+	Tenant         string
 }
 
 func (c *Checker) RunChecks(ctx context.Context) error {

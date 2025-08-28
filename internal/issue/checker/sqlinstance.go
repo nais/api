@@ -2,17 +2,15 @@ package checker
 
 import (
 	"context"
-	"log"
 
 	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/sirupsen/logrus"
 
 	"github.com/nais/api/internal/persistence/sqlinstance"
-	"google.golang.org/api/sqladmin/v1"
 )
 
 type SQLInstance struct {
-	SQLInstanceClient *sqladmin.InstancesService
+	Client            *sqlinstance.Client
 	SQLInstanceLister KubernetesLister[*sqlinstance.SQLInstance]
 }
 
@@ -42,13 +40,13 @@ func (s SQLInstance) Run(ctx context.Context) ([]Issue, error) {
 	ret := make([]Issue, 0)
 
 	for _, instance := range s.SQLInstanceLister.List(ctx) {
-		i, err := s.SQLInstanceClient.Get(instance.ProjectID, instance.Name).Context(ctx).Do()
+		i, err := s.Client.Admin.GetInstance(ctx, instance.ProjectID, instance.Name)
 		if err != nil {
-			logrus.Errorf("failed getting sqlinstance %s", instance.Name, err)
+			logrus.WithError(err).WithField("issues", "sqlintance").Errorf("failed getting sqlinstance %s", instance.Name)
 			continue
 		}
 		if i.State == "RUNNABLE" && i.Settings.ActivationPolicy == "ALWAYS" {
-			log.Printf("Skipping instance %s in project %s, state is RUNNABLE and activation policy is ALWAYS", instance.Name, instance.ProjectID)
+			logrus.WithField("issues", "sqlinstance").Infof("Skipping instance %s in project %s, state is RUNNABLE and activation policy is ALWAYS", instance.Name, instance.ProjectID)
 			continue
 		}
 		state, message, severity := parseState(i.State, i.Settings.ActivationPolicy)
