@@ -267,7 +267,28 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	// HTTP server
 	wg.Go(func() error {
-		return runHttpServer(ctx, cfg.Fakes, cfg.ListenAddress, cfg.Tenant, cfg.K8s.AllClusterNames(), pool, clusterConfig, watchers, watcherMgr, mgmtWatcher, jwtMiddleware, authHandler, graphHandler, serviceMaintenanceManager, aivenClient, vulnMgr, hookdClient, cfg.Unleash.BifrostApiUrl, cfg.Logging.DefaultLogDestinations(), notifier, log.WithField("subsystem", "http"))
+		return runHttpServer(
+			ctx,
+			cfg.Fakes,
+			cfg.ListenAddress,
+			cfg.Tenant,
+			cfg.K8s.AllClusterNames(),
+			pool,
+			clusterConfig,
+			watchers,
+			watcherMgr,
+			jwtMiddleware,
+			authHandler,
+			graphHandler,
+			serviceMaintenanceManager,
+			aivenClient,
+			vulnMgr,
+			hookdClient,
+			cfg.Unleash.BifrostApiUrl,
+			cfg.Logging.DefaultLogDestinations(),
+			notifier,
+			log.WithField("subsystem", "http"),
+		)
 	})
 	wg.Go(func() error {
 		return runInternalHTTPServer(
