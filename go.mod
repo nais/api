@@ -40,7 +40,7 @@ require (
 	github.com/nais/liberator v0.0.0-20250314133115-a00f5ff69f28
 	github.com/nais/tester v0.1.0-pre.14
 	github.com/nais/unleasherator v0.0.0-20240513081022-06f454638fc1
-	github.com/nais/v13s/pkg/api v0.0.0-20250520123915-26ebc4ba7eef
+	github.com/nais/v13s/pkg/api v0.0.0-20250828100818-27a2f19e4981
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pressly/goose/v3 v3.24.1
 	github.com/prometheus/client_golang v1.21.1
