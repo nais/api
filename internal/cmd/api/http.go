@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/nais/api/internal/issue"
-
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
@@ -26,6 +24,7 @@ import (
 	"github.com/nais/api/internal/feature"
 	"github.com/nais/api/internal/github/repository"
 	"github.com/nais/api/internal/graph/loader"
+	"github.com/nais/api/internal/issue"
 	apik8s "github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/persistence/bigquery"
@@ -67,7 +66,28 @@ import (
 )
 
 // runHttpServer will start the HTTP server
-func runHttpServer(ctx context.Context, fakes Fakes, listenAddress string, tenantName string, clusters []string, pool *pgxpool.Pool, k8sClients apik8s.ClusterConfigMap, watchers *watchers.Watchers, watcherMgr *watcher.Manager, mgmtWatcherMgr *watcher.Manager, jwtMiddleware func(http.Handler) http.Handler, authHandler authn.Handler, graphHandler *handler.Server, serviceMaintenanceManager *servicemaintenance.Manager, aivenClient aivencache.AivenClient, vulnMgr *vulnerability.Manager, hookdClient hookd.Client, bifrostAPIURL string, defaultLogDestinations []logging.SupportedLogDestination, notifier *notify.Notifier, log logrus.FieldLogger) error {
+func runHttpServer(
+	ctx context.Context,
+	fakes Fakes,
+	listenAddress string,
+	tenantName string,
+	clusters []string,
+	pool *pgxpool.Pool,
+	k8sClients apik8s.ClusterConfigMap,
+	watchers *watchers.Watchers,
+	watcherMgr *watcher.Manager,
+	jwtMiddleware func(http.Handler) http.Handler,
+	authHandler authn.Handler,
+	graphHandler *handler.Server,
+	serviceMaintenanceManager *servicemaintenance.Manager,
+	aivenClient aivencache.AivenClient,
+	vulnMgr *vulnerability.Manager,
+	hookdClient hookd.Client,
+	bifrostAPIURL string,
+	defaultLogDestinations []logging.SupportedLogDestination,
+	notifier *notify.Notifier,
+	log logrus.FieldLogger,
+) error {
 	router := chi.NewRouter()
 	router.Method("GET", "/",
 		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL playground", "/graphql"), "playground")),
