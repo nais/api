@@ -3,6 +3,7 @@ package alerts
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/nais/api/internal/environmentmapper"
@@ -93,12 +94,18 @@ func extractAlarms(ar *promv1.AlertingRule) []*PrometheusAlarm {
 			return string(ar.Annotations[key])
 		}
 
+		value, err := strconv.ParseFloat(a.Value, 64)
+		if err != nil {
+			value = 0
+		}
+
 		alarms = append(alarms, &PrometheusAlarm{
 			Action:      get(model.LabelName("action")),
 			Consequence: get(model.LabelName("consequence")),
 			Summary:     get(model.LabelName("summary")),
 			Since:       a.ActiveAt,
 			State:       AlertState(strings.ToUpper(string(a.State))),
+			Value:       value,
 		})
 	}
 	return alarms

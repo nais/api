@@ -169,6 +169,11 @@ type PrometheusAlarm {
 	state: AlertState!
 
 	"""
+	The current value of the metric that triggered the alert.
+	"""
+	value: Float!
+
+	"""
 	The time when the alert started firing.
 	"""
 	since: Time!

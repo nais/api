@@ -108,6 +108,7 @@ type PrometheusAlarm struct {
 	Summary     string     `json:"summary"`
 	State       AlertState `json:"state"`
 	Since       time.Time  `json:"since"`
+	Value       float64    `json:"value"`
 }
 
 func (e PrometheusAlert) ID() ident.Ident {
