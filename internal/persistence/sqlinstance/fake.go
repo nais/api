@@ -185,6 +185,9 @@ func (f FakeGoogleAPI) sqlAdminAPI() RoundTripFunc {
 				Name:    last,
 				Project: projectID,
 				State:   "RUNNABLE",
+				Settings: &sqladmin.Settings{
+					ActivationPolicy: "ALWAYS",
+				},
 			}
 		}
 
