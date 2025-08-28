@@ -2,11 +2,11 @@ package checker
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	aiven "github.com/aiven/go-client-codegen"
 	"github.com/nais/api/internal/environmentmapper"
+	"github.com/sirupsen/logrus"
 )
 
 type Aiven struct {
@@ -23,9 +23,11 @@ func (a Aiven) Run(ctx context.Context) ([]Issue, error) {
 	ret := make([]Issue, 0)
 
 	for _, p := range projects(a.Tenant, a.Environments) {
+		logrus.Infof("listing aiven alerts for project %s\n", p)
 		alerts, err := a.AivenClient.ProjectAlertsList(ctx, p)
 		if err != nil {
-			return nil, fmt.Errorf("listing aiven alerts for project %s: %w", p, err)
+			logrus.Errorf("listing aiven alerts for project %s: %w", p, err)
+			continue
 		}
 
 		mapAlerts := make(map[string]Issue)

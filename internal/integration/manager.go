@@ -24,6 +24,7 @@ import (
 	apiRunner "github.com/nais/api/internal/integration/runner"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
+	"github.com/nais/api/internal/kubernetes/watchers"
 	servicemaintenance "github.com/nais/api/internal/servicemaintenance"
 	"github.com/nais/api/internal/thirdparty/aivencache"
 	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"
@@ -183,8 +184,8 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 			WithFakeCostClient:     true,
 			WithFakePriceClient:    true,
 		},
+		watchers.SetupWatchers(ctx, watcherMgr, managementWatcherMgr),
 		watcherMgr,
-		managementWatcherMgr,
 		pool,
 		clusterConfig,
 		smMgr,

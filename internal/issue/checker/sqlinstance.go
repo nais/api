@@ -2,8 +2,10 @@ package checker
 
 import (
 	"context"
-	"github.com/nais/api/internal/kubernetes/watchers"
 	"log"
+
+	"github.com/nais/api/internal/kubernetes/watchers"
+	"github.com/sirupsen/logrus"
 
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"google.golang.org/api/sqladmin/v1"
@@ -42,7 +44,8 @@ func (s SQLInstance) Run(ctx context.Context) ([]Issue, error) {
 	for _, instance := range s.SQLInstanceLister.List(ctx) {
 		i, err := s.SQLInstanceClient.Get(instance.ProjectID, instance.Name).Context(ctx).Do()
 		if err != nil {
-			return nil, err
+			logrus.Errorf("failed getting sqlinstance %s", instance.Name, err)
+			continue
 		}
 		if i.State == "RUNNABLE" && i.Settings.ActivationPolicy == "ALWAYS" {
 			log.Printf("Skipping instance %s in project %s, state is RUNNABLE and activation policy is ALWAYS", instance.Name, instance.ProjectID)

@@ -2,10 +2,11 @@ package checker
 
 import (
 	"context"
+	"strings"
+
 	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
-	"strings"
 
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"

@@ -1,4 +1,10 @@
 -- name: ListIssuesForTeam :many
-SELECT * FROM issues
-WHERE team = @team
-ORDER BY id DESC;
+SELECT
+	*
+FROM
+	issues
+WHERE
+	team = @team
+ORDER BY
+	id DESC
+;
