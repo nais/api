@@ -31,6 +31,7 @@ Test.gql("App with deprecated ingress", function(t)
 	t.query [[
 		query {
 			team(slug: "myteam") {
+				slug
 				issues {
 					severity
 					... on DeprecatedIngressIssue {
