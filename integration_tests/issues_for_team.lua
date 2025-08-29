@@ -1,6 +1,7 @@
 Helper.readK8sResources("k8s_resources/issues")
 local user = User.new("name", "auth@user.com", "sdf")
-local team = Team.new("myteam", "purpose", "#slack_channel")
+Team.new("myteam", "purpose", "#slack_channel")
+local checker = IssueChecker.new()
 
 Test.gql("Team with no issues ", function(t)
 	t.addHeader("x-user-email", user:email())
@@ -25,7 +26,7 @@ Test.gql("Team with no issues ", function(t)
 end)
 
 Test.gql("Team with issues", function(t)
-	team:runChecks()
+	checker:runChecks()
 	t.addHeader("x-user-email", user:email())
 
 	t.query [[

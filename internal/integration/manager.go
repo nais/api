@@ -60,6 +60,7 @@ func TestRunner(ctx context.Context, skipSetup bool) (*testmanager.Manager, func
 
 	mgr.AddTypemetatable(teamMetatable())
 	mgr.AddTypemetatable(userMetatable())
+	mgr.AddTypemetatable(issueCheckerMetatable())
 
 	return mgr, func() {
 		_ = container.Terminate(ctx)
