@@ -50,6 +50,7 @@ func (s SQLInstance) Run(ctx context.Context) ([]Issue, error) {
 			continue
 		}
 		state, message, severity := parseState(i.State, i.Settings.ActivationPolicy)
+		println("###", message, state, severity)
 		ret = append(ret, Issue{
 			ResourceName: instance.Name,
 			ResourceType: "sqlinstance",

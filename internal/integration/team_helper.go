@@ -60,7 +60,7 @@ func teamMetatable() *spec.Typemetatable {
 			},
 		},
 		Methods: []spec.Function{
-			//TODO: move to own helper
+			// TODO: move to own helper
 			{
 				Name: "runChecks",
 				Doc:  "Run issue checks",

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"math/rand/v2"
 	"net/http"
@@ -158,6 +159,23 @@ func (f FakeGoogleAPI) sqlAdminAPI() RoundTripFunc {
 
 		// Example all instances path: /v1/projects/nais-dev-cdea/instances
 		switch last {
+		case "stopped":
+			resp = &sqladmin.DatabaseInstance{
+				Name:    last,
+				Project: projectID,
+				State:   "RUNNABLE",
+				Settings: &sqladmin.Settings{
+					ActivationPolicy: "NEVER",
+				},
+			}
+		case "maintenance":
+			resp = &sqladmin.DatabaseInstance{
+				Name:     last,
+				Project:  projectID,
+				State:    "MAINTENANCE",
+				Settings: &sqladmin.Settings{},
+			}
+
 		case "instances":
 			instances := make([]*sqladmin.DatabaseInstance, 0)
 			inst := f.instances.All()
@@ -181,6 +199,7 @@ func (f FakeGoogleAPI) sqlAdminAPI() RoundTripFunc {
 			}
 
 		default:
+			fmt.Printf("url: %s\n", req.URL.Path)
 			resp = &sqladmin.DatabaseInstance{
 				Name:    last,
 				Project: projectID,

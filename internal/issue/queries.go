@@ -70,13 +70,14 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 			return nil, err
 		}
 		return &SQLInstanceIssue{
+			Environment:  issue.Env,
 			ID:           newIdent(issue.ID.String()),
+			Message:      d.Message,
 			ResourceName: issue.ResourceName,
 			ResourceType: issue.ResourceType,
-			Environment:  issue.Env,
-			Team:         issue.Team,
 			Severity:     Severity(issue.Severity),
 			State:        SQLInstanceIssueState(d.State),
+			Team:         issue.Team,
 		}, nil
 	case checker.IssueTypeDeprecatedIngress:
 		d, err := unmarshal[checker.DeprecatedIngressIssueDetails](issue.IssueDetails)
