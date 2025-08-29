@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"math/rand/v2"
 	"net/http"
@@ -199,7 +198,6 @@ func (f FakeGoogleAPI) sqlAdminAPI() RoundTripFunc {
 			}
 
 		default:
-			fmt.Printf("url: %s\n", req.URL.Path)
 			resp = &sqladmin.DatabaseInstance{
 				Name:    last,
 				Project: projectID,

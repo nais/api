@@ -15,13 +15,13 @@ type Issue interface {
 }
 
 type AivenIssue struct {
-	ID           ident.Ident `json:"id"`
-	ResourceName string      `json:"resourceName"`
-	ResourceType string      `json:"resourceType"`
-	Environment  string      `json:"environment"`
-	Team         string      `json:"team"`
-	Severity     Severity    `json:"severity"`
-	Message      string      `json:"message"`
+	ID           ident.Ident  `json:"id"`
+	ResourceName string       `json:"resourceName"`
+	ResourceType ResourceType `json:"resourceType"`
+	Environment  string       `json:"environment"`
+	Team         string       `json:"team"`
+	Severity     Severity     `json:"severity"`
+	Message      string       `json:"message"`
 }
 
 func (AivenIssue) IsIssue() {}
@@ -31,7 +31,7 @@ func (AivenIssue) IsNode() {}
 type SQLInstanceIssue struct {
 	ID           ident.Ident           `json:"id"`
 	ResourceName string                `json:"resourceName"`
-	ResourceType string                `json:"resourceType"`
+	ResourceType ResourceType          `json:"resourceType"`
 	Environment  string                `json:"environment"`
 	Team         string                `json:"team"`
 	Severity     Severity              `json:"severity"`
@@ -144,15 +144,114 @@ func (e SQLInstanceIssueState) MarshalGQL(w io.Writer) {
 }
 
 type DeprecatedIngressIssue struct {
-	ID           ident.Ident `json:"id"`
-	ResourceName string      `json:"resourceName"`
-	ResourceType string      `json:"resourceType"`
-	Environment  string      `json:"environment"`
-	Team         string      `json:"team"`
-	Severity     Severity    `json:"severity"`
-	Ingresses    []string    `json:"ingresses"`
+	ID           ident.Ident  `json:"id"`
+	ResourceName string       `json:"resourceName"`
+	ResourceType ResourceType `json:"resourceType"`
+	Environment  string       `json:"environment"`
+	Team         string       `json:"team"`
+	Severity     Severity     `json:"severity"`
+	Ingresses    []string     `json:"ingresses"`
 }
 
 func (DeprecatedIngressIssue) IsIssue() {}
 
 func (DeprecatedIngressIssue) IsNode() {}
+
+type ResourceType string
+
+const (
+	ResourceTypeOpensearch  ResourceType = "OPENSEARCH"
+	ResourceTypeSQLInstance ResourceType = "SQLINSTANCE"
+	ResourceTypeApplication ResourceType = "APPLICATION"
+)
+
+var AllResourceType = []ResourceType{
+	ResourceTypeOpensearch,
+	ResourceTypeSQLInstance,
+	ResourceTypeApplication,
+}
+
+func (e ResourceType) IsValid() bool {
+	switch e {
+	case ResourceTypeOpensearch, ResourceTypeSQLInstance, ResourceTypeApplication:
+		return true
+	}
+	return false
+}
+
+func (e ResourceType) String() string {
+	return string(e)
+}
+
+func (e *ResourceType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ResourceType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ResourceType", str)
+	}
+	return nil
+}
+
+func (e ResourceType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type AivenIssueDetails struct {
+	Message string `json:"message"`
+}
+
+type SQLInstanceIssueDetails struct {
+	State   string `json:"state"`
+	Message string `json:"message"`
+}
+
+type DeprecatedIngressIssueDetails struct {
+	Ingresses []string `json:"ingresses"`
+}
+
+type IssueType string
+
+const (
+	IssueTypeAiven             IssueType = "AIVEN"
+	IssueTypeSQLInstance       IssueType = "SQLINSTANCE"
+	IssueTypeDeprecatedIngress IssueType = "DEPRECATED_INGRESS"
+)
+
+var AllIssueType = []IssueType{
+	IssueTypeAiven,
+	IssueTypeSQLInstance,
+	IssueTypeDeprecatedIngress,
+}
+
+func (e IssueType) IsValid() bool {
+	switch e {
+	case IssueTypeAiven, IssueTypeSQLInstance, IssueTypeDeprecatedIngress:
+		return true
+	}
+	return false
+}
+
+func (e IssueType) String() string {
+	return string(e)
+}
+
+func (e *IssueType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = IssueType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid IssueType", str)
+	}
+	return nil
+}
+
+func (e IssueType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}

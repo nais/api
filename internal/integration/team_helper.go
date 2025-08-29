@@ -167,11 +167,7 @@ func addTeamRole(L *lua.LState, role string) int {
 
 func runChecks(L *lua.LState) int {
 	checker := L.Context().Value("issue_checker").(*checker.Checker)
-	err := checker.RunChecks(L.Context())
-	if err != nil {
-		L.RaiseError("failed to run issue checks: %s", err)
-		return 0
-	}
+	checker.RunChecksOnce(L.Context())
 	return 1
 }
 

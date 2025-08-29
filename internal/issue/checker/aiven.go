@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/nais/api/internal/environmentmapper"
+	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/thirdparty/aivencache"
 	"github.com/sirupsen/logrus"
 )
@@ -13,20 +14,17 @@ type Aiven struct {
 	AivenClient  aivencache.AivenClient
 	Tenant       string
 	Environments []string
-}
-
-type AivenIssueDetails struct {
-	Message string `json:"message"`
+	Log          logrus.FieldLogger
 }
 
 func (a Aiven) Run(ctx context.Context) ([]Issue, error) {
 	ret := make([]Issue, 0)
 
 	for env, p := range projects(a.Tenant, a.Environments) {
-		logrus.WithField("issues", "aiven").Infof("listing aiven alerts for project %s\n", p)
+		a.Log.Debugf("listing aiven alerts for project %s\n", p)
 		alerts, err := a.AivenClient.ProjectAlertsList(ctx, p)
 		if err != nil {
-			logrus.WithError(err).WithField("issues", "aiven").Errorf("failed listing aiven alerts for project %s", p)
+			a.Log.WithError(err).Errorf("failed listing aiven alerts for project %s", p)
 			continue
 		}
 
@@ -36,11 +34,11 @@ func (a Aiven) Run(ctx context.Context) ([]Issue, error) {
 			key := *alert.ServiceType + "-" + *alert.ServiceName + "-" + alert.Event
 			issue := Issue{
 				ResourceName: *alert.ServiceName,
-				ResourceType: *alert.ServiceType, // TODO: assume these are ok, may have to map
+				ResourceType: issue.ResourceType(strings.ToUpper(*alert.ServiceType)), // TODO: assume these are ok, may have to map
 				Env:          env,
 				Team:         getTeamFromServiceName(*alert.ServiceName), // lookup team by project and service type and name
-				IssueType:    IssueTypeAivenIssue,
-				IssueDetails: AivenIssueDetails{
+				IssueType:    issue.IssueTypeAiven,
+				IssueDetails: issue.AivenIssueDetails{
 					Message: alert.Event,
 				},
 				Severity: severity(alert.Severity),
@@ -74,13 +72,13 @@ func getTeamFromServiceName(s string) string {
 	return "unknown"
 }
 
-func severity(severity string) Severity {
+func severity(severity string) issue.Severity {
 	switch severity {
 	case "critical":
-		return SeverityCritical
+		return issue.SeverityCritical
 	case "warning":
-		return SeverityWarning
+		return issue.SeverityWarning
 	default:
-		return SeverityTodo
+		return issue.SeverityTodo
 	}
 }

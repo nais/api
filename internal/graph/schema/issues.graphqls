@@ -1,7 +1,7 @@
 interface Issue implements Node {
 	id: ID!
 	resourceName: String!
-	resourceType: String!
+	resourceType: ResourceType!
 	environment: String!
 	team: String!
 	severity: Severity!
@@ -13,10 +13,16 @@ enum Severity {
 	TODO
 }
 
+enum ResourceType {
+	OPENSEARCH
+	SQLINSTANCE
+	APPLICATION
+}
+
 type AivenIssue implements Issue & Node {
 	id: ID!
 	resourceName: String!
-	resourceType: String!
+	resourceType: ResourceType!
 	environment: String!
 	team: String!
 	severity: Severity!
@@ -27,7 +33,7 @@ type AivenIssue implements Issue & Node {
 type SQLInstanceIssue implements Issue & Node {
 	id: ID!
 	resourceName: String!
-	resourceType: String!
+	resourceType: ResourceType!
 	environment: String!
 	team: String!
 	severity: Severity!
@@ -39,7 +45,7 @@ type SQLInstanceIssue implements Issue & Node {
 type DeprecatedIngressIssue implements Issue & Node {
 	id: ID!
 	resourceName: String!
-	resourceType: String!
+	resourceType: ResourceType!
 	environment: String!
 	team: String!
 	severity: Severity!
@@ -58,4 +64,10 @@ enum SQLInstanceIssueState {
 	FAILED
 	ONLINE_MAINTENANCE
 	REPAIRING
+}
+
+enum IssueType {
+	AIVEN
+	SQLINSTANCE
+	DEPRECATED_INGRESS
 }

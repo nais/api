@@ -333,7 +333,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		AivenClient:    aivenClient,
 		CloudSQLClient: sqlAdminService,
 		Tenant:         cfg.Tenant,
-	}, pool, watchers)
+	}, pool, watchers, log.WithField("subsystem", "issue_checker"))
 
 	wg.Go(func() error {
 		err = issueChecker.RunChecks(ctx)

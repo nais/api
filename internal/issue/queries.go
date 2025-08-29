@@ -7,7 +7,6 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/graph/ident"
-	"github.com/nais/api/internal/issue/checker"
 	"github.com/nais/api/internal/issue/issuesql"
 )
 
@@ -49,23 +48,23 @@ func GetIssuesForTeam(ctx context.Context, teamSlug string) ([]Issue, error) {
 }
 
 func convert(issue *issuesql.Issue) (Issue, error) {
-	switch checker.IssueType(issue.IssueType) {
-	case checker.IssueTypeAivenIssue:
-		d, err := unmarshal[checker.AivenIssueDetails](issue.IssueDetails)
+	switch IssueType(issue.IssueType) {
+	case IssueTypeAiven:
+		d, err := unmarshal[AivenIssueDetails](issue.IssueDetails)
 		if err != nil {
 			return nil, err
 		}
 		return &AivenIssue{
 			ID:           newIdent(issue.ID.String()),
 			ResourceName: issue.ResourceName,
-			ResourceType: issue.ResourceType,
+			ResourceType: ResourceType(issue.ResourceType),
 			Environment:  issue.Env,
 			Team:         issue.Team,
 			Severity:     Severity(issue.Severity),
 			Message:      d.Message,
 		}, nil
-	case checker.IssueTypeSQLInstanceIssue:
-		d, err := unmarshal[checker.SQLInstanceIssueDetails](issue.IssueDetails)
+	case IssueTypeSQLInstance:
+		d, err := unmarshal[SQLInstanceIssueDetails](issue.IssueDetails)
 		if err != nil {
 			return nil, err
 		}
@@ -74,20 +73,20 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 			ID:           newIdent(issue.ID.String()),
 			Message:      d.Message,
 			ResourceName: issue.ResourceName,
-			ResourceType: issue.ResourceType,
+			ResourceType: ResourceType(issue.ResourceType),
 			Severity:     Severity(issue.Severity),
 			State:        SQLInstanceIssueState(d.State),
 			Team:         issue.Team,
 		}, nil
-	case checker.IssueTypeDeprecatedIngress:
-		d, err := unmarshal[checker.DeprecatedIngressIssueDetails](issue.IssueDetails)
+	case IssueTypeDeprecatedIngress:
+		d, err := unmarshal[DeprecatedIngressIssueDetails](issue.IssueDetails)
 		if err != nil {
 			return nil, err
 		}
 		return &DeprecatedIngressIssue{
 			ID:           newIdent(issue.ID.String()),
 			ResourceName: issue.ResourceName,
-			ResourceType: issue.ResourceType,
+			ResourceType: ResourceType(issue.ResourceType),
 			Environment:  issue.Env,
 			Team:         issue.Team,
 			Severity:     Severity(issue.Severity),

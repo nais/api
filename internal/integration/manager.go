@@ -152,7 +152,7 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 		if err != nil {
 			return ctx, nil, nil, fmt.Errorf("create SQL Admin service: %w", err)
 		}
-		checker, err := checker.New(ctx, checker.Config{AivenClient: fakeAivenClient, CloudSQLClient: sqlAdminService, Tenant: "tenant"}, pool, watchers)
+		checker, err := checker.New(ctx, checker.Config{AivenClient: fakeAivenClient, CloudSQLClient: sqlAdminService, Tenant: "tenant"}, pool, watchers, log.WithField("subsystem", "issue_checker"))
 		if err != nil {
 			return ctx, nil, nil, fmt.Errorf("create issue checker: %w", err)
 		}
