@@ -38,13 +38,24 @@ func init() {
 	}, "NAME")
 
 	SortFilter.RegisterFilter(func(ctx context.Context, v Alert, filter *TeamAlertsFilter) bool {
-		if len(filter.States) == 0 {
+		if filter == nil {
 			return true
 		}
 
-		if slices.Contains(filter.States, v.GetState()) {
-			return true
+		if len(filter.States) > 0 && !slices.Contains(filter.States, v.GetState()) {
+			return false
 		}
-		return false
+
+		if name := strings.TrimSpace(filter.Name); name != "" {
+			if !strings.Contains(strings.ToLower(v.GetName()), strings.ToLower(name)) {
+				return false
+			}
+		}
+
+		if len(filter.Environments) > 0 && !slices.Contains(filter.Environments, v.GetEnvironmentName()) {
+			return false
+		}
+
+		return true
 	})
 }

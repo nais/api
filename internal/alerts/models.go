@@ -120,7 +120,9 @@ func (PrometheusAlert) IsNode() {}
 func (PrometheusAlert) IsAlert() {}
 
 type TeamAlertsFilter struct {
-	States []AlertState `json:"states,omitempty"`
+	Name         string       `json:"name"`
+	Environments []string     `json:"environments"`
+	States       []AlertState `json:"states,omitempty"`
 }
 
 type AlertState string
