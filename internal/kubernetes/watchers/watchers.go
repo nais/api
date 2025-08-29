@@ -22,20 +22,22 @@ import (
 	netv1 "k8s.io/api/networking/v1"
 )
 
-type AppWatcher = watcher.Watcher[*nais_io_v1alpha1.Application]
-type JobWatcher = watcher.Watcher[*nais_io_v1.Naisjob]
-type RunWatcher = watcher.Watcher[*batchv1.Job]
-type BqWatcher = watcher.Watcher[*bigquery.BigQueryDataset]
-type ValkeyWatcher = watcher.Watcher[*valkey.Valkey]
-type OpenSearchWatcher = watcher.Watcher[*opensearch.OpenSearch]
-type BucketWatcher = watcher.Watcher[*bucket.Bucket]
-type SqlDatabaseWatcher = watcher.Watcher[*sqlinstance.SQLDatabase]
-type SqlInstanceWatcher = watcher.Watcher[*sqlinstance.SQLInstance]
-type KafkaTopicWatcher = watcher.Watcher[*kafkatopic.KafkaTopic]
-type PodWatcher = watcher.Watcher[*v1.Pod]
-type IngressWatcher = watcher.Watcher[*netv1.Ingress]
-type NamespaceWatcher = watcher.Watcher[*v1.Namespace]
-type UnleashWatcher = watcher.Watcher[*unleash.UnleashInstance]
+type (
+	AppWatcher         = watcher.Watcher[*nais_io_v1alpha1.Application]
+	JobWatcher         = watcher.Watcher[*nais_io_v1.Naisjob]
+	RunWatcher         = watcher.Watcher[*batchv1.Job]
+	BqWatcher          = watcher.Watcher[*bigquery.BigQueryDataset]
+	ValkeyWatcher      = watcher.Watcher[*valkey.Valkey]
+	OpenSearchWatcher  = watcher.Watcher[*opensearch.OpenSearch]
+	BucketWatcher      = watcher.Watcher[*bucket.Bucket]
+	SqlDatabaseWatcher = watcher.Watcher[*sqlinstance.SQLDatabase]
+	SqlInstanceWatcher = watcher.Watcher[*sqlinstance.SQLInstance]
+	KafkaTopicWatcher  = watcher.Watcher[*kafkatopic.KafkaTopic]
+	PodWatcher         = watcher.Watcher[*v1.Pod]
+	IngressWatcher     = watcher.Watcher[*netv1.Ingress]
+	NamespaceWatcher   = watcher.Watcher[*v1.Namespace]
+	UnleashWatcher     = watcher.Watcher[*unleash.UnleashInstance]
+)
 
 type Watchers struct {
 	AppWatcher         *AppWatcher

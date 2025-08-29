@@ -58,6 +58,7 @@ func (c *client) ServiceMaintenanceStart(ctx context.Context, projectName string
 	c.cache.Delete(key)
 	return c.aivenClient.ServiceMaintenanceStart(ctx, projectName, serviceName)
 }
+
 func (c *client) ProjectAlertsList(ctx context.Context, project string) ([]project.AlertOut, error) {
 	return c.aivenClient.ProjectAlertsList(ctx, project)
 }

@@ -122,7 +122,6 @@ func (c *Checker) RunChecks(ctx context.Context) error {
 	for _, check := range c.Checks {
 		checkIssues, err := check.Run(ctx)
 		if err != nil {
-
 			logrus.WithError(err).Error("failed to run check")
 		}
 		issues = append(issues, checkIssues...)

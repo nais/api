@@ -4,6 +4,7 @@ package integration
 
 import (
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/issue/checker"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team/teamsql"
 	"github.com/nais/tester/lua/spec"
@@ -59,6 +60,12 @@ func teamMetatable() *spec.Typemetatable {
 			},
 		},
 		Methods: []spec.Function{
+			//TODO: move to own helper
+			{
+				Name: "runChecks",
+				Doc:  "Run issue checks",
+				Func: runChecks,
+			},
 			{
 				Name: "addMember",
 				Doc:  "Add a member to the team",
@@ -156,6 +163,16 @@ func addTeamRole(L *lua.LState, role string) int {
 	}
 
 	return 0
+}
+
+func runChecks(L *lua.LState) int {
+	checker := L.Context().Value("issue_checker").(*checker.Checker)
+	err := checker.RunChecks(L.Context())
+	if err != nil {
+		L.RaiseError("failed to run issue checks: %s", err)
+		return 0
+	}
+	return 1
 }
 
 func teamAddMember(L *lua.LState) int {

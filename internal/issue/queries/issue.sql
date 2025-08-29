@@ -6,5 +6,10 @@ FROM
 WHERE
 	team = @team
 ORDER BY
-	id DESC
+	severity,
+	env,
+	issue_type,
+	resource_type,
+	resource_name,
+	id
 ;

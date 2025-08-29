@@ -14,7 +14,6 @@ import (
 func TestDeprecatedIngress(t *testing.T) {
 	check := checker.DeprecatedIngress{ApplicationLister: MockApplicationLister{}}
 	issues, err := check.Run(context.Background())
-
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}

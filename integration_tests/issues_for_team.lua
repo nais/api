@@ -1,7 +1,6 @@
 Helper.readK8sResources("k8s_resources/issues")
 local user = User.new("name", "auth@user.com", "sdf")
-Team.new("myteam", "purpose", "#slack_channel")
-
+local team = Team.new("myteam", "purpose", "#slack_channel")
 
 Test.gql("Team with no issues ", function(t)
 	t.addHeader("x-user-email", user:email())
@@ -25,7 +24,8 @@ Test.gql("Team with no issues ", function(t)
 	}
 end)
 
-Test.gql("App with deprecated ingress", function(t)
+Test.gql("Team with issues", function(t)
+	team:runChecks()
 	t.addHeader("x-user-email", user:email())
 
 	t.query [[
@@ -33,9 +33,16 @@ Test.gql("App with deprecated ingress", function(t)
 			team(slug: "myteam") {
 				slug
 				issues {
+					__typename
+					environment
+					resourceName
+					resourceType
 					severity
 					... on DeprecatedIngressIssue {
 						ingresses
+					}
+					... on AivenIssue {
+						message
 					}
 				 }
 			}
@@ -46,7 +53,24 @@ Test.gql("App with deprecated ingress", function(t)
 		data = {
 			team = {
 				slug = "myteam",
-				issues = {},
+				issues = {
+					{
+						__typename = "AivenIssue",
+						environment = "dev",
+						resourceName = "opensearch-myteam-name",
+						resourceType = "opensearch",
+						severity = "CRITICAL",
+						message = "error message from aiven",
+					},
+					{
+						__typename = "DeprecatedIngressIssue",
+						environment = "dev-gcp",
+						resourceName = "deprecated-ingress",
+						resourceType = "application",
+						severity = "TODO",
+						ingresses = { "https://error.dev-gcp.nais.io" },
+					},
+				},
 			},
 		},
 	}

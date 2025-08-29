@@ -8,9 +8,19 @@ import (
 )
 
 const listIssuesForTeam = `-- name: ListIssuesForTeam :many
-SELECT id, issue_type, resource_name, resource_type, team, env, severity, issue_details, created_at FROM issues
-WHERE team = $1
-ORDER BY id DESC
+SELECT
+	id, issue_type, resource_name, resource_type, team, env, severity, issue_details, created_at
+FROM
+	issues
+WHERE
+	team = $1
+ORDER BY
+	severity,
+	env,
+	issue_type,
+	resource_type,
+	resource_name,
+	id
 `
 
 func (q *Queries) ListIssuesForTeam(ctx context.Context, team string) ([]*Issue, error) {

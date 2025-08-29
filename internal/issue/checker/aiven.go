@@ -22,7 +22,7 @@ type AivenIssueDetails struct {
 func (a Aiven) Run(ctx context.Context) ([]Issue, error) {
 	ret := make([]Issue, 0)
 
-	for _, p := range projects(a.Tenant, a.Environments) {
+	for env, p := range projects(a.Tenant, a.Environments) {
 		logrus.WithField("issues", "aiven").Infof("listing aiven alerts for project %s\n", p)
 		alerts, err := a.AivenClient.ProjectAlertsList(ctx, p)
 		if err != nil {
@@ -37,7 +37,7 @@ func (a Aiven) Run(ctx context.Context) ([]Issue, error) {
 			issue := Issue{
 				ResourceName: *alert.ServiceName,
 				ResourceType: *alert.ServiceType, // TODO: assume these are ok, may have to map
-				Env:          p,
+				Env:          env,
 				Team:         getTeamFromServiceName(*alert.ServiceName), // lookup team by project and service type and name
 				IssueType:    IssueTypeAivenIssue,
 				IssueDetails: AivenIssueDetails{
@@ -55,13 +55,13 @@ func (a Aiven) Run(ctx context.Context) ([]Issue, error) {
 	return ret, nil
 }
 
-func projects(tenant string, envs []string) []string {
-	ret := []string{}
+func projects(tenant string, envs []string) map[string]string {
+	ret := make(map[string]string)
 	for _, env := range envs {
 		if tenant == "nav" && strings.HasSuffix(env, "-fss") {
 			continue
 		}
-		ret = append(ret, tenant+"-"+environmentmapper.ClusterName(env))
+		ret[env] = tenant + "-" + environmentmapper.ClusterName(env)
 	}
 	return ret
 }

@@ -15,22 +15,26 @@ var (
 )
 
 const batchInsertIssues = `-- name: BatchInsertIssues :batchexec
-INSERT INTO issues (
-    issue_type,
-    resource_name,
-    resource_type,
-    team,
-    env,
-    severity,
-    issue_details
-) VALUES (
-             $1,
-             $2,
-             $3,
-             $4,
-             $5,
-             $6,
-             $7)
+INSERT INTO
+	issues (
+		issue_type,
+		resource_name,
+		resource_type,
+		team,
+		env,
+		severity,
+		issue_details
+	)
+VALUES
+	(
+		$1,
+		$2,
+		$3,
+		$4,
+		$5,
+		$6,
+		$7
+	)
 `
 
 type BatchInsertIssuesBatchResults struct {

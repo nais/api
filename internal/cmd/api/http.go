@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/nais/api/internal/kubernetes/watchers"
 	"net/http"
 	"time"
+
+	"github.com/nais/api/internal/kubernetes/watchers"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"

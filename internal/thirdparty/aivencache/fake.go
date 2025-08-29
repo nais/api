@@ -2,6 +2,7 @@ package aivencache
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/aiven/go-client-codegen/handler/project"
@@ -20,16 +21,19 @@ func (f *FakeAivenClient) ServiceMaintenanceStart(_ context.Context, _ string, _
 
 // ProjectAlertsList list active alerts for a project
 func (f *FakeAivenClient) ProjectAlertsList(ctx context.Context, p string) ([]project.AlertOut, error) {
-	return []project.AlertOut{
-		{
-			ServiceName: stringPtr("opensearch-myteam-name"),
-			ServiceType: stringPtr("opensearch"),
-			Severity:    "critical",
-			Event:       "error message from aiven",
-		},
-	}, nil
-
+	if strings.HasSuffix(p, "dev") {
+		return []project.AlertOut{
+			{
+				ServiceName: stringPtr("opensearch-myteam-name"),
+				ServiceType: stringPtr("opensearch"),
+				Severity:    "critical",
+				Event:       "error message from aiven",
+			},
+		}, nil
+	}
+	return []project.AlertOut{}, nil
 }
+
 func stringPtr(s string) *string {
 	return &s
 }
