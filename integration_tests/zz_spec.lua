@@ -256,6 +256,20 @@ function User:admin()
 	return false
 end
 
+---@class IssueChecker
+IssueChecker = {}
+--- Initialize the issue checker
+---@return IssueChecker
+function IssueChecker.new()
+	print("new")
+	return {}
+end
+
+--- Run issue checks
+function IssueChecker:runChecks()
+	print("runChecks")
+end
+
 --- Configuration
 ---@class Config
 ---@field TenantName string
