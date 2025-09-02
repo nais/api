@@ -218,6 +218,7 @@ func newGQLRunner(
 			WithFakePrometheus:     true,
 			WithFakeCostClient:     true,
 			WithFakePriceClient:    true,
+			WithSkipGHOIDC:         true,
 		},
 		watchers,
 		watcherMgr,
