@@ -10,6 +10,7 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
+	"k8s.io/utils/ptr"
 )
 
 func ListRoles(ctx context.Context, page *pagination.Pagination) (*RoleConnection, error) {
@@ -71,6 +72,16 @@ func ForUser(ctx context.Context, userID uuid.UUID) ([]*Role, error) {
 		return nil, err
 	}
 	return ur.Roles, nil
+}
+
+func ForGitHubRepo(ctx context.Context, teamSlug slug.Slug) ([]*Role, error) {
+	role, err := GetRole(ctx, "GitHub repository")
+	if err != nil {
+		return nil, err
+	}
+
+	role.TargetTeamSlug = ptr.To(teamSlug)
+	return []*Role{role}, nil
 }
 
 func ForServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) ([]*Role, error) {

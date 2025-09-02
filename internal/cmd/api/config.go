@@ -204,6 +204,7 @@ type Fakes struct {
 	WithFakePrometheus     bool `env:"WITH_FAKE_PROMETHEUS"`
 	WithFakeCostClient     bool `env:"WITH_FAKE_COST_CLIENT"`
 	WithFakePriceClient    bool `env:"WITH_FAKE_PRICE_CLIENT"`
+	WithSkipGHOIDC         bool `env:"WITH_SKIP_GH_OIDC"`
 }
 
 func (f Fakes) Inform(log logrus.FieldLogger) {
