@@ -85,6 +85,14 @@ func GetOpenSearchVersion(ctx context.Context, key AivenDataLoaderKey) (string, 
 	return fromContext(ctx).versionLoader.Load(ctx, &key)
 }
 
+func GetOpenSearchMajorVersion(ctx context.Context, key AivenDataLoaderKey) (OpenSearchMajorVersion, error) {
+	fullVersion, err := GetOpenSearchVersion(ctx, key)
+	if err != nil {
+		return "", err
+	}
+	return OpenSearchMajorVersionFromAivenString(fullVersion)
+}
+
 func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environment string, reference *nais_io_v1.OpenSearch) (*OpenSearch, error) {
 	if reference == nil {
 		return nil, nil
@@ -277,8 +285,7 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 				}(),
 				NewValue: ptr.To(input.Version.String()),
 			})
-			version := strings.TrimLeft(input.Version.String(), "V")
-			err = unstructured.SetNestedField(openSearch.Object, version, "spec", "userConfig", "opensearch_version")
+			err = unstructured.SetNestedField(openSearch.Object, input.Version.ToAivenString(), "spec", "userConfig", "opensearch_version")
 			if err != nil {
 				return nil, err
 			}

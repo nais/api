@@ -74,6 +74,13 @@ func (r *openSearchResolver) Version(ctx context.Context, obj *opensearch.OpenSe
 	})
 }
 
+func (r *openSearchResolver) MajorVersion(ctx context.Context, obj *opensearch.OpenSearch) (opensearch.OpenSearchMajorVersion, error) {
+	return opensearch.GetOpenSearchMajorVersion(ctx, opensearch.AivenDataLoaderKey{
+		Project:     obj.AivenProject,
+		ServiceName: obj.Name,
+	})
+}
+
 func (r *openSearchAccessResolver) Workload(ctx context.Context, obj *opensearch.OpenSearchAccess) (workload.Workload, error) {
 	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }

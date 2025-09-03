@@ -67,6 +67,7 @@ type OpenSearch implements Persistence & Node {
 	version: String!
 	tier: OpenSearchTier!
 	size: OpenSearchSize!
+	majorVersion: OpenSearchMajorVersion!
 }
 
 type OpenSearchAccess {

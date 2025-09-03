@@ -276,6 +276,24 @@ func (e OpenSearchMajorVersion) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e OpenSearchMajorVersion) ToAivenString() string {
+	return strings.TrimLeft(string(e), "V")
+}
+
+func OpenSearchMajorVersionFromAivenString(s string) (OpenSearchMajorVersion, error) {
+	parts := strings.Split(s, ".")
+	if len(parts) == 0 {
+		return "", fmt.Errorf("unexpected Aiven OpenSearch version: %q", s)
+	}
+
+	v := OpenSearchMajorVersion("V" + parts[0])
+	if !v.IsValid() {
+		return "", fmt.Errorf("unsupported Aiven OpenSearch version: %q", s)
+	}
+
+	return v, nil
+}
+
 type OpenSearchSize string
 
 const (
