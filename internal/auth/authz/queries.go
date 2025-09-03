@@ -238,6 +238,10 @@ func CanUpdateUnleash(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "unleash:update")
 }
 
+func CanUpdateVulnerability(ctx context.Context) error {
+	return requireGlobalAuthorization(ctx, "vulnerability:update")
+}
+
 func CanStartServiceMaintenance(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "service_maintenance:update:start")
 }
