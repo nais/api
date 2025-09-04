@@ -518,6 +518,8 @@ github.com/nais/v13s/pkg/api v0.0.0-20250903084952-0c33db1c4922 h1:cZVZsqotJTPVC
 github.com/nais/v13s/pkg/api v0.0.0-20250903084952-0c33db1c4922/go.mod h1:jI83mjZDxRk/9WIa0cgP9BBLryaSLQai+ITxzvE/wTI=
 github.com/nais/v13s/pkg/api v0.0.0-20250903130052-b89ff7874120 h1:V9LhAdLl62XGje02XwQciJsDla8uB6b6N2HcrZq0C8o=
 github.com/nais/v13s/pkg/api v0.0.0-20250903130052-b89ff7874120/go.mod h1:jI83mjZDxRk/9WIa0cgP9BBLryaSLQai+ITxzvE/wTI=
+github.com/nais/v13s/pkg/api v0.0.0-20250904111303-2ec308901fe2 h1:X07rAD1euwFHL8qhM+og2zUTfb/LKbDe2+7QBIYcpPs=
+github.com/nais/v13s/pkg/api v0.0.0-20250904111303-2ec308901fe2/go.mod h1:jI83mjZDxRk/9WIa0cgP9BBLryaSLQai+ITxzvE/wTI=
 github.com/ncruces/go-strftime v0.1.9 h1:bY0MQC28UADQmHmaF5dgpLmImcShSi2kHU9XLdhx/f4=
 github.com/ncruces/go-strftime v0.1.9/go.mod h1:Fwc5htZGVVkseilnfgOVb9mKy6w1naJmn9CehxcKcls=
 github.com/oklog/ulid v1.3.1 h1:EGfNDEx6MqHz8B3uNV6QAib1UR2Lm97sHi3ocA6ESJ4=
