@@ -533,21 +533,6 @@ func UpdateEnvironment(ctx context.Context, input *UpdateTeamEnvironmentInput, a
 	return toGraphTeamEnvironment(te), nil
 }
 
-func Count(ctx context.Context) (int64, error) {
-	// This is only implemented for vulnerability ranking. This should soon be removed.
-	count, err := db(ctx).List(ctx, teamsql.ListParams{
-		Limit: 1,
-	})
-	if err != nil {
-		return 0, err
-	}
-	if len(count) == 0 {
-		return 0, nil
-	}
-
-	return count[0].TotalCount, nil
-}
-
 // Exists checks if an active team with the given slug exists.
 func Exists(ctx context.Context, slug slug.Slug) (bool, error) {
 	return db(ctx).Exists(ctx, slug)
