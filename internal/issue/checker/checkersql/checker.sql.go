@@ -8,8 +8,7 @@ import (
 )
 
 const deleteIssues = `-- name: DeleteIssues :exec
-DELETE
-FROM issues
+DELETE FROM issues
 `
 
 func (q *Queries) DeleteIssues(ctx context.Context) error {
