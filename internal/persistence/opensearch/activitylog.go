@@ -27,6 +27,10 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Updated OpenSearch"),
 				Data:                    data,
 			}, nil
+		case activitylog.ActivityLogEntryActionDeleted:
+			return OpenSearchDeletedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage("Deleted OpenSearch"),
+			}, nil
 		case servicemaintenanceal.ActivityLogEntryActionMaintenanceStarted:
 			return servicemaintenanceal.ServiceMaintenanceActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Started service maintenance"),
@@ -38,6 +42,7 @@ func init() {
 
 	activitylog.RegisterFilter("OPENSEARCH_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeOpenSearch)
 	activitylog.RegisterFilter("OPENSEARCH_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeOpenSearch)
+	activitylog.RegisterFilter("OPENSEARCH_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeOpenSearch)
 }
 
 type OpenSearchCreatedActivityLogEntry struct {

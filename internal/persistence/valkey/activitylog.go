@@ -28,6 +28,10 @@ func init() {
 				GenericActivityLogEntry: entry.WithMessage("Updated Valkey"),
 				Data:                    data,
 			}, nil
+		case activitylog.ActivityLogEntryActionDeleted:
+			return ValkeyDeletedActivityLogEntry{
+				GenericActivityLogEntry: entry.WithMessage("Deleted Valkey"),
+			}, nil
 		case servicemaintenanceal.ActivityLogEntryActionMaintenanceStarted:
 			return servicemaintenanceal.ServiceMaintenanceActivityLogEntry{
 				GenericActivityLogEntry: entry.WithMessage("Started service maintenance"),
@@ -39,6 +43,7 @@ func init() {
 
 	activitylog.RegisterFilter("VALKEY_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeValkey)
 	activitylog.RegisterFilter("VALKEY_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeValkey)
+	activitylog.RegisterFilter("VALKEY_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeValkey)
 }
 
 type ValkeyCreatedActivityLogEntry struct {
