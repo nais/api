@@ -37,7 +37,6 @@ type Checker struct {
 	checks        []check
 	db            checkersql.Querier
 	log           logrus.FieldLogger
-	meter         metric.Meter
 	durationGauge metric.Float64Gauge
 	issuesGauge   metric.Int64Gauge
 }
@@ -78,16 +77,15 @@ func New(config Config, pool *pgxpool.Pool, watchers *watchers.Watchers, log log
 	meter := otel.GetMeterProvider().Meter("nais_api_issues")
 	d, err := meter.Float64Gauge("nais_api_issue_checker_duration")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("create duration gauge: %w", err)
 	}
 	i, err := meter.Int64Gauge("nais_api_issue_count")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("create issue count gauge: %w", err)
 	}
 	checker := &Checker{
 		db:            checkersql.New(pool),
 		log:           log,
-		meter:         meter,
 		durationGauge: d,
 		issuesGauge:   i,
 	}
