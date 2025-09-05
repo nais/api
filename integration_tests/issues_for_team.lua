@@ -63,9 +63,13 @@ Test.gql("Team with issues", function(t)
 								name
 							}
 						}
-						... on SqlInstanceIssue {
+						... on SqlInstanceStateIssue {
 							state
-							message
+							sqlInstance {
+								name
+							}
+						}
+						... on SqlInstanceVersionIssue {
 							sqlInstance {
 								name
 							}
@@ -83,6 +87,15 @@ Test.gql("Team with issues", function(t)
 				issues = {
 					nodes = {
 						{
+							__typename = "SqlInstanceVersionIssue",
+							environment = "dev-gcp",
+							message = "The instance is running a deprecated version of PostgreSQL: POSTGRES_12",
+							severity = "WARNING",
+							sqlInstance = {
+								name = "deprecated",
+							},
+						},
+						{
 							__typename = "DeprecatedIngressIssue",
 							environment = "dev-gcp",
 							application = {
@@ -93,7 +106,7 @@ Test.gql("Team with issues", function(t)
 							ingresses = { "https://error.dev-gcp.nais.io" },
 						},
 						{
-							__typename = "SqlInstanceIssue",
+							__typename = "SqlInstanceStateIssue",
 							environment = "dev-gcp",
 							sqlInstance = {
 								name = "maintenance",
@@ -113,7 +126,7 @@ Test.gql("Team with issues", function(t)
 							severity = "CRITICAL",
 						},
 						{
-							__typename = "SqlInstanceIssue",
+							__typename = "SqlInstanceStateIssue",
 							environment = "dev-gcp",
 							message = "The instance has been stopped.",
 							severity = "CRITICAL",

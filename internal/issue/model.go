@@ -46,14 +46,22 @@ func (ValkeyIssue) IsIssue() {}
 
 func (ValkeyIssue) IsNode() {}
 
-type SqlInstanceIssue struct {
+type SqlInstanceVersionIssue struct {
+	Base
+}
+
+func (SqlInstanceVersionIssue) IsIssue() {}
+
+func (SqlInstanceVersionIssue) IsNode() {}
+
+type SqlInstanceStateIssue struct {
 	Base
 	State sqlinstance.SQLInstanceState `json:"state"`
 }
 
-func (SqlInstanceIssue) IsIssue() {}
+func (SqlInstanceStateIssue) IsIssue() {}
 
-func (SqlInstanceIssue) IsNode() {}
+func (SqlInstanceStateIssue) IsNode() {}
 
 type Severity string
 
@@ -167,26 +175,25 @@ type DeprecatedIngressIssueDetails struct {
 
 type IssueType string
 
-// TODO: use specific issue types for aiven
 const (
-	IssueTypeOpenSearch        IssueType = "OPENSEARCH"
-	IssueTypeValkey            IssueType = "VALKEY"
-	IssueTypeSQLInstance       IssueType = "SQLINSTANCE"
-	IssueTypeDeprecatedIngress IssueType = "DEPRECATED_INGRESS"
-	IssueTypeGeneral           IssueType = "GENERAL"
+	IssueTypeOpenSearch         IssueType = "OPENSEARCH"
+	IssueTypeValkey             IssueType = "VALKEY"
+	IssueTypeSqlInstanceState   IssueType = "SQLINSTANCE_STATE"
+	IssueTypeSqlInstanceVersion IssueType = "SQLINSTANCE_VERSION"
+	IssueTypeDeprecatedIngress  IssueType = "DEPRECATED_INGRESS"
 )
 
 var AllIssueType = []IssueType{
 	IssueTypeOpenSearch,
 	IssueTypeValkey,
-	IssueTypeSQLInstance,
+	IssueTypeSqlInstanceState,
+	IssueTypeSqlInstanceState,
 	IssueTypeDeprecatedIngress,
-	IssueTypeGeneral,
 }
 
 func (e IssueType) IsValid() bool {
 	switch e {
-	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSQLInstance, IssueTypeDeprecatedIngress, IssueTypeGeneral:
+	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress:
 		return true
 	}
 	return false

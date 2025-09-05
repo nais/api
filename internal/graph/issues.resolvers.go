@@ -21,7 +21,11 @@ func (r *openSearchIssueResolver) OpenSearch(ctx context.Context, obj *issue.Ope
 	return opensearch.Get(ctx, obj.Team, obj.Environment, obj.ResourceName)
 }
 
-func (r *sqlInstanceIssueResolver) SQLInstance(ctx context.Context, obj *issue.SqlInstanceIssue) (*sqlinstance.SQLInstance, error) {
+func (r *sqlInstanceStateIssueResolver) SQLInstance(ctx context.Context, obj *issue.SqlInstanceStateIssue) (*sqlinstance.SQLInstance, error) {
+	return sqlinstance.Get(ctx, obj.Team, obj.Environment, obj.ResourceName)
+}
+
+func (r *sqlInstanceVersionIssueResolver) SQLInstance(ctx context.Context, obj *issue.SqlInstanceVersionIssue) (*sqlinstance.SQLInstance, error) {
 	return sqlinstance.Get(ctx, obj.Team, obj.Environment, obj.ResourceName)
 }
 
@@ -46,15 +50,20 @@ func (r *Resolver) OpenSearchIssue() gengql.OpenSearchIssueResolver {
 	return &openSearchIssueResolver{r}
 }
 
-func (r *Resolver) SqlInstanceIssue() gengql.SqlInstanceIssueResolver {
-	return &sqlInstanceIssueResolver{r}
+func (r *Resolver) SqlInstanceStateIssue() gengql.SqlInstanceStateIssueResolver {
+	return &sqlInstanceStateIssueResolver{r}
+}
+
+func (r *Resolver) SqlInstanceVersionIssue() gengql.SqlInstanceVersionIssueResolver {
+	return &sqlInstanceVersionIssueResolver{r}
 }
 
 func (r *Resolver) ValkeyIssue() gengql.ValkeyIssueResolver { return &valkeyIssueResolver{r} }
 
 type (
-	deprecatedIngressIssueResolver struct{ *Resolver }
-	openSearchIssueResolver        struct{ *Resolver }
-	sqlInstanceIssueResolver       struct{ *Resolver }
-	valkeyIssueResolver            struct{ *Resolver }
+	deprecatedIngressIssueResolver  struct{ *Resolver }
+	openSearchIssueResolver         struct{ *Resolver }
+	sqlInstanceStateIssueResolver   struct{ *Resolver }
+	sqlInstanceVersionIssueResolver struct{ *Resolver }
+	valkeyIssueResolver             struct{ *Resolver }
 )

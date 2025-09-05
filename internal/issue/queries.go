@@ -115,14 +115,18 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 			Base:  base,
 			Event: d.Event,
 		}, nil
-	case IssueTypeSQLInstance:
+	case IssueTypeSqlInstanceState:
 		d, err := unmarshal[SQLInstanceIssueDetails](issue.IssueDetails)
 		if err != nil {
 			return nil, err
 		}
-		return &SqlInstanceIssue{
+		return &SqlInstanceStateIssue{
 			Base:  base,
 			State: sqlinstance.SQLInstanceState(d.State),
+		}, nil
+	case IssueTypeSqlInstanceVersion:
+		return &SqlInstanceVersionIssue{
+			Base: base,
 		}, nil
 	case IssueTypeDeprecatedIngress:
 		d, err := unmarshal[DeprecatedIngressIssueDetails](issue.IssueDetails)

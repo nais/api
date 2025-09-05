@@ -158,6 +158,16 @@ func (f FakeGoogleAPI) sqlAdminAPI() RoundTripFunc {
 
 		// Example all instances path: /v1/projects/nais-dev-cdea/instances
 		switch last {
+		case "deprecated":
+			resp = &sqladmin.DatabaseInstance{
+				Name:            last,
+				Project:         projectID,
+				DatabaseVersion: "POSTGRES_12",
+				State:           "RUNNABLE",
+				Settings: &sqladmin.Settings{
+					ActivationPolicy: "ALWAYS",
+				},
+			}
 		case "stopped":
 			resp = &sqladmin.DatabaseInstance{
 				Name:    last,

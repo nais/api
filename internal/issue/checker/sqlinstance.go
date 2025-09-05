@@ -2,12 +2,18 @@ package checker
 
 import (
 	"context"
+	"slices"
 
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/sirupsen/logrus"
 )
+
+var deprecatedVersions = []string{
+	"POSTGRES_12",
+	"POSTGRES_13",
+}
 
 type SQLInstance struct {
 	Client            *sqlinstance.Client
@@ -41,6 +47,19 @@ func (s SQLInstance) Run(ctx context.Context) ([]Issue, error) {
 			s.Log.WithError(err).Errorf("failed getting sqlinstance %s", instance.Name)
 			continue
 		}
+
+		if slices.Contains(deprecatedVersions, i.DatabaseVersion) {
+			ret = append(ret, Issue{
+				ResourceName: instance.Name,
+				ResourceType: issue.ResourceTypeSQLInstance,
+				Env:          instance.EnvironmentName,
+				Team:         instance.TeamSlug.String(),
+				IssueType:    issue.IssueTypeSqlInstanceVersion,
+				Message:      "The instance is running a deprecated version of PostgreSQL: " + i.DatabaseVersion,
+				Severity:     issue.SeverityWarning,
+			})
+		}
+
 		if i.State == "RUNNABLE" && i.Settings.ActivationPolicy == "ALWAYS" {
 			s.Log.Debugf("skipping instance %s in project %s, state is RUNNABLE and activation policy is ALWAYS", instance.Name, instance.ProjectID)
 			continue
@@ -51,7 +70,7 @@ func (s SQLInstance) Run(ctx context.Context) ([]Issue, error) {
 			ResourceType: issue.ResourceTypeSQLInstance,
 			Env:          instance.EnvironmentName,
 			Team:         instance.TeamSlug.String(),
-			IssueType:    issue.IssueTypeSQLInstance,
+			IssueType:    issue.IssueTypeSqlInstanceState,
 			Message:      message,
 			IssueDetails: issue.SQLInstanceIssueDetails{
 				State:   state,
