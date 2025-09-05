@@ -22,7 +22,7 @@ import (
 	"go.opentelemetry.io/otel/metric"
 )
 
-const checkInterval = 1 * time.Minute
+const checkInterval = 5 * time.Minute
 
 type check interface {
 	Run(ctx context.Context) ([]Issue, error)
