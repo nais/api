@@ -109,7 +109,7 @@ func deprecatedIngress(app *nais_io_v1alpha1.Application, env string, ret []Issu
 
 	di := deprecated(app.Spec.Ingresses, env)
 
-	if di == nil {
+	if len(di) == 0 {
 		return ret
 	}
 

@@ -106,9 +106,9 @@ Test.gql("Team with issues", function(t)
 							application = {
 								name = "deprecated-app",
 							},
-							message = "Application is using deprecated ingresses: [https://error.dev-gcp.nais.io]",
+							message = "Application is using deprecated ingresses: [https://foo.dev-gcp.nais.io https://bar.dev-gcp.nais.io]",
 							severity = "TODO",
-							ingresses = { "https://error.dev-gcp.nais.io" },
+							ingresses = { "https://foo.dev-gcp.nais.io", "https://bar.dev-gcp.nais.io" },
 						},
 						{
 							__typename = "DeprecatedRegistryIssue",

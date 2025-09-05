@@ -5,7 +5,9 @@ metadata:
 spec:
   image: deprecated.dev/nais/navikt/app-name:latest
   ingresses:
-    - "https://error.dev-gcp.nais.io"
+    - "https://foo.dev-gcp.nais.io"
+    - "https://bar.dev-gcp.nais.io"
+    - "https://valid.nav.no"
 ---
 apiVersion: nais.io/v1
 kind: Naisjob
