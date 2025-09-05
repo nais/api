@@ -3,6 +3,7 @@ package checker
 import (
 	"context"
 	"slices"
+	"time"
 
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/kubernetes/watchers"
@@ -42,11 +43,13 @@ func (s SQLInstance) Run(ctx context.Context) ([]Issue, error) {
 	ret := make([]Issue, 0)
 
 	for _, instance := range s.SQLInstanceLister.List(ctx) {
+		now := time.Now()
 		i, err := s.Client.Admin.GetInstance(ctx, instance.ProjectID, instance.Name)
 		if err != nil {
-			s.Log.WithError(err).Errorf("failed getting sqlinstance %s", instance.Name)
+			s.Log.WithError(err).WithField("instance", instance.Name).Error("getting sqlinstance")
 			continue
 		}
+		s.Log.WithField("instance", instance.Name).WithField("project", instance.ProjectID).WithField("duration", time.Since(now).Seconds()).Debug("Fetched sqlinstance")
 
 		if slices.Contains(deprecatedVersions, i.DatabaseVersion) {
 			ret = append(ret, Issue{
