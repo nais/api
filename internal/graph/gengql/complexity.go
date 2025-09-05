@@ -42,7 +42,7 @@ func NewComplexityRoot() ComplexityRoot {
 	c.BigQueryDataset.Access = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetAccessOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.ContainerImage.Vulnerabilities = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.ImageVulnerabilityOrder) int {
+	c.ContainerImage.Vulnerabilities = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.ImageVulnerabilityFilter, orderBy *vulnerability.ImageVulnerabilityOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.ContainerImage.WorkloadReferences = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
