@@ -156,3 +156,13 @@ type DeprecatedIngressIssue implements Issue & Node {
 	ingresses: [String!]!
 	application: Application!
 }
+
+type DeprecatedRegistryIssue implements Issue & Node {
+	id: ID!
+	environment: String!
+	team: Slug!
+	severity: Severity!
+	message: String!
+
+	workload: Workload!
+}

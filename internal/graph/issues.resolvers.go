@@ -10,11 +10,20 @@ import (
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
+	"github.com/nais/api/internal/workload/job"
 )
 
 func (r *deprecatedIngressIssueResolver) Application(ctx context.Context, obj *issue.DeprecatedIngressIssue) (*application.Application, error) {
 	return application.Get(ctx, obj.Team, obj.Environment, obj.ResourceName)
+}
+
+func (r *deprecatedRegistryIssueResolver) Workload(ctx context.Context, obj *issue.DeprecatedRegistryIssue) (workload.Workload, error) {
+	if obj.ResourceType == issue.ResourceTypeApplication {
+		return application.Get(ctx, obj.Team, obj.Environment, obj.ResourceName)
+	}
+	return job.Get(ctx, obj.Team, obj.Environment, obj.ResourceName)
 }
 
 func (r *openSearchIssueResolver) OpenSearch(ctx context.Context, obj *issue.OpenSearchIssue) (*opensearch.OpenSearch, error) {
@@ -46,6 +55,10 @@ func (r *Resolver) DeprecatedIngressIssue() gengql.DeprecatedIngressIssueResolve
 	return &deprecatedIngressIssueResolver{r}
 }
 
+func (r *Resolver) DeprecatedRegistryIssue() gengql.DeprecatedRegistryIssueResolver {
+	return &deprecatedRegistryIssueResolver{r}
+}
+
 func (r *Resolver) OpenSearchIssue() gengql.OpenSearchIssueResolver {
 	return &openSearchIssueResolver{r}
 }
@@ -62,6 +75,7 @@ func (r *Resolver) ValkeyIssue() gengql.ValkeyIssueResolver { return &valkeyIssu
 
 type (
 	deprecatedIngressIssueResolver  struct{ *Resolver }
+	deprecatedRegistryIssueResolver struct{ *Resolver }
 	openSearchIssueResolver         struct{ *Resolver }
 	sqlInstanceStateIssueResolver   struct{ *Resolver }
 	sqlInstanceVersionIssueResolver struct{ *Resolver }

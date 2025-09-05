@@ -74,6 +74,11 @@ Test.gql("Team with issues", function(t)
 								name
 							}
 						}
+						... on DeprecatedRegistryIssue {
+							workload {
+								name
+							}
+						}
 					}
 				}
 			}
@@ -87,6 +92,25 @@ Test.gql("Team with issues", function(t)
 				issues = {
 					nodes = {
 						{
+							__typename = "DeprecatedIngressIssue",
+							environment = "dev-gcp",
+							application = {
+								name = "deprecated",
+							},
+							message = "Deprecated ingress detected",
+							severity = "TODO",
+							ingresses = { "https://error.dev-gcp.nais.io" },
+						},
+						{
+							__typename = "DeprecatedRegistryIssue",
+							environment = "dev-gcp",
+							message = "Image 'deprecated.dev/nais/navikt/app-name:latest' is using a deprecated registry",
+							severity = "WARNING",
+							workload = {
+								name = "deprecated",
+							},
+						},
+						{
 							__typename = "SqlInstanceVersionIssue",
 							environment = "dev-gcp",
 							message = "The instance is running a deprecated version of PostgreSQL: POSTGRES_12",
@@ -94,16 +118,6 @@ Test.gql("Team with issues", function(t)
 							sqlInstance = {
 								name = "deprecated",
 							},
-						},
-						{
-							__typename = "DeprecatedIngressIssue",
-							environment = "dev-gcp",
-							application = {
-								name = "deprecated-ingress",
-							},
-							message = "Deprecated ingress detected",
-							severity = "TODO",
-							ingresses = { "https://error.dev-gcp.nais.io" },
 						},
 						{
 							__typename = "SqlInstanceStateIssue",

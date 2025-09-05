@@ -2,6 +2,7 @@ package checker
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/nais/api/internal/environmentmapper"
@@ -40,13 +41,25 @@ var deprecatedIngresses = map[string][]string{
 	},
 }
 
-type DeprecatedIngress struct {
-	ApplicationLister KubernetesLister[*watcher.EnvironmentWrapper[*nais_io_v1alpha1.Application]]
+var allowedRegistries = []string{
+	"europe-north1-docker.pkg.dev",
+	"repo.adeo.no:5443",
+	"oliver006/redis_exporter",
+	"bitnami/redis",
+	"docker.io/oliver006/redis_exporter",
+	"docker.io/redis",
+	"docker.io/bitnami/redis",
+	"redis",
 }
 
-var _ check = DeprecatedIngress{}
+type Workload struct {
+	ApplicationLister KubernetesLister[*watcher.EnvironmentWrapper[*nais_io_v1alpha1.Application]]
+	JobLister         KubernetesLister[*watcher.EnvironmentWrapper[*nais_io_v1.Naisjob]]
+}
 
-func (d DeprecatedIngress) Run(ctx context.Context) ([]Issue, error) {
+var _ check = Workload{}
+
+func (d Workload) Run(ctx context.Context) ([]Issue, error) {
 	ret := make([]Issue, 0)
 	apps := d.ApplicationLister.List(ctx)
 	for _, app := range apps {
@@ -66,6 +79,17 @@ func (d DeprecatedIngress) Run(ctx context.Context) ([]Issue, error) {
 				},
 			})
 		}
+		if deprecatedRegistry(app.Obj.Spec.Image) {
+			ret = append(ret, Issue{
+				IssueType:    issue.IssueTypeDeprecatedRegistry,
+				ResourceName: app.Obj.Name,
+				ResourceType: issue.ResourceTypeApplication,
+				Team:         app.GetNamespace(),
+				Env:          env,
+				Severity:     issue.SeverityWarning,
+				Message:      fmt.Sprintf("Image '%s' is using a deprecated registry", app.Obj.Spec.Image),
+			})
+		}
 	}
 	return ret, nil
 }
@@ -81,4 +105,14 @@ func deprecated(ingresses []nais_io_v1.Ingress, env string) []string {
 		}
 	}
 	return ret
+}
+
+func deprecatedRegistry(image string) bool {
+	for _, registry := range allowedRegistries {
+		if strings.HasPrefix(image, registry) {
+			return false
+		}
+	}
+
+	return true
 }

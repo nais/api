@@ -128,6 +128,10 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 		return &SqlInstanceVersionIssue{
 			Base: base,
 		}, nil
+	case IssueTypeDeprecatedRegistry:
+		return &DeprecatedRegistryIssue{
+			Base: base,
+		}, nil
 	case IssueTypeDeprecatedIngress:
 		d, err := unmarshal[DeprecatedIngressIssueDetails](issue.IssueDetails)
 		if err != nil {

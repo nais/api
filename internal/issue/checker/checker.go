@@ -99,7 +99,7 @@ func New(config Config, pool *pgxpool.Pool, watchers *watchers.Watchers, log log
 	checker.checks = []check{
 		Aiven{aivenClient: config.AivenClient, tenant: config.Tenant, environments: envs, log: log.WithField("check", "Aiven")},
 		SQLInstance{Client: config.CloudSQLClient, SQLInstanceLister: o.sqlInstanceLister, Log: log.WithField("check", "SQLInstance")},
-		DeprecatedIngress{ApplicationLister: o.applicationLister},
+		Workload{ApplicationLister: o.applicationLister},
 	}
 
 	return checker, nil

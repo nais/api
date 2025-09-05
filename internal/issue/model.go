@@ -181,6 +181,7 @@ const (
 	IssueTypeSqlInstanceState   IssueType = "SQLINSTANCE_STATE"
 	IssueTypeSqlInstanceVersion IssueType = "SQLINSTANCE_VERSION"
 	IssueTypeDeprecatedIngress  IssueType = "DEPRECATED_INGRESS"
+	IssueTypeDeprecatedRegistry IssueType = "DEPRECATED_REGISTRY"
 )
 
 var AllIssueType = []IssueType{
@@ -189,11 +190,12 @@ var AllIssueType = []IssueType{
 	IssueTypeSqlInstanceState,
 	IssueTypeSqlInstanceState,
 	IssueTypeDeprecatedIngress,
+	IssueTypeDeprecatedRegistry,
 }
 
 func (e IssueType) IsValid() bool {
 	switch e {
-	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress:
+	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry:
 		return true
 	}
 	return false
@@ -302,3 +304,11 @@ func (e *IssueOrderField) UnmarshalGQL(v any) error {
 func (e IssueOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
+
+type DeprecatedRegistryIssue struct {
+	Base
+}
+
+func (DeprecatedRegistryIssue) IsIssue() {}
+
+func (DeprecatedRegistryIssue) IsNode() {}
