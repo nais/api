@@ -182,7 +182,18 @@ func (c *Checker) runChecks(ctx context.Context) {
 		}
 	})
 	c.durationGauge.Record(ctx, time.Since(dbTime).Seconds(), metric.WithAttributes(attribute.String("operation", "db")))
+	c.recordIssues(ctx, issues)
 	c.log.WithField("issues", len(issues)).Debug("issue checker finished")
+}
+
+func (c *Checker) recordIssues(ctx context.Context, issues []Issue) {
+	counter := make(map[issue.IssueType]int)
+	for _, issue := range issues {
+		counter[issue.IssueType]++
+	}
+	for issueType, count := range counter {
+		c.issuesGauge.Record(ctx, int64(count), metric.WithAttributes(attribute.String("issue_type", issueType.String())))
+	}
 }
 
 func WithSQLInstanceLister(lister KubernetesLister[*sqlinstance.SQLInstance]) Option {
