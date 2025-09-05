@@ -141,12 +141,12 @@ func (c *Checker) runChecks(ctx context.Context) {
 		if err != nil {
 			c.log.WithError(err).Error("run check")
 		}
-		c.durationGauge.Record(ctx, time.Since(checkTime).Seconds(), metric.WithAttributes(attribute.String("check", fmt.Sprintf("%T", ch))))
+		c.durationGauge.Record(ctx, time.Since(checkTime).Seconds(), metric.WithAttributes(attribute.String("operation", fmt.Sprintf("%T", ch))))
 		c.issuesGauge.Record(ctx, int64(len(checkIssues)), metric.WithAttributes(attribute.String("check", fmt.Sprintf("%T", ch))))
 		issues = append(issues, checkIssues...)
 
 	}
-	c.issuesGauge.Record(ctx, int64(len(issues)))
+	c.issuesGauge.Record(ctx, int64(len(issues)), metric.WithAttributes(attribute.String("check", "all_checks")))
 
 	batchIssues := make([]checkersql.BatchInsertIssuesParams, 0)
 	for _, issue := range issues {
@@ -168,7 +168,7 @@ func (c *Checker) runChecks(ctx context.Context) {
 		})
 	}
 
-	c.durationGauge.Record(ctx, time.Since(now).Seconds())
+	c.durationGauge.Record(ctx, time.Since(now).Seconds(), metric.WithAttributes(attribute.String("operation", "all_checks")))
 
 	dbTime := time.Now()
 
@@ -183,7 +183,7 @@ func (c *Checker) runChecks(ctx context.Context) {
 		}
 	})
 	c.durationGauge.Record(ctx, time.Since(dbTime).Seconds(), metric.WithAttributes(attribute.String("operation", "db")))
-	c.log.WithField("issues", len(issues)).WithField("duration", time.Since(now).Seconds()).Debug("issue checker finished")
+	c.log.WithField("issues", len(issues)).Debug("issue checker finished")
 }
 
 func WithSQLInstanceLister(lister KubernetesLister[*sqlinstance.SQLInstance]) Option {
