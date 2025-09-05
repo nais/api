@@ -133,7 +133,7 @@ func (c *Checker) RunChecksOnce(ctx context.Context) {
 func (c *Checker) runChecks(ctx context.Context) {
 	c.log.Debugf("starting checker")
 
-	now := time.Now()
+	totalTime := time.Now()
 	var issues []Issue
 	for _, ch := range c.checks {
 		checkTime := time.Now()
@@ -147,6 +147,7 @@ func (c *Checker) runChecks(ctx context.Context) {
 
 	}
 	c.issuesGauge.Record(ctx, int64(len(issues)), metric.WithAttributes(attribute.String("check", "all_checks")))
+	c.durationGauge.Record(ctx, time.Since(totalTime).Seconds(), metric.WithAttributes(attribute.String("operation", "all_checks")))
 
 	batchIssues := make([]checkersql.BatchInsertIssuesParams, 0)
 	for _, issue := range issues {
@@ -167,8 +168,6 @@ func (c *Checker) runChecks(ctx context.Context) {
 			IssueDetails: d,
 		})
 	}
-
-	c.durationGauge.Record(ctx, time.Since(now).Seconds(), metric.WithAttributes(attribute.String("operation", "all_checks")))
 
 	dbTime := time.Now()
 
