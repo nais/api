@@ -2,8 +2,10 @@ package aivencache
 
 import (
 	"context"
+	"strings"
 	"time"
 
+	"github.com/aiven/go-client-codegen/handler/project"
 	aiven "github.com/aiven/go-client-codegen/handler/service"
 )
 
@@ -15,6 +17,43 @@ func NewFakeAivenClient() *FakeAivenClient {
 
 func (f *FakeAivenClient) ServiceMaintenanceStart(_ context.Context, _ string, _ string) error {
 	return nil
+}
+
+// ProjectAlertsList list active alerts for a project
+func (f *FakeAivenClient) ProjectAlertsList(ctx context.Context, p string) ([]project.AlertOut, error) {
+	if strings.HasSuffix(p, "dev") || strings.HasSuffix(p, "dev-gcp") {
+		return []project.AlertOut{
+			{
+				ServiceName: stringPtr("opensearch-myteam-name"),
+				ServiceType: stringPtr("opensearch"),
+				Severity:    "critical",
+				Event:       "error message from aiven",
+			},
+			{
+				ServiceName: stringPtr("valkey-devteam-name"),
+				ServiceType: stringPtr("valkey"),
+				Severity:    "critical",
+				Event:       "error message from aiven",
+			},
+			{
+				ServiceName: stringPtr("opensearch-devteam-name"),
+				ServiceType: stringPtr("opensearch"),
+				Severity:    "critical",
+				Event:       "error message from aiven",
+			},
+			{
+				ServiceName: stringPtr("someservicetype-devteam-name"),
+				ServiceType: stringPtr("someservicetype"),
+				Severity:    "critical",
+				Event:       "someservicetype has issue in aiven",
+			},
+		}, nil
+	}
+	return []project.AlertOut{}, nil
+}
+
+func stringPtr(s string) *string {
+	return &s
 }
 
 // ServiceGet returns hardcoded example dataset

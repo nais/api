@@ -1,0 +1,148 @@
+extend type Team {
+	"Issues that affects the team."
+	issues(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		# "Ordering options for items returned from the connection."
+		orderBy: IssueOrder
+
+		# "Filtering options for items returned from the connection."
+		filter: IssueFilter
+	): IssueConnection!
+}
+input IssueOrder {
+	"Order by this field."
+	field: IssueOrderField!
+
+	"Order direction."
+	direction: OrderDirection!
+}
+
+input IssueFilter {
+	"Filter by resource type."
+	resourceType: ResourceType
+
+	"Filter by environment."
+	environments: [String!]
+
+	"Filter by severity."
+	severity: Severity
+
+	"Filter by issue type."
+	issueType: IssueType
+}
+
+enum IssueOrderField {
+	"Order by resource name."
+	RESOURCE_NAME
+	"Order by severity."
+	SEVERITY
+	"Order by environment."
+	ENVIRONMENT
+	"Order by resource type."
+	RESOURCE_TYPE
+	"Order by issue type."
+	ISSUE_TYPE
+}
+
+type IssueConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+
+	"List of nodes."
+	nodes: [Issue!]!
+
+	"List of edges."
+	edges: [IssueEdge!]!
+}
+
+type IssueEdge {
+	"Cursor for this edge that can be used for pagination."
+	cursor: Cursor!
+
+	"The Issue."
+	node: Issue!
+}
+
+interface Issue implements Node {
+	id: ID!
+	environment: String!
+	team: Slug!
+	severity: Severity!
+	message: String!
+}
+
+enum Severity {
+	CRITICAL
+	WARNING
+	TODO
+}
+
+enum ResourceType {
+	OPENSEARCH
+	VALKEY
+	SQLINSTANCE
+	APPLICATION
+}
+
+enum IssueType {
+	OPENSEARCH
+	VALKEY
+	SQLINSTANCE
+	DEPRECATED_INGRESS
+	GENERAL
+}
+
+type OpenSearchIssue implements Issue & Node {
+	id: ID!
+	environment: String!
+	team: Slug!
+	severity: Severity!
+	message: String!
+
+	openSearch: OpenSearch!
+	event: String!
+}
+
+type ValkeyIssue implements Issue & Node {
+	id: ID!
+	environment: String!
+	team: Slug!
+	severity: Severity!
+	message: String!
+
+	valkey: Valkey!
+	event: String!
+}
+
+type SqlInstanceIssue implements Issue & Node {
+	id: ID!
+	environment: String!
+	team: Slug!
+	severity: Severity!
+	message: String!
+
+	state: SqlInstanceState!
+	sqlInstance: SqlInstance!
+}
+
+type DeprecatedIngressIssue implements Issue & Node {
+	id: ID!
+	environment: String!
+	team: Slug!
+	severity: Severity!
+	message: String!
+
+	ingresses: [String!]!
+	application: Application!
+}
