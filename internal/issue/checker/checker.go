@@ -15,6 +15,7 @@ import (
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/aivencache"
+	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
@@ -59,6 +60,9 @@ type Issue struct {
 	IssueDetails any
 }
 
+type jobLister struct {
+	watcher *watchers.JobWatcher
+}
 type applicationLister struct {
 	watcher *watchers.AppWatcher
 }
@@ -66,6 +70,7 @@ type applicationLister struct {
 type options struct {
 	sqlInstanceLister KubernetesLister[*sqlinstance.SQLInstance]
 	applicationLister KubernetesLister[*watcher.EnvironmentWrapper[*nais_io_v1alpha1.Application]]
+	jobLister         KubernetesLister[*watcher.EnvironmentWrapper[*nais_io_v1.Naisjob]]
 }
 type Option func(*options)
 
@@ -90,6 +95,7 @@ func New(config Config, pool *pgxpool.Pool, watchers *watchers.Watchers, log log
 	o := &options{
 		sqlInstanceLister: &sqlInstanceLister{watcher: watchers.SqlInstanceWatcher},
 		applicationLister: &applicationLister{watcher: watchers.AppWatcher},
+		jobLister:         &jobLister{watcher: watchers.JobWatcher},
 	}
 
 	for _, opt := range opts {
@@ -99,7 +105,7 @@ func New(config Config, pool *pgxpool.Pool, watchers *watchers.Watchers, log log
 	checker.checks = []check{
 		Aiven{aivenClient: config.AivenClient, tenant: config.Tenant, environments: envs, log: log.WithField("check", "Aiven")},
 		SQLInstance{Client: config.CloudSQLClient, SQLInstanceLister: o.sqlInstanceLister, Log: log.WithField("check", "SQLInstance")},
-		Workload{ApplicationLister: o.applicationLister},
+		Workload{ApplicationLister: o.applicationLister, JobLister: o.jobLister},
 	}
 
 	return checker, nil
@@ -196,6 +202,10 @@ func WithApplicationLister(lister KubernetesLister[*watcher.EnvironmentWrapper[*
 
 func (a *applicationLister) List(_ context.Context) []*watcher.EnvironmentWrapper[*nais_io_v1alpha1.Application] {
 	return a.watcher.All()
+}
+
+func (j *jobLister) List(_ context.Context) []*watcher.EnvironmentWrapper[*nais_io_v1.Naisjob] {
+	return j.watcher.All()
 }
 
 func Map[T any, U any](input []T, f func(T) U) []U {

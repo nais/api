@@ -93,6 +93,7 @@ enum ResourceType {
 	VALKEY
 	SQLINSTANCE
 	APPLICATION
+	JOB
 }
 
 enum IssueType {
@@ -101,6 +102,7 @@ enum IssueType {
 	SQLINSTANCE_STATE
 	SQLINSTANCE_VERSION
 	DEPRECATED_INGRESS
+	DEPRECATED_REGISTRY
 }
 
 type OpenSearchIssue implements Issue & Node {

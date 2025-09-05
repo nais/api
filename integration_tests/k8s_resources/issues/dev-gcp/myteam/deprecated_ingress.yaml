@@ -1,8 +1,0 @@
-apiVersion: nais.io/v1alpha1
-kind: Application
-metadata:
-  name: deprecated
-spec:
-  image: deprecated.dev/nais/navikt/app-name:latest
-  ingresses:
-    - "https://error.dev-gcp.nais.io"

@@ -122,6 +122,7 @@ const (
 	ResourceTypeValkey      ResourceType = "VALKEY"
 	ResourceTypeSQLInstance ResourceType = "SQLINSTANCE"
 	ResourceTypeApplication ResourceType = "APPLICATION"
+	ResourceTypeJob         ResourceType = "JOB"
 )
 
 var AllResourceType = []ResourceType{
@@ -129,11 +130,12 @@ var AllResourceType = []ResourceType{
 	ResourceTypeValkey,
 	ResourceTypeSQLInstance,
 	ResourceTypeApplication,
+	ResourceTypeJob,
 }
 
 func (e ResourceType) IsValid() bool {
 	switch e {
-	case ResourceTypeOpensearch, ResourceTypeValkey, ResourceTypeSQLInstance, ResourceTypeApplication:
+	case ResourceTypeOpensearch, ResourceTypeValkey, ResourceTypeSQLInstance, ResourceTypeApplication, ResourceTypeJob:
 		return true
 	}
 	return false

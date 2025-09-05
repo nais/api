@@ -1,0 +1,16 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: deprecated-app
+spec:
+  image: deprecated.dev/nais/navikt/app-name:latest
+  ingresses:
+    - "https://error.dev-gcp.nais.io"
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: deprecated-job
+spec:
+  image: ghcr.io/navikt/app-name:latest
+  schedule: "0 0 * * *"

@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
@@ -20,10 +21,14 @@ func (r *deprecatedIngressIssueResolver) Application(ctx context.Context, obj *i
 }
 
 func (r *deprecatedRegistryIssueResolver) Workload(ctx context.Context, obj *issue.DeprecatedRegistryIssue) (workload.Workload, error) {
-	if obj.ResourceType == issue.ResourceTypeApplication {
+	switch obj.ResourceType {
+	case issue.ResourceTypeApplication:
 		return application.Get(ctx, obj.Team, obj.Environment, obj.ResourceName)
+	case issue.ResourceTypeJob:
+		return job.Get(ctx, obj.Team, obj.Environment, obj.ResourceName)
+	default:
+		return nil, fmt.Errorf("unknown resource type: %s", obj.ResourceType)
 	}
-	return job.Get(ctx, obj.Team, obj.Environment, obj.ResourceName)
 }
 
 func (r *openSearchIssueResolver) OpenSearch(ctx context.Context, obj *issue.OpenSearchIssue) (*opensearch.OpenSearch, error) {
