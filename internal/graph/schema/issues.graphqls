@@ -103,6 +103,7 @@ enum IssueType {
 	SQLINSTANCE_VERSION
 	DEPRECATED_INGRESS
 	DEPRECATED_REGISTRY
+	NO_RUNNING_INSTANCES
 }
 
 type OpenSearchIssue implements Issue & Node {
