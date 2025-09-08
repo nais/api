@@ -8,10 +8,11 @@ import (
 	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/kubernetes/watcher"
-	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/workload/application"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/selection"
 )
 
 var deprecatedIngresses = map[string][]string{
@@ -57,17 +58,18 @@ var allowedRegistries = []string{
 type Workload struct {
 	ApplicationLister KubernetesLister[*watcher.EnvironmentWrapper[*nais_io_v1alpha1.Application]]
 	JobLister         KubernetesLister[*watcher.EnvironmentWrapper[*nais_io_v1.Naisjob]]
+	PodWatcher        watcher.Watcher[*v1.Pod]
 }
 
 var _ check = Workload{}
 
 func (d Workload) Run(ctx context.Context) ([]Issue, error) {
-	ret := make([]Issue, 0)
+	var ret []Issue
 	for _, app := range d.ApplicationLister.List(ctx) {
 		env := environmentmapper.EnvironmentName(app.Cluster)
 		ret = deprecatedIngress(app.Obj, env, ret)
 		ret = deprecatedRegistry(app.Obj.Spec.Image, app.Obj.Name, app.Obj.Namespace, env, issue.ResourceTypeApplication, ret)
-		ret = noRunningInstances(ctx, app.Obj, app.Obj.Namespace, env, ret)
+		ret = d.noRunningInstances(app.Obj, app.Obj.Namespace, env, ret)
 	}
 
 	for _, job := range d.JobLister.List(ctx) {
@@ -78,15 +80,27 @@ func (d Workload) Run(ctx context.Context) ([]Issue, error) {
 	return ret, nil
 }
 
-func noRunningInstances(ctx context.Context, app *nais_io_v1alpha1.Application, team, env string, ret []Issue) []Issue {
-	i, err := application.ListAllInstances(ctx, slug.Slug(team), env, app.Name)
+func (w Workload) noRunningInstances(app *nais_io_v1alpha1.Application, team, env string, ret []Issue) []Issue {
+	nameReq, err := labels.NewRequirement("app", selection.Equals, []string{app.Name})
 	if err != nil {
 		return ret
 	}
 
-	failingInstances := failingInstances(i)
+	pods := w.PodWatcher.GetByNamespace(
+		team,
+		watcher.WithLabels(labels.NewSelector().Add(*nameReq)),
+		watcher.InCluster(env),
+	)
 
-	if (len(i) == 0 || len(failingInstances) == len(i)) && *app.Spec.Replicas.Min > 0 && *app.Spec.Replicas.Max > 0 {
+	failing := failingPods(watcher.Objects(pods), app.Name)
+
+	hasReplicas := app.Spec.Replicas != nil &&
+		app.Spec.Replicas.Min != nil && *app.Spec.Replicas.Min > 0 &&
+		app.Spec.Replicas.Max != nil && *app.Spec.Replicas.Max > 0
+
+	hasNoRunning := (len(pods) == 0 || len(failing) == len(pods)) && hasReplicas
+
+	if hasNoRunning {
 		return append(ret, Issue{
 			IssueType:    issue.IssueTypeNoRunningInstances,
 			ResourceName: app.Name,
@@ -101,11 +115,14 @@ func noRunningInstances(ctx context.Context, app *nais_io_v1alpha1.Application, 
 	return ret
 }
 
-func failingInstances(instances []*application.ApplicationInstance) []*application.ApplicationInstance {
-	ret := []*application.ApplicationInstance{}
-	for _, instance := range instances {
-		if instance.State() == application.ApplicationInstanceStateFailing {
-			ret = append(ret, instance)
+func failingPods(pods []*v1.Pod, appName string) []*v1.Pod {
+	var ret []*v1.Pod
+	for _, pod := range pods {
+		for _, cs := range pod.Status.ContainerStatuses {
+			if cs.Name == appName && cs.State.Running == nil {
+				ret = append(ret, pod)
+				break
+			}
 		}
 	}
 	return ret
