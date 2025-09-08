@@ -18,7 +18,6 @@ type TeamUtilizationData struct {
 	TeamSlug        slug.Slug `json:"-"`
 }
 
-// Resource type.
 type UtilizationResourceType string
 
 const (
