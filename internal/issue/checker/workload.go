@@ -8,6 +8,8 @@ import (
 	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/kubernetes/watcher"
+	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/workload/application"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 )
@@ -65,6 +67,7 @@ func (d Workload) Run(ctx context.Context) ([]Issue, error) {
 		env := environmentmapper.EnvironmentName(app.Cluster)
 		ret = deprecatedIngress(app.Obj, env, ret)
 		ret = deprecatedRegistry(app.Obj.Spec.Image, app.Obj.Name, app.Obj.Namespace, env, issue.ResourceTypeApplication, ret)
+		ret = noRunningInstances(ctx, app.Obj, app.Obj.Namespace, env, ret)
 	}
 
 	for _, job := range d.JobLister.List(ctx) {
@@ -73,6 +76,39 @@ func (d Workload) Run(ctx context.Context) ([]Issue, error) {
 	}
 
 	return ret, nil
+}
+
+func noRunningInstances(ctx context.Context, app *nais_io_v1alpha1.Application, team, env string, ret []Issue) []Issue {
+	i, err := application.ListAllInstances(ctx, slug.Slug(team), env, app.Name)
+	if err != nil {
+		return ret
+	}
+
+	failingInstances := failingInstances(i)
+
+	if (len(i) == 0 || len(failingInstances) == len(i)) && *app.Spec.Replicas.Min > 0 && *app.Spec.Replicas.Max > 0 {
+		return append(ret, Issue{
+			IssueType:    issue.IssueTypeNoRunningInstances,
+			ResourceName: app.Name,
+			ResourceType: issue.ResourceTypeApplication,
+			Team:         team,
+			Env:          env,
+			Severity:     issue.SeverityCritical,
+			Message:      "Application has no running instances",
+		})
+	}
+
+	return ret
+}
+
+func failingInstances(instances []*application.ApplicationInstance) []*application.ApplicationInstance {
+	ret := []*application.ApplicationInstance{}
+	for _, instance := range instances {
+		if instance.State() == application.ApplicationInstanceStateFailing {
+			ret = append(ret, instance)
+		}
+	}
+	return ret
 }
 
 func deprecatedRegistry(image, name, team, env string, resourceType issue.ResourceType, ret []Issue) []Issue {
