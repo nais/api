@@ -8,7 +8,6 @@ import (
 
 type Querier interface {
 	AddToTeam(ctx context.Context, arg AddToTeamParams) (*TeamRepository, error)
-	GetByName(ctx context.Context, githubRepository string) ([]*TeamRepository, error)
 	ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*ListForTeamRow, error)
 	RemoveFromTeam(ctx context.Context, arg RemoveFromTeamParams) error
 }

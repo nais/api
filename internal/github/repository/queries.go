@@ -97,15 +97,3 @@ func RemoveFromTeam(ctx context.Context, input RemoveRepositoryFromTeamInput) er
 		})
 	})
 }
-
-func GetByName(ctx context.Context, name string) ([]*Repository, error) {
-	repos, err := db(ctx).GetByName(ctx, name)
-	if err != nil {
-		return nil, err
-	}
-	ret := make([]*Repository, 0, len(repos))
-	for _, r := range repos {
-		ret = append(ret, toGraphRepository(r))
-	}
-	return ret, nil
-}

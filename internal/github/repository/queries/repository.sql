@@ -39,14 +39,3 @@ WHERE
 	team_slug = @team_slug
 	AND github_repository = @github_repository
 ;
-
--- name: GetByName :many
-SELECT
-	*
-FROM
-	team_repositories
-WHERE
-	github_repository = @github_repository
-ORDER BY
-	team_slug ASC
-;

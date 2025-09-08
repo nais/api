@@ -30,37 +30,6 @@ func (q *Queries) AddToTeam(ctx context.Context, arg AddToTeamParams) (*TeamRepo
 	return &i, err
 }
 
-const getByName = `-- name: GetByName :many
-SELECT
-	team_slug, github_repository
-FROM
-	team_repositories
-WHERE
-	github_repository = $1
-ORDER BY
-	team_slug ASC
-`
-
-func (q *Queries) GetByName(ctx context.Context, githubRepository string) ([]*TeamRepository, error) {
-	rows, err := q.db.Query(ctx, getByName, githubRepository)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []*TeamRepository{}
-	for rows.Next() {
-		var i TeamRepository
-		if err := rows.Scan(&i.TeamSlug, &i.GithubRepository); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const listForTeam = `-- name: ListForTeam :many
 SELECT
 	team_repositories.team_slug, team_repositories.github_repository,

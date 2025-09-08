@@ -138,11 +138,6 @@ func runHttpServer(
 			middlewares = append(middlewares, jwtMiddleware)
 		}
 
-		if !fakes.WithSkipGHOIDC {
-			log.Warn("Skipping GitHub OIDC authentication")
-			middlewares = append(middlewares, middleware.GitHubOIDC(ctx, log))
-		}
-
 		middlewares = append(
 			middlewares,
 			middleware.ApiKeyAuthentication(),
