@@ -21,6 +21,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
+	v1 "k8s.io/api/core/v1"
 )
 
 const checkInterval = 5 * time.Minute
@@ -70,6 +71,7 @@ type options struct {
 	sqlInstanceLister KubernetesLister[*sqlinstance.SQLInstance]
 	applicationLister KubernetesLister[*watcher.EnvironmentWrapper[*nais_io_v1alpha1.Application]]
 	jobLister         KubernetesLister[*watcher.EnvironmentWrapper[*nais_io_v1.Naisjob]]
+	podWatcher        watcher.Watcher[*v1.Pod]
 }
 type Option func(*options)
 
@@ -94,6 +96,7 @@ func New(config Config, pool *pgxpool.Pool, watchers *watchers.Watchers, log log
 		sqlInstanceLister: &sqlInstanceLister{watcher: watchers.SqlInstanceWatcher},
 		applicationLister: &applicationLister{watcher: watchers.AppWatcher},
 		jobLister:         &jobLister{watcher: watchers.JobWatcher},
+		podWatcher:        *watchers.PodWatcher,
 	}
 
 	for _, opt := range opts {
@@ -103,7 +106,7 @@ func New(config Config, pool *pgxpool.Pool, watchers *watchers.Watchers, log log
 	checker.checks = []check{
 		Aiven{aivenClient: config.AivenClient, tenant: config.Tenant, environments: envs, log: log.WithField("check", "Aiven")},
 		SQLInstance{Client: config.CloudSQLClient, SQLInstanceLister: o.sqlInstanceLister, Log: log.WithField("check", "SQLInstance")},
-		Workload{ApplicationLister: o.applicationLister, JobLister: o.jobLister},
+		Workload{ApplicationLister: o.applicationLister, JobLister: o.jobLister, PodWatcher: o.podWatcher},
 	}
 
 	return checker, nil
