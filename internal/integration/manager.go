@@ -22,8 +22,11 @@ import (
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/gengql"
 	apiRunner "github.com/nais/api/internal/integration/runner"
+	"github.com/nais/api/internal/issue/checker"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
+	"github.com/nais/api/internal/kubernetes/watchers"
+	"github.com/nais/api/internal/persistence/sqlinstance"
 	servicemaintenance "github.com/nais/api/internal/servicemaintenance"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"
@@ -57,6 +60,7 @@ func TestRunner(ctx context.Context, skipSetup bool) (*testmanager.Manager, func
 
 	mgr.AddTypemetatable(teamMetatable())
 	mgr.AddTypemetatable(userMetatable())
+	mgr.AddTypemetatable(issueCheckerMetatable())
 
 	return mgr, func() {
 		_ = container.Terminate(ctx)
@@ -106,7 +110,32 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 
 		k8sRunner := apiRunner.NewK8sRunner(scheme, dir, clusters())
 		topic := newPubsubRunner()
-		gqlRunner, gqlCleanup, err := newGQLRunner(ctx, config, pool, topic, k8sRunner)
+
+		fakeAivenClient := aiven.NewFakeAivenClient()
+
+		clusterConfig, err := kubernetes.CreateClusterConfigMap("dev-nais", clusters(), nil)
+		if err != nil {
+			return ctx, nil, nil, fmt.Errorf("creating cluster config map: %w", err)
+		}
+
+		watcherMgr, err := watcher.NewManager(k8sRunner.Scheme, clusterConfig, log.WithField("subsystem", "k8s_watcher"), watcher.WithClientCreator(k8sRunner.ClientCreator))
+		if err != nil {
+			return ctx, nil, nil, fmt.Errorf("failed to create watcher manager: %w", err)
+		}
+
+		managementWatcherMgr, err := watcher.NewManager(
+			k8sRunner.Scheme,
+			kubernetes.ClusterConfigMap{"management": nil},
+			log.WithField("subsystem", "mgmt_k8s_watcher"),
+			watcher.WithClientCreator(k8sRunner.ClientCreator),
+		)
+		if err != nil {
+			return ctx, nil, nil, fmt.Errorf("failed to create management watcher manager: %w", err)
+		}
+
+		watchers := watchers.SetupWatchers(ctx, watcherMgr, managementWatcherMgr)
+
+		gqlRunner, gqlCleanup, err := newGQLRunner(ctx, config, pool, topic, watchers, watcherMgr, clusterConfig, fakeAivenClient)
 		if err != nil {
 			done()
 			return ctx, nil, nil, err
@@ -120,6 +149,26 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 			topic,
 			k8sRunner,
 		}
+		sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(true), sqlinstance.WithInstanceWatcher(watchers.SqlInstanceWatcher))
+		if err != nil {
+			return ctx, nil, nil, fmt.Errorf("create SQL Admin service: %w", err)
+		}
+		checker, err := checker.New(
+			checker.Config{
+				AivenClient:    fakeAivenClient,
+				CloudSQLClient: sqlAdminService,
+				Tenant:         "tenant",
+				Clusters:       clusters(),
+			},
+			pool,
+			watchers,
+			log.WithField("subsystem", "issue_checker"),
+		)
+		if err != nil {
+			return ctx, nil, nil, fmt.Errorf("create issue checker: %w", err)
+		}
+
+		ctx = context.WithValue(ctx, "issue_checker", checker)
 
 		ctx = context.WithValue(ctx, databaseKey, pool)
 		return ctx, runners, func() {
@@ -131,31 +180,18 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 	}
 }
 
-func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic graph.PubsubTopic, k8sRunner *apiRunner.K8s) (spec.Runner, func(), error) {
+func newGQLRunner(
+	ctx context.Context,
+	config *Config,
+	pool *pgxpool.Pool,
+	topic graph.PubsubTopic,
+	watchers *watchers.Watchers,
+	watcherMgr *watcher.Manager,
+	clusterConfig kubernetes.ClusterConfigMap,
+	fakeAivenClient *aiven.FakeAivenClient,
+) (spec.Runner, func(), error) {
 	log := logrus.New()
 	log.Out = io.Discard
-
-	clusterConfig, err := kubernetes.CreateClusterConfigMap("dev-nais", clusters(), nil)
-	if err != nil {
-		return nil, nil, fmt.Errorf("creating cluster config map: %w", err)
-	}
-
-	watcherMgr, err := watcher.NewManager(k8sRunner.Scheme, clusterConfig, log.WithField("subsystem", "k8s_watcher"), watcher.WithClientCreator(k8sRunner.ClientCreator))
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to create watcher manager: %w", err)
-	}
-
-	managementWatcherMgr, err := watcher.NewManager(
-		k8sRunner.Scheme,
-		kubernetes.ClusterConfigMap{"management": nil},
-		log.WithField("subsystem", "mgmt_k8s_watcher"),
-		watcher.WithClientCreator(k8sRunner.ClientCreator),
-	)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to create management watcher manager: %w", err)
-	}
-
-	fakeAivenClient := aiven.NewFakeAivenClient()
 
 	smMgr, err := servicemaintenance.NewManager(ctx, fakeAivenClient, log.WithField("subsystem", "service_maintenance"))
 	if err != nil {
@@ -184,8 +220,8 @@ func newGQLRunner(ctx context.Context, config *Config, pool *pgxpool.Pool, topic
 			WithFakePriceClient:    true,
 			WithSkipGHOIDC:         true,
 		},
+		watchers,
 		watcherMgr,
-		managementWatcherMgr,
 		pool,
 		clusterConfig,
 		smMgr,

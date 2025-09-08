@@ -1,0 +1,16 @@
+apiVersion: aiven.io/v1alpha1
+kind: OpenSearch
+metadata:
+  name: opensearch-myteam-name
+spec:
+  cloudName: google-europe-north1
+  connInfoSecretTarget:
+    name: ""
+  plan: startup-4
+  project: nav-dev
+  projectVpcId: dd346648-b919-4b24-a8dd-30ea6d2db53b
+  tags:
+    environment: dev
+    team: myteam
+    tenant: nav
+  terminationProtection: true

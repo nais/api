@@ -264,6 +264,11 @@ func (a *Application) Resources() *ApplicationResources {
 			ret.Scaling.MaxInstances = 4
 		}
 
+		if replicas.DisableAutoScaling {
+			// We take the easy route for now, just set min and max to min
+			ret.Scaling.MaxInstances = ret.Scaling.MinInstances
+		}
+
 		strategy := replicas.ScalingStrategy
 		if strategy != nil && strategy.Cpu != nil && strategy.Cpu.ThresholdPercentage > 0 {
 			ret.Scaling.Strategies = append(ret.Scaling.Strategies, CPUScalingStrategy{

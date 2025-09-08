@@ -245,6 +245,7 @@ type SqlInstanceDisk {
 
 enum SqlInstanceState {
 	UNSPECIFIED
+	STOPPED
 	RUNNABLE
 	SUSPENDED
 	PENDING_DELETE

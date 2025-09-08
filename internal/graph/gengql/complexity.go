@@ -7,6 +7,7 @@ import (
 	alerts "github.com/nais/api/internal/alerts"
 	repository "github.com/nais/api/internal/github/repository"
 	pagination "github.com/nais/api/internal/graph/pagination"
+	issue "github.com/nais/api/internal/issue"
 	bigquery "github.com/nais/api/internal/persistence/bigquery"
 	bucket "github.com/nais/api/internal/persistence/bucket"
 	kafkatopic "github.com/nais/api/internal/persistence/kafkatopic"
@@ -41,7 +42,7 @@ func NewComplexityRoot() ComplexityRoot {
 	c.BigQueryDataset.Access = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetAccessOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.ContainerImage.Vulnerabilities = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.ImageVulnerabilityOrder) int {
+	c.ContainerImage.Vulnerabilities = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.ImageVulnerabilityFilter, orderBy *vulnerability.ImageVulnerabilityOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.ContainerImage.WorkloadReferences = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
@@ -147,6 +148,9 @@ func NewComplexityRoot() ComplexityRoot {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Team.Deployments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.Team.Issues = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.IssueFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Team.Jobs = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder, filter *job.TeamJobsFilter) int {

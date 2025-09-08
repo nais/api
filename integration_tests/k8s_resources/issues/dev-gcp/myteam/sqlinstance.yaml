@@ -1,0 +1,242 @@
+apiVersion: sql.cnrm.cloud.google.com/v1beta1
+kind: SQLInstance
+metadata:
+  annotations:
+    cnrm.cloud.google.com/deletion-policy: abandon
+    cnrm.cloud.google.com/management-conflict-prevention-policy: none
+    cnrm.cloud.google.com/mutable-but-unreadable-fields: "{}"
+    cnrm.cloud.google.com/observed-secret-versions: "{}"
+    cnrm.cloud.google.com/project-id: project-id
+    cnrm.cloud.google.com/state-into-spec: merge
+    nais.io/deploymentCorrelationID: c53778c4-f03f-41a5-ae2f-0ca6a833019e
+  labels:
+    app: app-w-all-storage
+    app.kubernetes.io/instance: app-w-all-storage
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: app-w-all-storage
+    helm.sh/chart: app-w-all-storage-2024-02-22-115844-b411609
+    team: devteam
+  name: deprecated
+  namespace: nais-system
+  ownerReferences:
+    - apiVersion: nais.io/v1
+      kind: Application
+      name: app-w-all-storage
+      uid: 6957e4dd-2997-46b3-8f6f-b6d1e0606b1d
+spec:
+  databaseVersion: POSTGRES_15
+  instanceType: CLOUD_SQL_INSTANCE
+  maintenanceVersion: POSTGRES_15_10.R20240130.00_05
+  region: europe-north1
+  resourceID: contests
+  settings:
+    activationPolicy: ALWAYS
+    availabilityType: ZONAL
+    backupConfiguration:
+      backupRetentionSettings:
+        retainedBackups: 7
+        retentionUnit: COUNT
+      enabled: true
+      pointInTimeRecoveryEnabled: false
+      startTime: "02:00"
+      transactionLogRetentionDays: 7
+    connectorEnforcement: NOT_REQUIRED
+    databaseFlags:
+      - name: cloudsql.iam_authentication
+        value: "on"
+    diskAutoresize: false
+    diskSize: 10
+    diskType: PD_SSD
+    insightsConfig:
+      queryInsightsEnabled: true
+      queryStringLength: 1024
+      recordApplicationTags: false
+      recordClientAddress: false
+    ipConfiguration:
+      ipv4Enabled: true
+      requireSsl: true
+    locationPreference:
+      zone: europe-north1-a
+    pricingPlan: PER_USE
+    tier: db-f1-micro
+status:
+  conditions:
+    - lastTransitionTime: "2024-01-23T09:30:20Z"
+      message: The resource is up to date
+      reason: UpToDate
+      status: "True"
+      type: Ready
+  connectionName: nais-dev-123:europe-north1:app-w-all-storage
+  firstIpAddress: 1.2.3.4
+  instanceType: CLOUD_SQL_INSTANCE
+  ipAddress:
+    - ipAddress: 1.2.3.4
+      type: PRIMARY
+    - ipAddress: 1.2.3.5
+      type: OUTGOING
+    - ipAddress: 1.2.3.6
+      type: PRIVATE
+  observedGeneration: 104
+  publicIpAddress: 1.2.3.4
+  selfLink: https://sqladmin.googleapis.com/sql/v1beta4/projects/nais-dev-123/instances/app-w-all-storage
+  serviceAccountEmailAddress: sasa@gcp-sa-cloud-sql.iam.gserviceaccount.com
+---
+apiVersion: sql.cnrm.cloud.google.com/v1beta1
+kind: SQLInstance
+metadata:
+  annotations:
+    cnrm.cloud.google.com/deletion-policy: abandon
+    cnrm.cloud.google.com/management-conflict-prevention-policy: none
+    cnrm.cloud.google.com/mutable-but-unreadable-fields: "{}"
+    cnrm.cloud.google.com/observed-secret-versions: "{}"
+    cnrm.cloud.google.com/project-id: project-id
+    cnrm.cloud.google.com/state-into-spec: merge
+    nais.io/deploymentCorrelationID: c53778c4-f03f-41a5-ae2f-0ca6a833019e
+  labels:
+    app: app-w-all-storage
+    app.kubernetes.io/instance: app-w-all-storage
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: app-w-all-storage
+    helm.sh/chart: app-w-all-storage-2024-02-22-115844-b411609
+    team: devteam
+  name: stopped
+  namespace: nais-system
+  ownerReferences:
+    - apiVersion: nais.io/v1
+      kind: Application
+      name: app-w-all-storage
+      uid: 6957e4dd-2997-46b3-8f6f-b6d1e0606b1d
+spec:
+  databaseVersion: POSTGRES_15
+  instanceType: CLOUD_SQL_INSTANCE
+  maintenanceVersion: POSTGRES_15_10.R20240130.00_05
+  region: europe-north1
+  resourceID: contests
+  settings:
+    activationPolicy: ALWAYS
+    availabilityType: ZONAL
+    backupConfiguration:
+      backupRetentionSettings:
+        retainedBackups: 7
+        retentionUnit: COUNT
+      enabled: true
+      pointInTimeRecoveryEnabled: false
+      startTime: "02:00"
+      transactionLogRetentionDays: 7
+    connectorEnforcement: NOT_REQUIRED
+    databaseFlags:
+      - name: cloudsql.iam_authentication
+        value: "on"
+    diskAutoresize: false
+    diskSize: 10
+    diskType: PD_SSD
+    insightsConfig:
+      queryInsightsEnabled: true
+      queryStringLength: 1024
+      recordApplicationTags: false
+      recordClientAddress: false
+    ipConfiguration:
+      ipv4Enabled: true
+      requireSsl: true
+    locationPreference:
+      zone: europe-north1-a
+    pricingPlan: PER_USE
+    tier: db-f1-micro
+status:
+  conditions:
+    - lastTransitionTime: "2024-01-23T09:30:20Z"
+      message: The resource is up to date
+      reason: UpToDate
+      status: "True"
+      type: Ready
+  connectionName: nais-dev-123:europe-north1:app-w-all-storage
+  firstIpAddress: 1.2.3.4
+  instanceType: CLOUD_SQL_INSTANCE
+  ipAddress:
+    - ipAddress: 1.2.3.4
+      type: PRIMARY
+    - ipAddress: 1.2.3.5
+      type: OUTGOING
+    - ipAddress: 1.2.3.6
+      type: PRIVATE
+  observedGeneration: 104
+  publicIpAddress: 1.2.3.4
+  selfLink: https://sqladmin.googleapis.com/sql/v1beta4/projects/nais-dev-123/instances/app-w-all-storage
+  serviceAccountEmailAddress: sasa@gcp-sa-cloud-sql.iam.gserviceaccount.com
+---
+apiVersion: sql.cnrm.cloud.google.com/v1beta1
+kind: SQLInstance
+metadata:
+  annotations:
+    cnrm.cloud.google.com/deletion-policy: abandon
+    cnrm.cloud.google.com/management-conflict-prevention-policy: none
+    cnrm.cloud.google.com/mutable-but-unreadable-fields: "{}"
+    cnrm.cloud.google.com/observed-secret-versions: "{}"
+    cnrm.cloud.google.com/project-id: nais-dev-2e7b
+    cnrm.cloud.google.com/state-into-spec: merge
+    nais.io/deploymentCorrelationID: c53778c4-f03f-41a5-ae2f-0ca6a833019e
+  labels:
+    app: app-w-all-storage
+    app.kubernetes.io/instance: app-w-all-storage
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: app-w-all-storage
+    helm.sh/chart: app-w-all-storage-2024-02-22-115844-b411609
+    team: devteam
+  name: maintenance
+  namespace: nais-system
+spec:
+  databaseVersion: POSTGRES_14
+  instanceType: CLOUD_SQL_INSTANCE
+  maintenanceVersion: POSTGRES_14_10.R20240130.00_05
+  region: europe-north1
+  resourceID: donotdelete
+  settings:
+    activationPolicy: ALWAYS
+    availabilityType: ZONAL
+    backupConfiguration:
+      backupRetentionSettings:
+        retainedBackups: 6
+        retentionUnit: COUNT
+      enabled: true
+      pointInTimeRecoveryEnabled: false
+      startTime: "02:00"
+      transactionLogRetentionDays: 7
+    connectorEnforcement: NOT_REQUIRED
+    databaseFlags:
+      - name: cloudsql.iam_authentication
+        value: "on"
+    diskAutoresize: true
+    diskAutoresizeLimit: 60
+    diskSize: 10
+    diskType: PD_SSD
+    insightsConfig:
+      queryInsightsEnabled: true
+      queryStringLength: 1024
+      recordApplicationTags: false
+      recordClientAddress: false
+    ipConfiguration:
+      ipv4Enabled: true
+      requireSsl: true
+    locationPreference:
+      zone: europe-north1-a
+    pricingPlan: PER_USE
+    tier: db-f1-micro
+status:
+  conditions:
+    - lastTransitionTime: "2024-01-23T09:30:20Z"
+      message: "Update call failed: error applying desired state: summary: Error, failed to update instance settings for : googleapi: Error 400: Invalid request: backup retention should be >= transaction log retention.,"
+      reason: UpdateFailed
+      status: "False"
+      type: Ready
+  connectionName: nais-dev-123:europe-north1:app-w-all-storage
+  firstIpAddress: 1.2.3.4
+  instanceType: CLOUD_SQL_INSTANCE
+  ipAddress:
+    - ipAddress: 1.2.3.4
+      type: PRIMARY
+    - ipAddress: 1.2.3.4
+      type: OUTGOING
+  observedGeneration: 104
+  publicIpAddress: 1.2.3.4
+  selfLink: https://sqladmin.googleapis.com/sql/v1beta4/projects/nais-dev-123/instances/app-w-all-storage
+  serviceAccountEmailAddress: sasa@gcp-sa-cloud-sql.iam.gserviceaccount.com
