@@ -184,21 +184,20 @@ const (
 	IssueTypeSqlInstanceVersion IssueType = "SQLINSTANCE_VERSION"
 	IssueTypeDeprecatedIngress  IssueType = "DEPRECATED_INGRESS"
 	IssueTypeDeprecatedRegistry IssueType = "DEPRECATED_REGISTRY"
-	IssueTypeNoRunningInstances IssueType = "NO_RUNNING_INSTANCES"
 )
 
 var AllIssueType = []IssueType{
 	IssueTypeOpenSearch,
 	IssueTypeValkey,
 	IssueTypeSqlInstanceState,
+	IssueTypeSqlInstanceState,
 	IssueTypeDeprecatedIngress,
 	IssueTypeDeprecatedRegistry,
-	IssueTypeNoRunningInstances,
 }
 
 func (e IssueType) IsValid() bool {
 	switch e {
-	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances:
+	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry:
 		return true
 	}
 	return false
