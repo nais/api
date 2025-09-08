@@ -79,4 +79,5 @@ zitadel:
   organizationID:
 
 aiven:
+  projects: {}
   token:
