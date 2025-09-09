@@ -72,6 +72,9 @@ type Valkey implements Persistence & Node {
 	): ValkeyAccessConnection!
 	workload: Workload
 	status: ValkeyStatus!
+	tier: ValkeyTier!
+	size: ValkeySize!
+	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 }
 
 type ValkeyAccess {
@@ -129,4 +132,227 @@ extend union SearchNode = Valkey
 
 extend enum SearchType {
 	VALKEY
+}
+
+enum ValkeyTier {
+	SINGLE_NODE
+	HIGH_AVAILABILITY
+}
+
+enum ValkeySize {
+	RAM_1GB
+	RAM_4GB
+	RAM_8GB
+	RAM_14GB
+	RAM_28GB
+	RAM_56GB
+	RAM_112GB
+	RAM_200GB
+}
+
+enum ValkeyMaxMemoryPolicy {
+	"Keeps frequently used keys; removes least frequently used (LFU) keys"
+	ALLKEYS_LFU
+
+	"Keeps most recently used keys; removes least recently used (LRU) keys"
+	ALLKEYS_LRU
+
+	"Randomly removes keys to make space for the new data added."
+	ALLKEYS_RANDOM
+
+	"New values aren't saved when memory limit is reached. When a database uses replication, this applies to the primary database."
+	NO_EVICTION
+
+	"Removes least frequently used keys with a TTL set."
+	VOLATILE_LFU
+
+	"Removes least recently used keys with a time-to-live (TTL) set."
+	VOLATILE_LRU
+
+	"Randomly removes keys with a TTL set."
+	VOLATILE_RANDOM
+
+	"Removes keys with a TTL set, the keys with the shortest remaining time-to-live value first."
+	VOLATILE_TTL
+}
+
+input CreateValkeyInput {
+	"Name of the Valkey instance."
+	name: String!
+	"The environment name that the entry belongs to."
+	environmentName: String!
+	"The team that owns the Valkey instance."
+	teamSlug: Slug!
+	"Tier of the Valkey instance."
+	tier: ValkeyTier!
+	"Size of the Valkey instance."
+	size: ValkeySize!
+	"Maximum memory policy for the Valkey instance."
+	maxMemoryPolicy: ValkeyMaxMemoryPolicy
+}
+
+type CreateValkeyPayload {
+	"Valkey instance that was created."
+	valkey: Valkey!
+}
+
+input UpdateValkeyInput {
+	"Name of the Valkey instance."
+	name: String!
+	"The environment name that the entry belongs to."
+	environmentName: String!
+	"The team that owns the Valkey instance."
+	teamSlug: Slug!
+	"Tier of the Valkey instance."
+	tier: ValkeyTier!
+	"Size of the Valkey instance."
+	size: ValkeySize!
+	"Maximum memory policy for the Valkey instance."
+	maxMemoryPolicy: ValkeyMaxMemoryPolicy
+}
+
+type UpdateValkeyPayload {
+	"Valkey instance that was updated."
+	valkey: Valkey!
+}
+
+input DeleteValkeyInput {
+	"Name of the Valkey instance."
+	name: String!
+	"The environment name that the entry belongs to."
+	environmentName: String!
+	"The team that owns the Valkey instance."
+	teamSlug: Slug!
+}
+
+type DeleteValkeyPayload {
+	"Whether or not the job was deleted."
+	valkeyDeleted: Boolean
+}
+
+extend type Mutation {
+	"Create a new Valkey instance."
+	createValkey(input: CreateValkeyInput!): CreateValkeyPayload!
+	"Update an existing Valkey instance."
+	updateValkey(input: UpdateValkeyInput!): UpdateValkeyPayload!
+	"Delete an existing Valkey instance."
+	deleteValkey(input: DeleteValkeyInput!): DeleteValkeyPayload!
+}
+
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to Valkeys will use this resource type."
+	VALKEY
+}
+
+extend enum ActivityLogActivityType {
+	"Valkey was created."
+	VALKEY_CREATED
+	"Valkey was updated."
+	VALKEY_UPDATED
+	"Valkey was deleted."
+	VALKEY_DELETED
+}
+
+type ValkeyCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+}
+
+type ValkeyUpdatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"""
+	Data associated with the entry.
+	"""
+	data: ValkeyUpdatedActivityLogEntryData!
+}
+
+type ValkeyUpdatedActivityLogEntryDataUpdatedField {
+	"""
+	The name of the field.
+	"""
+	field: String!
+
+	"""
+	The old value of the field.
+	"""
+	oldValue: String
+
+	"""
+	The new value of the field.
+	"""
+	newValue: String
+}
+
+type ValkeyUpdatedActivityLogEntryData {
+	updatedFields: [ValkeyUpdatedActivityLogEntryDataUpdatedField!]!
+}
+
+type ValkeyDeletedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
 }

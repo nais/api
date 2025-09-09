@@ -217,6 +217,24 @@ values:
     computed:
       template: "{{ .Env.zitadel_organization_id | quote }}"
 
+  aiven.projects:
+    displayName: Aiven projects
+    description: |
+      Aiven project information in the format `'{"dev": {"id":"nav-dev","vpc":"somevpc","endpoint_id":"some_endpoint_id"}}'`
+    computed:
+      template: |
+        {{- $tenantEnvs := filter "kind" "tenant" .Envs -}}
+        {{- $result := dict -}}
+        {{- range $env := $tenantEnvs -}}
+          {{- if not $env.aiven_project }}{{ continue }}{{ end -}}
+          {{- $currentEnv := dict -}}
+          {{- $_ := set $currentEnv "id" $env.aiven_project -}}
+          {{- $_ := set $currentEnv "vpc" $env.aiven_project_vpc_id -}}
+          {{- $_ := set $currentEnv "endpoint_id" $env.aiven_prometheus_endpoint_id -}}
+          {{- $_ := set $result $env.name $currentEnv -}}
+        {{- end -}}
+        {{- toJSON $result | quote -}}
+
 rename:
   - from: "zitadel.idp_id"
     to: "zitadel.idpID"

@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/valkey"
@@ -18,6 +19,27 @@ func (r *applicationResolver) Valkeys(ctx context.Context, obj *application.Appl
 
 func (r *jobResolver) Valkeys(ctx context.Context, obj *job.Job, orderBy *valkey.ValkeyOrder) (*pagination.Connection[*valkey.Valkey], error) {
 	return valkey.ListForWorkload(ctx, obj.TeamSlug, obj.GetEnvironmentName(), obj.Spec.Valkey, orderBy)
+}
+
+func (r *mutationResolver) CreateValkey(ctx context.Context, input valkey.CreateValkeyInput) (*valkey.CreateValkeyPayload, error) {
+	if err := authz.CanCreateValkey(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+	return valkey.Create(ctx, input)
+}
+
+func (r *mutationResolver) UpdateValkey(ctx context.Context, input valkey.UpdateValkeyInput) (*valkey.UpdateValkeyPayload, error) {
+	if err := authz.CanUpdateValkey(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+	return valkey.Update(ctx, input)
+}
+
+func (r *mutationResolver) DeleteValkey(ctx context.Context, input valkey.DeleteValkeyInput) (*valkey.DeleteValkeyPayload, error) {
+	if err := authz.CanDeleteValkey(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+	return valkey.Delete(ctx, input)
 }
 
 func (r *teamResolver) Valkeys(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder) (*pagination.Connection[*valkey.Valkey], error) {

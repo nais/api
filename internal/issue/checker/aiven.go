@@ -6,12 +6,12 @@ import (
 
 	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/issue"
-	"github.com/nais/api/internal/thirdparty/aivencache"
+	"github.com/nais/api/internal/thirdparty/aiven"
 	"github.com/sirupsen/logrus"
 )
 
 type Aiven struct {
-	aivenClient  aivencache.AivenClient
+	aivenClient  aiven.AivenClient
 	tenant       string
 	environments []string
 	log          logrus.FieldLogger

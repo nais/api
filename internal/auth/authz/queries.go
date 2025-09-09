@@ -246,6 +246,30 @@ func CanStartServiceMaintenance(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "service_maintenance:update:start")
 }
 
+func CanCreateValkey(ctx context.Context, teamSlug slug.Slug) error {
+	return requireTeamAuthorization(ctx, teamSlug, "valkeys:create")
+}
+
+func CanUpdateValkey(ctx context.Context, teamSlug slug.Slug) error {
+	return requireTeamAuthorization(ctx, teamSlug, "valkeys:update")
+}
+
+func CanDeleteValkey(ctx context.Context, teamSlug slug.Slug) error {
+	return requireTeamAuthorization(ctx, teamSlug, "valkeys:delete")
+}
+
+func CanCreateOpenSearch(ctx context.Context, teamSlug slug.Slug) error {
+	return requireTeamAuthorization(ctx, teamSlug, "opensearches:create")
+}
+
+func CanUpdateOpenSearch(ctx context.Context, teamSlug slug.Slug) error {
+	return requireTeamAuthorization(ctx, teamSlug, "opensearches:update")
+}
+
+func CanDeleteOpenSearch(ctx context.Context, teamSlug slug.Slug) error {
+	return requireTeamAuthorization(ctx, teamSlug, "opensearches:delete")
+}
+
 func RequireGlobalAdmin(ctx context.Context) error {
 	if ActorFromContext(ctx).User.IsAdmin() {
 		return nil

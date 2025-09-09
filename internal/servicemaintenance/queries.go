@@ -10,22 +10,23 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/valkey"
+	servicemaintenanceal "github.com/nais/api/internal/servicemaintenance/activitylog"
 )
 
 func StartValkeyMaintenance(ctx context.Context, input StartValkeyMaintenanceInput) error {
-	valkey, err := valkey.Get(ctx, input.TeamSlug, input.EnvironmentName, input.ServiceName)
+	vk, err := valkey.Get(ctx, input.TeamSlug, input.EnvironmentName, input.ServiceName)
 	if err != nil {
 		return err
 	}
 
-	if err := fromContext(ctx).maintenanceMutator.aivenClient.ServiceMaintenanceStart(ctx, valkey.AivenProject, input.ServiceName); err != nil {
+	if err := fromContext(ctx).maintenanceMutator.aivenClient.ServiceMaintenanceStart(ctx, vk.AivenProject, input.ServiceName); err != nil {
 		fromContext(ctx).log.WithError(err).Error("Failed to start Valkey maintenance")
 		return err
 	}
 
 	return activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activityLogEntryActionMaintenanceStarted,
-		ResourceType:    activityLogResourceTypeValkey,
+		Action:          servicemaintenanceal.ActivityLogEntryActionMaintenanceStarted,
+		ResourceType:    valkey.ActivityLogEntryResourceTypeValkey,
 		TeamSlug:        &input.TeamSlug,
 		EnvironmentName: &input.EnvironmentName,
 		ResourceName:    input.ServiceName,
@@ -45,8 +46,8 @@ func StartOpenSearchMaintenance(ctx context.Context, input StartOpenSearchMainte
 	}
 
 	return activitylog.Create(ctx, activitylog.CreateInput{
-		Action:          activityLogEntryActionMaintenanceStarted,
-		ResourceType:    activityLogResourceTypeOpenSearch,
+		Action:          servicemaintenanceal.ActivityLogEntryActionMaintenanceStarted,
+		ResourceType:    opensearch.ActivityLogEntryResourceTypeOpenSearch,
 		TeamSlug:        &input.TeamSlug,
 		EnvironmentName: &input.EnvironmentName,
 		ResourceName:    input.ServiceName,

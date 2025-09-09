@@ -1,14 +1,18 @@
 package opensearch
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/validate"
 	"github.com/nais/api/internal/workload"
 	aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -28,6 +32,8 @@ type OpenSearch struct {
 	Name                  string              `json:"name"`
 	Status                *OpenSearchStatus   `json:"status"`
 	TerminationProtection bool                `json:"terminationProtection"`
+	Tier                  OpenSearchTier      `json:"tier"`
+	Size                  OpenSearchSize      `json:"size"`
 	TeamSlug              slug.Slug           `json:"-"`
 	EnvironmentName       string              `json:"-"`
 	WorkloadReference     *workload.Reference `json:"-"`
@@ -142,8 +148,17 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 	// Liberator doesn't contain this field, so we read it directly from the unstructured object
 	terminationProtection, _, _ := unstructured.NestedBool(u.Object, "spec", "terminationProtection")
 
+	tier, size, err := tierAndSizeFromPlan(obj.Spec.Plan)
+	if err != nil {
+		return nil, err
+	}
+
+	name := obj.Name
+	if kubernetes.HasManagedByConsoleLabel(obj) {
+		name = strings.TrimPrefix(obj.GetName(), "opensearch-"+obj.GetNamespace()+"-")
+	}
 	return &OpenSearch{
-		Name:                  obj.Name,
+		Name:                  name,
 		EnvironmentName:       envName,
 		TerminationProtection: terminationProtection,
 		Status: &OpenSearchStatus{
@@ -153,9 +168,230 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		TeamSlug:          slug.Slug(obj.GetNamespace()),
 		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
 		AivenProject:      obj.Spec.Project,
+		Tier:              tier,
+		Size:              size,
 	}, nil
 }
 
 type TeamInventoryCountOpenSearches struct {
 	Total int
+}
+
+type OpenSearchMetadataInput struct {
+	Name            string    `json:"name"`
+	EnvironmentName string    `json:"environmentName"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
+}
+
+func (v *OpenSearchMetadataInput) Validate(ctx context.Context) error {
+	return v.ValidationErrors(ctx).NilIfEmpty()
+}
+
+func (o *OpenSearchMetadataInput) ValidationErrors(ctx context.Context) *validate.ValidationErrors {
+	verr := validate.New()
+	o.Name = strings.TrimSpace(o.Name)
+	o.EnvironmentName = strings.TrimSpace(o.EnvironmentName)
+
+	if o.Name == "" {
+		verr.Add("name", "Name must not be empty.")
+	}
+	if o.EnvironmentName == "" {
+		verr.Add("environmentName", "Environment name must not be empty.")
+	}
+	if o.TeamSlug == "" {
+		verr.Add("teamSlug", "Team slug must not be empty.")
+	}
+
+	return verr
+}
+
+type OpenSearchInput struct {
+	OpenSearchMetadataInput
+	Tier    OpenSearchTier          `json:"tier"`
+	Size    OpenSearchSize          `json:"size"`
+	Version *OpenSearchMajorVersion `json:"version,omitempty"`
+}
+
+func (o *OpenSearchInput) Validate(ctx context.Context) error {
+	verr := o.OpenSearchMetadataInput.ValidationErrors(ctx)
+
+	if !o.Tier.IsValid() {
+		verr.Add("tier", "Invalid OpenSearch tier: %s.", o.Tier)
+	}
+
+	if !o.Size.IsValid() {
+		verr.Add("size", "Invalid OpenSearch size: %s.", o.Size)
+	}
+	if o.Version != nil && !o.Version.IsValid() {
+		verr.Add("version", "Invalid OpenSearch version: %s.", o.Version.String())
+	}
+
+	return verr.NilIfEmpty()
+}
+
+type CreateOpenSearchInput struct {
+	OpenSearchInput
+}
+
+type CreateOpenSearchPayload struct {
+	OpenSearch *OpenSearch `json:"openSearch"`
+}
+
+type OpenSearchMajorVersion string
+
+const (
+	OpenSearchMajorVersionV2 OpenSearchMajorVersion = "V2"
+)
+
+var AllOpenSearchMajorVersion = []OpenSearchMajorVersion{
+	OpenSearchMajorVersionV2,
+}
+
+func (e OpenSearchMajorVersion) IsValid() bool {
+	switch e {
+	case OpenSearchMajorVersionV2:
+		return true
+	}
+	return false
+}
+
+func (e OpenSearchMajorVersion) String() string {
+	return string(e)
+}
+
+func (e *OpenSearchMajorVersion) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OpenSearchMajorVersion(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OpenSearchMajorVersion", str)
+	}
+	return nil
+}
+
+func (e OpenSearchMajorVersion) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e OpenSearchMajorVersion) ToAivenString() string {
+	return strings.TrimLeft(string(e), "V")
+}
+
+func OpenSearchMajorVersionFromAivenString(s string) (OpenSearchMajorVersion, error) {
+	parts := strings.Split(s, ".")
+	if len(parts) == 0 {
+		return "", fmt.Errorf("unexpected Aiven OpenSearch version: %q", s)
+	}
+
+	v := OpenSearchMajorVersion("V" + parts[0])
+	if !v.IsValid() {
+		return "", fmt.Errorf("unsupported Aiven OpenSearch version: %q", s)
+	}
+
+	return v, nil
+}
+
+type OpenSearchSize string
+
+const (
+	OpenSearchSizeRAM4gb  OpenSearchSize = "RAM_4GB"
+	OpenSearchSizeRAM8gb  OpenSearchSize = "RAM_8GB"
+	OpenSearchSizeRAM16gb OpenSearchSize = "RAM_16GB"
+	OpenSearchSizeRAM32gb OpenSearchSize = "RAM_32GB"
+	OpenSearchSizeRAM64gb OpenSearchSize = "RAM_64GB"
+)
+
+var AllOpenSearchSize = []OpenSearchSize{
+	OpenSearchSizeRAM4gb,
+	OpenSearchSizeRAM8gb,
+	OpenSearchSizeRAM16gb,
+	OpenSearchSizeRAM32gb,
+	OpenSearchSizeRAM64gb,
+}
+
+func (e OpenSearchSize) IsValid() bool {
+	switch e {
+	case OpenSearchSizeRAM4gb, OpenSearchSizeRAM8gb, OpenSearchSizeRAM16gb, OpenSearchSizeRAM32gb, OpenSearchSizeRAM64gb:
+		return true
+	}
+	return false
+}
+
+func (e OpenSearchSize) String() string {
+	return string(e)
+}
+
+func (e *OpenSearchSize) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OpenSearchSize(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OpenSearchSize", str)
+	}
+	return nil
+}
+
+func (e OpenSearchSize) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type OpenSearchTier string
+
+const (
+	OpenSearchTierSingleNode       OpenSearchTier = "SINGLE_NODE"
+	OpenSearchTierHighAvailability OpenSearchTier = "HIGH_AVAILABILITY"
+)
+
+var AllOpenSearchTier = []OpenSearchTier{
+	OpenSearchTierSingleNode,
+	OpenSearchTierHighAvailability,
+}
+
+func (e OpenSearchTier) IsValid() bool {
+	switch e {
+	case OpenSearchTierSingleNode, OpenSearchTierHighAvailability:
+		return true
+	}
+	return false
+}
+
+func (e OpenSearchTier) String() string {
+	return string(e)
+}
+
+func (e *OpenSearchTier) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OpenSearchTier(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OpenSearchTier", str)
+	}
+	return nil
+}
+
+func (e OpenSearchTier) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type UpdateOpenSearchInput struct{ OpenSearchInput }
+
+type UpdateOpenSearchPayload struct {
+	OpenSearch *OpenSearch `json:"openSearch"`
+}
+
+type DeleteOpenSearchInput struct {
+	OpenSearchMetadataInput
+}
+
+type DeleteOpenSearchPayload struct {
+	OpenSearchDeleted *bool `json:"openSearchDeleted,omitempty"`
 }

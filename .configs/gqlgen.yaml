@@ -50,6 +50,7 @@ autobind:
   - "github.com/nais/api/internal/search"
   - "github.com/nais/api/internal/serviceaccount"
   - "github.com/nais/api/internal/servicemaintenance"
+  - "github.com/nais/api/internal/servicemaintenance/activitylog"
   - "github.com/nais/api/internal/status"
   - "github.com/nais/api/internal/team"
   - "github.com/nais/api/internal/unleash"

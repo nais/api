@@ -28,7 +28,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	servicemaintenance "github.com/nais/api/internal/servicemaintenance"
-	"github.com/nais/api/internal/thirdparty/aivencache"
+	"github.com/nais/api/internal/thirdparty/aiven"
 	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/user"
@@ -111,7 +111,7 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 		k8sRunner := apiRunner.NewK8sRunner(scheme, dir, clusters())
 		topic := newPubsubRunner()
 
-		fakeAivenClient := aivencache.NewFakeAivenClient()
+		fakeAivenClient := aiven.NewFakeAivenClient()
 
 		clusterConfig, err := kubernetes.CreateClusterConfigMap("dev-nais", clusters(), nil)
 		if err != nil {
@@ -188,7 +188,7 @@ func newGQLRunner(
 	watchers *watchers.Watchers,
 	watcherMgr *watcher.Manager,
 	clusterConfig kubernetes.ClusterConfigMap,
-	fakeAivenClient *aivencache.FakeAivenClient,
+	fakeAivenClient *aiven.FakeAivenClient,
 ) (spec.Runner, func(), error) {
 	log := logrus.New()
 	log.Out = io.Discard
@@ -225,6 +225,7 @@ func newGQLRunner(
 		clusterConfig,
 		smMgr,
 		fakeAivenClient,
+		aiven.Projects{},
 		vMgr,
 		config.TenantName,
 		clusters(),

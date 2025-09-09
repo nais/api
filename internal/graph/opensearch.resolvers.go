@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/opensearch"
@@ -18,6 +19,27 @@ func (r *applicationResolver) OpenSearch(ctx context.Context, obj *application.A
 
 func (r *jobResolver) OpenSearch(ctx context.Context, obj *job.Job) (*opensearch.OpenSearch, error) {
 	return opensearch.GetForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.OpenSearch)
+}
+
+func (r *mutationResolver) CreateOpenSearch(ctx context.Context, input opensearch.CreateOpenSearchInput) (*opensearch.CreateOpenSearchPayload, error) {
+	if err := authz.CanCreateOpenSearch(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+	return opensearch.Create(ctx, input)
+}
+
+func (r *mutationResolver) UpdateOpenSearch(ctx context.Context, input opensearch.UpdateOpenSearchInput) (*opensearch.UpdateOpenSearchPayload, error) {
+	if err := authz.CanUpdateOpenSearch(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+	return opensearch.Update(ctx, input)
+}
+
+func (r *mutationResolver) DeleteOpenSearch(ctx context.Context, input opensearch.DeleteOpenSearchInput) (*opensearch.DeleteOpenSearchPayload, error) {
+	if err := authz.CanDeleteOpenSearch(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+	return opensearch.Delete(ctx, input)
 }
 
 func (r *openSearchResolver) Team(ctx context.Context, obj *opensearch.OpenSearch) (*team.Team, error) {
@@ -47,6 +69,13 @@ func (r *openSearchResolver) Access(ctx context.Context, obj *opensearch.OpenSea
 
 func (r *openSearchResolver) Version(ctx context.Context, obj *opensearch.OpenSearch) (string, error) {
 	return opensearch.GetOpenSearchVersion(ctx, opensearch.AivenDataLoaderKey{
+		Project:     obj.AivenProject,
+		ServiceName: obj.Name,
+	})
+}
+
+func (r *openSearchResolver) MajorVersion(ctx context.Context, obj *opensearch.OpenSearch) (opensearch.OpenSearchMajorVersion, error) {
+	return opensearch.GetOpenSearchMajorVersion(ctx, opensearch.AivenDataLoaderKey{
 		Project:     obj.AivenProject,
 		ServiceName: obj.Name,
 	})

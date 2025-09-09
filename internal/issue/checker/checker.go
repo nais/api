@@ -14,7 +14,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/nais/api/internal/persistence/sqlinstance"
-	"github.com/nais/api/internal/thirdparty/aivencache"
+	"github.com/nais/api/internal/thirdparty/aiven"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	"github.com/sirupsen/logrus"
@@ -43,7 +43,7 @@ type Checker struct {
 }
 
 type Config struct {
-	AivenClient    aivencache.AivenClient
+	AivenClient    aiven.AivenClient
 	CloudSQLClient *sqlinstance.Client
 	Tenant         string
 	Clusters       []string

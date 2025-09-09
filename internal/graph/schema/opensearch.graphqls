@@ -65,6 +65,9 @@ type OpenSearch implements Persistence & Node {
 	): OpenSearchAccessConnection!
 	"Fetch version for the OpenSearch instance."
 	version: String!
+	tier: OpenSearchTier!
+	size: OpenSearchSize!
+	majorVersion: OpenSearchMajorVersion!
 }
 
 type OpenSearchAccess {
@@ -122,4 +125,203 @@ extend union SearchNode = OpenSearch
 
 extend enum SearchType {
 	OPENSEARCH
+}
+
+enum OpenSearchTier {
+	SINGLE_NODE
+	HIGH_AVAILABILITY
+}
+
+enum OpenSearchSize {
+	RAM_4GB
+	RAM_8GB
+	RAM_16GB
+	RAM_32GB
+	RAM_64GB
+}
+
+enum OpenSearchMajorVersion {
+	"OpenSearch Version 2.x"
+	V2
+}
+
+input CreateOpenSearchInput {
+	"Name of the OpenSearch instance."
+	name: String!
+	"The environment name that the OpenSearch instance belongs to."
+	environmentName: String!
+	"The team that owns the OpenSearch instance."
+	teamSlug: Slug!
+	"Tier of the OpenSearch instance."
+	tier: OpenSearchTier!
+	"Size of the OpenSearch instance."
+	size: OpenSearchSize!
+	"Major version of the OpenSearch instance."
+	version: OpenSearchMajorVersion
+}
+
+type CreateOpenSearchPayload {
+	"OpenSearch instance that was created."
+	openSearch: OpenSearch!
+}
+
+input UpdateOpenSearchInput {
+	"Name of the OpenSearch instance."
+	name: String!
+	"The environment name that the OpenSearch instance belongs to."
+	environmentName: String!
+	"The team that owns the OpenSearch instance."
+	teamSlug: Slug!
+	"Tier of the OpenSearch instance."
+	tier: OpenSearchTier!
+	"Size of the OpenSearch instance."
+	size: OpenSearchSize!
+	"Major version of the OpenSearch instance."
+	version: OpenSearchMajorVersion
+}
+
+type UpdateOpenSearchPayload {
+	"OpenSearch instance that was updated."
+	openSearch: OpenSearch!
+}
+
+input DeleteOpenSearchInput {
+	"Name of the OpenSearch instance."
+	name: String!
+	"The environment name that the OpenSearch instance belongs to."
+	environmentName: String!
+	"The team that owns the OpenSearch instance."
+	teamSlug: Slug!
+}
+
+type DeleteOpenSearchPayload {
+	"Whether or not the OpenSearch instance was deleted."
+	openSearchDeleted: Boolean
+}
+
+extend type Mutation {
+	"Create a new OpenSearch instance."
+	createOpenSearch(input: CreateOpenSearchInput!): CreateOpenSearchPayload!
+	"Update an existing OpenSearch instance."
+	updateOpenSearch(input: UpdateOpenSearchInput!): UpdateOpenSearchPayload!
+	"Delete an existing OpenSearch instance."
+	deleteOpenSearch(input: DeleteOpenSearchInput!): DeleteOpenSearchPayload!
+}
+
+extend enum ActivityLogEntryResourceType {
+	"All activity log entries related to OpenSearches will use this resource type."
+	OPENSEARCH
+}
+
+extend enum ActivityLogActivityType {
+	"OpenSearch was created."
+	OPENSEARCH_CREATED
+	"OpenSearch was updated."
+	OPENSEARCH_UPDATED
+	"OpenSearch was deleted."
+	OPENSEARCH_DELETED
+}
+
+type OpenSearchCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+}
+
+type OpenSearchUpdatedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"""
+	Data associated with the entry.
+	"""
+	data: OpenSearchUpdatedActivityLogEntryData!
+}
+
+type OpenSearchUpdatedActivityLogEntryDataUpdatedField {
+	"""
+	The name of the field.
+	"""
+	field: String!
+
+	"""
+	The old value of the field.
+	"""
+	oldValue: String
+
+	"""
+	The new value of the field.
+	"""
+	newValue: String
+}
+
+type OpenSearchUpdatedActivityLogEntryData {
+	updatedFields: [OpenSearchUpdatedActivityLogEntryDataUpdatedField!]!
+}
+
+type OpenSearchDeletedActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: ActivityLogEntryResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
 }

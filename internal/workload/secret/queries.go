@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"slices"
 	"strings"
-	"time"
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
@@ -14,6 +13,7 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
@@ -33,7 +33,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 	}
 
 	all, err := client.Namespace(teamSlug.String()).List(ctx, v1.ListOptions{
-		LabelSelector: fmt.Sprintf("%s=%s", secretLabelManagedByKey, secretLabelManagedByVal),
+		LabelSelector: kubernetes.IsManagedByConsoleLabelSelector(),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("listing secret: %w", err)
@@ -67,7 +67,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	retVal := make([]*Secret, 0)
 	for env, client := range clients {
 		secrets, err := client.Namespace(teamSlug.String()).List(ctx, v1.ListOptions{
-			LabelSelector: fmt.Sprintf("%s=%s", secretLabelManagedByKey, secretLabelManagedByVal),
+			LabelSelector: kubernetes.IsManagedByConsoleLabelSelector(),
 		})
 		if err != nil {
 			return nil, fmt.Errorf("listing secrets for environment %q: %w", env, err)
@@ -175,10 +175,11 @@ func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (
 			Name:        name,
 			Namespace:   teamSlug.String(),
 			Annotations: annotations(actor.User.Identity()),
-			Labels:      labels(),
 		},
 		Type: corev1.SecretTypeOpaque,
 	}
+
+	kubernetes.SetManagedByConsoleLabel(secret)
 
 	u, err := runtime.DefaultUnstructuredConverter.ToUnstructured(secret)
 	if err != nil {
@@ -254,7 +255,7 @@ func AddSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secret
 
 	actor := authz.ActorFromContext(ctx)
 	secret.Annotations = annotations(actor.User.Identity())
-	secret.Labels = labels()
+	kubernetes.SetManagedByConsoleLabel(secret)
 	secret.Data = secretTupleToMap(secretValues)
 
 	unstructeredMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(secret)
@@ -328,7 +329,7 @@ func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 
 	actor := authz.ActorFromContext(ctx)
 	secret.Annotations = annotations(actor.User.Identity())
-	secret.Labels = labels()
+	kubernetes.SetManagedByConsoleLabel(secret)
 	secret.Data = secretTupleToMap(secretValues)
 
 	unstructeredMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(secret)
@@ -393,7 +394,7 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 
 	actor := authz.ActorFromContext(ctx)
 	secret.Annotations = annotations(actor.User.Identity())
-	secret.Labels = labels()
+	kubernetes.SetManagedByConsoleLabel(secret)
 	secret.Data = secretMap
 
 	unstructeredMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(secret)
@@ -457,17 +458,10 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) e
 }
 
 func annotations(user string) map[string]string {
-	return map[string]string{
-		secretAnnotationLastModifiedBy: user,
-		secretAnnotationLastModifiedAt: time.Now().Format(time.RFC3339),
-		"reloader.stakater.com/match":  "true",
+	m := map[string]string{
+		"reloader.stakater.com/match": "true",
 	}
-}
-
-func labels() map[string]string {
-	return map[string]string{
-		secretLabelManagedByKey: secretLabelManagedByVal,
-	}
+	return kubernetes.WithCommonAnnotations(m, user)
 }
 
 func validateSecretValue(value *SecretValueInput) error {
@@ -491,13 +485,8 @@ func secretTupleToMap(data []*SecretValue) map[string][]byte {
 }
 
 func secretIsManagedByConsole(secret *unstructured.Unstructured) bool {
-	labels := secret.GetLabels()
-	if labels == nil {
-		labels = make(map[string]string)
-	}
+	hasConsoleLabel := kubernetes.HasManagedByConsoleLabel(secret)
 
-	secretLabel, ok := labels[secretLabelManagedByKey]
-	hasConsoleLabel := ok && secretLabel == secretLabelManagedByVal
 	secretType, _, _ := unstructured.NestedString(secret.Object, "type")
 	isOpaque := secretType == string(corev1.SecretTypeOpaque) || secretType == "kubernetes.io/Opaque"
 	hasOwnerReferences := len(secret.GetOwnerReferences()) > 0

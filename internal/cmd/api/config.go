@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/thirdparty/aiven"
 	"github.com/nais/api/internal/workload/logging"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
@@ -129,9 +130,15 @@ func (l loggingConfig) DefaultLogDestinations() []logging.SupportedLogDestinatio
 	return destinations
 }
 
-type Config struct {
+type Aiven struct {
 	// Aiven token is the token for the aiven token
-	AivenToken string `env:"AIVEN_TOKEN"`
+	Token string `env:"AIVEN_TOKEN"`
+
+	Projects aiven.Projects `env:"AIVEN_PROJECTS"`
+}
+
+type Config struct {
+	Aiven Aiven
 
 	// Tenant is the active tenant
 	Tenant string `env:"TENANT,default=dev-nais"`
