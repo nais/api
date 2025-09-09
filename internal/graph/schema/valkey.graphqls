@@ -150,30 +150,29 @@ enum ValkeySize {
 	RAM_200GB
 }
 
-# TODO(thokra): Double check descriptions
 enum ValkeyMaxMemoryPolicy {
-	"Evict keys using the least frequently used algorithm."
+	"Keeps frequently used keys; removes least frequently used (LFU) keys"
 	ALLKEYS_LFU
 
-	"Evict keys using the least recently used algorithm."
+	"Keeps most recently used keys; removes least recently used (LRU) keys"
 	ALLKEYS_LRU
 
-	"Evict keys randomly."
+	"Randomly removes keys to make space for the new data added."
 	ALLKEYS_RANDOM
 
-	"No eviction policy, will return an error when memory limit is reached."
+	"New values aren't saved when memory limit is reached. When a database uses replication, this applies to the primary database."
 	NO_EVICTION
 
-	"Evict volatile keys using the least frequently used algorithm."
+	"Removes least frequently used keys with a TTL set."
 	VOLATILE_LFU
 
-	"Evict volatile keys using the least recently used algorithm."
+	"Removes least recently used keys with a time-to-live (TTL) set."
 	VOLATILE_LRU
 
-	"Evict volatile keys randomly."
+	"Randomly removes keys with a TTL set."
 	VOLATILE_RANDOM
 
-	"Evict volatile keys based on their time to live."
+	"Removes keys with a TTL set, the keys with the shortest remaining time-to-live value first."
 	VOLATILE_TTL
 }
 
