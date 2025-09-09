@@ -3,41 +3,7 @@ local user = User.new("name", "auth@user.com", "sdf")
 Team.new("myteam", "purpose", "#slack_channel")
 local checker = IssueChecker.new()
 
-Test.gql("Workload with no issues ", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.query [[
-		query {
-			team(slug: "myteam") {
-				environment(name: "dev-gcp") {
-			  		application(name: "no-issues") {
-						issues {
-							nodes {
-								id
-							}
-				  		}
-					}
-			  	}
-			}
-		}
-	]]
-
-	t.check {
-		data = {
-			team = {
-				environment = {
-					application = {
-						issues = {
-							nodes = {},
-						},
-					},
-				},
-			},
-		},
-	}
-end)
-
-Test.gql("Application with issues", function(t)
+Test.gql("Workloads with issues", function(t)
 	checker:runChecks()
 	t.addHeader("x-user-email", user:email())
 
@@ -99,6 +65,53 @@ Test.gql("Application with issues", function(t)
 									__typename = "DeprecatedRegistryIssue",
 									message = "Image 'ghcr.io/navikt/app-name:latest' is using a deprecated registry",
 									severity = "WARNING",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("SqlInstance with issues", function(t)
+	checker:runChecks()
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				environment(name: "dev-gcp") {
+			  		sqlInstance(name: "stopped") {
+						issues {
+							nodes {
+								__typename
+								severity
+								message
+								... on SqlInstanceStateIssue {
+									state
+								}
+							}
+				  		}
+					}
+			  	}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				environment = {
+					sqlInstance = {
+						issues = {
+							nodes = {
+								{
+									__typename = "SqlInstanceStateIssue",
+									message = "The instance has been stopped.",
+									severity = "CRITICAL",
+									state = "STOPPED",
 								},
 							},
 						},

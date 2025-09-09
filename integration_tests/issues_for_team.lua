@@ -2,17 +2,47 @@ Helper.readK8sResources("k8s_resources/issues")
 local user = User.new("name", "auth@user.com", "sdf")
 Team.new("myteam", "purpose", "#slack_channel")
 local checker = IssueChecker.new()
+checker:runChecks()
 
-Test.gql("Team with no issues ", function(t)
+--DeprecatedIngressIssue
+--DeprecatedRegistryIssue
+--FailedJobRunsIssue
+--NoRunningInstancesIssue
+--OpenSearchIssue
+--SqlInstanceStateIssue
+--SqlInstanceVersionIssue
+--ValkeyIssue
+
+--OPENSEARCH
+--VALKEY
+--SQLINSTANCE_STATE
+--SQLINSTANCE_VERSION
+--DEPRECATED_INGRESS
+--DEPRECATED_REGISTRY
+--NO_RUNNING_INSTANCES
+--FAILED_JOB_RUNS
+
+Test.gql("DeprecatedIngressIssue", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query [[
 		query {
 			team(slug: "myteam") {
-				slug
-				issues {
-				  	nodes {
-				      id
+				issues(
+					filter: {
+						issueType: DEPRECATED_INGRESS
+					}
+				) {
+					nodes {
+						__typename
+						severity
+						message
+						... on DeprecatedIngressIssue {
+							ingresses
+							application {
+								name
+							}
+						}
 					}
 				}
 			}
@@ -22,65 +52,43 @@ Test.gql("Team with no issues ", function(t)
 	t.check {
 		data = {
 			team = {
-				slug = "myteam",
 				issues = {
-					nodes = {},
+					nodes = {
+						{
+							__typename = "DeprecatedIngressIssue",
+							application = {
+								name = "deprecated-app",
+							},
+							message = "Application is using deprecated ingresses: [https://foo.dev-gcp.nais.io https://bar.dev-gcp.nais.io]",
+							severity = "TODO",
+							ingresses = { "https://foo.dev-gcp.nais.io", "https://bar.dev-gcp.nais.io" },
+						},
+					},
 				},
 			},
 		},
 	}
 end)
 
-Test.gql("Team with issues", function(t)
-	checker:runChecks()
+Test.gql("DeprecatedRegistryIssue", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query [[
 		query {
 			team(slug: "myteam") {
-				slug
 				issues(
 					filter: {
-						environments: ["dev-gcp"]
+						issueType: DEPRECATED_REGISTRY
 					},
 					orderBy: {
-						field: RESOURCE_NAME, direction: ASC}
+						field: RESOURCE_NAME,
+						direction: ASC
+					}
 				) {
 					nodes {
 						__typename
-						teamEnvironment {
-							team {
-								slug
-							}
-							environment {
-								name
-							}
-						}
 						severity
 						message
-						... on DeprecatedIngressIssue {
-							ingresses
-							application {
-								name
-							}
-						}
-						... on OpenSearchIssue {
-							event
-							openSearch {
-								name
-							}
-						}
-						... on SqlInstanceStateIssue {
-							state
-							sqlInstance {
-								name
-							}
-						}
-						... on SqlInstanceVersionIssue {
-							sqlInstance {
-								name
-							}
-						}
 						... on DeprecatedRegistryIssue {
 							workload {
 								name
@@ -95,56 +103,14 @@ Test.gql("Team with issues", function(t)
 	t.check {
 		data = {
 			team = {
-				slug = "myteam",
 				issues = {
 					nodes = {
-						{
-							__typename = "SqlInstanceVersionIssue",
-							message = "The instance is running a deprecated version of PostgreSQL: POSTGRES_12",
-							severity = "WARNING",
-							sqlInstance = {
-								name = "deprecated",
-							},
-							teamEnvironment = {
-								environment = {
-									name = "dev-gcp",
-								},
-								team = {
-									slug = "myteam",
-								},
-							},
-						},
-						{
-							__typename = "DeprecatedIngressIssue",
-							application = {
-								name = "deprecated-app",
-							},
-							message = "Application is using deprecated ingresses: [https://foo.dev-gcp.nais.io https://bar.dev-gcp.nais.io]",
-							severity = "TODO",
-							ingresses = { "https://foo.dev-gcp.nais.io", "https://bar.dev-gcp.nais.io" },
-							teamEnvironment = {
-								environment = {
-									name = "dev-gcp",
-								},
-								team = {
-									slug = "myteam",
-								},
-							},
-						},
 						{
 							__typename = "DeprecatedRegistryIssue",
 							message = "Image 'deprecated.dev/nais/navikt/app-name:latest' is using a deprecated registry",
 							severity = "WARNING",
 							workload = {
 								name = "deprecated-app",
-							},
-							teamEnvironment = {
-								environment = {
-									name = "dev-gcp",
-								},
-								team = {
-									slug = "myteam",
-								},
 							},
 						},
 						{
@@ -154,32 +120,142 @@ Test.gql("Team with issues", function(t)
 							workload = {
 								name = "deprecated-job",
 							},
-							teamEnvironment = {
-								environment = {
-									name = "dev-gcp",
-								},
-								team = {
-									slug = "myteam",
-								},
-							},
 						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("FailedJobRunsIssue", function(t)
+	checker:runChecks()
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				issues(
+					filter: {
+						issueType: FAILED_JOB_RUNS
+					},
+				) {
+					nodes {
+						__typename
+						severity
+						message
+						... on FailedJobRunsIssue {
+							job {
+								name
+							}
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				issues = {
+					nodes = {
+						--	{
+						--		__typename = "FailedJobRunsIssue",
+						--		message = "TODO",
+						--		severity = "WARNING",
+						--		job = {
+						--			name = "deprecated-job",
+						--		},
+						--	},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("NoRunningInstancesIssue", function(t)
+	checker:runChecks()
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				issues(
+					filter: {
+						issueType: NO_RUNNING_INSTANCES
+					},
+				) {
+					nodes {
+						__typename
+						severity
+						message
+						... on NoRunningInstancesIssue {
+							workload {
+								name
+							}
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				issues = {
+					nodes = {
 						{
-							__typename = "SqlInstanceStateIssue",
-							sqlInstance = {
-								name = "maintenance",
-							},
+							__typename = "NoRunningInstancesIssue",
+							message = "Application has no running instances",
 							severity = "CRITICAL",
-							state = "MAINTENANCE",
-							message = "The instance is down for maintenance.",
-							teamEnvironment = {
-								environment = {
-									name = "dev-gcp",
-								},
-								team = {
-									slug = "myteam",
-								},
+							workload = {
+								name = "missing-instances",
 							},
 						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("OpenSearchIssue", function(t)
+	checker:runChecks()
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				issues(
+					filter: {
+						issueType: OPENSEARCH,
+						environments: ["dev-gcp"]
+					},
+				) {
+					nodes {
+						__typename
+						severity
+						message
+						... on  OpenSearchIssue {
+							event
+							openSearch {
+								name
+							}
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				issues = {
+					nodes = {
 						{
 							__typename = "OpenSearchIssue",
 							message = "error message from aiven",
@@ -188,14 +264,59 @@ Test.gql("Team with issues", function(t)
 								name = "opensearch-myteam-name",
 							},
 							severity = "CRITICAL",
-							teamEnvironment = {
-								environment = {
-									name = "dev-gcp",
-								},
-								team = {
-									slug = "myteam",
-								},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("SqlInstanceStateIssue", function(t)
+	checker:runChecks()
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				issues(
+					filter: {
+						issueType: SQLINSTANCE_STATE
+					},
+					orderBy: {
+						field: RESOURCE_NAME
+						direction: ASC
+					}
+				) {
+					nodes {
+						__typename
+						severity
+						message
+						... on  SqlInstanceStateIssue {
+							state
+							sqlInstance {
+								name
+							}
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				issues = {
+					nodes = {
+						{
+							__typename = "SqlInstanceStateIssue",
+							sqlInstance = {
+								name = "maintenance",
 							},
+							severity = "CRITICAL",
+							state = "MAINTENANCE",
+							message = "The instance is down for maintenance.",
 						},
 						{
 							__typename = "SqlInstanceStateIssue",
@@ -205,13 +326,52 @@ Test.gql("Team with issues", function(t)
 								name = "stopped",
 							},
 							state = "STOPPED",
-							teamEnvironment = {
-								environment = {
-									name = "dev-gcp",
-								},
-								team = {
-									slug = "myteam",
-								},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("SqlInstanceVersionIssue", function(t)
+	checker:runChecks()
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				issues(
+					filter: {
+						issueType: SQLINSTANCE_VERSION
+					},
+				) {
+					nodes {
+						__typename
+						severity
+						message
+						... on  SqlInstanceVersionIssue {
+							sqlInstance {
+								name
+							}
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				issues = {
+					nodes = {
+						{
+							__typename = "SqlInstanceVersionIssue",
+							message = "The instance is running a deprecated version of PostgreSQL: POSTGRES_12",
+							severity = "WARNING",
+							sqlInstance = {
+								name = "deprecated",
 							},
 						},
 					},
