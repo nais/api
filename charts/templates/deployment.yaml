@@ -40,7 +40,7 @@ spec:
             - name: COST_DATA_IMPORT_ENABLED
               value: "true"
             - name: AIVEN_PROJECTS
-              value: "{{ .Values.aiven.projects | toJson | quote }}"
+              value: {{ .Values.aiven.projects | toJson | squote }}
             - name: VULNERABILITIES_ENDPOINT
               value: "{{ .Values.v13s.endpoint }}"
             - name: VULNERABILITIES_SERVICE_ACCOUNT
