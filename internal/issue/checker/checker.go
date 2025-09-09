@@ -190,22 +190,31 @@ func (c *Checker) runChecks(ctx context.Context) {
 }
 
 func (c *Checker) recordIssues(ctx context.Context, issues []Issue) {
-	compoundCounter := make(map[string]int)
+	type compoundKey struct {
+		IssueType    string
+		ResourceType string
+		Severity     string
+		Env          string
+	}
+	compoundCounter := make(map[compoundKey]int)
 	for _, issue := range issues {
-		key := fmt.Sprintf("issue_type:%s,resource_type:%s,severity:%s,environment:%s", issue.IssueType.String(), issue.ResourceType.String(), issue.Severity.String(), issue.Env)
+		key := compoundKey{
+			IssueType:    issue.IssueType.String(),
+			ResourceType: issue.ResourceType.String(),
+			Severity:     issue.Severity.String(),
+			Env:          issue.Env,
+		}
 		compoundCounter[key]++
 	}
 	for key, count := range compoundCounter {
-		var issueType, resourceType, severity, env string
-		fmt.Sscanf(key, "issue_type:%s,resource_type:%s,severity:%s,environment:%s", &issueType, &resourceType, &severity, &env)
 		c.issuesGauge.Record(
 			ctx,
 			int64(count),
 			metric.WithAttributes(
-				attribute.String("issue_type", issueType),
-				attribute.String("resource_type", resourceType),
-				attribute.String("severity", severity),
-				attribute.String("environment", env),
+				attribute.String("issue_type", key.IssueType),
+				attribute.String("resource_type", key.ResourceType),
+				attribute.String("severity", key.Severity),
+				attribute.String("environment", key.Env),
 			),
 		)
 	}
