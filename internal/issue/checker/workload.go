@@ -15,7 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/selection"
 )
 
-var deprecatedIngresses = map[string][]string{
+var deprecatedIngressList = map[string][]string{
 	"dev-fss": {
 		"adeo.no",
 		"intern.dev.adeo.no",
@@ -63,16 +63,16 @@ type Workload struct {
 
 var _ check = Workload{}
 
-func (d Workload) Run(ctx context.Context) ([]Issue, error) {
+func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 	var ret []Issue
-	for _, app := range d.ApplicationLister.List(ctx) {
+	for _, app := range w.ApplicationLister.List(ctx) {
 		env := environmentmapper.EnvironmentName(app.Cluster)
 		ret = deprecatedIngress(app.Obj, env, ret)
 		ret = deprecatedRegistry(app.Obj.Spec.Image, app.Obj.Name, app.Obj.Namespace, env, issue.ResourceTypeApplication, ret)
-		ret = d.noRunningInstances(app.Obj, app.Obj.Namespace, env, ret)
+		ret = w.noRunningInstances(app.Obj, app.Obj.Namespace, env, ret)
 	}
 
-	for _, job := range d.JobLister.List(ctx) {
+	for _, job := range w.JobLister.List(ctx) {
 		env := environmentmapper.EnvironmentName(job.Cluster)
 		ret = deprecatedRegistry(job.Obj.Spec.Image, job.Obj.Name, job.Obj.Namespace, env, issue.ResourceTypeJob, ret)
 	}
@@ -151,7 +151,7 @@ func deprecatedIngress(app *nais_io_v1alpha1.Application, env string, ret []Issu
 		ret := make([]string, 0)
 		for _, ingress := range ingresses {
 			i := strings.Join(strings.Split(string(ingress), ".")[1:], ".")
-			for _, deprecatedIngress := range deprecatedIngresses[env] {
+			for _, deprecatedIngress := range deprecatedIngressList[env] {
 				if strings.HasPrefix(i, deprecatedIngress) {
 					ret = append(ret, string(ingress))
 				}
