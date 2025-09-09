@@ -37,7 +37,7 @@ func (q *Queries) GetIssueByID(ctx context.Context, id uuid.UUID) (*Issue, error
 	return &i, err
 }
 
-const listIssuesForTeam = `-- name: ListIssuesForTeam :many
+const listIssues = `-- name: ListIssues :many
 SELECT
 	id, issue_type, resource_name, resource_type, team, env, severity, message, issue_details, created_at,
 	COUNT(*) OVER () AS total_count
@@ -61,57 +61,62 @@ WHERE
 		$5::TEXT IS NULL
 		OR resource_type = $5::TEXT
 	)
+	AND (
+		$6::TEXT IS NULL
+		OR resource_name = $6::TEXT
+	)
 ORDER BY
 	CASE
-		WHEN $6::TEXT = 'env:asc' THEN env
+		WHEN $7::TEXT = 'env:asc' THEN env
 	END ASC,
 	CASE
-		WHEN $6::TEXT = 'env:desc' THEN env
+		WHEN $7::TEXT = 'env:desc' THEN env
 	END DESC,
 	CASE
-		WHEN $6::TEXT = 'issue_type:asc' THEN issue_type
+		WHEN $7::TEXT = 'issue_type:asc' THEN issue_type
 	END ASC,
 	CASE
-		WHEN $6::TEXT = 'issue_type:desc' THEN issue_type
+		WHEN $7::TEXT = 'issue_type:desc' THEN issue_type
 	END DESC,
 	CASE
-		WHEN $6::TEXT = 'resource_type:asc' THEN resource_type
+		WHEN $7::TEXT = 'resource_type:asc' THEN resource_type
 	END ASC,
 	CASE
-		WHEN $6::TEXT = 'resource_type:desc' THEN resource_type
+		WHEN $7::TEXT = 'resource_type:desc' THEN resource_type
 	END DESC,
 	CASE
-		WHEN $6::TEXT = 'resource_name:asc' THEN resource_name
+		WHEN $7::TEXT = 'resource_name:asc' THEN resource_name
 	END ASC,
 	CASE
-		WHEN $6::TEXT = 'resource_name:desc' THEN resource_name
+		WHEN $7::TEXT = 'resource_name:desc' THEN resource_name
 	END DESC,
 	CASE
-		WHEN $6::TEXT = 'severity:asc' THEN severity
+		WHEN $7::TEXT = 'severity:asc' THEN severity
 	END ASC,
 	CASE
-		WHEN $6::TEXT = 'severity:desc' THEN severity
+		WHEN $7::TEXT = 'severity:desc' THEN severity
 	END DESC,
 	severity,
 	id
 OFFSET
-	$7
-LIMIT
 	$8
+LIMIT
+	$9
 `
 
-type ListIssuesForTeamParams struct {
+type ListIssuesParams struct {
 	Team         string
 	Env          []string
 	IssueType    *string
 	Severity     *string
 	ResourceType *string
+	ResourceName *string
 	OrderBy      string
 	Offset       int32
 	Limit        int32
 }
 
-type ListIssuesForTeamRow struct {
+type ListIssuesRow struct {
 	ID           uuid.UUID
 	IssueType    string
 	ResourceName string
@@ -125,13 +130,14 @@ type ListIssuesForTeamRow struct {
 	TotalCount   int64
 }
 
-func (q *Queries) ListIssuesForTeam(ctx context.Context, arg ListIssuesForTeamParams) ([]*ListIssuesForTeamRow, error) {
-	rows, err := q.db.Query(ctx, listIssuesForTeam,
+func (q *Queries) ListIssues(ctx context.Context, arg ListIssuesParams) ([]*ListIssuesRow, error) {
+	rows, err := q.db.Query(ctx, listIssues,
 		arg.Team,
 		arg.Env,
 		arg.IssueType,
 		arg.Severity,
 		arg.ResourceType,
+		arg.ResourceName,
 		arg.OrderBy,
 		arg.Offset,
 		arg.Limit,
@@ -140,9 +146,9 @@ func (q *Queries) ListIssuesForTeam(ctx context.Context, arg ListIssuesForTeamPa
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*ListIssuesForTeamRow{}
+	items := []*ListIssuesRow{}
 	for rows.Next() {
-		var i ListIssuesForTeamRow
+		var i ListIssuesRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.IssueType,

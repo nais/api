@@ -7,7 +7,7 @@ WHERE
 	id = @id
 ;
 
--- name: ListIssuesForTeam :many
+-- name: ListIssues :many
 SELECT
 	*,
 	COUNT(*) OVER () AS total_count
@@ -30,6 +30,10 @@ WHERE
 	AND (
 		sqlc.narg('resource_type')::TEXT IS NULL
 		OR resource_type = sqlc.narg('resource_type')::TEXT
+	)
+	AND (
+		sqlc.narg('resource_name')::TEXT IS NULL
+		OR resource_name = sqlc.narg('resource_name')::TEXT
 	)
 ORDER BY
 	CASE

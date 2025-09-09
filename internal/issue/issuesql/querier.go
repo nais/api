@@ -10,7 +10,7 @@ import (
 
 type Querier interface {
 	GetIssueByID(ctx context.Context, id uuid.UUID) (*Issue, error)
-	ListIssuesForTeam(ctx context.Context, arg ListIssuesForTeamParams) ([]*ListIssuesForTeamRow, error)
+	ListIssues(ctx context.Context, arg ListIssuesParams) ([]*ListIssuesRow, error)
 }
 
 var _ Querier = (*Queries)(nil)

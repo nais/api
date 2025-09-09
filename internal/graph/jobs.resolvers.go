@@ -8,6 +8,7 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/status"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
@@ -66,6 +67,21 @@ func (r *jobResolver) ActivityLog(ctx context.Context, obj *job.Job, first *int,
 		return nil, err
 	}
 	return activitylog.ListForResourceTeamAndEnvironment(ctx, "JOB", obj.TeamSlug, obj.Name, obj.EnvironmentName, page, filter)
+}
+
+func (r *jobResolver) Issues(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder) (*pagination.Connection[issue.Issue], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	jobType := issue.ResourceTypeJob
+	filter := &issue.IssueFilter{
+		ResourceName: &obj.Name,
+		ResourceType: &jobType,
+	}
+
+	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, filter)
 }
 
 func (r *jobRunResolver) Duration(ctx context.Context, obj *job.JobRun) (int, error) {

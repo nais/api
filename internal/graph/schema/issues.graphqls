@@ -29,6 +29,9 @@ input IssueOrder {
 }
 
 input IssueFilter {
+	"Filter by resource name."
+	resourceName: String
+
 	"Filter by resource type."
 	resourceType: ResourceType
 
@@ -76,8 +79,7 @@ type IssueEdge {
 
 interface Issue implements Node {
 	id: ID!
-	environment: String!
-	team: Slug!
+	teamEnvironment: TeamEnvironment!
 	severity: Severity!
 	message: String!
 }
@@ -108,8 +110,7 @@ enum IssueType {
 
 type OpenSearchIssue implements Issue & Node {
 	id: ID!
-	environment: String!
-	team: Slug!
+	teamEnvironment: TeamEnvironment!
 	severity: Severity!
 	message: String!
 
@@ -119,8 +120,7 @@ type OpenSearchIssue implements Issue & Node {
 
 type ValkeyIssue implements Issue & Node {
 	id: ID!
-	environment: String!
-	team: Slug!
+	teamEnvironment: TeamEnvironment!
 	severity: Severity!
 	message: String!
 
@@ -130,8 +130,7 @@ type ValkeyIssue implements Issue & Node {
 
 type SqlInstanceVersionIssue implements Issue & Node {
 	id: ID!
-	environment: String!
-	team: Slug!
+	teamEnvironment: TeamEnvironment!
 	severity: Severity!
 	message: String!
 
@@ -140,8 +139,7 @@ type SqlInstanceVersionIssue implements Issue & Node {
 
 type SqlInstanceStateIssue implements Issue & Node {
 	id: ID!
-	environment: String!
-	team: Slug!
+	teamEnvironment: TeamEnvironment!
 	severity: Severity!
 	message: String!
 
@@ -151,8 +149,7 @@ type SqlInstanceStateIssue implements Issue & Node {
 
 type DeprecatedIngressIssue implements Issue & Node {
 	id: ID!
-	environment: String!
-	team: Slug!
+	teamEnvironment: TeamEnvironment!
 	severity: Severity!
 	message: String!
 
@@ -162,8 +159,16 @@ type DeprecatedIngressIssue implements Issue & Node {
 
 type DeprecatedRegistryIssue implements Issue & Node {
 	id: ID!
-	environment: String!
-	team: Slug!
+	teamEnvironment: TeamEnvironment!
+	severity: Severity!
+	message: String!
+
+	workload: Workload!
+}
+
+type NoRunningInstancesIssue implements Issue & Node {
+	id: ID!
+	teamEnvironment: TeamEnvironment!
 	severity: Severity!
 	message: String!
 

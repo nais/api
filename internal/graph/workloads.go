@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
@@ -32,5 +33,16 @@ func getWorkload(ctx context.Context, workloadReference *workload.Reference, tea
 		return application.Get(ctx, teamSlug, environmentName, workloadReference.Name)
 	default:
 		return nil, fmt.Errorf("unsupported workload reference kind: %v", workloadReference.Type)
+	}
+}
+
+func getWorkloadByResourceType(ctx context.Context, teamSlug slug.Slug, environmentName, resourceName string, resourceType issue.ResourceType) (workload.Workload, error) {
+	switch resourceType {
+	case issue.ResourceTypeApplication:
+		return application.Get(ctx, teamSlug, environmentName, resourceName)
+	case issue.ResourceTypeJob:
+		return job.Get(ctx, teamSlug, environmentName, resourceName)
+	default:
+		return nil, fmt.Errorf("unknown resource type: %s", resourceType)
 	}
 }

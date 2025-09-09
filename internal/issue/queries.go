@@ -43,8 +43,8 @@ func GetByIdent(ctx context.Context, id ident.Ident) (Issue, error) {
 	return convert(issue)
 }
 
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *IssueOrder, filter *IssueFilter) (*pagination.Connection[Issue], error) {
-	params := issuesql.ListIssuesForTeamParams{
+func ListIssues(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *IssueOrder, filter *IssueFilter) (*pagination.Connection[Issue], error) {
+	params := issuesql.ListIssuesParams{
 		Team:    teamSlug.String(),
 		Offset:  page.Offset(),
 		Limit:   page.Limit(),
@@ -56,9 +56,10 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		params.ResourceType = (*string)(filter.ResourceType)
 		params.IssueType = (*string)(filter.IssueType)
 		params.Severity = (*string)(filter.Severity)
+		params.ResourceName = filter.ResourceName
 	}
 
-	ret, err := db(ctx).ListIssuesForTeam(ctx, params)
+	ret, err := db(ctx).ListIssues(ctx, params)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +69,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		total = ret[0].TotalCount
 	}
 
-	return pagination.NewConvertConnectionWithError(ret, page, total, func(from *issuesql.ListIssuesForTeamRow) (Issue, error) {
+	return pagination.NewConvertConnectionWithError(ret, page, total, func(from *issuesql.ListIssuesRow) (Issue, error) {
 		iss := &issuesql.Issue{
 			ID:           from.ID,
 			IssueType:    from.IssueType,
@@ -87,13 +88,13 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 
 func convert(issue *issuesql.Issue) (Issue, error) {
 	base := Base{
-		ID:           newIdent(issue.ID.String()),
-		ResourceName: issue.ResourceName,
-		ResourceType: ResourceType(issue.ResourceType),
-		Environment:  issue.Env,
-		Team:         slug.Slug(issue.Team),
-		Severity:     Severity(issue.Severity),
-		Message:      issue.Message,
+		ID:              newIdent(issue.ID.String()),
+		ResourceName:    issue.ResourceName,
+		ResourceType:    ResourceType(issue.ResourceType),
+		EnvironmentName: issue.Env,
+		TeamSlug:        slug.Slug(issue.Team),
+		Severity:        Severity(issue.Severity),
+		Message:         issue.Message,
 	}
 
 	switch IssueType(issue.IssueType) {
@@ -140,6 +141,10 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 		return &DeprecatedIngressIssue{
 			Base:      base,
 			Ingresses: d.Ingresses,
+		}, nil
+	case IssueTypeNoRunningInstances:
+		return &NoRunningInstancesIssue{
+			Base: base,
 		}, nil
 	}
 

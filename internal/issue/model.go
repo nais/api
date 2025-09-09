@@ -19,13 +19,13 @@ type Issue interface {
 }
 
 type Base struct {
-	ID           ident.Ident  `json:"id"`
-	Environment  string       `json:"environment"`
-	Team         slug.Slug    `json:"team"`
-	Severity     Severity     `json:"severity"`
-	Message      string       `json:"message"`
-	ResourceName string       `json:"-"`
-	ResourceType ResourceType `json:"-"`
+	ID              ident.Ident  `json:"id"`
+	Severity        Severity     `json:"severity"`
+	Message         string       `json:"message"`
+	TeamSlug        slug.Slug    `json:"-"`
+	EnvironmentName string       `json:"-"`
+	ResourceName    string       `json:"-"`
+	ResourceType    ResourceType `json:"-"`
 }
 
 type OpenSearchIssue struct {
@@ -226,6 +226,8 @@ func (e IssueType) MarshalGQL(w io.Writer) {
 }
 
 type IssueFilter struct {
+	// Filter by resource name.
+	ResourceName *string `json:"resourceName,omitempty"`
 	// Filter by resource type.
 	ResourceType *ResourceType `json:"resourceType,omitempty"`
 	// Filter by environment.
@@ -315,3 +317,11 @@ type DeprecatedRegistryIssue struct {
 func (DeprecatedRegistryIssue) IsIssue() {}
 
 func (DeprecatedRegistryIssue) IsNode() {}
+
+type NoRunningInstancesIssue struct {
+	Base
+}
+
+func (NoRunningInstancesIssue) IsIssue() {}
+
+func (NoRunningInstancesIssue) IsNode() {}

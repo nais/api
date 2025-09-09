@@ -8,6 +8,7 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/status"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
@@ -71,6 +72,21 @@ func (r *applicationResolver) ActivityLog(ctx context.Context, obj *application.
 		return nil, err
 	}
 	return activitylog.ListForResourceTeamAndEnvironment(ctx, "APP", obj.TeamSlug, obj.Name, obj.EnvironmentName, page, filter)
+}
+
+func (r *applicationResolver) Issues(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder) (*pagination.Connection[issue.Issue], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	t := issue.ResourceTypeApplication
+	filter := &issue.IssueFilter{
+		ResourceName: &obj.Name,
+		ResourceType: &t,
+	}
+
+	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, filter)
 }
 
 func (r *deleteApplicationPayloadResolver) Team(ctx context.Context, obj *application.DeleteApplicationPayload) (*team.Team, error) {
