@@ -2,15 +2,15 @@ package checker
 
 import (
 	"context"
+	"runtime"
 	"slices"
-	"time"
+	"sync"
 
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/sirupsen/logrus"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/metric"
+	"google.golang.org/api/sqladmin/v1"
 )
 
 var deprecatedVersions = []string{
@@ -42,24 +42,11 @@ func (s *sqlInstanceLister) List(ctx context.Context) []*sqlinstance.SQLInstance
 }
 
 func (s SQLInstance) Run(ctx context.Context) ([]Issue, error) {
-	// set buckets for histogram
-	durationBuckets := []float64{10, 50, 100, 200, 500, 1000, 2000, 5000, 10000}
-	duration, err := otel.GetMeterProvider().Meter("nais_api_issues").Int64Histogram("checker_sqlinstance_duration_milliseconds", metric.WithExplicitBucketBoundaries(durationBuckets...))
-	if err != nil {
-		s.Log.WithError(err).Error("creating metric")
-	}
-
 	ret := make([]Issue, 0)
 
-	for _, instance := range s.SQLInstanceLister.List(ctx) {
-		now := time.Now()
-		i, err := s.Client.Admin.GetInstance(ctx, instance.ProjectID, instance.Name)
-		if err != nil {
-			s.Log.WithError(err).WithField("instance", instance.Name).Error("getting sqlinstance")
-			continue
-		}
-		duration.Record(ctx, time.Since(now).Milliseconds())
+	instances := s.instances(ctx)
 
+	for instance, i := range instances {
 		if slices.Contains(deprecatedVersions, i.DatabaseVersion) {
 			ret = append(ret, Issue{
 				ResourceName: instance.Name,
@@ -93,6 +80,34 @@ func (s SQLInstance) Run(ctx context.Context) ([]Issue, error) {
 	}
 
 	return ret, nil
+}
+
+// instances fetches all instances in parallel from the Google API mapping them to the corresponding SQLInstance
+func (s SQLInstance) instances(ctx context.Context) map[*sqlinstance.SQLInstance]sqladmin.DatabaseInstance {
+	ret := make(map[*sqlinstance.SQLInstance]sqladmin.DatabaseInstance)
+
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	sem := make(chan struct{}, runtime.NumCPU())
+
+	for _, instance := range s.SQLInstanceLister.List(ctx) {
+		wg.Add(1)
+		go func(instance *sqlinstance.SQLInstance) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+			i, err := s.Client.Admin.GetInstance(ctx, instance.ProjectID, instance.Name)
+			if err != nil {
+				s.Log.WithError(err).WithField("instance", instance.Name).Error("getting sqlinstance")
+				return
+			}
+			mu.Lock()
+			ret[instance] = *i
+			mu.Unlock()
+		}(instance)
+	}
+	wg.Wait()
+	return ret
 }
 
 func parseState(state, ap string) (string, string, issue.Severity) {
