@@ -10,6 +10,7 @@ import (
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/metric"
 )
 
 var deprecatedVersions = []string{
@@ -41,7 +42,10 @@ func (s *sqlInstanceLister) List(ctx context.Context) []*sqlinstance.SQLInstance
 }
 
 func (s SQLInstance) Run(ctx context.Context) ([]Issue, error) {
-	duration, err := otel.GetMeterProvider().Meter("nais_api_issues").Float64Histogram("checker_sqlinstance_duration_seconds")
+	// set buckets for histogram
+	durationBuckets := []float64{10, 50, 100, 200, 500, 1000, 2000, 5000, 10000}
+	duration, err := otel.GetMeterProvider().Meter("nais_api_issues").Int64Histogram("checker_sqlinstance_duration_milliseconds", metric.WithExplicitBucketBoundaries(durationBuckets...))
+
 	if err != nil {
 		s.Log.WithError(err).Error("creating metric")
 	}
@@ -55,7 +59,7 @@ func (s SQLInstance) Run(ctx context.Context) ([]Issue, error) {
 			s.Log.WithError(err).WithField("instance", instance.Name).Error("getting sqlinstance")
 			continue
 		}
-		duration.Record(ctx, time.Since(now).Seconds())
+		duration.Record(ctx, time.Since(now).Milliseconds())
 
 		if slices.Contains(deprecatedVersions, i.DatabaseVersion) {
 			ret = append(ret, Issue{
