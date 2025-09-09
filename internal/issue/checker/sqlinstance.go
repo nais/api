@@ -9,6 +9,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel"
 )
 
 var deprecatedVersions = []string{
@@ -40,6 +41,11 @@ func (s *sqlInstanceLister) List(ctx context.Context) []*sqlinstance.SQLInstance
 }
 
 func (s SQLInstance) Run(ctx context.Context) ([]Issue, error) {
+	duration, err := otel.GetMeterProvider().Meter("nais_api_issues").Float64Histogram("checker_sqlinstance_duration_seconds")
+	if err != nil {
+		s.Log.WithError(err).Error("creating metric")
+	}
+
 	ret := make([]Issue, 0)
 
 	for _, instance := range s.SQLInstanceLister.List(ctx) {
@@ -49,7 +55,7 @@ func (s SQLInstance) Run(ctx context.Context) ([]Issue, error) {
 			s.Log.WithError(err).WithField("instance", instance.Name).Error("getting sqlinstance")
 			continue
 		}
-		s.Log.WithField("instance", instance.Name).WithField("project", instance.ProjectID).WithField("duration", time.Since(now).Seconds()).Debug("Fetched sqlinstance")
+		duration.Record(ctx, time.Since(now).Seconds())
 
 		if slices.Contains(deprecatedVersions, i.DatabaseVersion) {
 			ret = append(ret, Issue{
