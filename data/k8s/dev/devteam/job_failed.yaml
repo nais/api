@@ -228,7 +228,7 @@ status:
       status: "True"
       type: Failed
   ready: 0
+  failed: 30
   startTime: "2025-01-24T13:46:00Z"
-  succeeded: 1
   terminating: 0
   uncountedTerminatedPods: {}

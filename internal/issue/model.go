@@ -185,6 +185,7 @@ const (
 	IssueTypeDeprecatedIngress  IssueType = "DEPRECATED_INGRESS"
 	IssueTypeDeprecatedRegistry IssueType = "DEPRECATED_REGISTRY"
 	IssueTypeNoRunningInstances IssueType = "NO_RUNNING_INSTANCES"
+	IssueTypeFailedJobRuns      IssueType = "FAILED_JOB_RUNS"
 )
 
 var AllIssueType = []IssueType{
@@ -194,11 +195,12 @@ var AllIssueType = []IssueType{
 	IssueTypeDeprecatedIngress,
 	IssueTypeDeprecatedRegistry,
 	IssueTypeNoRunningInstances,
+	IssueTypeFailedJobRuns,
 }
 
 func (e IssueType) IsValid() bool {
 	switch e {
-	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances:
+	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeFailedJobRuns:
 		return true
 	}
 	return false
@@ -325,3 +327,11 @@ type NoRunningInstancesIssue struct {
 func (NoRunningInstancesIssue) IsIssue() {}
 
 func (NoRunningInstancesIssue) IsNode() {}
+
+type FailedJobRunsIssue struct {
+	Base
+}
+
+func (FailedJobRunsIssue) IsIssue() {}
+
+func (FailedJobRunsIssue) IsNode() {}

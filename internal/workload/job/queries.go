@@ -92,7 +92,7 @@ func GetJobRun(ctx context.Context, teamSlug slug.Slug, environment, name string
 	if err != nil {
 		return nil, err
 	}
-	return toGraphJobRun(run, environment), nil
+	return ToGraphJobRun(run, environment), nil
 }
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*Job, error) {
@@ -137,7 +137,7 @@ func Runs(ctx context.Context, teamSlug slug.Slug, environment, jobName string, 
 
 	ret := make([]*JobRun, len(allRuns))
 	for i, run := range allRuns {
-		ret[i] = toGraphJobRun(run.Obj, run.Cluster)
+		ret[i] = ToGraphJobRun(run.Obj, run.Cluster)
 	}
 
 	slices.SortStableFunc(ret, func(a, b *JobRun) int {
@@ -255,7 +255,7 @@ func Trigger(ctx context.Context, teamSlug slug.Slug, environmentName, name, run
 		return nil, err
 	}
 
-	return toGraphJobRun(jobRunBatch, environmentName), nil
+	return ToGraphJobRun(jobRunBatch, environmentName), nil
 }
 
 // createJobFromCronJob creates a Job from a CronJob.

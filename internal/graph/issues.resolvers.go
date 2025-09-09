@@ -12,6 +12,7 @@ import (
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
+	"github.com/nais/api/internal/workload/job"
 )
 
 func (r *deprecatedIngressIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.DeprecatedIngressIssue) (*team.TeamEnvironment, error) {
@@ -28,6 +29,14 @@ func (r *deprecatedRegistryIssueResolver) TeamEnvironment(ctx context.Context, o
 
 func (r *deprecatedRegistryIssueResolver) Workload(ctx context.Context, obj *issue.DeprecatedRegistryIssue) (workload.Workload, error) {
 	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
+}
+
+func (r *failedJobRunsIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.FailedJobRunsIssue) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *failedJobRunsIssueResolver) Job(ctx context.Context, obj *issue.FailedJobRunsIssue) (*job.Job, error) {
+	return job.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName)
 }
 
 func (r *noRunningInstancesIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.NoRunningInstancesIssue) (*team.TeamEnvironment, error) {
@@ -87,6 +96,10 @@ func (r *Resolver) DeprecatedRegistryIssue() gengql.DeprecatedRegistryIssueResol
 	return &deprecatedRegistryIssueResolver{r}
 }
 
+func (r *Resolver) FailedJobRunsIssue() gengql.FailedJobRunsIssueResolver {
+	return &failedJobRunsIssueResolver{r}
+}
+
 func (r *Resolver) NoRunningInstancesIssue() gengql.NoRunningInstancesIssueResolver {
 	return &noRunningInstancesIssueResolver{r}
 }
@@ -108,6 +121,7 @@ func (r *Resolver) ValkeyIssue() gengql.ValkeyIssueResolver { return &valkeyIssu
 type (
 	deprecatedIngressIssueResolver  struct{ *Resolver }
 	deprecatedRegistryIssueResolver struct{ *Resolver }
+	failedJobRunsIssueResolver      struct{ *Resolver }
 	noRunningInstancesIssueResolver struct{ *Resolver }
 	openSearchIssueResolver         struct{ *Resolver }
 	sqlInstanceStateIssueResolver   struct{ *Resolver }

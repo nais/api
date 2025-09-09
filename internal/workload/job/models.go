@@ -343,7 +343,7 @@ func toGraphJob(job *nais_io_v1.Naisjob, environmentName string) *Job {
 	}
 }
 
-func toGraphJobRun(run *batchv1.Job, environmentName string) *JobRun {
+func ToGraphJobRun(run *batchv1.Job, environmentName string) *JobRun {
 	var startTime *time.Time
 
 	if run.Status.StartTime != nil {

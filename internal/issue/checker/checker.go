@@ -21,6 +21,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
+	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 )
 
@@ -72,6 +73,7 @@ type options struct {
 	applicationLister KubernetesLister[*watcher.EnvironmentWrapper[*nais_io_v1alpha1.Application]]
 	jobLister         KubernetesLister[*watcher.EnvironmentWrapper[*nais_io_v1.Naisjob]]
 	podWatcher        watcher.Watcher[*v1.Pod]
+	runWatcher        watcher.Watcher[*batchv1.Job]
 }
 type Option func(*options)
 
@@ -97,6 +99,7 @@ func New(config Config, pool *pgxpool.Pool, watchers *watchers.Watchers, log log
 		applicationLister: &applicationLister{watcher: watchers.AppWatcher},
 		jobLister:         &jobLister{watcher: watchers.JobWatcher},
 		podWatcher:        *watchers.PodWatcher,
+		runWatcher:        *watchers.RunWatcher,
 	}
 
 	for _, opt := range opts {
@@ -106,7 +109,7 @@ func New(config Config, pool *pgxpool.Pool, watchers *watchers.Watchers, log log
 	checker.checks = []check{
 		Aiven{aivenClient: config.AivenClient, tenant: config.Tenant, environments: envs, log: log.WithField("check", "Aiven")},
 		SQLInstance{Client: config.CloudSQLClient, SQLInstanceLister: o.sqlInstanceLister, Log: log.WithField("check", "SQLInstance")},
-		Workload{ApplicationLister: o.applicationLister, JobLister: o.jobLister, PodWatcher: o.podWatcher},
+		Workload{ApplicationLister: o.applicationLister, JobLister: o.jobLister, PodWatcher: o.podWatcher, RunWatcher: o.runWatcher},
 	}
 
 	return checker, nil

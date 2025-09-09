@@ -146,6 +146,10 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 		return &NoRunningInstancesIssue{
 			Base: base,
 		}, nil
+	case IssueTypeFailedJobRuns:
+		return &FailedJobRunsIssue{
+			Base: base,
+		}, nil
 	}
 
 	return nil, fmt.Errorf("unknown issue type: %s", issue.IssueType)

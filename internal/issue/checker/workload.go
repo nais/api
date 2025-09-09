@@ -4,12 +4,15 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/kubernetes/watcher"
+	"github.com/nais/api/internal/workload/job"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
@@ -59,6 +62,7 @@ type Workload struct {
 	ApplicationLister KubernetesLister[*watcher.EnvironmentWrapper[*nais_io_v1alpha1.Application]]
 	JobLister         KubernetesLister[*watcher.EnvironmentWrapper[*nais_io_v1.Naisjob]]
 	PodWatcher        watcher.Watcher[*v1.Pod]
+	RunWatcher        watcher.Watcher[*batchv1.Job]
 }
 
 var _ check = Workload{}
@@ -75,9 +79,58 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 	for _, job := range w.JobLister.List(ctx) {
 		env := environmentmapper.EnvironmentName(job.Cluster)
 		ret = deprecatedRegistry(job.Obj.Spec.Image, job.Obj.Name, job.Obj.Namespace, env, issue.ResourceTypeJob, ret)
+		ret = w.failedJobRuns(job.GetName(), job.GetNamespace(), env, ret)
 	}
 
 	return ret, nil
+}
+
+func (w Workload) failedJobRuns(name, team, env string, ret []Issue) []Issue {
+	// TODO: Should we limit how many runs we check?
+	nameReq, err := labels.NewRequirement("app", selection.Equals, []string{name})
+	if err != nil {
+		return ret
+	}
+
+	selector := labels.NewSelector().Add(*nameReq)
+	runs := w.RunWatcher.GetByNamespace(team, watcher.InCluster(env), watcher.WithLabels(selector))
+
+	var tmpTime time.Time
+	var tmpRun *job.JobRun
+
+	for _, run := range runs {
+		j := job.ToGraphJobRun(run.Obj, env)
+		if j.StartTime != nil && j.StartTime.After(tmpTime) {
+			tmpTime = *j.StartTime
+			tmpRun = j
+		} else {
+			continue
+		}
+	}
+
+	if tmpRun == nil {
+		// No runs found, workload is not failing
+		return ret
+	}
+
+	if tmpRun.Status().State == job.JobRunStateRunning {
+		// Job is actively running
+		return ret
+	}
+
+	if tmpRun.Failed {
+		// Job run has failed
+		return append(ret, Issue{
+			IssueType:    issue.IssueTypeFailedJobRuns,
+			ResourceName: name,
+			ResourceType: issue.ResourceTypeJob,
+			Team:         team,
+			Env:          env,
+			Severity:     issue.SeverityWarning,
+			Message:      fmt.Sprintf("Job has failing runs. Last run '%s' failed with message: %s", tmpRun.Name, tmpRun.Message),
+		})
+	}
+	return ret
 }
 
 func (w Workload) noRunningInstances(app *nais_io_v1alpha1.Application, team, env string, ret []Issue) []Issue {

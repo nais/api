@@ -106,6 +106,7 @@ enum IssueType {
 	DEPRECATED_INGRESS
 	DEPRECATED_REGISTRY
 	NO_RUNNING_INSTANCES
+	FAILED_JOB_RUNS
 }
 
 type OpenSearchIssue implements Issue & Node {
@@ -173,4 +174,13 @@ type NoRunningInstancesIssue implements Issue & Node {
 	message: String!
 
 	workload: Workload!
+}
+
+type FailedJobRunsIssue implements Issue & Node {
+	id: ID!
+	teamEnvironment: TeamEnvironment!
+	severity: Severity!
+	message: String!
+
+	job: Job!
 }
