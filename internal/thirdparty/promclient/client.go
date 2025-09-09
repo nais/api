@@ -14,8 +14,6 @@ import (
 	"github.com/sourcegraph/conc/pool"
 )
 
-const teamLabelKey = "namespace"
-
 type QueryClient interface {
 	Query(ctx context.Context, environment string, query string, opts ...QueryOption) (prom.Vector, error)
 	QueryAll(ctx context.Context, query string, opts ...QueryOption) (map[string]prom.Vector, error)
@@ -191,7 +189,8 @@ func filterRulesByTeam(in promv1.RulesResult, teamSlug slug.Slug) promv1.RulesRe
 		var filtered promv1.Rules
 		for _, r := range g.Rules {
 			if ar, ok := r.(promv1.AlertingRule); ok {
-				if string(ar.Labels[prom.LabelName(teamLabelKey)]) == teamSlug.String() {
+				if string(ar.Labels["namespace"]) == teamSlug.String() ||
+					string(ar.Labels["team"]) == teamSlug.String() {
 					filtered = append(filtered, ar)
 				}
 			}
