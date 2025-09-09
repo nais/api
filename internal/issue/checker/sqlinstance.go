@@ -45,7 +45,6 @@ func (s SQLInstance) Run(ctx context.Context) ([]Issue, error) {
 	// set buckets for histogram
 	durationBuckets := []float64{10, 50, 100, 200, 500, 1000, 2000, 5000, 10000}
 	duration, err := otel.GetMeterProvider().Meter("nais_api_issues").Int64Histogram("checker_sqlinstance_duration_milliseconds", metric.WithExplicitBucketBoundaries(durationBuckets...))
-
 	if err != nil {
 		s.Log.WithError(err).Error("creating metric")
 	}
