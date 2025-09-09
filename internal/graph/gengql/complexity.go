@@ -135,6 +135,9 @@ func NewComplexityRoot() ComplexityRoot {
 	c.SqlInstance.Flags = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
+	c.SqlInstance.Issues = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
 	c.SqlInstance.Users = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceUserOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}

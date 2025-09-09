@@ -6,6 +6,7 @@ import (
 
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/team"
@@ -98,6 +99,21 @@ func (r *sqlInstanceResolver) Metrics(ctx context.Context, obj *sqlinstance.SQLI
 
 func (r *sqlInstanceResolver) State(ctx context.Context, obj *sqlinstance.SQLInstance) (sqlinstance.SQLInstanceState, error) {
 	return sqlinstance.GetState(ctx, obj.ProjectID, obj.Name)
+}
+
+func (r *sqlInstanceResolver) Issues(ctx context.Context, obj *sqlinstance.SQLInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder) (*pagination.Connection[issue.Issue], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	t := issue.ResourceTypeSQLInstance
+	filter := &issue.IssueFilter{
+		ResourceName: &obj.Name,
+		ResourceType: &t,
+	}
+
+	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, filter)
 }
 
 func (r *sqlInstanceMetricsResolver) CPU(ctx context.Context, obj *sqlinstance.SQLInstanceMetrics) (*sqlinstance.SQLInstanceCPU, error) {
