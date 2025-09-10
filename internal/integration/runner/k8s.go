@@ -55,7 +55,7 @@ func (k *K8s) Functions() []*spec.Function {
 			Name: "check",
 			Args: []spec.Argument{
 				{Name: "apiVersion", Type: []spec.ArgumentType{spec.ArgumentTypeString}, Doc: "API version"},
-				{Name: "kind", Type: []spec.ArgumentType{spec.ArgumentTypeString}, Doc: "Kind"},
+				{Name: "resource", Type: []spec.ArgumentType{spec.ArgumentTypeString}, Doc: "Resource"},
 				{Name: "cluster", Type: []spec.ArgumentType{spec.ArgumentTypeString}, Doc: "Cluster name"},
 				{Name: "namespace", Type: []spec.ArgumentType{spec.ArgumentTypeString}, Doc: "Namespace / team name"},
 				{Name: "name", Type: []spec.ArgumentType{spec.ArgumentTypeString}, Doc: "Resource name"},

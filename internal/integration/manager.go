@@ -115,11 +115,13 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 
 		clusterConfig, err := kubernetes.CreateClusterConfigMap("dev-nais", clusters(), nil)
 		if err != nil {
+			done()
 			return ctx, nil, nil, fmt.Errorf("creating cluster config map: %w", err)
 		}
 
 		watcherMgr, err := watcher.NewManager(k8sRunner.Scheme, clusterConfig, log.WithField("subsystem", "k8s_watcher"), watcher.WithClientCreator(k8sRunner.ClientCreator))
 		if err != nil {
+			done()
 			return ctx, nil, nil, fmt.Errorf("failed to create watcher manager: %w", err)
 		}
 
@@ -130,6 +132,7 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 			watcher.WithClientCreator(k8sRunner.ClientCreator),
 		)
 		if err != nil {
+			done()
 			return ctx, nil, nil, fmt.Errorf("failed to create management watcher manager: %w", err)
 		}
 
@@ -151,6 +154,7 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 		}
 		sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(true), sqlinstance.WithInstanceWatcher(watchers.SqlInstanceWatcher))
 		if err != nil {
+			done()
 			return ctx, nil, nil, fmt.Errorf("create SQL Admin service: %w", err)
 		}
 		checker, err := checker.New(
@@ -165,6 +169,7 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 			log.WithField("subsystem", "issue_checker"),
 		)
 		if err != nil {
+			done()
 			return ctx, nil, nil, fmt.Errorf("create issue checker: %w", err)
 		}
 
@@ -225,7 +230,13 @@ func newGQLRunner(
 		clusterConfig,
 		smMgr,
 		fakeAivenClient,
-		aiven.Projects{},
+		aiven.Projects{
+			"dev": aiven.Project{
+				ID:         "aiven-dev",
+				VPC:        "aiven-vpc",
+				EndpointID: "endpoint-id",
+			},
+		},
 		vMgr,
 		config.TenantName,
 		clusters(),

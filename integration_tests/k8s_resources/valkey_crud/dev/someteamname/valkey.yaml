@@ -1,0 +1,33 @@
+---
+apiVersion: aiven.io/v1alpha1
+kind: Valkey
+metadata:
+  annotations:
+    controllers.aiven.io/generation-was-processed: "1"
+    controllers.aiven.io/instance-is-running: "true"
+  name: valkey-someteamname-not-managed
+spec:
+  cloudName: google-europe-north1
+  connInfoSecretTarget:
+    name: ""
+  plan: startup-4
+  project: nav-dev
+  projectVpcId: d405e36a-a577-4dce-af0e-6d217fc47a5c
+  tags:
+    environment: dev
+    team: slug-1
+    tenant: nav
+  terminationProtection: true
+status:
+  conditions:
+    - lastTransitionTime: "2023-11-20T19:07:04Z"
+      message: Instance was created or update on Aiven side
+      reason: Updated
+      status: "True"
+      type: Initialized
+    - lastTransitionTime: "2024-02-23T14:55:47Z"
+      message: Instance is running on Aiven side
+      reason: CheckRunning
+      status: "True"
+      type: Running
+  state: RUNNING

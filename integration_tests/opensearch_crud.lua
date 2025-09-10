@@ -1,0 +1,520 @@
+local user = User.new("user", "user@usersen.com")
+local nonMemberUser = User.new("nonmember", "other@user.com")
+
+local mainTeam = Team.new("someteamname", "purpose", "#slack_channel")
+mainTeam:addMember(user)
+local otherTeam = Team.new("someothername", "purpose", "#slack_channel")
+
+Helper.readK8sResources("k8s_resources/opensearch_crud")
+
+Test.gql("Create opensearch in non-existing team", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation CreateOpenSearch {
+		  createOpenSearch(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "devteam"
+		      tier: SINGLE_NODE
+		      size: RAM_16GB
+		    }
+		  ) {
+		    openSearch {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = Contains("you need the \"opensearches:create\" authorization."),
+				path = {
+					"createOpenSearch",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Create opensearch as non-team member", function(t)
+	t.addHeader("x-user-email", nonMemberUser:email())
+	t.query [[
+		mutation CreateOpenSearch {
+		  createOpenSearch(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: SINGLE_NODE
+		      size: RAM_16GB
+		    }
+		  ) {
+		    openSearch {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = Contains("You are authenticated"),
+				path = {
+					"createOpenSearch",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Create opensearch as team member", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation CreateOpenSearch {
+		  createOpenSearch(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: SINGLE_NODE
+		      size: RAM_16GB
+		    }
+		  ) {
+		    openSearch {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		data = {
+			createOpenSearch = {
+				openSearch = {
+					name = "foobar",
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Create opensearch as team member with existing name", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation CreateOpenSearch {
+		  createOpenSearch(
+		    input: {
+		      name: "not-managed"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: SINGLE_NODE
+		      size: RAM_16GB
+		    }
+		  ) {
+		    openSearch {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = "Resource already exists.",
+				path = {
+					"createOpenSearch",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.k8s("Validate OpenSearch resource", function(t)
+	local resourceName = string.format("opensearch-%s-foobar", mainTeam:slug())
+
+	t.check("aiven.io/v1alpha1", "opensearches", "dev", mainTeam:slug(), resourceName, {
+		apiVersion = "aiven.io/v1alpha1",
+		kind = "OpenSearch",
+		metadata = {
+			name = resourceName,
+			namespace = mainTeam:slug(),
+			annotations = {
+				["console.nais.io/last-modified-at"] = NotNull(),
+				["console.nais.io/last-modified-by"] = user:email(),
+			},
+			labels = {
+				["app.kubernetes.io/managed-by"] = "console",
+				["nais.io/managed-by"] = "console",
+			},
+		},
+		spec = {
+			project = "aiven-dev",
+			projectVpcId = "aiven-vpc",
+			plan = "startup-16",
+			cloudName = "google-europe-north1",
+			terminationProtection = true,
+			tags = {
+				environment = "dev",
+				team = mainTeam:slug(),
+				tenant = "some-tenant",
+			},
+		},
+	})
+end)
+
+Test.k8s("Validate serviceintegration", function(t)
+	local resourceName = string.format("opensearch-%s-foobar", mainTeam:slug())
+
+	t.check("aiven.io/v1alpha1", "serviceintegrations", "dev", mainTeam:slug(), resourceName, {
+		apiVersion = "aiven.io/v1alpha1",
+		kind = "ServiceIntegration",
+		metadata = {
+			name = resourceName,
+			namespace = mainTeam:slug(),
+			annotations = {
+				["console.nais.io/last-modified-at"] = NotNull(),
+				["console.nais.io/last-modified-by"] = user:email(),
+			},
+			labels = {
+				["app.kubernetes.io/managed-by"] = "console",
+				["nais.io/managed-by"] = "console",
+			},
+			ownerReferences = {
+				{
+					apiVersion = "aiven.io/v1alpha1",
+					kind = "OpenSearch",
+					name = resourceName,
+					uid = NotNull(),
+				},
+			},
+		},
+		spec = {
+			project = "aiven-dev",
+			destinationEndpointId = "endpoint-id",
+			integrationType = "prometheus",
+			sourceServiceName = resourceName,
+		},
+	})
+end)
+
+Test.gql("Update OpenSearch in non-existing team", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation UpdateOpenSearch {
+		  updateOpenSearch(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "devteam"
+		      tier: SINGLE_NODE
+		      size: RAM_16GB
+		    }
+		  ) {
+		    openSearch {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = Contains("you need the \"opensearches:update\" authorization."),
+				path = {
+					"updateOpenSearch",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Update OpenSearch as non-team-member", function(t)
+	t.addHeader("x-user-email", nonMemberUser:email())
+	t.query [[
+		mutation UpdateOpenSearch {
+		  updateOpenSearch(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "devteam"
+		      tier: SINGLE_NODE
+		      size: RAM_16GB
+		    }
+		  ) {
+		    openSearch {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = Contains("you need the \"opensearches:update\" authorization."),
+				path = {
+					"updateOpenSearch",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Update OpenSearch as team-member", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation UpdateOpenSearch {
+		  updateOpenSearch(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: HIGH_AVAILABILITY
+		      size: RAM_4GB
+		    }
+		  ) {
+		    openSearch {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		data = {
+			updateOpenSearch = {
+				openSearch = {
+					name = "foobar",
+				},
+			},
+		},
+	}
+end)
+
+Test.k8s("Validate OpenSearch resource after update", function(t)
+	local resourceName = string.format("opensearch-%s-foobar", mainTeam:slug())
+
+	t.check("aiven.io/v1alpha1", "opensearches", "dev", mainTeam:slug(), resourceName, {
+		apiVersion = "aiven.io/v1alpha1",
+		kind = "OpenSearch",
+		metadata = {
+			name = resourceName,
+			namespace = mainTeam:slug(),
+			annotations = {
+				["console.nais.io/last-modified-at"] = NotNull(),
+				["console.nais.io/last-modified-by"] = user:email(),
+			},
+			labels = {
+				["app.kubernetes.io/managed-by"] = "console",
+				["nais.io/managed-by"] = "console",
+			},
+		},
+		spec = {
+			project = "aiven-dev",
+			projectVpcId = "aiven-vpc",
+			plan = "business-4",
+			cloudName = "google-europe-north1",
+			terminationProtection = true,
+			tags = {
+				environment = "dev",
+				team = mainTeam:slug(),
+				tenant = "some-tenant",
+			},
+		},
+	})
+end)
+
+Test.gql("List opensearches for team", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		{
+		  team(slug: "someteamname") {
+		    openSearches {
+		      nodes {
+		        name
+		        tier
+		        size
+		      }
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				openSearches = {
+					nodes = {
+						{
+							name = "foobar",
+							tier = "HIGH_AVAILABILITY",
+							size = "RAM_4GB",
+						},
+						{
+							name = "opensearch-someteamname-not-managed",
+							tier = "HIGH_AVAILABILITY",
+							size = "RAM_8GB",
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Update non-console managed OpenSearch as team-member", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation UpdateOpenSearch {
+		  updateOpenSearch(
+		    input: {
+		      name: "not-managed"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: HIGH_AVAILABILITY
+		      size: RAM_4GB
+		    }
+		  ) {
+		    openSearch {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = "OpenSearch someteamname/not-managed is not managed by Console",
+				path = {
+					"updateOpenSearch",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Delete OpenSearch in non-existing team", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation DeleteOpenSearch {
+		  deleteOpenSearch(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "devteam"
+		    }
+		  ) {
+				openSearchDeleted
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = Contains("you need the \"opensearches:delete\" authorization."),
+				path = {
+					"deleteOpenSearch",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Delete OpenSearch as non-team-member", function(t)
+	t.addHeader("x-user-email", nonMemberUser:email())
+	t.query [[
+		mutation DeleteOpenSearch {
+		  deleteOpenSearch(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		    }
+		  ) {
+				openSearchDeleted
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = Contains("You are authenticated"),
+				path = {
+					"deleteOpenSearch",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Delete OpenSearch as team-member", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation DeleteOpenSearch {
+		  deleteOpenSearch(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		    }
+		  ) {
+				openSearchDeleted
+		  }
+		}
+	]]
+
+	t.check {
+		data = {
+			deleteOpenSearch = {
+				openSearchDeleted = true,
+			},
+		},
+	}
+end)
+
+Test.gql("Delete non-managed opensearch as team-member", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation DeleteOpenSearch {
+		  deleteOpenSearch(
+		    input: {
+		      name: "not-managed"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		    }
+		  ) {
+				openSearchDeleted
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = "OpenSearch someteamname/not-managed is not managed by Console",
+				path = {
+					"deleteOpenSearch",
+				},
+			},
+		},
+		data = Null,
+	}
+end)

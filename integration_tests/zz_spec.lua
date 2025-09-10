@@ -107,12 +107,12 @@ local TestFunctionTk8s = {}
 
 --- Check if a resource exists in a cluster
 ---@param apiVersion string
----@param kind string
+---@param resource string
 ---@param cluster string
 ---@param namespace string
 ---@param name string
 ---@param resp table
-function TestFunctionTk8s.check(apiVersion, kind, cluster, namespace, name, resp)
+function TestFunctionTk8s.check(apiVersion, resource, cluster, namespace, name, resp)
 	print("check")
 end
 
