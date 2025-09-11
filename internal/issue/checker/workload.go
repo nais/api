@@ -13,11 +13,13 @@ import (
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	libevents "github.com/nais/liberator/pkg/events"
+	"github.com/nais/v13s/pkg/api/vulnerabilities"
 	"github.com/sirupsen/logrus"
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+
 	"k8s.io/apimachinery/pkg/selection"
 )
 
@@ -26,7 +28,9 @@ type Workload struct {
 	JobLister         KubernetesLister[*watcher.EnvironmentWrapper[*nais_io_v1.Naisjob]]
 	PodWatcher        watcher.Watcher[*v1.Pod]
 	RunWatcher        watcher.Watcher[*batchv1.Job]
-	log               logrus.FieldLogger
+	V13sClient        vulnerabilities.Client
+
+	log logrus.FieldLogger
 }
 
 func (w Workload) Run(ctx context.Context) ([]Issue, error) {
@@ -301,4 +305,21 @@ func appendIssues(slice []Issue, issues ...*Issue) []Issue {
 		}
 	}
 	return slice
+}
+
+func (w Workload) vulnerabilities(ctx context.Context, imageRef string) []*Issue {
+	parts := strings.Split(imageRef, ":")
+	if len(parts) != 2 {
+		w.log.WithField("imageRef", imageRef).Error("invalid image reference")
+		return nil
+	}
+	resp, err := w.V13sClient.GetVulnerabilitySummaryForImage(ctx, parts[0], parts[1])
+	if err != nil {
+		w.log.WithError(err).WithField("imageRef", imageRef).Error("fetch image vulnerability summary")
+		return nil
+	}
+
+	_ = resp.GetVulnerabilitySummary()
+
+	return nil
 }

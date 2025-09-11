@@ -17,6 +17,7 @@ import (
 	"github.com/nais/api/internal/thirdparty/aiven"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	"github.com/nais/v13s/pkg/api/vulnerabilities"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -46,6 +47,7 @@ type Checker struct {
 type Config struct {
 	AivenClient    aiven.AivenClient
 	CloudSQLClient *sqlinstance.Client
+	V13sClient     vulnerabilities.Client
 	Tenant         string
 	Clusters       []string
 }
@@ -109,7 +111,7 @@ func New(config Config, pool *pgxpool.Pool, watchers *watchers.Watchers, log log
 	checker.checks = []check{
 		Aiven{aivenClient: config.AivenClient, tenant: config.Tenant, environments: envs, log: log.WithField("check", "Aiven")},
 		SQLInstance{Client: config.CloudSQLClient, SQLInstanceLister: o.sqlInstanceLister, Log: log.WithField("check", "SQLInstance")},
-		Workload{ApplicationLister: o.applicationLister, JobLister: o.jobLister, PodWatcher: o.podWatcher, RunWatcher: o.runWatcher, log: log.WithField("check", "Workload")},
+		Workload{ApplicationLister: o.applicationLister, JobLister: o.jobLister, PodWatcher: o.podWatcher, RunWatcher: o.runWatcher, V13sClient: config.V13sClient, log: log.WithField("check", "Workload")},
 	}
 
 	return checker, nil
