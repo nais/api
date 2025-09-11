@@ -36,7 +36,7 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 		ret = appendIssues(ret, deprecatedIngress(app.Obj, env))
 		ret = appendIssues(ret, deprecatedRegistry(app.Obj.Spec.Image, app.Obj.Name, app.Obj.Namespace, env, issue.ResourceTypeApplication))
 		ret = appendIssues(ret, w.noRunningInstances(app.Obj, app.Obj.Namespace, env))
-		ret = w.specErrors(app.Obj, env, ret)
+		ret = appendIssues(ret, w.specErrors(app.Obj, env))
 	}
 
 	for _, job := range w.JobLister.List(ctx) {
@@ -48,46 +48,25 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 	return ret, nil
 }
 
-func (w Workload) lastRun(jobName, team, env string) (*job.JobRun, error) {
-	nameReq, err := labels.NewRequirement("app", selection.Equals, []string{jobName})
-	if err != nil {
-		return nil, fmt.Errorf("create label requirement: %w", err)
-	}
-
-	selector := labels.NewSelector().Add(*nameReq)
-	runs := w.RunWatcher.GetByNamespace(team, watcher.InCluster(env), watcher.WithLabels(selector))
-
-	var latestTime time.Time
-	var latest *job.JobRun
-
-	for _, run := range runs {
-		j := job.ToGraphJobRun(run.Obj, env)
-		if j.StartTime != nil && j.StartTime.After(latestTime) {
-			latestTime = *j.StartTime
-			latest = j
-		}
-	}
-	return latest, nil
-}
-func (w Workload) specErrors(app *nais_io_v1alpha1.Application, env string, ret []Issue) []Issue {
+func (w Workload) specErrors(app *nais_io_v1alpha1.Application, env string) *Issue {
 	if app == nil {
-		return ret
+		return nil
 	}
 	if app.GetStatus() == nil {
-		return ret
+		return nil
 	}
 	if app.GetStatus().Conditions == nil {
-		return ret
+		return nil
 	}
 	condition, ok := w.condition(*app.GetStatus().Conditions)
 	if !ok {
-		return ret
+		return nil
 	}
 
 	switch condition.Reason {
 	// A FailedGenerate error is almost always because of invalid yaml.
 	case libevents.FailedGenerate:
-		return append(ret, Issue{
+		return &Issue{
 			IssueType:    issue.IssueTypeInvalidSpec,
 			ResourceName: app.Name,
 			ResourceType: issue.ResourceTypeApplication,
@@ -95,10 +74,10 @@ func (w Workload) specErrors(app *nais_io_v1alpha1.Application, env string, ret 
 			Env:          env,
 			Severity:     issue.SeverityCritical,
 			Message:      condition.Message,
-		})
+		}
 
 	case libevents.FailedSynchronization:
-		return append(ret, Issue{
+		return &Issue{
 			IssueType:    issue.IssueTypeFailedSynchronization,
 			ResourceName: app.Name,
 			ResourceType: issue.ResourceTypeApplication,
@@ -106,10 +85,10 @@ func (w Workload) specErrors(app *nais_io_v1alpha1.Application, env string, ret 
 			Env:          env,
 			Severity:     issue.SeverityWarning,
 			Message:      condition.Message,
-		})
+		}
 	}
 
-	return ret
+	return nil
 }
 
 func (w Workload) condition(conditions []metav1.Condition) (metav1.Condition, bool) {
@@ -149,6 +128,28 @@ func (w Workload) failedJobRuns(name, team, env string) *Issue {
 	}
 
 	return nil
+}
+
+func (w Workload) lastRun(jobName, team, env string) (*job.JobRun, error) {
+	nameReq, err := labels.NewRequirement("app", selection.Equals, []string{jobName})
+	if err != nil {
+		return nil, fmt.Errorf("create label requirement: %w", err)
+	}
+
+	selector := labels.NewSelector().Add(*nameReq)
+	runs := w.RunWatcher.GetByNamespace(team, watcher.InCluster(env), watcher.WithLabels(selector))
+
+	var latestTime time.Time
+	var latest *job.JobRun
+
+	for _, run := range runs {
+		j := job.ToGraphJobRun(run.Obj, env)
+		if j.StartTime != nil && j.StartTime.After(latestTime) {
+			latestTime = *j.StartTime
+			latest = j
+		}
+	}
+	return latest, nil
 }
 
 func (w Workload) noRunningInstances(app *nais_io_v1alpha1.Application, team, env string) *Issue {
