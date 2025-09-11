@@ -107,6 +107,26 @@ enum IssueType {
 	DEPRECATED_REGISTRY
 	NO_RUNNING_INSTANCES
 	FAILED_JOB_RUNS
+	FAILED_SYNCHRONIZATION
+	FAILED_GENERATE
+}
+
+type FailedGenerateIssue implements Issue & Node {
+	id: ID!
+	teamEnvironment: TeamEnvironment!
+	severity: Severity!
+	message: String!
+
+	workload: Workload!
+}
+
+type FailedSynchronizationIssue implements Issue & Node {
+	id: ID!
+	teamEnvironment: TeamEnvironment!
+	severity: Severity!
+	message: String!
+
+	workload: Workload!
 }
 
 type OpenSearchIssue implements Issue & Node {

@@ -178,14 +178,16 @@ type DeprecatedIngressIssueDetails struct {
 type IssueType string
 
 const (
-	IssueTypeOpenSearch         IssueType = "OPENSEARCH"
-	IssueTypeValkey             IssueType = "VALKEY"
-	IssueTypeSqlInstanceState   IssueType = "SQLINSTANCE_STATE"
-	IssueTypeSqlInstanceVersion IssueType = "SQLINSTANCE_VERSION"
-	IssueTypeDeprecatedIngress  IssueType = "DEPRECATED_INGRESS"
-	IssueTypeDeprecatedRegistry IssueType = "DEPRECATED_REGISTRY"
-	IssueTypeNoRunningInstances IssueType = "NO_RUNNING_INSTANCES"
-	IssueTypeFailedJobRuns      IssueType = "FAILED_JOB_RUNS"
+	IssueTypeOpenSearch            IssueType = "OPENSEARCH"
+	IssueTypeValkey                IssueType = "VALKEY"
+	IssueTypeSqlInstanceState      IssueType = "SQLINSTANCE_STATE"
+	IssueTypeSqlInstanceVersion    IssueType = "SQLINSTANCE_VERSION"
+	IssueTypeDeprecatedIngress     IssueType = "DEPRECATED_INGRESS"
+	IssueTypeDeprecatedRegistry    IssueType = "DEPRECATED_REGISTRY"
+	IssueTypeNoRunningInstances    IssueType = "NO_RUNNING_INSTANCES"
+	IssueTypeFailedJobRuns         IssueType = "FAILED_JOB_RUNS"
+	IssueTypeFailedSynchronization IssueType = "FAILED_SYNCHRONIZATION"
+	IssueTypeFailedGenerate        IssueType = "FAILED_GENERATE"
 )
 
 var AllIssueType = []IssueType{
@@ -196,11 +198,13 @@ var AllIssueType = []IssueType{
 	IssueTypeDeprecatedRegistry,
 	IssueTypeNoRunningInstances,
 	IssueTypeFailedJobRuns,
+	IssueTypeFailedGenerate,
+	IssueTypeFailedSynchronization,
 }
 
 func (e IssueType) IsValid() bool {
 	switch e {
-	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeFailedJobRuns:
+	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeFailedJobRuns, IssueTypeFailedGenerate, IssueTypeFailedSynchronization:
 		return true
 	}
 	return false
@@ -335,3 +339,19 @@ type FailedJobRunsIssue struct {
 func (FailedJobRunsIssue) IsIssue() {}
 
 func (FailedJobRunsIssue) IsNode() {}
+
+type FailedGenerateIssue struct {
+	Base
+}
+
+func (FailedGenerateIssue) IsIssue() {}
+
+func (FailedGenerateIssue) IsNode() {}
+
+type FailedSynchronizationIssue struct {
+	Base
+}
+
+func (FailedSynchronizationIssue) IsIssue() {}
+
+func (FailedSynchronizationIssue) IsNode() {}

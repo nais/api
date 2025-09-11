@@ -12,9 +12,11 @@ import (
 	"github.com/nais/api/internal/workload/job"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	libevents "github.com/nais/liberator/pkg/events"
 	"github.com/sirupsen/logrus"
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
 )
@@ -34,6 +36,7 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 		ret = appendIssues(ret, deprecatedIngress(app.Obj, env))
 		ret = appendIssues(ret, deprecatedRegistry(app.Obj.Spec.Image, app.Obj.Name, app.Obj.Namespace, env, issue.ResourceTypeApplication))
 		ret = appendIssues(ret, w.noRunningInstances(app.Obj, app.Obj.Namespace, env))
+		ret = w.specErrors(app.Obj, env, ret)
 	}
 
 	for _, job := range w.JobLister.List(ctx) {
@@ -65,6 +68,57 @@ func (w Workload) lastRun(jobName, team, env string) (*job.JobRun, error) {
 		}
 	}
 	return latest, nil
+}
+func (w Workload) specErrors(app *nais_io_v1alpha1.Application, env string, ret []Issue) []Issue {
+	if app == nil {
+		return ret
+	}
+	if app.GetStatus() == nil {
+		return ret
+	}
+	if app.GetStatus().Conditions == nil {
+		return ret
+	}
+	condition, ok := w.condition(*app.GetStatus().Conditions)
+	if !ok {
+		return ret
+	}
+
+	switch condition.Reason {
+	// A FailedGenerate error is almost always because of invalid yaml.
+	case libevents.FailedGenerate:
+		return append(ret, Issue{
+			IssueType:    issue.IssueTypeFailedGenerate,
+			ResourceName: app.Name,
+			ResourceType: issue.ResourceTypeApplication,
+			Team:         app.Namespace,
+			Env:          env,
+			Severity:     issue.SeverityCritical,
+			Message:      condition.Message,
+		})
+
+	case libevents.FailedSynchronization:
+		return append(ret, Issue{
+			IssueType:    issue.IssueTypeFailedSynchronization,
+			ResourceName: app.Name,
+			ResourceType: issue.ResourceTypeApplication,
+			Team:         app.Namespace,
+			Env:          env,
+			Severity:     issue.SeverityWarning,
+			Message:      condition.Message,
+		})
+	}
+
+	return ret
+}
+
+func (w Workload) condition(conditions []metav1.Condition) (metav1.Condition, bool) {
+	for _, condition := range conditions {
+		if condition.Type == "SynchronizationState" {
+			return condition, true
+		}
+	}
+	return metav1.Condition{}, false
 }
 
 func (w Workload) failedJobRuns(name, team, env string) *Issue {

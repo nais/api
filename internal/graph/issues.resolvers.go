@@ -31,12 +31,28 @@ func (r *deprecatedRegistryIssueResolver) Workload(ctx context.Context, obj *iss
 	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
+func (r *failedGenerateIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.FailedGenerateIssue) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *failedGenerateIssueResolver) Workload(ctx context.Context, obj *issue.FailedGenerateIssue) (workload.Workload, error) {
+	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
+}
+
 func (r *failedJobRunsIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.FailedJobRunsIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *failedJobRunsIssueResolver) Job(ctx context.Context, obj *issue.FailedJobRunsIssue) (*job.Job, error) {
 	return job.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName)
+}
+
+func (r *failedSynchronizationIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.FailedSynchronizationIssue) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *failedSynchronizationIssueResolver) Workload(ctx context.Context, obj *issue.FailedSynchronizationIssue) (workload.Workload, error) {
+	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
 func (r *noRunningInstancesIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.NoRunningInstancesIssue) (*team.TeamEnvironment, error) {
@@ -96,8 +112,16 @@ func (r *Resolver) DeprecatedRegistryIssue() gengql.DeprecatedRegistryIssueResol
 	return &deprecatedRegistryIssueResolver{r}
 }
 
+func (r *Resolver) FailedGenerateIssue() gengql.FailedGenerateIssueResolver {
+	return &failedGenerateIssueResolver{r}
+}
+
 func (r *Resolver) FailedJobRunsIssue() gengql.FailedJobRunsIssueResolver {
 	return &failedJobRunsIssueResolver{r}
+}
+
+func (r *Resolver) FailedSynchronizationIssue() gengql.FailedSynchronizationIssueResolver {
+	return &failedSynchronizationIssueResolver{r}
 }
 
 func (r *Resolver) NoRunningInstancesIssue() gengql.NoRunningInstancesIssueResolver {
@@ -119,12 +143,14 @@ func (r *Resolver) SqlInstanceVersionIssue() gengql.SqlInstanceVersionIssueResol
 func (r *Resolver) ValkeyIssue() gengql.ValkeyIssueResolver { return &valkeyIssueResolver{r} }
 
 type (
-	deprecatedIngressIssueResolver  struct{ *Resolver }
-	deprecatedRegistryIssueResolver struct{ *Resolver }
-	failedJobRunsIssueResolver      struct{ *Resolver }
-	noRunningInstancesIssueResolver struct{ *Resolver }
-	openSearchIssueResolver         struct{ *Resolver }
-	sqlInstanceStateIssueResolver   struct{ *Resolver }
-	sqlInstanceVersionIssueResolver struct{ *Resolver }
-	valkeyIssueResolver             struct{ *Resolver }
+	deprecatedIngressIssueResolver     struct{ *Resolver }
+	deprecatedRegistryIssueResolver    struct{ *Resolver }
+	failedGenerateIssueResolver        struct{ *Resolver }
+	failedJobRunsIssueResolver         struct{ *Resolver }
+	failedSynchronizationIssueResolver struct{ *Resolver }
+	noRunningInstancesIssueResolver    struct{ *Resolver }
+	openSearchIssueResolver            struct{ *Resolver }
+	sqlInstanceStateIssueResolver      struct{ *Resolver }
+	sqlInstanceVersionIssueResolver    struct{ *Resolver }
+	valkeyIssueResolver                struct{ *Resolver }
 )
