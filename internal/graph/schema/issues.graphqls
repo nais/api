@@ -108,10 +108,10 @@ enum IssueType {
 	NO_RUNNING_INSTANCES
 	FAILED_JOB_RUNS
 	FAILED_SYNCHRONIZATION
-	FAILED_GENERATE
+	INVALID_SPEC
 }
 
-type FailedGenerateIssue implements Issue & Node {
+type InvalidSpecIssue implements Issue & Node {
 	id: ID!
 	teamEnvironment: TeamEnvironment!
 	severity: Severity!

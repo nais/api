@@ -150,8 +150,8 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 		return &FailedJobRunsIssue{
 			Base: base,
 		}, nil
-	case IssueTypeFailedGenerate:
-		return &FailedGenerateIssue{
+	case IssueTypeInvalidSpec:
+		return &InvalidSpecIssue{
 			Base: base,
 		}, nil
 	case IssueTypeFailedSynchronization:

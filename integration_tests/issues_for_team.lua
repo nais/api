@@ -221,7 +221,7 @@ Test.gql("FailedSynchronizationIssue", function(t)
 	}
 end)
 
-Test.gql("FailedGenerateIssue", function(t)
+Test.gql("InvalidSpecIssue", function(t)
 	checker:runChecks()
 	t.addHeader("x-user-email", user:email())
 
@@ -230,14 +230,14 @@ Test.gql("FailedGenerateIssue", function(t)
 			team(slug: "myteam") {
 				issues(
 					filter: {
-						issueType: FAILED_GENERATE
+						issueType: INVALID_SPEC
 					},
 				) {
 					nodes {
 						__typename
 						severity
 						message
-						... on FailedGenerateIssue {
+						... on InvalidSpecIssue {
 							workload {
 								name
 							}
@@ -254,7 +254,7 @@ Test.gql("FailedGenerateIssue", function(t)
 				issues = {
 					nodes = {
 						{
-							__typename = "FailedGenerateIssue",
+							__typename = "InvalidSpecIssue",
 							message = "Human readable text from the operator",
 							severity = "CRITICAL",
 							workload = {

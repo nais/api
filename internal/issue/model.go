@@ -187,7 +187,7 @@ const (
 	IssueTypeNoRunningInstances    IssueType = "NO_RUNNING_INSTANCES"
 	IssueTypeFailedJobRuns         IssueType = "FAILED_JOB_RUNS"
 	IssueTypeFailedSynchronization IssueType = "FAILED_SYNCHRONIZATION"
-	IssueTypeFailedGenerate        IssueType = "FAILED_GENERATE"
+	IssueTypeInvalidSpec           IssueType = "INVALID_SPEC"
 )
 
 var AllIssueType = []IssueType{
@@ -198,13 +198,13 @@ var AllIssueType = []IssueType{
 	IssueTypeDeprecatedRegistry,
 	IssueTypeNoRunningInstances,
 	IssueTypeFailedJobRuns,
-	IssueTypeFailedGenerate,
+	IssueTypeInvalidSpec,
 	IssueTypeFailedSynchronization,
 }
 
 func (e IssueType) IsValid() bool {
 	switch e {
-	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeFailedJobRuns, IssueTypeFailedGenerate, IssueTypeFailedSynchronization:
+	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeFailedJobRuns, IssueTypeInvalidSpec, IssueTypeFailedSynchronization:
 		return true
 	}
 	return false
@@ -340,13 +340,13 @@ func (FailedJobRunsIssue) IsIssue() {}
 
 func (FailedJobRunsIssue) IsNode() {}
 
-type FailedGenerateIssue struct {
+type InvalidSpecIssue struct {
 	Base
 }
 
-func (FailedGenerateIssue) IsIssue() {}
+func (InvalidSpecIssue) IsIssue() {}
 
-func (FailedGenerateIssue) IsNode() {}
+func (InvalidSpecIssue) IsNode() {}
 
 type FailedSynchronizationIssue struct {
 	Base

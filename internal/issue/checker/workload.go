@@ -88,7 +88,7 @@ func (w Workload) specErrors(app *nais_io_v1alpha1.Application, env string, ret 
 	// A FailedGenerate error is almost always because of invalid yaml.
 	case libevents.FailedGenerate:
 		return append(ret, Issue{
-			IssueType:    issue.IssueTypeFailedGenerate,
+			IssueType:    issue.IssueTypeInvalidSpec,
 			ResourceName: app.Name,
 			ResourceType: issue.ResourceTypeApplication,
 			Team:         app.Namespace,
