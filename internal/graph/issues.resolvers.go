@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
@@ -55,6 +56,14 @@ func (r *invalidSpecIssueResolver) Workload(ctx context.Context, obj *issue.Inva
 	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
+func (r *missingSbomIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.MissingSbomIssue) (*team.TeamEnvironment, error) {
+	panic(fmt.Errorf("not implemented: TeamEnvironment - teamEnvironment"))
+}
+
+func (r *missingSbomIssueResolver) Workload(ctx context.Context, obj *issue.MissingSbomIssue) (workload.Workload, error) {
+	panic(fmt.Errorf("not implemented: Workload - workload"))
+}
+
 func (r *noRunningInstancesIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.NoRunningInstancesIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
@@ -104,6 +113,14 @@ func (r *valkeyIssueResolver) Valkey(ctx context.Context, obj *issue.ValkeyIssue
 	return valkey.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName)
 }
 
+func (r *vulnerableImageIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.VulnerableImageIssue) (*team.TeamEnvironment, error) {
+	panic(fmt.Errorf("not implemented: TeamEnvironment - teamEnvironment"))
+}
+
+func (r *vulnerableImageIssueResolver) Workload(ctx context.Context, obj *issue.VulnerableImageIssue) (workload.Workload, error) {
+	panic(fmt.Errorf("not implemented: Workload - workload"))
+}
+
 func (r *Resolver) DeprecatedIngressIssue() gengql.DeprecatedIngressIssueResolver {
 	return &deprecatedIngressIssueResolver{r}
 }
@@ -124,6 +141,10 @@ func (r *Resolver) InvalidSpecIssue() gengql.InvalidSpecIssueResolver {
 	return &invalidSpecIssueResolver{r}
 }
 
+func (r *Resolver) MissingSbomIssue() gengql.MissingSbomIssueResolver {
+	return &missingSbomIssueResolver{r}
+}
+
 func (r *Resolver) NoRunningInstancesIssue() gengql.NoRunningInstancesIssueResolver {
 	return &noRunningInstancesIssueResolver{r}
 }
@@ -142,15 +163,21 @@ func (r *Resolver) SqlInstanceVersionIssue() gengql.SqlInstanceVersionIssueResol
 
 func (r *Resolver) ValkeyIssue() gengql.ValkeyIssueResolver { return &valkeyIssueResolver{r} }
 
+func (r *Resolver) VulnerableImageIssue() gengql.VulnerableImageIssueResolver {
+	return &vulnerableImageIssueResolver{r}
+}
+
 type (
 	deprecatedIngressIssueResolver     struct{ *Resolver }
 	deprecatedRegistryIssueResolver    struct{ *Resolver }
 	failedJobRunsIssueResolver         struct{ *Resolver }
 	failedSynchronizationIssueResolver struct{ *Resolver }
 	invalidSpecIssueResolver           struct{ *Resolver }
+	missingSbomIssueResolver           struct{ *Resolver }
 	noRunningInstancesIssueResolver    struct{ *Resolver }
 	openSearchIssueResolver            struct{ *Resolver }
 	sqlInstanceStateIssueResolver      struct{ *Resolver }
 	sqlInstanceVersionIssueResolver    struct{ *Resolver }
 	valkeyIssueResolver                struct{ *Resolver }
+	vulnerableImageIssueResolver       struct{ *Resolver }
 )

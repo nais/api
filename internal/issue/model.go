@@ -188,6 +188,8 @@ const (
 	IssueTypeFailedJobRuns         IssueType = "FAILED_JOB_RUNS"
 	IssueTypeFailedSynchronization IssueType = "FAILED_SYNCHRONIZATION"
 	IssueTypeInvalidSpec           IssueType = "INVALID_SPEC"
+	IssueTypeVulnerableImage       IssueType = "VULNERABLE_IMAGE"
+	IssueTypeMissingSBOM           IssueType = "MISSING_SBOM"
 )
 
 var AllIssueType = []IssueType{
@@ -200,11 +202,13 @@ var AllIssueType = []IssueType{
 	IssueTypeFailedJobRuns,
 	IssueTypeInvalidSpec,
 	IssueTypeFailedSynchronization,
+	IssueTypeVulnerableImage,
+	IssueTypeMissingSBOM,
 }
 
 func (e IssueType) IsValid() bool {
 	switch e {
-	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeFailedJobRuns, IssueTypeInvalidSpec, IssueTypeFailedSynchronization:
+	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeFailedJobRuns, IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage, IssueTypeMissingSBOM:
 		return true
 	}
 	return false
@@ -355,3 +359,22 @@ type FailedSynchronizationIssue struct {
 func (FailedSynchronizationIssue) IsIssue() {}
 
 func (FailedSynchronizationIssue) IsNode() {}
+
+type MissingSbomIssue struct {
+	Base
+}
+
+func (MissingSbomIssue) IsIssue() {}
+
+func (MissingSbomIssue) IsNode() {}
+
+type VulnerableImageIssue struct {
+	Base
+
+	RiskScore int `json:"riskScore"`
+	Critical  int `json:"critical"`
+}
+
+func (VulnerableImageIssue) IsIssue() {}
+
+func (VulnerableImageIssue) IsNode() {}

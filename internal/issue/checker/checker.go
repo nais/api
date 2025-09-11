@@ -47,7 +47,7 @@ type Checker struct {
 type Config struct {
 	AivenClient    aiven.AivenClient
 	CloudSQLClient *sqlinstance.Client
-	V13sClient     vulnerabilities.Client
+	V13sClient     V13sClient
 	Tenant         string
 	Clusters       []string
 }
@@ -251,4 +251,16 @@ func Map[T any, U any](input []T, f func(T) U) []U {
 		output[i] = f(v)
 	}
 	return output
+}
+
+type FakeV13sClient struct{}
+
+func (f FakeV13sClient) GetVulnerabilitySummaryForImage(ctx context.Context, imageName, imageTag string) (*vulnerabilities.GetVulnerabilitySummaryForImageResponse, error) {
+	resp := &vulnerabilities.GetVulnerabilitySummaryForImageResponse{
+		VulnerabilitySummary: &vulnerabilities.Summary{
+			Critical: 1,
+			HasSbom:  true,
+		},
+	}
+	return resp, nil
 }

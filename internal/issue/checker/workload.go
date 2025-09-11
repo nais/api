@@ -28,40 +28,51 @@ type Workload struct {
 	JobLister         KubernetesLister[*watcher.EnvironmentWrapper[*nais_io_v1.Naisjob]]
 	PodWatcher        watcher.Watcher[*v1.Pod]
 	RunWatcher        watcher.Watcher[*batchv1.Job]
-	V13sClient        vulnerabilities.Client
+	V13sClient        V13sClient
 
 	log logrus.FieldLogger
+}
+
+type V13sClient interface {
+	GetVulnerabilitySummaryForImage(ctx context.Context, imageName, imageTag string) (*vulnerabilities.GetVulnerabilitySummaryForImageResponse, error)
 }
 
 func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 	var ret []Issue
 	for _, app := range w.ApplicationLister.List(ctx) {
+		image, ok := image(app.Obj)
+		if !ok {
+			w.log.WithField("application", app.Obj.GetName()).WithField("namespace", app.Obj.GetNamespace()).Warn("application has no image")
+			continue
+		}
 		env := environmentmapper.EnvironmentName(app.Cluster)
 		ret = appendIssues(ret, deprecatedIngress(app.Obj, env))
-		ret = appendIssues(ret, deprecatedRegistry(app.Obj.Spec.Image, app.Obj.Name, app.Obj.Namespace, env, issue.ResourceTypeApplication))
-		ret = appendIssues(ret, w.noRunningInstances(app.Obj, app.Obj.Namespace, env))
+		ret = appendIssues(ret, deprecatedRegistry(image, app.Obj.GetName(), app.Obj.GetNamespace(), env, issue.ResourceTypeApplication))
+		ret = appendIssues(ret, w.noRunningInstances(app.Obj, app.Obj.GetNamespace(), env))
 		ret = appendIssues(ret, w.specErrors(app.Obj, env))
+		ret = appendIssues(ret, w.vulnerabilities(ctx, image, app.GetName(), app.Obj.GetNamespace(), env, issue.ResourceTypeApplication)...)
 	}
 
 	for _, job := range w.JobLister.List(ctx) {
+		image, ok := image(job.Obj)
+		if !ok {
+			w.log.WithField("job", job.Obj.GetName()).WithField("namespace", job.Obj.GetNamespace()).Warn("job has no image")
+			continue
+		}
 		env := environmentmapper.EnvironmentName(job.Cluster)
-		ret = appendIssues(ret, deprecatedRegistry(job.Obj.Spec.Image, job.Obj.Name, job.Obj.Namespace, env, issue.ResourceTypeJob))
+		ret = appendIssues(ret, deprecatedRegistry(image, job.Obj.Name, job.Obj.Namespace, env, issue.ResourceTypeJob))
 		ret = appendIssues(ret, w.failedJobRuns(job.GetName(), job.GetNamespace(), env))
+		ret = appendIssues(ret, w.vulnerabilities(ctx, image, job.GetName(), job.Obj.GetNamespace(), env, issue.ResourceTypeJob)...)
 	}
 
 	return ret, nil
 }
 
 func (w Workload) specErrors(app *nais_io_v1alpha1.Application, env string) *Issue {
-	if app == nil {
+	if app == nil || app.GetStatus() == nil || app.GetStatus().Conditions == nil {
 		return nil
 	}
-	if app.GetStatus() == nil {
-		return nil
-	}
-	if app.GetStatus().Conditions == nil {
-		return nil
-	}
+
 	condition, ok := w.condition(*app.GetStatus().Conditions)
 	if !ok {
 		return nil
@@ -307,7 +318,7 @@ func appendIssues(slice []Issue, issues ...*Issue) []Issue {
 	return slice
 }
 
-func (w Workload) vulnerabilities(ctx context.Context, imageRef string) []*Issue {
+func (w Workload) vulnerabilities(ctx context.Context, imageRef, resourceName, team, env string, resourceType issue.ResourceType) []*Issue {
 	parts := strings.Split(imageRef, ":")
 	if len(parts) != 2 {
 		w.log.WithField("imageRef", imageRef).Error("invalid image reference")
@@ -319,7 +330,49 @@ func (w Workload) vulnerabilities(ctx context.Context, imageRef string) []*Issue
 		return nil
 	}
 
-	_ = resp.GetVulnerabilitySummary()
+	summary := resp.GetVulnerabilitySummary()
 
-	return nil
+	var ret []*Issue
+
+	if summary.Critical > 0 || summary.RiskScore > 100 {
+		ret = append(ret, &Issue{
+			IssueType:    issue.IssueTypeVulnerableImage,
+			ResourceType: resourceType,
+			ResourceName: resourceName,
+			Team:         team,
+			Env:          env,
+			Severity:     issue.SeverityWarning,
+			Message: fmt.Sprintf("Image '%s' has %d critical vulnerabilities and a risk score of %d",
+				imageRef, summary.Critical, summary.RiskScore),
+		})
+	}
+
+	if !summary.HasSbom {
+		ret = append(ret, &Issue{
+			IssueType:    issue.IssueTypeMissingSBOM,
+			ResourceType: resourceType,
+			ResourceName: resourceName,
+			Team:         team,
+			Env:          env,
+			Severity:     issue.SeverityWarning,
+			Message:      fmt.Sprintf("Image '%s' is missing a Software Bill of Materials (SBOM)", imageRef),
+		})
+	}
+
+	return ret
+}
+
+type Imager interface {
+	GetEffectiveImage() string
+	GetImage() string
+}
+
+func image(workload Imager) (string, bool) {
+	if workload.GetImage() != "" {
+		return workload.GetImage(), true
+	}
+	if workload.GetEffectiveImage() != "" {
+		return workload.GetEffectiveImage(), true
+	}
+	return "", false
 }
