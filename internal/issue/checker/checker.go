@@ -25,7 +25,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 )
 
-const checkInterval = 5 * time.Minute
+const checkInterval = 1 * time.Minute
 
 type check interface {
 	Run(ctx context.Context) ([]Issue, error)

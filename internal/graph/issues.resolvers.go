@@ -39,6 +39,22 @@ func (r *failedJobRunsIssueResolver) Job(ctx context.Context, obj *issue.FailedJ
 	return job.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName)
 }
 
+func (r *failedSynchronizationIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.FailedSynchronizationIssue) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *failedSynchronizationIssueResolver) Workload(ctx context.Context, obj *issue.FailedSynchronizationIssue) (workload.Workload, error) {
+	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
+}
+
+func (r *invalidSpecIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.InvalidSpecIssue) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *invalidSpecIssueResolver) Workload(ctx context.Context, obj *issue.InvalidSpecIssue) (workload.Workload, error) {
+	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
+}
+
 func (r *noRunningInstancesIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.NoRunningInstancesIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
@@ -100,6 +116,14 @@ func (r *Resolver) FailedJobRunsIssue() gengql.FailedJobRunsIssueResolver {
 	return &failedJobRunsIssueResolver{r}
 }
 
+func (r *Resolver) FailedSynchronizationIssue() gengql.FailedSynchronizationIssueResolver {
+	return &failedSynchronizationIssueResolver{r}
+}
+
+func (r *Resolver) InvalidSpecIssue() gengql.InvalidSpecIssueResolver {
+	return &invalidSpecIssueResolver{r}
+}
+
 func (r *Resolver) NoRunningInstancesIssue() gengql.NoRunningInstancesIssueResolver {
 	return &noRunningInstancesIssueResolver{r}
 }
@@ -119,12 +143,14 @@ func (r *Resolver) SqlInstanceVersionIssue() gengql.SqlInstanceVersionIssueResol
 func (r *Resolver) ValkeyIssue() gengql.ValkeyIssueResolver { return &valkeyIssueResolver{r} }
 
 type (
-	deprecatedIngressIssueResolver  struct{ *Resolver }
-	deprecatedRegistryIssueResolver struct{ *Resolver }
-	failedJobRunsIssueResolver      struct{ *Resolver }
-	noRunningInstancesIssueResolver struct{ *Resolver }
-	openSearchIssueResolver         struct{ *Resolver }
-	sqlInstanceStateIssueResolver   struct{ *Resolver }
-	sqlInstanceVersionIssueResolver struct{ *Resolver }
-	valkeyIssueResolver             struct{ *Resolver }
+	deprecatedIngressIssueResolver     struct{ *Resolver }
+	deprecatedRegistryIssueResolver    struct{ *Resolver }
+	failedJobRunsIssueResolver         struct{ *Resolver }
+	failedSynchronizationIssueResolver struct{ *Resolver }
+	invalidSpecIssueResolver           struct{ *Resolver }
+	noRunningInstancesIssueResolver    struct{ *Resolver }
+	openSearchIssueResolver            struct{ *Resolver }
+	sqlInstanceStateIssueResolver      struct{ *Resolver }
+	sqlInstanceVersionIssueResolver    struct{ *Resolver }
+	valkeyIssueResolver                struct{ *Resolver }
 )

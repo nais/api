@@ -174,6 +174,99 @@ Test.gql("FailedJobRunsIssue", function(t)
 		},
 	}
 end)
+Test.gql("FailedSynchronizationIssue", function(t)
+	checker:runChecks()
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				issues(
+					filter: {
+						issueType: FAILED_SYNCHRONIZATION
+					},
+				) {
+					nodes {
+						__typename
+						severity
+						message
+						... on FailedSynchronizationIssue {
+							workload {
+								name
+							}
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				issues = {
+					nodes = {
+						{
+							__typename = "FailedSynchronizationIssue",
+							message = "Human text from the operator, received from yaml",
+							severity = "WARNING",
+							workload = {
+								name = "failed-synchronization",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("InvalidSpecIssue", function(t)
+	checker:runChecks()
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				issues(
+					filter: {
+						issueType: INVALID_SPEC
+					},
+				) {
+					nodes {
+						__typename
+						severity
+						message
+						... on InvalidSpecIssue {
+							workload {
+								name
+							}
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				issues = {
+					nodes = {
+						{
+							__typename = "InvalidSpecIssue",
+							message = "Human readable text from the operator",
+							severity = "CRITICAL",
+							workload = {
+								name = "app-failed-generate",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
 
 Test.gql("NoRunningInstancesIssue", function(t)
 	checker:runChecks()
@@ -186,6 +279,11 @@ Test.gql("NoRunningInstancesIssue", function(t)
 					filter: {
 						issueType: NO_RUNNING_INSTANCES
 					},
+					orderBy: {
+						field: RESOURCE_NAME
+						direction: ASC
+					}
+
 				) {
 					nodes {
 						__typename
@@ -207,6 +305,22 @@ Test.gql("NoRunningInstancesIssue", function(t)
 			team = {
 				issues = {
 					nodes = {
+						{
+							__typename = "NoRunningInstancesIssue",
+							message = "Application has no running instances",
+							severity = "CRITICAL",
+							workload = {
+								name = "app-failed-generate",
+							},
+						},
+						{
+							__typename = "NoRunningInstancesIssue",
+							message = "Application has no running instances",
+							severity = "CRITICAL",
+							workload = {
+								name = "failed-synchronization",
+							},
+						},
 						{
 							__typename = "NoRunningInstancesIssue",
 							message = "Application has no running instances",

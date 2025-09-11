@@ -1,0 +1,76 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    deploy.nais.io/client-version: 2025-08-07-961addd
+    deploy.nais.io/github-actor: rfc3092
+    deploy.nais.io/github-sha: 2914eb88b48c2252e001fd3b5c6c7551342f58c4
+    deploy.nais.io/github-workflow-run-url: https://github.com/navikt/devteam/actions/runs/17608500559
+    kubernetes.io/change-cause: "nais deploy: commit 2914eb88b48c2252e001fd3b5c6c7551342f58c4:
+      https://github.com/navikt/testnorge/actions/runs/17608500559"
+    nais.io/deploymentCorrelationID: fa5645f6-10ff-4cd2-a3df-a9d778b557da
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "2400"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "2400"
+    texas.nais.io/enabled: "true"
+  creationTimestamp: "2025-06-24T10:47:59Z"
+  finalizers:
+    - naiserator.nais.io/finalizer
+  generation: 31
+  labels:
+    team: devteam
+  name: app-failed-generate
+  namespace: devteam
+  resourceVersion: "1757494756766351004"
+  uid: 386033a2-d76f-4389-af2b-5ae84abb86b9
+spec:
+  image: europe-north1-docker.pkg.dev/nais-management-233d/devteam/app-failed-generate:2025.09.10-08.54-2914eb8
+  ingresses:
+    - https://app-failed-generate.dev-fss-pub.nais.io
+  liveness:
+    failureThreshold: 20
+    initialDelay: 20
+    path: /internal/health/liveness
+    periodSeconds: 10
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
+    logging:
+      destinations:
+        - id: elastic
+      enabled: true
+  port: 8080
+  readiness:
+    failureThreshold: 20
+    initialDelay: 20
+    path: /internal/health/readiness
+    periodSeconds: 10
+  replicas:
+    max: 1
+    min: 1
+  resources:
+    limits:
+      memory: 2048Mi
+    requests:
+      cpu: 20m
+      memory: 800Mi
+  tokenx:
+    enabled: true
+status:
+  conditions:
+    - lastTransitionTime: "2025-09-10T08:59:16Z"
+      message: the domain "app-failed-generate.dev-fss-pub.nais.io" cannot be used in cluster
+        "dev-gcp"; use one of dev.nav.cloud.nais.io, external.dev.nav.cloud.nais.io,
+        authenticated.dev.nav.cloud.nais.io, .intern.dev.nav.no, .dev-gcp.nav.cloud.nais.io,
+        .ekstern.dev.nav.no, .ansatt.dev.nav.no, .very.intern.dev.nav.no
+      reason: FailedGenerate
+      status: "True"
+      type: SynchronizationState
+  effectiveImage: europe-north1-docker.pkg.dev/nais-management-233d/devteam/testnorge-app-failed-generate:2025.09.10-08.54-2914eb8
+  problems:
+    - message: the domain "app-failed-generate.dev-fss-pub.nais.io" cannot be used in cluster
+        "dev-gcp"; use one of dev.nav.cloud.nais.io, external.dev.nav.cloud.nais.io,
+        authenticated.dev.nav.cloud.nais.io, .intern.dev.nav.no, .dev-gcp.nav.cloud.nais.io,
+        .ekstern.dev.nav.no, .ansatt.dev.nav.no, .very.intern.dev.nav.no
+      type: Error
+  synchronizationState: FailedGenerate

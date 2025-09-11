@@ -150,6 +150,14 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 		return &FailedJobRunsIssue{
 			Base: base,
 		}, nil
+	case IssueTypeInvalidSpec:
+		return &InvalidSpecIssue{
+			Base: base,
+		}, nil
+	case IssueTypeFailedSynchronization:
+		return &FailedSynchronizationIssue{
+			Base: base,
+		}, nil
 	}
 
 	return nil, fmt.Errorf("unknown issue type: %s", issue.IssueType)
