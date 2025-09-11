@@ -67,18 +67,8 @@ func (r *openSearchResolver) Access(ctx context.Context, obj *opensearch.OpenSea
 	return opensearch.ListAccess(ctx, obj, page, orderBy)
 }
 
-func (r *openSearchResolver) Version(ctx context.Context, obj *opensearch.OpenSearch) (string, error) {
-	return opensearch.GetOpenSearchVersion(ctx, opensearch.AivenDataLoaderKey{
-		Project:     obj.AivenProject,
-		ServiceName: obj.Name,
-	})
-}
-
-func (r *openSearchResolver) MajorVersion(ctx context.Context, obj *opensearch.OpenSearch) (opensearch.OpenSearchMajorVersion, error) {
-	return opensearch.GetOpenSearchMajorVersion(ctx, opensearch.AivenDataLoaderKey{
-		Project:     obj.AivenProject,
-		ServiceName: obj.Name,
-	})
+func (r *openSearchResolver) Version(ctx context.Context, obj *opensearch.OpenSearch) (*opensearch.OpenSearchVersion, error) {
+	return opensearch.GetOpenSearchVersion(ctx, obj)
 }
 
 func (r *openSearchAccessResolver) Workload(ctx context.Context, obj *opensearch.OpenSearchAccess) (workload.Workload, error) {

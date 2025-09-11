@@ -29,15 +29,16 @@ type (
 )
 
 type OpenSearch struct {
-	Name                  string              `json:"name"`
-	Status                *OpenSearchStatus   `json:"status"`
-	TerminationProtection bool                `json:"terminationProtection"`
-	Tier                  OpenSearchTier      `json:"tier"`
-	Size                  OpenSearchSize      `json:"size"`
-	TeamSlug              slug.Slug           `json:"-"`
-	EnvironmentName       string              `json:"-"`
-	WorkloadReference     *workload.Reference `json:"-"`
-	AivenProject          string              `json:"-"`
+	Name                  string                 `json:"name"`
+	Status                *OpenSearchStatus      `json:"status"`
+	TerminationProtection bool                   `json:"terminationProtection"`
+	Tier                  OpenSearchTier         `json:"tier"`
+	Size                  OpenSearchSize         `json:"size"`
+	TeamSlug              slug.Slug              `json:"-"`
+	EnvironmentName       string                 `json:"-"`
+	WorkloadReference     *workload.Reference    `json:"-"`
+	AivenProject          string                 `json:"-"`
+	MajorVersion          OpenSearchMajorVersion `json:"-"`
 }
 
 func (OpenSearch) IsPersistence() {}
@@ -157,6 +158,15 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 	if kubernetes.HasManagedByConsoleLabel(obj) {
 		name = strings.TrimPrefix(obj.GetName(), "opensearch-"+obj.GetNamespace()+"-")
 	}
+
+	majorVersion := OpenSearchMajorVersion("")
+	if v, found, _ := unstructured.NestedString(u.Object, "spec", "userConfig", "opensearch_version"); found {
+		version := OpenSearchMajorVersion("V" + v)
+		if version.IsValid() {
+			majorVersion = version
+		}
+	}
+
 	return &OpenSearch{
 		Name:                  name,
 		EnvironmentName:       envName,
@@ -170,6 +180,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		AivenProject:      obj.Spec.Project,
 		Tier:              tier,
 		Size:              size,
+		MajorVersion:      majorVersion,
 	}, nil
 }
 
@@ -207,9 +218,9 @@ func (o *OpenSearchMetadataInput) ValidationErrors(ctx context.Context) *validat
 
 type OpenSearchInput struct {
 	OpenSearchMetadataInput
-	Tier    OpenSearchTier          `json:"tier"`
-	Size    OpenSearchSize          `json:"size"`
-	Version *OpenSearchMajorVersion `json:"version,omitempty"`
+	Tier    OpenSearchTier         `json:"tier"`
+	Size    OpenSearchSize         `json:"size"`
+	Version OpenSearchMajorVersion `json:"version"`
 }
 
 func (o *OpenSearchInput) Validate(ctx context.Context) error {
@@ -222,7 +233,7 @@ func (o *OpenSearchInput) Validate(ctx context.Context) error {
 	if !o.Size.IsValid() {
 		verr.Add("size", "Invalid OpenSearch size: %s.", o.Size)
 	}
-	if o.Version != nil && !o.Version.IsValid() {
+	if !o.Version.IsValid() {
 		verr.Add("version", "Invalid OpenSearch version: %s.", o.Version.String())
 	}
 
@@ -394,4 +405,9 @@ type DeleteOpenSearchInput struct {
 
 type DeleteOpenSearchPayload struct {
 	OpenSearchDeleted *bool `json:"openSearchDeleted,omitempty"`
+}
+
+type OpenSearchVersion struct {
+	Actual       *string                `json:"actual,omitempty"`
+	DesiredMajor OpenSearchMajorVersion `json:"desiredMajor"`
 }
