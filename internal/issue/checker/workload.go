@@ -34,7 +34,7 @@ type Workload struct {
 }
 
 type V13sClient interface {
-	GetVulnerabilitySummaryForImage(ctx context.Context, imageName, imageTag string) (*vulnerabilities.GetVulnerabilitySummaryForImageResponse, error)
+	ListVulnerabilitySummaries(ctx context.Context, opts ...Option) (*vulnerabilities.ListVulnerabilitySummariesResponse, error)
 }
 
 func (w Workload) Run(ctx context.Context) ([]Issue, error) {
@@ -50,7 +50,6 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 		ret = appendIssues(ret, deprecatedRegistry(image, app.Obj.GetName(), app.Obj.GetNamespace(), env, issue.ResourceTypeApplication))
 		ret = appendIssues(ret, w.noRunningInstances(app.Obj, app.Obj.GetNamespace(), env))
 		ret = appendIssues(ret, w.specErrors(app.Obj, env))
-		ret = appendIssues(ret, w.vulnerabilities(ctx, image, app.GetName(), app.Obj.GetNamespace(), env, issue.ResourceTypeApplication)...)
 	}
 
 	for _, job := range w.JobLister.List(ctx) {
@@ -62,8 +61,9 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 		env := environmentmapper.EnvironmentName(job.Cluster)
 		ret = appendIssues(ret, deprecatedRegistry(image, job.Obj.Name, job.Obj.Namespace, env, issue.ResourceTypeJob))
 		ret = appendIssues(ret, w.failedJobRuns(job.GetName(), job.GetNamespace(), env))
-		ret = appendIssues(ret, w.vulnerabilities(ctx, image, job.GetName(), job.Obj.GetNamespace(), env, issue.ResourceTypeJob)...)
 	}
+
+	ret = appendIssues(ret, w.vulnerabilities(ctx)...)
 
 	return ret, nil
 }
@@ -318,45 +318,56 @@ func appendIssues(slice []Issue, issues ...*Issue) []Issue {
 	return slice
 }
 
-func (w Workload) vulnerabilities(ctx context.Context, imageRef, resourceName, team, env string, resourceType issue.ResourceType) []*Issue {
-	parts := strings.Split(imageRef, ":")
-	if len(parts) != 2 {
-		w.log.WithField("imageRef", imageRef).Error("invalid image reference")
-		return nil
-	}
-	resp, err := w.V13sClient.GetVulnerabilitySummaryForImage(ctx, parts[0], parts[1])
-	if err != nil {
-		w.log.WithError(err).WithField("imageRef", imageRef).Error("fetch image vulnerability summary")
-		return nil
+func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
+	mapType := func(s string) (issue.ResourceType, bool) {
+		if s == "job" {
+			return issue.ResourceTypeJob, true
+		}
+
+		if s == "app" {
+			return issue.ResourceTypeApplication, true
+		}
+
+		return "", false
 	}
 
-	summary := resp.GetVulnerabilitySummary()
+	resp, err := w.V13sClient.ListVulnerabilitySummaries(ctx)
+	if err != nil {
+		w.log.WithError(err).Error("fetch image vulnerability summaries")
+		return nil
+	}
 
 	var ret []*Issue
 
-	if summary.Critical > 0 || summary.RiskScore > 100 {
-		ret = append(ret, &Issue{
-			IssueType:    issue.IssueTypeVulnerableImage,
-			ResourceType: resourceType,
-			ResourceName: resourceName,
-			Team:         team,
-			Env:          env,
-			Severity:     issue.SeverityWarning,
-			Message: fmt.Sprintf("Image '%s' has %d critical vulnerabilities and a risk score of %d",
-				imageRef, summary.Critical, summary.RiskScore),
-		})
-	}
+	for _, node := range resp.GetNodes() {
+		workloadType, ok := mapType(node.Workload.GetType())
+		if !ok {
+			continue
+		}
 
-	if !summary.HasSbom {
-		ret = append(ret, &Issue{
-			IssueType:    issue.IssueTypeMissingSBOM,
-			ResourceType: resourceType,
-			ResourceName: resourceName,
-			Team:         team,
-			Env:          env,
-			Severity:     issue.SeverityWarning,
-			Message:      fmt.Sprintf("Image '%s' is missing a Software Bill of Materials (SBOM)", imageRef),
-		})
+		if node.VulnerabilitySummary.Critical > 0 || node.VulnerabilitySummary.RiskScore > 100 {
+			ret = append(ret, &Issue{
+				IssueType:    issue.IssueTypeVulnerableImage,
+				ResourceType: workloadType,
+				ResourceName: node.Workload.GetName(),
+				Team:         node.Workload.GetNamespace(),
+				Env:          node.Workload.GetCluster(),
+				Severity:     issue.SeverityWarning,
+				// Message:      fmt.Sprintf("Image '%s' has %d critical vulnerabilities and a risk score of %d", ),
+			})
+		}
+
+		if !node.VulnerabilitySummary.HasSbom {
+			ret = append(ret, &Issue{
+				IssueType:    issue.IssueTypeMissingSBOM,
+				ResourceType: workloadType,
+				ResourceName: node.Workload.GetName(),
+				Team:         node.Workload.GetNamespace(),
+				Env:          node.Workload.GetCluster(),
+				Severity:     issue.SeverityWarning,
+				Message:      fmt.Sprintf("Image '%s:%s' is missing a Software Bill of Materials (SBOM)", node.Workload.ImageName, node.Workload.ImageTag),
+			})
+		}
 	}
 
 	return ret
