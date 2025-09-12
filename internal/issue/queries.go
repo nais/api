@@ -158,6 +158,19 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 		return &FailedSynchronizationIssue{
 			Base: base,
 		}, nil
+	case IssueTypeVulnerableImage:
+		d, err := unmarshal[VulnerableImageIssueDetails](issue.IssueDetails)
+		if err != nil {
+			return nil, err
+		}
+		return &VulnerableImageIssue{
+			Base:                        base,
+			VulnerableImageIssueDetails: *d,
+		}, nil
+	case IssueTypeMissingSBOM:
+		return &MissingSbomIssue{
+			Base: base,
+		}, nil
 	}
 
 	return nil, fmt.Errorf("unknown issue type: %s", issue.IssueType)

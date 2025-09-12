@@ -175,6 +175,11 @@ type DeprecatedIngressIssueDetails struct {
 	Ingresses []string `json:"ingresses"`
 }
 
+type VulnerableImageIssueDetails struct {
+	RiskScore int `json:"riskScore"`
+	Critical  int `json:"critical"`
+}
+
 type IssueType string
 
 const (
@@ -370,9 +375,7 @@ func (MissingSbomIssue) IsNode() {}
 
 type VulnerableImageIssue struct {
 	Base
-
-	RiskScore int `json:"riskScore"`
-	Critical  int `json:"critical"`
+	VulnerableImageIssueDetails
 }
 
 func (VulnerableImageIssue) IsIssue() {}

@@ -37,7 +37,6 @@ import (
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/vulnerability"
-	"github.com/nais/v13s/pkg/api/vulnerabilities"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
@@ -334,17 +333,17 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("create SQL Admin service: %w", err)
 	}
 
-	//TODO: maybe do the v13sclient instantiation here, but use same patterns as for other fakes. (env = WITH_FAKE_V13S_CLIENT)
 	issueChecker, err := checker.New(
 		checker.Config{
 			AivenClient:    aivenClient,
 			CloudSQLClient: sqlAdminService,
-			V13sClient:     v13sClient(vulnMgr.Client, cfg.VulnerabilitiesApi.Endpoint == vulnerability.FakeVulnerabilitiesAPIURL),
+			V13sClient:     vulnMgr.Client,
 			Tenant:         cfg.Tenant,
 			Clusters:       cfg.K8s.AllClusterNames(),
 		},
 		pool,
 		watchers,
+		cfg.VulnerabilitiesApi.Endpoint == vulnerability.FakeVulnerabilitiesAPIURL,
 		log.WithField("subsystem", "issue_checker"),
 	)
 	if err != nil {
@@ -377,13 +376,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 
 	return nil
-}
-
-func v13sClient(client vulnerabilities.Client, fake bool) checker.V13sClient {
-	if fake {
-		return checker.FakeV13sClient{}
-	}
-	return client
 }
 
 // loadEnvFile will load a .env file if it exists. This is useful for local development.

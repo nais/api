@@ -2,7 +2,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
@@ -57,11 +56,11 @@ func (r *invalidSpecIssueResolver) Workload(ctx context.Context, obj *issue.Inva
 }
 
 func (r *missingSbomIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.MissingSbomIssue) (*team.TeamEnvironment, error) {
-	panic(fmt.Errorf("not implemented: TeamEnvironment - teamEnvironment"))
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *missingSbomIssueResolver) Workload(ctx context.Context, obj *issue.MissingSbomIssue) (workload.Workload, error) {
-	panic(fmt.Errorf("not implemented: Workload - workload"))
+	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
 func (r *noRunningInstancesIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.NoRunningInstancesIssue) (*team.TeamEnvironment, error) {
@@ -114,11 +113,11 @@ func (r *valkeyIssueResolver) Valkey(ctx context.Context, obj *issue.ValkeyIssue
 }
 
 func (r *vulnerableImageIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.VulnerableImageIssue) (*team.TeamEnvironment, error) {
-	panic(fmt.Errorf("not implemented: TeamEnvironment - teamEnvironment"))
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *vulnerableImageIssueResolver) Workload(ctx context.Context, obj *issue.VulnerableImageIssue) (workload.Workload, error) {
-	panic(fmt.Errorf("not implemented: Workload - workload"))
+	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
 func (r *Resolver) DeprecatedIngressIssue() gengql.DeprecatedIngressIssueResolver {

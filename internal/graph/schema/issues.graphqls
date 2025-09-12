@@ -109,28 +109,28 @@ enum IssueType {
 	FAILED_JOB_RUNS
 	FAILED_SYNCHRONIZATION
 	INVALID_SPEC
-    MISSING_SBOM
-    VULNERABLE_IMAGE
+	MISSING_SBOM
+	VULNERABLE_IMAGE
 }
 
 type VulnerableImageIssue implements Issue & Node {
-  id: ID!
-  teamEnvironment: TeamEnvironment!
-  severity: Severity!
-  message: String!
+	id: ID!
+	teamEnvironment: TeamEnvironment!
+	severity: Severity!
+	message: String!
 
-  workload: Workload!
-  riskScore: Int!
-  critical: Int!
+	workload: Workload!
+	riskScore: Int!
+	critical: Int!
 }
 
 type MissingSbomIssue implements Issue & Node {
-  id: ID!
-  teamEnvironment: TeamEnvironment!
-  severity: Severity!
-  message: String!
+	id: ID!
+	teamEnvironment: TeamEnvironment!
+	severity: Severity!
+	message: String!
 
-  workload: Workload!
+	workload: Workload!
 }
 
 type InvalidSpecIssue implements Issue & Node {

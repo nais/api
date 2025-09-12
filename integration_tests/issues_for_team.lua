@@ -494,3 +494,99 @@ Test.gql("SqlInstanceVersionIssue", function(t)
 		},
 	}
 end)
+
+Test.gql("VulnerableImageIssue", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				issues(
+					filter: {
+						issueType: VULNERABLE_IMAGE
+					},
+				) {
+					nodes {
+						__typename
+						severity
+						message
+						... on VulnerableImageIssue {
+							critical
+							riskScore
+							workload {
+								name
+							}
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				issues = {
+					nodes = {
+						{
+							__typename = "VulnerableImageIssue",
+							message = "Image 'vulnerable-image' has 5 critical vulnerabilities and a risk score of 250",
+							severity = "WARNING",
+							critical = 5,
+							riskScore = 250,
+							workload = {
+								name = "vulnerable",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("MissingSbomIssue", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				issues(
+					filter: {
+						issueType: MISSING_SBOM
+					},
+				) {
+					nodes {
+						__typename
+						severity
+						message
+						... on MissingSbomIssue {
+							workload {
+								name
+							}
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				issues = {
+					nodes = {
+						{
+							__typename = "MissingSbomIssue",
+							message = "Image 'missing-sbom-image:tag1' is missing a Software Bill of Materials (SBOM)",
+							severity = "WARNING",
+							workload = {
+								name = "missing-sbom",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)

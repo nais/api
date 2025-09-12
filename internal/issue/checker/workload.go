@@ -34,7 +34,7 @@ type Workload struct {
 }
 
 type V13sClient interface {
-	ListVulnerabilitySummaries(ctx context.Context, opts ...Option) (*vulnerabilities.ListVulnerabilitySummariesResponse, error)
+	ListVulnerabilitySummaries(ctx context.Context, opts ...vulnerabilities.Option) (*vulnerabilities.ListVulnerabilitySummariesResponse, error)
 }
 
 func (w Workload) Run(ctx context.Context) ([]Issue, error) {
@@ -353,7 +353,11 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 				Team:         node.Workload.GetNamespace(),
 				Env:          node.Workload.GetCluster(),
 				Severity:     issue.SeverityWarning,
-				// Message:      fmt.Sprintf("Image '%s' has %d critical vulnerabilities and a risk score of %d", ),
+				Message:      fmt.Sprintf("Image '%s' has %d critical vulnerabilities and a risk score of %d", node.Workload.ImageName, node.VulnerabilitySummary.Critical, node.VulnerabilitySummary.RiskScore),
+				IssueDetails: issue.VulnerableImageIssueDetails{
+					Critical:  int(node.VulnerabilitySummary.Critical),
+					RiskScore: int(node.VulnerabilitySummary.RiskScore),
+				},
 			})
 		}
 
@@ -386,4 +390,73 @@ func image(workload Imager) (string, bool) {
 		return workload.GetEffectiveImage(), true
 	}
 	return "", false
+}
+
+type fakeV13sClient struct{}
+
+func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...vulnerabilities.Option) (*vulnerabilities.ListVulnerabilitySummariesResponse, error) {
+	return &vulnerabilities.ListVulnerabilitySummariesResponse{
+		Nodes: []*vulnerabilities.WorkloadSummary{
+			{
+				Id: "1",
+				Workload: &vulnerabilities.Workload{
+					Name:      "vulnerable",
+					Namespace: "devteam",
+					Cluster:   "dev-gcp",
+					Type:      "app",
+					ImageName: "vulnerable-image",
+					ImageTag:  "tag1",
+				},
+				VulnerabilitySummary: &vulnerabilities.Summary{
+					HasSbom:   true,
+					Critical:  5,
+					RiskScore: 250,
+				},
+			},
+			{
+				Id: "2",
+				Workload: &vulnerabilities.Workload{
+					Name:      "missing-sbom",
+					Namespace: "devteam",
+					Cluster:   "dev-gcp",
+					Type:      "app",
+					ImageName: "missing-sbom-image",
+					ImageTag:  "tag1",
+				},
+				VulnerabilitySummary: &vulnerabilities.Summary{
+					HasSbom: false,
+				},
+			},
+			{
+				Id: "3",
+				Workload: &vulnerabilities.Workload{
+					Name:      "vulnerable",
+					Namespace: "myteam",
+					Cluster:   "dev-gcp",
+					Type:      "app",
+					ImageName: "vulnerable-image",
+					ImageTag:  "tag1",
+				},
+				VulnerabilitySummary: &vulnerabilities.Summary{
+					HasSbom:   true,
+					Critical:  5,
+					RiskScore: 250,
+				},
+			},
+			{
+				Id: "4",
+				Workload: &vulnerabilities.Workload{
+					Name:      "missing-sbom",
+					Namespace: "myteam",
+					Cluster:   "dev-gcp",
+					Type:      "app",
+					ImageName: "missing-sbom-image",
+					ImageTag:  "tag1",
+				},
+				VulnerabilitySummary: &vulnerabilities.Summary{
+					HasSbom: false,
+				},
+			},
+		},
+	}, nil
 }
