@@ -166,6 +166,7 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 			},
 			pool,
 			watchers,
+			true,
 			log.WithField("subsystem", "issue_checker"),
 		)
 		if err != nil {

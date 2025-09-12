@@ -337,11 +337,13 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		checker.Config{
 			AivenClient:    aivenClient,
 			CloudSQLClient: sqlAdminService,
+			V13sClient:     vulnMgr.Client,
 			Tenant:         cfg.Tenant,
 			Clusters:       cfg.K8s.AllClusterNames(),
 		},
 		pool,
 		watchers,
+		cfg.VulnerabilitiesApi.Endpoint == vulnerability.FakeVulnerabilitiesAPIURL,
 		log.WithField("subsystem", "issue_checker"),
 	)
 	if err != nil {

@@ -1,0 +1,13 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: vulnerable
+spec:
+  image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: missing-sbom
+spec:
+  image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest

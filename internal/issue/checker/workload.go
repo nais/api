@@ -13,11 +13,13 @@ import (
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	libevents "github.com/nais/liberator/pkg/events"
+	"github.com/nais/v13s/pkg/api/vulnerabilities"
 	"github.com/sirupsen/logrus"
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+
 	"k8s.io/apimachinery/pkg/selection"
 )
 
@@ -26,38 +28,51 @@ type Workload struct {
 	JobLister         KubernetesLister[*watcher.EnvironmentWrapper[*nais_io_v1.Naisjob]]
 	PodWatcher        watcher.Watcher[*v1.Pod]
 	RunWatcher        watcher.Watcher[*batchv1.Job]
-	log               logrus.FieldLogger
+	V13sClient        V13sClient
+
+	log logrus.FieldLogger
+}
+
+type V13sClient interface {
+	ListVulnerabilitySummaries(ctx context.Context, opts ...vulnerabilities.Option) (*vulnerabilities.ListVulnerabilitySummariesResponse, error)
 }
 
 func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 	var ret []Issue
 	for _, app := range w.ApplicationLister.List(ctx) {
+		image, ok := image(app.Obj)
+		if !ok {
+			w.log.WithField("application", app.Obj.GetName()).WithField("namespace", app.Obj.GetNamespace()).Warn("application has no image")
+			continue
+		}
 		env := environmentmapper.EnvironmentName(app.Cluster)
 		ret = appendIssues(ret, deprecatedIngress(app.Obj, env))
-		ret = appendIssues(ret, deprecatedRegistry(app.Obj.Spec.Image, app.Obj.Name, app.Obj.Namespace, env, issue.ResourceTypeApplication))
-		ret = appendIssues(ret, w.noRunningInstances(app.Obj, app.Obj.Namespace, env))
+		ret = appendIssues(ret, deprecatedRegistry(image, app.Obj.GetName(), app.Obj.GetNamespace(), env, issue.ResourceTypeApplication))
+		ret = appendIssues(ret, w.noRunningInstances(app.Obj, app.Obj.GetNamespace(), env))
 		ret = appendIssues(ret, w.specErrors(app.Obj, env))
 	}
 
 	for _, job := range w.JobLister.List(ctx) {
+		image, ok := image(job.Obj)
+		if !ok {
+			w.log.WithField("job", job.Obj.GetName()).WithField("namespace", job.Obj.GetNamespace()).Warn("job has no image")
+			continue
+		}
 		env := environmentmapper.EnvironmentName(job.Cluster)
-		ret = appendIssues(ret, deprecatedRegistry(job.Obj.Spec.Image, job.Obj.Name, job.Obj.Namespace, env, issue.ResourceTypeJob))
+		ret = appendIssues(ret, deprecatedRegistry(image, job.Obj.Name, job.Obj.Namespace, env, issue.ResourceTypeJob))
 		ret = appendIssues(ret, w.failedJobRuns(job.GetName(), job.GetNamespace(), env))
 	}
+
+	ret = appendIssues(ret, w.vulnerabilities(ctx)...)
 
 	return ret, nil
 }
 
 func (w Workload) specErrors(app *nais_io_v1alpha1.Application, env string) *Issue {
-	if app == nil {
+	if app == nil || app.GetStatus() == nil || app.GetStatus().Conditions == nil {
 		return nil
 	}
-	if app.GetStatus() == nil {
-		return nil
-	}
-	if app.GetStatus().Conditions == nil {
-		return nil
-	}
+
 	condition, ok := w.condition(*app.GetStatus().Conditions)
 	if !ok {
 		return nil
@@ -301,4 +316,147 @@ func appendIssues(slice []Issue, issues ...*Issue) []Issue {
 		}
 	}
 	return slice
+}
+
+func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
+	mapType := func(s string) (issue.ResourceType, bool) {
+		if s == "job" {
+			return issue.ResourceTypeJob, true
+		}
+
+		if s == "app" {
+			return issue.ResourceTypeApplication, true
+		}
+
+		return "", false
+	}
+
+	resp, err := w.V13sClient.ListVulnerabilitySummaries(ctx)
+	if err != nil {
+		w.log.WithError(err).Error("fetch image vulnerability summaries")
+		return nil
+	}
+
+	var ret []*Issue
+
+	for _, node := range resp.GetNodes() {
+		workloadType, ok := mapType(node.Workload.GetType())
+		if !ok {
+			continue
+		}
+
+		if node.VulnerabilitySummary.Critical > 0 || node.VulnerabilitySummary.RiskScore > 100 {
+			ret = append(ret, &Issue{
+				IssueType:    issue.IssueTypeVulnerableImage,
+				ResourceType: workloadType,
+				ResourceName: node.Workload.GetName(),
+				Team:         node.Workload.GetNamespace(),
+				Env:          node.Workload.GetCluster(),
+				Severity:     issue.SeverityWarning,
+				Message:      fmt.Sprintf("Image '%s' has %d critical vulnerabilities and a risk score of %d", node.Workload.ImageName, node.VulnerabilitySummary.Critical, node.VulnerabilitySummary.RiskScore),
+				IssueDetails: issue.VulnerableImageIssueDetails{
+					Critical:  int(node.VulnerabilitySummary.Critical),
+					RiskScore: int(node.VulnerabilitySummary.RiskScore),
+				},
+			})
+		}
+
+		if !node.VulnerabilitySummary.HasSbom {
+			ret = append(ret, &Issue{
+				IssueType:    issue.IssueTypeMissingSBOM,
+				ResourceType: workloadType,
+				ResourceName: node.Workload.GetName(),
+				Team:         node.Workload.GetNamespace(),
+				Env:          node.Workload.GetCluster(),
+				Severity:     issue.SeverityWarning,
+				Message:      fmt.Sprintf("Image '%s:%s' is missing a Software Bill of Materials (SBOM)", node.Workload.ImageName, node.Workload.ImageTag),
+			})
+		}
+	}
+
+	return ret
+}
+
+type Imager interface {
+	GetEffectiveImage() string
+	GetImage() string
+}
+
+func image(workload Imager) (string, bool) {
+	if workload.GetImage() != "" {
+		return workload.GetImage(), true
+	}
+	if workload.GetEffectiveImage() != "" {
+		return workload.GetEffectiveImage(), true
+	}
+	return "", false
+}
+
+type fakeV13sClient struct{}
+
+func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...vulnerabilities.Option) (*vulnerabilities.ListVulnerabilitySummariesResponse, error) {
+	return &vulnerabilities.ListVulnerabilitySummariesResponse{
+		Nodes: []*vulnerabilities.WorkloadSummary{
+			{
+				Id: "1",
+				Workload: &vulnerabilities.Workload{
+					Name:      "vulnerable",
+					Namespace: "devteam",
+					Cluster:   "dev-gcp",
+					Type:      "app",
+					ImageName: "vulnerable-image",
+					ImageTag:  "tag1",
+				},
+				VulnerabilitySummary: &vulnerabilities.Summary{
+					HasSbom:   true,
+					Critical:  5,
+					RiskScore: 250,
+				},
+			},
+			{
+				Id: "2",
+				Workload: &vulnerabilities.Workload{
+					Name:      "missing-sbom",
+					Namespace: "devteam",
+					Cluster:   "dev-gcp",
+					Type:      "app",
+					ImageName: "missing-sbom-image",
+					ImageTag:  "tag1",
+				},
+				VulnerabilitySummary: &vulnerabilities.Summary{
+					HasSbom: false,
+				},
+			},
+			{
+				Id: "3",
+				Workload: &vulnerabilities.Workload{
+					Name:      "vulnerable",
+					Namespace: "myteam",
+					Cluster:   "dev-gcp",
+					Type:      "app",
+					ImageName: "vulnerable-image",
+					ImageTag:  "tag1",
+				},
+				VulnerabilitySummary: &vulnerabilities.Summary{
+					HasSbom:   true,
+					Critical:  5,
+					RiskScore: 250,
+				},
+			},
+			{
+				Id: "4",
+				Workload: &vulnerabilities.Workload{
+					Name:      "missing-sbom",
+					Namespace: "myteam",
+					Cluster:   "dev-gcp",
+					Type:      "app",
+					ImageName: "missing-sbom-image",
+					ImageTag:  "tag1",
+				},
+				VulnerabilitySummary: &vulnerabilities.Summary{
+					HasSbom: false,
+				},
+			},
+		},
+	}, nil
 }

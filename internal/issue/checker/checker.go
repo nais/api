@@ -46,6 +46,7 @@ type Checker struct {
 type Config struct {
 	AivenClient    aiven.AivenClient
 	CloudSQLClient *sqlinstance.Client
+	V13sClient     V13sClient
 	Tenant         string
 	Clusters       []string
 }
@@ -77,7 +78,7 @@ type options struct {
 }
 type Option func(*options)
 
-func New(config Config, pool *pgxpool.Pool, watchers *watchers.Watchers, log logrus.FieldLogger, opts ...Option) (*Checker, error) {
+func New(config Config, pool *pgxpool.Pool, watchers *watchers.Watchers, fakeEnabled bool, log logrus.FieldLogger, opts ...Option) (*Checker, error) {
 	meter := otel.GetMeterProvider().Meter("nais_api_issues")
 	d, err := meter.Float64Gauge("nais_api_issue_checker_duration")
 	if err != nil {
@@ -106,10 +107,15 @@ func New(config Config, pool *pgxpool.Pool, watchers *watchers.Watchers, log log
 		opt(o)
 	}
 
+	v13s := config.V13sClient
+	if fakeEnabled {
+		v13s = &fakeV13sClient{}
+	}
+
 	checker.checks = []check{
 		Aiven{aivenClient: config.AivenClient, tenant: config.Tenant, environments: envs, log: log.WithField("check", "Aiven")},
 		SQLInstance{Client: config.CloudSQLClient, SQLInstanceLister: o.sqlInstanceLister, Log: log.WithField("check", "SQLInstance")},
-		Workload{ApplicationLister: o.applicationLister, JobLister: o.jobLister, PodWatcher: o.podWatcher, RunWatcher: o.runWatcher, log: log.WithField("check", "Workload")},
+		Workload{ApplicationLister: o.applicationLister, JobLister: o.jobLister, PodWatcher: o.podWatcher, RunWatcher: o.runWatcher, V13sClient: v13s, log: log.WithField("check", "Workload")},
 	}
 
 	return checker, nil
@@ -156,21 +162,21 @@ func (c *Checker) runChecks(ctx context.Context) {
 	c.durationGauge.Record(ctx, time.Since(totalTime).Seconds(), metric.WithAttributes(attribute.String("operation", "all_checks")))
 
 	batchIssues := make([]checkersql.BatchInsertIssuesParams, 0)
-	for _, issue := range issues {
-		d, err := json.Marshal(issue.IssueDetails)
+	for _, i := range issues {
+		d, err := json.Marshal(i.IssueDetails)
 		if err != nil {
 			c.log.WithError(err).Error("marshal issue details")
 			continue
 		}
 
 		batchIssues = append(batchIssues, checkersql.BatchInsertIssuesParams{
-			IssueType:    string(issue.IssueType),
-			ResourceName: issue.ResourceName,
-			ResourceType: string(issue.ResourceType),
-			Team:         issue.Team,
-			Env:          issue.Env,
-			Severity:     string(issue.Severity),
-			Message:      issue.Message,
+			IssueType:    string(i.IssueType),
+			ResourceName: i.ResourceName,
+			ResourceType: string(i.ResourceType),
+			Team:         i.Team,
+			Env:          i.Env,
+			Severity:     string(i.Severity),
+			Message:      i.Message,
 			IssueDetails: d,
 		})
 	}
@@ -200,12 +206,12 @@ func (c *Checker) recordIssues(ctx context.Context, issues []Issue) {
 		Env          string
 	}
 	compoundCounter := make(map[compoundKey]int)
-	for _, issue := range issues {
+	for _, i := range issues {
 		key := compoundKey{
-			IssueType:    issue.IssueType.String(),
-			ResourceType: issue.ResourceType.String(),
-			Severity:     issue.Severity.String(),
-			Env:          issue.Env,
+			IssueType:    i.IssueType.String(),
+			ResourceType: i.ResourceType.String(),
+			Severity:     i.Severity.String(),
+			Env:          i.Env,
 		}
 		compoundCounter[key]++
 	}
