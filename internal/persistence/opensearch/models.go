@@ -252,15 +252,12 @@ type OpenSearchMajorVersion string
 
 const (
 	OpenSearchMajorVersionV2 OpenSearchMajorVersion = "V2"
+	OpenSearchMajorVersionV1 OpenSearchMajorVersion = "V1"
 )
-
-var AllOpenSearchMajorVersion = []OpenSearchMajorVersion{
-	OpenSearchMajorVersionV2,
-}
 
 func (e OpenSearchMajorVersion) IsValid() bool {
 	switch e {
-	case OpenSearchMajorVersionV2:
+	case OpenSearchMajorVersionV2, OpenSearchMajorVersionV1:
 		return true
 	}
 	return false

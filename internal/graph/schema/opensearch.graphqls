@@ -149,6 +149,8 @@ enum OpenSearchSize {
 enum OpenSearchMajorVersion {
 	"OpenSearch Version 2.x"
 	V2
+	"OpenSearch Version 1.x"
+	V1
 }
 
 input CreateOpenSearchInput {
