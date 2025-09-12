@@ -81,16 +81,34 @@ func ListAccess(ctx context.Context, openSearch *OpenSearch, page *pagination.Pa
 	return pagination.NewConnection(ret, page, len(all)), nil
 }
 
-func GetOpenSearchVersion(ctx context.Context, key AivenDataLoaderKey) (string, error) {
-	return fromContext(ctx).versionLoader.Load(ctx, &key)
-}
-
-func GetOpenSearchMajorVersion(ctx context.Context, key AivenDataLoaderKey) (OpenSearchMajorVersion, error) {
-	fullVersion, err := GetOpenSearchVersion(ctx, key)
-	if err != nil {
-		return "", err
+func GetOpenSearchVersion(ctx context.Context, os *OpenSearch) (*OpenSearchVersion, error) {
+	key := AivenDataLoaderKey{
+		Project:     os.AivenProject,
+		ServiceName: os.Name,
 	}
-	return OpenSearchMajorVersionFromAivenString(fullVersion)
+
+	major := os.MajorVersion
+	var versionString *string
+	v, err := fromContext(ctx).versionLoader.Load(ctx, &key)
+	if err == nil {
+		versionString = ptr.To(v)
+		if major == "" {
+			mv, err := OpenSearchMajorVersionFromAivenString(v)
+			if err != nil {
+				return nil, err
+			}
+			major = mv
+		}
+	}
+
+	if major == "" {
+		major = OpenSearchMajorVersionV2
+	}
+
+	return &OpenSearchVersion{
+		DesiredMajor: major,
+		Actual:       versionString,
+	}, nil
 }
 
 func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environment string, reference *nais_io_v1.OpenSearch) (*OpenSearch, error) {
@@ -142,6 +160,7 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 	if err != nil {
 		return nil, err
 	}
+	version := strings.TrimLeft(input.Version.String(), "V")
 
 	res.Object["spec"] = map[string]any{
 		"cloudName":             "google-europe-north1",
@@ -154,13 +173,9 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 			"team":        namespace,
 			"tenant":      fromContext(ctx).tenantName,
 		},
-	}
-	if input.Version != nil {
-		version := strings.TrimLeft(input.Version.String(), "V")
-		err := unstructured.SetNestedField(res.Object, version, "spec", "userConfig", "opensearch_version")
-		if err != nil {
-			return nil, err
-		}
+		"userConfig": map[string]any{
+			"opensearch_version": version,
+		},
 	}
 
 	ret, err := client.Namespace(namespace).Create(ctx, res, metav1.CreateOptions{})
@@ -268,27 +283,24 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 		}
 	}
 
-	if input.Version != nil {
-		oldVersion, found, err := unstructured.NestedString(openSearch.Object, "spec", "userConfig", "opensearch_version")
+	oldVersion, found, err := unstructured.NestedString(openSearch.Object, "spec", "userConfig", "opensearch_version")
+	if err != nil {
+		return nil, err
+	}
+	if !found || oldVersion != input.Version.String() {
+		changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
+			Field: "version",
+			OldValue: func() *string {
+				if found {
+					return ptr.To(oldVersion)
+				}
+				return nil
+			}(),
+			NewValue: ptr.To(input.Version.String()),
+		})
+		err = unstructured.SetNestedField(openSearch.Object, input.Version.ToAivenString(), "spec", "userConfig", "opensearch_version")
 		if err != nil {
 			return nil, err
-		}
-
-		if !found || oldVersion != input.Version.String() {
-			changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
-				Field: "version",
-				OldValue: func() *string {
-					if found {
-						return ptr.To(oldVersion)
-					}
-					return nil
-				}(),
-				NewValue: ptr.To(input.Version.String()),
-			})
-			err = unstructured.SetNestedField(openSearch.Object, input.Version.ToAivenString(), "spec", "userConfig", "opensearch_version")
-			if err != nil {
-				return nil, err
-			}
 		}
 	}
 

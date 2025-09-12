@@ -47,6 +47,13 @@ type TeamInventoryCountOpenSearches {
 	total: Int!
 }
 
+type OpenSearchVersion {
+	"The full version string of the OpenSearch instance. This will be available after the instance is created."
+	actual: String
+	"The desired major version of the OpenSearch instance."
+	desiredMajor: OpenSearchMajorVersion!
+}
+
 type OpenSearch implements Persistence & Node {
 	id: ID!
 	name: String!
@@ -64,10 +71,9 @@ type OpenSearch implements Persistence & Node {
 		orderBy: OpenSearchAccessOrder
 	): OpenSearchAccessConnection!
 	"Fetch version for the OpenSearch instance."
-	version: String!
+	version: OpenSearchVersion!
 	tier: OpenSearchTier!
 	size: OpenSearchSize!
-	majorVersion: OpenSearchMajorVersion!
 }
 
 type OpenSearchAccess {
@@ -143,6 +149,8 @@ enum OpenSearchSize {
 enum OpenSearchMajorVersion {
 	"OpenSearch Version 2.x"
 	V2
+	"OpenSearch Version 1.x"
+	V1
 }
 
 input CreateOpenSearchInput {
@@ -157,7 +165,7 @@ input CreateOpenSearchInput {
 	"Size of the OpenSearch instance."
 	size: OpenSearchSize!
 	"Major version of the OpenSearch instance."
-	version: OpenSearchMajorVersion
+	version: OpenSearchMajorVersion!
 }
 
 type CreateOpenSearchPayload {
@@ -177,7 +185,7 @@ input UpdateOpenSearchInput {
 	"Size of the OpenSearch instance."
 	size: OpenSearchSize!
 	"Major version of the OpenSearch instance."
-	version: OpenSearchMajorVersion
+	version: OpenSearchMajorVersion!
 }
 
 type UpdateOpenSearchPayload {

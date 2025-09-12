@@ -18,6 +18,7 @@ Test.gql("Create opensearch in non-existing team", function(t)
 		      teamSlug: "devteam"
 		      tier: SINGLE_NODE
 		      size: RAM_16GB
+		      version: V2
 		    }
 		  ) {
 		    openSearch {
@@ -51,6 +52,7 @@ Test.gql("Create opensearch as non-team member", function(t)
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
 		      size: RAM_16GB
+		      version: V2
 		    }
 		  ) {
 		    openSearch {
@@ -84,6 +86,7 @@ Test.gql("Create opensearch as team member", function(t)
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
 		      size: RAM_16GB
+		      version: V2
 		    }
 		  ) {
 		    openSearch {
@@ -115,6 +118,7 @@ Test.gql("Create opensearch as team member with existing name", function(t)
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
 		      size: RAM_16GB
+		      version: V2
 		    }
 		  ) {
 		    openSearch {
@@ -166,6 +170,9 @@ Test.k8s("Validate OpenSearch resource", function(t)
 				team = mainTeam:slug(),
 				tenant = "some-tenant",
 			},
+			userConfig = {
+				opensearch_version = "2",
+			},
 		},
 	})
 end)
@@ -216,6 +223,7 @@ Test.gql("Update OpenSearch in non-existing team", function(t)
 		      teamSlug: "devteam"
 		      tier: SINGLE_NODE
 		      size: RAM_16GB
+		      version: V2
 		    }
 		  ) {
 		    openSearch {
@@ -249,6 +257,7 @@ Test.gql("Update OpenSearch as non-team-member", function(t)
 		      teamSlug: "devteam"
 		      tier: SINGLE_NODE
 		      size: RAM_16GB
+		      version: V2
 		    }
 		  ) {
 		    openSearch {
@@ -282,6 +291,7 @@ Test.gql("Update OpenSearch as team-member", function(t)
 		      teamSlug: "someteamname"
 		      tier: HIGH_AVAILABILITY
 		      size: RAM_4GB
+		      version: V2
 		    }
 		  ) {
 		    openSearch {
@@ -330,6 +340,9 @@ Test.k8s("Validate OpenSearch resource after update", function(t)
 				environment = "dev",
 				team = mainTeam:slug(),
 				tenant = "some-tenant",
+			},
+			userConfig = {
+				opensearch_version = "2",
 			},
 		},
 	})
@@ -385,6 +398,7 @@ Test.gql("Update non-console managed OpenSearch as team-member", function(t)
 		      teamSlug: "someteamname"
 		      tier: HIGH_AVAILABILITY
 		      size: RAM_4GB
+		      version: V2
 		    }
 		  ) {
 		    openSearch {
