@@ -49,7 +49,7 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 		ret = appendIssues(ret, deprecatedIngress(app.Obj, env))
 		ret = appendIssues(ret, deprecatedRegistry(image, app.Obj.GetName(), app.Obj.GetNamespace(), env, issue.ResourceTypeApplication))
 		ret = appendIssues(ret, w.noRunningInstances(app.Obj, app.Obj.GetNamespace(), env))
-		ret = appendIssues(ret, w.specErrors(app.Obj, env))
+		ret = appendIssues(ret, w.specErrors(app.Obj, env, issue.ResourceTypeApplication))
 	}
 
 	for _, job := range w.JobLister.List(ctx) {
@@ -61,6 +61,7 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 		env := environmentmapper.EnvironmentName(job.Cluster)
 		ret = appendIssues(ret, deprecatedRegistry(image, job.Obj.Name, job.Obj.Namespace, env, issue.ResourceTypeJob))
 		ret = appendIssues(ret, w.failedJobRuns(job.GetName(), job.GetNamespace(), env))
+		ret = appendIssues(ret, w.specErrors(job.Obj, env, issue.ResourceTypeJob))
 	}
 
 	ret = appendIssues(ret, w.vulnerabilities(ctx)...)
@@ -68,24 +69,23 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 	return ret, nil
 }
 
-func (w Workload) specErrors(app *nais_io_v1alpha1.Application, env string) *Issue {
-	if app == nil || app.GetStatus() == nil || app.GetStatus().Conditions == nil {
+func (w Workload) specErrors(wl NaisWorkload, env string, resourceType issue.ResourceType) *Issue {
+	if wl == nil || wl.GetStatus() == nil || wl.GetStatus().Conditions == nil {
 		return nil
 	}
 
-	condition, ok := w.condition(*app.GetStatus().Conditions)
+	condition, ok := w.condition(*wl.GetStatus().Conditions)
 	if !ok {
 		return nil
 	}
 
 	switch condition.Reason {
-	// A FailedGenerate error is almost always because of invalid yaml.
 	case libevents.FailedGenerate:
 		return &Issue{
 			IssueType:    issue.IssueTypeInvalidSpec,
-			ResourceName: app.Name,
-			ResourceType: issue.ResourceTypeApplication,
-			Team:         app.Namespace,
+			ResourceName: wl.GetName(),
+			ResourceType: resourceType,
+			Team:         wl.GetNamespace(),
 			Env:          env,
 			Severity:     issue.SeverityCritical,
 			Message:      condition.Message,
@@ -94,9 +94,9 @@ func (w Workload) specErrors(app *nais_io_v1alpha1.Application, env string) *Iss
 	case libevents.FailedSynchronization:
 		return &Issue{
 			IssueType:    issue.IssueTypeFailedSynchronization,
-			ResourceName: app.Name,
+			ResourceName: wl.GetName(),
 			ResourceType: issue.ResourceTypeApplication,
-			Team:         app.Namespace,
+			Team:         wl.GetNamespace(),
 			Env:          env,
 			Severity:     issue.SeverityWarning,
 			Message:      condition.Message,
@@ -386,12 +386,15 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 	return ret
 }
 
-type Imager interface {
+type NaisWorkload interface {
 	GetEffectiveImage() string
 	GetImage() string
+	GetName() string
+	GetNamespace() string
+	GetStatus() *nais_io_v1.Status
 }
 
-func image(workload Imager) (string, bool) {
+func image(workload NaisWorkload) (string, bool) {
 	if workload.GetImage() != "" {
 		return workload.GetImage(), true
 	}

@@ -4,24 +4,6 @@ Team.new("myteam", "purpose", "#slack_channel")
 local checker = IssueChecker.new()
 checker:runChecks()
 
---DeprecatedIngressIssue
---DeprecatedRegistryIssue
---FailedJobRunsIssue
---NoRunningInstancesIssue
---OpenSearchIssue
---SqlInstanceStateIssue
---SqlInstanceVersionIssue
---ValkeyIssue
-
---OPENSEARCH
---VALKEY
---SQLINSTANCE_STATE
---SQLINSTANCE_VERSION
---DEPRECATED_INGRESS
---DEPRECATED_REGISTRY
---NO_RUNNING_INSTANCES
---FAILED_JOB_RUNS
-
 Test.gql("DeprecatedIngressIssue", function(t)
 	t.addHeader("x-user-email", user:email())
 
@@ -239,6 +221,7 @@ Test.gql("InvalidSpecIssue", function(t)
 						message
 						... on InvalidSpecIssue {
 							workload {
+								__typename
 								name
 							}
 						}
@@ -258,6 +241,16 @@ Test.gql("InvalidSpecIssue", function(t)
 							message = "Human readable text from the operator",
 							severity = "CRITICAL",
 							workload = {
+								__typename = "Job",
+								name = "job-failed-generate",
+							},
+						},
+						{
+							__typename = "InvalidSpecIssue",
+							message = "Human readable text from the operator",
+							severity = "CRITICAL",
+							workload = {
+								__typename = "Application",
 								name = "app-failed-generate",
 							},
 						},
@@ -305,14 +298,6 @@ Test.gql("NoRunningInstancesIssue", function(t)
 			team = {
 				issues = {
 					nodes = {
-						{
-							__typename = "NoRunningInstancesIssue",
-							message = "Application has no running instances",
-							severity = "CRITICAL",
-							workload = {
-								name = "app-failed-generate",
-							},
-						},
 						{
 							__typename = "NoRunningInstancesIssue",
 							message = "Application has no running instances",

@@ -1,0 +1,49 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  creationTimestamp: "2025-06-24T10:47:59Z"
+  finalizers:
+    - naiserator.nais.io/finalizer
+  generation: 31
+  labels:
+    team: myteam
+  name: app-failed-generate
+  namespace: myteam
+  resourceVersion: "1757494756766351004"
+  uid: 386033a2-d76f-4389-af2b-5ae84abb86b9
+spec:
+  image: europe-north1-docker.pkg.dev/nais-management-233d/myteam/app-failed-generate:2025.09.10-08.54-2914eb8
+status:
+  conditions:
+    - lastTransitionTime: "2025-09-10T08:59:16Z"
+      message: Human readable text from the operator
+      reason: FailedGenerate
+      status: "True"
+      type: SynchronizationState
+  effectiveImage: europe-north1-docker.pkg.dev/nais-management-233d/myteam/testnorge-app-failed-generate:2025.09.10-08.54-2914eb8
+  problems:
+    - message: Human readable text from the operator
+      type: Error
+  synchronizationState: FailedGenerate
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  labels:
+    team: myteam
+  name: job-failed-generate
+  namespace: myteam
+spec:
+  image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+status:
+  conditions:
+    - lastTransitionTime: "2025-09-10T08:59:16Z"
+      message: Human readable text from the operator
+      reason: FailedGenerate
+      status: "True"
+      type: SynchronizationState
+  effectiveImage: europe-north1-docker.pkg.dev/nais-management-233d/myteam/testnorge-app-failed-generate:2025.09.10-08.54-2914eb8
+  problems:
+    - message: Human readable text from the operator
+      type: Error
+  synchronizationState: FailedGenerate
