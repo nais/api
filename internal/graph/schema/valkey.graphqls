@@ -251,6 +251,8 @@ extend enum ActivityLogActivityType {
 	VALKEY_UPDATED
 	"Valkey was deleted."
 	VALKEY_DELETED
+	"Started service maintenance on Valkey instance."
+	VALKEY_MAINTENANCE_STARTED
 }
 
 type ValkeyCreatedActivityLogEntry implements ActivityLogEntry & Node {
