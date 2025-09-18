@@ -351,7 +351,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 				ResourceType: workloadType,
 				ResourceName: node.Workload.GetName(),
 				Team:         node.Workload.GetNamespace(),
-				Env:          node.Workload.GetCluster(),
+				Env:          environmentmapper.EnvironmentName(node.Workload.GetCluster()),
 				Severity:     issue.SeverityWarning,
 				Message:      fmt.Sprintf("Image '%s' has %d critical vulnerabilities and a risk score of %d", node.Workload.ImageName, node.VulnerabilitySummary.Critical, node.VulnerabilitySummary.RiskScore),
 				IssueDetails: issue.VulnerableImageIssueDetails{
@@ -367,7 +367,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 				ResourceType: workloadType,
 				ResourceName: node.Workload.GetName(),
 				Team:         node.Workload.GetNamespace(),
-				Env:          node.Workload.GetCluster(),
+				Env:          environmentmapper.EnvironmentName(node.Workload.GetCluster()),
 				Severity:     issue.SeverityWarning,
 				Message:      fmt.Sprintf("Image '%s:%s' is missing a Software Bill of Materials (SBOM)", node.Workload.ImageName, node.Workload.ImageTag),
 			})
