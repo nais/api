@@ -333,17 +333,6 @@ const (
 	ValkeySizeRAM200gb ValkeySize = "RAM_200GB"
 )
 
-var AllValkeySize = []ValkeySize{
-	ValkeySizeRAM1gb,
-	ValkeySizeRAM4gb,
-	ValkeySizeRAM8gb,
-	ValkeySizeRAM14gb,
-	ValkeySizeRAM28gb,
-	ValkeySizeRAM56gb,
-	ValkeySizeRAM112gb,
-	ValkeySizeRAM200gb,
-}
-
 func (e ValkeySize) IsValid() bool {
 	switch e {
 	case ValkeySizeRAM1gb, ValkeySizeRAM4gb, ValkeySizeRAM8gb, ValkeySizeRAM14gb, ValkeySizeRAM28gb, ValkeySizeRAM56gb, ValkeySizeRAM112gb, ValkeySizeRAM200gb:
@@ -379,11 +368,6 @@ const (
 	ValkeyTierSingleNode       ValkeyTier = "SINGLE_NODE"
 	ValkeyTierHighAvailability ValkeyTier = "HIGH_AVAILABILITY"
 )
-
-var AllValkeyTier = []ValkeyTier{
-	ValkeyTierSingleNode,
-	ValkeyTierHighAvailability,
-}
 
 func (e ValkeyTier) IsValid() bool {
 	switch e {

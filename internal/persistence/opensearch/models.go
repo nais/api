@@ -305,6 +305,7 @@ func OpenSearchMajorVersionFromAivenString(s string) (OpenSearchMajorVersion, er
 type OpenSearchSize string
 
 const (
+	OpenSearchSizeRAM2gb  OpenSearchSize = "RAM_2GB"
 	OpenSearchSizeRAM4gb  OpenSearchSize = "RAM_4GB"
 	OpenSearchSizeRAM8gb  OpenSearchSize = "RAM_8GB"
 	OpenSearchSizeRAM16gb OpenSearchSize = "RAM_16GB"
@@ -312,17 +313,9 @@ const (
 	OpenSearchSizeRAM64gb OpenSearchSize = "RAM_64GB"
 )
 
-var AllOpenSearchSize = []OpenSearchSize{
-	OpenSearchSizeRAM4gb,
-	OpenSearchSizeRAM8gb,
-	OpenSearchSizeRAM16gb,
-	OpenSearchSizeRAM32gb,
-	OpenSearchSizeRAM64gb,
-}
-
 func (e OpenSearchSize) IsValid() bool {
 	switch e {
-	case OpenSearchSizeRAM4gb, OpenSearchSizeRAM8gb, OpenSearchSizeRAM16gb, OpenSearchSizeRAM32gb, OpenSearchSizeRAM64gb:
+	case OpenSearchSizeRAM2gb, OpenSearchSizeRAM4gb, OpenSearchSizeRAM8gb, OpenSearchSizeRAM16gb, OpenSearchSizeRAM32gb, OpenSearchSizeRAM64gb:
 		return true
 	}
 	return false
@@ -355,11 +348,6 @@ const (
 	OpenSearchTierSingleNode       OpenSearchTier = "SINGLE_NODE"
 	OpenSearchTierHighAvailability OpenSearchTier = "HIGH_AVAILABILITY"
 )
-
-var AllOpenSearchTier = []OpenSearchTier{
-	OpenSearchTierSingleNode,
-	OpenSearchTierHighAvailability,
-}
 
 func (e OpenSearchTier) IsValid() bool {
 	switch e {

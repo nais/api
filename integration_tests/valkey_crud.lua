@@ -339,6 +339,105 @@ Test.k8s("Validate Valkey resource after update", function(t)
 	})
 end)
 
+Test.gql("Create valkey with tier and size equivalent to hobbyist plan", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation CreateValkey {
+		  createValkey(
+		    input: {
+		      name: "foobar-hobbyist"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: SINGLE_NODE
+		      size: RAM_1GB
+		    }
+		  ) {
+		    valkey {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		data = {
+			createValkey = {
+				valkey = {
+					name = "foobar-hobbyist",
+				},
+			},
+		},
+	}
+end)
+
+Test.k8s("Validate hobbyist Valkey resource", function(t)
+	local resourceName = string.format("valkey-%s-foobar-hobbyist", mainTeam:slug())
+
+	t.check("aiven.io/v1alpha1", "valkeys", "dev", mainTeam:slug(), resourceName, {
+		apiVersion = "aiven.io/v1alpha1",
+		kind = "Valkey",
+		metadata = {
+			name = resourceName,
+			namespace = mainTeam:slug(),
+			annotations = {
+				["console.nais.io/last-modified-at"] = NotNull(),
+				["console.nais.io/last-modified-by"] = user:email(),
+			},
+			labels = {
+				["app.kubernetes.io/managed-by"] = "console",
+				["nais.io/managed-by"] = "console",
+			},
+		},
+		spec = {
+			project = "aiven-dev",
+			projectVpcId = "aiven-vpc",
+			plan = "hobbyist",
+			cloudName = "google-europe-north1",
+			terminationProtection = true,
+			tags = {
+				environment = "dev",
+				team = mainTeam:slug(),
+				tenant = "some-tenant",
+			},
+		},
+	})
+end)
+
+Test.k8s("Validate hobbyist serviceintegration", function(t)
+	local resourceName = string.format("valkey-%s-foobar-hobbyist", mainTeam:slug())
+
+	t.check("aiven.io/v1alpha1", "serviceintegrations", "dev", mainTeam:slug(), resourceName, {
+		apiVersion = "aiven.io/v1alpha1",
+		kind = "ServiceIntegration",
+		metadata = {
+			name = resourceName,
+			namespace = mainTeam:slug(),
+			annotations = {
+				["console.nais.io/last-modified-at"] = NotNull(),
+				["console.nais.io/last-modified-by"] = user:email(),
+			},
+			labels = {
+				["app.kubernetes.io/managed-by"] = "console",
+				["nais.io/managed-by"] = "console",
+			},
+			ownerReferences = {
+				{
+					apiVersion = "aiven.io/v1alpha1",
+					kind = "Valkey",
+					name = resourceName,
+					uid = NotNull(),
+				},
+			},
+		},
+		spec = {
+			project = "aiven-dev",
+			destinationEndpointId = "endpoint-id",
+			integrationType = "prometheus",
+			sourceServiceName = resourceName,
+		},
+	})
+end)
+
 Test.gql("List valkeys for team", function(t)
 	t.addHeader("x-user-email", user:email())
 
@@ -367,6 +466,18 @@ Test.gql("List valkeys for team", function(t)
 							tier = "HIGH_AVAILABILITY",
 							size = "RAM_4GB",
 							maxMemoryPolicy = "ALLKEYS_RANDOM",
+						},
+						{
+							name = "foobar-hobbyist",
+							tier = "SINGLE_NODE",
+							size = "RAM_1GB",
+							maxMemoryPolicy = "",
+						},
+						{
+							name = "valkey-someteamname-hobbyist-not-managed",
+							tier = "SINGLE_NODE",
+							size = "RAM_1GB",
+							maxMemoryPolicy = "",
 						},
 						{
 							name = "valkey-someteamname-not-managed",
@@ -413,6 +524,74 @@ Test.gql("Update non-console managed Valkey as team-member", function(t)
 		},
 		data = Null,
 	}
+end)
+
+Test.gql("Update Valkey with tier and size equivalent to hobbyist plan", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation UpdateValkey {
+		  updateValkey(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: SINGLE_NODE
+		      size: RAM_1GB
+			  maxMemoryPolicy: ALLKEYS_RANDOM
+		    }
+		  ) {
+		    valkey {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		data = {
+			updateValkey = {
+				valkey = {
+					name = "foobar",
+				},
+			},
+		},
+	}
+end)
+
+Test.k8s("Validate hobbyist Valkey resource after update", function(t)
+	local resourceName = string.format("valkey-%s-foobar", mainTeam:slug())
+
+	t.check("aiven.io/v1alpha1", "valkeys", "dev", mainTeam:slug(), resourceName, {
+		apiVersion = "aiven.io/v1alpha1",
+		kind = "Valkey",
+		metadata = {
+			name = resourceName,
+			namespace = mainTeam:slug(),
+			annotations = {
+				["console.nais.io/last-modified-at"] = NotNull(),
+				["console.nais.io/last-modified-by"] = user:email(),
+			},
+			labels = {
+				["app.kubernetes.io/managed-by"] = "console",
+				["nais.io/managed-by"] = "console",
+			},
+		},
+		spec = {
+			project = "aiven-dev",
+			projectVpcId = "aiven-vpc",
+			plan = "hobbyist",
+			cloudName = "google-europe-north1",
+			terminationProtection = true,
+			userConfig = {
+				valkey_maxmemory_policy = "allkeys-random",
+			},
+			tags = {
+				environment = "dev",
+				team = mainTeam:slug(),
+				tenant = "some-tenant",
+			},
+		},
+	})
 end)
 
 Test.gql("Delete Valkey in non-existing team", function(t)

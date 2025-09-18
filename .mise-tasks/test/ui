@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 #MISE description="Start tester UI, running integration tests"
-#MISE sources=["**/*.go", "go.sum"]
 
 set -e
 

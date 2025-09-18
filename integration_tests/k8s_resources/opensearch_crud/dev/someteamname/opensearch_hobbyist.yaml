@@ -1,0 +1,51 @@
+apiVersion: aiven.io/v1alpha1
+kind: OpenSearch
+metadata:
+  annotations:
+    controllers.aiven.io/generation-was-processed: "2"
+    controllers.aiven.io/instance-is-running: "true"
+    nais.io/created_by: aiven-iac-migration
+  creationTimestamp: "2023-11-08T10:35:59Z"
+  finalizers:
+    - finalizers.aiven.io/delete-remote-resource
+  generation: 2
+  labels:
+    team: teampam
+  name: opensearch-someteamname-hobbyist-not-managed
+  namespace: teampam
+  resourceVersion: "3990043290"
+  uid: 2a8d4d8a-2bf4-4b2f-99fc-814f6a937ecd
+
+  ownerReferences:
+    - apiVersion: nais.io/v1alpha1
+      kind: Application
+      name: app-w-all-storage
+      uid: 5d684281-5621-4c87-aee7-fca257550790
+spec:
+  cloudName: google-europe-north1
+  connInfoSecretTarget:
+    name: ""
+  disk_space: 525G
+  plan: hobbyist
+  project: nav-prod
+  projectVpcId: fff21e17-95d5-408b-8df5-15aacf38f5de
+  tags:
+    environment: prod
+    team: teampam
+    tenant: nav
+  terminationProtection: true
+  userConfig:
+    opensearch_version: "2"
+status:
+  conditions:
+    - lastTransitionTime: "2023-11-08T10:36:06Z"
+      message: Instance was created or update on Aiven side
+      reason: Updated
+      status: "True"
+      type: Initialized
+    - lastTransitionTime: "2024-01-10T09:40:58Z"
+      message: Instance is running on Aiven side
+      reason: CheckRunning
+      status: "True"
+      type: Running
+  state: RUNNING
