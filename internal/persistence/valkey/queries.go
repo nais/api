@@ -418,12 +418,11 @@ var aivenSizes = map[string]ValkeySize{
 }
 
 func planFromTierAndSize(tier ValkeyTier, size ValkeySize) (string, error) {
-	plan := ""
-
 	if size == ValkeySizeRAM1gb && tier == ValkeyTierSingleNode {
-		return "", apierror.Errorf("Invalid Valkey size for tier. %v cannot have size %v",
-			tier, size)
+		return "hobbyist", nil
 	}
+
+	plan := ""
 
 	for name, planTier := range aivenPlans {
 		if planTier == tier {
@@ -451,6 +450,10 @@ func planFromTierAndSize(tier ValkeyTier, size ValkeySize) (string, error) {
 }
 
 func tierAndSizeFromPlan(plan string) (ValkeyTier, ValkeySize, error) {
+	if strings.EqualFold(plan, "hobbyist") {
+		return ValkeyTierSingleNode, ValkeySizeRAM1gb, nil
+	}
+
 	t, s, ok := strings.Cut(plan, "-")
 	if !ok {
 		return "", "", fmt.Errorf("invalid Valkey plan: %s", plan)
