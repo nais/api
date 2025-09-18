@@ -11,7 +11,10 @@ Test.gql("Show version of OpenSearch instance", function(t)
     openSearches {
       nodes {
         name
-        version
+        version {
+          actual
+          desiredMajor
+        }
       }
     }
   }
@@ -24,7 +27,10 @@ Test.gql("Show version of OpenSearch instance", function(t)
 					nodes = {
 						{
 							name = "opensearch-slug-1-opensearch",
-							version = "2.17.2",
+							version = {
+								actual = "2.17.2",
+								desiredMajor = "V2",
+							},
 						},
 					},
 				},
