@@ -331,7 +331,7 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 		return "", false
 	}
 
-	resp, err := w.V13sClient.ListVulnerabilitySummaries(ctx)
+	resp, err := w.V13sClient.ListVulnerabilitySummaries(ctx, vulnerabilities.Limit(69000)) // unlimited
 	if err != nil {
 		w.log.WithError(err).Error("fetch image vulnerability summaries")
 		return nil
@@ -353,7 +353,12 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 				Team:         node.Workload.GetNamespace(),
 				Env:          environmentmapper.EnvironmentName(node.Workload.GetCluster()),
 				Severity:     issue.SeverityWarning,
-				Message:      fmt.Sprintf("Image '%s' has %d critical vulnerabilities and a risk score of %d", node.Workload.ImageName, node.VulnerabilitySummary.Critical, node.VulnerabilitySummary.RiskScore),
+				Message: fmt.Sprintf(
+					"Image '%s' has %d critical vulnerabilities and a risk score of %d",
+					node.Workload.ImageName,
+					node.VulnerabilitySummary.Critical,
+					node.VulnerabilitySummary.RiskScore,
+				),
 				IssueDetails: issue.VulnerableImageIssueDetails{
 					Critical:  int(node.VulnerabilitySummary.Critical),
 					RiskScore: int(node.VulnerabilitySummary.RiskScore),
@@ -369,7 +374,11 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 				Team:         node.Workload.GetNamespace(),
 				Env:          environmentmapper.EnvironmentName(node.Workload.GetCluster()),
 				Severity:     issue.SeverityWarning,
-				Message:      fmt.Sprintf("Image '%s:%s' is missing a Software Bill of Materials (SBOM)", node.Workload.ImageName, node.Workload.ImageTag),
+				Message: fmt.Sprintf(
+					"Image '%s:%s' is missing a Software Bill of Materials (SBOM)",
+					node.Workload.ImageName,
+					node.Workload.ImageTag,
+				),
 			})
 		}
 	}
