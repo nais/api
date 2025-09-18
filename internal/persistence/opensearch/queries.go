@@ -419,6 +419,7 @@ var aivenPlans = map[string]OpenSearchTier{
 }
 
 var aivenSizes = map[string]OpenSearchSize{
+	"2":  OpenSearchSizeRAM2gb,
 	"4":  OpenSearchSizeRAM4gb,
 	"8":  OpenSearchSizeRAM8gb,
 	"16": OpenSearchSizeRAM16gb,
@@ -427,6 +428,10 @@ var aivenSizes = map[string]OpenSearchSize{
 }
 
 func planFromTierAndSize(tier OpenSearchTier, size OpenSearchSize) (string, error) {
+	if tier == OpenSearchTierSingleNode && size == OpenSearchSizeRAM2gb {
+		return "hobbyist", nil
+	}
+
 	plan := ""
 
 	for name, planTier := range aivenPlans {
@@ -455,6 +460,10 @@ func planFromTierAndSize(tier OpenSearchTier, size OpenSearchSize) (string, erro
 }
 
 func tierAndSizeFromPlan(plan string) (OpenSearchTier, OpenSearchSize, error) {
+	if strings.EqualFold(plan, "hobbyist") {
+		return OpenSearchTierSingleNode, OpenSearchSizeRAM2gb, nil
+	}
+
 	t, s, ok := strings.Cut(plan, "-")
 	if !ok {
 		return "", "", fmt.Errorf("invalid OpenSearch plan: %s", plan)

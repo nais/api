@@ -212,6 +212,109 @@ Test.k8s("Validate serviceintegration", function(t)
 	})
 end)
 
+Test.gql("Create opensearch with tier and size equivalent to hobbyist plan", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation CreateOpenSearch {
+		  createOpenSearch(
+		    input: {
+		      name: "foobar-hobbyist"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: SINGLE_NODE
+		      size: RAM_2GB
+		      version: V2
+		    }
+		  ) {
+		    openSearch {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		data = {
+			createOpenSearch = {
+				openSearch = {
+					name = "foobar-hobbyist",
+				},
+			},
+		},
+	}
+end)
+
+Test.k8s("Validate hobbyist OpenSearch resource", function(t)
+	local resourceName = string.format("opensearch-%s-foobar-hobbyist", mainTeam:slug())
+
+	t.check("aiven.io/v1alpha1", "opensearches", "dev", mainTeam:slug(), resourceName, {
+		apiVersion = "aiven.io/v1alpha1",
+		kind = "OpenSearch",
+		metadata = {
+			name = resourceName,
+			namespace = mainTeam:slug(),
+			annotations = {
+				["console.nais.io/last-modified-at"] = NotNull(),
+				["console.nais.io/last-modified-by"] = user:email(),
+			},
+			labels = {
+				["app.kubernetes.io/managed-by"] = "console",
+				["nais.io/managed-by"] = "console",
+			},
+		},
+		spec = {
+			project = "aiven-dev",
+			projectVpcId = "aiven-vpc",
+			plan = "hobbyist",
+			cloudName = "google-europe-north1",
+			terminationProtection = true,
+			tags = {
+				environment = "dev",
+				team = mainTeam:slug(),
+				tenant = "some-tenant",
+			},
+			userConfig = {
+				opensearch_version = "2",
+			},
+		},
+	})
+end)
+
+Test.k8s("Validate hobbyist serviceintegration", function(t)
+	local resourceName = string.format("opensearch-%s-foobar-hobbyist", mainTeam:slug())
+
+	t.check("aiven.io/v1alpha1", "serviceintegrations", "dev", mainTeam:slug(), resourceName, {
+		apiVersion = "aiven.io/v1alpha1",
+		kind = "ServiceIntegration",
+		metadata = {
+			name = resourceName,
+			namespace = mainTeam:slug(),
+			annotations = {
+				["console.nais.io/last-modified-at"] = NotNull(),
+				["console.nais.io/last-modified-by"] = user:email(),
+			},
+			labels = {
+				["app.kubernetes.io/managed-by"] = "console",
+				["nais.io/managed-by"] = "console",
+			},
+			ownerReferences = {
+				{
+					apiVersion = "aiven.io/v1alpha1",
+					kind = "OpenSearch",
+					name = resourceName,
+					uid = NotNull(),
+				},
+			},
+		},
+		spec = {
+			project = "aiven-dev",
+			destinationEndpointId = "endpoint-id",
+			integrationType = "prometheus",
+			sourceServiceName = resourceName,
+		},
+	})
+end)
+
 Test.gql("Update OpenSearch in non-existing team", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[
@@ -376,6 +479,16 @@ Test.gql("List opensearches for team", function(t)
 							size = "RAM_4GB",
 						},
 						{
+							name = "foobar-hobbyist",
+							tier = "SINGLE_NODE",
+							size = "RAM_2GB",
+						},
+						{
+							name = "opensearch-someteamname-hobbyist-not-managed",
+							tier = "SINGLE_NODE",
+							size = "RAM_2GB",
+						},
+						{
 							name = "opensearch-someteamname-not-managed",
 							tier = "HIGH_AVAILABILITY",
 							size = "RAM_8GB",
@@ -419,6 +532,74 @@ Test.gql("Update non-console managed OpenSearch as team-member", function(t)
 		},
 		data = Null,
 	}
+end)
+
+Test.gql("Update OpenSearch with tier and size equivalent to hobbyist plan", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation UpdateOpenSearch {
+		  updateOpenSearch(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: SINGLE_NODE
+		      size: RAM_2GB
+		      version: V2
+		    }
+		  ) {
+		    openSearch {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		data = {
+			updateOpenSearch = {
+				openSearch = {
+					name = "foobar",
+				},
+			},
+		},
+	}
+end)
+
+Test.k8s("Validate hobbyist OpenSearch resource after update", function(t)
+	local resourceName = string.format("opensearch-%s-foobar", mainTeam:slug())
+
+	t.check("aiven.io/v1alpha1", "opensearches", "dev", mainTeam:slug(), resourceName, {
+		apiVersion = "aiven.io/v1alpha1",
+		kind = "OpenSearch",
+		metadata = {
+			name = resourceName,
+			namespace = mainTeam:slug(),
+			annotations = {
+				["console.nais.io/last-modified-at"] = NotNull(),
+				["console.nais.io/last-modified-by"] = user:email(),
+			},
+			labels = {
+				["app.kubernetes.io/managed-by"] = "console",
+				["nais.io/managed-by"] = "console",
+			},
+		},
+		spec = {
+			project = "aiven-dev",
+			projectVpcId = "aiven-vpc",
+			plan = "hobbyist",
+			cloudName = "google-europe-north1",
+			terminationProtection = true,
+			tags = {
+				environment = "dev",
+				team = mainTeam:slug(),
+				tenant = "some-tenant",
+			},
+			userConfig = {
+				opensearch_version = "2",
+			},
+		},
+	})
 end)
 
 Test.gql("Delete OpenSearch in non-existing team", function(t)
