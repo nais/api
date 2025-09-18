@@ -500,6 +500,40 @@ Test.gql("List opensearches for team", function(t)
 	}
 end)
 
+Test.gql("Downgrade OpenSearch as team-member", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation UpdateOpenSearch {
+		  updateOpenSearch(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: HIGH_AVAILABILITY
+		      size: RAM_4GB
+		      version: V1
+		    }
+		  ) {
+		    openSearch {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = "Cannot downgrade OpenSearch version from V2 to V1",
+				path = {
+					"updateOpenSearch",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
 Test.gql("Update non-console managed OpenSearch as team-member", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[

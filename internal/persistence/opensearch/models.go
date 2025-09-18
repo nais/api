@@ -255,6 +255,18 @@ const (
 	OpenSearchMajorVersionV1 OpenSearchMajorVersion = "V1"
 )
 
+func (e OpenSearchMajorVersion) IsDowngradeTo(other OpenSearchMajorVersion) bool {
+	if !e.IsValid() || !other.IsValid() {
+		return false
+	}
+
+	if e == OpenSearchMajorVersionV1 && other == OpenSearchMajorVersionV2 {
+		return true
+	}
+
+	return false
+}
+
 func (e OpenSearchMajorVersion) IsValid() bool {
 	switch e {
 	case OpenSearchMajorVersionV2, OpenSearchMajorVersionV1:

@@ -288,6 +288,11 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 		return nil, err
 	}
 	if !found || oldVersion != input.Version.String() {
+		oldMajorVersion := OpenSearchMajorVersion("V" + oldVersion)
+		if input.Version.IsDowngradeTo(oldMajorVersion) {
+			return nil, apierror.Errorf("Cannot downgrade OpenSearch version from %v to %v", oldMajorVersion, input.Version.String())
+		}
+
 		changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
 			Field: "version",
 			OldValue: func() *string {
