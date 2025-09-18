@@ -431,6 +431,9 @@ func planFromTierAndSize(tier OpenSearchTier, size OpenSearchSize) (string, erro
 	if tier == OpenSearchTierSingleNode && size == OpenSearchSizeRAM2gb {
 		return "hobbyist", nil
 	}
+	if tier == OpenSearchTierHighAvailability && size == OpenSearchSizeRAM2gb {
+		return "", apierror.Errorf("Invalid OpenSearch size for tier. %v cannot have size %v", tier, size)
+	}
 
 	plan := ""
 
