@@ -157,11 +157,6 @@ input StartOpenSearchMaintenanceInput {
 	environmentName: String!
 }
 
-extend enum ActivityLogActivityType {
-	"Maintenance started for the service."
-	MAINTENANCE_STARTED
-}
-
 type ServiceMaintenanceActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!

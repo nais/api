@@ -229,6 +229,8 @@ extend enum ActivityLogActivityType {
 	OPENSEARCH_UPDATED
 	"OpenSearch was deleted."
 	OPENSEARCH_DELETED
+	"Started service maintenance on OpenSearch instance."
+	OPENSEARCH_MAINTENANCE_STARTED
 }
 
 type OpenSearchCreatedActivityLogEntry implements ActivityLogEntry & Node {
