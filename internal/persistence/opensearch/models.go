@@ -260,11 +260,11 @@ func (e OpenSearchMajorVersion) IsDowngradeTo(other OpenSearchMajorVersion) bool
 		return false
 	}
 
-	if e == OpenSearchMajorVersionV1 && other == OpenSearchMajorVersionV2 {
-		return true
-	}
+	// Since we've already checked if both versions are valid, the Atoi calls should never fail
+	our, _ := strconv.Atoi(strings.TrimLeft(string(e), "V"))
+	their, _ := strconv.Atoi(strings.TrimLeft(string(other), "V"))
 
-	return false
+	return our < their
 }
 
 func (e OpenSearchMajorVersion) IsValid() bool {
