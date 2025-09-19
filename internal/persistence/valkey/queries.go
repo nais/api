@@ -32,9 +32,9 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*Valkey, error) {
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Valkey, error) {
-	prefix := valkeyNamer(teamSlug, "")
+	prefix := instanceNamer(teamSlug, "")
 	if !strings.HasPrefix(name, prefix) {
-		name = valkeyNamer(teamSlug, name)
+		name = instanceNamer(teamSlug, name)
 	}
 	return fromContext(ctx).client.watcher.Get(environment, teamSlug.String(), name)
 }
@@ -87,7 +87,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 
 	for _, ref := range references {
 		for _, d := range all {
-			if d.Obj.FullyQualifiedName() == valkeyNamer(teamSlug, ref.Instance) {
+			if d.Obj.FullyQualifiedName() == instanceNamer(teamSlug, ref.Instance) {
 				ret = append(ret, d.Obj)
 			}
 		}
@@ -123,7 +123,7 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 		return nil, err
 	}
 
-	name := valkeyNamer(input.TeamSlug, input.Name)
+	name := instanceNamer(input.TeamSlug, input.Name)
 	namespace := input.TeamSlug.String()
 
 	res := &unstructured.Unstructured{}
@@ -205,7 +205,7 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 		return nil, err
 	}
 
-	name := valkeyNamer(input.TeamSlug, input.Name)
+	name := instanceNamer(input.TeamSlug, input.Name)
 	namespace := input.TeamSlug.String()
 
 	valkey, err := client.Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
@@ -350,7 +350,7 @@ func Delete(ctx context.Context, input DeleteValkeyInput) (*DeleteValkeyPayload,
 		return nil, err
 	}
 
-	name := valkeyNamer(input.TeamSlug, input.Name)
+	name := instanceNamer(input.TeamSlug, input.Name)
 	client, err := fromContext(ctx).watcher.ImpersonatedClient(ctx, input.EnvironmentName)
 	if err != nil {
 		return nil, err

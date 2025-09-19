@@ -14,8 +14,12 @@ type client struct {
 	watcher *watcher.Watcher[*OpenSearch]
 }
 
-func openSearchNamer(teamSlug slug.Slug, instanceName string) string {
-	return "opensearch-" + teamSlug.String() + "-" + instanceName
+func instanceNamer(teamSlug slug.Slug, instanceName string) string {
+	return namePrefix(teamSlug) + instanceName
+}
+
+func namePrefix(teamSlug slug.Slug) string {
+	return "opensearch-" + teamSlug.String() + "-"
 }
 
 func (c client) getAccessForApplications(ctx context.Context, environmentName, openSearchName string, teamSlug slug.Slug) ([]*OpenSearchAccess, error) {
@@ -28,7 +32,7 @@ func (c client) getAccessForApplications(ctx context.Context, environmentName, o
 			continue
 		}
 
-		if openSearchNamer(teamSlug, w.Spec.OpenSearch.Instance) == openSearchName {
+		if instanceNamer(teamSlug, w.Spec.OpenSearch.Instance) == openSearchName {
 			access = append(access, &OpenSearchAccess{
 				Access:          w.Spec.OpenSearch.Access,
 				TeamSlug:        teamSlug,
@@ -53,7 +57,7 @@ func (c client) getAccessForJobs(ctx context.Context, environmentName, openSearc
 			continue
 		}
 
-		if openSearchNamer(teamSlug, w.Spec.OpenSearch.Instance) == openSearchName {
+		if instanceNamer(teamSlug, w.Spec.OpenSearch.Instance) == openSearchName {
 			access = append(access, &OpenSearchAccess{
 				Access:          w.Spec.OpenSearch.Access,
 				TeamSlug:        teamSlug,

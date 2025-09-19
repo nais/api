@@ -64,10 +64,10 @@ func (r Valkey) ID() ident.Ident {
 }
 
 func (r Valkey) FullyQualifiedName() string {
-	if strings.HasPrefix(r.Name, valkeyNamePrefix(r.TeamSlug)) {
+	if strings.HasPrefix(r.Name, namePrefix(r.TeamSlug)) {
 		return r.Name
 	}
-	return valkeyNamer(r.TeamSlug, r.Name)
+	return instanceNamer(r.TeamSlug, r.Name)
 }
 
 type ValkeyAccess struct {
@@ -168,7 +168,7 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 
 	name := obj.Name
 	if kubernetes.HasManagedByConsoleLabel(obj) {
-		name = strings.TrimPrefix(obj.GetName(), valkeyNamePrefix(slug.Slug(obj.GetNamespace())))
+		name = strings.TrimPrefix(obj.GetName(), namePrefix(slug.Slug(obj.GetNamespace())))
 	}
 
 	return &Valkey{
