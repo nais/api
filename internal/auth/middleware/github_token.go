@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/coreos/go-oidc/v3/oidc"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/github/repository"
@@ -33,35 +32,6 @@ type ghClaims struct {
 	// JobWorkflowRef    string `json:"job_workflow_ref"`
 }
 
-func login(provider *oidc.Provider) http.HandlerFunc {
-	verifier := provider.Verifier(&oidc.Config{
-		SkipClientIDCheck: true,
-	})
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("X-Token")
-		if token == "" {
-			http.Error(w, "missing token", http.StatusBadRequest)
-			return
-		}
-
-		idToken, err := verifier.Verify(r.Context(), token)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusUnauthorized)
-			return
-		}
-
-		claims := &ghClaims{}
-		if err := idToken.Claims(claims); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		fmt.Println("Audience:", idToken.Audience)
-		spew.Dump(claims)
-	}
-}
-
 func GitHubOIDC(ctx context.Context, log logrus.FieldLogger) func(next http.Handler) http.Handler {
 	provider, err := oidc.NewProvider(ctx, "https://token.actions.githubusercontent.com")
 	if err != nil {
@@ -74,7 +44,7 @@ func GitHubOIDC(ctx context.Context, log logrus.FieldLogger) func(next http.Hand
 	}
 
 	verifier := provider.Verifier(&oidc.Config{
-		SkipClientIDCheck: true,
+		ClientID: "api.nais.io",
 	})
 
 	return func(next http.Handler) http.Handler {
