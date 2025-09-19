@@ -95,7 +95,7 @@ func (w Workload) specErrors(wl NaisWorkload, env string, resourceType issue.Res
 		return &Issue{
 			IssueType:    issue.IssueTypeFailedSynchronization,
 			ResourceName: wl.GetName(),
-			ResourceType: issue.ResourceTypeApplication,
+			ResourceType: resourceType,
 			Team:         wl.GetNamespace(),
 			Env:          env,
 			Severity:     issue.SeverityWarning,
