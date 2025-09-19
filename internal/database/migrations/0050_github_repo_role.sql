@@ -1,6 +1,12 @@
 -- +goose Up
-INSERT INTO roles (name, description)
-VALUES ('GitHub repository', 'Granted to repositories linked to a team.');
+INSERT INTO
+	roles (name, description)
+VALUES
+	(
+		'GitHub repository',
+		'Granted to repositories linked to a team.'
+	)
+;
 
 INSERT INTO
 	role_authorizations (role_name, authorization_name)
