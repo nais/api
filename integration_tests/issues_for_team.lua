@@ -214,6 +214,10 @@ Test.gql("InvalidSpecIssue", function(t)
 					filter: {
 						issueType: INVALID_SPEC
 					},
+					orderBy: {
+						field: RESOURCE_NAME
+						direction:ASC
+					}
 				) {
 					nodes {
 						__typename
@@ -241,8 +245,8 @@ Test.gql("InvalidSpecIssue", function(t)
 							message = "Human readable text from the operator",
 							severity = "CRITICAL",
 							workload = {
-								__typename = "Job",
-								name = "job-failed-generate",
+								__typename = "Application",
+								name = "app-failed-generate",
 							},
 						},
 						{
@@ -250,8 +254,8 @@ Test.gql("InvalidSpecIssue", function(t)
 							message = "Human readable text from the operator",
 							severity = "CRITICAL",
 							workload = {
-								__typename = "Application",
-								name = "app-failed-generate",
+								__typename = "Job",
+								name = "job-failed-generate",
 							},
 						},
 					},
