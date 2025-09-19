@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/nais/api/internal/issue"
-	"github.com/nais/api/internal/kubernetes/watchers"
+	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/sqladmin/v1"
@@ -19,30 +19,9 @@ var deprecatedVersions = []string{
 }
 
 type SQLInstance struct {
-	Client            *sqlinstance.Client
-	SQLInstanceLister KubernetesLister[*sqlinstance.SQLInstance]
-	Log               logrus.FieldLogger
-}
-
-type sqlInstanceLister struct {
-	watcher *watchers.SqlInstanceWatcher
-}
-
-func (s *sqlInstanceLister) List(ctx context.Context) []*sqlinstance.SQLInstance {
-	instances := make([]*sqlinstance.SQLInstance, 0)
-	for _, instance := range s.watcher.All() {
-		instances = append(instances, &sqlinstance.SQLInstance{
-			Name:            instance.Obj.Name,
-			ProjectID:       instance.Obj.ProjectID,
-			EnvironmentName: instance.Obj.EnvironmentName,
-			TeamSlug:        instance.Obj.TeamSlug,
-		})
-	}
-	return instances
-}
-
-func (s *sqlInstanceLister) Get(env, namespace, name string) (*sqlinstance.SQLInstance, error) {
-	return s.watcher.Get(env, namespace, name)
+	Client             *sqlinstance.Client
+	SQLInstanceWatcher *watcher.Watcher[*sqlinstance.SQLInstance]
+	Log                logrus.FieldLogger
 }
 
 func (s SQLInstance) Run(ctx context.Context) ([]Issue, error) {
@@ -94,7 +73,7 @@ func (s SQLInstance) instances(ctx context.Context) map[*sqlinstance.SQLInstance
 	var mu sync.Mutex
 	sem := make(chan struct{}, runtime.NumCPU())
 
-	for _, instance := range s.SQLInstanceLister.List(ctx) {
+	for _, instance := range s.SQLInstanceWatcher.All() {
 		wg.Add(1)
 		go func(instance *sqlinstance.SQLInstance) {
 			defer wg.Done()
@@ -108,7 +87,7 @@ func (s SQLInstance) instances(ctx context.Context) map[*sqlinstance.SQLInstance
 			mu.Lock()
 			ret[instance] = *i
 			mu.Unlock()
-		}(instance)
+		}(instance.Obj)
 	}
 	wg.Wait()
 	return ret

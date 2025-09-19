@@ -24,11 +24,11 @@ import (
 )
 
 type Workload struct {
-	ApplicationLister KubernetesLister[*watcher.EnvironmentWrapper[*nais_io_v1alpha1.Application]]
-	JobLister         KubernetesLister[*watcher.EnvironmentWrapper[*nais_io_v1.Naisjob]]
-	PodWatcher        watcher.Watcher[*v1.Pod]
-	RunWatcher        watcher.Watcher[*batchv1.Job]
-	V13sClient        V13sClient
+	AppWatcher watcher.Watcher[*nais_io_v1alpha1.Application]
+	JobWatcher watcher.Watcher[*nais_io_v1.Naisjob]
+	PodWatcher watcher.Watcher[*v1.Pod]
+	RunWatcher watcher.Watcher[*batchv1.Job]
+	V13sClient V13sClient
 
 	log logrus.FieldLogger
 }
@@ -39,7 +39,8 @@ type V13sClient interface {
 
 func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 	var ret []Issue
-	for _, app := range w.ApplicationLister.List(ctx) {
+	w.AppWatcher.All()
+	for _, app := range w.AppWatcher.All() {
 		image, ok := image(app.Obj)
 		if !ok {
 			w.log.WithField("application", app.Obj.GetName()).WithField("namespace", app.Obj.GetNamespace()).Warn("application has no image")
@@ -52,7 +53,7 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 		ret = appendIssues(ret, w.specErrors(app.Obj, env, issue.ResourceTypeApplication))
 	}
 
-	for _, job := range w.JobLister.List(ctx) {
+	for _, job := range w.JobWatcher.All() {
 		image, ok := image(job.Obj)
 		if !ok {
 			w.log.WithField("job", job.Obj.GetName()).WithField("namespace", job.Obj.GetNamespace()).Warn("job has no image")
@@ -394,14 +395,14 @@ func (w Workload) exists(node *vulnerabilities.WorkloadSummary, workloadType iss
 	env := environmentmapper.EnvironmentName(node.Workload.GetCluster())
 
 	if workloadType == issue.ResourceTypeJob {
-		job, err := w.JobLister.Get(env, node.Workload.GetNamespace(), node.Workload.GetName())
+		job, err := w.JobWatcher.Get(env, node.Workload.GetNamespace(), node.Workload.GetName())
 		if err != nil || job == nil {
 			return false
 		}
 	}
 
 	if workloadType == issue.ResourceTypeApplication {
-		app, err := w.ApplicationLister.Get(env, node.Workload.GetNamespace(), node.Workload.GetName())
+		app, err := w.AppWatcher.Get(env, node.Workload.GetNamespace(), node.Workload.GetName())
 		if err != nil || app == nil {
 			return false
 		}
