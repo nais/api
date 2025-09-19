@@ -42,7 +42,7 @@ func (s *sqlInstanceLister) List(ctx context.Context) []*sqlinstance.SQLInstance
 }
 
 func (s *sqlInstanceLister) Get(env, namespace, name string) (*sqlinstance.SQLInstance, error) {
-	return s.Get(env, namespace, name)
+	return s.watcher.Get(env, namespace, name)
 }
 
 func (s SQLInstance) Run(ctx context.Context) ([]Issue, error) {
