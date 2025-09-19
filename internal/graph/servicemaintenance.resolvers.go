@@ -73,7 +73,7 @@ func (r *openSearchMaintenanceResolver) Updates(ctx context.Context, obj *servic
 func (r *valkeyResolver) Maintenance(ctx context.Context, obj *valkey.Valkey) (*servicemaintenance.ValkeyMaintenance, error) {
 	return &servicemaintenance.ValkeyMaintenance{
 		AivenProject: obj.AivenProject,
-		ServiceName:  obj.Name,
+		ServiceName:  obj.FullyQualifiedName(),
 	}, nil
 }
 

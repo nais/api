@@ -51,6 +51,13 @@ func (r *OpenSearch) GetNamespace() string { return r.TeamSlug.String() }
 
 func (r *OpenSearch) GetLabels() map[string]string { return nil }
 
+func (r *OpenSearch) FullyQualifiedName() string {
+	if strings.HasPrefix(r.Name, namePrefix(r.TeamSlug)) {
+		return r.Name
+	}
+	return instanceNamer(r.TeamSlug, r.Name)
+}
+
 func (r *OpenSearch) GetObjectKind() schema.ObjectKind {
 	return schema.EmptyObjectKind
 }
@@ -156,7 +163,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 
 	name := obj.Name
 	if kubernetes.HasManagedByConsoleLabel(obj) {
-		name = strings.TrimPrefix(obj.GetName(), "opensearch-"+obj.GetNamespace()+"-")
+		name = strings.TrimPrefix(obj.GetName(), namePrefix(slug.Slug(obj.GetNamespace())))
 	}
 
 	majorVersion := OpenSearchMajorVersion("")

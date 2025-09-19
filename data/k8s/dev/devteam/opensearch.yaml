@@ -19,7 +19,51 @@ metadata:
   labels:
     team: devteam
     app: app-w-all-storage
+    "nais.io/managed-by": console
   name: opensearch-devteam-opensearch-1
+  namespace: devteam
+spec:
+  cloudName: google-europe-north1
+  connInfoSecretTarget:
+    name: ""
+  plan: startup-4
+  project: nav-dev
+  projectVpcId: dd346648-b919-4b24-a8dd-30ea6d2db53b
+  tags:
+    environment: dev
+    team: devteam
+    tenant: nav
+  terminationProtection: true
+status:
+  conditions:
+    - lastTransitionTime: "2023-11-08T10:24:54Z"
+      message: Instance was created or update on Aiven side
+      reason: Updated
+      status: "True"
+      type: Initialized
+    - lastTransitionTime: "2023-11-08T10:24:54Z"
+      message: Instance is running on Aiven side
+      reason: CheckRunning
+      status: "True"
+      type: Running
+  state: RUNNING
+---
+apiVersion: aiven.io/v1alpha1
+kind: OpenSearch
+metadata:
+  annotations:
+    controllers.aiven.io/generation-was-processed: "1"
+    controllers.aiven.io/instance-is-running: "true"
+    deploy.nais.io/client-version: 2023-12-19-bbbb39b
+    deploy.nais.io/github-actor: rfc3092
+    deploy.nais.io/github-sha: 6de0163bab2db379ed7b51af3c6ac94338b5f840
+    deploy.nais.io/github-workflow-run-url: https://github.com/navikt/testnorge/actions/runs/7828725220
+    kubernetes.io/change-cause: "nais deploy: commit 6de0163bab2db379ed7b51af3c6ac94338b5f840:
+      https://github.com/navikt/testnorge/actions/runs/7828725220"
+    nais.io/deploymentCorrelationID: ad95b24f-439b-43fd-97b1-d53956f18502
+  labels:
+    team: devteam
+  name: opensearch-devteam-non-managed
   namespace: devteam
 spec:
   cloudName: google-europe-north1

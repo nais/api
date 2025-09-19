@@ -14,8 +14,12 @@ type client struct {
 	watcher *watcher.Watcher[*Valkey]
 }
 
-func valkeyNamer(teamSlug slug.Slug, instanceName string) string {
-	return "valkey-" + teamSlug.String() + "-" + instanceName
+func namePrefix(teamSlug slug.Slug) string {
+	return "valkey-" + teamSlug.String() + "-"
+}
+
+func instanceNamer(teamSlug slug.Slug, instanceName string) string {
+	return namePrefix(teamSlug) + instanceName
 }
 
 func (c client) getAccessForApplications(ctx context.Context, environmentName, valkeyName string, teamSlug slug.Slug) ([]*ValkeyAccess, error) {
@@ -24,7 +28,7 @@ func (c client) getAccessForApplications(ctx context.Context, environmentName, v
 	workloads := application.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName)
 	for _, w := range workloads {
 		for _, r := range w.Spec.Valkey {
-			if valkeyNamer(teamSlug, r.Instance) == valkeyName {
+			if instanceNamer(teamSlug, r.Instance) == valkeyName {
 				access = append(access, &ValkeyAccess{
 					Access:          r.Access,
 					TeamSlug:        teamSlug,
@@ -47,7 +51,7 @@ func (c client) getAccessForJobs(ctx context.Context, environmentName, valkeyNam
 	workloads := job.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName)
 	for _, w := range workloads {
 		for _, r := range w.Spec.Valkey {
-			if valkeyNamer(teamSlug, r.Instance) == valkeyName {
+			if instanceNamer(teamSlug, r.Instance) == valkeyName {
 				access = append(access, &ValkeyAccess{
 					Access:          r.Access,
 					TeamSlug:        teamSlug,

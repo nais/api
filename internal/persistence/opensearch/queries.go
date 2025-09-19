@@ -32,9 +32,9 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*OpenSearch, error) {
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*OpenSearch, error) {
-	prefix := openSearchNamer(teamSlug, "")
+	prefix := instanceNamer(teamSlug, "")
 	if !strings.HasPrefix(name, prefix) {
-		name = openSearchNamer(teamSlug, name)
+		name = instanceNamer(teamSlug, name)
 	}
 	return fromContext(ctx).client.watcher.Get(environment, teamSlug.String(), name)
 }
@@ -55,12 +55,12 @@ func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*OpenSearch {
 func ListAccess(ctx context.Context, openSearch *OpenSearch, page *pagination.Pagination, orderBy *OpenSearchAccessOrder) (*OpenSearchAccessConnection, error) {
 	k8sClient := fromContext(ctx).client
 
-	applicationAccess, err := k8sClient.getAccessForApplications(ctx, openSearch.EnvironmentName, openSearch.Name, openSearch.TeamSlug)
+	applicationAccess, err := k8sClient.getAccessForApplications(ctx, openSearch.EnvironmentName, openSearch.FullyQualifiedName(), openSearch.TeamSlug)
 	if err != nil {
 		return nil, err
 	}
 
-	jobAccess, err := k8sClient.getAccessForJobs(ctx, openSearch.EnvironmentName, openSearch.Name, openSearch.TeamSlug)
+	jobAccess, err := k8sClient.getAccessForJobs(ctx, openSearch.EnvironmentName, openSearch.FullyQualifiedName(), openSearch.TeamSlug)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func ListAccess(ctx context.Context, openSearch *OpenSearch, page *pagination.Pa
 func GetOpenSearchVersion(ctx context.Context, os *OpenSearch) (*OpenSearchVersion, error) {
 	key := AivenDataLoaderKey{
 		Project:     os.AivenProject,
-		ServiceName: os.Name,
+		ServiceName: os.FullyQualifiedName(),
 	}
 
 	major := os.MajorVersion
@@ -116,7 +116,7 @@ func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environment string,
 		return nil, nil
 	}
 
-	return fromContext(ctx).client.watcher.Get(environment, teamSlug.String(), openSearchNamer(teamSlug, reference.Instance))
+	return fromContext(ctx).client.watcher.Get(environment, teamSlug.String(), instanceNamer(teamSlug, reference.Instance))
 }
 
 func orderOpenSearch(ctx context.Context, ret []*OpenSearch, orderBy *OpenSearchOrder) {
@@ -145,7 +145,7 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		return nil, err
 	}
 
-	name := openSearchNamer(input.TeamSlug, input.Name)
+	name := instanceNamer(input.TeamSlug, input.Name)
 	namespace := input.TeamSlug.String()
 
 	res := &unstructured.Unstructured{}
@@ -223,7 +223,7 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 		return nil, err
 	}
 
-	name := openSearchNamer(input.TeamSlug, input.Name)
+	name := instanceNamer(input.TeamSlug, input.Name)
 	namespace := input.TeamSlug.String()
 
 	openSearch, err := client.Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
@@ -368,7 +368,7 @@ func Delete(ctx context.Context, input DeleteOpenSearchInput) (*DeleteOpenSearch
 		return nil, err
 	}
 
-	name := openSearchNamer(input.TeamSlug, input.Name)
+	name := instanceNamer(input.TeamSlug, input.Name)
 	client, err := fromContext(ctx).watcher.ImpersonatedClient(ctx, input.EnvironmentName)
 	if err != nil {
 		return nil, err
