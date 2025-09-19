@@ -41,6 +41,10 @@ func (s *sqlInstanceLister) List(ctx context.Context) []*sqlinstance.SQLInstance
 	return instances
 }
 
+func (s *sqlInstanceLister) Get(env, namespace, name string) (*sqlinstance.SQLInstance, error) {
+	return s.Get(env, namespace, name)
+}
+
 func (s SQLInstance) Run(ctx context.Context) ([]Issue, error) {
 	ret := make([]Issue, 0)
 

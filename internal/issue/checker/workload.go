@@ -345,6 +345,10 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 			continue
 		}
 
+		if !w.exists(node, workloadType) {
+			continue
+		}
+
 		if node.VulnerabilitySummary.Critical > 0 || node.VulnerabilitySummary.RiskScore > 100 {
 			ret = append(ret, &Issue{
 				IssueType:    issue.IssueTypeVulnerableImage,
@@ -384,6 +388,25 @@ func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
 	}
 
 	return ret
+}
+
+func (w Workload) exists(node *vulnerabilities.WorkloadSummary, workloadType issue.ResourceType) bool {
+	env := environmentmapper.EnvironmentName(node.Workload.GetCluster())
+
+	if workloadType == issue.ResourceTypeJob {
+		job, err := w.JobLister.Get(env, node.Workload.GetNamespace(), node.Workload.GetName())
+		if err != nil || job == nil {
+			return false
+		}
+	}
+
+	if workloadType == issue.ResourceTypeApplication {
+		app, err := w.ApplicationLister.Get(env, node.Workload.GetNamespace(), node.Workload.GetName())
+		if err != nil || app == nil {
+			return false
+		}
+	}
+	return true
 }
 
 type NaisWorkload interface {
@@ -463,6 +486,20 @@ func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...
 					Cluster:   "dev-gcp",
 					Type:      "app",
 					ImageName: "missing-sbom-image",
+					ImageTag:  "tag1",
+				},
+				VulnerabilitySummary: &vulnerabilities.Summary{
+					HasSbom: false,
+				},
+			},
+			{
+				Id: "5",
+				Workload: &vulnerabilities.Workload{
+					Name:      "missing-app",
+					Namespace: "myteam",
+					Cluster:   "dev-gcp",
+					Type:      "app",
+					ImageName: "some-image",
 					ImageTag:  "tag1",
 				},
 				VulnerabilitySummary: &vulnerabilities.Summary{

@@ -33,6 +33,7 @@ type check interface {
 
 type KubernetesLister[T any] interface {
 	List(ctx context.Context) []T
+	Get(env, namespace, name string) (T, error)
 }
 
 type Checker struct {
@@ -241,8 +242,32 @@ func WithApplicationLister(lister KubernetesLister[*watcher.EnvironmentWrapper[*
 	}
 }
 
+func (a *applicationLister) Get(env, namespace, name string) (*watcher.EnvironmentWrapper[*nais_io_v1alpha1.Application], error) {
+	app, err := a.watcher.Get(env, namespace, name)
+	if err != nil {
+		return nil, fmt.Errorf("get application: %w", err)
+	}
+
+	return &watcher.EnvironmentWrapper[*nais_io_v1alpha1.Application]{
+		Cluster: env,
+		Obj:     app,
+	}, nil
+}
+
 func (a *applicationLister) List(_ context.Context) []*watcher.EnvironmentWrapper[*nais_io_v1alpha1.Application] {
 	return a.watcher.All()
+}
+
+func (j *jobLister) Get(env, namespace, name string) (*watcher.EnvironmentWrapper[*nais_io_v1.Naisjob], error) {
+	job, err := j.watcher.Get(env, namespace, name)
+	if err != nil {
+		return nil, fmt.Errorf("get job: %w", err)
+	}
+
+	return &watcher.EnvironmentWrapper[*nais_io_v1.Naisjob]{
+		Cluster: env,
+		Obj:     job,
+	}, nil
 }
 
 func (j *jobLister) List(_ context.Context) []*watcher.EnvironmentWrapper[*nais_io_v1.Naisjob] {
