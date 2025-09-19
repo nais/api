@@ -85,13 +85,13 @@ func GitHubOIDC(ctx context.Context, log logrus.FieldLogger) func(next http.Hand
 
 			roles := []*authz.Role{}
 			for _, repo := range repos {
-				roles, err := authz.ForGitHubRepo(ctx, repo.TeamSlug)
+				repoRoles, err := authz.ForGitHubRepo(ctx, repo.TeamSlug)
 				if err != nil {
 					log.WithError(err).Debug("failed to get roles for github repo")
 					next.ServeHTTP(w, r)
 					return
 				}
-				roles = append(roles, roles...)
+				roles = append(roles, repoRoles...)
 			}
 
 			usr := &GitHubRepoActor{
