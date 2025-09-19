@@ -63,6 +63,13 @@ func (r Valkey) ID() ident.Ident {
 	return newIdent(r.TeamSlug, r.EnvironmentName, r.Name)
 }
 
+func (r Valkey) FullyQualifiedName() string {
+	if strings.HasPrefix(r.Name, valkeyNamePrefix(r.TeamSlug)) {
+		return r.Name
+	}
+	return valkeyNamer(r.TeamSlug, r.Name)
+}
+
 type ValkeyAccess struct {
 	Access            string              `json:"access"`
 	TeamSlug          slug.Slug           `json:"-"`
@@ -161,7 +168,7 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 
 	name := obj.Name
 	if kubernetes.HasManagedByConsoleLabel(obj) {
-		name = strings.TrimPrefix(obj.GetName(), "valkey-"+obj.GetNamespace()+"-")
+		name = strings.TrimPrefix(obj.GetName(), valkeyNamePrefix(slug.Slug(obj.GetNamespace())))
 	}
 
 	return &Valkey{

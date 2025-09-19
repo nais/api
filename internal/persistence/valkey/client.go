@@ -14,8 +14,12 @@ type client struct {
 	watcher *watcher.Watcher[*Valkey]
 }
 
+func valkeyNamePrefix(teamSlug slug.Slug) string {
+	return "valkey-" + teamSlug.String() + "-"
+}
+
 func valkeyNamer(teamSlug slug.Slug, instanceName string) string {
-	return "valkey-" + teamSlug.String() + "-" + instanceName
+	return valkeyNamePrefix(teamSlug) + instanceName
 }
 
 func (c client) getAccessForApplications(ctx context.Context, environmentName, valkeyName string, teamSlug slug.Slug) ([]*ValkeyAccess, error) {

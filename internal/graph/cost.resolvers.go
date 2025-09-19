@@ -147,7 +147,7 @@ func (r *valkeyResolver) Cost(ctx context.Context, obj *valkey.Valkey) (*cost.Va
 		r.log.WithError(err).WithFields(logrus.Fields{
 			"EnvironmentName": obj.EnvironmentName,
 			"TeamSlug":        obj.TeamSlug,
-			"Valkey":          obj.Name,
+			"Valkey":          obj.FullyQualifiedName(),
 		}).Warn("failed to get monthly cost for Valkey instance")
 		return &cost.ValkeyCost{
 			Sum: 0,

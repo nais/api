@@ -55,12 +55,12 @@ func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*Valkey {
 func ListAccess(ctx context.Context, valkey *Valkey, page *pagination.Pagination, orderBy *ValkeyAccessOrder) (*ValkeyAccessConnection, error) {
 	k8sClient := fromContext(ctx).client
 
-	applicationAccess, err := k8sClient.getAccessForApplications(ctx, valkey.EnvironmentName, valkey.Name, valkey.TeamSlug)
+	applicationAccess, err := k8sClient.getAccessForApplications(ctx, valkey.EnvironmentName, valkey.FullyQualifiedName(), valkey.TeamSlug)
 	if err != nil {
 		return nil, err
 	}
 
-	jobAccess, err := k8sClient.getAccessForJobs(ctx, valkey.EnvironmentName, valkey.Name, valkey.TeamSlug)
+	jobAccess, err := k8sClient.getAccessForJobs(ctx, valkey.EnvironmentName, valkey.FullyQualifiedName(), valkey.TeamSlug)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 
 	for _, ref := range references {
 		for _, d := range all {
-			if d.Obj.Name == valkeyNamer(teamSlug, ref.Instance) {
+			if d.Obj.FullyQualifiedName() == valkeyNamer(teamSlug, ref.Instance) {
 				ret = append(ret, d.Obj)
 			}
 		}
