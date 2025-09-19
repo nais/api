@@ -141,6 +141,40 @@ Test.gql("Create opensearch as team member with existing name", function(t)
 	}
 end)
 
+Test.gql("Create opensearch with invalid tier and size combination", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation CreateOpenSearch {
+		  createOpenSearch(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: HIGH_AVAILABILITY
+		      size: RAM_2GB
+		      version: V2
+		    }
+		  ) {
+		    openSearch {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = Contains("Invalid OpenSearch size for tier. HIGH_AVAILABILITY cannot have size RAM_2GB"),
+				path = {
+					"createOpenSearch",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
 Test.k8s("Validate OpenSearch resource", function(t)
 	local resourceName = string.format("opensearch-%s-foobar", mainTeam:slug())
 
