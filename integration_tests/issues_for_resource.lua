@@ -45,15 +45,15 @@ Test.gql("Workloads with issues", function(t)
 						issues = {
 							nodes = {
 								{
+									__typename = "DeprecatedRegistryIssue",
+									message = "Image 'deprecated.dev/nais/navikt/app-name:latest' is using a deprecated registry",
+									severity = "WARNING",
+								},
+								{
 									__typename = "DeprecatedIngressIssue",
 									message = "Application is using deprecated ingresses: [https://foo.dev-gcp.nais.io https://bar.dev-gcp.nais.io]",
 									severity = "TODO",
 									ingresses = { "https://foo.dev-gcp.nais.io", "https://bar.dev-gcp.nais.io" },
-								},
-								{
-									__typename = "DeprecatedRegistryIssue",
-									message = "Image 'deprecated.dev/nais/navikt/app-name:latest' is using a deprecated registry",
-									severity = "WARNING",
 								},
 							},
 						},

@@ -55,8 +55,10 @@ func ListIssues(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagina
 		params.Env = filter.Environments
 		params.ResourceType = (*string)(filter.ResourceType)
 		params.IssueType = (*string)(filter.IssueType)
-		params.Severity = issuesql.NullSeverityLevel{SeverityLevel: issuesql.SeverityLevel(*filter.Severity), Valid: filter.Severity != nil}
 		params.ResourceName = filter.ResourceName
+		if filter.Severity != nil {
+			params.Severity = issuesql.NullSeverityLevel{SeverityLevel: issuesql.SeverityLevel(*filter.Severity), Valid: true}
+		}
 	}
 
 	ret, err := db(ctx).ListIssues(ctx, params)
