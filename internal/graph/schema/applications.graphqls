@@ -556,6 +556,7 @@ type ApplicationInstanceStatus {
 
 enum ApplicationInstanceState {
 	RUNNING
+	STARTING
 	FAILING
 	UNKNOWN
 }
