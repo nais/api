@@ -361,7 +361,7 @@ Test.gql("OpenSearchIssue", function(t)
 					nodes = {
 						{
 							__typename = "OpenSearchIssue",
-							message = "error message from aiven",
+							message = "Your opensearch service opensearch-myteam-name reports: error message from aiven",
 							event = "error message from aiven",
 							openSearch = {
 								name = "opensearch-myteam-name",
