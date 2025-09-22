@@ -230,7 +230,7 @@ values:
           {{- $currentEnv := dict -}}
           {{- $_ := set $currentEnv "id" $env.aiven_project -}}
           {{- $_ := set $currentEnv "vpc" (splitList "/" $env.aiven_project_vpc_id | last ) -}}
-          {{- $_ := set $currentEnv "endpoint_id" (splitList "/" $env.aiven_prometheus_endpoint_id) -}}
+          {{- $_ := set $currentEnv "endpoint_id" (splitList "/" $env.aiven_prometheus_endpoint_id | last) -}}
           {{- $_ := set $result $env.name $currentEnv -}}
         {{- end -}}
         {{- toJSON $result | quote -}}
