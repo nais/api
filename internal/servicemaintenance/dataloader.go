@@ -57,6 +57,7 @@ func (l dataloader) aivenMaintenanceList(ctx context.Context, aivenDataLoaderKey
 		wg.Go(func(ctx context.Context) error {
 			res, err := l.serviceMaintenanceManager.aivenClient.ServiceGet(ctx, pair.Project, pair.ServiceName)
 			if err != nil {
+				l.log.WithField("resource", pair.Project+"/"+pair.ServiceName).WithError(err).Error("error fetching maintenance window from Aiven")
 				errs[i] = err
 			} else {
 				if res.Maintenance != nil {

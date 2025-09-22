@@ -42,7 +42,7 @@ func (r *mutationResolver) StartOpenSearchMaintenance(ctx context.Context, input
 func (r *openSearchResolver) Maintenance(ctx context.Context, obj *opensearch.OpenSearch) (*servicemaintenance.OpenSearchMaintenance, error) {
 	return &servicemaintenance.OpenSearchMaintenance{
 		AivenProject: obj.AivenProject,
-		ServiceName:  obj.Name,
+		ServiceName:  obj.FullyQualifiedName(),
 	}, nil
 }
 
