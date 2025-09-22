@@ -137,7 +137,7 @@ func (c *Checker) runChecks(ctx context.Context) {
 			ResourceType: string(i.ResourceType),
 			Team:         i.Team,
 			Env:          i.Env,
-			Severity:     string(i.Severity),
+			Severity:     checkersql.SeverityLevel(i.Severity),
 			Message:      i.Message,
 			IssueDetails: d,
 		})

@@ -54,8 +54,8 @@ WHERE
 		OR issue_type = $3::TEXT
 	)
 	AND (
-		$4::TEXT IS NULL
-		OR severity = $4::TEXT
+		$4::severity_level IS NULL
+		OR severity = $4::severity_level
 	)
 	AND (
 		$5::TEXT IS NULL
@@ -108,7 +108,7 @@ type ListIssuesParams struct {
 	Team         string
 	Env          []string
 	IssueType    *string
-	Severity     *string
+	Severity     NullSeverityLevel
 	ResourceType *string
 	ResourceName *string
 	OrderBy      string
@@ -123,7 +123,7 @@ type ListIssuesRow struct {
 	ResourceType string
 	Team         string
 	Env          string
-	Severity     string
+	Severity     SeverityLevel
 	Message      string
 	IssueDetails []byte
 	CreatedAt    pgtype.Timestamptz

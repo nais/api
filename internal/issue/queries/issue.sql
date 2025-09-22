@@ -24,8 +24,8 @@ WHERE
 		OR issue_type = sqlc.narg('issue_type')::TEXT
 	)
 	AND (
-		sqlc.narg('severity')::TEXT IS NULL
-		OR severity = sqlc.narg('severity')::TEXT
+		sqlc.narg('severity')::severity_level IS NULL
+		OR severity = sqlc.narg('severity')::severity_level
 	)
 	AND (
 		sqlc.narg('resource_type')::TEXT IS NULL

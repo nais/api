@@ -51,7 +51,7 @@ type BatchInsertIssuesParams struct {
 	ResourceType string
 	Team         string
 	Env          string
-	Severity     string
+	Severity     SeverityLevel
 	Message      string
 	IssueDetails []byte
 }

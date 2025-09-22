@@ -3,9 +3,73 @@
 package issuesql
 
 import (
+	"database/sql/driver"
+	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type SeverityLevel string
+
+const (
+	SeverityLevelCRITICAL SeverityLevel = "CRITICAL"
+	SeverityLevelWARNING  SeverityLevel = "WARNING"
+	SeverityLevelTODO     SeverityLevel = "TODO"
+)
+
+func (e *SeverityLevel) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = SeverityLevel(s)
+	case string:
+		*e = SeverityLevel(s)
+	default:
+		return fmt.Errorf("unsupported scan type for SeverityLevel: %T", src)
+	}
+	return nil
+}
+
+type NullSeverityLevel struct {
+	SeverityLevel SeverityLevel
+	Valid         bool // Valid is true if SeverityLevel is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullSeverityLevel) Scan(value interface{}) error {
+	if value == nil {
+		ns.SeverityLevel, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.SeverityLevel.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullSeverityLevel) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.SeverityLevel), nil
+}
+
+func (e SeverityLevel) Valid() bool {
+	switch e {
+	case SeverityLevelCRITICAL,
+		SeverityLevelWARNING,
+		SeverityLevelTODO:
+		return true
+	}
+	return false
+}
+
+func AllSeverityLevelValues() []SeverityLevel {
+	return []SeverityLevel{
+		SeverityLevelCRITICAL,
+		SeverityLevelWARNING,
+		SeverityLevelTODO,
+	}
+}
 
 type Issue struct {
 	ID           uuid.UUID
@@ -14,7 +78,7 @@ type Issue struct {
 	ResourceType string
 	Team         string
 	Env          string
-	Severity     string
+	Severity     SeverityLevel
 	Message      string
 	IssueDetails []byte
 	CreatedAt    pgtype.Timestamptz
