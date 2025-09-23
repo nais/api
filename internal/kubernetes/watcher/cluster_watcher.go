@@ -148,6 +148,7 @@ func (w *clusterWatcher[T]) Delete(ctx context.Context, namespace, name string) 
 		fmt.Println("EXTRA DEBUG")
 		obj, err := w.informer.Lister().ByNamespace(namespace).Get(name)
 		if err == nil {
+			fmt.Println("Not found in informer cache", namespace, name, err)
 			return err
 		}
 		w.log.Warnf("Using quick delete for %T", obj)
@@ -155,12 +156,15 @@ func (w *clusterWatcher[T]) Delete(ctx context.Context, namespace, name string) 
 		// Remove from informer cache to avoid waiting for resync to see the deletion
 		err = w.informer.Informer().GetIndexer().Delete(obj)
 		if err != nil {
+			fmt.Println("Error deleting from indexer", err)
 			w.log.WithError(err).WithField("namespace", namespace).WithField("name", name).Warn("deleting object from informer cache")
 		}
 		err = w.informer.Informer().GetStore().Delete(obj)
 		if err != nil {
+			fmt.Println("Error deleting from store", err)
 			w.log.WithError(err).WithField("namespace", namespace).WithField("name", name).Warn("deleting object from informer store")
 		}
+		fmt.Println("Done")
 	} else if _, ok := w.manager.client.(*fake.FakeDynamicClient); ok {
 		// This is a hack to make sure that the object is removed from the datastore
 		// when running with a fake client.
