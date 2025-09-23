@@ -260,7 +260,7 @@ func (o *OpenSearchInput) Validate(ctx context.Context) error {
 
 	diskSizeRange, diskSizeErr := diskSizeRangeFromTierAndSize(o.Tier, o.Size)
 	if plan, err := planFromTierAndSize(o.Tier, o.Size); err != nil {
-		verr.Add("size", err.Error())
+		verr.Add("size", "%s", err)
 	} else if plan == "hobbyist" && diskSizeErr == nil {
 		o.DiskSizeGB = int(diskSizeRange.min)
 	} else {
