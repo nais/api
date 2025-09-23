@@ -2,9 +2,11 @@ package graph
 
 import (
 	"context"
+	"strings"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/valkey"
@@ -47,10 +49,18 @@ func (r *openSearchResolver) Maintenance(ctx context.Context, obj *opensearch.Op
 }
 
 func (r *openSearchMaintenanceResolver) Window(ctx context.Context, obj *servicemaintenance.OpenSearchMaintenance) (*servicemaintenance.MaintenanceWindow, error) {
-	return servicemaintenance.GetAivenMaintenanceWindow(ctx, servicemaintenance.AivenDataLoaderKey{
+	ret, err := servicemaintenance.GetAivenMaintenanceWindow(ctx, servicemaintenance.AivenDataLoaderKey{
 		Project:     obj.AivenProject,
 		ServiceName: obj.ServiceName,
 	})
+
+	if err != nil && strings.Contains(err.Error(), "404 ServiceGet") {
+		return &servicemaintenance.MaintenanceWindow{
+			DayOfWeek: model.WeekdayMonday,
+			TimeOfDay: "",
+		}, nil
+	}
+	return ret, err
 }
 
 func (r *openSearchMaintenanceResolver) Updates(ctx context.Context, obj *servicemaintenance.OpenSearchMaintenance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*servicemaintenance.OpenSearchMaintenanceUpdate], error) {
