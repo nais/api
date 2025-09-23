@@ -147,7 +147,7 @@ func (w *clusterWatcher[T]) Delete(ctx context.Context, namespace, name string) 
 	if w.quickDelete {
 		fmt.Println("EXTRA DEBUG")
 		obj, err := w.informer.Lister().ByNamespace(namespace).Get(name)
-		if err == nil {
+		if err != nil {
 			fmt.Println("Not found in informer cache", namespace, name, err)
 			return err
 		}
