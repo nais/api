@@ -258,15 +258,13 @@ func (o *OpenSearchInput) Validate(ctx context.Context) error {
 		verr.Add("version", "Invalid OpenSearch version: %s.", o.Version.String())
 	}
 
-	diskSize := OpenSearchDiskSize(o.DiskSizeGB)
 	diskSizeRange, diskSizeErr := diskSizeRangeFromTierAndSize(o.Tier, o.Size)
-
 	if plan, err := planFromTierAndSize(o.Tier, o.Size); err != nil {
 		verr.Add("size", err.Error())
 	} else if plan == "hobbyist" && diskSizeErr == nil {
-		diskSize = diskSizeRange.min
 		o.DiskSizeGB = int(diskSizeRange.min)
 	} else {
+		diskSize := OpenSearchDiskSize(o.DiskSizeGB)
 		if diskSizeErr != nil {
 			verr.Add("diskSizeGB", "Could not determine valid disk size range for tier %q and size %q: %v", o.Tier, o.Size, diskSizeErr)
 		} else if diskSize < diskSizeRange.min || diskSize > diskSizeRange.max {
