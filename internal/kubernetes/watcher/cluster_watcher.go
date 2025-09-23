@@ -56,6 +56,7 @@ func newClusterWatcher[T Object](mgr *clusterManager, cluster string, watcher *W
 		log:           log,
 		converterFunc: settings.converter,
 		gvr:           gvr,
+		quickDelete:   settings.quckDelete,
 	}
 
 	if settings.transformer != nil {
