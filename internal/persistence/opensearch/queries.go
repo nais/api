@@ -160,13 +160,12 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 	if err != nil {
 		return nil, err
 	}
-	version := input.Version.ToAivenString()
-
 	res.Object["spec"] = map[string]any{
 		"cloudName":             "google-europe-north1",
 		"plan":                  plan,
 		"project":               aivenProject.ID,
 		"projectVpcId":          aivenProject.VPC,
+		"disk_space":            OpenSearchDiskSize(input.DiskSizeGB).ToAivenString(),
 		"terminationProtection": true,
 		"tags": map[string]any{
 			"environment": input.EnvironmentName,
@@ -174,7 +173,7 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 			"tenant":      fromContext(ctx).tenantName,
 		},
 		"userConfig": map[string]any{
-			"opensearch_version": version,
+			"opensearch_version": input.Version.ToAivenString(),
 		},
 	}
 
@@ -324,6 +323,44 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 		}
 	}
 
+	oldDiskSize, found, err := unstructured.NestedString(openSearch.Object, "spec", "disk_space")
+	if err != nil {
+		return nil, err
+	}
+	if !found {
+		tier, size, err := tierAndSizeFromPlan(plan)
+		if err != nil {
+			return nil, err
+		}
+
+		diskSize, err := diskSizeRangeFromTierAndSize(tier, size)
+		if err != nil {
+			return nil, err
+		}
+
+		oldDiskSize = diskSize.min.ToAivenString()
+	}
+
+	newDiskSize := OpenSearchDiskSize(input.DiskSizeGB)
+	if oldDiskSize != newDiskSize.ToAivenString() {
+		changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
+			Field: "diskSizeGB",
+			OldValue: func() *string {
+				if found {
+					size, _ := OpenSearchDiskSizeFromAivenString(oldDiskSize)
+					// this couldn't possibly fail
+					return ptr.To(size.String())
+				}
+				return nil
+			}(),
+			NewValue: ptr.To(newDiskSize.String()),
+		})
+		err = unstructured.SetNestedField(openSearch.Object, newDiskSize.ToAivenString(), "spec", "disk_space")
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	if len(changes) == 0 {
 		// No changes to update
 		os, err := toOpenSearch(openSearch, input.EnvironmentName)
@@ -447,6 +484,29 @@ var aivenSizes = map[string]OpenSearchSize{
 	"64": OpenSearchSizeRAM64gb,
 }
 
+type aivenDiskSizeRange struct {
+	min OpenSearchDiskSize
+	max OpenSearchDiskSize
+}
+
+var aivenDiskSizes = map[OpenSearchTier]map[OpenSearchSize]aivenDiskSizeRange{
+	OpenSearchTierSingleNode: {
+		OpenSearchSizeRAM2gb:  {min: 16, max: 16},
+		OpenSearchSizeRAM4gb:  {min: 80, max: 400},
+		OpenSearchSizeRAM8gb:  {min: 175, max: 875},
+		OpenSearchSizeRAM16gb: {min: 350, max: 1750},
+		OpenSearchSizeRAM32gb: {min: 700, max: 3500},
+		OpenSearchSizeRAM64gb: {min: 1400, max: 5120},
+	},
+	OpenSearchTierHighAvailability: {
+		OpenSearchSizeRAM4gb:  {min: 240, max: 1200},
+		OpenSearchSizeRAM8gb:  {min: 525, max: 2625},
+		OpenSearchSizeRAM16gb: {min: 1050, max: 5250},
+		OpenSearchSizeRAM32gb: {min: 2100, max: 10500},
+		OpenSearchSizeRAM64gb: {min: 4200, max: 15360},
+	},
+}
+
 func planFromTierAndSize(tier OpenSearchTier, size OpenSearchSize) (string, error) {
 	if tier == OpenSearchTierSingleNode && size == OpenSearchSizeRAM2gb {
 		return "hobbyist", nil
@@ -503,4 +563,18 @@ func tierAndSizeFromPlan(plan string) (OpenSearchTier, OpenSearchSize, error) {
 	}
 
 	return tier, size, nil
+}
+
+func diskSizeRangeFromTierAndSize(tier OpenSearchTier, size OpenSearchSize) (*aivenDiskSizeRange, error) {
+	sizes, ok := aivenDiskSizes[tier]
+	if !ok {
+		return nil, apierror.Errorf("invalid OpenSearch tier: %s", tier)
+	}
+
+	diskRange, ok := sizes[size]
+	if !ok {
+		return nil, apierror.Errorf("invalid OpenSearch size for tier. %v cannot have size %v", tier, size)
+	}
+
+	return &diskRange, nil
 }

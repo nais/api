@@ -34,6 +34,7 @@ type OpenSearch struct {
 	TerminationProtection bool                   `json:"terminationProtection"`
 	Tier                  OpenSearchTier         `json:"tier"`
 	Size                  OpenSearchSize         `json:"size"`
+	DiskSizeGB            int                    `json:"diskSizeGB"`
 	TeamSlug              slug.Slug              `json:"-"`
 	EnvironmentName       string                 `json:"-"`
 	WorkloadReference     *workload.Reference    `json:"-"`
@@ -174,6 +175,18 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		}
 	}
 
+	diskSizeRange, err := diskSizeRangeFromTierAndSize(tier, size)
+	if err != nil {
+		return nil, err
+	}
+	diskSizeGB := diskSizeRange.min
+	if v, found, _ := unstructured.NestedString(u.Object, "spec", "disk_space"); found {
+		diskSizeGB, err = OpenSearchDiskSizeFromAivenString(v)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return &OpenSearch{
 		Name:                  name,
 		EnvironmentName:       envName,
@@ -188,6 +201,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		Tier:              tier,
 		Size:              size,
 		MajorVersion:      majorVersion,
+		DiskSizeGB:        int(diskSizeGB),
 	}, nil
 }
 
@@ -225,9 +239,10 @@ func (o *OpenSearchMetadataInput) ValidationErrors(ctx context.Context) *validat
 
 type OpenSearchInput struct {
 	OpenSearchMetadataInput
-	Tier    OpenSearchTier         `json:"tier"`
-	Size    OpenSearchSize         `json:"size"`
-	Version OpenSearchMajorVersion `json:"version"`
+	Tier       OpenSearchTier         `json:"tier"`
+	Size       OpenSearchSize         `json:"size"`
+	Version    OpenSearchMajorVersion `json:"version"`
+	DiskSizeGB int                    `json:"diskSizeGB"`
 }
 
 func (o *OpenSearchInput) Validate(ctx context.Context) error {
@@ -236,7 +251,6 @@ func (o *OpenSearchInput) Validate(ctx context.Context) error {
 	if !o.Tier.IsValid() {
 		verr.Add("tier", "Invalid OpenSearch tier: %s.", o.Tier)
 	}
-
 	if !o.Size.IsValid() {
 		verr.Add("size", "Invalid OpenSearch size: %s.", o.Size)
 	}
@@ -244,7 +258,41 @@ func (o *OpenSearchInput) Validate(ctx context.Context) error {
 		verr.Add("version", "Invalid OpenSearch version: %s.", o.Version.String())
 	}
 
+	diskSize := OpenSearchDiskSize(o.DiskSizeGB)
+	diskSizeRange, diskSizeErr := diskSizeRangeFromTierAndSize(o.Tier, o.Size)
+
+	if plan, err := planFromTierAndSize(o.Tier, o.Size); err != nil {
+		verr.Add("size", err.Error())
+	} else if plan == "hobbyist" && diskSizeErr == nil {
+		diskSize = diskSizeRange.min
+		o.DiskSizeGB = int(diskSizeRange.min)
+	} else {
+		if diskSizeErr != nil {
+			verr.Add("diskSizeGB", "Could not determine valid disk size range for tier %q and size %q: %v", o.Tier, o.Size, diskSizeErr)
+		} else if diskSize < diskSizeRange.min || diskSize > diskSizeRange.max {
+			verr.Add("diskSizeGB", "Disk size must be between %dG and %dG for tier %q and size %q.", diskSizeRange.min, diskSizeRange.max, o.Tier, o.Size)
+		}
+	}
+
 	return verr.NilIfEmpty()
+}
+
+type OpenSearchDiskSize int
+
+func (o OpenSearchDiskSize) ToAivenString() string {
+	return strconv.Itoa(int(o)) + "G"
+}
+
+func (o OpenSearchDiskSize) String() string {
+	return strconv.Itoa(int(o))
+}
+
+func OpenSearchDiskSizeFromAivenString(s string) (OpenSearchDiskSize, error) {
+	i, err := strconv.Atoi(strings.TrimSuffix(strings.TrimSuffix(s, "iB"), "G"))
+	if err != nil {
+		return 0, fmt.Errorf("parsing OpenSearch disk size from Aiven string %q: %w", s, err)
+	}
+	return OpenSearchDiskSize(i), nil
 }
 
 type CreateOpenSearchInput struct {
