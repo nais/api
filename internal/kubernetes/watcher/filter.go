@@ -46,8 +46,9 @@ func (e EnvironmentWrapper[T]) GetName() string {
 }
 
 type filterOptions struct {
-	labels   labels.Selector
-	clusters []string
+	labels         labels.Selector
+	clusters       []string
+	withoutDeleted bool
 }
 
 type Filter func(o *filterOptions)
@@ -61,5 +62,11 @@ func WithLabels(lbls labels.Selector) Filter {
 func InCluster(cluster string) Filter {
 	return func(o *filterOptions) {
 		o.clusters = append(o.clusters, cluster)
+	}
+}
+
+func WithoutDeleted() Filter {
+	return func(o *filterOptions) {
+		o.withoutDeleted = true
 	}
 }

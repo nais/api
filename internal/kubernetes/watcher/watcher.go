@@ -214,7 +214,11 @@ func (w *Watcher[T]) GetByCluster(cluster string, filter ...Filter) []*Environme
 		}
 
 		for _, obj := range objs {
-			if o, ok := wat.convert(obj.(*unstructured.Unstructured)); ok {
+			uo := obj.(*unstructured.Unstructured)
+			if o, ok := wat.convert(uo); ok {
+				if opts.withoutDeleted && uo.GetDeletionTimestamp() != nil {
+					continue
+				}
 				ret = append(ret, &EnvironmentWrapper[T]{
 					Obj:     o,
 					Cluster: wat.cluster,
@@ -252,7 +256,11 @@ func (w *Watcher[T]) GetByNamespace(namespace string, filter ...Filter) []*Envir
 		}
 
 		for _, obj := range objs {
-			if o, ok := wat.convert(obj.(*unstructured.Unstructured)); ok {
+			uo := obj.(*unstructured.Unstructured)
+			if o, ok := wat.convert(uo); ok {
+				if opts.withoutDeleted && uo.GetDeletionTimestamp() != nil {
+					continue
+				}
 				ret = append(ret, &EnvironmentWrapper[T]{
 					Obj:     o,
 					Cluster: wat.cluster,

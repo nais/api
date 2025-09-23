@@ -142,6 +142,7 @@ func (w *clusterWatcher[T]) Delete(ctx context.Context, namespace, name string) 
 		return fmt.Errorf("impersonating client: %w", err)
 	}
 
+	delErr := client.Namespace(namespace).Delete(ctx, name, metav1.DeleteOptions{})
 	if _, ok := w.manager.client.(*fake.FakeDynamicClient); ok {
 		// This is a hack to make sure that the object is removed from the datastore
 		// when running with a fake client.
@@ -152,8 +153,7 @@ func (w *clusterWatcher[T]) Delete(ctx context.Context, namespace, name string) 
 			w.OnDelete(obj)
 		}
 	}
-
-	return client.Namespace(namespace).Delete(ctx, name, metav1.DeleteOptions{})
+	return delErr
 }
 
 func (w *clusterWatcher[T]) Client() dynamic.NamespaceableResourceInterface {
