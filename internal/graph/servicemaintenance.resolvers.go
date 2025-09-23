@@ -55,6 +55,8 @@ func (r *openSearchMaintenanceResolver) Window(ctx context.Context, obj *service
 	})
 
 	if err != nil && strings.Contains(err.Error(), "404 ServiceGet") {
+		// Since obj is OK, we know the service exists within Kubernetes, but it might not yet be
+		// fully created in Aiven. In that case, return a default maintenance window.
 		return &servicemaintenance.MaintenanceWindow{
 			DayOfWeek: model.WeekdayMonday,
 			TimeOfDay: "",
@@ -74,6 +76,11 @@ func (r *openSearchMaintenanceResolver) Updates(ctx context.Context, obj *servic
 		ServiceName: obj.ServiceName,
 	})
 	if err != nil {
+		if strings.Contains(err.Error(), "404 ServiceGet") {
+			// Since obj is OK, we know the service exists within Kubernetes, but it might not yet be
+			// fully created in Aiven. In that case, return a default maintenance window.
+			return pagination.EmptyConnection[*servicemaintenance.OpenSearchMaintenanceUpdate](), nil
+		}
 		return nil, err
 	}
 
@@ -88,10 +95,21 @@ func (r *valkeyResolver) Maintenance(ctx context.Context, obj *valkey.Valkey) (*
 }
 
 func (r *valkeyMaintenanceResolver) Window(ctx context.Context, obj *servicemaintenance.ValkeyMaintenance) (*servicemaintenance.MaintenanceWindow, error) {
-	return servicemaintenance.GetAivenMaintenanceWindow(ctx, servicemaintenance.AivenDataLoaderKey{
+	ret, err := servicemaintenance.GetAivenMaintenanceWindow(ctx, servicemaintenance.AivenDataLoaderKey{
 		Project:     obj.AivenProject,
 		ServiceName: obj.ServiceName,
 	})
+
+	if err != nil && strings.Contains(err.Error(), "404 ServiceGet") {
+		// Since obj is OK, we know the service exists within Kubernetes, but it might not yet be
+		// fully created in Aiven. In that case, return a default maintenance window.
+		return &servicemaintenance.MaintenanceWindow{
+			DayOfWeek: model.WeekdayMonday,
+			TimeOfDay: "",
+		}, nil
+	}
+
+	return ret, err
 }
 
 func (r *valkeyMaintenanceResolver) Updates(ctx context.Context, obj *servicemaintenance.ValkeyMaintenance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*servicemaintenance.ValkeyMaintenanceUpdate], error) {
@@ -105,6 +123,11 @@ func (r *valkeyMaintenanceResolver) Updates(ctx context.Context, obj *servicemai
 		ServiceName: obj.ServiceName,
 	})
 	if err != nil {
+		if strings.Contains(err.Error(), "404 ServiceGet") {
+			// Since obj is OK, we know the service exists within Kubernetes, but it might not yet be
+			// fully created in Aiven. In that case, return a default maintenance window.
+			return pagination.EmptyConnection[*servicemaintenance.ValkeyMaintenanceUpdate](), nil
+		}
 		return nil, err
 	}
 
