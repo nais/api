@@ -163,6 +163,10 @@ func (w *clusterWatcher[T]) Delete(ctx context.Context, namespace, name string) 
 		if err != nil {
 			w.log.WithError(err).WithField("namespace", namespace).WithField("name", name).Warn("deleting object from informer cache")
 		}
+		err = w.informer.Informer().GetStore().Delete(obj)
+		if err != nil {
+			w.log.WithError(err).WithField("namespace", namespace).WithField("name", name).Warn("deleting object from informer store")
+		}
 	}
 	return client.Namespace(namespace).Delete(ctx, name, metav1.DeleteOptions{})
 }
