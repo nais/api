@@ -287,19 +287,19 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 	if err != nil {
 		return nil, err
 	}
-	if !found || oldVersion != input.Version.ToAivenString() {
-		if !found {
-			os, err := toOpenSearch(openSearch, input.EnvironmentName)
-			if err != nil {
-				return nil, err
-			}
-			version, err := GetOpenSearchVersion(ctx, os)
-			if err != nil {
-				return nil, err
-			}
-
-			oldVersion = *version.Actual
+	if !found {
+		os, err := toOpenSearch(openSearch, input.EnvironmentName)
+		if err != nil {
+			return nil, err
 		}
+		version, err := GetOpenSearchVersion(ctx, os)
+		if err != nil {
+			return nil, err
+		}
+
+		oldVersion = *version.Actual
+	}
+	if oldVersion != input.Version.ToAivenString() {
 		oldMajorVersion, err := OpenSearchMajorVersionFromAivenString(oldVersion)
 		if err != nil {
 			return nil, err
