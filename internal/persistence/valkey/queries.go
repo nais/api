@@ -48,7 +48,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*Valkey {
-	all := fromContext(ctx).client.watcher.GetByNamespace(teamSlug.String())
+	all := fromContext(ctx).client.watcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted())
 	return watcher.Objects(all)
 }
 
