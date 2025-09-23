@@ -168,8 +168,8 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 
 	majorVersion := OpenSearchMajorVersion("")
 	if v, found, _ := unstructured.NestedString(u.Object, "spec", "userConfig", "opensearch_version"); found {
-		version := OpenSearchMajorVersion("V" + v)
-		if version.IsValid() {
+		version, err := OpenSearchMajorVersionFromAivenString(v)
+		if err == nil {
 			majorVersion = version
 		}
 	}
@@ -268,8 +268,8 @@ func (e OpenSearchMajorVersion) IsDowngradeTo(other OpenSearchMajorVersion) bool
 	}
 
 	// Since we've already checked if both versions are valid, the Atoi calls should never fail
-	our, _ := strconv.Atoi(strings.TrimLeft(string(e), "V"))
-	their, _ := strconv.Atoi(strings.TrimLeft(string(other), "V"))
+	our, _ := strconv.Atoi(e.ToAivenString())
+	their, _ := strconv.Atoi(other.ToAivenString())
 
 	return our < their
 }
@@ -303,6 +303,7 @@ func (e OpenSearchMajorVersion) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// ToAivenString returns the version string without the "V" prefix, e.g. "2" or "1".
 func (e OpenSearchMajorVersion) ToAivenString() string {
 	return strings.TrimLeft(string(e), "V")
 }

@@ -518,6 +518,11 @@ Test.gql("List opensearches for team", function(t)
 							size = "RAM_2GB",
 						},
 						{
+							name = "noversion",
+							tier = "SINGLE_NODE",
+							size = "RAM_2GB",
+						},
+						{
 							name = "opensearch-someteamname-hobbyist-not-managed",
 							tier = "SINGLE_NODE",
 							size = "RAM_2GB",
@@ -541,6 +546,40 @@ Test.gql("Downgrade OpenSearch as team-member", function(t)
 		  updateOpenSearch(
 		    input: {
 		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: HIGH_AVAILABILITY
+		      size: RAM_4GB
+		      version: V1
+		    }
+		  ) {
+		    openSearch {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = "Cannot downgrade OpenSearch version from V2 to V1",
+				path = {
+					"updateOpenSearch",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Downgrade OpenSearch without explicit version set", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation UpdateOpenSearch {
+		  updateOpenSearch(
+		    input: {
+		      name: "noversion"
 		      environmentName: "dev"
 		      teamSlug: "someteamname"
 		      tier: HIGH_AVAILABILITY

@@ -160,7 +160,7 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 	if err != nil {
 		return nil, err
 	}
-	version := strings.TrimLeft(input.Version.String(), "V")
+	version := input.Version.ToAivenString()
 
 	res.Object["spec"] = map[string]any{
 		"cloudName":             "google-europe-north1",
@@ -287,8 +287,23 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 	if err != nil {
 		return nil, err
 	}
-	if !found || oldVersion != input.Version.String() {
-		oldMajorVersion := OpenSearchMajorVersion("V" + oldVersion)
+	if !found || oldVersion != input.Version.ToAivenString() {
+		if !found {
+			os, err := toOpenSearch(openSearch, input.EnvironmentName)
+			if err != nil {
+				return nil, err
+			}
+			version, err := GetOpenSearchVersion(ctx, os)
+			if err != nil {
+				return nil, err
+			}
+
+			oldVersion = *version.Actual
+		}
+		oldMajorVersion, err := OpenSearchMajorVersionFromAivenString(oldVersion)
+		if err != nil {
+			return nil, err
+		}
 		if input.Version.IsDowngradeTo(oldMajorVersion) {
 			return nil, apierror.Errorf("Cannot downgrade OpenSearch version from %v to %v", oldMajorVersion, input.Version.String())
 		}
