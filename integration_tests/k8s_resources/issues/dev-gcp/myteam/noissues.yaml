@@ -5,6 +5,26 @@ metadata:
 spec:
   image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
 ---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: no-issues-1
+  labels:
+    app: no-issues
+  creationTimestamp: "2021-09-30T12:00:00Z"
+spec:
+  containers:
+    - name: no-issues
+      image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+status:
+  containerStatuses:
+    - name: no-issues
+      ready: true
+      restartCount: 0
+      state:
+        running:
+          startedAt: "2022-07-06T09:45:18Z"
+---
 apiVersion: nais.io/v1
 kind: Naisjob
 metadata:

@@ -26,6 +26,26 @@ status:
       type: Error
   synchronizationState: FailedGenerate
 ---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-failed-generate-1
+  labels:
+    app: app-failed-generate
+  creationTimestamp: "2021-09-30T12:00:00Z"
+spec:
+  containers:
+    - name: app-failed-generate
+      image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+status:
+  containerStatuses:
+    - name: app-failed-generate
+      ready: true
+      restartCount: 0
+      state:
+        running:
+          startedAt: "2022-07-06T09:45:18Z"
+---
 apiVersion: nais.io/v1
 kind: Naisjob
 metadata:

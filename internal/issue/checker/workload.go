@@ -183,9 +183,8 @@ func (w Workload) noRunningInstances(app *nais_io_v1alpha1.Application, team, en
 
 	failing := failingPods(watcher.Objects(pods), app.Name)
 
-	hasReplicas := app.Spec.Replicas != nil &&
-		app.Spec.Replicas.Min != nil && *app.Spec.Replicas.Min > 0 &&
-		app.Spec.Replicas.Max != nil && *app.Spec.Replicas.Max > 0
+	hasReplicas := app.Spec.Replicas == nil || (app.Spec.Replicas.Min != nil && *app.Spec.Replicas.Min > 0 &&
+		app.Spec.Replicas.Max != nil && *app.Spec.Replicas.Max > 0)
 
 	hasNoRunning := (len(pods) == 0 || len(failing) == len(pods)) && hasReplicas
 

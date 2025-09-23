@@ -5,9 +5,49 @@ metadata:
 spec:
   image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
 ---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: vulnerable-1
+  labels:
+    app: vulnerable
+  creationTimestamp: "2021-09-30T12:00:00Z"
+spec:
+  containers:
+    - name: vulnerable
+      image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+status:
+  containerStatuses:
+    - name: vulnerable
+      ready: true
+      restartCount: 0
+      state:
+        running:
+          startedAt: "2022-07-06T09:45:18Z"
+---
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
   name: missing-sbom
 spec:
   image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: missing-sbom-1
+  labels:
+    app: missing-sbom
+  creationTimestamp: "2021-09-30T12:00:00Z"
+spec:
+  containers:
+    - name: missing-sbom
+      image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+status:
+  containerStatuses:
+    - name: missing-sbom
+      ready: true
+      restartCount: 0
+      state:
+        running:
+          startedAt: "2022-07-06T09:45:18Z"

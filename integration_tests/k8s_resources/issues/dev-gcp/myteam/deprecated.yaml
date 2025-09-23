@@ -9,6 +9,26 @@ spec:
     - "https://bar.dev-gcp.nais.io"
     - "https://valid.nav.no"
 ---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: deprecated-app-1
+  labels:
+    app: deprecated-app
+  creationTimestamp: "2021-09-30T12:00:00Z"
+spec:
+  containers:
+    - name: deprecated-app
+      image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+status:
+  containerStatuses:
+    - name: deprecated-app
+      ready: true
+      restartCount: 0
+      state:
+        running:
+          startedAt: "2022-07-06T09:45:18Z"
+---
 apiVersion: nais.io/v1
 kind: Naisjob
 metadata:
