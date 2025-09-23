@@ -70,14 +70,12 @@ type Watcher[T Object] struct {
 	onAdd           WatcherHook[T]
 	onUpdate        WatcherHook[T]
 	onRemove        WatcherHook[T]
-	quickDelete     bool
 }
 
 func newWatcher[T Object](mgr *Manager, obj T, settings *watcherSettings, log logrus.FieldLogger) *Watcher[T] {
 	w := &Watcher[T]{
 		log:             log,
 		resourceCounter: mgr.resourceCounter,
-		quickDelete:     settings.quckDelete,
 	}
 	for cluster, client := range mgr.managers {
 		cluster = environmentmapper.EnvironmentName(cluster)

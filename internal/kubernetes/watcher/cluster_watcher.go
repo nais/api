@@ -144,16 +144,8 @@ func (w *clusterWatcher[T]) Delete(ctx context.Context, namespace, name string) 
 		return fmt.Errorf("impersonating client: %w", err)
 	}
 
-	if _, ok := w.manager.client.(*fake.FakeDynamicClient); ok {
-		// This is a hack to make sure that the object is removed from the datastore
-		// when running with a fake client.
-		// The events created by the fake client are using the wrong type when calling
-		// watchers.
-		obj, err := client.Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
-		if err == nil {
-			w.OnDelete(obj)
-		}
-	} else if w.quickDelete {
+	if w.quickDelete {
+		fmt.Println("EXTRA DEBUG")
 		obj, err := w.informer.Lister().ByNamespace(namespace).Get(name)
 		if err == nil {
 			return err
@@ -168,6 +160,15 @@ func (w *clusterWatcher[T]) Delete(ctx context.Context, namespace, name string) 
 		err = w.informer.Informer().GetStore().Delete(obj)
 		if err != nil {
 			w.log.WithError(err).WithField("namespace", namespace).WithField("name", name).Warn("deleting object from informer store")
+		}
+	} else if _, ok := w.manager.client.(*fake.FakeDynamicClient); ok {
+		// This is a hack to make sure that the object is removed from the datastore
+		// when running with a fake client.
+		// The events created by the fake client are using the wrong type when calling
+		// watchers.
+		obj, err := client.Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
+		if err == nil {
+			w.OnDelete(obj)
 		}
 	}
 	return client.Namespace(namespace).Delete(ctx, name, metav1.DeleteOptions{})
