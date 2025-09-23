@@ -69,19 +69,24 @@ func (r *jobResolver) ActivityLog(ctx context.Context, obj *job.Job, first *int,
 	return activitylog.ListForResourceTeamAndEnvironment(ctx, "JOB", obj.TeamSlug, obj.Name, obj.EnvironmentName, page, filter)
 }
 
-func (r *jobResolver) Issues(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder) (*pagination.Connection[issue.Issue], error) {
+func (r *jobResolver) Issues(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.IssueFilter) (*pagination.Connection[issue.Issue], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
 	jobType := issue.ResourceTypeJob
-	filter := &issue.IssueFilter{
+	f := &issue.IssueFilter{
 		ResourceName: &obj.Name,
 		ResourceType: &jobType,
 	}
+	if filter != nil {
+		f.Severity = filter.Severity
+		f.Environments = filter.Environments
+		f.IssueType = filter.IssueType
+	}
 
-	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, filter)
+	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, f)
 }
 
 func (r *jobRunResolver) Duration(ctx context.Context, obj *job.JobRun) (int, error) {

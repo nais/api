@@ -224,6 +224,9 @@ type Application implements Node & Workload & ActivityLogger {
 
 		"Ordering options for items returned from the connection."
 		orderBy: IssueOrder
+
+		"Filtering options for items returned from the connection."
+		filter: IssueFilter
 	): IssueConnection!
 }
 

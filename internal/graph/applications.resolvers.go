@@ -74,19 +74,24 @@ func (r *applicationResolver) ActivityLog(ctx context.Context, obj *application.
 	return activitylog.ListForResourceTeamAndEnvironment(ctx, "APP", obj.TeamSlug, obj.Name, obj.EnvironmentName, page, filter)
 }
 
-func (r *applicationResolver) Issues(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder) (*pagination.Connection[issue.Issue], error) {
+func (r *applicationResolver) Issues(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.IssueFilter) (*pagination.Connection[issue.Issue], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
 	t := issue.ResourceTypeApplication
-	filter := &issue.IssueFilter{
+	f := &issue.IssueFilter{
 		ResourceName: &obj.Name,
 		ResourceType: &t,
 	}
+	if filter != nil {
+		f.Severity = filter.Severity
+		f.Environments = filter.Environments
+		f.IssueType = filter.IssueType
+	}
 
-	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, filter)
+	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, f)
 }
 
 func (r *deleteApplicationPayloadResolver) Team(ctx context.Context, obj *application.DeleteApplicationPayload) (*team.Team, error) {
