@@ -71,6 +71,35 @@ func (i ApplicationInstance) ID() ident.Ident {
 	return newInstanceIdent(i.TeamSlug, i.EnvironmentName, i.ApplicationName, i.Name)
 }
 
+var benignWaiting = map[string]struct{}{
+	"":                  {},
+	"ContainerCreating": {},
+	"PodInitializing":   {},
+	"Pulling":           {},
+	"ImagePull":         {},
+}
+
+func classifyWaiting(w *corev1.ContainerStateWaiting) (kind string, msg string) {
+	if w == nil {
+		return "ok", "not waiting"
+	}
+	reason := strings.TrimSpace(w.Reason)
+	message := strings.TrimSpace(w.Message)
+
+	msg = reason
+	if msg == "" {
+		msg = message
+	}
+	if msg == "" {
+		msg = "Waiting"
+	}
+
+	if _, ok := benignWaiting[reason]; ok {
+		return "benign", msg
+	}
+	return "problem", msg
+}
+
 func (i *ApplicationInstance) Status() *ApplicationInstanceStatus {
 	switch {
 	case i.ApplicationContainerStatus.State.Running != nil:
@@ -78,16 +107,42 @@ func (i *ApplicationInstance) Status() *ApplicationInstanceStatus {
 			State:   ApplicationInstanceStateRunning,
 			Message: "Running",
 		}
+
 	case i.ApplicationContainerStatus.State.Terminated != nil:
+		t := i.ApplicationContainerStatus.State.Terminated
+		msg := t.Reason
+		if msg == "" {
+			if t.Message != "" {
+				msg = t.Message
+			} else {
+				msg = fmt.Sprintf("Exited (%d)", t.ExitCode)
+			}
+		}
 		return &ApplicationInstanceStatus{
 			State:   ApplicationInstanceStateFailing,
-			Message: i.ApplicationContainerStatus.State.Terminated.Reason,
+			Message: msg,
 		}
+
 	case i.ApplicationContainerStatus.State.Waiting != nil:
-		return &ApplicationInstanceStatus{
-			State:   ApplicationInstanceStateFailing,
-			Message: i.ApplicationContainerStatus.State.Waiting.Reason,
+		kind, msg := classifyWaiting(i.ApplicationContainerStatus.State.Waiting)
+		switch kind {
+		case "problem":
+			return &ApplicationInstanceStatus{
+				State:   ApplicationInstanceStateFailing,
+				Message: msg,
+			}
+		case "benign":
+			return &ApplicationInstanceStatus{
+				State:   ApplicationInstanceStateStarting,
+				Message: msg,
+			}
+		default: // "unknown"
+			return &ApplicationInstanceStatus{
+				State:   ApplicationInstanceStateStarting,
+				Message: msg,
+			}
 		}
+
 	default:
 		return &ApplicationInstanceStatus{
 			State:   ApplicationInstanceStateUnknown,
@@ -368,20 +423,22 @@ type RestartApplicationPayload struct {
 type ApplicationInstanceState string
 
 const (
-	ApplicationInstanceStateRunning ApplicationInstanceState = "RUNNING"
-	ApplicationInstanceStateFailing ApplicationInstanceState = "FAILING"
-	ApplicationInstanceStateUnknown ApplicationInstanceState = "UNKNOWN"
+	ApplicationInstanceStateRunning  ApplicationInstanceState = "RUNNING"
+	ApplicationInstanceStateStarting ApplicationInstanceState = "STARTING"
+	ApplicationInstanceStateFailing  ApplicationInstanceState = "FAILING"
+	ApplicationInstanceStateUnknown  ApplicationInstanceState = "UNKNOWN"
 )
 
 var AllApplicationInstanceState = []ApplicationInstanceState{
 	ApplicationInstanceStateRunning,
+	ApplicationInstanceStateStarting,
 	ApplicationInstanceStateFailing,
 	ApplicationInstanceStateUnknown,
 }
 
 func (e ApplicationInstanceState) IsValid() bool {
 	switch e {
-	case ApplicationInstanceStateRunning, ApplicationInstanceStateFailing, ApplicationInstanceStateUnknown:
+	case ApplicationInstanceStateRunning, ApplicationInstanceStateStarting, ApplicationInstanceStateFailing, ApplicationInstanceStateUnknown:
 		return true
 	}
 	return false
