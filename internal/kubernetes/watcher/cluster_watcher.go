@@ -3,7 +3,6 @@ package watcher
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/user"
@@ -35,7 +34,6 @@ type clusterWatcher[T Object] struct {
 	log           logrus.FieldLogger
 	converterFunc func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool)
 	gvr           schema.GroupVersionResource
-	quickDelete   bool
 }
 
 func newClusterWatcher[T Object](mgr *clusterManager, cluster string, watcher *Watcher[T], obj T, settings *watcherSettings, log logrus.FieldLogger) (*clusterWatcher[T], schema.GroupVersionResource) {
@@ -57,7 +55,6 @@ func newClusterWatcher[T Object](mgr *clusterManager, cluster string, watcher *W
 		log:           log,
 		converterFunc: settings.converter,
 		gvr:           gvr,
-		quickDelete:   settings.quckDelete,
 	}
 
 	if settings.transformer != nil {
@@ -146,25 +143,7 @@ func (w *clusterWatcher[T]) Delete(ctx context.Context, namespace, name string) 
 	}
 
 	delErr := client.Namespace(namespace).Delete(ctx, name, metav1.DeleteOptions{})
-	if w.quickDelete {
-		obj, err := w.informer.Lister().ByNamespace(namespace).Get(name)
-		if err != nil {
-			w.log.WithError(err).WithField("namespace", namespace).WithField("name", name).Info("getting object from informer cache for quick delete")
-		}
-
-		// Give some time for the delete event to be processed before removing from cache
-		time.Sleep(50 * time.Millisecond)
-
-		// Remove from informer cache to avoid waiting for resync to see the deletion
-		err = w.informer.Informer().GetIndexer().Delete(obj)
-		if err != nil {
-			w.log.WithError(err).WithField("namespace", namespace).WithField("name", name).Info("deleting object from informer cache")
-		}
-		err = w.informer.Informer().GetStore().Delete(obj)
-		if err != nil {
-			w.log.WithError(err).WithField("namespace", namespace).WithField("name", name).Info("deleting object from informer store")
-		}
-	} else if _, ok := w.manager.client.(*fake.FakeDynamicClient); ok {
+	if _, ok := w.manager.client.(*fake.FakeDynamicClient); ok {
 		// This is a hack to make sure that the object is removed from the datastore
 		// when running with a fake client.
 		// The events created by the fake client are using the wrong type when calling

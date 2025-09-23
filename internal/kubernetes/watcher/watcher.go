@@ -44,14 +44,6 @@ func WithInformerFilter(labelSelector string) WatchOption {
 	}
 }
 
-// WithQuickDelete enables "quick delete" mode, which removes the object from the informer cache
-// immediately when an object is deleted.
-func WithQuickDelete() WatchOption {
-	return func(m *watcherSettings) {
-		m.quckDelete = true
-	}
-}
-
 type watcherSettings struct {
 	converter           func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool)
 	transformer         cache.TransformFunc
