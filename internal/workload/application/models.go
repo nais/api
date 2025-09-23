@@ -79,19 +79,6 @@ var benignWaiting = map[string]struct{}{
 	"ImagePull":         {},
 }
 
-var badWaiting = map[string]struct{}{
-	"ErrImagePull":               {},
-	"ImagePullBackOff":           {},
-	"CrashLoopBackOff":           {},
-	"CreateContainerConfigError": {},
-	"InvalidImageName":           {},
-	"RunContainerError":          {},
-	"StartError":                 {},
-	"CreateContainerError":       {},
-	"BackOff":                    {},
-	"ContainerCannotRun":         {},
-}
-
 func classifyWaiting(w *corev1.ContainerStateWaiting) (kind string, msg string) {
 	if w == nil {
 		return "ok", "not waiting"
@@ -107,13 +94,10 @@ func classifyWaiting(w *corev1.ContainerStateWaiting) (kind string, msg string) 
 		msg = "Waiting"
 	}
 
-	if _, bad := badWaiting[reason]; bad {
-		return "problem", msg
-	}
 	if _, ok := benignWaiting[reason]; ok {
 		return "benign", msg
 	}
-	return "unknown", msg
+	return "problem", msg
 }
 
 func (i *ApplicationInstance) Status() *ApplicationInstanceStatus {
