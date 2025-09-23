@@ -49,7 +49,6 @@ type watcherSettings struct {
 	transformer         cache.TransformFunc
 	gvr                 *schema.GroupVersionResource
 	filterLabelSelector string
-	quckDelete          bool
 }
 
 type WatcherHook[T Object] func(cluster string, obj T)
