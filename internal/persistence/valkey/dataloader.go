@@ -27,7 +27,7 @@ func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*Val
 		Group:    "aiven.io",
 		Version:  "v1alpha1",
 		Resource: "valkeys",
-	}))
+	}), watcher.WithQuickDelete())
 	w.Start(ctx)
 	return w
 }

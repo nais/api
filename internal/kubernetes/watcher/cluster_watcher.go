@@ -34,6 +34,7 @@ type clusterWatcher[T Object] struct {
 	log           logrus.FieldLogger
 	converterFunc func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool)
 	gvr           schema.GroupVersionResource
+	quickDelete   bool
 }
 
 func newClusterWatcher[T Object](mgr *clusterManager, cluster string, watcher *Watcher[T], obj T, settings *watcherSettings, log logrus.FieldLogger) (*clusterWatcher[T], schema.GroupVersionResource) {
@@ -151,8 +152,18 @@ func (w *clusterWatcher[T]) Delete(ctx context.Context, namespace, name string) 
 		if err == nil {
 			w.OnDelete(obj)
 		}
-	}
+	} else if w.quickDelete {
+		obj, err := w.informer.Lister().ByNamespace(namespace).Get(name)
+		if err == nil {
+			return err
+		}
 
+		// Remove from informer cache to avoid waiting for resync to see the deletion
+		err = w.informer.Informer().GetIndexer().Delete(obj)
+		if err != nil {
+			w.log.WithError(err).WithField("namespace", namespace).WithField("name", name).Warn("deleting object from informer cache")
+		}
+	}
 	return client.Namespace(namespace).Delete(ctx, name, metav1.DeleteOptions{})
 }
 

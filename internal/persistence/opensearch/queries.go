@@ -398,7 +398,7 @@ func Delete(ctx context.Context, input DeleteOpenSearchInput) (*DeleteOpenSearch
 		}
 	}
 
-	if err := nsclient.Delete(ctx, name, metav1.DeleteOptions{}); err != nil {
+	if err := fromContext(ctx).watcher.Delete(ctx, input.EnvironmentName, input.TeamSlug.String(), name); err != nil {
 		return nil, err
 	}
 
