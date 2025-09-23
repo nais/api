@@ -157,6 +157,7 @@ func (w *clusterWatcher[T]) Delete(ctx context.Context, namespace, name string) 
 		if err == nil {
 			return err
 		}
+		w.log.Warnf("Using quick delete for %T", obj)
 
 		// Remove from informer cache to avoid waiting for resync to see the deletion
 		err = w.informer.Informer().GetIndexer().Delete(obj)
