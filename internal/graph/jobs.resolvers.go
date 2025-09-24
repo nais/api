@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"math"
+	"time"
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
@@ -13,6 +14,7 @@ import (
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/job"
+	"k8s.io/utils/ptr"
 )
 
 func (r *deleteJobPayloadResolver) Team(ctx context.Context, obj *job.DeleteJobPayload) (*team.Team, error) {
@@ -67,6 +69,39 @@ func (r *jobResolver) ActivityLog(ctx context.Context, obj *job.Job, first *int,
 		return nil, err
 	}
 	return activitylog.ListForResourceTeamAndEnvironment(ctx, "JOB", obj.TeamSlug, obj.Name, obj.EnvironmentName, page, filter)
+}
+
+func (r *jobResolver) State(ctx context.Context, obj *job.Job) (job.JobState, error) {
+	page, _ := pagination.ParsePage(ptr.To(5), nil, nil, nil)
+	runs, err := job.Runs(ctx, obj.GetTeamSlug(), obj.GetEnvironmentName(), obj.GetName(), page)
+	if err != nil {
+		return "", err
+	}
+
+	var latestTime time.Time
+	var latest *job.JobRun
+
+	for _, j := range runs.Nodes() {
+		if j.StartTime != nil && j.StartTime.After(latestTime) {
+			latestTime = *j.StartTime
+			latest = j
+		}
+	}
+
+	if latest == nil {
+		return job.JobStateUnknown, nil
+	}
+
+	switch latest.Status().State {
+	case job.JobRunStateRunning:
+		return job.JobStateRunning, nil
+	case job.JobRunStateSucceeded:
+		return job.JobStateCompleted, nil
+	case job.JobRunStateFailed:
+		return job.JobStateFailed, nil
+	default:
+		return job.JobStateUnknown, nil
+	}
 }
 
 func (r *jobResolver) Issues(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.IssueFilter) (*pagination.Connection[issue.Issue], error) {

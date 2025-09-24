@@ -1,0 +1,26 @@
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: job-completed
+spec:
+  image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+  schedule: "0 0 * * *"
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-completed
+  labels:
+    app: job-completed
+spec:
+  template:
+    spec:
+      containers:
+        - name: job-completed
+          image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+status:
+  failed: 0
+  startTime: "2024-01-24T13:47:00Z"
+  succeeded: 1
+  completionTime: "2024-12-10T03:45:28Z"
