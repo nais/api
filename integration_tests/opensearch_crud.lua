@@ -3,7 +3,6 @@ local nonMemberUser = User.new("nonmember", "other@user.com")
 
 local mainTeam = Team.new("someteamname", "purpose", "#slack_channel")
 mainTeam:addMember(user)
-local otherTeam = Team.new("someothername", "purpose", "#slack_channel")
 
 Helper.readK8sResources("k8s_resources/opensearch_crud")
 
@@ -19,6 +18,7 @@ Test.gql("Create opensearch in non-existing team", function(t)
 		      tier: SINGLE_NODE
 		      size: RAM_16GB
 		      version: V2
+		      storageGB: 350
 		    }
 		  ) {
 		    openSearch {
@@ -53,6 +53,7 @@ Test.gql("Create opensearch as non-team member", function(t)
 		      tier: SINGLE_NODE
 		      size: RAM_16GB
 		      version: V2
+		      storageGB: 350
 		    }
 		  ) {
 		    openSearch {
@@ -87,6 +88,7 @@ Test.gql("Create opensearch as team member", function(t)
 		      tier: SINGLE_NODE
 		      size: RAM_16GB
 		      version: V2
+		      storageGB: 350
 		    }
 		  ) {
 		    openSearch {
@@ -119,6 +121,7 @@ Test.gql("Create opensearch as team member with existing name", function(t)
 		      tier: SINGLE_NODE
 		      size: RAM_16GB
 		      version: V2
+		      storageGB: 350
 		    }
 		  ) {
 		    openSearch {
@@ -153,6 +156,7 @@ Test.gql("Create opensearch with invalid tier and size combination", function(t)
 		      tier: HIGH_AVAILABILITY
 		      size: RAM_2GB
 		      version: V2
+		      storageGB: 16
 		    }
 		  ) {
 		    openSearch {
@@ -165,7 +169,48 @@ Test.gql("Create opensearch with invalid tier and size combination", function(t)
 	t.check {
 		errors = {
 			{
-				message = Contains("Invalid OpenSearch size for tier. HIGH_AVAILABILITY cannot have size RAM_2GB"),
+				extensions = {
+					field = "size",
+				},
+				message = "Invalid OpenSearch size for tier. HIGH_AVAILABILITY cannot have size RAM_2GB",
+				path = {
+					"createOpenSearch",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Create opensearch with invalid storage size", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation CreateOpenSearch {
+		  createOpenSearch(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: HIGH_AVAILABILITY
+		      size: RAM_4GB
+		      version: V2
+		      storageGB: 16
+		    }
+		  ) {
+		    openSearch {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				extensions = {
+					field = "storageGB",
+				},
+				message = "Storage size must be between 240G and 1200G for tier \"HIGH_AVAILABILITY\" and size \"RAM_4GB\".",
 				path = {
 					"createOpenSearch",
 				},
@@ -198,6 +243,7 @@ Test.k8s("Validate OpenSearch resource", function(t)
 			projectVpcId = "aiven-vpc",
 			plan = "startup-16",
 			cloudName = "google-europe-north1",
+			disk_space = "350G",
 			terminationProtection = true,
 			tags = {
 				environment = "dev",
@@ -258,6 +304,7 @@ Test.gql("Create opensearch with tier and size equivalent to hobbyist plan", fun
 		      tier: SINGLE_NODE
 		      size: RAM_2GB
 		      version: V2
+		      storageGB: 16
 		    }
 		  ) {
 		    openSearch {
@@ -301,6 +348,7 @@ Test.k8s("Validate hobbyist OpenSearch resource", function(t)
 			projectVpcId = "aiven-vpc",
 			plan = "hobbyist",
 			cloudName = "google-europe-north1",
+			disk_space = "16G",
 			terminationProtection = true,
 			tags = {
 				environment = "dev",
@@ -361,6 +409,7 @@ Test.gql("Update OpenSearch in non-existing team", function(t)
 		      tier: SINGLE_NODE
 		      size: RAM_16GB
 		      version: V2
+		      storageGB: 350
 		    }
 		  ) {
 		    openSearch {
@@ -395,6 +444,7 @@ Test.gql("Update OpenSearch as non-team-member", function(t)
 		      tier: SINGLE_NODE
 		      size: RAM_16GB
 		      version: V2
+		      storageGB: 350
 		    }
 		  ) {
 		    openSearch {
@@ -429,6 +479,7 @@ Test.gql("Update OpenSearch as team-member", function(t)
 		      tier: HIGH_AVAILABILITY
 		      size: RAM_4GB
 		      version: V2
+		      storageGB: 1000
 		    }
 		  ) {
 		    openSearch {
@@ -472,6 +523,7 @@ Test.k8s("Validate OpenSearch resource after update", function(t)
 			projectVpcId = "aiven-vpc",
 			plan = "business-4",
 			cloudName = "google-europe-north1",
+			disk_space = "1000G",
 			terminationProtection = true,
 			tags = {
 				environment = "dev",
@@ -551,6 +603,7 @@ Test.gql("Downgrade OpenSearch as team-member", function(t)
 		      tier: HIGH_AVAILABILITY
 		      size: RAM_4GB
 		      version: V1
+		      storageGB: 240
 		    }
 		  ) {
 		    openSearch {
@@ -585,6 +638,7 @@ Test.gql("Downgrade OpenSearch without explicit version set", function(t)
 		      tier: HIGH_AVAILABILITY
 		      size: RAM_4GB
 		      version: V1
+		      storageGB: 240
 		    }
 		  ) {
 		    openSearch {
@@ -619,6 +673,7 @@ Test.gql("Update non-console managed OpenSearch as team-member", function(t)
 		      tier: HIGH_AVAILABILITY
 		      size: RAM_4GB
 		      version: V2
+		      storageGB: 240
 		    }
 		  ) {
 		    openSearch {
@@ -653,6 +708,7 @@ Test.gql("Update OpenSearch with tier and size equivalent to hobbyist plan", fun
 		      tier: SINGLE_NODE
 		      size: RAM_2GB
 		      version: V2
+		      storageGB: 16
 		    }
 		  ) {
 		    openSearch {
@@ -696,6 +752,7 @@ Test.k8s("Validate hobbyist OpenSearch resource after update", function(t)
 			projectVpcId = "aiven-vpc",
 			plan = "hobbyist",
 			cloudName = "google-europe-north1",
+			disk_space = "16G",
 			terminationProtection = true,
 			tags = {
 				environment = "dev",

@@ -140,7 +140,7 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		return nil, err
 	}
 
-	plan, err := planFromTierAndSize(input.Tier, input.Size)
+	machine, err := machineTypeFromTierAndSize(input.Tier, input.Size)
 	if err != nil {
 		return nil, err
 	}
@@ -160,13 +160,12 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 	if err != nil {
 		return nil, err
 	}
-	version := input.Version.ToAivenString()
-
 	res.Object["spec"] = map[string]any{
 		"cloudName":             "google-europe-north1",
-		"plan":                  plan,
+		"plan":                  machine.AivenPlan,
 		"project":               aivenProject.ID,
 		"projectVpcId":          aivenProject.VPC,
+		"disk_space":            input.StorageGB.ToAivenString(),
 		"terminationProtection": true,
 		"tags": map[string]any{
 			"environment": input.EnvironmentName,
@@ -174,7 +173,7 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 			"tenant":      fromContext(ctx).tenantName,
 		},
 		"userConfig": map[string]any{
-			"opensearch_version": version,
+			"opensearch_version": input.Version.ToAivenString(),
 		},
 	}
 
@@ -236,45 +235,46 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 
 	changes := []*OpenSearchUpdatedActivityLogEntryDataUpdatedField{}
 
-	plan, err := planFromTierAndSize(input.Tier, input.Size)
+	machine, err := machineTypeFromTierAndSize(input.Tier, input.Size)
 	if err != nil {
 		return nil, err
 	}
 
 	oldPlan, found, err := unstructured.NestedString(openSearch.Object, "spec", "plan")
-	if err != nil {
+	if err != nil || !found {
 		return nil, err
 	}
 
-	if !found || oldPlan != plan {
-		err = unstructured.SetNestedField(openSearch.Object, plan, "spec", "plan")
+	if oldPlan != machine.AivenPlan {
+		err = unstructured.SetNestedField(openSearch.Object, machine.AivenPlan, "spec", "plan")
 		if err != nil {
 			return nil, err
 		}
 
-		tier, size, err := tierAndSizeFromPlan(oldPlan)
+		oldMachine, err := machineTypeFromPlan(oldPlan)
 		if err != nil {
 			return nil, err
 		}
 
-		if input.Tier != tier {
+		if input.Tier != oldMachine.Tier {
 			changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
 				Field: "tier",
 				OldValue: func() *string {
 					if found {
-						return ptr.To(tier.String())
+						return ptr.To(oldMachine.Tier.String())
 					}
 					return nil
 				}(),
 				NewValue: ptr.To(input.Tier.String()),
 			})
 		}
-		if input.Size != size {
+
+		if input.Size != oldMachine.Size {
 			changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
 				Field: "size",
 				OldValue: func() *string {
 					if found {
-						return ptr.To(size.String())
+						return ptr.To(oldMachine.Size.String())
 					}
 					return nil
 				}(),
@@ -319,6 +319,35 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 			NewValue: ptr.To(input.Version.String()),
 		})
 		err = unstructured.SetNestedField(openSearch.Object, input.Version.ToAivenString(), "spec", "userConfig", "opensearch_version")
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	oldAivenDiskSpace, found, err := unstructured.NestedString(openSearch.Object, "spec", "disk_space")
+	if err != nil {
+		return nil, err
+	}
+	// default to minimum storage size for the selected plan, in case the field is not set explicitly
+	oldStorageGB := machine.StorageMin
+	if found {
+		oldStorageGB, err = StorageGBFromAivenString(oldAivenDiskSpace)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if oldStorageGB != input.StorageGB {
+		changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
+			Field: "storageGB",
+			OldValue: func() *string {
+				if found {
+					return ptr.To(oldStorageGB.String())
+				}
+				return nil
+			}(),
+			NewValue: ptr.To(input.StorageGB.String()),
+		})
+		err = unstructured.SetNestedField(openSearch.Object, input.StorageGB.ToAivenString(), "spec", "disk_space")
 		if err != nil {
 			return nil, err
 		}
@@ -431,76 +460,4 @@ func Delete(ctx context.Context, input DeleteOpenSearchInput) (*DeleteOpenSearch
 	return &DeleteOpenSearchPayload{
 		OpenSearchDeleted: ptr.To(true),
 	}, nil
-}
-
-var aivenPlans = map[string]OpenSearchTier{
-	"business": OpenSearchTierHighAvailability,
-	"startup":  OpenSearchTierSingleNode,
-}
-
-var aivenSizes = map[string]OpenSearchSize{
-	"2":  OpenSearchSizeRAM2gb,
-	"4":  OpenSearchSizeRAM4gb,
-	"8":  OpenSearchSizeRAM8gb,
-	"16": OpenSearchSizeRAM16gb,
-	"32": OpenSearchSizeRAM32gb,
-	"64": OpenSearchSizeRAM64gb,
-}
-
-func planFromTierAndSize(tier OpenSearchTier, size OpenSearchSize) (string, error) {
-	if tier == OpenSearchTierSingleNode && size == OpenSearchSizeRAM2gb {
-		return "hobbyist", nil
-	}
-	if tier == OpenSearchTierHighAvailability && size == OpenSearchSizeRAM2gb {
-		return "", apierror.Errorf("Invalid OpenSearch size for tier. %v cannot have size %v", tier, size)
-	}
-
-	plan := ""
-
-	for name, planTier := range aivenPlans {
-		if planTier == tier {
-			plan = name + "-"
-			break
-		}
-	}
-	if plan == "" {
-		return "", apierror.Errorf("invalid OpenSearch tier: %s", tier)
-	}
-
-	planSize := ""
-	for name, sz := range aivenSizes {
-		if sz == size {
-			planSize = name
-			break
-		}
-	}
-	if planSize == "" {
-		return "", apierror.Errorf("invalid OpenSearch size: %s", size)
-	}
-	plan += planSize
-
-	return plan, nil
-}
-
-func tierAndSizeFromPlan(plan string) (OpenSearchTier, OpenSearchSize, error) {
-	if strings.EqualFold(plan, "hobbyist") {
-		return OpenSearchTierSingleNode, OpenSearchSizeRAM2gb, nil
-	}
-
-	t, s, ok := strings.Cut(plan, "-")
-	if !ok {
-		return "", "", fmt.Errorf("invalid OpenSearch plan: %s", plan)
-	}
-
-	tier, ok := aivenPlans[t]
-	if !ok {
-		return "", "", fmt.Errorf("invalid OpenSearch tier: %s", t)
-	}
-
-	size, ok := aivenSizes[s]
-	if !ok {
-		return "", "", fmt.Errorf("invalid OpenSearch size: %s", s)
-	}
-
-	return tier, size, nil
 }
