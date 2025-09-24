@@ -29,41 +29,17 @@ func init() {
 }
 
 func status(ctx context.Context, name string, rtype ResourceType, team slug.Slug, env string) int {
-	p := issuesql.GetSeverityScoreForWorkloadParams{
-		ResourceName: name,
-		ResourceType: rtype.String(),
-		Env:          env,
-		Team:         team.String(),
-	}
-	issuesScore, err := db(ctx).GetSeverityScoreForWorkload(ctx, p)
+	issuesScore, err := db(ctx).GetSeverityScoreForWorkload(ctx,
+		issuesql.GetSeverityScoreForWorkloadParams{
+			ResourceName: name,
+			ResourceType: rtype.String(),
+			Env:          env,
+			Team:         team.String(),
+		})
+
 	if err != nil {
 		return -1
 	}
+
 	return int(issuesScore)
-
-	// params := issuesql.ListIssuesParams{
-	// 	Team:         team.String(),
-	// 	Env:          []string{env},
-	// 	ResourceType: &typeptr,
-	// 	ResourceName: &name,
-	// 	Limit:        100,
-	// }
-
-	// issues, err := db(ctx).ListIssues(ctx, params)
-	// if err != nil {
-	// 	return -1
-	// }
-	// if len(issues) == 0 {
-	// 	return -1
-	// }
-	// ret := 0
-	// for _, i := range issues {
-	// 	if i.Severity == issuesql.SeverityLevelCRITICAL {
-	// 		return 2
-	// 	}
-	// 	if i.Severity == issuesql.SeverityLevelWARNING {
-	// 		ret = 1
-	// 	}
-	// }
-	// return ret
 }
