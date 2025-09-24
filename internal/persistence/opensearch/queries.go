@@ -241,22 +241,27 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 	}
 
 	oldPlan, found, err := unstructured.NestedString(openSearch.Object, "spec", "plan")
-	if err != nil {
+	if err != nil || !found {
 		return nil, err
 	}
 
-	if !found || oldPlan != machine.AivenPlan {
+	if oldPlan != machine.AivenPlan {
 		err = unstructured.SetNestedField(openSearch.Object, machine.AivenPlan, "spec", "plan")
 		if err != nil {
 			return nil, err
 		}
 
-		if input.Tier != machine.Tier {
+		oldMachine, err := machineTypeFromPlan(oldPlan)
+		if err != nil {
+			return nil, err
+		}
+
+		if input.Tier != oldMachine.Tier {
 			changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
 				Field: "tier",
 				OldValue: func() *string {
 					if found {
-						return ptr.To(machine.Tier.String())
+						return ptr.To(oldMachine.Tier.String())
 					}
 					return nil
 				}(),
@@ -264,12 +269,12 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 			})
 		}
 
-		if input.Size != machine.Size {
+		if input.Size != oldMachine.Size {
 			changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
 				Field: "size",
 				OldValue: func() *string {
 					if found {
-						return ptr.To(machine.Size.String())
+						return ptr.To(oldMachine.Size.String())
 					}
 					return nil
 				}(),
