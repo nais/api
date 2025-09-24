@@ -324,7 +324,26 @@ func ValkeyMaxMemoryPolicyFromAivenString(s string) (ValkeyMaxMemoryPolicy, erro
 }
 
 func (e ValkeyMaxMemoryPolicy) ToAivenString() string {
-	return strings.ReplaceAll(strings.ToLower(e.String()), "_", "-")
+	switch e {
+	case ValkeyMaxMemoryPolicyAllkeysLfu:
+		return "allkeys-lfu"
+	case ValkeyMaxMemoryPolicyAllkeysLru:
+		return "allkeys-lru"
+	case ValkeyMaxMemoryPolicyAllkeysRandom:
+		return "allkeys-random"
+	case ValkeyMaxMemoryPolicyNoEviction:
+		return "noeviction"
+	case ValkeyMaxMemoryPolicyVolatileLfu:
+		return "volatile-lfu"
+	case ValkeyMaxMemoryPolicyVolatileLru:
+		return "volatile-lru"
+	case ValkeyMaxMemoryPolicyVolatileRandom:
+		return "volatile-random"
+	case ValkeyMaxMemoryPolicyVolatileTTL:
+		return "volatile-ttl"
+	default:
+		return ""
+	}
 }
 
 type ValkeySize string
