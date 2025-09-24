@@ -1,0 +1,9 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: no-instances-app
+spec:
+  image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+  replicas:
+    min: 2
+    max: 2
