@@ -73,7 +73,7 @@ func UpsertPrometheusServiceIntegration(ctx context.Context, impersonator Impers
 		},
 	})
 
-	if existing != nil {
+	if existing == nil {
 		_, err = client.Namespace(namespace).Create(ctx, res, metav1.CreateOptions{})
 		if err != nil {
 			return fmt.Errorf("creating ServiceIntegration: %w", err)
