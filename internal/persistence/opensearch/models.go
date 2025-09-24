@@ -157,7 +157,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 	// Liberator doesn't contain this field, so we read it directly from the unstructured object
 	terminationProtection, _, _ := unstructured.NestedBool(u.Object, "spec", "terminationProtection")
 
-	tier, size, err := tierAndSizeFromPlan(obj.Spec.Plan)
+	machine, err := machineTypeFromPlan(obj.Spec.Plan)
 	if err != nil {
 		return nil, err
 	}
@@ -175,11 +175,8 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		}
 	}
 
-	diskSizeRange, err := diskSizeRangeFromTierAndSize(tier, size)
-	if err != nil {
-		return nil, err
-	}
-	diskSizeGB := diskSizeRange.min
+	// default to minimum disk size for the selected plan, in case the field is not set explicitly
+	diskSizeGB := machine.DiskSizeMin
 	if v, found, _ := unstructured.NestedString(u.Object, "spec", "disk_space"); found {
 		diskSizeGB, err = OpenSearchDiskSizeFromAivenString(v)
 		if err != nil {
@@ -198,8 +195,8 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		TeamSlug:          slug.Slug(obj.GetNamespace()),
 		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
 		AivenProject:      obj.Spec.Project,
-		Tier:              tier,
-		Size:              size,
+		Tier:              machine.Tier,
+		Size:              machine.Size,
 		MajorVersion:      majorVersion,
 		DiskSizeGB:        diskSizeGB,
 	}, nil
@@ -258,18 +255,19 @@ func (o *OpenSearchInput) Validate(ctx context.Context) error {
 		verr.Add("version", "Invalid OpenSearch version: %s.", o.Version.String())
 	}
 
-	diskSizeRange, diskSizeErr := diskSizeRangeFromTierAndSize(o.Tier, o.Size)
-	if plan, err := planFromTierAndSize(o.Tier, o.Size); err != nil {
+	machine, err := machineTypeFromTierAndSize(o.Tier, o.Size)
+	if err != nil {
 		verr.Add("size", "%s", err)
-	} else if plan == "hobbyist" && diskSizeErr == nil {
-		o.DiskSizeGB = int(diskSizeRange.min)
-	} else {
-		diskSize := OpenSearchDiskSize(o.DiskSizeGB)
-		if diskSizeErr != nil {
-			verr.Add("diskSizeGB", "Could not determine valid disk size range for tier %q and size %q: %v", o.Tier, o.Size, diskSizeErr)
-		} else if diskSize < diskSizeRange.min || diskSize > diskSizeRange.max {
-			verr.Add("diskSizeGB", "Disk size must be between %dG and %dG for tier %q and size %q.", diskSizeRange.min, diskSizeRange.max, o.Tier, o.Size)
-		}
+		return verr.NilIfEmpty()
+	}
+
+	// hobbyist plan has a fixed disk size, so we override any provided value
+	if machine.AivenPlan == "hobbyist" {
+		o.DiskSizeGB = machine.DiskSizeMin
+	}
+
+	if o.DiskSizeGB < machine.DiskSizeMin || o.DiskSizeGB > machine.DiskSizeMax {
+		verr.Add("diskSizeGB", "Disk size must be between %dG and %dG for tier %q and size %q.", machine.DiskSizeMin, machine.DiskSizeMax, o.Tier, o.Size)
 	}
 
 	return verr.NilIfEmpty()
