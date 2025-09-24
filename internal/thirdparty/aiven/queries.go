@@ -43,9 +43,15 @@ func UpsertPrometheusServiceIntegration(ctx context.Context, impersonator Impers
 	}
 
 	res := &unstructured.Unstructured{}
+	existing, err := client.Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
+	if err != nil && !k8serrors.IsNotFound(err) {
+		return fmt.Errorf("getting existing ServiceIntegration: %w", err)
+	} else if err == nil {
+		res = existing
+	}
+
 	res.SetAPIVersion("aiven.io/v1alpha1")
 	res.SetKind("ServiceIntegration")
-	res.SetResourceVersion("")
 	res.SetName(name)
 	res.SetNamespace(namespace)
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
@@ -67,16 +73,16 @@ func UpsertPrometheusServiceIntegration(ctx context.Context, impersonator Impers
 		},
 	})
 
-	_, err = client.Namespace(namespace).Create(ctx, res, metav1.CreateOptions{})
-	if k8serrors.IsAlreadyExists(err) {
-		_, err = client.Namespace(namespace).Update(ctx, res, metav1.UpdateOptions{})
+	if existing != nil {
+		_, err = client.Namespace(namespace).Create(ctx, res, metav1.CreateOptions{})
 		if err != nil {
-			return fmt.Errorf("updating existing ServiceIntegration: %w", err)
+			return fmt.Errorf("creating ServiceIntegration: %w", err)
 		}
-		return nil
-	}
-	if err != nil {
-		return fmt.Errorf("creating ServiceIntegration: %w", err)
+	} else {
+		_, err := client.Namespace(namespace).Update(ctx, res, metav1.UpdateOptions{})
+		if err != nil {
+			return fmt.Errorf("updating ServiceIntegration: %w", err)
+		}
 	}
 	return nil
 }
