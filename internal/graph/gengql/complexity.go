@@ -60,9 +60,6 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Environment.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.ImageVulnerabilityAnalysisTrail.Comments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
-		return cursorComplexity(first, last) * childComplexity
-	}
 	c.Job.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
