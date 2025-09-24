@@ -36,7 +36,6 @@ func status(ctx context.Context, name string, rtype ResourceType, team slug.Slug
 			Env:          env,
 			Team:         team.String(),
 		})
-
 	if err != nil {
 		return -1
 	}

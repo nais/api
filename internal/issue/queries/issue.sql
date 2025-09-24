@@ -9,24 +9,21 @@ WHERE
 
 -- name: GetSeverityScoreForWorkload :one
 SELECT
- SUM(
-  CASE
-   WHEN severity = 'CRITICAL'::severity_level THEN 10000
-   WHEN severity = 'WARNING'::severity_level THEN 100
-   WHEN severity = 'TODO'::severity_level THEN 1
-   ELSE 0
-  END
- ) AS severity_score
+	SUM(
+		CASE
+			WHEN severity = 'CRITICAL'::severity_level THEN 10000
+			WHEN severity = 'WARNING'::severity_level THEN 100
+			WHEN severity = 'TODO'::severity_level THEN 1
+			ELSE 0
+		END
+	) AS severity_score
 FROM
- issues
+	issues
 WHERE
- resource_name = @resource_name
-AND
- resource_type = @resource_type
-AND
- env = @env
-AND
- team = @team
+	resource_name = @resource_name
+	AND resource_type = @resource_type
+	AND env = @env
+	AND team = @team
 ;
 
 -- name: ListIssues :many
