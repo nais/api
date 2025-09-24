@@ -165,7 +165,7 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		"plan":                  plan,
 		"project":               aivenProject.ID,
 		"projectVpcId":          aivenProject.VPC,
-		"disk_space":            OpenSearchDiskSize(input.DiskSizeGB).ToAivenString(),
+		"disk_space":            input.DiskSizeGB.ToAivenString(),
 		"terminationProtection": true,
 		"tags": map[string]any{
 			"environment": input.EnvironmentName,

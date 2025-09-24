@@ -34,7 +34,7 @@ type OpenSearch struct {
 	TerminationProtection bool                   `json:"terminationProtection"`
 	Tier                  OpenSearchTier         `json:"tier"`
 	Size                  OpenSearchSize         `json:"size"`
-	DiskSizeGB            int                    `json:"diskSizeGB"`
+	DiskSizeGB            OpenSearchDiskSize     `json:"diskSizeGB"`
 	TeamSlug              slug.Slug              `json:"-"`
 	EnvironmentName       string                 `json:"-"`
 	WorkloadReference     *workload.Reference    `json:"-"`
@@ -201,7 +201,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		Tier:              tier,
 		Size:              size,
 		MajorVersion:      majorVersion,
-		DiskSizeGB:        int(diskSizeGB),
+		DiskSizeGB:        diskSizeGB,
 	}, nil
 }
 
@@ -242,7 +242,7 @@ type OpenSearchInput struct {
 	Tier       OpenSearchTier         `json:"tier"`
 	Size       OpenSearchSize         `json:"size"`
 	Version    OpenSearchMajorVersion `json:"version"`
-	DiskSizeGB int                    `json:"diskSizeGB"`
+	DiskSizeGB OpenSearchDiskSize     `json:"diskSizeGB"`
 }
 
 func (o *OpenSearchInput) Validate(ctx context.Context) error {
@@ -283,6 +283,19 @@ func (o OpenSearchDiskSize) ToAivenString() string {
 
 func (o OpenSearchDiskSize) String() string {
 	return strconv.Itoa(int(o))
+}
+
+func (o OpenSearchDiskSize) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(o.String()))
+}
+
+func (o *OpenSearchDiskSize) UnmarshalGQL(v any) error {
+	i, ok := v.(int64)
+	if !ok {
+		return fmt.Errorf("OpenSearchDiskSize must be an integer, was %T", v)
+	}
+	*o = OpenSearchDiskSize(i)
+	return nil
 }
 
 func OpenSearchDiskSizeFromAivenString(s string) (OpenSearchDiskSize, error) {
