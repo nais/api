@@ -645,3 +645,46 @@ func (e *IngressMetricsType) UnmarshalGQL(v any) error {
 func (e IngressMetricsType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
+
+type ApplicationState string
+
+const (
+	// The application is running.
+	ApplicationStateRunning ApplicationState = "RUNNING"
+	// The application is not running.
+	ApplicationStateNotRunning ApplicationState = "NOT_RUNNING"
+)
+
+var AllApplicationState = []ApplicationState{
+	ApplicationStateRunning,
+	ApplicationStateNotRunning,
+}
+
+func (e ApplicationState) IsValid() bool {
+	switch e {
+	case ApplicationStateRunning, ApplicationStateNotRunning:
+		return true
+	}
+	return false
+}
+
+func (e ApplicationState) String() string {
+	return string(e)
+}
+
+func (e *ApplicationState) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ApplicationState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ApplicationState", str)
+	}
+	return nil
+}
+
+func (e ApplicationState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}

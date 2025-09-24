@@ -228,6 +228,20 @@ type Application implements Node & Workload & ActivityLogger {
 		"Filtering options for items returned from the connection."
 		filter: IssueFilter
 	): IssueConnection!
+
+	state: ApplicationState!
+}
+
+enum ApplicationState {
+	"""
+	The application is running.
+	"""
+	RUNNING
+
+	"""
+	The application is not running.
+	"""
+	NOT_RUNNING
 }
 
 """
