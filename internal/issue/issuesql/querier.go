@@ -10,6 +10,7 @@ import (
 
 type Querier interface {
 	GetIssueByID(ctx context.Context, id uuid.UUID) (*Issue, error)
+	GetSeverityScoreForWorkload(ctx context.Context, arg GetSeverityScoreForWorkloadParams) (int64, error)
 	ListIssues(ctx context.Context, arg ListIssuesParams) ([]*ListIssuesRow, error)
 }
 
