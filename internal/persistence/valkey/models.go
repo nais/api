@@ -316,7 +316,7 @@ func (e ValkeyMaxMemoryPolicy) MarshalGQL(w io.Writer) {
 
 func ValkeyMaxMemoryPolicyFromAivenString(s string) (ValkeyMaxMemoryPolicy, error) {
 	for _, policy := range AllValkeyMaxMemoryPolicy {
-		if policy.String() == strings.ReplaceAll(strings.ToUpper(s), "-", "_") {
+		if policy.ToAivenString() == s {
 			return policy, nil
 		}
 	}
