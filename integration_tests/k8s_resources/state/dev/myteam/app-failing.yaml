@@ -1,0 +1,29 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-failing
+spec:
+  image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+  replicas:
+    min: 2
+    max: 2
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-failing-1
+  labels:
+    app: app-failing
+  creationTimestamp: "2021-09-30T12:00:00Z"
+spec:
+  containers:
+    - name: app-failing
+      image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+status:
+  containerStatuses:
+    - name: app-failing
+      state: Waiting
+      reason: CrashLoopBackOff
+      ready: false
+      restartCount: 3

@@ -1,0 +1,39 @@
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: job-failed
+spec:
+  image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+  schedule: "0 0 * * *"
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-failed
+  labels:
+    app: job-failed
+spec:
+  template:
+    spec:
+      containers:
+        - name: job-failed
+          image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+status:
+  failed: 1
+  startTime: "2024-01-24T13:47:00Z"
+  succeeded: 0
+  ready: 0
+  conditions:
+    - lastProbeTime: "2025-01-19T19:12:14Z"
+      lastTransitionTime: "2025-01-19T19:12:14Z"
+      message: Job has reached the specified backoff limit
+      reason: BackoffLimitExceeded
+      status: "True"
+      type: FailureTarget
+    - lastProbeTime: "2025-01-19T19:12:14Z"
+      lastTransitionTime: "2025-01-19T19:12:14Z"
+      message: Job has reached the specified backoff limit
+      reason: BackoffLimitExceeded
+      status: "True"
+      type: Failed

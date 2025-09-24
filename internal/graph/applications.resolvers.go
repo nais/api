@@ -74,6 +74,25 @@ func (r *applicationResolver) ActivityLog(ctx context.Context, obj *application.
 	return activitylog.ListForResourceTeamAndEnvironment(ctx, "APP", obj.TeamSlug, obj.Name, obj.EnvironmentName, page, filter)
 }
 
+func (r *applicationResolver) State(ctx context.Context, obj *application.Application) (application.ApplicationState, error) {
+	i, err := application.ListAllInstances(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
+	if err != nil {
+		return "", fmt.Errorf("listing instances: %w", err)
+	}
+
+	if len(i) == 0 {
+		return application.ApplicationStateNotRunning, nil
+	}
+
+	for _, instance := range i {
+		if instance.State() == application.ApplicationInstanceStateRunning {
+			return application.ApplicationStateRunning, nil
+		}
+	}
+
+	return application.ApplicationStateNotRunning, nil
+}
+
 func (r *applicationResolver) Issues(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.IssueFilter) (*pagination.Connection[issue.Issue], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -92,25 +111,6 @@ func (r *applicationResolver) Issues(ctx context.Context, obj *application.Appli
 	}
 
 	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, f)
-}
-
-func (r *applicationResolver) State(ctx context.Context, obj *application.Application) (application.ApplicationState, error) {
-	i, err := application.ListAllInstances(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
-	if err != nil {
-		return "", fmt.Errorf("listing instances: %w", err)
-	}
-
-	if len(i) == 0 {
-		return application.ApplicationStateNotRunning, nil
-	}
-
-	for _, instance := range i {
-		if instance.State() == application.ApplicationInstanceStateRunning {
-			return application.ApplicationStateRunning, nil
-		}
-	}
-
-	return application.ApplicationStateNotRunning, nil
 }
 
 func (r *deleteApplicationPayloadResolver) Team(ctx context.Context, obj *application.DeleteApplicationPayload) (*team.Team, error) {
