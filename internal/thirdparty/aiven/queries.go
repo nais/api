@@ -43,13 +43,6 @@ func UpsertPrometheusServiceIntegration(ctx context.Context, impersonator Impers
 	}
 
 	res := &unstructured.Unstructured{}
-	existing, err := client.Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
-	if err != nil && !k8serrors.IsNotFound(err) {
-		return fmt.Errorf("getting existing ServiceIntegration: %w", err)
-	} else if err == nil {
-		res = existing
-	}
-
 	res.SetAPIVersion("aiven.io/v1alpha1")
 	res.SetKind("ServiceIntegration")
 	res.SetName(name)
