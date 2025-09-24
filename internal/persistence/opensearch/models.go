@@ -2,12 +2,12 @@ package opensearch
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
 	"strings"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
@@ -289,22 +289,15 @@ func (o StorageGB) MarshalGQL(w io.Writer) {
 }
 
 func (o *StorageGB) UnmarshalGQL(v any) error {
-	switch v := v.(type) {
-	case int:
-		*o = StorageGB(v)
-		return nil
-	case int64:
-		*o = StorageGB(v)
-		return nil
-	case json.Number:
-		i, err := v.Int64()
-		if err != nil {
-			return fmt.Errorf("StorageGB must be an integer, was %T", v)
-		}
-		*o = StorageGB(i)
-		return nil
+	i, err := graphql.UnmarshalInt(v)
+	if err != nil {
+		return fmt.Errorf("storage size must be an integer")
 	}
-	return fmt.Errorf("StorageGB must be an integer, was %T", v)
+	if i <= 0 {
+		return fmt.Errorf("storage size must be a positive integer")
+	}
+	*o = StorageGB(i)
+	return nil
 }
 
 func StorageGBFromAivenString(s string) (StorageGB, error) {
