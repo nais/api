@@ -5,9 +5,20 @@ import (
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/persistence/opensearch"
+	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/reconciler"
 	"github.com/nais/api/internal/team"
 )
+
+func (r *openSearchResolver) ActivityLog(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return activitylog.ListForResource(ctx, opensearch.ActivityLogEntryResourceTypeOpenSearch, obj.Name, page, filter)
+}
 
 func (r *reconcilerResolver) ActivityLog(ctx context.Context, obj *reconciler.Reconciler, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
@@ -25,4 +36,13 @@ func (r *teamResolver) ActivityLog(ctx context.Context, obj *team.Team, first *i
 	}
 
 	return activitylog.ListForTeam(ctx, obj.Slug, page, filter)
+}
+
+func (r *valkeyResolver) ActivityLog(ctx context.Context, obj *valkey.Valkey, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return activitylog.ListForResource(ctx, valkey.ActivityLogEntryResourceTypeValkey, obj.Name, page, filter)
 }
