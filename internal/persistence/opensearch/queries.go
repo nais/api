@@ -165,7 +165,7 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		"plan":                  machine.AivenPlan,
 		"project":               aivenProject.ID,
 		"projectVpcId":          aivenProject.VPC,
-		"disk_space":            input.DiskSizeGB.ToAivenString(),
+		"disk_space":            input.StorageGB.ToAivenString(),
 		"terminationProtection": true,
 		"tags": map[string]any{
 			"environment": input.EnvironmentName,
@@ -324,30 +324,30 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 		}
 	}
 
-	oldAivenDiskSize, found, err := unstructured.NestedString(openSearch.Object, "spec", "disk_space")
+	oldAivenDiskSpace, found, err := unstructured.NestedString(openSearch.Object, "spec", "disk_space")
 	if err != nil {
 		return nil, err
 	}
-	// default to minimum disk size for the selected plan, in case the field is not set explicitly
-	oldDiskSize := machine.DiskSizeMin
+	// default to minimum storage size for the selected plan, in case the field is not set explicitly
+	oldStorageGB := machine.StorageMin
 	if found {
-		oldDiskSize, err = OpenSearchDiskSizeFromAivenString(oldAivenDiskSize)
+		oldStorageGB, err = StorageGBFromAivenString(oldAivenDiskSpace)
 		if err != nil {
 			return nil, err
 		}
 	}
-	if oldDiskSize != input.DiskSizeGB {
+	if oldStorageGB != input.StorageGB {
 		changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
-			Field: "diskSizeGB",
+			Field: "storageGB",
 			OldValue: func() *string {
 				if found {
-					return ptr.To(oldDiskSize.String())
+					return ptr.To(oldStorageGB.String())
 				}
 				return nil
 			}(),
-			NewValue: ptr.To(input.DiskSizeGB.String()),
+			NewValue: ptr.To(input.StorageGB.String()),
 		})
-		err = unstructured.SetNestedField(openSearch.Object, input.DiskSizeGB.ToAivenString(), "spec", "disk_space")
+		err = unstructured.SetNestedField(openSearch.Object, input.StorageGB.ToAivenString(), "spec", "disk_space")
 		if err != nil {
 			return nil, err
 		}

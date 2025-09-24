@@ -3,25 +3,25 @@ package opensearch
 import "github.com/nais/api/internal/graph/apierror"
 
 type machineType struct {
-	AivenPlan   string
-	DiskSizeMin OpenSearchDiskSize
-	DiskSizeMax OpenSearchDiskSize
-	Tier        OpenSearchTier
-	Size        OpenSearchSize
+	AivenPlan  string
+	Tier       OpenSearchTier
+	Size       OpenSearchSize
+	StorageMin StorageGB
+	StorageMax StorageGB
 }
 
 var machineTypes = []machineType{
-	{AivenPlan: "hobbyist", DiskSizeMin: 16, DiskSizeMax: 16, Tier: OpenSearchTierSingleNode, Size: OpenSearchSizeRAM2gb},
-	{AivenPlan: "startup-4", DiskSizeMin: 80, DiskSizeMax: 400, Tier: OpenSearchTierSingleNode, Size: OpenSearchSizeRAM4gb},
-	{AivenPlan: "startup-8", DiskSizeMin: 175, DiskSizeMax: 875, Tier: OpenSearchTierSingleNode, Size: OpenSearchSizeRAM8gb},
-	{AivenPlan: "startup-16", DiskSizeMin: 350, DiskSizeMax: 1750, Tier: OpenSearchTierSingleNode, Size: OpenSearchSizeRAM16gb},
-	{AivenPlan: "startup-32", DiskSizeMin: 700, DiskSizeMax: 3500, Tier: OpenSearchTierSingleNode, Size: OpenSearchSizeRAM32gb},
-	{AivenPlan: "startup-64", DiskSizeMin: 1400, DiskSizeMax: 5120, Tier: OpenSearchTierSingleNode, Size: OpenSearchSizeRAM64gb},
-	{AivenPlan: "business-4", DiskSizeMin: 240, DiskSizeMax: 1200, Tier: OpenSearchTierHighAvailability, Size: OpenSearchSizeRAM4gb},
-	{AivenPlan: "business-8", DiskSizeMin: 525, DiskSizeMax: 2625, Tier: OpenSearchTierHighAvailability, Size: OpenSearchSizeRAM8gb},
-	{AivenPlan: "business-16", DiskSizeMin: 1050, DiskSizeMax: 5250, Tier: OpenSearchTierHighAvailability, Size: OpenSearchSizeRAM16gb},
-	{AivenPlan: "business-32", DiskSizeMin: 2100, DiskSizeMax: 10500, Tier: OpenSearchTierHighAvailability, Size: OpenSearchSizeRAM32gb},
-	{AivenPlan: "business-64", DiskSizeMin: 4200, DiskSizeMax: 15360, Tier: OpenSearchTierHighAvailability, Size: OpenSearchSizeRAM64gb},
+	{AivenPlan: "hobbyist", StorageMin: 16, StorageMax: 16, Tier: OpenSearchTierSingleNode, Size: OpenSearchSizeRAM2gb},
+	{AivenPlan: "startup-4", StorageMin: 80, StorageMax: 400, Tier: OpenSearchTierSingleNode, Size: OpenSearchSizeRAM4gb},
+	{AivenPlan: "startup-8", StorageMin: 175, StorageMax: 875, Tier: OpenSearchTierSingleNode, Size: OpenSearchSizeRAM8gb},
+	{AivenPlan: "startup-16", StorageMin: 350, StorageMax: 1750, Tier: OpenSearchTierSingleNode, Size: OpenSearchSizeRAM16gb},
+	{AivenPlan: "startup-32", StorageMin: 700, StorageMax: 3500, Tier: OpenSearchTierSingleNode, Size: OpenSearchSizeRAM32gb},
+	{AivenPlan: "startup-64", StorageMin: 1400, StorageMax: 5120, Tier: OpenSearchTierSingleNode, Size: OpenSearchSizeRAM64gb},
+	{AivenPlan: "business-4", StorageMin: 240, StorageMax: 1200, Tier: OpenSearchTierHighAvailability, Size: OpenSearchSizeRAM4gb},
+	{AivenPlan: "business-8", StorageMin: 525, StorageMax: 2625, Tier: OpenSearchTierHighAvailability, Size: OpenSearchSizeRAM8gb},
+	{AivenPlan: "business-16", StorageMin: 1050, StorageMax: 5250, Tier: OpenSearchTierHighAvailability, Size: OpenSearchSizeRAM16gb},
+	{AivenPlan: "business-32", StorageMin: 2100, StorageMax: 10500, Tier: OpenSearchTierHighAvailability, Size: OpenSearchSizeRAM32gb},
+	{AivenPlan: "business-64", StorageMin: 4200, StorageMax: 15360, Tier: OpenSearchTierHighAvailability, Size: OpenSearchSizeRAM64gb},
 }
 
 // tierAndSize transposes machineTypes for lookup by OpenSearchTier and OpenSearchSize

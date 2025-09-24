@@ -18,7 +18,7 @@ Test.gql("Create opensearch in non-existing team", function(t)
 		      tier: SINGLE_NODE
 		      size: RAM_16GB
 		      version: V2
-		      diskSizeGB: 350
+		      storageGB: 350
 		    }
 		  ) {
 		    openSearch {
@@ -53,7 +53,7 @@ Test.gql("Create opensearch as non-team member", function(t)
 		      tier: SINGLE_NODE
 		      size: RAM_16GB
 		      version: V2
-		      diskSizeGB: 350
+		      storageGB: 350
 		    }
 		  ) {
 		    openSearch {
@@ -88,7 +88,7 @@ Test.gql("Create opensearch as team member", function(t)
 		      tier: SINGLE_NODE
 		      size: RAM_16GB
 		      version: V2
-		      diskSizeGB: 350
+		      storageGB: 350
 		    }
 		  ) {
 		    openSearch {
@@ -121,7 +121,7 @@ Test.gql("Create opensearch as team member with existing name", function(t)
 		      tier: SINGLE_NODE
 		      size: RAM_16GB
 		      version: V2
-		      diskSizeGB: 350
+		      storageGB: 350
 		    }
 		  ) {
 		    openSearch {
@@ -156,7 +156,7 @@ Test.gql("Create opensearch with invalid tier and size combination", function(t)
 		      tier: HIGH_AVAILABILITY
 		      size: RAM_2GB
 		      version: V2
-		      diskSizeGB: 16
+		      storageGB: 16
 		    }
 		  ) {
 		    openSearch {
@@ -182,7 +182,7 @@ Test.gql("Create opensearch with invalid tier and size combination", function(t)
 	}
 end)
 
-Test.gql("Create opensearch with invalid disk size", function(t)
+Test.gql("Create opensearch with invalid storage size", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[
 		mutation CreateOpenSearch {
@@ -194,7 +194,7 @@ Test.gql("Create opensearch with invalid disk size", function(t)
 		      tier: HIGH_AVAILABILITY
 		      size: RAM_4GB
 		      version: V2
-		      diskSizeGB: 16
+		      storageGB: 16
 		    }
 		  ) {
 		    openSearch {
@@ -208,9 +208,9 @@ Test.gql("Create opensearch with invalid disk size", function(t)
 		errors = {
 			{
 				extensions = {
-					field = "diskSizeGB",
+					field = "storageGB",
 				},
-				message = "Disk size must be between 240G and 1200G for tier \"HIGH_AVAILABILITY\" and size \"RAM_4GB\".",
+				message = "Storage size must be between 240G and 1200G for tier \"HIGH_AVAILABILITY\" and size \"RAM_4GB\".",
 				path = {
 					"createOpenSearch",
 				},
@@ -304,7 +304,7 @@ Test.gql("Create opensearch with tier and size equivalent to hobbyist plan", fun
 		      tier: SINGLE_NODE
 		      size: RAM_2GB
 		      version: V2
-		      diskSizeGB: 16
+		      storageGB: 16
 		    }
 		  ) {
 		    openSearch {
@@ -409,7 +409,7 @@ Test.gql("Update OpenSearch in non-existing team", function(t)
 		      tier: SINGLE_NODE
 		      size: RAM_16GB
 		      version: V2
-		      diskSizeGB: 350
+		      storageGB: 350
 		    }
 		  ) {
 		    openSearch {
@@ -444,7 +444,7 @@ Test.gql("Update OpenSearch as non-team-member", function(t)
 		      tier: SINGLE_NODE
 		      size: RAM_16GB
 		      version: V2
-		      diskSizeGB: 350
+		      storageGB: 350
 		    }
 		  ) {
 		    openSearch {
@@ -479,7 +479,7 @@ Test.gql("Update OpenSearch as team-member", function(t)
 		      tier: HIGH_AVAILABILITY
 		      size: RAM_4GB
 		      version: V2
-		      diskSizeGB: 1000
+		      storageGB: 1000
 		    }
 		  ) {
 		    openSearch {
@@ -603,7 +603,7 @@ Test.gql("Downgrade OpenSearch as team-member", function(t)
 		      tier: HIGH_AVAILABILITY
 		      size: RAM_4GB
 		      version: V1
-		      diskSizeGB: 240
+		      storageGB: 240
 		    }
 		  ) {
 		    openSearch {
@@ -638,7 +638,7 @@ Test.gql("Downgrade OpenSearch without explicit version set", function(t)
 		      tier: HIGH_AVAILABILITY
 		      size: RAM_4GB
 		      version: V1
-		      diskSizeGB: 240
+		      storageGB: 240
 		    }
 		  ) {
 		    openSearch {
@@ -673,7 +673,7 @@ Test.gql("Update non-console managed OpenSearch as team-member", function(t)
 		      tier: HIGH_AVAILABILITY
 		      size: RAM_4GB
 		      version: V2
-		      diskSizeGB: 240
+		      storageGB: 240
 		    }
 		  ) {
 		    openSearch {
@@ -708,7 +708,7 @@ Test.gql("Update OpenSearch with tier and size equivalent to hobbyist plan", fun
 		      tier: SINGLE_NODE
 		      size: RAM_2GB
 		      version: V2
-		      diskSizeGB: 16
+		      storageGB: 16
 		    }
 		  ) {
 		    openSearch {

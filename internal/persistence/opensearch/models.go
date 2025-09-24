@@ -34,7 +34,7 @@ type OpenSearch struct {
 	TerminationProtection bool                   `json:"terminationProtection"`
 	Tier                  OpenSearchTier         `json:"tier"`
 	Size                  OpenSearchSize         `json:"size"`
-	DiskSizeGB            OpenSearchDiskSize     `json:"diskSizeGB"`
+	StorageGB             StorageGB              `json:"storageGB"`
 	TeamSlug              slug.Slug              `json:"-"`
 	EnvironmentName       string                 `json:"-"`
 	WorkloadReference     *workload.Reference    `json:"-"`
@@ -175,10 +175,10 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		}
 	}
 
-	// default to minimum disk size for the selected plan, in case the field is not set explicitly
-	diskSizeGB := machine.DiskSizeMin
+	// default to minimum storage size for the selected plan, in case the field is not set explicitly
+	storageGB := machine.StorageMin
 	if v, found, _ := unstructured.NestedString(u.Object, "spec", "disk_space"); found {
-		diskSizeGB, err = OpenSearchDiskSizeFromAivenString(v)
+		storageGB, err = StorageGBFromAivenString(v)
 		if err != nil {
 			return nil, err
 		}
@@ -198,7 +198,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		Tier:              machine.Tier,
 		Size:              machine.Size,
 		MajorVersion:      majorVersion,
-		DiskSizeGB:        diskSizeGB,
+		StorageGB:         storageGB,
 	}, nil
 }
 
@@ -236,10 +236,10 @@ func (o *OpenSearchMetadataInput) ValidationErrors(ctx context.Context) *validat
 
 type OpenSearchInput struct {
 	OpenSearchMetadataInput
-	Tier       OpenSearchTier         `json:"tier"`
-	Size       OpenSearchSize         `json:"size"`
-	Version    OpenSearchMajorVersion `json:"version"`
-	DiskSizeGB OpenSearchDiskSize     `json:"diskSizeGB"`
+	Tier      OpenSearchTier         `json:"tier"`
+	Size      OpenSearchSize         `json:"size"`
+	Version   OpenSearchMajorVersion `json:"version"`
+	StorageGB StorageGB              `json:"storageGB"`
 }
 
 func (o *OpenSearchInput) Validate(ctx context.Context) error {
@@ -261,47 +261,47 @@ func (o *OpenSearchInput) Validate(ctx context.Context) error {
 		return verr.NilIfEmpty()
 	}
 
-	// hobbyist plan has a fixed disk size, so we override any provided value
+	// hobbyist plan has a fixed storage size, so we override any provided value
 	if machine.AivenPlan == "hobbyist" {
-		o.DiskSizeGB = machine.DiskSizeMin
+		o.StorageGB = machine.StorageMin
 	}
 
-	if o.DiskSizeGB < machine.DiskSizeMin || o.DiskSizeGB > machine.DiskSizeMax {
-		verr.Add("diskSizeGB", "Disk size must be between %dG and %dG for tier %q and size %q.", machine.DiskSizeMin, machine.DiskSizeMax, o.Tier, o.Size)
+	if o.StorageGB < machine.StorageMin || o.StorageGB > machine.StorageMax {
+		verr.Add("storageGB", "Storage size must be between %dG and %dG for tier %q and size %q.", machine.StorageMin, machine.StorageMax, o.Tier, o.Size)
 	}
 
 	return verr.NilIfEmpty()
 }
 
-type OpenSearchDiskSize int
+type StorageGB int
 
-func (o OpenSearchDiskSize) ToAivenString() string {
+func (o StorageGB) ToAivenString() string {
 	return strconv.Itoa(int(o)) + "G"
 }
 
-func (o OpenSearchDiskSize) String() string {
+func (o StorageGB) String() string {
 	return strconv.Itoa(int(o))
 }
 
-func (o OpenSearchDiskSize) MarshalGQL(w io.Writer) {
+func (o StorageGB) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(o.String()))
 }
 
-func (o *OpenSearchDiskSize) UnmarshalGQL(v any) error {
+func (o *StorageGB) UnmarshalGQL(v any) error {
 	i, ok := v.(int64)
 	if !ok {
-		return fmt.Errorf("OpenSearchDiskSize must be an integer, was %T", v)
+		return fmt.Errorf("StorageGB must be an integer, was %T", v)
 	}
-	*o = OpenSearchDiskSize(i)
+	*o = StorageGB(i)
 	return nil
 }
 
-func OpenSearchDiskSizeFromAivenString(s string) (OpenSearchDiskSize, error) {
+func StorageGBFromAivenString(s string) (StorageGB, error) {
 	i, err := strconv.Atoi(strings.TrimSuffix(strings.TrimSuffix(s, "iB"), "G"))
 	if err != nil {
-		return 0, fmt.Errorf("parsing OpenSearch disk size from Aiven string %q: %w", s, err)
+		return 0, fmt.Errorf("parsing OpenSearch storage size from Aiven string %q: %w", s, err)
 	}
-	return OpenSearchDiskSize(i), nil
+	return StorageGB(i), nil
 }
 
 type CreateOpenSearchInput struct {

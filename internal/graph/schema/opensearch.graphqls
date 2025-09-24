@@ -74,7 +74,8 @@ type OpenSearch implements Persistence & Node {
 	version: OpenSearchVersion!
 	tier: OpenSearchTier!
 	size: OpenSearchSize!
-	diskSizeGB: Int!
+	"Storage size in GB."
+	storageGB: Int!
 }
 
 type OpenSearchAccess {
@@ -168,8 +169,8 @@ input CreateOpenSearchInput {
 	size: OpenSearchSize!
 	"Major version of the OpenSearch instance."
 	version: OpenSearchMajorVersion!
-	"Size of the disk in GB."
-	diskSizeGB: Int!
+	"Storage size in GB."
+	storageGB: Int!
 }
 
 type CreateOpenSearchPayload {
@@ -190,8 +191,8 @@ input UpdateOpenSearchInput {
 	size: OpenSearchSize!
 	"Major version of the OpenSearch instance."
 	version: OpenSearchMajorVersion!
-	"Size of the disk in GB."
-	diskSizeGB: Int!
+	"Storage size in GB."
+	storageGB: Int!
 }
 
 type UpdateOpenSearchPayload {
