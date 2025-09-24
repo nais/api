@@ -2,6 +2,7 @@ package opensearch
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -288,12 +289,22 @@ func (o StorageGB) MarshalGQL(w io.Writer) {
 }
 
 func (o *StorageGB) UnmarshalGQL(v any) error {
-	i, ok := v.(int64)
-	if !ok {
-		return fmt.Errorf("StorageGB must be an integer, was %T", v)
+	switch v := v.(type) {
+	case int:
+		*o = StorageGB(v)
+		return nil
+	case int64:
+		*o = StorageGB(v)
+		return nil
+	case json.Number:
+		i, err := v.Int64()
+		if err != nil {
+			return fmt.Errorf("StorageGB must be an integer, was %T", v)
+		}
+		*o = StorageGB(i)
+		return nil
 	}
-	*o = StorageGB(i)
-	return nil
+	return fmt.Errorf("StorageGB must be an integer, was %T", v)
 }
 
 func StorageGBFromAivenString(s string) (StorageGB, error) {
