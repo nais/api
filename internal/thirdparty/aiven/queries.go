@@ -45,6 +45,7 @@ func UpsertPrometheusServiceIntegration(ctx context.Context, impersonator Impers
 	res := &unstructured.Unstructured{}
 	res.SetAPIVersion("aiven.io/v1alpha1")
 	res.SetKind("ServiceIntegration")
+	res.SetResourceVersion("")
 	res.SetName(name)
 	res.SetNamespace(namespace)
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
