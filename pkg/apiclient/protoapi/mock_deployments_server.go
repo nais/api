@@ -15,8 +15,7 @@ import (
 func NewMockDeploymentsServer(t interface {
 	mock.TestingT
 	Cleanup(func())
-},
-) *MockDeploymentsServer {
+}) *MockDeploymentsServer {
 	mock := &MockDeploymentsServer{}
 	mock.Mock.Test(t)
 

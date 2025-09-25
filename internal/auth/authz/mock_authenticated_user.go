@@ -14,8 +14,7 @@ import (
 func NewMockAuthenticatedUser(t interface {
 	mock.TestingT
 	Cleanup(func())
-},
-) *MockAuthenticatedUser {
+}) *MockAuthenticatedUser {
 	mock := &MockAuthenticatedUser{}
 	mock.Mock.Test(t)
 

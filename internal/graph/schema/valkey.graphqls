@@ -71,7 +71,7 @@ type Valkey implements Persistence & Node {
 		orderBy: ValkeyAccessOrder
 	): ValkeyAccessConnection!
 	workload: Workload
-    state: ValkeyState!
+	state: ValkeyState!
 	status: ValkeyStatus!
 	"Availability tier for the Valkey instance."
 	tier: ValkeyTier!
@@ -81,11 +81,11 @@ type Valkey implements Persistence & Node {
 }
 
 enum ValkeyState {
-    POWEROFF
-    REBALANCING
-    REBUILDING
-    RUNNING
-    UNKNOWN
+	POWEROFF
+	REBALANCING
+	REBUILDING
+	RUNNING
+	UNKNOWN
 }
 
 type ValkeyAccess {

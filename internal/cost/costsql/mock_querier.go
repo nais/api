@@ -17,8 +17,7 @@ import (
 func NewMockQuerier(t interface {
 	mock.TestingT
 	Cleanup(func())
-},
-) *MockQuerier {
+}) *MockQuerier {
 	mock := &MockQuerier{}
 	mock.Mock.Test(t)
 

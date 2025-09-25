@@ -15,8 +15,7 @@ import (
 func NewMockTeamsServer(t interface {
 	mock.TestingT
 	Cleanup(func())
-},
-) *MockTeamsServer {
+}) *MockTeamsServer {
 	mock := &MockTeamsServer{}
 	mock.Mock.Test(t)
 

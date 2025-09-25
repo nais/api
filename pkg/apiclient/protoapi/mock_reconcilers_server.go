@@ -15,8 +15,7 @@ import (
 func NewMockReconcilersServer(t interface {
 	mock.TestingT
 	Cleanup(func())
-},
-) *MockReconcilersServer {
+}) *MockReconcilersServer {
 	mock := &MockReconcilersServer{}
 	mock.Mock.Test(t)
 
