@@ -17,7 +17,7 @@ Test.gql("Create valkey in non-existing team", function(t)
 		      environmentName: "dev"
 		      teamSlug: "devteam"
 		      tier: SINGLE_NODE
-		      size: RAM_14GB
+		      memory: RAM_14GB
 		    }
 		  ) {
 		    valkey {
@@ -50,7 +50,7 @@ Test.gql("Create valkey as non-team member", function(t)
 		      environmentName: "dev"
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
-		      size: RAM_14GB
+		      memory: RAM_14GB
 		    }
 		  ) {
 		    valkey {
@@ -83,7 +83,7 @@ Test.gql("Create valkey as team member", function(t)
 		      environmentName: "dev"
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
-		      size: RAM_14GB
+		      memory: RAM_14GB
 		    }
 		  ) {
 		    valkey {
@@ -114,7 +114,7 @@ Test.gql("Create valkey as team member with existing name", function(t)
 		      environmentName: "dev"
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
-		      size: RAM_14GB
+		      memory: RAM_14GB
 		    }
 		  ) {
 		    valkey {
@@ -215,7 +215,7 @@ Test.gql("Update Valkey in non-existing team", function(t)
 		      environmentName: "dev"
 		      teamSlug: "devteam"
 		      tier: SINGLE_NODE
-		      size: RAM_14GB
+		      memory: RAM_14GB
 		    }
 		  ) {
 		    valkey {
@@ -248,7 +248,7 @@ Test.gql("Update Valkey as non-team-member", function(t)
 		      environmentName: "dev"
 		      teamSlug: "devteam"
 		      tier: SINGLE_NODE
-		      size: RAM_14GB
+		      memory: RAM_14GB
 		    }
 		  ) {
 		    valkey {
@@ -281,8 +281,8 @@ Test.gql("Update Valkey as team-member", function(t)
 		      environmentName: "dev"
 		      teamSlug: "someteamname"
 		      tier: HIGH_AVAILABILITY
-		      size: RAM_4GB
-					maxMemoryPolicy: ALLKEYS_RANDOM
+		      memory: RAM_4GB
+		      maxMemoryPolicy: ALLKEYS_RANDOM
 		    }
 		  ) {
 		    valkey {
@@ -339,7 +339,7 @@ Test.k8s("Validate Valkey resource after update", function(t)
 	})
 end)
 
-Test.gql("Create valkey with tier and size equivalent to hobbyist plan", function(t)
+Test.gql("Create valkey with tier and memory equivalent to hobbyist plan", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[
 		mutation CreateValkey {
@@ -349,7 +349,7 @@ Test.gql("Create valkey with tier and size equivalent to hobbyist plan", functio
 		      environmentName: "dev"
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
-		      size: RAM_1GB
+		      memory: RAM_1GB
 		    }
 		  ) {
 		    valkey {
@@ -448,8 +448,8 @@ Test.gql("List valkeys for team", function(t)
 		      nodes {
 		        name
 		        tier
-		        size
-						maxMemoryPolicy
+		        memory
+		        maxMemoryPolicy
 		      }
 		    }
 		  }
@@ -464,25 +464,25 @@ Test.gql("List valkeys for team", function(t)
 						{
 							name = "foobar",
 							tier = "HIGH_AVAILABILITY",
-							size = "RAM_4GB",
+							memory = "RAM_4GB",
 							maxMemoryPolicy = "ALLKEYS_RANDOM",
 						},
 						{
 							name = "foobar-hobbyist",
 							tier = "SINGLE_NODE",
-							size = "RAM_1GB",
+							memory = "RAM_1GB",
 							maxMemoryPolicy = "",
 						},
 						{
 							name = "valkey-someteamname-hobbyist-not-managed",
 							tier = "SINGLE_NODE",
-							size = "RAM_1GB",
+							memory = "RAM_1GB",
 							maxMemoryPolicy = "",
 						},
 						{
 							name = "valkey-someteamname-not-managed",
 							tier = "SINGLE_NODE",
-							size = "RAM_4GB",
+							memory = "RAM_4GB",
 							maxMemoryPolicy = "",
 						},
 					},
@@ -502,8 +502,8 @@ Test.gql("Update non-console managed Valkey as team-member", function(t)
 		      environmentName: "dev"
 		      teamSlug: "someteamname"
 		      tier: HIGH_AVAILABILITY
-		      size: RAM_4GB
-					maxMemoryPolicy: ALLKEYS_RANDOM
+		      memory: RAM_4GB
+		      maxMemoryPolicy: ALLKEYS_RANDOM
 		    }
 		  ) {
 		    valkey {
@@ -526,7 +526,7 @@ Test.gql("Update non-console managed Valkey as team-member", function(t)
 	}
 end)
 
-Test.gql("Update Valkey with tier and size equivalent to hobbyist plan", function(t)
+Test.gql("Update Valkey with tier and memory equivalent to hobbyist plan", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[
 		mutation UpdateValkey {
@@ -536,8 +536,8 @@ Test.gql("Update Valkey with tier and size equivalent to hobbyist plan", functio
 		      environmentName: "dev"
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
-		      size: RAM_1GB
-			  maxMemoryPolicy: ALLKEYS_RANDOM
+		      memory: RAM_1GB
+		      maxMemoryPolicy: ALLKEYS_RANDOM
 		    }
 		  ) {
 		    valkey {
@@ -605,7 +605,7 @@ Test.gql("Delete Valkey in non-existing team", function(t)
 		      teamSlug: "devteam"
 		    }
 		  ) {
-        valkeyDeleted
+		    valkeyDeleted
 		  }
 		}
 	]]
@@ -634,7 +634,7 @@ Test.gql("Delete Valkey as non-team-member", function(t)
 		      teamSlug: "someteamname"
 		    }
 		  ) {
-				valkeyDeleted
+		    valkeyDeleted
 		  }
 		}
 	]]
@@ -663,7 +663,7 @@ Test.gql("Delete Valkey as team-member", function(t)
 		      teamSlug: "someteamname"
 		    }
 		  ) {
-				valkeyDeleted
+		    valkeyDeleted
 		  }
 		}
 	]]
@@ -688,7 +688,7 @@ Test.gql("Delete non-managed valkey as team-member", function(t)
 		      teamSlug: "someteamname"
 		    }
 		  ) {
-				valkeyDeleted
+		    valkeyDeleted
 		  }
 		}
 	]]

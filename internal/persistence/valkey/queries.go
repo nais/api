@@ -118,7 +118,7 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 		return nil, err
 	}
 
-	machine, err := machineTypeFromTierAndSize(input.Tier, input.Size)
+	machine, err := machineTypeFromTierAndMemory(input.Tier, input.Memory)
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +218,7 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 
 	changes := []*ValkeyUpdatedActivityLogEntryDataUpdatedField{}
 
-	machine, err := machineTypeFromTierAndSize(input.Tier, input.Size)
+	machine, err := machineTypeFromTierAndMemory(input.Tier, input.Memory)
 	if err != nil {
 		return nil, err
 	}
@@ -242,11 +242,11 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 				NewValue: ptr.To(input.Tier.String()),
 			})
 		}
-		if input.Size != oldMachine.Size {
+		if input.Memory != oldMachine.Memory {
 			changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
-				Field:    "size",
-				OldValue: ptr.To(oldMachine.Size.String()),
-				NewValue: ptr.To(input.Size.String()),
+				Field:    "memory",
+				OldValue: ptr.To(oldMachine.Memory.String()),
+				NewValue: ptr.To(input.Memory.String()),
 			})
 		}
 
