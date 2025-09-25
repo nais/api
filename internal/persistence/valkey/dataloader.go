@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/nais/api/internal/kubernetes/watcher"
+	"github.com/nais/api/internal/thirdparty/aiven"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
@@ -12,8 +13,8 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, tenantName string, valkeyWatcher *watcher.Watcher[*Valkey]) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(tenantName, valkeyWatcher))
+func NewLoaderContext(ctx context.Context, tenantName string, valkeyWatcher *watcher.Watcher[*Valkey], aivenClient aiven.AivenClient) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(tenantName, valkeyWatcher, aivenClient))
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*Valkey] {
@@ -37,19 +38,21 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	client     *client
-	tenantName string
-	watcher    *watcher.Watcher[*Valkey]
+	client      *client
+	tenantName  string
+	watcher     *watcher.Watcher[*Valkey]
+	aivenClient aiven.AivenClient
 }
 
-func newLoaders(tenantName string, watcher *watcher.Watcher[*Valkey]) *loaders {
+func newLoaders(tenantName string, watcher *watcher.Watcher[*Valkey], aivenClient aiven.AivenClient) *loaders {
 	client := &client{
 		watcher: watcher,
 	}
 
 	return &loaders{
-		client:     client,
-		tenantName: tenantName,
-		watcher:    watcher,
+		client:      client,
+		tenantName:  tenantName,
+		watcher:     watcher,
+		aivenClient: aivenClient,
 	}
 }

@@ -104,5 +104,7 @@ func (r *Resolver) OpenSearchAccess() gengql.OpenSearchAccessResolver {
 	return &openSearchAccessResolver{r}
 }
 
-type openSearchResolver struct{ *Resolver }
-type openSearchAccessResolver struct{ *Resolver }
+type (
+	openSearchResolver       struct{ *Resolver }
+	openSearchAccessResolver struct{ *Resolver }
+)

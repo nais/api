@@ -391,3 +391,12 @@ func Delete(ctx context.Context, input DeleteValkeyInput) (*DeleteValkeyPayload,
 		ValkeyDeleted: ptr.To(true),
 	}, nil
 }
+
+func State(ctx context.Context, v *Valkey) (ValkeyState, error) {
+	s, err := fromContext(ctx).aivenClient.State(ctx, v.AivenProject, v.FullyQualifiedName())
+	if err != nil {
+		return ValkeyStateUnknown, err
+	}
+
+	return ValkeyState(s), nil
+}
