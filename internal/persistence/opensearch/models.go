@@ -34,7 +34,7 @@ type OpenSearch struct {
 	Status                *OpenSearchStatus      `json:"status"`
 	TerminationProtection bool                   `json:"terminationProtection"`
 	Tier                  OpenSearchTier         `json:"tier"`
-	Size                  OpenSearchSize         `json:"size"`
+	Memory                OpenSearchMemory       `json:"memory"`
 	StorageGB             StorageGB              `json:"storageGB"`
 	TeamSlug              slug.Slug              `json:"-"`
 	EnvironmentName       string                 `json:"-"`
@@ -176,7 +176,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		}
 	}
 
-	// default to minimum storage size for the selected plan, in case the field is not set explicitly
+	// default to minimum storage capacity for the selected plan, in case the field is not set explicitly
 	storageGB := machine.StorageMin
 	if v, found, _ := unstructured.NestedString(u.Object, "spec", "disk_space"); found {
 		storageGB, err = StorageGBFromAivenString(v)
@@ -197,7 +197,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
 		AivenProject:      obj.Spec.Project,
 		Tier:              machine.Tier,
-		Size:              machine.Size,
+		Memory:            machine.Memory,
 		MajorVersion:      majorVersion,
 		StorageGB:         storageGB,
 	}, nil
@@ -238,7 +238,7 @@ func (o *OpenSearchMetadataInput) ValidationErrors(ctx context.Context) *validat
 type OpenSearchInput struct {
 	OpenSearchMetadataInput
 	Tier      OpenSearchTier         `json:"tier"`
-	Size      OpenSearchSize         `json:"size"`
+	Memory    OpenSearchMemory       `json:"memory"`
 	Version   OpenSearchMajorVersion `json:"version"`
 	StorageGB StorageGB              `json:"storageGB"`
 }
@@ -249,26 +249,26 @@ func (o *OpenSearchInput) Validate(ctx context.Context) error {
 	if !o.Tier.IsValid() {
 		verr.Add("tier", "Invalid OpenSearch tier: %s.", o.Tier)
 	}
-	if !o.Size.IsValid() {
-		verr.Add("size", "Invalid OpenSearch size: %s.", o.Size)
+	if !o.Memory.IsValid() {
+		verr.Add("memory", "Invalid OpenSearch memory: %s.", o.Memory)
 	}
 	if !o.Version.IsValid() {
 		verr.Add("version", "Invalid OpenSearch version: %s.", o.Version.String())
 	}
 
-	machine, err := machineTypeFromTierAndSize(o.Tier, o.Size)
+	machine, err := machineTypeFromTierAndMemory(o.Tier, o.Memory)
 	if err != nil {
-		verr.Add("size", "%s", err)
+		verr.Add("memory", "%s", err)
 		return verr.NilIfEmpty()
 	}
 
-	// hobbyist plan has a fixed storage size, so we override any provided value
+	// hobbyist plan has a fixed storage capacity, so we override any provided value
 	if machine.AivenPlan == "hobbyist" {
 		o.StorageGB = machine.StorageMin
 	}
 
 	if o.StorageGB < machine.StorageMin || o.StorageGB > machine.StorageMax {
-		verr.Add("storageGB", "Storage size must be between %dG and %dG for tier %q and size %q.", machine.StorageMin, machine.StorageMax, o.Tier, o.Size)
+		verr.Add("storageGB", "Storage capacity must be between %dG and %dG for tier %q and memory %q.", machine.StorageMin, machine.StorageMax, o.Tier, o.Memory)
 	}
 
 	return verr.NilIfEmpty()
@@ -291,10 +291,10 @@ func (o StorageGB) MarshalGQL(w io.Writer) {
 func (o *StorageGB) UnmarshalGQL(v any) error {
 	i, err := graphql.UnmarshalInt(v)
 	if err != nil {
-		return fmt.Errorf("storage size must be an integer")
+		return fmt.Errorf("storage capacity must be an integer")
 	}
 	if i <= 0 {
-		return fmt.Errorf("storage size must be a positive integer")
+		return fmt.Errorf("storage capacity must be a positive integer")
 	}
 	*o = StorageGB(i)
 	return nil
@@ -303,7 +303,7 @@ func (o *StorageGB) UnmarshalGQL(v any) error {
 func StorageGBFromAivenString(s string) (StorageGB, error) {
 	i, err := strconv.Atoi(strings.TrimSuffix(strings.TrimSuffix(s, "iB"), "G"))
 	if err != nil {
-		return 0, fmt.Errorf("parsing OpenSearch storage size from Aiven string %q: %w", s, err)
+		return 0, fmt.Errorf("parsing OpenSearch storage capacity from Aiven string %q: %w", s, err)
 	}
 	return StorageGB(i), nil
 }
@@ -383,43 +383,43 @@ func OpenSearchMajorVersionFromAivenString(s string) (OpenSearchMajorVersion, er
 	return v, nil
 }
 
-type OpenSearchSize string
+type OpenSearchMemory string
 
 const (
-	OpenSearchSizeRAM2gb  OpenSearchSize = "RAM_2GB"
-	OpenSearchSizeRAM4gb  OpenSearchSize = "RAM_4GB"
-	OpenSearchSizeRAM8gb  OpenSearchSize = "RAM_8GB"
-	OpenSearchSizeRAM16gb OpenSearchSize = "RAM_16GB"
-	OpenSearchSizeRAM32gb OpenSearchSize = "RAM_32GB"
-	OpenSearchSizeRAM64gb OpenSearchSize = "RAM_64GB"
+	OpenSearchMemoryRAM2gb  OpenSearchMemory = "RAM_2GB"
+	OpenSearchMemoryRAM4gb  OpenSearchMemory = "RAM_4GB"
+	OpenSearchMemoryRAM8gb  OpenSearchMemory = "RAM_8GB"
+	OpenSearchMemoryRAM16gb OpenSearchMemory = "RAM_16GB"
+	OpenSearchMemoryRAM32gb OpenSearchMemory = "RAM_32GB"
+	OpenSearchMemoryRAM64gb OpenSearchMemory = "RAM_64GB"
 )
 
-func (e OpenSearchSize) IsValid() bool {
+func (e OpenSearchMemory) IsValid() bool {
 	switch e {
-	case OpenSearchSizeRAM2gb, OpenSearchSizeRAM4gb, OpenSearchSizeRAM8gb, OpenSearchSizeRAM16gb, OpenSearchSizeRAM32gb, OpenSearchSizeRAM64gb:
+	case OpenSearchMemoryRAM2gb, OpenSearchMemoryRAM4gb, OpenSearchMemoryRAM8gb, OpenSearchMemoryRAM16gb, OpenSearchMemoryRAM32gb, OpenSearchMemoryRAM64gb:
 		return true
 	}
 	return false
 }
 
-func (e OpenSearchSize) String() string {
+func (e OpenSearchMemory) String() string {
 	return string(e)
 }
 
-func (e *OpenSearchSize) UnmarshalGQL(v any) error {
+func (e *OpenSearchMemory) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = OpenSearchSize(str)
+	*e = OpenSearchMemory(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid OpenSearchSize", str)
+		return fmt.Errorf("%s is not a valid OpenSearchMemory", str)
 	}
 	return nil
 }
 
-func (e OpenSearchSize) MarshalGQL(w io.Writer) {
+func (e OpenSearchMemory) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
