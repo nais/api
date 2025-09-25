@@ -39,24 +39,21 @@ func (q *Queries) GetIssueByID(ctx context.Context, id uuid.UUID) (*Issue, error
 
 const getSeverityScoreForWorkload = `-- name: GetSeverityScoreForWorkload :one
 SELECT
- SUM(
-  CASE
-   WHEN severity = 'CRITICAL'::severity_level THEN 10000
-   WHEN severity = 'WARNING'::severity_level THEN 100
-   WHEN severity = 'TODO'::severity_level THEN 1
-   ELSE 0
-  END
- ) AS severity_score
+	SUM(
+		CASE
+			WHEN severity = 'CRITICAL'::severity_level THEN 10000
+			WHEN severity = 'WARNING'::severity_level THEN 100
+			WHEN severity = 'TODO'::severity_level THEN 1
+			ELSE 0
+		END
+	) AS severity_score
 FROM
- issues
+	issues
 WHERE
- resource_name = $1
-AND
- resource_type = $2
-AND
- env = $3
-AND
- team = $4
+	resource_name = $1
+	AND resource_type = $2
+	AND env = $3
+	AND team = $4
 `
 
 type GetSeverityScoreForWorkloadParams struct {
