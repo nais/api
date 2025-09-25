@@ -184,19 +184,9 @@ Test.gql("List vulnerabilities for image", function(t)
 								identifier
 								package
 								severity
-								state
-								analysisTrail {
+								suppression {
+									reason
 									state
-									suppressed
-									comments {
-										nodes {
-											comment
-											onBehalfOf
-											state
-											suppressed
-											timestamp
-										}
-									}
 								}
 							}
 						}
@@ -224,36 +214,21 @@ Test.gql("List vulnerabilities for image", function(t)
 										identifier = NotNull(),
 										package = NotNull(),
 										severity = NotNull(),
-										state = NotNull(),
-										analysisTrail = {
-											state = NotNull(),
-											suppressed = NotNull(),
-											comments = NotNull(),
-										},
+										suppression = Null,
 									},
 									{
 										description = NotNull(),
 										identifier = NotNull(),
 										package = NotNull(),
 										severity = NotNull(),
-										state = NotNull(),
-										analysisTrail = {
-											state = NotNull(),
-											suppressed = NotNull(),
-											comments = NotNull(),
-										},
+										suppression = Null,
 									},
 									{
 										description = NotNull(),
 										identifier = NotNull(),
 										package = NotNull(),
 										severity = NotNull(),
-										state = NotNull(),
-										analysisTrail = {
-											state = NotNull(),
-											suppressed = NotNull(),
-											comments = NotNull(),
-										},
+										suppression = Null,
 									},
 								},
 							},
