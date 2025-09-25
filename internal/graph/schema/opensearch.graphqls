@@ -143,12 +143,12 @@ enum OpenSearchTier {
 }
 
 enum OpenSearchMemory {
-	RAM_2GB
-	RAM_4GB
-	RAM_8GB
-	RAM_16GB
-	RAM_32GB
-	RAM_64GB
+	GB_2
+	GB_4
+	GB_8
+	GB_16
+	GB_32
+	GB_64
 }
 
 enum OpenSearchMajorVersion {

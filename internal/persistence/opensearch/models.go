@@ -386,17 +386,17 @@ func OpenSearchMajorVersionFromAivenString(s string) (OpenSearchMajorVersion, er
 type OpenSearchMemory string
 
 const (
-	OpenSearchMemoryRAM2gb  OpenSearchMemory = "RAM_2GB"
-	OpenSearchMemoryRAM4gb  OpenSearchMemory = "RAM_4GB"
-	OpenSearchMemoryRAM8gb  OpenSearchMemory = "RAM_8GB"
-	OpenSearchMemoryRAM16gb OpenSearchMemory = "RAM_16GB"
-	OpenSearchMemoryRAM32gb OpenSearchMemory = "RAM_32GB"
-	OpenSearchMemoryRAM64gb OpenSearchMemory = "RAM_64GB"
+	OpenSearchMemoryGB2  OpenSearchMemory = "GB_2"
+	OpenSearchMemoryGB4  OpenSearchMemory = "GB_4"
+	OpenSearchMemoryGB8  OpenSearchMemory = "GB_8"
+	OpenSearchMemoryGB16 OpenSearchMemory = "GB_16"
+	OpenSearchMemoryGB32 OpenSearchMemory = "GB_32"
+	OpenSearchMemoryGB64 OpenSearchMemory = "GB_64"
 )
 
 func (e OpenSearchMemory) IsValid() bool {
 	switch e {
-	case OpenSearchMemoryRAM2gb, OpenSearchMemoryRAM4gb, OpenSearchMemoryRAM8gb, OpenSearchMemoryRAM16gb, OpenSearchMemoryRAM32gb, OpenSearchMemoryRAM64gb:
+	case OpenSearchMemoryGB2, OpenSearchMemoryGB4, OpenSearchMemoryGB8, OpenSearchMemoryGB16, OpenSearchMemoryGB32, OpenSearchMemoryGB64:
 		return true
 	}
 	return false

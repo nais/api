@@ -16,7 +16,7 @@ Test.gql("Create opensearch in non-existing team", function(t)
 		      environmentName: "dev"
 		      teamSlug: "devteam"
 		      tier: SINGLE_NODE
-		      memory: RAM_16GB
+		      memory: GB_16
 		      version: V2
 		      storageGB: 350
 		    }
@@ -51,7 +51,7 @@ Test.gql("Create opensearch as non-team member", function(t)
 		      environmentName: "dev"
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
-		      memory: RAM_16GB
+		      memory: GB_16
 		      version: V2
 		      storageGB: 350
 		    }
@@ -86,7 +86,7 @@ Test.gql("Create opensearch as team member", function(t)
 		      environmentName: "dev"
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
-		      memory: RAM_16GB
+		      memory: GB_16
 		      version: V2
 		      storageGB: 350
 		    }
@@ -119,7 +119,7 @@ Test.gql("Create opensearch as team member with existing name", function(t)
 		      environmentName: "dev"
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
-		      memory: RAM_16GB
+		      memory: GB_16
 		      version: V2
 		      storageGB: 350
 		    }
@@ -154,7 +154,7 @@ Test.gql("Create opensearch with invalid tier and memory combination", function(
 		      environmentName: "dev"
 		      teamSlug: "someteamname"
 		      tier: HIGH_AVAILABILITY
-		      memory: RAM_2GB
+		      memory: GB_2
 		      version: V2
 		      storageGB: 16
 		    }
@@ -172,7 +172,7 @@ Test.gql("Create opensearch with invalid tier and memory combination", function(
 				extensions = {
 					field = "memory",
 				},
-				message = "Invalid OpenSearch memory for tier. HIGH_AVAILABILITY cannot have memory RAM_2GB",
+				message = "Invalid OpenSearch memory for tier. HIGH_AVAILABILITY cannot have memory GB_2",
 				path = {
 					"createOpenSearch",
 				},
@@ -192,7 +192,7 @@ Test.gql("Create opensearch with invalid storage capacity", function(t)
 		      environmentName: "dev"
 		      teamSlug: "someteamname"
 		      tier: HIGH_AVAILABILITY
-		      memory: RAM_4GB
+		      memory: GB_4
 		      version: V2
 		      storageGB: 16
 		    }
@@ -210,7 +210,7 @@ Test.gql("Create opensearch with invalid storage capacity", function(t)
 				extensions = {
 					field = "storageGB",
 				},
-				message = "Storage capacity must be between 240G and 1200G for tier \"HIGH_AVAILABILITY\" and memory \"RAM_4GB\".",
+				message = "Storage capacity must be between 240G and 1200G for tier \"HIGH_AVAILABILITY\" and memory \"GB_4\".",
 				path = {
 					"createOpenSearch",
 				},
@@ -302,7 +302,7 @@ Test.gql("Create opensearch with tier and memory equivalent to hobbyist plan", f
 		      environmentName: "dev"
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
-		      memory: RAM_2GB
+		      memory: GB_2
 		      version: V2
 		      storageGB: 16
 		    }
@@ -407,7 +407,7 @@ Test.gql("Update OpenSearch in non-existing team", function(t)
 		      environmentName: "dev"
 		      teamSlug: "devteam"
 		      tier: SINGLE_NODE
-		      memory: RAM_16GB
+		      memory: GB_16
 		      version: V2
 		      storageGB: 350
 		    }
@@ -442,7 +442,7 @@ Test.gql("Update OpenSearch as non-team-member", function(t)
 		      environmentName: "dev"
 		      teamSlug: "devteam"
 		      tier: SINGLE_NODE
-		      memory: RAM_16GB
+		      memory: GB_16
 		      version: V2
 		      storageGB: 350
 		    }
@@ -477,7 +477,7 @@ Test.gql("Update OpenSearch as team-member", function(t)
 		      environmentName: "dev"
 		      teamSlug: "someteamname"
 		      tier: HIGH_AVAILABILITY
-		      memory: RAM_4GB
+		      memory: GB_4
 		      version: V2
 		      storageGB: 1000
 		    }
@@ -562,27 +562,27 @@ Test.gql("List opensearches for team", function(t)
 						{
 							name = "foobar",
 							tier = "HIGH_AVAILABILITY",
-							memory = "RAM_4GB",
+							memory = "GB_4",
 						},
 						{
 							name = "foobar-hobbyist",
 							tier = "SINGLE_NODE",
-							memory = "RAM_2GB",
+							memory = "GB_2",
 						},
 						{
 							name = "noversion",
 							tier = "SINGLE_NODE",
-							memory = "RAM_2GB",
+							memory = "GB_2",
 						},
 						{
 							name = "opensearch-someteamname-hobbyist-not-managed",
 							tier = "SINGLE_NODE",
-							memory = "RAM_2GB",
+							memory = "GB_2",
 						},
 						{
 							name = "opensearch-someteamname-not-managed",
 							tier = "HIGH_AVAILABILITY",
-							memory = "RAM_8GB",
+							memory = "GB_8",
 						},
 					},
 				},
@@ -601,7 +601,7 @@ Test.gql("Downgrade OpenSearch as team-member", function(t)
 		      environmentName: "dev"
 		      teamSlug: "someteamname"
 		      tier: HIGH_AVAILABILITY
-		      memory: RAM_4GB
+		      memory: GB_4
 		      version: V1
 		      storageGB: 240
 		    }
@@ -636,7 +636,7 @@ Test.gql("Downgrade OpenSearch without explicit version set", function(t)
 		      environmentName: "dev"
 		      teamSlug: "someteamname"
 		      tier: HIGH_AVAILABILITY
-		      memory: RAM_4GB
+		      memory: GB_4
 		      version: V1
 		      storageGB: 240
 		    }
@@ -671,7 +671,7 @@ Test.gql("Update non-console managed OpenSearch as team-member", function(t)
 		      environmentName: "dev"
 		      teamSlug: "someteamname"
 		      tier: HIGH_AVAILABILITY
-		      memory: RAM_4GB
+		      memory: GB_4
 		      version: V2
 		      storageGB: 240
 		    }
@@ -706,7 +706,7 @@ Test.gql("Update OpenSearch with tier and memory equivalent to hobbyist plan", f
 		      environmentName: "dev"
 		      teamSlug: "someteamname"
 		      tier: SINGLE_NODE
-		      memory: RAM_2GB
+		      memory: GB_2
 		      version: V2
 		      storageGB: 16
 		    }

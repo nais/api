@@ -11,17 +11,17 @@ type machineType struct {
 }
 
 var machineTypes = []machineType{
-	{AivenPlan: "hobbyist", StorageMin: 16, StorageMax: 16, Tier: OpenSearchTierSingleNode, Memory: OpenSearchMemoryRAM2gb},
-	{AivenPlan: "startup-4", StorageMin: 80, StorageMax: 400, Tier: OpenSearchTierSingleNode, Memory: OpenSearchMemoryRAM4gb},
-	{AivenPlan: "startup-8", StorageMin: 175, StorageMax: 875, Tier: OpenSearchTierSingleNode, Memory: OpenSearchMemoryRAM8gb},
-	{AivenPlan: "startup-16", StorageMin: 350, StorageMax: 1750, Tier: OpenSearchTierSingleNode, Memory: OpenSearchMemoryRAM16gb},
-	{AivenPlan: "startup-32", StorageMin: 700, StorageMax: 3500, Tier: OpenSearchTierSingleNode, Memory: OpenSearchMemoryRAM32gb},
-	{AivenPlan: "startup-64", StorageMin: 1400, StorageMax: 5120, Tier: OpenSearchTierSingleNode, Memory: OpenSearchMemoryRAM64gb},
-	{AivenPlan: "business-4", StorageMin: 240, StorageMax: 1200, Tier: OpenSearchTierHighAvailability, Memory: OpenSearchMemoryRAM4gb},
-	{AivenPlan: "business-8", StorageMin: 525, StorageMax: 2625, Tier: OpenSearchTierHighAvailability, Memory: OpenSearchMemoryRAM8gb},
-	{AivenPlan: "business-16", StorageMin: 1050, StorageMax: 5250, Tier: OpenSearchTierHighAvailability, Memory: OpenSearchMemoryRAM16gb},
-	{AivenPlan: "business-32", StorageMin: 2100, StorageMax: 10500, Tier: OpenSearchTierHighAvailability, Memory: OpenSearchMemoryRAM32gb},
-	{AivenPlan: "business-64", StorageMin: 4200, StorageMax: 15360, Tier: OpenSearchTierHighAvailability, Memory: OpenSearchMemoryRAM64gb},
+	{AivenPlan: "hobbyist", StorageMin: 16, StorageMax: 16, Tier: OpenSearchTierSingleNode, Memory: OpenSearchMemoryGB2},
+	{AivenPlan: "startup-4", StorageMin: 80, StorageMax: 400, Tier: OpenSearchTierSingleNode, Memory: OpenSearchMemoryGB4},
+	{AivenPlan: "startup-8", StorageMin: 175, StorageMax: 875, Tier: OpenSearchTierSingleNode, Memory: OpenSearchMemoryGB8},
+	{AivenPlan: "startup-16", StorageMin: 350, StorageMax: 1750, Tier: OpenSearchTierSingleNode, Memory: OpenSearchMemoryGB16},
+	{AivenPlan: "startup-32", StorageMin: 700, StorageMax: 3500, Tier: OpenSearchTierSingleNode, Memory: OpenSearchMemoryGB32},
+	{AivenPlan: "startup-64", StorageMin: 1400, StorageMax: 5120, Tier: OpenSearchTierSingleNode, Memory: OpenSearchMemoryGB64},
+	{AivenPlan: "business-4", StorageMin: 240, StorageMax: 1200, Tier: OpenSearchTierHighAvailability, Memory: OpenSearchMemoryGB4},
+	{AivenPlan: "business-8", StorageMin: 525, StorageMax: 2625, Tier: OpenSearchTierHighAvailability, Memory: OpenSearchMemoryGB8},
+	{AivenPlan: "business-16", StorageMin: 1050, StorageMax: 5250, Tier: OpenSearchTierHighAvailability, Memory: OpenSearchMemoryGB16},
+	{AivenPlan: "business-32", StorageMin: 2100, StorageMax: 10500, Tier: OpenSearchTierHighAvailability, Memory: OpenSearchMemoryGB32},
+	{AivenPlan: "business-64", StorageMin: 4200, StorageMax: 15360, Tier: OpenSearchTierHighAvailability, Memory: OpenSearchMemoryGB64},
 }
 
 // tierAndMemory transposes machineTypes for lookup by OpenSearchTier and OpenSearchMemory
