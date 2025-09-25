@@ -1,0 +1,26 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-no-issues
+spec:
+  image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-no-issues-1
+  labels:
+    app: app-no-issues
+  creationTimestamp: "2021-09-30T12:00:00Z"
+spec:
+  containers:
+    - name: app-no-issues
+      image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+status:
+  containerStatuses:
+    - name: app-no-issues
+      ready: true
+      restartCount: 0
+      state:
+        running:
+          startedAt: "2022-07-06T09:45:18Z"

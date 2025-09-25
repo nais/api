@@ -1,8 +1,85 @@
 Helper.readK8sResources("k8s_resources/issues")
 local user = User.new("name", "auth@user.com", "sdf")
 Team.new("myteam", "purpose", "#slack_channel")
+Team.new("sortteam", "purpose", "#slack_channel")
 local checker = IssueChecker.new()
 checker:runChecks()
+
+Test.gql("Applications sorted by issues", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "sortteam") {
+				applications(
+					orderBy: {
+						field: ISSUES,
+						direction: DESC
+					}
+				) {
+					nodes {
+						name
+						issues {
+							nodes {
+								severity
+							}
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				applications = {
+					nodes = {
+						{
+							name = "app-critical",
+							issues = {
+								nodes = {
+									{ severity = "CRITICAL" },
+								},
+							},
+						},
+						{
+							name = "app-warning-todo",
+							issues = {
+								nodes = {
+									{ severity = "WARNING" },
+									{ severity = "TODO" },
+								},
+							},
+						},
+						{
+							name = "app-warning",
+							issues = {
+								nodes = {
+									{ severity = "WARNING" },
+								},
+							},
+						},
+						{
+							name = "app-todo",
+							issues = {
+								nodes = {
+									{ severity = "TODO" },
+								},
+							},
+						},
+						{
+							name = "app-no-issues",
+							issues = {
+								nodes = {},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
 
 Test.gql("DeprecatedIngressIssue", function(t)
 	t.addHeader("x-user-email", user:email())
@@ -453,7 +530,7 @@ Test.gql("SqlInstanceVersionIssue", function(t)
 						__typename
 						severity
 						message
-						... on  SqlInstanceVersionIssue {
+						... on SqlInstanceVersionIssue {
 							sqlInstance {
 								name
 							}

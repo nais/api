@@ -37,6 +37,44 @@ func (q *Queries) GetIssueByID(ctx context.Context, id uuid.UUID) (*Issue, error
 	return &i, err
 }
 
+const getSeverityScoreForWorkload = `-- name: GetSeverityScoreForWorkload :one
+SELECT
+	SUM(
+		CASE
+			WHEN severity = 'CRITICAL'::severity_level THEN 10000
+			WHEN severity = 'WARNING'::severity_level THEN 100
+			WHEN severity = 'TODO'::severity_level THEN 1
+			ELSE 0
+		END
+	) AS severity_score
+FROM
+	issues
+WHERE
+	resource_name = $1
+	AND resource_type = $2
+	AND env = $3
+	AND team = $4
+`
+
+type GetSeverityScoreForWorkloadParams struct {
+	ResourceName string
+	ResourceType string
+	Env          string
+	Team         string
+}
+
+func (q *Queries) GetSeverityScoreForWorkload(ctx context.Context, arg GetSeverityScoreForWorkloadParams) (int64, error) {
+	row := q.db.QueryRow(ctx, getSeverityScoreForWorkload,
+		arg.ResourceName,
+		arg.ResourceType,
+		arg.Env,
+		arg.Team,
+	)
+	var severity_score int64
+	err := row.Scan(&severity_score)
+	return severity_score, err
+}
+
 const listIssues = `-- name: ListIssues :many
 SELECT
 	id, issue_type, resource_name, resource_type, team, env, severity, message, issue_details, created_at,
