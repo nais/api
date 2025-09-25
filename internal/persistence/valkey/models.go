@@ -161,7 +161,7 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 		maxMemoryPolicy = ""
 	}
 
-	tier, size, err := tierAndSizeFromPlan(obj.Spec.Plan)
+	machine, err := machineTypeFromPlan(obj.Spec.Plan)
 	if err != nil {
 		return nil, fmt.Errorf("converting from plan: %w", err)
 	}
@@ -182,8 +182,8 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 		TeamSlug:          slug.Slug(obj.GetNamespace()),
 		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
 		AivenProject:      obj.Spec.Project,
-		Tier:              tier,
-		Size:              size,
+		Tier:              machine.Tier,
+		Size:              machine.Size,
 		MaxMemoryPolicy:   maxMemoryPolicy,
 	}, nil
 }
@@ -296,16 +296,14 @@ func (e ValkeyMaxMemoryPolicy) String() string {
 }
 
 func (e *ValkeyMaxMemoryPolicy) UnmarshalGQL(v any) error {
-	str,
-		ok := v.(string)
+	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
 	*e = ValkeyMaxMemoryPolicy(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ValkeyMaxMemoryPolicy",
-			str)
+		return fmt.Errorf("%s is not a valid ValkeyMaxMemoryPolicy", str)
 	}
 	return nil
 }

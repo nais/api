@@ -118,7 +118,7 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 		return nil, err
 	}
 
-	plan, err := planFromTierAndSize(input.Tier, input.Size)
+	machine, err := machineTypeFromTierAndSize(input.Tier, input.Size)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +141,7 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 
 	res.Object["spec"] = map[string]any{
 		"cloudName":             "google-europe-north1",
-		"plan":                  plan,
+		"plan":                  machine.AivenPlan,
 		"project":               aivenProject.ID,
 		"projectVpcId":          aivenProject.VPC,
 		"terminationProtection": true,
@@ -218,48 +218,39 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 
 	changes := []*ValkeyUpdatedActivityLogEntryDataUpdatedField{}
 
-	plan, err := planFromTierAndSize(input.Tier, input.Size)
+	machine, err := machineTypeFromTierAndSize(input.Tier, input.Size)
 	if err != nil {
 		return nil, err
 	}
 
 	oldPlan, found, err := unstructured.NestedString(valkey.Object, "spec", "plan")
-	if err != nil {
+	if err != nil || !found {
+		// .spec.plan is a required field
 		return nil, err
 	}
 
-	if !found || oldPlan != plan {
-		tier, size, err := tierAndSizeFromPlan(oldPlan)
+	if oldPlan != machine.AivenPlan {
+		oldMachine, err := machineTypeFromPlan(oldPlan)
 		if err != nil {
-			return nil, fmt.Errorf("converting from plan: %w", err)
+			return nil, err
 		}
 
-		if input.Tier != tier {
+		if input.Tier != oldMachine.Tier {
 			changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
-				Field: "tier",
-				OldValue: func() *string {
-					if found {
-						return ptr.To(tier.String())
-					}
-					return nil
-				}(),
+				Field:    "tier",
+				OldValue: ptr.To(oldMachine.Tier.String()),
 				NewValue: ptr.To(input.Tier.String()),
 			})
 		}
-		if input.Size != size {
+		if input.Size != oldMachine.Size {
 			changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
-				Field: "size",
-				OldValue: func() *string {
-					if found {
-						return ptr.To(size.String())
-					}
-					return nil
-				}(),
+				Field:    "size",
+				OldValue: ptr.To(oldMachine.Size.String()),
 				NewValue: ptr.To(input.Size.String()),
 			})
 		}
 
-		err = unstructured.SetNestedField(valkey.Object, plan, "spec", "plan")
+		err = unstructured.SetNestedField(valkey.Object, machine.AivenPlan, "spec", "plan")
 		if err != nil {
 			return nil, err
 		}
@@ -399,78 +390,4 @@ func Delete(ctx context.Context, input DeleteValkeyInput) (*DeleteValkeyPayload,
 	return &DeleteValkeyPayload{
 		ValkeyDeleted: ptr.To(true),
 	}, nil
-}
-
-var aivenPlans = map[string]ValkeyTier{
-	"business": ValkeyTierHighAvailability,
-	"startup":  ValkeyTierSingleNode,
-}
-
-var aivenSizes = map[string]ValkeySize{
-	"1":   ValkeySizeRAM1gb,
-	"4":   ValkeySizeRAM4gb,
-	"8":   ValkeySizeRAM8gb,
-	"14":  ValkeySizeRAM14gb,
-	"28":  ValkeySizeRAM28gb,
-	"56":  ValkeySizeRAM56gb,
-	"112": ValkeySizeRAM112gb,
-	"200": ValkeySizeRAM200gb,
-}
-
-func planFromTierAndSize(tier ValkeyTier, size ValkeySize) (string, error) {
-	if size == ValkeySizeRAM1gb && tier == ValkeyTierSingleNode {
-		return "hobbyist", nil
-	}
-
-	plan := ""
-
-	for name, planTier := range aivenPlans {
-		if planTier == tier {
-			plan += name + "-"
-			break
-		}
-	}
-	if plan == "" {
-		return "", apierror.Errorf("Invalid Valkey tier: %s", tier)
-	}
-
-	planSize := ""
-	for aivenSize, sz := range aivenSizes {
-		if sz == size {
-			planSize = aivenSize
-			break
-		}
-	}
-	if planSize == "" {
-		return "", apierror.Errorf("Invalid Valkey size: %s", size)
-	}
-	plan += planSize
-
-	return plan, nil
-}
-
-func tierAndSizeFromPlan(plan string) (ValkeyTier, ValkeySize, error) {
-	if strings.EqualFold(plan, "hobbyist") {
-		return ValkeyTierSingleNode, ValkeySizeRAM1gb, nil
-	}
-
-	t, s, ok := strings.Cut(plan, "-")
-	if !ok {
-		return "", "", fmt.Errorf("invalid Valkey plan: %s", plan)
-	}
-
-	tier, ok := aivenPlans[t]
-	if !ok {
-		return "", "", fmt.Errorf("invalid Valkey tier: %s", t)
-	}
-
-	size, ok := aivenSizes[s]
-	if !ok {
-		return "", "", fmt.Errorf("invalid Valkey size: %s", s)
-	}
-	if size == ValkeySizeRAM1gb && tier == ValkeyTierSingleNode {
-		return "", "", fmt.Errorf("invalid Valkey size for tier %s: %s", tier, s)
-	}
-
-	return tier, size, nil
 }
