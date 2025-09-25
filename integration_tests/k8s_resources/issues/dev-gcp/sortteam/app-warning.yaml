@@ -1,0 +1,26 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-warning
+spec:
+  image: deprecated.dev/nais/navikt/app-name:latest
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-warning-1
+  labels:
+    app: app-warning
+  creationTimestamp: "2021-09-30T12:00:00Z"
+spec:
+  containers:
+    - name: app-warning
+      image: deprecated.dev/nais/navikt/app-name:latest
+status:
+  containerStatuses:
+    - name: app-warning
+      ready: true
+      restartCount: 0
+      state:
+        running:
+          startedAt: "2022-07-06T09:45:18Z"
