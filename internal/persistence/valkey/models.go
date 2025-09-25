@@ -347,19 +347,19 @@ func (e ValkeyMaxMemoryPolicy) ToAivenString() string {
 type ValkeyMemory string
 
 const (
-	ValkeyMemoryRAM1gb   ValkeyMemory = "RAM_1GB"
-	ValkeyMemoryRAM4gb   ValkeyMemory = "RAM_4GB"
-	ValkeyMemoryRAM8gb   ValkeyMemory = "RAM_8GB"
-	ValkeyMemoryRAM14gb  ValkeyMemory = "RAM_14GB"
-	ValkeyMemoryRAM28gb  ValkeyMemory = "RAM_28GB"
-	ValkeyMemoryRAM56gb  ValkeyMemory = "RAM_56GB"
-	ValkeyMemoryRAM112gb ValkeyMemory = "RAM_112GB"
-	ValkeyMemoryRAM200gb ValkeyMemory = "RAM_200GB"
+	ValkeyMemoryGB1   ValkeyMemory = "GB_1"
+	ValkeyMemoryGB4   ValkeyMemory = "GB_4"
+	ValkeyMemoryGB8   ValkeyMemory = "GB_8"
+	ValkeyMemoryGB14  ValkeyMemory = "GB_14"
+	ValkeyMemoryGB28  ValkeyMemory = "GB_28"
+	ValkeyMemoryGB56  ValkeyMemory = "GB_56"
+	ValkeyMemoryGB112 ValkeyMemory = "GB_112"
+	ValkeyMemoryGB200 ValkeyMemory = "GB_200"
 )
 
 func (e ValkeyMemory) IsValid() bool {
 	switch e {
-	case ValkeyMemoryRAM1gb, ValkeyMemoryRAM4gb, ValkeyMemoryRAM8gb, ValkeyMemoryRAM14gb, ValkeyMemoryRAM28gb, ValkeyMemoryRAM56gb, ValkeyMemoryRAM112gb, ValkeyMemoryRAM200gb:
+	case ValkeyMemoryGB1, ValkeyMemoryGB4, ValkeyMemoryGB8, ValkeyMemoryGB14, ValkeyMemoryGB28, ValkeyMemoryGB56, ValkeyMemoryGB112, ValkeyMemoryGB200:
 		return true
 	}
 	return false

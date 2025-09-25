@@ -142,14 +142,14 @@ enum ValkeyTier {
 }
 
 enum ValkeyMemory {
-	RAM_1GB
-	RAM_4GB
-	RAM_8GB
-	RAM_14GB
-	RAM_28GB
-	RAM_56GB
-	RAM_112GB
-	RAM_200GB
+	GB_1
+	GB_4
+	GB_8
+	GB_14
+	GB_28
+	GB_56
+	GB_112
+	GB_200
 }
 
 enum ValkeyMaxMemoryPolicy {

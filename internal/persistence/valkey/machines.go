@@ -9,21 +9,21 @@ type machineType struct {
 }
 
 var machineTypes = []machineType{
-	{AivenPlan: "hobbyist", Tier: ValkeyTierSingleNode, Memory: ValkeyMemoryRAM1gb},
-	{AivenPlan: "startup-4", Tier: ValkeyTierSingleNode, Memory: ValkeyMemoryRAM4gb},
-	{AivenPlan: "startup-8", Tier: ValkeyTierSingleNode, Memory: ValkeyMemoryRAM8gb},
-	{AivenPlan: "startup-14", Tier: ValkeyTierSingleNode, Memory: ValkeyMemoryRAM14gb},
-	{AivenPlan: "startup-28", Tier: ValkeyTierSingleNode, Memory: ValkeyMemoryRAM28gb},
-	{AivenPlan: "startup-56", Tier: ValkeyTierSingleNode, Memory: ValkeyMemoryRAM56gb},
-	{AivenPlan: "startup-112", Tier: ValkeyTierSingleNode, Memory: ValkeyMemoryRAM112gb},
-	{AivenPlan: "startup-200", Tier: ValkeyTierSingleNode, Memory: ValkeyMemoryRAM200gb},
-	{AivenPlan: "business-4", Tier: ValkeyTierHighAvailability, Memory: ValkeyMemoryRAM4gb},
-	{AivenPlan: "business-8", Tier: ValkeyTierHighAvailability, Memory: ValkeyMemoryRAM8gb},
-	{AivenPlan: "business-14", Tier: ValkeyTierHighAvailability, Memory: ValkeyMemoryRAM14gb},
-	{AivenPlan: "business-28", Tier: ValkeyTierHighAvailability, Memory: ValkeyMemoryRAM28gb},
-	{AivenPlan: "business-56", Tier: ValkeyTierHighAvailability, Memory: ValkeyMemoryRAM56gb},
-	{AivenPlan: "business-112", Tier: ValkeyTierHighAvailability, Memory: ValkeyMemoryRAM112gb},
-	{AivenPlan: "business-200", Tier: ValkeyTierHighAvailability, Memory: ValkeyMemoryRAM200gb},
+	{AivenPlan: "hobbyist", Tier: ValkeyTierSingleNode, Memory: ValkeyMemoryGB1},
+	{AivenPlan: "startup-4", Tier: ValkeyTierSingleNode, Memory: ValkeyMemoryGB4},
+	{AivenPlan: "startup-8", Tier: ValkeyTierSingleNode, Memory: ValkeyMemoryGB8},
+	{AivenPlan: "startup-14", Tier: ValkeyTierSingleNode, Memory: ValkeyMemoryGB14},
+	{AivenPlan: "startup-28", Tier: ValkeyTierSingleNode, Memory: ValkeyMemoryGB28},
+	{AivenPlan: "startup-56", Tier: ValkeyTierSingleNode, Memory: ValkeyMemoryGB56},
+	{AivenPlan: "startup-112", Tier: ValkeyTierSingleNode, Memory: ValkeyMemoryGB112},
+	{AivenPlan: "startup-200", Tier: ValkeyTierSingleNode, Memory: ValkeyMemoryGB200},
+	{AivenPlan: "business-4", Tier: ValkeyTierHighAvailability, Memory: ValkeyMemoryGB4},
+	{AivenPlan: "business-8", Tier: ValkeyTierHighAvailability, Memory: ValkeyMemoryGB8},
+	{AivenPlan: "business-14", Tier: ValkeyTierHighAvailability, Memory: ValkeyMemoryGB14},
+	{AivenPlan: "business-28", Tier: ValkeyTierHighAvailability, Memory: ValkeyMemoryGB28},
+	{AivenPlan: "business-56", Tier: ValkeyTierHighAvailability, Memory: ValkeyMemoryGB56},
+	{AivenPlan: "business-112", Tier: ValkeyTierHighAvailability, Memory: ValkeyMemoryGB112},
+	{AivenPlan: "business-200", Tier: ValkeyTierHighAvailability, Memory: ValkeyMemoryGB200},
 }
 
 // tierAndMemory transposes machineTypes for lookup by ValkeyTier and ValkeyMemory
