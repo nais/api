@@ -92,6 +92,20 @@ extend enum ApplicationOrderField {
 	ISSUES
 }
 
+extend enum JobOrderField {
+	"""
+	Order jobs by issue severity
+	"""
+	ISSUES
+}
+
+extend enum WorkloadOrderField {
+	"""
+	Order workloads by issue severity
+	"""
+	ISSUES
+}
+
 enum Severity {
 	CRITICAL
 	WARNING
