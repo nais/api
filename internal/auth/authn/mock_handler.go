@@ -16,7 +16,8 @@ import (
 func NewMockHandler(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *MockHandler {
+},
+) *MockHandler {
 	mock := &MockHandler{}
 	mock.Mock.Test(t)
 
