@@ -478,14 +478,14 @@ type OpenSearchVersion struct {
 	DesiredMajor OpenSearchMajorVersion `json:"desiredMajor"`
 }
 
-type OpenSearchState string
+type OpenSearchState int
 
 const (
-	OpenSearchStatePoweroff    OpenSearchState = "POWEROFF"
-	OpenSearchStateRebalancing OpenSearchState = "REBALANCING"
-	OpenSearchStateRebuilding  OpenSearchState = "REBUILDING"
-	OpenSearchStateRunning     OpenSearchState = "RUNNING"
-	OpenSearchStateUnknown     OpenSearchState = "UNKNOWN"
+	OpenSearchStateUnknown OpenSearchState = iota
+	OpenSearchStateRunning
+	OpenSearchStateRebalancing
+	OpenSearchStateRebuilding
+	OpenSearchStatePoweroff
 )
 
 var AllOpenSearchState = []OpenSearchState{
@@ -496,6 +496,21 @@ var AllOpenSearchState = []OpenSearchState{
 	OpenSearchStateUnknown,
 }
 
+func (e OpenSearchState) String() string {
+	switch e {
+	case OpenSearchStatePoweroff:
+		return "POWEROFF"
+	case OpenSearchStateRebalancing:
+		return "REBALANCING"
+	case OpenSearchStateRebuilding:
+		return "REBUILDING"
+	case OpenSearchStateRunning:
+		return "RUNNING"
+	default:
+		return "UNKNOWN"
+	}
+}
+
 func (e OpenSearchState) IsValid() bool {
 	switch e {
 	case OpenSearchStatePoweroff, OpenSearchStateRebalancing, OpenSearchStateRebuilding, OpenSearchStateRunning, OpenSearchStateUnknown:
@@ -504,17 +519,27 @@ func (e OpenSearchState) IsValid() bool {
 	return false
 }
 
-func (e OpenSearchState) String() string {
-	return string(e)
-}
-
 func (e *OpenSearchState) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = OpenSearchState(str)
+	switch str {
+	case "POWEROFF":
+		*e = OpenSearchStatePoweroff
+	case "REBALANCING":
+		*e = OpenSearchStateRebalancing
+	case "REBUILDING":
+		*e = OpenSearchStateRebuilding
+	case "RUNNING":
+		*e = OpenSearchStateRunning
+	case "UNKNOWN":
+		*e = OpenSearchStateUnknown
+	default:
+		return fmt.Errorf("%s is not a valid OpenSearchState", str)
+	}
+
 	if !e.IsValid() {
 		return fmt.Errorf("%s is not a valid OpenSearchState", str)
 	}

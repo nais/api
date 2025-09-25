@@ -438,14 +438,14 @@ type DeleteValkeyPayload struct {
 	ValkeyDeleted *bool `json:"valkeyDeleted,omitempty"`
 }
 
-type ValkeyState string
+type ValkeyState int
 
 const (
-	ValkeyStatePoweroff    ValkeyState = "POWEROFF"
-	ValkeyStateRebalancing ValkeyState = "REBALANCING"
-	ValkeyStateRebuilding  ValkeyState = "REBUILDING"
-	ValkeyStateRunning     ValkeyState = "RUNNING"
-	ValkeyStateUnknown     ValkeyState = "UNKNOWN"
+	ValkeyStatePoweroff ValkeyState = iota
+	ValkeyStateRebalancing
+	ValkeyStateRebuilding
+	ValkeyStateRunning
+	ValkeyStateUnknown
 )
 
 var AllValkeyState = []ValkeyState{
@@ -474,7 +474,21 @@ func (e *ValkeyState) UnmarshalGQL(v any) error {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = ValkeyState(str)
+	switch str {
+	case "POWEROFF":
+		*e = ValkeyStatePoweroff
+	case "REBALANCING":
+		*e = ValkeyStateRebalancing
+	case "REBUILDING":
+		*e = ValkeyStateRebuilding
+	case "RUNNING":
+		*e = ValkeyStateRunning
+	case "UNKNOWN":
+		*e = ValkeyStateUnknown
+	default:
+		return fmt.Errorf("%s is not a valid ValkeyState", str)
+	}
+
 	if !e.IsValid() {
 		return fmt.Errorf("%s is not a valid ValkeyState", str)
 	}

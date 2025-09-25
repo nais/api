@@ -398,5 +398,16 @@ func State(ctx context.Context, v *Valkey) (ValkeyState, error) {
 		return ValkeyStateUnknown, err
 	}
 
-	return ValkeyState(s), nil
+	switch s {
+	case "RUNNING":
+		return ValkeyStateRunning, nil
+	case "REBALANCING":
+		return ValkeyStateRebalancing, nil
+	case "REBUILDING":
+		return ValkeyStateRebuilding, nil
+	case "POWEROFF":
+		return ValkeyStatePoweroff, nil
+	default:
+		return ValkeyStateUnknown, nil
+	}
 }

@@ -133,6 +133,7 @@ input OpenSearchOrder {
 enum OpenSearchAccessOrderField {
 	ACCESS
 	WORKLOAD
+	STATE
 }
 
 enum OpenSearchOrderField {

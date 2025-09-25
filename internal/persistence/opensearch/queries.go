@@ -45,7 +45,18 @@ func State(ctx context.Context, os *OpenSearch) (OpenSearchState, error) {
 		return OpenSearchStateUnknown, err
 	}
 
-	return OpenSearchState(s), nil
+	switch s {
+	case "RUNNING":
+		return OpenSearchStateRunning, nil
+	case "REBALANCING":
+		return OpenSearchStateRebalancing, nil
+	case "REBUILDING":
+		return OpenSearchStateRebuilding, nil
+	case "POWEROFF":
+		return OpenSearchStatePoweroff, nil
+	default:
+		return OpenSearchStateUnknown, nil
+	}
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *OpenSearchOrder) (*OpenSearchConnection, error) {
