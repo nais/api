@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"slices"
+	"time"
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
@@ -126,33 +127,12 @@ func getJobRunInstanceByIdent(ctx context.Context, id ident.Ident) (*JobRunInsta
 }
 
 func Runs(ctx context.Context, teamSlug slug.Slug, environment, jobName string, page *pagination.Pagination) (*JobRunConnection, error) {
-	nameReq, err := labels.NewRequirement("app", selection.Equals, []string{jobName})
+	all, err := allRuns(ctx, teamSlug, environment, jobName)
 	if err != nil {
 		return nil, err
 	}
-
-	selector := labels.NewSelector().Add(*nameReq)
-
-	allRuns := fromContext(ctx).runWatcher.GetByNamespace(teamSlug.String(), watcher.InCluster(environment), watcher.WithLabels(selector))
-
-	ret := make([]*JobRun, len(allRuns))
-	for i, run := range allRuns {
-		ret[i] = ToGraphJobRun(run.Obj, run.Cluster)
-	}
-
-	slices.SortStableFunc(ret, func(a, b *JobRun) int {
-		if a.StartTime == nil {
-			return 1
-		}
-		if b.StartTime == nil {
-			return -1
-		}
-
-		return b.StartTime.Compare(*a.StartTime)
-	})
-
-	runs := pagination.Slice(ret, page)
-	return pagination.NewConnection(runs, page, len(ret)), nil
+	runs := pagination.Slice(all, page)
+	return pagination.NewConnection(runs, page, len(all)), nil
 }
 
 func Manifest(ctx context.Context, teamSlug slug.Slug, environmentName, name string) (*JobManifest, error) {
@@ -256,6 +236,66 @@ func Trigger(ctx context.Context, teamSlug slug.Slug, environmentName, name, run
 	}
 
 	return ToGraphJobRun(jobRunBatch, environmentName), nil
+}
+
+func GetState(ctx context.Context, obj *Job) (JobState, error) {
+	runs, err := allRuns(ctx, obj.GetTeamSlug(), obj.GetEnvironmentName(), obj.GetName())
+	if err != nil {
+		return JobStateUnknown, err
+	}
+
+	var latestTime time.Time
+	var latest *JobRun
+
+	for _, j := range runs {
+		if j.StartTime != nil && j.StartTime.After(latestTime) {
+			latestTime = *j.StartTime
+			latest = j
+		}
+	}
+
+	if latest == nil {
+		return JobStateUnknown, nil
+	}
+
+	switch latest.Status().State {
+	case JobRunStateRunning:
+		return JobStateRunning, nil
+	case JobRunStateSucceeded:
+		return JobStateCompleted, nil
+	case JobRunStateFailed:
+		return JobStateFailed, nil
+	default:
+		return JobStateUnknown, nil
+	}
+}
+
+func allRuns(ctx context.Context, teamSlug slug.Slug, environment string, jobName string) ([]*JobRun, error) {
+	nameReq, err := labels.NewRequirement("app", selection.Equals, []string{jobName})
+	if err != nil {
+		return nil, err
+	}
+
+	selector := labels.NewSelector().Add(*nameReq)
+
+	runs := fromContext(ctx).runWatcher.GetByNamespace(teamSlug.String(), watcher.InCluster(environment), watcher.WithLabels(selector))
+
+	ret := make([]*JobRun, len(runs))
+	for i, run := range runs {
+		ret[i] = ToGraphJobRun(run.Obj, run.Cluster)
+	}
+
+	slices.SortStableFunc(ret, func(a, b *JobRun) int {
+		if a.StartTime == nil {
+			return 1
+		}
+		if b.StartTime == nil {
+			return -1
+		}
+
+		return b.StartTime.Compare(*a.StartTime)
+	})
+	return ret, nil
 }
 
 // createJobFromCronJob creates a Job from a CronJob.

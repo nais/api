@@ -646,30 +646,36 @@ func (e IngressMetricsType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-type ApplicationState string
+type ApplicationState int
 
 const (
-	// The application is running.
-	ApplicationStateRunning ApplicationState = "RUNNING"
-	// The application is not running.
-	ApplicationStateNotRunning ApplicationState = "NOT_RUNNING"
+	ApplicationStateUnknown ApplicationState = iota
+	ApplicationStateRunning
+	ApplicationStateNotRunning
 )
 
 var AllApplicationState = []ApplicationState{
+	ApplicationStateUnknown,
 	ApplicationStateRunning,
 	ApplicationStateNotRunning,
 }
 
 func (e ApplicationState) IsValid() bool {
 	switch e {
-	case ApplicationStateRunning, ApplicationStateNotRunning:
+	case ApplicationStateUnknown, ApplicationStateRunning, ApplicationStateNotRunning:
 		return true
 	}
 	return false
 }
 
 func (e ApplicationState) String() string {
-	return string(e)
+	switch e {
+	case ApplicationStateRunning:
+		return "RUNNING"
+	case ApplicationStateNotRunning:
+		return "NOT_RUNNING"
+	}
+	return "UNKNOWN"
 }
 
 func (e *ApplicationState) UnmarshalGQL(v any) error {
@@ -678,7 +684,17 @@ func (e *ApplicationState) UnmarshalGQL(v any) error {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = ApplicationState(str)
+	switch str {
+	case "RUNNING":
+		*e = ApplicationStateRunning
+	case "NOT_RUNNING":
+		*e = ApplicationStateNotRunning
+	case "UNKNOWN":
+		*e = ApplicationStateUnknown
+	default:
+		return fmt.Errorf("%s is not a valid ApplicationState", str)
+	}
+
 	if !e.IsValid() {
 		return fmt.Errorf("%s is not a valid ApplicationState", str)
 	}

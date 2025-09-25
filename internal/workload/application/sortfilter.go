@@ -17,6 +17,13 @@ func init() {
 	SortFilter.RegisterSort("ENVIRONMENT", func(ctx context.Context, a, b *Application) int {
 		return strings.Compare(a.GetEnvironmentName(), b.GetEnvironmentName())
 	}, "NAME")
+	SortFilter.RegisterConcurrentSort("STATE", func(ctx context.Context, a *Application) int {
+		s, err := GetState(ctx, a)
+		if err != nil {
+			return int(ApplicationStateUnknown)
+		}
+		return int(s)
+	}, "NAME", "ENVIRONMENT")
 
 	SortFilter.RegisterFilter(func(ctx context.Context, v *Application, filter *TeamApplicationsFilter) bool {
 		if filter.Name != "" {

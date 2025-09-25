@@ -29,11 +29,3 @@ status:
       state:
         running:
           startedAt: "2022-07-06T09:45:18Z"
----
-apiVersion: nais.io/v1
-kind: Naisjob
-metadata:
-  name: deprecated-job
-spec:
-  image: ghcr.io/navikt/app-name:latest
-  schedule: "0 0 * * *"

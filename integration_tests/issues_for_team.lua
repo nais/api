@@ -81,6 +81,57 @@ Test.gql("Applications sorted by issues", function(t)
 	}
 end)
 
+Test.gql("Jobs sorted by issues", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "sortteam") {
+				jobs(
+					orderBy: {
+						field: ISSUES,
+						direction: DESC
+					}
+				) {
+					nodes {
+						name
+						issues {
+							nodes {
+								severity
+							}
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				jobs = {
+					nodes = {
+						{
+							name = "job-warning",
+							issues = {
+								nodes = {
+									{ severity = "WARNING" },
+								},
+							},
+						},
+						{
+							name = "job-no-issues",
+							issues = {
+								nodes = {},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("DeprecatedIngressIssue", function(t)
 	t.addHeader("x-user-email", user:email())
 
@@ -219,20 +270,21 @@ Test.gql("FailedJobRunsIssue", function(t)
 			team = {
 				issues = {
 					nodes = {
-						--	{
-						--		__typename = "FailedJobRunsIssue",
-						--		message = "TODO",
-						--		severity = "WARNING",
-						--		job = {
-						--			name = "deprecated-job",
-						--		},
-						--	},
+						{
+							__typename = "FailedJobRunsIssue",
+							message = "Job has failing runs. Last run 'job-failed' failed with message: Run failed after 1 attempts",
+							severity = "WARNING",
+							job = {
+								name = "job-failed",
+							},
+						},
 					},
 				},
 			},
 		},
 	}
 end)
+
 Test.gql("FailedSynchronizationIssue", function(t)
 	checker:runChecks()
 	t.addHeader("x-user-email", user:email())

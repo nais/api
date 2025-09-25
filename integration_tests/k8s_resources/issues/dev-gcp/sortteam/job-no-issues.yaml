@@ -1,0 +1,7 @@
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+    name: job-no-issues
+spec:
+    image: europe-north1-docker.pkg.dev/nais/navikt/app-name:latest
+    schedule: "0 0 * * *"

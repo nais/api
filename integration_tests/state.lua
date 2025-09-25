@@ -16,6 +16,100 @@ local function stateQuery(slug, env, name, resourceType)
 	]], slug, env, resourceType, name)
 end
 
+Test.gql("Applications sorted by state", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				applications(
+					orderBy: {
+						field: STATE,
+						direction: DESC
+					}
+				) {
+					nodes {
+						name
+						state
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				applications = {
+					nodes = {
+						{
+							name = "app-failing",
+							state = "NOT_RUNNING",
+						},
+						{
+							name = "app-no-instances",
+							state = "NOT_RUNNING",
+						},
+						{
+							name = "app-running",
+							state = "RUNNING",
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Jobs sorted by state", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				jobs(
+					orderBy: {
+						field: STATE,
+						direction: DESC
+					}
+				) {
+					nodes {
+						name
+						state
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				jobs = {
+					nodes = {
+						{
+							name = "job-failed",
+							state = "FAILED",
+						},
+						{
+							name = "job-running",
+							state = "RUNNING",
+						},
+						{
+							name = "job-completed",
+							state = "COMPLETED",
+						},
+						{
+							name = "job-no-runs",
+							state = "UNKNOWN",
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("app with no instances should not be running", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query(stateQuery("myteam", "dev", "app-no-instances", "application"))

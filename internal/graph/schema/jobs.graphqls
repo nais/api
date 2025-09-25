@@ -354,6 +354,11 @@ enum JobOrderField {
 
 	"Order jobs by the name of the environment."
 	ENVIRONMENT
+
+	"""
+	Order by state.
+	"""
+	STATE
 }
 
 extend union SearchNode = Job

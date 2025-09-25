@@ -523,13 +523,13 @@ func (e JobRunTriggerType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-type JobState string
+type JobState int
 
 const (
-	JobStateCompleted JobState = "COMPLETED"
-	JobStateRunning   JobState = "RUNNING"
-	JobStateFailed    JobState = "FAILED"
-	JobStateUnknown   JobState = "UNKNOWN"
+	JobStateUnknown = iota
+	JobStateCompleted
+	JobStateRunning
+	JobStateFailed
 )
 
 var AllJobState = []JobState{
@@ -548,7 +548,16 @@ func (e JobState) IsValid() bool {
 }
 
 func (e JobState) String() string {
-	return string(e)
+	switch e {
+	case JobStateCompleted:
+		return "COMPLETED"
+	case JobStateRunning:
+		return "RUNNING"
+	case JobStateFailed:
+		return "FAILED"
+	default:
+		return "UNKNOWN"
+	}
 }
 
 func (e *JobState) UnmarshalGQL(v any) error {
@@ -557,9 +566,21 @@ func (e *JobState) UnmarshalGQL(v any) error {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = JobState(str)
+	switch str {
+	case "COMPLETED":
+		*e = JobStateCompleted
+	case "RUNNING":
+		*e = JobStateRunning
+	case "FAILED":
+		*e = JobStateFailed
+	case "UNKNOWN":
+		*e = JobStateUnknown
+	default:
+		return fmt.Errorf("%s is not a valid state", str)
+	}
+
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid JobState", str)
+		return fmt.Errorf("%s is not a valid state", str)
 	}
 	return nil
 }

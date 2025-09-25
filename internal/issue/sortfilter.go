@@ -12,11 +12,11 @@ import (
 
 func init() {
 	application.SortFilter.RegisterConcurrentSort("ISSUES", func(ctx context.Context, a *application.Application) int {
-		return status(ctx, a.GetName(), ResourceTypeApplication, a.GetTeamSlug(), a.GetEnvironmentName())
+		return score(ctx, a.GetName(), ResourceTypeApplication, a.GetTeamSlug(), a.GetEnvironmentName())
 	}, "NAME", "ENVIRONMENT")
 
 	job.SortFilter.RegisterConcurrentSort("ISSUES", func(ctx context.Context, a *job.Job) int {
-		return status(ctx, a.GetName(), ResourceTypeJob, a.GetTeamSlug(), a.GetEnvironmentName())
+		return score(ctx, a.GetName(), ResourceTypeJob, a.GetTeamSlug(), a.GetEnvironmentName())
 	}, "NAME", "ENVIRONMENT")
 
 	workload.SortFilter.RegisterConcurrentSort("ISSUES", func(ctx context.Context, a workload.Workload) int {
@@ -24,11 +24,11 @@ func init() {
 		if a.GetType() == workload.TypeJob {
 			rtype = ResourceTypeJob
 		}
-		return status(ctx, a.GetName(), rtype, a.GetTeamSlug(), a.GetEnvironmentName())
+		return score(ctx, a.GetName(), rtype, a.GetTeamSlug(), a.GetEnvironmentName())
 	}, "NAME", "ENVIRONMENT")
 }
 
-func status(ctx context.Context, name string, rtype ResourceType, team slug.Slug, env string) int {
+func score(ctx context.Context, name string, rtype ResourceType, team slug.Slug, env string) int {
 	issuesScore, err := db(ctx).GetSeverityScoreForWorkload(ctx,
 		issuesql.GetSeverityScoreForWorkloadParams{
 			ResourceName: name,

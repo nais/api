@@ -227,3 +227,22 @@ func GetIngressType(ctx context.Context, ingress *Ingress) IngressType {
 
 	return IngressTypeUnknown
 }
+
+func GetState(ctx context.Context, obj *Application) (ApplicationState, error) {
+	i, err := ListAllInstances(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
+	if err != nil {
+		return 0, fmt.Errorf("listing instances: %w", err)
+	}
+
+	if len(i) == 0 {
+		return ApplicationStateNotRunning, nil
+	}
+
+	for _, instance := range i {
+		if instance.State() == ApplicationInstanceStateRunning {
+			return ApplicationStateRunning, nil
+		}
+	}
+
+	return ApplicationStateNotRunning, nil
+}
