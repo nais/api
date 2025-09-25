@@ -1,8 +1,9 @@
 apiVersion: nais.io/v1
 kind: Naisjob
 metadata:
-    name: job-warning
+  name: job-warning
 spec:
-    image: ghcr.io/navikt/app-name:latest
-    schedule: "0 0 * * *"
+  image: ghcr.io/navikt/app-name:latest
+  schedule: "0 0 * * *"
 ---
+
