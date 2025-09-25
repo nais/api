@@ -71,3 +71,8 @@ integration_test_ui:
 
 tester_spec:
 	mise run -j 1 generate:tester_spec ::: fmt:prettier
+
+lint:
+	mise run check:vulncheck ::: check:staticcheck
+	mise run generate fmt
+
