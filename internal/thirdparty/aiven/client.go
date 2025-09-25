@@ -11,4 +11,5 @@ type AivenClient interface {
 	ServiceGet(context.Context, string, string, ...[2]string) (*service.ServiceGetOut, error)
 	ServiceMaintenanceStart(context.Context, string, string) error
 	ProjectAlertsList(ctx context.Context, project string) ([]project.AlertOut, error)
+	State(ctx context.Context, project string, serviceName string) (string, error)
 }

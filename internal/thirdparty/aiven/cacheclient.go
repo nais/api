@@ -53,6 +53,15 @@ func (c *client) ServiceGet(ctx context.Context, projectName string, serviceName
 	return serviceGetOut, nil
 }
 
+func (c *client) State(ctx context.Context, projectName string, serviceName string) (string, error) {
+	svc, err := c.ServiceGet(ctx, projectName, serviceName)
+	if err != nil {
+		return "", fmt.Errorf("get service state from aiven: %w", err)
+	}
+
+	return string(svc.State), nil
+}
+
 func (c *client) ServiceMaintenanceStart(ctx context.Context, projectName string, serviceName string) error {
 	key := makeKey(projectName, serviceName)
 	c.cache.Delete(key)

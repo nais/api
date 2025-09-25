@@ -51,6 +51,7 @@ type loaders struct {
 	watcher       *watcher.Watcher[*OpenSearch]
 	versionLoader *dataloadgen.Loader[*AivenDataLoaderKey, string]
 	tenantName    string
+	aivenClient   aiven.AivenClient
 }
 
 func newLoaders(tenantName string, watcher *watcher.Watcher[*OpenSearch], aivenClient aiven.AivenClient, logger logrus.FieldLogger) *loaders {
@@ -65,6 +66,7 @@ func newLoaders(tenantName string, watcher *watcher.Watcher[*OpenSearch], aivenC
 		watcher:       watcher,
 		tenantName:    tenantName,
 		versionLoader: dataloadgen.NewLoader(versionLoader.getVersions, loader.DefaultDataLoaderOptions...),
+		aivenClient:   aivenClient,
 	}
 }
 
