@@ -10,7 +10,7 @@ import (
 type checkVulnerabilities struct{}
 
 func (checkVulnerabilities) Run(ctx context.Context, w workload.Workload) ([]WorkloadStatusError, WorkloadState) {
-	summary, _, err := vulnerability.GetImageVulnerabilitySummaryAndWorkloadReferences(ctx, w.GetImageString())
+	summary, err := vulnerability.GetImageVulnerabilitySummary(ctx, w.GetImageString())
 	if err != nil {
 		return nil, WorkloadStateUnknown
 	}
