@@ -72,8 +72,10 @@ type Valkey implements Persistence & Node {
 	): ValkeyAccessConnection!
 	workload: Workload
 	status: ValkeyStatus!
+	"Availability tier for the Valkey instance."
 	tier: ValkeyTier!
-	size: ValkeySize!
+	"Available memory for the Valkey instance."
+	memory: ValkeyMemory!
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 }
 
@@ -139,15 +141,15 @@ enum ValkeyTier {
 	HIGH_AVAILABILITY
 }
 
-enum ValkeySize {
-	RAM_1GB
-	RAM_4GB
-	RAM_8GB
-	RAM_14GB
-	RAM_28GB
-	RAM_56GB
-	RAM_112GB
-	RAM_200GB
+enum ValkeyMemory {
+	GB_1
+	GB_4
+	GB_8
+	GB_14
+	GB_28
+	GB_56
+	GB_112
+	GB_200
 }
 
 enum ValkeyMaxMemoryPolicy {
@@ -185,8 +187,8 @@ input CreateValkeyInput {
 	teamSlug: Slug!
 	"Tier of the Valkey instance."
 	tier: ValkeyTier!
-	"Size of the Valkey instance."
-	size: ValkeySize!
+	"Available memory for the Valkey instance."
+	memory: ValkeyMemory!
 	"Maximum memory policy for the Valkey instance."
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 }
@@ -205,8 +207,8 @@ input UpdateValkeyInput {
 	teamSlug: Slug!
 	"Tier of the Valkey instance."
 	tier: ValkeyTier!
-	"Size of the Valkey instance."
-	size: ValkeySize!
+	"Available memory for the Valkey instance."
+	memory: ValkeyMemory!
 	"Maximum memory policy for the Valkey instance."
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
 }

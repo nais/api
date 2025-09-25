@@ -140,7 +140,7 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		return nil, err
 	}
 
-	machine, err := machineTypeFromTierAndSize(input.Tier, input.Size)
+	machine, err := machineTypeFromTierAndMemory(input.Tier, input.Memory)
 	if err != nil {
 		return nil, err
 	}
@@ -235,7 +235,7 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 
 	changes := []*OpenSearchUpdatedActivityLogEntryDataUpdatedField{}
 
-	machine, err := machineTypeFromTierAndSize(input.Tier, input.Size)
+	machine, err := machineTypeFromTierAndMemory(input.Tier, input.Memory)
 	if err != nil {
 		return nil, err
 	}
@@ -269,16 +269,16 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 			})
 		}
 
-		if input.Size != oldMachine.Size {
+		if input.Memory != oldMachine.Memory {
 			changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
-				Field: "size",
+				Field: "memory",
 				OldValue: func() *string {
 					if found {
-						return ptr.To(oldMachine.Size.String())
+						return ptr.To(oldMachine.Memory.String())
 					}
 					return nil
 				}(),
-				NewValue: ptr.To(input.Size.String()),
+				NewValue: ptr.To(input.Memory.String()),
 			})
 		}
 	}
@@ -328,7 +328,7 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 	if err != nil {
 		return nil, err
 	}
-	// default to minimum storage size for the selected plan, in case the field is not set explicitly
+	// default to minimum storage capacity for the selected plan, in case the field is not set explicitly
 	oldStorageGB := machine.StorageMin
 	if found {
 		oldStorageGB, err = StorageGBFromAivenString(oldAivenDiskSpace)

@@ -33,7 +33,7 @@ type Valkey struct {
 	Status                *ValkeyStatus         `json:"status"`
 	TerminationProtection bool                  `json:"terminationProtection"`
 	Tier                  ValkeyTier            `json:"tier"`
-	Size                  ValkeySize            `json:"size"`
+	Memory                ValkeyMemory          `json:"memory"`
 	MaxMemoryPolicy       ValkeyMaxMemoryPolicy `json:"maxMemoryPolicy,omitempty"`
 	TeamSlug              slug.Slug             `json:"-"`
 	EnvironmentName       string                `json:"-"`
@@ -161,7 +161,7 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 		maxMemoryPolicy = ""
 	}
 
-	tier, size, err := tierAndSizeFromPlan(obj.Spec.Plan)
+	machine, err := machineTypeFromPlan(obj.Spec.Plan)
 	if err != nil {
 		return nil, fmt.Errorf("converting from plan: %w", err)
 	}
@@ -182,8 +182,8 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 		TeamSlug:          slug.Slug(obj.GetNamespace()),
 		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
 		AivenProject:      obj.Spec.Project,
-		Tier:              tier,
-		Size:              size,
+		Tier:              machine.Tier,
+		Memory:            machine.Memory,
 		MaxMemoryPolicy:   maxMemoryPolicy,
 	}, nil
 }
@@ -223,7 +223,7 @@ func (v *ValkeyMetadataInput) ValidationErrors(ctx context.Context) *validate.Va
 type ValkeyInput struct {
 	ValkeyMetadataInput
 	Tier            ValkeyTier             `json:"tier"`
-	Size            ValkeySize             `json:"size"`
+	Memory          ValkeyMemory           `json:"memory"`
 	MaxMemoryPolicy *ValkeyMaxMemoryPolicy `json:"maxMemoryPolicy,omitempty"`
 }
 
@@ -234,8 +234,8 @@ func (v *ValkeyInput) Validate(ctx context.Context) error {
 		verr.Add("tier", "Invalid Valkey tier: %s.", v.Tier)
 	}
 
-	if !v.Size.IsValid() {
-		verr.Add("size", "Invalid Valkey size: %s.", v.Size)
+	if !v.Memory.IsValid() {
+		verr.Add("memory", "Invalid Valkey memory: %s.", v.Memory)
 	}
 	if v.MaxMemoryPolicy != nil && !v.MaxMemoryPolicy.IsValid() {
 		verr.Add("version", "Invalid Valkey max memory policy: %s.", v.MaxMemoryPolicy.String())
@@ -296,16 +296,14 @@ func (e ValkeyMaxMemoryPolicy) String() string {
 }
 
 func (e *ValkeyMaxMemoryPolicy) UnmarshalGQL(v any) error {
-	str,
-		ok := v.(string)
+	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
 	*e = ValkeyMaxMemoryPolicy(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ValkeyMaxMemoryPolicy",
-			str)
+		return fmt.Errorf("%s is not a valid ValkeyMaxMemoryPolicy", str)
 	}
 	return nil
 }
@@ -346,45 +344,45 @@ func (e ValkeyMaxMemoryPolicy) ToAivenString() string {
 	}
 }
 
-type ValkeySize string
+type ValkeyMemory string
 
 const (
-	ValkeySizeRAM1gb   ValkeySize = "RAM_1GB"
-	ValkeySizeRAM4gb   ValkeySize = "RAM_4GB"
-	ValkeySizeRAM8gb   ValkeySize = "RAM_8GB"
-	ValkeySizeRAM14gb  ValkeySize = "RAM_14GB"
-	ValkeySizeRAM28gb  ValkeySize = "RAM_28GB"
-	ValkeySizeRAM56gb  ValkeySize = "RAM_56GB"
-	ValkeySizeRAM112gb ValkeySize = "RAM_112GB"
-	ValkeySizeRAM200gb ValkeySize = "RAM_200GB"
+	ValkeyMemoryGB1   ValkeyMemory = "GB_1"
+	ValkeyMemoryGB4   ValkeyMemory = "GB_4"
+	ValkeyMemoryGB8   ValkeyMemory = "GB_8"
+	ValkeyMemoryGB14  ValkeyMemory = "GB_14"
+	ValkeyMemoryGB28  ValkeyMemory = "GB_28"
+	ValkeyMemoryGB56  ValkeyMemory = "GB_56"
+	ValkeyMemoryGB112 ValkeyMemory = "GB_112"
+	ValkeyMemoryGB200 ValkeyMemory = "GB_200"
 )
 
-func (e ValkeySize) IsValid() bool {
+func (e ValkeyMemory) IsValid() bool {
 	switch e {
-	case ValkeySizeRAM1gb, ValkeySizeRAM4gb, ValkeySizeRAM8gb, ValkeySizeRAM14gb, ValkeySizeRAM28gb, ValkeySizeRAM56gb, ValkeySizeRAM112gb, ValkeySizeRAM200gb:
+	case ValkeyMemoryGB1, ValkeyMemoryGB4, ValkeyMemoryGB8, ValkeyMemoryGB14, ValkeyMemoryGB28, ValkeyMemoryGB56, ValkeyMemoryGB112, ValkeyMemoryGB200:
 		return true
 	}
 	return false
 }
 
-func (e ValkeySize) String() string {
+func (e ValkeyMemory) String() string {
 	return string(e)
 }
 
-func (e *ValkeySize) UnmarshalGQL(v any) error {
+func (e *ValkeyMemory) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = ValkeySize(str)
+	*e = ValkeyMemory(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ValkeySize", str)
+		return fmt.Errorf("%s is not a valid ValkeyMemory", str)
 	}
 	return nil
 }
 
-func (e ValkeySize) MarshalGQL(w io.Writer) {
+func (e ValkeyMemory) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

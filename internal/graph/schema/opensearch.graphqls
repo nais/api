@@ -72,9 +72,11 @@ type OpenSearch implements Persistence & Node {
 	): OpenSearchAccessConnection!
 	"Fetch version for the OpenSearch instance."
 	version: OpenSearchVersion!
+	"Availability tier for the OpenSearch instance."
 	tier: OpenSearchTier!
-	size: OpenSearchSize!
-	"Storage size in GB."
+	"Available memory for the OpenSearch instance."
+	memory: OpenSearchMemory!
+	"Available storage in GB."
 	storageGB: Int!
 }
 
@@ -140,13 +142,13 @@ enum OpenSearchTier {
 	HIGH_AVAILABILITY
 }
 
-enum OpenSearchSize {
-	RAM_2GB
-	RAM_4GB
-	RAM_8GB
-	RAM_16GB
-	RAM_32GB
-	RAM_64GB
+enum OpenSearchMemory {
+	GB_2
+	GB_4
+	GB_8
+	GB_16
+	GB_32
+	GB_64
 }
 
 enum OpenSearchMajorVersion {
@@ -165,11 +167,11 @@ input CreateOpenSearchInput {
 	teamSlug: Slug!
 	"Tier of the OpenSearch instance."
 	tier: OpenSearchTier!
-	"Size of the OpenSearch instance."
-	size: OpenSearchSize!
+	"Available memory for the OpenSearch instance."
+	memory: OpenSearchMemory!
 	"Major version of the OpenSearch instance."
 	version: OpenSearchMajorVersion!
-	"Storage size in GB."
+	"Available storage in GB."
 	storageGB: Int!
 }
 
@@ -187,11 +189,11 @@ input UpdateOpenSearchInput {
 	teamSlug: Slug!
 	"Tier of the OpenSearch instance."
 	tier: OpenSearchTier!
-	"Size of the OpenSearch instance."
-	size: OpenSearchSize!
+	"Available memory for the OpenSearch instance."
+	memory: OpenSearchMemory!
 	"Major version of the OpenSearch instance."
 	version: OpenSearchMajorVersion!
-	"Storage size in GB."
+	"Available storage in GB."
 	storageGB: Int!
 }
 
