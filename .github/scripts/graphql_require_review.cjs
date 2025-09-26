@@ -1,6 +1,6 @@
 module.exports = async ({ github, context }) => {
 	const prNumber = context.payload.pull_request.number;
-	const { data: reviews } = await github.pulls.listReviews({
+	const { data: reviews } = await github.rest.pulls.listReviews({
 		owner: context.repo.owner,
 		repo: context.repo.repo,
 		pull_number: prNumber,
