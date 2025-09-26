@@ -133,12 +133,12 @@ input OpenSearchOrder {
 enum OpenSearchAccessOrderField {
 	ACCESS
 	WORKLOAD
-	STATE
 }
 
 enum OpenSearchOrderField {
 	NAME
 	ENVIRONMENT
+	STATE
 }
 
 extend union SearchNode = OpenSearch
