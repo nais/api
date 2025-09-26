@@ -72,7 +72,6 @@ type Valkey implements Persistence & Node {
 	): ValkeyAccessConnection!
 	workload: Workload
 	state: ValkeyState!
-	status: ValkeyStatus!
 	"Availability tier for the Valkey instance."
 	tier: ValkeyTier!
 	"Available memory for the Valkey instance."
@@ -91,10 +90,6 @@ enum ValkeyState {
 type ValkeyAccess {
 	workload: Workload!
 	access: String!
-}
-
-type ValkeyStatus {
-	state: String!
 }
 
 type ValkeyAccessConnection {

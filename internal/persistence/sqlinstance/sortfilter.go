@@ -30,7 +30,7 @@ func init() {
 		}
 		return strings.Compare(*a.Version, *b.Version)
 	}, "NAME", "ENVIRONMENT")
-	SortFilterSQLInstance.RegisterConcurrentSort("STATUS", func(ctx context.Context, a *SQLInstance) int {
+	SortFilterSQLInstance.RegisterConcurrentSort("STATE", func(ctx context.Context, a *SQLInstance) int {
 		stateOrder := map[string]int{
 			"UNSPECIFIED":    0,
 			"RUNNABLE":       1,
