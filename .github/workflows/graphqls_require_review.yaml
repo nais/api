@@ -27,7 +27,7 @@ jobs:
         if: steps.has_graphql_changes.outputs.graphql_changes == 'false'
         uses: actions/github-script@v8
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const script = require('./.github/scripts/graphql_no_changes.cjs')
             console.log(await script({github, context}))
