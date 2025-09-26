@@ -78,11 +78,4 @@ func (r *teamEnvironmentResolver) Workload(ctx context.Context, obj *team.TeamEn
 
 func (r *Resolver) ContainerImage() gengql.ContainerImageResolver { return &containerImageResolver{r} }
 
-func (r *Resolver) TeamWorkloadsFilter() gengql.TeamWorkloadsFilterResolver {
-	return &teamWorkloadsFilterResolver{r}
-}
-
-type (
-	containerImageResolver      struct{ *Resolver }
-	teamWorkloadsFilterResolver struct{ *Resolver }
-)
+type containerImageResolver struct{ *Resolver }

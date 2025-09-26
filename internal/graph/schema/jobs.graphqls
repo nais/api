@@ -335,9 +335,6 @@ type JobRunInstanceEdge {
 type TeamInventoryCountJobs {
 	"Total number of jobs."
 	total: Int!
-
-	"Number of jobs considered not nais."
-	notNais: Int!
 }
 
 input JobOrder {

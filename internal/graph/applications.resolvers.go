@@ -9,7 +9,6 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/issue"
-	"github.com/nais/api/internal/status"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
@@ -171,19 +170,6 @@ func (r *teamEnvironmentResolver) Application(ctx context.Context, obj *team.Tea
 	return application.Get(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
-func (r *teamInventoryCountApplicationsResolver) NotNais(ctx context.Context, obj *application.TeamInventoryCountApplications) (int, error) {
-	apps := application.ListAllForTeam(ctx, obj.TeamSlug, nil, nil)
-	notNais := 0
-
-	for _, app := range apps {
-		s := status.ForWorkload(ctx, app)
-		if s.State == status.WorkloadStateNotNais {
-			notNais++
-		}
-	}
-	return notNais, nil
-}
-
 func (r *teamInventoryCountsResolver) Applications(ctx context.Context, obj *team.TeamInventoryCounts) (*application.TeamInventoryCountApplications, error) {
 	apps := application.ListAllForTeam(ctx, obj.TeamSlug, nil, nil)
 
@@ -211,16 +197,11 @@ func (r *Resolver) RestartApplicationPayload() gengql.RestartApplicationPayloadR
 	return &restartApplicationPayloadResolver{r}
 }
 
-func (r *Resolver) TeamInventoryCountApplications() gengql.TeamInventoryCountApplicationsResolver {
-	return &teamInventoryCountApplicationsResolver{r}
-}
-
 type (
-	applicationResolver                    struct{ *Resolver }
-	applicationInstanceResolver            struct{ *Resolver }
-	deleteApplicationPayloadResolver       struct{ *Resolver }
-	ingressResolver                        struct{ *Resolver }
-	ingressMetricsResolver                 struct{ *Resolver }
-	restartApplicationPayloadResolver      struct{ *Resolver }
-	teamInventoryCountApplicationsResolver struct{ *Resolver }
+	applicationResolver               struct{ *Resolver }
+	applicationInstanceResolver       struct{ *Resolver }
+	deleteApplicationPayloadResolver  struct{ *Resolver }
+	ingressResolver                   struct{ *Resolver }
+	ingressMetricsResolver            struct{ *Resolver }
+	restartApplicationPayloadResolver struct{ *Resolver }
 )

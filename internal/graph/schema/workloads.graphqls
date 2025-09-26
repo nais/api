@@ -360,11 +360,6 @@ enum WorkloadOrderField {
 	NAME
 
 	"""
-	Order by status.
-	"""
-	STATUS
-
-	"""
 	Order by the name of the environment the workload is deployed in.
 	"""
 	ENVIRONMENT
@@ -403,11 +398,6 @@ enum EnvironmentWorkloadOrderField {
 	Order by team slug.
 	"""
 	TEAM_SLUG
-
-	"""
-	Order by status.
-	"""
-	STATUS
 
 	"""
 	Order by the deployment time.

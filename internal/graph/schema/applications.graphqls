@@ -84,12 +84,6 @@ type TeamInventoryCountApplications {
 	Total number of applications.
 	"""
 	total: Int!
-
-	"""
-	Number of applications considered "not nais". When an application is considered "not nais", it means that the
-	application might not be working as expected, or that it is not following the Nais guidelines.
-	"""
-	notNais: Int!
 }
 
 """
