@@ -2,11 +2,12 @@
 # It checks if the pull request contains changes to GraphQL schema files (.graphqls) and ensures that such changes are reviewed by at least one reviewer from the @nais/tooling team.
 
 name: GraphQL Schema Review Check
+run-name: "GraphQL Schema Review Check"
 on:
   pull_request:
     types: [opened, synchronize, reopened]
   pull_request_review:
-    types: [submitted]
+    types: [submitted, dismissed]
 
 jobs:
   check-graphql-review:
