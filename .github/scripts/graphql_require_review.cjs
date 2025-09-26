@@ -17,6 +17,8 @@ module.exports = async ({ github, context }) => {
 		(review) => review.state === "APPROVED" && toolingMembers.includes(review.user.login),
 	);
 
+	console.log({ reviews });
+
 	if (!approvedByTooling) {
 		// Add label
 		await github.rest.issues.addLabels({
@@ -35,17 +37,19 @@ module.exports = async ({ github, context }) => {
 			context: "GraphQL Review",
 			description: "PR requires approval from @nais/tooling team",
 		});
-	} else {
-		// Add success status to the PR
-		await github.rest.repos.createCommitStatus({
-			owner: context.repo.owner,
-			repo: context.repo.repo,
-			sha: context.payload.pull_request.head.sha,
-			state: "success",
-			context: "GraphQL Review",
-			description: "PR has been approved by @nais/tooling team",
-		});
+
+		return;
 	}
+
+	// Add success status to the PR
+	await github.rest.repos.createCommitStatus({
+		owner: context.repo.owner,
+		repo: context.repo.repo,
+		sha: context.payload.pull_request.head.sha,
+		state: "success",
+		context: "GraphQL Review",
+		description: "PR has been approved by @nais/tooling team",
+	});
 
 	// Remove label if it exists
 	const { data: labels } = await github.rest.issues.listLabelsOnIssue({
