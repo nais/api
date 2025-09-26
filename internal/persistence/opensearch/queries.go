@@ -40,12 +40,12 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Op
 }
 
 func State(ctx context.Context, os *OpenSearch) (OpenSearchState, error) {
-	s, err := fromContext(ctx).aivenClient.State(ctx, os.AivenProject, os.FullyQualifiedName())
+	s, err := fromContext(ctx).aivenClient.ServiceGet(ctx, os.AivenProject, os.FullyQualifiedName())
 	if err != nil {
 		return OpenSearchStateUnknown, err
 	}
 
-	switch s {
+	switch s.State {
 	case "RUNNING":
 		return OpenSearchStateRunning, nil
 	case "REBALANCING":

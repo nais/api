@@ -56,10 +56,6 @@ func stringPtr(s string) *string {
 	return &s
 }
 
-func (f *FakeAivenClient) State(ctx context.Context, projectName string, serviceName string) (string, error) {
-	return "", nil
-}
-
 // ServiceGet returns hardcoded example dataset
 func (f *FakeAivenClient) ServiceGet(_ context.Context, _ string, _ string, _ ...[2]string) (*aiven.ServiceGetOut, error) {
 	description := "This is a description (Nais API call it title)"
@@ -70,6 +66,7 @@ func (f *FakeAivenClient) ServiceGet(_ context.Context, _ string, _ string, _ ..
 	startAfter := startAt.Add(1 * time.Hour).Format(time.RFC3339)
 
 	return &aiven.ServiceGetOut{
+		State: aiven.ServiceStateTypeRunning,
 		Maintenance: &aiven.MaintenanceOut{
 			Updates: []aiven.UpdateOut{
 				{
