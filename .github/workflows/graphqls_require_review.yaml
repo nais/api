@@ -25,22 +25,21 @@ jobs:
             echo "graphql_changes=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Remove label if no GraphQL changes
-        if: steps.has_graphql_changes.outputs.graphql_changes == 'false'
-        uses: actions/github-script@v8
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const script = require('./.github/scripts/graphql_no_changes.cjs')
-            console.log(await script({github, context}))
-
       - uses: navikt/github-app-token-generator@v1
         id: get-token
-        if: steps.has_graphql_changes.outputs.graphql_changes == 'true'
         with:
           private-key: ${{ secrets.NAIS_APP_PRIVATE_KEY }}
           app-id: ${{ secrets.NAIS_APP_ID }}
           repo: nais/api
+
+      - name: No changes to GraphQL files
+        if: steps.has_graphql_changes.outputs.graphql_changes == 'false'
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ steps.get-token.outputs.token }}
+          script: |
+            const script = require('./.github/scripts/graphql_no_changes.cjs')
+            console.log(await script({github, context}))
 
       - name: Ensure GraphQL schema changes are reviewed by @nais/tooling
         if: steps.has_graphql_changes.outputs.graphql_changes == 'true'
