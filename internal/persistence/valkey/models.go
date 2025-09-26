@@ -441,19 +441,19 @@ type DeleteValkeyPayload struct {
 type ValkeyState int
 
 const (
-	ValkeyStatePoweroff ValkeyState = iota
+	ValkeyStateUnknown ValkeyState = iota
+	ValkeyStateRunning
 	ValkeyStateRebalancing
 	ValkeyStateRebuilding
-	ValkeyStateRunning
-	ValkeyStateUnknown
+	ValkeyStatePoweroff
 )
 
 var AllValkeyState = []ValkeyState{
-	ValkeyStatePoweroff,
+	ValkeyStateUnknown,
+	ValkeyStateRunning,
 	ValkeyStateRebalancing,
 	ValkeyStateRebuilding,
-	ValkeyStateRunning,
-	ValkeyStateUnknown,
+	ValkeyStatePoweroff,
 }
 
 func (e ValkeyState) IsValid() bool {
