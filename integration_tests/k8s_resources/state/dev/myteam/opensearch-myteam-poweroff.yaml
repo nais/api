@@ -11,7 +11,7 @@ metadata:
   generation: 2
   labels:
     team: teampam
-  name: opensearch-myteam-running
+  name: opensearch-myteam-poweroff
   namespace: teampam
   resourceVersion: "3990043290"
   uid: 2a8d4d8a-2bf4-4b2f-99fc-814f6a937ecd

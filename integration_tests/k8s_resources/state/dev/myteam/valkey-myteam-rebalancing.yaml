@@ -5,7 +5,7 @@ metadata:
   annotations:
     controllers.aiven.io/generation-was-processed: "1"
     controllers.aiven.io/instance-is-running: "true"
-  name: valkey-myteam-running
+  name: valkey-myteam-rebalancing
 spec:
   cloudName: google-europe-north1
   connInfoSecretTarget:

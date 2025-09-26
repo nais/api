@@ -16,6 +16,96 @@ local function stateQuery(slug, env, name, resourceType)
 	]], slug, env, resourceType, name)
 end
 
+Test.gql("OpenSearches sorted by state", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				openSearches(
+					orderBy: {
+						field: STATE,
+						direction: DESC
+					}
+				) {
+					nodes {
+						name
+						state
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				openSearches = {
+					nodes = {
+						{
+							name = "opensearch-myteam-poweroff",
+							state = "POWEROFF",
+						},
+						{
+							name = "opensearch-myteam-rebalancing",
+							state = "REBALANCING",
+						},
+						{
+							name = "opensearch-myteam-running",
+							state = "RUNNING",
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Valkeys sorted by state", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				valkeys(
+					orderBy: {
+						field: STATE,
+						direction: DESC
+					}
+				) {
+					nodes {
+						name
+						state
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				valkeys = {
+					nodes = {
+						{
+							name = "valkey-myteam-poweroff",
+							state = "POWEROFF",
+						},
+						{
+							name = "valkey-myteam-rebalancing",
+							state = "REBALANCING",
+						},
+						{
+							name = "valkey-myteam-running",
+							state = "RUNNING",
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("Applications sorted by state", function(t)
 	t.addHeader("x-user-email", user:email())
 
