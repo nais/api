@@ -23,6 +23,7 @@ jobs:
 
       - uses: navikt/github-app-token-generator@v1
         id: get-token
+        if: steps.has_graphql_changes.outputs.graphql_changes == 'true'
         with:
           private-key: ${{ secrets.NAIS_APP_PRIVATE_KEY }}
           app-id: ${{ secrets.NAIS_APP_ID }}
