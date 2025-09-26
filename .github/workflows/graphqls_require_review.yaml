@@ -1,0 +1,38 @@
+# This workflow triggers when a pull request is opened, changed, reopened, approved or dismissed.
+# It checks if the pull request contains changes to GraphQL schema files (.graphqls) and ensures that such changes are reviewed by at least one reviewer from the @nais/tooling team.
+
+name: GraphQL Schema Review Check
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  check-graphql-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if GraphQL schema files are changed
+        id: has_graphql_changes
+        run: |
+          if gh pr diff ${{ github.event.pull_request.number }} --name-only | grep -E '\.graphqls$'; then
+            echo "graphql_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "graphql_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - uses: navikt/github-app-token-generator@v1
+        id: get-token
+        with:
+          private-key: ${{ secrets.NAIS_APP_PRIVATE_KEY }}
+          app-id: ${{ secrets.NAIS_APP_ID }}
+          repo: nais/api
+
+      - name: Ensure GraphQL schema changes are reviewed by @nais/tooling
+        if: steps.has_graphql_changes.outputs.graphql_changes == 'true'
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ steps.get-token.outputs.token }}
+          script: |
+            const script = require('./github/scripts/graphql_require_review.js')
+            console.log(await script({github, context}))
