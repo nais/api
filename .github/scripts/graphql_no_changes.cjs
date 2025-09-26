@@ -21,11 +21,19 @@ module.exports = async ({ github, context }) => {
 		description: statusDescription,
 	});
 
-	// Remove label if it exists
-	await github.rest.issues.removeLabel({
+	const { data: labels } = await github.rest.issues.listLabelsOnIssue({
 		owner: context.repo.owner,
 		repo: context.repo.repo,
-		issue_number: context.issue.number,
-		name: "graphql-review-required",
+		issue_number: prNumber,
 	});
+	const hasLabel = labels.some((label) => label.name === "graphql-review-required");
+	// Remove label if it exists
+	if (hasLabel) {
+		await github.rest.issues.removeLabel({
+			owner: context.repo.owner,
+			repo: context.repo.repo,
+			issue_number: context.issue.number,
+			name: "graphql-review-required",
+		});
+	}
 };
