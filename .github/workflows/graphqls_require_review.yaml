@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Check if GraphQL schema files are changed
         id: has_graphql_changes
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           if gh pr diff ${{ github.event.pull_request.number }} --name-only | grep -E '\.graphqls$'; then
             echo "graphql_changes=true" >> $GITHUB_OUTPUT
