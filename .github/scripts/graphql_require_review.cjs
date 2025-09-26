@@ -7,7 +7,7 @@ module.exports = async ({ github, context }) => {
 	});
 
 	// Fetch member logins of the @nais/tooling team
-	const { data: teamMembers } = await github.teams.listMembersInOrg({
+	const { data: teamMembers } = await github.rest.teams.listMembersInOrg({
 		org: context.repo.owner,
 		team_slug: "tooling",
 	});
@@ -19,7 +19,7 @@ module.exports = async ({ github, context }) => {
 
 	if (!approvedByTooling) {
 		// Add label
-		await github.issues.addLabels({
+		await github.rest.issues.addLabels({
 			owner: context.repo.owner,
 			repo: context.repo.repo,
 			issue_number: prNumber,
@@ -31,14 +31,14 @@ module.exports = async ({ github, context }) => {
 	}
 
 	// Remove label if it exists
-	const { data: labels } = await github.issues.listLabelsOnIssue({
+	const { data: labels } = await github.rest.issues.listLabelsOnIssue({
 		owner: context.repo.owner,
 		repo: context.repo.repo,
 		issue_number: prNumber,
 	});
 	const hasLabel = labels.some((label) => label.name === "graphql-review-required");
 	if (hasLabel) {
-		await github.issues.removeLabel({
+		await github.rest.issues.removeLabel({
 			owner: context.repo.owner,
 			repo: context.repo.repo,
 			issue_number: prNumber,
