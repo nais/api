@@ -17,7 +17,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh pr diff ${{ github.event.pull_request.number }} --name-only | grep -E '\.graphqls$'; then
+          if gh pr --repo '${{ github.event.repository.name }}' diff ${{ github.event.pull_request.number }} --name-only | grep -E '\.graphqls$'; then
             echo "graphql_changes=true" >> $GITHUB_OUTPUT
           else
             echo "graphql_changes=false" >> $GITHUB_OUTPUT
