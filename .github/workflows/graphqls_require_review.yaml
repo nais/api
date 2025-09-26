@@ -12,6 +12,8 @@ jobs:
   check-graphql-review:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: Check if GraphQL schema files are changed
         id: has_graphql_changes
         env:
@@ -39,9 +41,6 @@ jobs:
           private-key: ${{ secrets.NAIS_APP_PRIVATE_KEY }}
           app-id: ${{ secrets.NAIS_APP_ID }}
           repo: nais/api
-
-      - uses: actions/checkout@v4
-        if: steps.has_graphql_changes.outputs.graphql_changes == 'true'
 
       - name: Ensure GraphQL schema changes are reviewed by @nais/tooling
         if: steps.has_graphql_changes.outputs.graphql_changes == 'true'
