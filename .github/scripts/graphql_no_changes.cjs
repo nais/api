@@ -21,6 +21,7 @@ module.exports = async ({ github, context }) => {
 		description: statusDescription,
 	});
 
+	const prNumber = context.payload.pull_request.number;
 	const { data: labels } = await github.rest.issues.listLabelsOnIssue({
 		owner: context.repo.owner,
 		repo: context.repo.repo,
@@ -32,7 +33,7 @@ module.exports = async ({ github, context }) => {
 		await github.rest.issues.removeLabel({
 			owner: context.repo.owner,
 			repo: context.repo.repo,
-			issue_number: context.issue.number,
+			issue_number: prNumber,
 			name: "graphql-review-required",
 		});
 	}
