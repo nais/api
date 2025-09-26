@@ -1,5 +1,5 @@
 extend type Team {
-	"The cost for the team."
+	"The cost for the team.."
 	cost: TeamCost!
 }
 
