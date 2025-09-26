@@ -437,3 +437,75 @@ type DeleteValkeyInput struct {
 type DeleteValkeyPayload struct {
 	ValkeyDeleted *bool `json:"valkeyDeleted,omitempty"`
 }
+
+type ValkeyState int
+
+const (
+	ValkeyStateUnknown ValkeyState = iota
+	ValkeyStateRunning
+	ValkeyStateRebalancing
+	ValkeyStateRebuilding
+	ValkeyStatePoweroff
+)
+
+var AllValkeyState = []ValkeyState{
+	ValkeyStateUnknown,
+	ValkeyStateRunning,
+	ValkeyStateRebalancing,
+	ValkeyStateRebuilding,
+	ValkeyStatePoweroff,
+}
+
+func (e ValkeyState) IsValid() bool {
+	switch e {
+	case ValkeyStatePoweroff, ValkeyStateRebalancing, ValkeyStateRebuilding, ValkeyStateRunning, ValkeyStateUnknown:
+		return true
+	}
+	return false
+}
+
+func (e ValkeyState) String() string {
+	switch e {
+	case ValkeyStatePoweroff:
+		return "POWEROFF"
+	case ValkeyStateRebalancing:
+		return "REBALANCING"
+	case ValkeyStateRebuilding:
+		return "REBUILDING"
+	case ValkeyStateRunning:
+		return "RUNNING"
+	default:
+		return "UNKNOWN"
+	}
+}
+
+func (e *ValkeyState) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	switch str {
+	case "POWEROFF":
+		*e = ValkeyStatePoweroff
+	case "REBALANCING":
+		*e = ValkeyStateRebalancing
+	case "REBUILDING":
+		*e = ValkeyStateRebuilding
+	case "RUNNING":
+		*e = ValkeyStateRunning
+	case "UNKNOWN":
+		*e = ValkeyStateUnknown
+	default:
+		return fmt.Errorf("%s is not a valid ValkeyState", str)
+	}
+
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ValkeyState", str)
+	}
+	return nil
+}
+
+func (e ValkeyState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}

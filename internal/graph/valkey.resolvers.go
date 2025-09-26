@@ -86,6 +86,10 @@ func (r *valkeyResolver) Workload(ctx context.Context, obj *valkey.Valkey) (work
 	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
+func (r *valkeyResolver) State(ctx context.Context, obj *valkey.Valkey) (valkey.ValkeyState, error) {
+	return valkey.State(ctx, obj)
+}
+
 func (r *valkeyAccessResolver) Workload(ctx context.Context, obj *valkey.ValkeyAccess) (workload.Workload, error) {
 	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }

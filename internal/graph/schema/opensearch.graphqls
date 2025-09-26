@@ -61,6 +61,7 @@ type OpenSearch implements Persistence & Node {
 	environment: TeamEnvironment! @deprecated(reason: "Use the `teamEnvironment` field instead.")
 	teamEnvironment: TeamEnvironment!
 	terminationProtection: Boolean!
+	state: OpenSearchState!
 	status: OpenSearchStatus!
 	workload: Workload
 	access(
@@ -78,6 +79,14 @@ type OpenSearch implements Persistence & Node {
 	memory: OpenSearchMemory!
 	"Available storage in GB."
 	storageGB: Int!
+}
+
+enum OpenSearchState {
+	POWEROFF
+	REBALANCING
+	REBUILDING
+	RUNNING
+	UNKNOWN
 }
 
 type OpenSearchAccess {
@@ -129,6 +138,7 @@ enum OpenSearchAccessOrderField {
 enum OpenSearchOrderField {
 	NAME
 	ENVIRONMENT
+	STATE
 }
 
 extend union SearchNode = OpenSearch

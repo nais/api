@@ -39,6 +39,26 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Op
 	return fromContext(ctx).client.watcher.Get(environment, teamSlug.String(), name)
 }
 
+func State(ctx context.Context, os *OpenSearch) (OpenSearchState, error) {
+	s, err := fromContext(ctx).aivenClient.ServiceGet(ctx, os.AivenProject, os.FullyQualifiedName())
+	if err != nil {
+		return OpenSearchStateUnknown, err
+	}
+
+	switch s.State {
+	case "RUNNING":
+		return OpenSearchStateRunning, nil
+	case "REBALANCING":
+		return OpenSearchStateRebalancing, nil
+	case "REBUILDING":
+		return OpenSearchStateRebuilding, nil
+	case "POWEROFF":
+		return OpenSearchStatePoweroff, nil
+	default:
+		return OpenSearchStateUnknown, nil
+	}
+}
+
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *OpenSearchOrder) (*OpenSearchConnection, error) {
 	all := ListAllForTeam(ctx, teamSlug)
 	orderOpenSearch(ctx, all, orderBy)

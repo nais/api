@@ -74,5 +74,6 @@ tester_spec:
 
 lint:
 	mise run check:vulncheck ::: check:staticcheck
-	mise run generate fmt
+	mise run generate
+	mise run fmt
 

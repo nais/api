@@ -54,6 +54,10 @@ func (r *openSearchResolver) TeamEnvironment(ctx context.Context, obj *opensearc
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
+func (r *openSearchResolver) State(ctx context.Context, obj *opensearch.OpenSearch) (opensearch.OpenSearchState, error) {
+	return opensearch.State(ctx, obj)
+}
+
 func (r *openSearchResolver) Workload(ctx context.Context, obj *opensearch.OpenSearch) (workload.Workload, error) {
 	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }

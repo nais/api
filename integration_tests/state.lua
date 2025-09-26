@@ -16,6 +16,96 @@ local function stateQuery(slug, env, name, resourceType)
 	]], slug, env, resourceType, name)
 end
 
+Test.gql("OpenSearches sorted by state", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				openSearches(
+					orderBy: {
+						field: STATE,
+						direction: DESC
+					}
+				) {
+					nodes {
+						name
+						state
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				openSearches = {
+					nodes = {
+						{
+							name = "opensearch-myteam-poweroff",
+							state = "POWEROFF",
+						},
+						{
+							name = "opensearch-myteam-rebalancing",
+							state = "REBALANCING",
+						},
+						{
+							name = "opensearch-myteam-running",
+							state = "RUNNING",
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Valkeys sorted by state", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				valkeys(
+					orderBy: {
+						field: STATE,
+						direction: DESC
+					}
+				) {
+					nodes {
+						name
+						state
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				valkeys = {
+					nodes = {
+						{
+							name = "valkey-myteam-poweroff",
+							state = "POWEROFF",
+						},
+						{
+							name = "valkey-myteam-rebalancing",
+							state = "REBALANCING",
+						},
+						{
+							name = "valkey-myteam-running",
+							state = "RUNNING",
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("Applications sorted by state", function(t)
 	t.addHeader("x-user-email", user:email())
 
@@ -221,6 +311,40 @@ Test.gql("job with active runs is running", function(t)
 			team = {
 				environment = {
 					job = {
+						state = "RUNNING",
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("State is reported on OpenSearch", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(stateQuery("myteam", "dev", "opensearch-myteam-running", "openSearch"))
+
+	t.check {
+		data = {
+			team = {
+				environment = {
+					openSearch = {
+						state = "RUNNING",
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("State is reported on Valkey", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(stateQuery("myteam", "dev", "valkey-myteam-running", "valkey"))
+
+	t.check {
+		data = {
+			team = {
+				environment = {
+					valkey = {
 						state = "RUNNING",
 					},
 				},

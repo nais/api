@@ -477,3 +477,75 @@ type OpenSearchVersion struct {
 	Actual       *string                `json:"actual,omitempty"`
 	DesiredMajor OpenSearchMajorVersion `json:"desiredMajor"`
 }
+
+type OpenSearchState int
+
+const (
+	OpenSearchStateUnknown OpenSearchState = iota
+	OpenSearchStateRunning
+	OpenSearchStateRebalancing
+	OpenSearchStateRebuilding
+	OpenSearchStatePoweroff
+)
+
+var AllOpenSearchState = []OpenSearchState{
+	OpenSearchStatePoweroff,
+	OpenSearchStateRebalancing,
+	OpenSearchStateRebuilding,
+	OpenSearchStateRunning,
+	OpenSearchStateUnknown,
+}
+
+func (e OpenSearchState) String() string {
+	switch e {
+	case OpenSearchStatePoweroff:
+		return "POWEROFF"
+	case OpenSearchStateRebalancing:
+		return "REBALANCING"
+	case OpenSearchStateRebuilding:
+		return "REBUILDING"
+	case OpenSearchStateRunning:
+		return "RUNNING"
+	default:
+		return "UNKNOWN"
+	}
+}
+
+func (e OpenSearchState) IsValid() bool {
+	switch e {
+	case OpenSearchStatePoweroff, OpenSearchStateRebalancing, OpenSearchStateRebuilding, OpenSearchStateRunning, OpenSearchStateUnknown:
+		return true
+	}
+	return false
+}
+
+func (e *OpenSearchState) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	switch str {
+	case "POWEROFF":
+		*e = OpenSearchStatePoweroff
+	case "REBALANCING":
+		*e = OpenSearchStateRebalancing
+	case "REBUILDING":
+		*e = OpenSearchStateRebuilding
+	case "RUNNING":
+		*e = OpenSearchStateRunning
+	case "UNKNOWN":
+		*e = OpenSearchStateUnknown
+	default:
+		return fmt.Errorf("%s is not a valid OpenSearchState", str)
+	}
+
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OpenSearchState", str)
+	}
+	return nil
+}
+
+func (e OpenSearchState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}

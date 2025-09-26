@@ -57,7 +57,7 @@ func stringPtr(s string) *string {
 }
 
 // ServiceGet returns hardcoded example dataset
-func (f *FakeAivenClient) ServiceGet(_ context.Context, _ string, _ string, _ ...[2]string) (*aiven.ServiceGetOut, error) {
+func (f *FakeAivenClient) ServiceGet(_ context.Context, _ string, serviceName string, _ ...[2]string) (*aiven.ServiceGetOut, error) {
 	description := "This is a description (Nais API call it title)"
 	link := "https://nais.io"
 	impact := "This is the impact (Nais API call it description)"
@@ -65,7 +65,15 @@ func (f *FakeAivenClient) ServiceGet(_ context.Context, _ string, _ string, _ ..
 	deadline := startAt.Add(24 * time.Hour).Format(time.RFC3339)
 	startAfter := startAt.Add(1 * time.Hour).Format(time.RFC3339)
 
+	state := aiven.ServiceStateTypeRunning
+	if strings.HasSuffix(serviceName, "poweroff") {
+		state = aiven.ServiceStateTypePoweroff
+	} else if strings.HasSuffix(serviceName, "rebalancing") {
+		state = aiven.ServiceStateTypeRebalancing
+	}
+
 	return &aiven.ServiceGetOut{
+		State: state,
 		Maintenance: &aiven.MaintenanceOut{
 			Updates: []aiven.UpdateOut{
 				{

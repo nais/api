@@ -1,0 +1,20 @@
+---
+apiVersion: aiven.io/v1alpha1
+kind: Valkey
+metadata:
+  annotations:
+    controllers.aiven.io/generation-was-processed: "1"
+    controllers.aiven.io/instance-is-running: "true"
+  name: valkey-myteam-rebalancing
+spec:
+  cloudName: google-europe-north1
+  connInfoSecretTarget:
+    name: ""
+  plan: startup-4
+  project: nav-dev
+  projectVpcId: d405e36a-a577-4dce-af0e-6d217fc47a5c
+  tags:
+    environment: dev
+    team: slug-1
+    tenant: nav
+  terminationProtection: true

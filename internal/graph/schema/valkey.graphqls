@@ -71,12 +71,21 @@ type Valkey implements Persistence & Node {
 		orderBy: ValkeyAccessOrder
 	): ValkeyAccessConnection!
 	workload: Workload
+	state: ValkeyState!
 	status: ValkeyStatus!
 	"Availability tier for the Valkey instance."
 	tier: ValkeyTier!
 	"Available memory for the Valkey instance."
 	memory: ValkeyMemory!
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
+}
+
+enum ValkeyState {
+	POWEROFF
+	REBALANCING
+	REBUILDING
+	RUNNING
+	UNKNOWN
 }
 
 type ValkeyAccess {
@@ -128,6 +137,7 @@ enum ValkeyAccessOrderField {
 enum ValkeyOrderField {
 	NAME
 	ENVIRONMENT
+	STATE
 }
 
 extend union SearchNode = Valkey
