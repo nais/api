@@ -43,9 +43,10 @@ type OpenSearch struct {
 	MajorVersion          OpenSearchMajorVersion `json:"-"`
 }
 
-func (OpenSearch) IsPersistence() {}
-func (OpenSearch) IsSearchNode()  {}
-func (OpenSearch) IsNode()        {}
+func (OpenSearch) IsPersistence()    {}
+func (OpenSearch) IsSearchNode()     {}
+func (OpenSearch) IsNode()           {}
+func (OpenSearch) IsActivityLogger() {}
 
 func (r *OpenSearch) GetName() string { return r.Name }
 

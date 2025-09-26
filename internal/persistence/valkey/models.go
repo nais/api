@@ -41,9 +41,10 @@ type Valkey struct {
 	AivenProject          string                `json:"-"`
 }
 
-func (Valkey) IsPersistence() {}
-func (Valkey) IsSearchNode()  {}
-func (Valkey) IsNode()        {}
+func (Valkey) IsPersistence()    {}
+func (Valkey) IsSearchNode()     {}
+func (Valkey) IsNode()           {}
+func (Valkey) IsActivityLogger() {}
 
 func (r *Valkey) GetName() string { return r.Name }
 
