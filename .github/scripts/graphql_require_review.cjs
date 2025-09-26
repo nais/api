@@ -25,9 +25,26 @@ module.exports = async ({ github, context }) => {
 			issue_number: prNumber,
 			labels: ["graphql-review-required"],
 		});
-		throw new Error(
-			"Pull request contains changes to GraphQL schema files but has not been approved by a member of the @nais/tooling team.",
-		);
+
+		// Add failing status to the PR
+		await github.rest.repos.createCommitStatus({
+			owner: context.repo.owner,
+			repo: context.repo.repo,
+			sha: context.payload.pull_request.head.sha,
+			state: "failure",
+			context: "GraphQL Review",
+			description: "PR requires approval from @nais/tooling team",
+		});
+	} else {
+		// Add success status to the PR
+		await github.rest.repos.createCommitStatus({
+			owner: context.repo.owner,
+			repo: context.repo.repo,
+			sha: context.payload.pull_request.head.sha,
+			state: "success",
+			context: "GraphQL Review",
+			description: "PR has been approved by @nais/tooling team",
+		});
 	}
 
 	// Remove label if it exists
