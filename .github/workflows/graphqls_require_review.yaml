@@ -23,6 +23,19 @@ jobs:
             echo "graphql_changes=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Remove label if no GraphQL changes
+        if: steps.has_graphql_changes.outputs.graphql_changes == 'false'
+        uses: actions/github-script@v8
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.issues.removeLabel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              name: 'graphql-review-required'
+            });
+
       - uses: navikt/github-app-token-generator@v1
         id: get-token
         if: steps.has_graphql_changes.outputs.graphql_changes == 'true'
@@ -30,6 +43,9 @@ jobs:
           private-key: ${{ secrets.NAIS_APP_PRIVATE_KEY }}
           app-id: ${{ secrets.NAIS_APP_ID }}
           repo: nais/api
+
+      - uses: actions/checkout@v4
+        if: steps.has_graphql_changes.outputs.graphql_changes == 'true'
 
       - name: Ensure GraphQL schema changes are reviewed by @nais/tooling
         if: steps.has_graphql_changes.outputs.graphql_changes == 'true'
