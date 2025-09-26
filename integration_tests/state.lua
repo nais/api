@@ -228,3 +228,37 @@ Test.gql("job with active runs is running", function(t)
 		},
 	}
 end)
+
+Test.gql("State is reported on OpenSearch", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(stateQuery("myteam", "dev", "opensearch-myteam-running", "openSearch"))
+
+	t.check {
+		data = {
+			team = {
+				environment = {
+					openSearch = {
+						state = "RUNNING",
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("State is reported on Valkey", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(stateQuery("myteam", "dev", "valkey-myteam-running", "valkey"))
+
+	t.check {
+		data = {
+			team = {
+				environment = {
+					valkey = {
+						state = "RUNNING",
+					},
+				},
+			},
+		},
+	}
+end)

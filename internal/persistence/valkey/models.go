@@ -465,7 +465,18 @@ func (e ValkeyState) IsValid() bool {
 }
 
 func (e ValkeyState) String() string {
-	return string(e)
+	switch e {
+	case ValkeyStatePoweroff:
+		return "POWEROFF"
+	case ValkeyStateRebalancing:
+		return "REBALANCING"
+	case ValkeyStateRebuilding:
+		return "REBUILDING"
+	case ValkeyStateRunning:
+		return "RUNNING"
+	default:
+		return "UNKNOWN"
+	}
 }
 
 func (e *ValkeyState) UnmarshalGQL(v any) error {
