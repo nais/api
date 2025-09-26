@@ -285,7 +285,7 @@ func (o StorageGB) String() string {
 }
 
 func (o StorageGB) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(o.String()))
+	fmt.Fprint(w, o)
 }
 
 func (o *StorageGB) UnmarshalGQL(v any) error {
