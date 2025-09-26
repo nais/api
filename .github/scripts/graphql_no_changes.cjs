@@ -11,18 +11,15 @@ module.exports = async ({ github, context }) => {
 		ref: context.payload.pull_request.head.sha,
 	});
 
-	const existingStatus = list.data.find((status) => status.context === statusContext);
-	if (existingStatus && existingStatus.description !== statusDescription) {
-		// Remove any existing GraphQL review statuses and labels
-		await github.rest.repos.createCommitStatus({
-			owner: context.repo.owner,
-			repo: context.repo.repo,
-			sha: context.payload.pull_request.head.sha,
-			state: "success",
-			context: statusContext,
-			description: statusDescription,
-		});
-	}
+	// Remove any existing GraphQL review statuses and labels
+	await github.rest.repos.createCommitStatus({
+		owner: context.repo.owner,
+		repo: context.repo.repo,
+		sha: context.payload.pull_request.head.sha,
+		state: "success",
+		context: statusContext,
+		description: statusDescription,
+	});
 
 	// Remove label if it exists
 	await github.rest.issues.removeLabel({
