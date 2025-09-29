@@ -319,11 +319,11 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 
 		oldVersion = *version.Actual
 	}
-	if oldVersion != input.Version.ToAivenString() {
-		oldMajorVersion, err := OpenSearchMajorVersionFromAivenString(oldVersion)
-		if err != nil {
-			return nil, err
-		}
+	oldMajorVersion, err := OpenSearchMajorVersionFromAivenString(oldVersion)
+	if err != nil {
+		return nil, err
+	}
+	if oldMajorVersion != input.Version {
 		if input.Version.IsDowngradeTo(oldMajorVersion) {
 			return nil, apierror.Errorf("Cannot downgrade OpenSearch version from %v to %v", oldMajorVersion, input.Version.String())
 		}
