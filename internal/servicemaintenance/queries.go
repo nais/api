@@ -2,6 +2,7 @@ package servicemaintenance
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	aiven_service "github.com/aiven/go-client-codegen/handler/service"
@@ -72,7 +73,7 @@ func GetAivenMaintenanceWindow(ctx context.Context, key AivenDataLoaderKey) (*Ma
 
 	parsedTimeAsString := parsedTime.Format(time.TimeOnly)
 	return &MaintenanceWindow{
-		DayOfWeek: model.Weekday(windowFromAiven.Dow),
+		DayOfWeek: model.Weekday(strings.ToUpper(string(windowFromAiven.Dow))),
 		TimeOfDay: parsedTimeAsString,
 	}, nil
 }

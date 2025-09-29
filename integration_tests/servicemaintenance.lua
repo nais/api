@@ -39,7 +39,7 @@ Test.gql("Show maintenance window and updates for Valkey", function(t)
 							name = "valkey-slug-1-contests",
 							maintenance = {
 								window = {
-									dayOfWeek = "sunday",
+									dayOfWeek = "SUNDAY",
 									timeOfDay = "12:34:56",
 								},
 								updates = {
@@ -104,7 +104,7 @@ Test.gql("Show maintenance window and updates for OpenSearch", function(t)
 							name = "opensearch-slug-1-opensearch",
 							maintenance = {
 								window = {
-									dayOfWeek = "sunday",
+									dayOfWeek = "SUNDAY",
 									timeOfDay = "12:34:56",
 								},
 								updates = {
