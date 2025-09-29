@@ -113,7 +113,8 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 		return nil, err
 	}
 
-	client, err := fromContext(ctx).watcher.ImpersonatedClient(ctx, input.EnvironmentName)
+	namespace := input.TeamSlug.String()
+	client, err := fromContext(ctx).watcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, namespace)
 	if err != nil {
 		return nil, err
 	}
@@ -123,13 +124,10 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 		return nil, err
 	}
 
-	name := instanceNamer(input.TeamSlug, input.Name)
-	namespace := input.TeamSlug.String()
-
 	res := &unstructured.Unstructured{}
 	res.SetAPIVersion("aiven.io/v1alpha1")
 	res.SetKind("Valkey")
-	res.SetName(name)
+	res.SetName(instanceNamer(input.TeamSlug, input.Name))
 	res.SetNamespace(namespace)
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
 	kubernetes.SetManagedByConsoleLabel(res)
@@ -160,7 +158,7 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 		}
 	}
 
-	ret, err := client.Namespace(namespace).Create(ctx, res, metav1.CreateOptions{})
+	ret, err := client.Create(ctx, res, metav1.CreateOptions{})
 	if err != nil {
 		if k8serrors.IsAlreadyExists(err) {
 			return nil, apierror.ErrAlreadyExists
@@ -200,15 +198,12 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 		return nil, err
 	}
 
-	client, err := fromContext(ctx).watcher.ImpersonatedClient(ctx, input.EnvironmentName)
+	client, err := fromContext(ctx).watcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, input.TeamSlug.String())
 	if err != nil {
 		return nil, err
 	}
 
-	name := instanceNamer(input.TeamSlug, input.Name)
-	namespace := input.TeamSlug.String()
-
-	valkey, err := client.Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
+	valkey, err := client.Get(ctx, instanceNamer(input.TeamSlug, input.Name), metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -216,72 +211,19 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 		return nil, apierror.Errorf("Valkey %s/%s is not managed by Console", input.TeamSlug, input.Name)
 	}
 
-	changes := []*ValkeyUpdatedActivityLogEntryDataUpdatedField{}
+	changes := make([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, 0)
 
-	machine, err := machineTypeFromTierAndMemory(input.Tier, input.Memory)
+	res, err := updatePlan(valkey, input)
 	if err != nil {
 		return nil, err
 	}
+	changes = append(changes, res...)
 
-	oldPlan, found, err := unstructured.NestedString(valkey.Object, "spec", "plan")
-	if err != nil || !found {
-		// .spec.plan is a required field
+	res, err = updateMaxMemoryPolicy(valkey, input)
+	if err != nil {
 		return nil, err
 	}
-
-	if oldPlan != machine.AivenPlan {
-		oldMachine, err := machineTypeFromPlan(oldPlan)
-		if err != nil {
-			return nil, err
-		}
-
-		if input.Tier != oldMachine.Tier {
-			changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
-				Field:    "tier",
-				OldValue: ptr.To(oldMachine.Tier.String()),
-				NewValue: ptr.To(input.Tier.String()),
-			})
-		}
-		if input.Memory != oldMachine.Memory {
-			changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
-				Field:    "memory",
-				OldValue: ptr.To(oldMachine.Memory.String()),
-				NewValue: ptr.To(input.Memory.String()),
-			})
-		}
-
-		err = unstructured.SetNestedField(valkey.Object, machine.AivenPlan, "spec", "plan")
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if input.MaxMemoryPolicy != nil {
-		oldMMP, found, err := unstructured.NestedString(valkey.Object, "spec", "userConfig", "valkey_maxmemory_policy")
-		if err != nil {
-			return nil, err
-		}
-
-		if !found || oldMMP != input.MaxMemoryPolicy.String() {
-			changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
-				Field: "maxMemoryPolicy",
-				OldValue: func() *string {
-					if found {
-						policy, _ := ValkeyMaxMemoryPolicyFromAivenString(oldMMP)
-						return ptr.To(policy.String())
-					}
-					return nil
-				}(),
-				NewValue: ptr.To(input.MaxMemoryPolicy.String()),
-			})
-
-			maxMemoryPolicy := input.MaxMemoryPolicy.ToAivenString()
-			err := unstructured.SetNestedField(valkey.Object, maxMemoryPolicy, "spec", "userConfig", "valkey_maxmemory_policy")
-			if err != nil {
-				return nil, err
-			}
-		}
-	}
+	changes = append(changes, res...)
 
 	if len(changes) == 0 {
 		vk, err := toValkey(valkey, input.EnvironmentName)
@@ -296,7 +238,7 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 
 	valkey.SetAnnotations(kubernetes.WithCommonAnnotations(valkey.GetAnnotations(), authz.ActorFromContext(ctx).User.Identity()))
 
-	ret, err := client.Namespace(namespace).Update(ctx, valkey, metav1.UpdateOptions{})
+	ret, err := client.Update(ctx, valkey, metav1.UpdateOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -336,19 +278,107 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 	}, nil
 }
 
+func updatePlan(valkey *unstructured.Unstructured, input UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error) {
+	changes := make([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, 0)
+
+	desired, err := machineTypeFromTierAndMemory(input.Tier, input.Memory)
+	if err != nil {
+		return nil, err
+	}
+
+	oldPlan, found, err := unstructured.NestedString(valkey.Object, "spec", "plan")
+	if err != nil {
+		return nil, err
+	}
+	if !found {
+		// .spec.plan is a required field
+		return nil, fmt.Errorf("missing .spec.plan in Valkey resource")
+	}
+
+	if oldPlan == desired.AivenPlan {
+		return changes, nil
+	}
+
+	oldMachine, err := machineTypeFromPlan(oldPlan)
+	if err != nil {
+		return nil, err
+	}
+
+	if input.Tier != oldMachine.Tier {
+		changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
+			Field:    "tier",
+			OldValue: ptr.To(oldMachine.Tier.String()),
+			NewValue: ptr.To(input.Tier.String()),
+		})
+	}
+
+	if input.Memory != oldMachine.Memory {
+		changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
+			Field:    "memory",
+			OldValue: ptr.To(oldMachine.Memory.String()),
+			NewValue: ptr.To(input.Memory.String()),
+		})
+	}
+
+	if err := unstructured.SetNestedField(valkey.Object, desired.AivenPlan, "spec", "plan"); err != nil {
+		return nil, err
+	}
+
+	return changes, nil
+}
+
+func updateMaxMemoryPolicy(valkey *unstructured.Unstructured, input UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error) {
+	changes := make([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, 0)
+
+	if input.MaxMemoryPolicy == nil {
+		return changes, nil
+	}
+
+	oldAivenPolicy, found, err := unstructured.NestedString(valkey.Object, "spec", "userConfig", "valkey_maxmemory_policy")
+	if err != nil {
+		return nil, err
+	}
+
+	if found && oldAivenPolicy == input.MaxMemoryPolicy.ToAivenString() {
+		return changes, nil
+	}
+	// continue if not found so that we explicitly set the policy on the resource
+
+	var oldValue *string
+	if found {
+		oldPolicy, err := ValkeyMaxMemoryPolicyFromAivenString(oldAivenPolicy)
+		if err != nil {
+			return nil, err
+		}
+		oldValue = ptr.To(oldPolicy.String())
+	}
+
+	changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
+		Field:    "maxMemoryPolicy",
+		OldValue: oldValue,
+		NewValue: ptr.To(input.MaxMemoryPolicy.String()),
+	})
+
+	maxMemoryPolicy := input.MaxMemoryPolicy.ToAivenString()
+	if err := unstructured.SetNestedField(valkey.Object, maxMemoryPolicy, "spec", "userConfig", "valkey_maxmemory_policy"); err != nil {
+		return nil, err
+	}
+
+	return changes, nil
+}
+
 func Delete(ctx context.Context, input DeleteValkeyInput) (*DeleteValkeyPayload, error) {
 	if err := input.Validate(ctx); err != nil {
 		return nil, err
 	}
 
 	name := instanceNamer(input.TeamSlug, input.Name)
-	client, err := fromContext(ctx).watcher.ImpersonatedClient(ctx, input.EnvironmentName)
+	client, err := fromContext(ctx).watcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, input.TeamSlug.String())
 	if err != nil {
 		return nil, err
 	}
-	nsclient := client.Namespace(input.TeamSlug.String())
 
-	valkey, err := nsclient.Get(ctx, name, metav1.GetOptions{})
+	valkey, err := client.Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -366,7 +396,7 @@ func Delete(ctx context.Context, input DeleteValkeyInput) (*DeleteValkeyPayload,
 			return nil, err
 		}
 
-		_, err = nsclient.Update(ctx, valkey, metav1.UpdateOptions{})
+		_, err = client.Update(ctx, valkey, metav1.UpdateOptions{})
 		if err != nil {
 			return nil, fmt.Errorf("removing deletion protection: %w", err)
 		}
