@@ -300,6 +300,15 @@ func (w *Watcher[T]) ImpersonatedClient(ctx context.Context, cluster string, opt
 	return nil, fmt.Errorf("no watcher for cluster %s", cluster)
 }
 
+func (w *Watcher[T]) ImpersonatedClientWithNamespace(ctx context.Context, cluster, namespace string, opts ...ImpersonatedClientOption) (dynamic.ResourceInterface, error) {
+	c, err := w.ImpersonatedClient(ctx, cluster, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.Namespace(namespace), nil
+}
+
 func (w *Watcher[T]) SystemAuthenticatedClient(ctx context.Context, cluster string) (dynamic.NamespaceableResourceInterface, error) {
 	for _, watcher := range w.watchers {
 		if watcher.cluster == cluster {
