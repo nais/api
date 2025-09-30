@@ -9,7 +9,6 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/issue"
-	"github.com/nais/api/internal/status"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/job"
@@ -147,19 +146,6 @@ func (r *teamEnvironmentResolver) Job(ctx context.Context, obj *team.TeamEnviron
 	return job.Get(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
-func (r *teamInventoryCountJobsResolver) NotNais(ctx context.Context, obj *job.TeamInventoryCountJobs) (int, error) {
-	jobs := job.ListAllForTeam(ctx, obj.TeamSlug, nil, nil)
-	notNais := 0
-
-	for _, j := range jobs {
-		s := status.ForWorkload(ctx, j)
-		if s.State == status.WorkloadStateNotNais {
-			notNais++
-		}
-	}
-	return notNais, nil
-}
-
 func (r *teamInventoryCountsResolver) Jobs(ctx context.Context, obj *team.TeamInventoryCounts) (*job.TeamInventoryCountJobs, error) {
 	jobs := job.ListAllForTeam(ctx, obj.TeamSlug, nil, nil)
 
@@ -181,18 +167,13 @@ func (r *Resolver) Job() gengql.JobResolver { return &jobResolver{r} }
 
 func (r *Resolver) JobRun() gengql.JobRunResolver { return &jobRunResolver{r} }
 
-func (r *Resolver) TeamInventoryCountJobs() gengql.TeamInventoryCountJobsResolver {
-	return &teamInventoryCountJobsResolver{r}
-}
-
 func (r *Resolver) TriggerJobPayload() gengql.TriggerJobPayloadResolver {
 	return &triggerJobPayloadResolver{r}
 }
 
 type (
-	deleteJobPayloadResolver       struct{ *Resolver }
-	jobResolver                    struct{ *Resolver }
-	jobRunResolver                 struct{ *Resolver }
-	teamInventoryCountJobsResolver struct{ *Resolver }
-	triggerJobPayloadResolver      struct{ *Resolver }
+	deleteJobPayloadResolver  struct{ *Resolver }
+	jobResolver               struct{ *Resolver }
+	jobRunResolver            struct{ *Resolver }
+	triggerJobPayloadResolver struct{ *Resolver }
 )

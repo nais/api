@@ -62,7 +62,6 @@ type OpenSearch implements Persistence & Node {
 	teamEnvironment: TeamEnvironment!
 	terminationProtection: Boolean!
 	state: OpenSearchState!
-	status: OpenSearchStatus!
 	workload: Workload
 	access(
 		first: Int
@@ -92,10 +91,6 @@ enum OpenSearchState {
 type OpenSearchAccess {
 	workload: Workload!
 	access: String!
-}
-
-type OpenSearchStatus {
-	state: String!
 }
 
 type OpenSearchAccessConnection {
