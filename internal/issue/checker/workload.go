@@ -2,26 +2,24 @@ package checker
 
 import (
 	"context"
-	"fmt"
-	"strings"
-	"time"
 
 	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/kubernetes/watcher"
-	"github.com/nais/api/internal/workload/job"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
-	libevents "github.com/nais/liberator/pkg/events"
-	"github.com/nais/v13s/pkg/api/vulnerabilities"
 	"github.com/sirupsen/logrus"
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
-
-	"k8s.io/apimachinery/pkg/selection"
 )
+
+type NaisWorkload interface {
+	GetEffectiveImage() string
+	GetImage() string
+	GetName() string
+	GetNamespace() string
+	GetStatus() *nais_io_v1.Status
+}
 
 type Workload struct {
 	AppWatcher watcher.Watcher[*nais_io_v1alpha1.Application]
@@ -31,10 +29,6 @@ type Workload struct {
 	V13sClient V13sClient
 
 	log logrus.FieldLogger
-}
-
-type V13sClient interface {
-	ListVulnerabilitySummaries(ctx context.Context, opts ...vulnerabilities.Option) (*vulnerabilities.ListVulnerabilitySummariesResponse, error)
 }
 
 func (w Workload) Run(ctx context.Context) ([]Issue, error) {
@@ -70,244 +64,6 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 	return ret, nil
 }
 
-func (w Workload) specErrors(wl NaisWorkload, env string, resourceType issue.ResourceType) *Issue {
-	if wl == nil || wl.GetStatus() == nil || wl.GetStatus().Conditions == nil {
-		return nil
-	}
-
-	condition, ok := w.condition(*wl.GetStatus().Conditions)
-	if !ok {
-		return nil
-	}
-
-	switch condition.Reason {
-	case libevents.FailedGenerate:
-		return &Issue{
-			IssueType:    issue.IssueTypeInvalidSpec,
-			ResourceName: wl.GetName(),
-			ResourceType: resourceType,
-			Team:         wl.GetNamespace(),
-			Env:          env,
-			Severity:     issue.SeverityCritical,
-			Message:      condition.Message,
-		}
-
-	case libevents.FailedSynchronization:
-		return &Issue{
-			IssueType:    issue.IssueTypeFailedSynchronization,
-			ResourceName: wl.GetName(),
-			ResourceType: resourceType,
-			Team:         wl.GetNamespace(),
-			Env:          env,
-			Severity:     issue.SeverityWarning,
-			Message:      condition.Message,
-		}
-	}
-
-	return nil
-}
-
-func (w Workload) condition(conditions []metav1.Condition) (metav1.Condition, bool) {
-	for _, condition := range conditions {
-		if condition.Type == "SynchronizationState" {
-			return condition, true
-		}
-	}
-	return metav1.Condition{}, false
-}
-
-func (w Workload) failedJobRuns(name, team, env string) *Issue {
-	lastRun, err := w.lastRun(name, team, env)
-	if err != nil {
-		w.log.WithError(err).Error("fetch last job run")
-		return nil
-	}
-
-	if lastRun == nil {
-		return nil
-	}
-
-	if lastRun.Status().State == job.JobRunStateRunning {
-		return nil
-	}
-
-	if lastRun.Failed {
-		return &Issue{
-			IssueType:    issue.IssueTypeFailedJobRuns,
-			ResourceName: name,
-			ResourceType: issue.ResourceTypeJob,
-			Team:         team,
-			Env:          env,
-			Severity:     issue.SeverityWarning,
-			Message:      fmt.Sprintf("Job has failing runs. Last run '%s' failed with message: %s", lastRun.Name, lastRun.Message),
-		}
-	}
-
-	return nil
-}
-
-func (w Workload) lastRun(jobName, team, env string) (*job.JobRun, error) {
-	nameReq, err := labels.NewRequirement("app", selection.Equals, []string{jobName})
-	if err != nil {
-		return nil, fmt.Errorf("create label requirement: %w", err)
-	}
-
-	selector := labels.NewSelector().Add(*nameReq)
-	runs := w.RunWatcher.GetByNamespace(team, watcher.InCluster(env), watcher.WithLabels(selector))
-
-	var latestTime time.Time
-	var latest *job.JobRun
-
-	for _, run := range runs {
-		j := job.ToGraphJobRun(run.Obj, env)
-		if j.StartTime != nil && j.StartTime.After(latestTime) {
-			latestTime = *j.StartTime
-			latest = j
-		}
-	}
-	return latest, nil
-}
-
-func (w Workload) noRunningInstances(app *nais_io_v1alpha1.Application, team, env string) *Issue {
-	nameReq, err := labels.NewRequirement("app", selection.Equals, []string{app.Name})
-	if err != nil {
-		w.log.WithError(err).Error("create label requirement")
-		return nil
-	}
-
-	pods := w.PodWatcher.GetByNamespace(
-		team,
-		watcher.WithLabels(labels.NewSelector().Add(*nameReq)),
-		watcher.InCluster(env),
-	)
-
-	failing := failingPods(watcher.Objects(pods), app.Name)
-
-	hasReplicas := app.Spec.Replicas == nil || (app.Spec.Replicas.Min != nil && *app.Spec.Replicas.Min > 0 &&
-		app.Spec.Replicas.Max != nil && *app.Spec.Replicas.Max > 0)
-
-	hasNoRunning := (len(pods) == 0 || len(failing) == len(pods)) && hasReplicas
-
-	if hasNoRunning {
-		return &Issue{
-			IssueType:    issue.IssueTypeNoRunningInstances,
-			ResourceName: app.Name,
-			ResourceType: issue.ResourceTypeApplication,
-			Team:         team,
-			Env:          env,
-			Severity:     issue.SeverityCritical,
-			Message:      "Application has no running instances",
-		}
-	}
-
-	return nil
-}
-
-func failingPods(pods []*v1.Pod, appName string) []*v1.Pod {
-	var ret []*v1.Pod
-	for _, pod := range pods {
-		for _, cs := range pod.Status.ContainerStatuses {
-			if cs.Name == appName && cs.State.Running == nil {
-				ret = append(ret, pod)
-				break
-			}
-		}
-	}
-	return ret
-}
-
-func deprecatedRegistry(image, name, team, env string, resourceType issue.ResourceType) *Issue {
-	allowedRegistries := []string{
-		"europe-north1-docker.pkg.dev",
-		"repo.adeo.no:5443",
-		"oliver006/redis_exporter",
-		"bitnami/redis",
-		"docker.io/oliver006/redis_exporter",
-		"docker.io/redis",
-		"docker.io/bitnami/redis",
-		"redis",
-	}
-
-	for _, registry := range allowedRegistries {
-		if strings.HasPrefix(image, registry) {
-			return nil
-		}
-	}
-
-	return &Issue{
-		IssueType:    issue.IssueTypeDeprecatedRegistry,
-		ResourceName: name,
-		ResourceType: resourceType,
-		Team:         team,
-		Env:          env,
-		Severity:     issue.SeverityWarning,
-		Message:      fmt.Sprintf("Image '%s' is using a deprecated registry", image),
-	}
-}
-
-func deprecatedIngress(app *nais_io_v1alpha1.Application, env string) *Issue {
-	deprecatedIngressList := map[string][]string{
-		"dev-fss": {
-			"adeo.no",
-			"intern.dev.adeo.no",
-			"dev-fss.nais.io",
-			"dev.adeo.no",
-			"dev.intern.nav.no",
-			"nais.preprod.local",
-		},
-		"dev-gcp": {
-			"dev-gcp.nais.io",
-			"dev.intern.nav.no",
-			"dev.nav.no",
-			"intern.nav.no",
-			"dev.adeo.no",
-			"labs.nais.io",
-			"ekstern.dev.nais.io",
-		},
-		"prod-fss": {
-			"adeo.no",
-			"nais.adeo.no",
-			"prod-fss.nais.io",
-		},
-		"prod-gcp": {
-			"dev.intern.nav.no",
-			"prod-gcp.nais.io",
-		},
-	}
-
-	deprecated := func(ingresses []nais_io_v1.Ingress, env string) []string {
-		ret := make([]string, 0)
-		for _, ingress := range ingresses {
-			i := strings.Join(strings.Split(string(ingress), ".")[1:], ".")
-			for _, deprecatedIngress := range deprecatedIngressList[env] {
-				if strings.HasPrefix(i, deprecatedIngress) {
-					ret = append(ret, string(ingress))
-				}
-			}
-		}
-		return ret
-	}
-
-	di := deprecated(app.Spec.Ingresses, env)
-
-	if len(di) == 0 {
-		return nil
-	}
-
-	return &Issue{
-		IssueType:    issue.IssueTypeDeprecatedIngress,
-		ResourceName: app.Name,
-		ResourceType: issue.ResourceTypeApplication,
-		Team:         app.GetNamespace(),
-		Env:          env,
-		Severity:     issue.SeverityTodo,
-		Message:      fmt.Sprintf("Application is using deprecated ingresses: %v", di),
-		IssueDetails: issue.DeprecatedIngressIssueDetails{
-			Ingresses: di,
-		},
-	}
-}
-
 // appendIssues appends issues to a slice, handling nil slices.
 func appendIssues(slice []Issue, issues ...*Issue) []Issue {
 	for _, issue := range issues {
@@ -318,105 +74,6 @@ func appendIssues(slice []Issue, issues ...*Issue) []Issue {
 	return slice
 }
 
-func (w Workload) vulnerabilities(ctx context.Context) []*Issue {
-	mapType := func(s string) (issue.ResourceType, bool) {
-		if s == "job" {
-			return issue.ResourceTypeJob, true
-		}
-
-		if s == "app" {
-			return issue.ResourceTypeApplication, true
-		}
-
-		return "", false
-	}
-
-	resp, err := w.V13sClient.ListVulnerabilitySummaries(ctx, vulnerabilities.Limit(69000)) // unlimited
-	if err != nil {
-		w.log.WithError(err).Error("fetch image vulnerability summaries")
-		return nil
-	}
-
-	var ret []*Issue
-
-	for _, node := range resp.GetNodes() {
-		workloadType, ok := mapType(node.Workload.GetType())
-		if !ok {
-			continue
-		}
-
-		if !w.exists(node, workloadType) {
-			continue
-		}
-
-		if node.VulnerabilitySummary.Critical > 0 || node.VulnerabilitySummary.RiskScore > 100 {
-			ret = append(ret, &Issue{
-				IssueType:    issue.IssueTypeVulnerableImage,
-				ResourceType: workloadType,
-				ResourceName: node.Workload.GetName(),
-				Team:         node.Workload.GetNamespace(),
-				Env:          environmentmapper.EnvironmentName(node.Workload.GetCluster()),
-				Severity:     issue.SeverityWarning,
-				Message: fmt.Sprintf(
-					"Image '%s' has %d critical vulnerabilities and a risk score of %d",
-					node.Workload.ImageName,
-					node.VulnerabilitySummary.Critical,
-					node.VulnerabilitySummary.RiskScore,
-				),
-				IssueDetails: issue.VulnerableImageIssueDetails{
-					Critical:  int(node.VulnerabilitySummary.Critical),
-					RiskScore: int(node.VulnerabilitySummary.RiskScore),
-				},
-			})
-		}
-
-		if !node.VulnerabilitySummary.HasSbom {
-			ret = append(ret, &Issue{
-				IssueType:    issue.IssueTypeMissingSBOM,
-				ResourceType: workloadType,
-				ResourceName: node.Workload.GetName(),
-				Team:         node.Workload.GetNamespace(),
-				Env:          environmentmapper.EnvironmentName(node.Workload.GetCluster()),
-				Severity:     issue.SeverityWarning,
-				Message: fmt.Sprintf(
-					"Image '%s:%s' is missing a Software Bill of Materials (SBOM)",
-					node.Workload.ImageName,
-					node.Workload.ImageTag,
-				),
-			})
-		}
-	}
-
-	return ret
-}
-
-func (w Workload) exists(node *vulnerabilities.WorkloadSummary, workloadType issue.ResourceType) bool {
-	env := environmentmapper.EnvironmentName(node.Workload.GetCluster())
-
-	if workloadType == issue.ResourceTypeJob {
-		job, err := w.JobWatcher.Get(env, node.Workload.GetNamespace(), node.Workload.GetName())
-		if err != nil || job == nil {
-			return false
-		}
-	}
-
-	if workloadType == issue.ResourceTypeApplication {
-		app, err := w.AppWatcher.Get(env, node.Workload.GetNamespace(), node.Workload.GetName())
-		if err != nil || app == nil {
-			return false
-		}
-	}
-	return true
-}
-
-type NaisWorkload interface {
-	GetEffectiveImage() string
-	GetImage() string
-	GetName() string
-	GetNamespace() string
-	GetStatus() *nais_io_v1.Status
-}
-
 func image(workload NaisWorkload) (string, bool) {
 	if workload.GetImage() != "" {
 		return workload.GetImage(), true
@@ -425,87 +82,4 @@ func image(workload NaisWorkload) (string, bool) {
 		return workload.GetEffectiveImage(), true
 	}
 	return "", false
-}
-
-type fakeV13sClient struct{}
-
-func (f fakeV13sClient) ListVulnerabilitySummaries(ctx context.Context, opts ...vulnerabilities.Option) (*vulnerabilities.ListVulnerabilitySummariesResponse, error) {
-	return &vulnerabilities.ListVulnerabilitySummariesResponse{
-		Nodes: []*vulnerabilities.WorkloadSummary{
-			{
-				Id: "1",
-				Workload: &vulnerabilities.Workload{
-					Name:      "vulnerable",
-					Namespace: "devteam",
-					Cluster:   "dev-gcp",
-					Type:      "app",
-					ImageName: "vulnerable-image",
-					ImageTag:  "tag1",
-				},
-				VulnerabilitySummary: &vulnerabilities.Summary{
-					HasSbom:   true,
-					Critical:  5,
-					RiskScore: 250,
-				},
-			},
-			{
-				Id: "2",
-				Workload: &vulnerabilities.Workload{
-					Name:      "missing-sbom",
-					Namespace: "devteam",
-					Cluster:   "dev-gcp",
-					Type:      "app",
-					ImageName: "missing-sbom-image",
-					ImageTag:  "tag1",
-				},
-				VulnerabilitySummary: &vulnerabilities.Summary{
-					HasSbom: false,
-				},
-			},
-			{
-				Id: "3",
-				Workload: &vulnerabilities.Workload{
-					Name:      "vulnerable",
-					Namespace: "myteam",
-					Cluster:   "dev-gcp",
-					Type:      "app",
-					ImageName: "vulnerable-image",
-					ImageTag:  "tag1",
-				},
-				VulnerabilitySummary: &vulnerabilities.Summary{
-					HasSbom:   true,
-					Critical:  5,
-					RiskScore: 250,
-				},
-			},
-			{
-				Id: "4",
-				Workload: &vulnerabilities.Workload{
-					Name:      "missing-sbom",
-					Namespace: "myteam",
-					Cluster:   "dev-gcp",
-					Type:      "app",
-					ImageName: "missing-sbom-image",
-					ImageTag:  "tag1",
-				},
-				VulnerabilitySummary: &vulnerabilities.Summary{
-					HasSbom: false,
-				},
-			},
-			{
-				Id: "5",
-				Workload: &vulnerabilities.Workload{
-					Name:      "missing-app",
-					Namespace: "myteam",
-					Cluster:   "dev-gcp",
-					Type:      "app",
-					ImageName: "some-image",
-					ImageTag:  "tag1",
-				},
-				VulnerabilitySummary: &vulnerabilities.Summary{
-					HasSbom: false,
-				},
-			},
-		},
-	}, nil
 }
