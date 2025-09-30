@@ -155,7 +155,8 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		return nil, err
 	}
 
-	client, err := fromContext(ctx).watcher.ImpersonatedClient(ctx, input.EnvironmentName)
+	namespace := input.TeamSlug.String()
+	client, err := fromContext(ctx).watcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, namespace)
 	if err != nil {
 		return nil, err
 	}
@@ -165,13 +166,10 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		return nil, err
 	}
 
-	name := instanceNamer(input.TeamSlug, input.Name)
-	namespace := input.TeamSlug.String()
-
 	res := &unstructured.Unstructured{}
 	res.SetAPIVersion("aiven.io/v1alpha1")
 	res.SetKind("OpenSearch")
-	res.SetName(name)
+	res.SetName(instanceNamer(input.TeamSlug, input.Name))
 	res.SetNamespace(namespace)
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
 	kubernetes.SetManagedByConsoleLabel(res)
@@ -197,7 +195,7 @@ func Create(ctx context.Context, input CreateOpenSearchInput) (*CreateOpenSearch
 		},
 	}
 
-	ret, err := client.Namespace(namespace).Create(ctx, res, metav1.CreateOptions{})
+	ret, err := client.Create(ctx, res, metav1.CreateOptions{})
 	if err != nil {
 		if k8serrors.IsAlreadyExists(err) {
 			return nil, apierror.ErrAlreadyExists
@@ -237,15 +235,12 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 		return nil, err
 	}
 
-	client, err := fromContext(ctx).watcher.ImpersonatedClient(ctx, input.EnvironmentName)
+	client, err := fromContext(ctx).watcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, input.TeamSlug.String())
 	if err != nil {
 		return nil, err
 	}
 
-	name := instanceNamer(input.TeamSlug, input.Name)
-	namespace := input.TeamSlug.String()
-
-	openSearch, err := client.Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
+	openSearch, err := client.Get(ctx, instanceNamer(input.TeamSlug, input.Name), metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -253,125 +248,25 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 		return nil, apierror.Errorf("OpenSearch %s/%s is not managed by Console", input.TeamSlug, input.Name)
 	}
 
-	changes := []*OpenSearchUpdatedActivityLogEntryDataUpdatedField{}
+	changes := make([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, 0)
 
-	machine, err := machineTypeFromTierAndMemory(input.Tier, input.Memory)
+	res, err := updatePlan(openSearch, input)
 	if err != nil {
 		return nil, err
 	}
+	changes = append(changes, res...)
 
-	oldPlan, found, err := unstructured.NestedString(openSearch.Object, "spec", "plan")
-	if err != nil || !found {
-		return nil, err
-	}
-
-	if oldPlan != machine.AivenPlan {
-		err = unstructured.SetNestedField(openSearch.Object, machine.AivenPlan, "spec", "plan")
-		if err != nil {
-			return nil, err
-		}
-
-		oldMachine, err := machineTypeFromPlan(oldPlan)
-		if err != nil {
-			return nil, err
-		}
-
-		if input.Tier != oldMachine.Tier {
-			changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
-				Field: "tier",
-				OldValue: func() *string {
-					if found {
-						return ptr.To(oldMachine.Tier.String())
-					}
-					return nil
-				}(),
-				NewValue: ptr.To(input.Tier.String()),
-			})
-		}
-
-		if input.Memory != oldMachine.Memory {
-			changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
-				Field: "memory",
-				OldValue: func() *string {
-					if found {
-						return ptr.To(oldMachine.Memory.String())
-					}
-					return nil
-				}(),
-				NewValue: ptr.To(input.Memory.String()),
-			})
-		}
-	}
-
-	oldVersion, found, err := unstructured.NestedString(openSearch.Object, "spec", "userConfig", "opensearch_version")
+	res, err = updateVersion(ctx, openSearch, input)
 	if err != nil {
 		return nil, err
 	}
-	if !found {
-		os, err := toOpenSearch(openSearch, input.EnvironmentName)
-		if err != nil {
-			return nil, err
-		}
-		version, err := GetOpenSearchVersion(ctx, os)
-		if err != nil {
-			return nil, err
-		}
+	changes = append(changes, res...)
 
-		oldVersion = *version.Actual
-	}
-	oldMajorVersion, err := OpenSearchMajorVersionFromAivenString(oldVersion)
+	res, err = updateStorage(openSearch, input)
 	if err != nil {
 		return nil, err
 	}
-	if oldMajorVersion != input.Version {
-		if input.Version.IsDowngradeTo(oldMajorVersion) {
-			return nil, apierror.Errorf("Cannot downgrade OpenSearch version from %v to %v", oldMajorVersion, input.Version.String())
-		}
-
-		changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
-			Field: "version",
-			OldValue: func() *string {
-				if found {
-					return ptr.To(oldVersion)
-				}
-				return nil
-			}(),
-			NewValue: ptr.To(input.Version.String()),
-		})
-		err = unstructured.SetNestedField(openSearch.Object, input.Version.ToAivenString(), "spec", "userConfig", "opensearch_version")
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	oldAivenDiskSpace, found, err := unstructured.NestedString(openSearch.Object, "spec", "disk_space")
-	if err != nil {
-		return nil, err
-	}
-	// default to minimum storage capacity for the selected plan, in case the field is not set explicitly
-	oldStorageGB := machine.StorageMin
-	if found {
-		oldStorageGB, err = StorageGBFromAivenString(oldAivenDiskSpace)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if oldStorageGB != input.StorageGB {
-		changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
-			Field: "storageGB",
-			OldValue: func() *string {
-				if found {
-					return ptr.To(oldStorageGB.String())
-				}
-				return nil
-			}(),
-			NewValue: ptr.To(input.StorageGB.String()),
-		})
-		err = unstructured.SetNestedField(openSearch.Object, input.StorageGB.ToAivenString(), "spec", "disk_space")
-		if err != nil {
-			return nil, err
-		}
-	}
+	changes = append(changes, res...)
 
 	if len(changes) == 0 {
 		// No changes to update
@@ -387,7 +282,7 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 
 	openSearch.SetAnnotations(kubernetes.WithCommonAnnotations(openSearch.GetAnnotations(), authz.ActorFromContext(ctx).User.Identity()))
 
-	ret, err := client.Namespace(namespace).Update(ctx, openSearch, metav1.UpdateOptions{})
+	ret, err := client.Update(ctx, openSearch, metav1.UpdateOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -427,19 +322,158 @@ func Update(ctx context.Context, input UpdateOpenSearchInput) (*UpdateOpenSearch
 	}, nil
 }
 
+func updatePlan(openSearch *unstructured.Unstructured, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
+	changes := make([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, 0)
+
+	desired, err := machineTypeFromTierAndMemory(input.Tier, input.Memory)
+	if err != nil {
+		return nil, err
+	}
+
+	oldPlan, found, err := unstructured.NestedString(openSearch.Object, "spec", "plan")
+	if err != nil {
+		return nil, err
+	}
+	if !found {
+		// .spec.plan is a required field
+		return nil, fmt.Errorf("missing .spec.plan in OpenSearch resource")
+	}
+
+	if oldPlan == desired.AivenPlan {
+		return changes, nil
+	}
+
+	oldMachine, err := machineTypeFromPlan(oldPlan)
+	if err != nil {
+		return nil, err
+	}
+
+	if input.Tier != oldMachine.Tier {
+		changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
+			Field:    "tier",
+			OldValue: ptr.To(oldMachine.Tier.String()),
+			NewValue: ptr.To(input.Tier.String()),
+		})
+	}
+
+	if input.Memory != oldMachine.Memory {
+		changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
+			Field:    "memory",
+			OldValue: ptr.To(oldMachine.Memory.String()),
+			NewValue: ptr.To(input.Memory.String()),
+		})
+	}
+
+	if err := unstructured.SetNestedField(openSearch.Object, desired.AivenPlan, "spec", "plan"); err != nil {
+		return nil, err
+	}
+	return changes, nil
+}
+
+func updateVersion(ctx context.Context, openSearch *unstructured.Unstructured, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
+	changes := make([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, 0)
+
+	oldVersion, found, err := unstructured.NestedString(openSearch.Object, "spec", "userConfig", "opensearch_version")
+	if err != nil {
+		return nil, err
+	}
+	if !found {
+		os, err := toOpenSearch(openSearch, input.EnvironmentName)
+		if err != nil {
+			return nil, err
+		}
+		version, err := GetOpenSearchVersion(ctx, os)
+		if err != nil {
+			return nil, err
+		}
+
+		oldVersion = *version.Actual
+	}
+
+	oldMajorVersion, err := OpenSearchMajorVersionFromAivenString(oldVersion)
+	if err != nil {
+		return nil, err
+	}
+
+	if oldMajorVersion == input.Version {
+		return changes, nil
+	}
+
+	if input.Version.IsDowngradeTo(oldMajorVersion) {
+		return nil, apierror.Errorf("Cannot downgrade OpenSearch version from %v to %v", oldMajorVersion, input.Version.String())
+	}
+
+	changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
+		Field: "version",
+		OldValue: func() *string {
+			if found {
+				return ptr.To(oldVersion)
+			}
+			return nil
+		}(),
+		NewValue: ptr.To(input.Version.String()),
+	})
+
+	if err := unstructured.SetNestedField(openSearch.Object, input.Version.ToAivenString(), "spec", "userConfig", "opensearch_version"); err != nil {
+		return nil, err
+	}
+	return changes, nil
+}
+
+func updateStorage(openSearch *unstructured.Unstructured, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
+	changes := make([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, 0)
+
+	desired, err := machineTypeFromTierAndMemory(input.Tier, input.Memory)
+	if err != nil {
+		return nil, err
+	}
+
+	oldAivenDiskSpace, found, err := unstructured.NestedString(openSearch.Object, "spec", "disk_space")
+	if err != nil {
+		return nil, err
+	}
+	// default to minimum storage capacity for the selected plan, in case the field is not set explicitly
+	oldStorageGB := desired.StorageMin
+	if found {
+		oldStorageGB, err = StorageGBFromAivenString(oldAivenDiskSpace)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if oldStorageGB == input.StorageGB {
+		return changes, nil
+	}
+
+	changes = append(changes, &OpenSearchUpdatedActivityLogEntryDataUpdatedField{
+		Field: "storageGB",
+		OldValue: func() *string {
+			if found {
+				return ptr.To(oldStorageGB.String())
+			}
+			return nil
+		}(),
+		NewValue: ptr.To(input.StorageGB.String()),
+	})
+
+	if err := unstructured.SetNestedField(openSearch.Object, input.StorageGB.ToAivenString(), "spec", "disk_space"); err != nil {
+		return nil, err
+	}
+	return changes, nil
+}
+
 func Delete(ctx context.Context, input DeleteOpenSearchInput) (*DeleteOpenSearchPayload, error) {
 	if err := input.Validate(ctx); err != nil {
 		return nil, err
 	}
 
 	name := instanceNamer(input.TeamSlug, input.Name)
-	client, err := fromContext(ctx).watcher.ImpersonatedClient(ctx, input.EnvironmentName)
+	client, err := fromContext(ctx).watcher.ImpersonatedClientWithNamespace(ctx, input.EnvironmentName, input.TeamSlug.String())
 	if err != nil {
 		return nil, err
 	}
-	nsclient := client.Namespace(input.TeamSlug.String())
 
-	os, err := nsclient.Get(ctx, name, metav1.GetOptions{})
+	os, err := client.Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -457,7 +491,7 @@ func Delete(ctx context.Context, input DeleteOpenSearchInput) (*DeleteOpenSearch
 			return nil, err
 		}
 
-		if _, err = nsclient.Update(ctx, os, metav1.UpdateOptions{}); err != nil {
+		if _, err = client.Update(ctx, os, metav1.UpdateOptions{}); err != nil {
 			return nil, fmt.Errorf("removing deletion protection: %w", err)
 		}
 	}
