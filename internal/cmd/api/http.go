@@ -28,6 +28,7 @@ import (
 	apik8s "github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/kubernetes/watchers"
+	"github.com/nais/api/internal/log"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/kafkatopic"
@@ -89,7 +90,7 @@ func runHttpServer(
 	allowedClusters []string,
 	defaultLogDestinations []logging.SupportedLogDestination,
 	notifier *notify.Notifier,
-	log logrus.FieldLogger,
+	logger logrus.FieldLogger,
 ) error {
 	router := chi.NewRouter()
 	router.Method("GET", "/",
@@ -114,7 +115,7 @@ func runHttpServer(
 		allowedClusters,
 		defaultLogDestinations,
 		notifier,
-		log,
+		logger,
 	)
 	if err != nil {
 		return err
@@ -175,21 +176,21 @@ func runHttpServer(
 		<-ctx.Done()
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		log.Infof("HTTP server shutting down...")
+		logger.Infof("HTTP server shutting down...")
 		if err := srv.Shutdown(ctx); err != nil && !errors.Is(err, context.Canceled) {
-			log.WithError(err).Infof("HTTP server shutdown failed")
+			logger.WithError(err).Infof("HTTP server shutdown failed")
 			return err
 		}
 		return nil
 	})
 
 	wg.Go(func() error {
-		log.Infof("HTTP server accepting requests on %q", listenAddress)
+		logger.Infof("HTTP server accepting requests on %q", listenAddress)
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.WithError(err).Infof("unexpected error from HTTP server")
+			logger.WithError(err).Infof("unexpected error from HTTP server")
 			return err
 		}
-		log.Infof("HTTP server finished, terminating...")
+		logger.Infof("HTTP server finished, terminating...")
 		return nil
 	})
 	return wg.Wait()
@@ -213,9 +214,9 @@ func ConfigureGraph(
 	allowedClusters []string,
 	defaultLogDestinations []logging.SupportedLogDestination,
 	notifier *notify.Notifier,
-	log logrus.FieldLogger,
+	logger logrus.FieldLogger,
 ) (func(http.Handler) http.Handler, error) {
-	searcher, err := search.New(ctx, pool, log.WithField("subsystem", "search_bleve"))
+	searcher, err := search.New(ctx, pool, logger.WithField("subsystem", "search_bleve"))
 	if err != nil {
 		return nil, fmt.Errorf("init bleve: %w", err)
 	}
@@ -229,14 +230,14 @@ func ConfigureGraph(
 	opensearch.AddSearch(searcher, watchers.OpenSearchWatcher)
 	sqlinstance.AddSearch(searcher, watchers.SqlInstanceWatcher)
 	valkey.AddSearch(searcher, watchers.ValkeyWatcher)
-	team.AddSearch(searcher, pool, notifier, log.WithField("subsystem", "team_search"))
+	team.AddSearch(searcher, pool, notifier, logger.WithField("subsystem", "team_search"))
 
 	// Re-index all to initialize the search index
 	if err := searcher.ReIndex(ctx); err != nil {
 		return nil, fmt.Errorf("reindex all: %w", err)
 	}
 
-	sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(fakes.WithFakeCloudSQL), sqlinstance.WithInstanceWatcher(watchers.SqlInstanceWatcher))
+	sqlAdminService, err := sqlinstance.NewClient(ctx, logger, sqlinstance.WithFakeClients(fakes.WithFakeCloudSQL), sqlinstance.WithInstanceWatcher(watchers.SqlInstanceWatcher))
 	if err != nil {
 		return nil, fmt.Errorf("create SQL Admin service: %w", err)
 	}
@@ -244,9 +245,9 @@ func ConfigureGraph(
 	var priceRetriever price.Retriever
 	if fakes.WithFakePriceClient {
 		priceRetriever = fakeprice.NewClient()
-		log.Warn("Using fake price retriever")
+		logger.Warn("Using fake price retriever")
 	} else {
-		priceRetriever, err = price.NewClient(ctx, log)
+		priceRetriever, err = price.NewClient(ctx, logger)
 		if err != nil {
 			return nil, fmt.Errorf("create price service: %w", err)
 		}
@@ -257,7 +258,7 @@ func ConfigureGraph(
 		prometheusClient = promfake.NewFakeClient(clusters, nil, nil)
 	} else {
 		var err error
-		prometheusClient, err = promclient.New(clusters, tenantName, log)
+		prometheusClient, err = promclient.New(clusters, tenantName, logger)
 		if err != nil {
 			return nil, fmt.Errorf("create utilization client: %w", err)
 		}
@@ -273,7 +274,7 @@ func ConfigureGraph(
 		if err != nil {
 			return nil, fmt.Errorf("create k8s client sets: %w", err)
 		}
-		podLogStreamer = podlog.NewLogStreamer(clients, log)
+		podLogStreamer = podlog.NewLogStreamer(clients, logger)
 		secretClientCreator = secret.CreatorFromConfig(ctx, k8sClients)
 	}
 
@@ -290,37 +291,38 @@ func ConfigureGraph(
 
 	setupContext := func(ctx context.Context) context.Context {
 		ctx = podlog.NewLoaderContext(ctx, podLogStreamer)
-		ctx = application.NewLoaderContext(ctx, watchers.AppWatcher, watchers.IngressWatcher, prometheusClient, log)
+		ctx = application.NewLoaderContext(ctx, watchers.AppWatcher, watchers.IngressWatcher, prometheusClient, logger)
 		ctx = bigquery.NewLoaderContext(ctx, watchers.BqWatcher)
 		ctx = bucket.NewLoaderContext(ctx, watchers.BucketWatcher)
 		ctx = job.NewLoaderContext(ctx, watchers.JobWatcher, watchers.RunWatcher)
 		ctx = kafkatopic.NewLoaderContext(ctx, watchers.KafkaTopicWatcher)
 		ctx = workload.NewLoaderContext(ctx, watchers.PodWatcher)
-		ctx = secret.NewLoaderContext(ctx, secretClientCreator, clusters, log)
+		ctx = secret.NewLoaderContext(ctx, secretClientCreator, clusters, logger)
 		ctx = aiven.NewLoaderContext(ctx, aivenProjects)
-		ctx = opensearch.NewLoaderContext(ctx, tenantName, watchers.OpenSearchWatcher, aivenClient, log)
+		ctx = opensearch.NewLoaderContext(ctx, tenantName, watchers.OpenSearchWatcher, aivenClient, logger)
 		ctx = valkey.NewLoaderContext(ctx, tenantName, watchers.ValkeyWatcher, aivenClient)
-		ctx = price.NewLoaderContext(ctx, priceRetriever, log)
-		ctx = utilization.NewLoaderContext(ctx, prometheusClient, log)
-		ctx = alerts.NewLoaderContext(ctx, prometheusClient, log)
+		ctx = price.NewLoaderContext(ctx, priceRetriever, logger)
+		ctx = utilization.NewLoaderContext(ctx, prometheusClient, logger)
+		ctx = alerts.NewLoaderContext(ctx, prometheusClient, logger)
 		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, watchers.SqlDatabaseWatcher, watchers.SqlInstanceWatcher)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = issue.NewContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, watchers.NamespaceWatcher)
+		ctx = log.NewLoaderContext(ctx)
 		ctx = user.NewLoaderContext(ctx, pool)
 		ctx = usersync.NewLoaderContext(ctx, pool)
 		ctx = cost.NewLoaderContext(ctx, pool, costOpts...)
 		ctx = repository.NewLoaderContext(ctx, pool)
 		ctx = authz.NewLoaderContext(ctx, pool)
 		ctx = activitylog.NewLoaderContext(ctx, pool)
-		ctx = vulnerability.NewLoaderContext(ctx, vulnMgr, log)
-		ctx = servicemaintenance.NewLoaderContext(ctx, serviceMaintenanceManager, log)
+		ctx = vulnerability.NewLoaderContext(ctx, vulnMgr, logger)
+		ctx = servicemaintenance.NewLoaderContext(ctx, serviceMaintenanceManager, logger)
 		ctx = reconciler.NewLoaderContext(ctx, pool)
 		ctx = deployment.NewLoaderContext(ctx, pool, hookdClient)
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)
 		ctx = session.NewLoaderContext(ctx, pool)
 		ctx = search.NewLoaderContext(ctx, pool, searcher)
-		ctx = unleash.NewLoaderContext(ctx, tenantName, watchers.UnleashWatcher, bifrostAPIURL, allowedClusters, log)
+		ctx = unleash.NewLoaderContext(ctx, tenantName, watchers.UnleashWatcher, bifrostAPIURL, allowedClusters, logger)
 		ctx = logging.NewPackageContext(ctx, tenantName, defaultLogDestinations)
 		ctx = environment.NewLoaderContext(ctx, pool)
 		ctx = feature.NewLoaderContext(
