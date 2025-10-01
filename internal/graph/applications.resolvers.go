@@ -87,10 +87,10 @@ func (r *applicationResolver) Issues(ctx context.Context, obj *application.Appli
 	f := &issue.IssueFilter{
 		ResourceName: &obj.Name,
 		ResourceType: &t,
+		Environments: []string{obj.EnvironmentName},
 	}
 	if filter != nil {
 		f.Severity = filter.Severity
-		f.Environments = filter.Environments
 		f.IssueType = filter.IssueType
 	}
 

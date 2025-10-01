@@ -82,10 +82,10 @@ func (r *jobResolver) Issues(ctx context.Context, obj *job.Job, first *int, afte
 	f := &issue.IssueFilter{
 		ResourceName: &obj.Name,
 		ResourceType: &jobType,
+		Environments: []string{obj.EnvironmentName},
 	}
 	if filter != nil {
 		f.Severity = filter.Severity
-		f.Environments = filter.Environments
 		f.IssueType = filter.IssueType
 	}
 
