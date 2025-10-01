@@ -17,6 +17,7 @@ var machineTypes = []machineType{
 	{AivenPlan: "startup-56", Tier: ValkeyTierSingleNode, Memory: ValkeyMemoryGB56},
 	{AivenPlan: "startup-112", Tier: ValkeyTierSingleNode, Memory: ValkeyMemoryGB112},
 	{AivenPlan: "startup-200", Tier: ValkeyTierSingleNode, Memory: ValkeyMemoryGB200},
+	{AivenPlan: "business-1", Tier: ValkeyTierHighAvailability, Memory: ValkeyMemoryGB1},
 	{AivenPlan: "business-4", Tier: ValkeyTierHighAvailability, Memory: ValkeyMemoryGB4},
 	{AivenPlan: "business-8", Tier: ValkeyTierHighAvailability, Memory: ValkeyMemoryGB8},
 	{AivenPlan: "business-14", Tier: ValkeyTierHighAvailability, Memory: ValkeyMemoryGB14},
