@@ -91,7 +91,7 @@ func (r *valkeyResolver) State(ctx context.Context, obj *valkey.Valkey) (valkey.
 	return valkey.State(ctx, obj)
 }
 
-func (r *valkeyResolver) Issues(ctx context.Context, obj *valkey.Valkey, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.IssueFilter) (*pagination.Connection[issue.Issue], error) {
+func (r *valkeyResolver) Issues(ctx context.Context, obj *valkey.Valkey, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*pagination.Connection[issue.Issue], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err

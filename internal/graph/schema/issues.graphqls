@@ -46,6 +46,14 @@ input IssueFilter {
 	issueType: IssueType
 }
 
+input ResourceIssueFilter {
+	"Filter by severity."
+	severity: Severity
+
+	"Filter by issue type."
+	issueType: IssueType
+}
+
 enum IssueOrderField {
 	"Order by resource name."
 	RESOURCE_NAME

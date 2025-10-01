@@ -240,19 +240,6 @@ func (e IssueType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-type IssueFilter struct {
-	// Filter by resource name.
-	ResourceName *string `json:"resourceName,omitempty"`
-	// Filter by resource type.
-	ResourceType *ResourceType `json:"resourceType,omitempty"`
-	// Filter by environment.
-	Environments []string `json:"environments,omitempty"`
-	// Filter by severity.
-	Severity *Severity `json:"severity,omitempty"`
-	// Filter by issue type.
-	IssueType *IssueType `json:"issueType,omitempty"`
-}
-
 type (
 	IssueConnection = pagination.Connection[Issue]
 	IssueEdge       = pagination.Edge[Issue]
@@ -381,3 +368,21 @@ type VulnerableImageIssue struct {
 func (VulnerableImageIssue) IsIssue() {}
 
 func (VulnerableImageIssue) IsNode() {}
+
+type ResourceIssueFilter struct {
+	// Filter by severity.
+	Severity *Severity `json:"severity,omitempty"`
+	// Filter by issue type.
+	IssueType *IssueType `json:"issueType,omitempty"`
+}
+
+type IssueFilter struct {
+	// Filter by resource name.
+	ResourceName *string `json:"resourceName,omitempty"`
+	// Filter by resource type.
+	ResourceType *ResourceType `json:"resourceType,omitempty"`
+	// Filter by environment.
+	Environments []string `json:"environments,omitempty"`
+
+	ResourceIssueFilter
+}

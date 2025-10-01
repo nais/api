@@ -76,7 +76,7 @@ func (r *openSearchResolver) Version(ctx context.Context, obj *opensearch.OpenSe
 	return opensearch.GetOpenSearchVersion(ctx, obj)
 }
 
-func (r *openSearchResolver) Issues(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.IssueFilter) (*pagination.Connection[issue.Issue], error) {
+func (r *openSearchResolver) Issues(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*pagination.Connection[issue.Issue], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err

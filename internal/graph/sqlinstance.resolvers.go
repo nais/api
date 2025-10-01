@@ -101,7 +101,7 @@ func (r *sqlInstanceResolver) State(ctx context.Context, obj *sqlinstance.SQLIns
 	return sqlinstance.GetState(ctx, obj.ProjectID, obj.Name)
 }
 
-func (r *sqlInstanceResolver) Issues(ctx context.Context, obj *sqlinstance.SQLInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.IssueFilter) (*pagination.Connection[issue.Issue], error) {
+func (r *sqlInstanceResolver) Issues(ctx context.Context, obj *sqlinstance.SQLInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*pagination.Connection[issue.Issue], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err

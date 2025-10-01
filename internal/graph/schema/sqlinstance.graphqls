@@ -145,7 +145,7 @@ type SqlInstance implements Persistence & Node {
 		orderBy: IssueOrder
 
 		"Filtering options for items returned from the connection."
-		filter: IssueFilter
+		filter: ResourceIssueFilter
 	): IssueConnection!
 }
 
