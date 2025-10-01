@@ -29,6 +29,7 @@ import (
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/kubernetes/event/pubsublog"
+	"github.com/nais/api/internal/log"
 	"github.com/nais/api/internal/persistence"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/bucket"
@@ -985,6 +986,14 @@ type ComplexityRoot struct {
 		ID func(childComplexity int) int
 	}
 
+	LogLine struct {
+		Application func(childComplexity int) int
+		Environment func(childComplexity int) int
+		Message     func(childComplexity int) int
+		Team        func(childComplexity int) int
+		Time        func(childComplexity int) int
+	}
+
 	MaintenanceWindow struct {
 		DayOfWeek func(childComplexity int) int
 		TimeOfDay func(childComplexity int) int
@@ -1923,6 +1932,7 @@ type ComplexityRoot struct {
 	}
 
 	Subscription struct {
+		Log         func(childComplexity int, filter log.LogSubscriptionFilter) int
 		WorkloadLog func(childComplexity int, filter podlog.WorkloadLogSubscriptionFilter) int
 	}
 
@@ -3075,6 +3085,7 @@ type SqlInstanceVersionIssueResolver interface {
 	SQLInstance(ctx context.Context, obj *issue.SqlInstanceVersionIssue) (*sqlinstance.SQLInstance, error)
 }
 type SubscriptionResolver interface {
+	Log(ctx context.Context, filter log.LogSubscriptionFilter) (<-chan *log.LogLine, error)
 	WorkloadLog(ctx context.Context, filter podlog.WorkloadLogSubscriptionFilter) (<-chan *podlog.WorkloadLogLine, error)
 }
 type TeamResolver interface {
@@ -6227,6 +6238,41 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.LogDestinationSecureLogs.ID(childComplexity), true
+
+	case "LogLine.application":
+		if e.complexity.LogLine.Application == nil {
+			break
+		}
+
+		return e.complexity.LogLine.Application(childComplexity), true
+
+	case "LogLine.environment":
+		if e.complexity.LogLine.Environment == nil {
+			break
+		}
+
+		return e.complexity.LogLine.Environment(childComplexity), true
+
+	case "LogLine.message":
+		if e.complexity.LogLine.Message == nil {
+			break
+		}
+
+		return e.complexity.LogLine.Message(childComplexity), true
+
+	case "LogLine.team":
+		if e.complexity.LogLine.Team == nil {
+			break
+		}
+
+		return e.complexity.LogLine.Team(childComplexity), true
+
+	case "LogLine.time":
+		if e.complexity.LogLine.Time == nil {
+			break
+		}
+
+		return e.complexity.LogLine.Time(childComplexity), true
 
 	case "MaintenanceWindow.dayOfWeek":
 		if e.complexity.MaintenanceWindow.DayOfWeek == nil {
@@ -10163,6 +10209,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.StartValkeyMaintenancePayload.Error(childComplexity), true
 
+	case "Subscription.log":
+		if e.complexity.Subscription.Log == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_log_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Subscription.Log(childComplexity, args["filter"].(log.LogSubscriptionFilter)), true
+
 	case "Subscription.workloadLog":
 		if e.complexity.Subscription.WorkloadLog == nil {
 			break
@@ -13425,6 +13483,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputKafkaTopicAclFilter,
 		ec.unmarshalInputKafkaTopicAclOrder,
 		ec.unmarshalInputKafkaTopicOrder,
+		ec.unmarshalInputLogSubscriptionFilter,
 		ec.unmarshalInputOpenSearchAccessOrder,
 		ec.unmarshalInputOpenSearchOrder,
 		ec.unmarshalInputReconcilerConfigInput,
@@ -16912,6 +16971,24 @@ extend enum SearchType {
 	KAFKA_TOPIC
 }
 `, BuiltIn: false},
+	{Name: "../schema/log.graphqls", Input: `extend type Subscription {
+	log(filter: LogSubscriptionFilter!): LogLine!
+}
+
+input LogSubscriptionFilter {
+	team: Slug!
+	environment: String
+	application: String
+}
+
+type LogLine {
+	time: Time!
+	message: String!
+	team: Slug!
+	environment: String!
+	application: String
+}
+`, BuiltIn: false},
 	{Name: "../schema/logging.graphqls", Input: `extend interface Workload {
 	"List of log destinations for the workload."
 	logDestinations: [LogDestination!]!
@@ -17377,7 +17454,7 @@ type OpenSearchDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	teamEnvironment: TeamEnvironment!
 }
 `, BuiltIn: false},
-	{Name: "../schema/podlog.graphqls", Input: `type Subscription {
+	{Name: "../schema/podlog.graphqls", Input: `extend type Subscription {
 	"""
 	Subscribe to workload logs
 
@@ -17951,6 +18028,11 @@ type Query {
 The mutation root for the Nais GraphQL API.
 """
 type Mutation
+
+"""
+The subscription root for the Nais GraphQL API.
+"""
+type Subscription
 
 """
 This interface is implemented by types that supports the [Global Object Identification specification](https://graphql.org/learn/global-object-identification/).
@@ -25005,6 +25087,34 @@ func (ec *executionContext) field_SqlInstance_users_args(ctx context.Context, ra
 	}
 	args["orderBy"] = arg4
 	return args, nil
+}
+
+func (ec *executionContext) field_Subscription_log_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Subscription_log_argsFilter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Subscription_log_argsFilter(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (log.LogSubscriptionFilter, error) {
+	if _, ok := rawArgs["filter"]; !ok {
+		var zeroVal log.LogSubscriptionFilter
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+	if tmp, ok := rawArgs["filter"]; ok {
+		return ec.unmarshalNLogSubscriptionFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋlogᚐLogSubscriptionFilter(ctx, tmp)
+	}
+
+	var zeroVal log.LogSubscriptionFilter
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Subscription_workloadLog_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
@@ -42870,6 +42980,223 @@ func (ec *executionContext) fieldContext_LogDestinationSecureLogs_id(_ context.C
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LogLine_time(ctx context.Context, field graphql.CollectedField, obj *log.LogLine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LogLine_time(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Time, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LogLine_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LogLine",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LogLine_message(ctx context.Context, field graphql.CollectedField, obj *log.LogLine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LogLine_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LogLine_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LogLine",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LogLine_team(ctx context.Context, field graphql.CollectedField, obj *log.LogLine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LogLine_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Team, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(slug.Slug)
+	fc.Result = res
+	return ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LogLine_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LogLine",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LogLine_environment(ctx context.Context, field graphql.CollectedField, obj *log.LogLine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LogLine_environment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Environment, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LogLine_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LogLine",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LogLine_application(ctx context.Context, field graphql.CollectedField, obj *log.LogLine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LogLine_application(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Application, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LogLine_application(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LogLine",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -63747,6 +64074,87 @@ func (ec *executionContext) fieldContext_StartValkeyMaintenancePayload_error(_ c
 	return fc, nil
 }
 
+func (ec *executionContext) _Subscription_log(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_log(ctx, field)
+	if err != nil {
+		return nil
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().Log(rctx, fc.Args["filter"].(log.LogSubscriptionFilter))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
+	return func(ctx context.Context) graphql.Marshaler {
+		select {
+		case res, ok := <-resTmp.(<-chan *log.LogLine):
+			if !ok {
+				return nil
+			}
+			return graphql.WriterFunc(func(w io.Writer) {
+				w.Write([]byte{'{'})
+				graphql.MarshalString(field.Alias).MarshalGQL(w)
+				w.Write([]byte{':'})
+				ec.marshalNLogLine2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlogᚐLogLine(ctx, field.Selections, res).MarshalGQL(w)
+				w.Write([]byte{'}'})
+			})
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+func (ec *executionContext) fieldContext_Subscription_log(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "time":
+				return ec.fieldContext_LogLine_time(ctx, field)
+			case "message":
+				return ec.fieldContext_LogLine_message(ctx, field)
+			case "team":
+				return ec.fieldContext_LogLine_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_LogLine_environment(ctx, field)
+			case "application":
+				return ec.fieldContext_LogLine_application(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type LogLine", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Subscription_log_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Subscription_workloadLog(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
 	return graphql.ResolveFieldStream(
 		ctx,
@@ -83777,6 +84185,47 @@ func (ec *executionContext) unmarshalInputKafkaTopicOrder(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputLogSubscriptionFilter(ctx context.Context, obj any) (log.LogSubscriptionFilter, error) {
+	var it log.LogSubscriptionFilter
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"team", "environment", "application"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "team":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Team = data
+		case "environment":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
+			data, err := ec.unmarshalOString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Environment = data
+		case "application":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("application"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Application = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputOpenSearchAccessOrder(ctx context.Context, obj any) (opensearch.OpenSearchAccessOrder, error) {
 	var it opensearch.OpenSearchAccessOrder
 	asMap := map[string]any{}
@@ -96536,6 +96985,62 @@ func (ec *executionContext) _LogDestinationSecureLogs(ctx context.Context, sel a
 	return out
 }
 
+var logLineImplementors = []string{"LogLine"}
+
+func (ec *executionContext) _LogLine(ctx context.Context, sel ast.SelectionSet, obj *log.LogLine) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, logLineImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("LogLine")
+		case "time":
+			out.Values[i] = ec._LogLine_time(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._LogLine_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "team":
+			out.Values[i] = ec._LogLine_team(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environment":
+			out.Values[i] = ec._LogLine_environment(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "application":
+			out.Values[i] = ec._LogLine_application(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var maintenanceWindowImplementors = []string{"MaintenanceWindow"}
 
 func (ec *executionContext) _MaintenanceWindow(ctx context.Context, sel ast.SelectionSet, obj *servicemaintenance.MaintenanceWindow) graphql.Marshaler {
@@ -105822,6 +106327,8 @@ func (ec *executionContext) _Subscription(ctx context.Context, sel ast.Selection
 	}
 
 	switch fields[0].Name {
+	case "log":
+		return ec._Subscription_log(ctx, fields[0])
 	case "workloadLog":
 		return ec._Subscription_workloadLog(ctx, fields[0])
 	default:
@@ -119272,6 +119779,25 @@ func (ec *executionContext) marshalNLogDestination2ᚕgithubᚗcomᚋnaisᚋapi�
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNLogLine2githubᚗcomᚋnaisᚋapiᚋinternalᚋlogᚐLogLine(ctx context.Context, sel ast.SelectionSet, v log.LogLine) graphql.Marshaler {
+	return ec._LogLine(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNLogLine2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlogᚐLogLine(ctx context.Context, sel ast.SelectionSet, v *log.LogLine) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._LogLine(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNLogSubscriptionFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋlogᚐLogSubscriptionFilter(ctx context.Context, v any) (log.LogSubscriptionFilter, error) {
+	res, err := ec.unmarshalInputLogSubscriptionFilter(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNNetworkPolicy2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicy(ctx context.Context, sel ast.SelectionSet, v netpol.NetworkPolicy) graphql.Marshaler {

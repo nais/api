@@ -1,0 +1,17 @@
+extend type Subscription {
+	log(filter: LogSubscriptionFilter!): LogLine!
+}
+
+input LogSubscriptionFilter {
+	team: Slug!
+	environment: String
+	application: String
+}
+
+type LogLine {
+	time: Time!
+	message: String!
+	team: Slug!
+	environment: String!
+	application: String
+}
