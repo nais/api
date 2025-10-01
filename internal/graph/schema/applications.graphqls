@@ -223,7 +223,7 @@ type Application implements Node & Workload & ActivityLogger {
 		orderBy: IssueOrder
 
 		"Filtering options for items returned from the connection."
-		filter: IssueFilter
+		filter: ResourceIssueFilter
 	): IssueConnection!
 }
 

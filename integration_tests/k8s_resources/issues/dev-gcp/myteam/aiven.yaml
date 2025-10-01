@@ -14,3 +14,26 @@ spec:
     team: myteam
     tenant: nav
   terminationProtection: true
+---
+apiVersion: aiven.io/v1alpha1
+kind: Valkey
+metadata:
+  creationTimestamp: "2025-03-01T09:52:10Z"
+  labels:
+    app: myapp
+    team: myteam
+  name: valkey-myteam-name
+  namespace: myteam
+spec:
+  cloudName: google-europe-north1
+  connInfoSecretTarget:
+    name: ""
+  plan: startup-4
+  project: nav-prod
+  projectVpcId: ffffffff-ffff-ffff-ffff-ffff-ffffffffffff
+  tags:
+    app: myapp
+    environment: dev-gcp
+    team: myteam
+    tenant: nav
+  terminationProtection: true

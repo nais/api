@@ -121,3 +121,89 @@ Test.gql("SqlInstance with issues", function(t)
 		},
 	}
 end)
+
+Test.gql("Valkey with issues", function(t)
+	checker:runChecks()
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				environment(name: "dev-gcp") {
+			  		valkey(name: "valkey-myteam-name") {
+						issues {
+							nodes {
+								__typename
+								severity
+								message
+							}
+				  		}
+					}
+			  	}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				environment = {
+					valkey = {
+						issues = {
+							nodes = {
+								{
+									__typename = "ValkeyIssue",
+									message = "Your valkey service valkey-myteam-name reports: error message from aiven",
+									severity = "CRITICAL",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Opensearch with issues", function(t)
+	checker:runChecks()
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				environment(name: "dev-gcp") {
+			  		openSearch(name: "opensearch-myteam-name") {
+						issues {
+							nodes {
+								__typename
+								severity
+								message
+							}
+				  		}
+					}
+			  	}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				environment = {
+					openSearch = {
+						issues = {
+							nodes = {
+								{
+									__typename = "OpenSearchIssue",
+									message = "Your opensearch service opensearch-myteam-name reports: error message from aiven",
+									severity = "CRITICAL",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
