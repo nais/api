@@ -6,6 +6,7 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
@@ -73,6 +74,26 @@ func (r *openSearchResolver) Access(ctx context.Context, obj *opensearch.OpenSea
 
 func (r *openSearchResolver) Version(ctx context.Context, obj *opensearch.OpenSearch) (*opensearch.OpenSearchVersion, error) {
 	return opensearch.GetOpenSearchVersion(ctx, obj)
+}
+
+func (r *openSearchResolver) Issues(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.IssueFilter) (*pagination.Connection[issue.Issue], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	t := issue.ResourceTypeOpensearch
+	f := &issue.IssueFilter{
+		ResourceName: &obj.Name,
+		ResourceType: &t,
+		Environments: []string{obj.EnvironmentName},
+	}
+	if filter != nil {
+		f.Severity = filter.Severity
+		f.IssueType = filter.IssueType
+	}
+
+	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, f)
 }
 
 func (r *openSearchAccessResolver) Workload(ctx context.Context, obj *opensearch.OpenSearchAccess) (workload.Workload, error) {
