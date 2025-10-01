@@ -425,6 +425,11 @@ func Delete(ctx context.Context, input DeleteValkeyInput) (*DeleteValkeyPayload,
 func State(ctx context.Context, v *Valkey) (ValkeyState, error) {
 	s, err := fromContext(ctx).aivenClient.ServiceGet(ctx, v.AivenProject, v.FullyQualifiedName())
 	if err != nil {
+		// The Valkey instance may not have been created in Aiven yet, or it has been deleted.
+		// In both cases, we return "unknown" state rather than an error.
+		if aiven.IsNotFound(err) {
+			return ValkeyStateUnknown, nil
+		}
 		return ValkeyStateUnknown, err
 	}
 
