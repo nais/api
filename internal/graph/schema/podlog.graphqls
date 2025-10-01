@@ -1,4 +1,4 @@
-type Subscription {
+extend type Subscription {
 	"""
 	Subscribe to workload logs
 
