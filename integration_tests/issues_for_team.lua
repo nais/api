@@ -225,6 +225,14 @@ Test.gql("DeprecatedRegistryIssue", function(t)
 						},
 						{
 							__typename = "DeprecatedRegistryIssue",
+							message = "Image 'deprecated.dev/nais/navikt/app-name:latest' is using a deprecated registry",
+							severity = "WARNING",
+							workload = {
+								name = "deprecated-app",
+							},
+						},
+						{
+							__typename = "DeprecatedRegistryIssue",
 							message = "Image 'ghcr.io/navikt/app-name:latest' is using a deprecated registry",
 							severity = "WARNING",
 							workload = {
