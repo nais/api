@@ -30,6 +30,18 @@ func (f *FakeAivenClient) ProjectAlertsList(ctx context.Context, p string) ([]pr
 				Event:       "error message from aiven",
 			},
 			{
+				ServiceName: stringPtr("opensearch-devteam-name"),
+				ServiceType: stringPtr("opensearch"),
+				Severity:    "critical",
+				Event:       "error message from aiven",
+			},
+			{
+				ServiceName: stringPtr("opensearch-sortteam-critical"),
+				ServiceType: stringPtr("opensearch"),
+				Severity:    "critical",
+				Event:       "error message from aiven",
+			},
+			{
 				ServiceName: stringPtr("valkey-devteam-name"),
 				ServiceType: stringPtr("valkey"),
 				Severity:    "critical",
@@ -42,8 +54,8 @@ func (f *FakeAivenClient) ProjectAlertsList(ctx context.Context, p string) ([]pr
 				Event:       "error message from aiven",
 			},
 			{
-				ServiceName: stringPtr("opensearch-devteam-name"),
-				ServiceType: stringPtr("opensearch"),
+				ServiceName: stringPtr("valkey-sortteam-critical"),
+				ServiceType: stringPtr("valkey"),
 				Severity:    "critical",
 				Event:       "error message from aiven",
 			},

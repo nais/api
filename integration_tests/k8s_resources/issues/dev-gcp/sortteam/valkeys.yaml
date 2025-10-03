@@ -1,0 +1,33 @@
+apiVersion: aiven.io/v1alpha1
+kind: Valkey
+metadata:
+  name: valkey-sortteam-running
+spec:
+  cloudName: google-europe-north1
+  connInfoSecretTarget:
+    name: ""
+  plan: startup-4
+  project: nav-dev
+  projectVpcId: d405e36a-a577-4dce-af0e-6d217fc47a5c
+  tags:
+    environment: dev
+    team: sortteam
+    tenant: nav
+  terminationProtection: true
+---
+apiVersion: aiven.io/v1alpha1
+kind: Valkey
+metadata:
+  name: valkey-sortteam-critical
+spec:
+  cloudName: google-europe-north1
+  connInfoSecretTarget:
+    name: ""
+  plan: startup-4
+  project: nav-dev
+  projectVpcId: d405e36a-a577-4dce-af0e-6d217fc47a5c
+  tags:
+    environment: dev
+    team: sortteam
+    tenant: nav
+  terminationProtection: true
