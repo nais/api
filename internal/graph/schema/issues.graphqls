@@ -114,6 +114,27 @@ extend enum WorkloadOrderField {
 	ISSUES
 }
 
+extend enum SqlInstanceOrderField {
+	"""
+	Order SqlInstances by issue severity
+	"""
+	ISSUES
+}
+
+extend enum OpenSearchOrderField {
+	"""
+	Order OpenSearches by issue severity
+	"""
+	ISSUES
+}
+
+extend enum ValkeyOrderField {
+	"""
+	Order Valkeys by issue severity
+	"""
+	ISSUES
+}
+
 enum Severity {
 	CRITICAL
 	WARNING

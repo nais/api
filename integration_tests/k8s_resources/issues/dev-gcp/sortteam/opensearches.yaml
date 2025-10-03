@@ -1,0 +1,39 @@
+apiVersion: aiven.io/v1alpha1
+kind: OpenSearch
+metadata:
+  name: opensearch-sortteam-running
+spec:
+  cloudName: google-europe-north1
+  connInfoSecretTarget:
+    name: ""
+  disk_space: 525G
+  plan: business-8
+  project: nav-dev
+  projectVpcId: 1111-95d5-408b-8df5-15aacf38f5de
+  tags:
+    environment: dev
+    team: sorteam
+    tenant: nav
+  terminationProtection: true
+  userConfig:
+    opensearch_version: "2"
+---
+apiVersion: aiven.io/v1alpha1
+kind: OpenSearch
+metadata:
+  name: opensearch-sortteam-critical
+spec:
+  cloudName: google-europe-north1
+  connInfoSecretTarget:
+    name: ""
+  disk_space: 525G
+  plan: business-8
+  project: nav-dev
+  projectVpcId: 1111-95d5-408b-8df5-15aacf38f5de
+  tags:
+    environment: dev
+    team: sorteam
+    tenant: nav
+  terminationProtection: true
+  userConfig:
+    opensearch_version: "2"
