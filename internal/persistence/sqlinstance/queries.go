@@ -136,7 +136,12 @@ func GetState(ctx context.Context, project, instance string) (SQLInstanceState, 
 		}
 		return "", err
 	}
-	return SQLInstanceState(i.State), nil
+
+	s := SQLInstanceState(i.State)
+	if s == SQLInstanceStateRunnable && i.Settings != nil && i.Settings.ActivationPolicy == "NEVER" {
+		return SQLInstanceStateStopped, nil
+	}
+	return s, nil
 }
 
 func MetricsFor(ctx context.Context, projectID, name string) (*SQLInstanceMetrics, error) {

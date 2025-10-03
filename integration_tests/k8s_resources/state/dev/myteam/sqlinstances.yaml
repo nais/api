@@ -1,0 +1,97 @@
+apiVersion: sql.cnrm.cloud.google.com/v1beta1
+kind: SQLInstance
+metadata:
+  annotations:
+    cnrm.cloud.google.com/deletion-policy: abandon
+    cnrm.cloud.google.com/management-conflict-prevention-policy: none
+    cnrm.cloud.google.com/mutable-but-unreadable-fields: "{}"
+    cnrm.cloud.google.com/observed-secret-versions: "{}"
+    cnrm.cloud.google.com/project-id: nais-dev-2e7b
+    cnrm.cloud.google.com/state-into-spec: merge
+    nais.io/deploymentCorrelationID: c53778c4-f03f-41a5-ae2f-0ca6a833019e
+  name: running
+spec:
+  databaseVersion: POSTGRES_15
+  instanceType: CLOUD_SQL_INSTANCE
+  maintenanceVersion: POSTGRES_15_10.R20240130.00_05
+  region: europe-north1
+  resourceID: running
+  settings:
+    activationPolicy: ALWAYS
+    availabilityType: ZONAL
+    backupConfiguration:
+      backupRetentionSettings:
+        retainedBackups: 7
+        retentionUnit: COUNT
+      enabled: true
+      pointInTimeRecoveryEnabled: false
+      startTime: "02:00"
+      transactionLogRetentionDays: 7
+    connectorEnforcement: NOT_REQUIRED
+    databaseFlags:
+      - name: cloudsql.iam_authentication
+        value: "on"
+    diskAutoresize: false
+    diskSize: 10
+    diskType: PD_SSD
+    insightsConfig:
+      queryInsightsEnabled: true
+      queryStringLength: 1024
+      recordApplicationTags: false
+      recordClientAddress: false
+    ipConfiguration:
+      ipv4Enabled: true
+      requireSsl: true
+    locationPreference:
+      zone: europe-north1-a
+    pricingPlan: PER_USE
+    tier: db-f1-micro
+---
+apiVersion: sql.cnrm.cloud.google.com/v1beta1
+kind: SQLInstance
+metadata:
+  annotations:
+    cnrm.cloud.google.com/deletion-policy: abandon
+    cnrm.cloud.google.com/management-conflict-prevention-policy: none
+    cnrm.cloud.google.com/mutable-but-unreadable-fields: "{}"
+    cnrm.cloud.google.com/observed-secret-versions: "{}"
+    cnrm.cloud.google.com/project-id: nais-dev-2e7b
+    cnrm.cloud.google.com/state-into-spec: merge
+    nais.io/deploymentCorrelationID: c53778c4-f03f-41a5-ae2f-0ca6a833019e
+  name: stopped
+spec:
+  databaseVersion: POSTGRES_15
+  instanceType: CLOUD_SQL_INSTANCE
+  maintenanceVersion: POSTGRES_15_10.R20240130.00_05
+  region: europe-north1
+  resourceID: stopped
+  settings:
+    activationPolicy: ALWAYS
+    availabilityType: ZONAL
+    backupConfiguration:
+      backupRetentionSettings:
+        retainedBackups: 7
+        retentionUnit: COUNT
+      enabled: true
+      pointInTimeRecoveryEnabled: false
+      startTime: "02:00"
+      transactionLogRetentionDays: 7
+    connectorEnforcement: NOT_REQUIRED
+    databaseFlags:
+      - name: cloudsql.iam_authentication
+        value: "on"
+    diskAutoresize: false
+    diskSize: 10
+    diskType: PD_SSD
+    insightsConfig:
+      queryInsightsEnabled: true
+      queryStringLength: 1024
+      recordApplicationTags: false
+      recordClientAddress: false
+    ipConfiguration:
+      ipv4Enabled: true
+      requireSsl: true
+    locationPreference:
+      zone: europe-north1-a
+    pricingPlan: PER_USE
+    tier: db-f1-micro

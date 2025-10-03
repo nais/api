@@ -16,6 +16,47 @@ local function stateQuery(slug, env, name, resourceType)
 	]], slug, env, resourceType, name)
 end
 
+Test.gql("SqlInstances sorted by state", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				sqlInstances(
+					orderBy: {
+						field: STATE,
+						direction: ASC
+					}
+				) {
+					nodes {
+						name
+						state
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				sqlInstances = {
+					nodes = {
+						{
+							name = "stopped",
+							state = "STOPPED",
+						},
+						{
+							name = "running",
+							state = "RUNNABLE",
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("OpenSearches sorted by state", function(t)
 	t.addHeader("x-user-email", user:email())
 

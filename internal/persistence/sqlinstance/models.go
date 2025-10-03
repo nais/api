@@ -356,6 +356,7 @@ type SQLInstanceState string
 
 const (
 	SQLInstanceStateUnspecified   SQLInstanceState = "UNSPECIFIED"
+	SQLInstanceStateStopped       SQLInstanceState = "STOPPED"
 	SQLInstanceStateRunnable      SQLInstanceState = "RUNNABLE"
 	SQLInstanceStateSuspended     SQLInstanceState = "SUSPENDED"
 	SQLInstanceStatePendingDelete SQLInstanceState = "PENDING_DELETE"
@@ -366,6 +367,7 @@ const (
 
 var AllSQLInstanceState = []SQLInstanceState{
 	SQLInstanceStateUnspecified,
+	SQLInstanceStateStopped,
 	SQLInstanceStateRunnable,
 	SQLInstanceStateSuspended,
 	SQLInstanceStatePendingDelete,
