@@ -30,6 +30,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/nais/api/internal/leaderelection"
+	log2 "github.com/nais/api/internal/log"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/servicemaintenance"
@@ -267,6 +268,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		}
 	}
 
+	logQuerier, err := log2.NewQuerier(ctx, cfg.Logging.LokiAddress, log.WithField("subsystem", "log_querier"))
+	if err != nil {
+		return fmt.Errorf("create log querier: %w", err)
+	}
+
 	// HTTP server
 	wg.Go(func() error {
 		return runHttpServer(
@@ -291,6 +297,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			cfg.K8s.AllClusterNames(),
 			cfg.Logging.DefaultLogDestinations(),
 			notifier,
+			logQuerier,
 			log.WithField("subsystem", "http"),
 		)
 	})

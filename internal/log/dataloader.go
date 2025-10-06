@@ -8,10 +8,14 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-type loaders struct{}
+type loaders struct {
+	querier Querier
+}
 
-func NewLoaderContext(ctx context.Context) context.Context {
-	return context.WithValue(ctx, loadersKey, &loaders{})
+func NewLoaderContext(ctx context.Context, querier Querier) context.Context {
+	return context.WithValue(ctx, loadersKey, &loaders{
+		querier: querier,
+	})
 }
 
 func fromContext(ctx context.Context) *loaders {
