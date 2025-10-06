@@ -89,6 +89,7 @@ func runHttpServer(
 	bifrostAPIURL string,
 	defaultLogDestinations []logging.SupportedLogDestination,
 	notifier *notify.Notifier,
+	logQuerier log.Querier,
 	logger logrus.FieldLogger,
 ) error {
 	router := chi.NewRouter()
@@ -113,6 +114,7 @@ func runHttpServer(
 		bifrostAPIURL,
 		defaultLogDestinations,
 		notifier,
+		logQuerier,
 		logger,
 	)
 	if err != nil {
@@ -209,6 +211,7 @@ func ConfigureGraph(
 	bifrostAPIURL string,
 	defaultLogDestinations []logging.SupportedLogDestination,
 	notifier *notify.Notifier,
+	logQuerier log.Querier,
 	logger logrus.FieldLogger,
 ) (func(http.Handler) http.Handler, error) {
 	searcher, err := search.New(ctx, pool, logger.WithField("subsystem", "search_bleve"))
@@ -303,7 +306,7 @@ func ConfigureGraph(
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = issue.NewContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, watchers.NamespaceWatcher)
-		ctx = log.NewLoaderContext(ctx)
+		ctx = log.NewLoaderContext(ctx, logQuerier)
 		ctx = user.NewLoaderContext(ctx, pool)
 		ctx = usersync.NewLoaderContext(ctx, pool)
 		ctx = cost.NewLoaderContext(ctx, pool, costOpts...)
