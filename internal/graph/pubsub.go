@@ -9,6 +9,7 @@ import (
 	"github.com/nais/api/pkg/apiclient/protoapi"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/propagation"
 	semconv "go.opentelemetry.io/otel/semconv/v1.34.0"
@@ -106,7 +107,7 @@ func (r *Resolver) triggerReconcilerConfiguredEvent(ctx context.Context, reconci
 func (r *Resolver) triggerEvent(ctx context.Context, event protoapi.EventTypes, msg proto.Message, correlationID uuid.UUID) {
 	ctx, span := otel.Tracer("").
 		Start(ctx, "trigger Pub/Sub event", trace.WithSpanKind(trace.SpanKindProducer), trace.WithAttributes(
-			// semconv.EventName(event.String()),
+			attribute.String("event.name", event.String()),
 			semconv.MessagingDestinationNameKey.String(r.pubsubTopic.String()),
 			semconv.MessagingSystemGCPPubSub,
 		))
