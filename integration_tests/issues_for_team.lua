@@ -132,6 +132,159 @@ Test.gql("Jobs sorted by issues", function(t)
 	}
 end)
 
+Test.gql("OpenSearches sorted by issues", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "sortteam") {
+				openSearches(
+					orderBy: {
+						field: ISSUES,
+						direction: DESC
+					}
+				) {
+					nodes {
+						name
+						issues {
+							nodes {
+								severity
+							}
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				openSearches = {
+					nodes = {
+						{
+							name = "opensearch-sortteam-critical",
+							issues = {
+								nodes = {
+									{ severity = "CRITICAL" },
+								},
+							},
+						},
+						{
+							name = "opensearch-sortteam-running",
+							issues = {
+								nodes = {},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Valkeys sorted by issues", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "sortteam") {
+				valkeys(
+					orderBy: {
+						field: ISSUES,
+						direction: DESC
+					}
+				) {
+					nodes {
+						name
+						issues {
+							nodes {
+								severity
+							}
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				valkeys = {
+					nodes = {
+						{
+							name = "valkey-sortteam-critical",
+							issues = {
+								nodes = {
+									{ severity = "CRITICAL" },
+								},
+							},
+						},
+						{
+							name = "valkey-sortteam-running",
+							issues = {
+								nodes = {},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("SqlInstances sorted by issues", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "sortteam") {
+				sqlInstances(
+					orderBy: {
+						field: ISSUES,
+						direction: DESC
+					}
+				) {
+					nodes {
+						name
+						issues {
+							nodes {
+								severity
+							}
+						}
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				sqlInstances = {
+					nodes = {
+						{
+							name = "stopped",
+							issues = {
+								nodes = {
+									{ severity = "CRITICAL" },
+								},
+							},
+						},
+						{
+							name = "running",
+							issues = {
+								nodes = {},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+end)
+
 Test.gql("DeprecatedIngressIssue", function(t)
 	t.addHeader("x-user-email", user:email())
 

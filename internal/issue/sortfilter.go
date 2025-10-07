@@ -4,6 +4,9 @@ import (
 	"context"
 
 	"github.com/nais/api/internal/issue/issuesql"
+	"github.com/nais/api/internal/persistence/opensearch"
+	"github.com/nais/api/internal/persistence/sqlinstance"
+	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
@@ -25,6 +28,18 @@ func init() {
 			rtype = ResourceTypeJob
 		}
 		return score(ctx, a.GetName(), rtype, a.GetTeamSlug(), a.GetEnvironmentName())
+	}, "NAME", "ENVIRONMENT")
+
+	sqlinstance.SortFilterSQLInstance.RegisterConcurrentSort("ISSUES", func(ctx context.Context, a *sqlinstance.SQLInstance) int {
+		return score(ctx, a.GetName(), ResourceTypeSQLInstance, a.TeamSlug, a.EnvironmentName)
+	}, "NAME", "ENVIRONMENT")
+
+	opensearch.SortFilterOpenSearch.RegisterConcurrentSort("ISSUES", func(ctx context.Context, a *opensearch.OpenSearch) int {
+		return score(ctx, a.GetName(), ResourceTypeOpensearch, a.TeamSlug, a.EnvironmentName)
+	}, "NAME", "ENVIRONMENT")
+
+	valkey.SortFilterValkey.RegisterConcurrentSort("ISSUES", func(ctx context.Context, a *valkey.Valkey) int {
+		return score(ctx, a.GetName(), ResourceTypeValkey, a.TeamSlug, a.EnvironmentName)
 	}, "NAME", "ENVIRONMENT")
 }
 
