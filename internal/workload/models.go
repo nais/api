@@ -88,6 +88,8 @@ func (c ContainerImage) ID() ident.Ident {
 	return newImageIdent(c.Ref())
 }
 
+func (ContainerImage) IsActivityLogger() {}
+
 type WorkloadResources interface {
 	IsWorkloadResources()
 }
