@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
@@ -12,6 +13,14 @@ import (
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
 )
+
+func (r *containerImageResolver) ActivityLog(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*pagination.Connection[activitylog.ActivityLogEntry], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+	return activitylog.ListForResource(ctx, "VULNERABILITY", obj.Name, page, filter)
+}
 
 func (r *environmentResolver) Workloads(ctx context.Context, obj *environment.Environment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) (*pagination.Connection[workload.Workload], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
