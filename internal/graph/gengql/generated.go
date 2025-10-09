@@ -18071,7 +18071,7 @@ Represents a span or length of time.
 Durations are expressed as human-readable strings composed of decimal numbers followed by unit suffixes. Supported units are:
 
 | Unit     | Meaning      | Example |
-| -------- | ------------ | ------- |
+| :------- | :----------- | :------ |
 | ns       | nanoseconds  | ` + "`" + `150ns` + "`" + ` |
 | us or µs | microseconds | ` + "`" + `250us` + "`" + ` |
 | ms       | milliseconds | ` + "`" + `500ms` + "`" + ` |
