@@ -42,9 +42,11 @@ func (q *querier) Query(ctx context.Context, filter *LogSubscriptionFilter) ([]*
 	if filter.opts.limit == 0 {
 		filter.opts.limit = 100
 	}
-	if filter.opts.start.IsZero() {
-		filter.opts.start = time.Now().Add(-10 * time.Hour)
+	since := -10 * time.Hour
+	if filter.Since != nil {
+		since = *filter.Since
 	}
+	filter.opts.start = time.Now().Add(-since)
 	if filter.opts.end.IsZero() {
 		filter.opts.end = time.Now()
 	}
@@ -75,7 +77,7 @@ func (q *querier) Query(ctx context.Context, filter *LogSubscriptionFilter) ([]*
 	if err != nil {
 		return nil, fmt.Errorf("execute request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("loki query failed with status %d", resp.StatusCode)
@@ -86,16 +88,23 @@ func (q *querier) Query(ctx context.Context, filter *LogSubscriptionFilter) ([]*
 		return nil, fmt.Errorf("decode response: %w", err)
 	}
 
-	lines := []*LogLine{}
+	lines := make([]*LogLine, 0)
 
 	switch result := queryResp.Data.Result.(type) {
 	case loghttp.Streams:
 		for _, entries := range result {
 			for _, entry := range entries.Entries {
+				labels := make([]*LogLineLabel, 0)
+				for k, v := range entries.Labels {
+					labels = append(labels, &LogLineLabel{
+						Key:   k,
+						Value: v,
+					})
+				}
 				logLine := &LogLine{
 					Time:    entry.Timestamp,
 					Message: entry.Line,
-					Labels:  entries.Labels,
+					Labels:  labels,
 				}
 				lines = append(lines, logLine)
 			}
