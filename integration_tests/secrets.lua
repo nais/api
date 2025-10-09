@@ -85,7 +85,7 @@ Test.gql("Create secret that already exists", function(t)
 	t.check {
 		errors = {
 			{
-				message = "The secret already exists, unable to create.",
+				message = "A secret with this name already exists.",
 				path = {
 					"createSecret",
 				},

@@ -15,7 +15,7 @@ var ErrUnmanaged = errUnmanaged{}
 type errAlreadyExists struct{}
 
 func (errAlreadyExists) GraphError() string {
-	return "The secret already exists, unable to create."
+	return "A secret with this name already exists."
 }
 
 func (errAlreadyExists) Error() string {
