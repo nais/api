@@ -133,8 +133,8 @@ WHERE
 	resource_type = $1
 	AND resource_name = $2
 	AND (
-		$3::TEXT[] [] IS NULL
-		OR $3::TEXT[] [] @> ARRAY[resource_type, action]
+		$3::TEXT[] IS NULL
+		OR (resource_type || ':' || action) = ANY ($3::TEXT[])
 	)
 ORDER BY
 	created_at DESC
@@ -147,7 +147,7 @@ OFFSET
 type ListForResourceParams struct {
 	ResourceType string
 	ResourceName string
-	Filter       [][]string
+	Filter       []string
 	Offset       int32
 	Limit        int32
 }
@@ -206,8 +206,8 @@ WHERE
 	AND resource_name = $3
 	AND environment = $4
 	AND (
-		$5::TEXT[] [] IS NULL
-		OR $5::TEXT[] [] @> ARRAY[resource_type, action]
+		$5::TEXT[] IS NULL
+		OR (resource_type || ':' || action) = ANY ($5::TEXT[])
 	)
 ORDER BY
 	created_at DESC
@@ -222,7 +222,7 @@ type ListForResourceTeamAndEnvironmentParams struct {
 	TeamSlug        *slug.Slug
 	ResourceName    string
 	EnvironmentName *string
-	Filter          [][]string
+	Filter          []string
 	Offset          int32
 	Limit           int32
 }
@@ -280,8 +280,8 @@ FROM
 WHERE
 	team_slug = $1
 	AND (
-		$2::TEXT[] [] IS NULL
-		OR $2::TEXT[] [] @> ARRAY[resource_type, action]
+		$2::TEXT[] IS NULL
+		OR (resource_type || ':' || action) = ANY ($2::TEXT[])
 	)
 ORDER BY
 	created_at DESC
@@ -293,7 +293,7 @@ OFFSET
 
 type ListForTeamParams struct {
 	TeamSlug *slug.Slug
-	Filter   [][]string
+	Filter   []string
 	Offset   int32
 	Limit    int32
 }
