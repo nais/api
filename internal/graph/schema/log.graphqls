@@ -1,17 +1,70 @@
 extend type Subscription {
+	"""
+	Subscribe to logs
+
+	This subscription is used to stream logs.
+	"""
 	log(filter: LogSubscriptionFilter!): LogLine!
 }
 
 input LogSubscriptionFilter {
-	team: Slug!
-	environment: String
-	application: String
+	"""
+	Filter logs to a specific team.
+	"""
+	teamSlug: Slug!
+
+	"""
+	TODO: write docs
+	"""
+	environmentName: String
+
+	"""
+	TODO: write docs
+	"""
+	workloadName: String
+
+	"""
+	TODO: write docs
+	"""
+	since: Duration
+
+	"""
+	TODO: write docs
+	"""
+	limit: Int
 }
 
+"""
+TODO: write docs
+"""
 type LogLine {
+	"""
+	TODO: write docs
+	"""
 	time: Time!
+
+	"""
+	TODO: write docs
+	"""
 	message: String!
-	team: Slug!
-	environment: String!
-	application: String
+
+	"""
+	TODO: write docs
+	"""
+	labels: [LogLineLabel!]!
+}
+
+"""
+TODO: write docs
+"""
+type LogLineLabel {
+	"""
+	TODO: write docs
+	"""
+	key: String!
+
+	"""
+	TODO: write docs
+	"""
+	value: String!
 }

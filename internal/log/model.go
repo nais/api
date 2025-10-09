@@ -7,9 +7,14 @@ import (
 )
 
 type LogLine struct {
-	Time    time.Time         `json:"time"`
-	Message string            `json:"message"`
-	Labels  map[string]string `json:"labels"`
+	Time    time.Time       `json:"time"`
+	Message string          `json:"message"`
+	Labels  []*LogLineLabel `json:"labels"`
+}
+
+type LogLineLabel struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
 type queryOptions struct {
@@ -20,22 +25,25 @@ type queryOptions struct {
 }
 
 type LogSubscriptionFilter struct {
-	Team        slug.Slug `json:"team"`
-	Environment string    `json:"environment"`
-	Application *string   `json:"application"`
-	opts        queryOptions
+	TeamSlug        slug.Slug      `json:"teamSlug"`
+	EnvironmentName *string        `json:"environmentName"`
+	WorkloadName    *string        `json:"workloadName"`
+	Since           *time.Duration `json:"since"`
+	Limit           *int           `json:"limit"`
+	opts            queryOptions
 }
 
 func (f *LogSubscriptionFilter) Query() string {
-	builder := NewQueryBuilder().AddNamespace(f.Team.String())
+	builder := NewQueryBuilder().AddNamespace(f.TeamSlug.String())
 
-	if f.Environment != "" {
-		builder.AddCluster(f.Environment)
+	if f.EnvironmentName != nil && *f.EnvironmentName != "" {
+		builder.AddCluster(*f.EnvironmentName)
 	}
 
-	if f.Application != nil {
-		builder = builder.AddApp(*f.Application)
+	if f.WorkloadName != nil && *f.WorkloadName != "" {
+		builder = builder.AddApp(*f.WorkloadName)
 	}
+
 	return builder.Build()
 }
 
