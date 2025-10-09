@@ -20,6 +20,6 @@ packages:
   github.com/nais/api/internal/cost/costsql:
     interfaces:
       Querier:
-  github.com/nais/api/internal/log:
+  github.com/nais/api/internal/logstreamer:
     interfaces:
       Querier:

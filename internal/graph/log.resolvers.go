@@ -3,9 +3,9 @@ package graph
 import (
 	"context"
 
-	"github.com/nais/api/internal/log"
+	"github.com/nais/api/internal/logstreamer"
 )
 
-func (r *subscriptionResolver) Log(ctx context.Context, filter log.LogSubscriptionFilter) (<-chan *log.LogLine, error) {
-	return log.LogStream(ctx, &filter)
+func (r *subscriptionResolver) Log(ctx context.Context, filter logstreamer.LogSubscriptionFilter) (<-chan *logstreamer.LogLine, error) {
+	return logstreamer.LogStream(ctx, &filter)
 }
