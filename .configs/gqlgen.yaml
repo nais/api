@@ -105,6 +105,10 @@ models:
     model:
       - github.com/nais/api/internal/graph/scalar.Date
 
+  Duration:
+    model:
+      - github.com/nais/api/internal/graph/scalar.Duration
+
   Time:
     model:
       - github.com/nais/api/internal/graph/scalar.Time
