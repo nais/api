@@ -31,6 +31,7 @@ require (
 	github.com/go-chi/chi/v5 v5.2.2
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
+	github.com/gorilla/websocket v1.5.3
 	github.com/grafana/loki/v3 v3.5.5
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/joho/godotenv v1.5.1
@@ -224,7 +225,6 @@ require (
 	github.com/gookit/color v1.5.4 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
-	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/grafana/dskit v0.0.0-20250317084829-9cdd36a91f10 // indirect
 	github.com/grafana/gomemcache v0.0.0-20250228145437-da7b95fd2ac1 // indirect
 	github.com/grafana/jsonparser v0.0.0-20241004153430-023329977675 // indirect
