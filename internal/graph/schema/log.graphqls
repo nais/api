@@ -1,70 +1,58 @@
 extend type Subscription {
 	"""
-	Subscribe to logs
+	Subscribe to log lines
 
-	This subscription is used to stream logs.
+	This subscription is used to stream log lines.
 	"""
 	log(filter: LogSubscriptionFilter!): LogLine!
 }
 
 input LogSubscriptionFilter {
 	"""
-	Filter logs to a specific team.
+	Filter log lines by specifying a query.
 	"""
-	teamSlug: Slug!
+	query: String!
 
 	"""
-	TODO: write docs
-	"""
-	environmentName: String
+	Specifies how far back in time to begin streaming log lines, relative to the moment the subscription starts.
 
-	"""
-	TODO: write docs
-	"""
-	workloadName: String
+	See the Duration scalar for supported formats.
 
-	"""
-	TODO: write docs
+	Defaults to 1 hour.
 	"""
 	since: Duration
 
 	"""
-	TODO: write docs
+	Initial batch of past log lines before streaming starts. Defaults to 100.
 	"""
 	limit: Int
 }
 
-"""
-TODO: write docs
-"""
 type LogLine {
 	"""
-	TODO: write docs
+	Timestamp of the log line.
 	"""
 	time: Time!
 
 	"""
-	TODO: write docs
+	The log line message.
 	"""
 	message: String!
 
 	"""
-	TODO: write docs
+	Labels attached to the log line.
 	"""
 	labels: [LogLineLabel!]!
 }
 
-"""
-TODO: write docs
-"""
 type LogLineLabel {
 	"""
-	TODO: write docs
+	The key of the label.
 	"""
 	key: String!
 
 	"""
-	TODO: write docs
+	The value of the label.
 	"""
 	value: String!
 }

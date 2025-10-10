@@ -31,7 +31,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/nais/api/internal/logger"
-	"github.com/nais/api/internal/logstreamer"
+	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/servicemaintenance"
 	"github.com/nais/api/internal/thirdparty/aiven"
@@ -268,7 +268,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		}
 	}
 
-	logQuerier, err := logstreamer.NewQuerier(ctx, cfg.Logging.LokiAddress, log.WithField("subsystem", "log_querier"))
+	logQuerier, err := loki.NewQuerier(cfg.Logging.LokiAddress, log.WithField("subsystem", "log_querier"))
 	if err != nil {
 		return fmt.Errorf("create log querier: %w", err)
 	}
