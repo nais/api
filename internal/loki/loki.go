@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/grafana/loki/v3/pkg/loghttp"
@@ -45,22 +44,8 @@ func (q *querier) Tail(ctx context.Context, filter *LogSubscriptionFilter) (<-ch
 	u := q.baseURL
 	u.Path = "/loki/api/v1/tail"
 
-	since := -1 * time.Hour
-	if filter.Since != nil {
-		since = *filter.Since
-	}
-
-	params := u.Query()
-	params.Set("query", filter.Query)
-
-	if filter.Limit != nil {
-		params.Set("limit", fmt.Sprintf("%d", *filter.Limit))
-	}
-
-	params.Set("start", fmt.Sprintf("%d", time.Now().Add(-since).UnixNano()))
-
 	u.Scheme = "ws"
-	u.RawQuery = params.Encode()
+	u.RawQuery = filter.lokiQueryParameters().Encode()
 
 	conn, _, err := websocket.DefaultDialer.DialContext(ctx, u.String(), nil)
 	if err != nil {

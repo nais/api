@@ -7,25 +7,30 @@ extend type Subscription {
 	log(filter: LogSubscriptionFilter!): LogLine!
 }
 
+input LogSubscriptionInitialBatch {
+	"""
+	Specifies how far back in time to begin streaming log lines, relative to the moment the subscription starts.
+
+	See the Duration scalar for supported formats.
+	"""
+	since: Duration = "1h"
+
+	"""
+	Initial batch of past log lines before streaming starts.
+	"""
+	limit: Int = 100
+}
+
 input LogSubscriptionFilter {
 	"""
 	Filter log lines by specifying a query.
 	"""
 	query: String!
 
-	"""
-	Specifies how far back in time to begin streaming log lines, relative to the moment the subscription starts.
-
-	See the Duration scalar for supported formats.
-
-	Defaults to 1 hour.
-	"""
-	since: Duration
-
-	"""
-	Initial batch of past log lines before streaming starts. Defaults to 100.
-	"""
-	limit: Int
+  """
+  Specify an initial batch of log lines to be sent when the subscription starts.
+  """
+  initialBatch: LogSubscriptionInitialBatch = {}
 }
 
 type LogLine {
