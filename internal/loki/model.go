@@ -21,14 +21,14 @@ type LogLineLabel struct {
 	Value string `json:"value"`
 }
 
-type LogSubscriptionFilterBatch struct {
-	Since *time.Duration `json:"since"`
-	Limit *int           `json:"limit"`
+type LogSubscriptionInitialBatch struct {
+	Since time.Duration `json:"since"`
+	Limit int           `json:"limit"`
 }
 
 type LogSubscriptionFilter struct {
-	Query        string                      `json:"query"`
-	InitialBatch *LogSubscriptionFilterBatch `json:"initialBatch"`
+	Query                       string                      `json:"query"`
+	LogSubscriptionInitialBatch LogSubscriptionInitialBatch `json:"initialBatch"`
 }
 
 func (f *LogSubscriptionFilter) Validate() error {
@@ -45,16 +45,8 @@ func (f *LogSubscriptionFilter) lokiQueryParameters() url.Values {
 	values := url.Values{}
 
 	values.Set("query", f.Query)
-
-	if f.InitialBatch != nil {
-		if f.InitialBatch.Limit != nil {
-			values.Set("limit", fmt.Sprintf("%d", *f.InitialBatch.Limit))
-		}
-
-		if f.InitialBatch.Since != nil {
-			values.Set("start", fmt.Sprintf("%d", time.Now().Add(-*f.InitialBatch.Since).UnixNano()))
-		}
-	}
+	values.Set("limit", fmt.Sprintf("%d", f.InitialBatch.Limit))
+	values.Set("start", fmt.Sprintf("%d", time.Now().Add(-f.InitialBatch.Since).UnixNano()))
 
 	return values
 }
