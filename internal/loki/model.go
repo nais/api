@@ -1,6 +1,7 @@
 package loki
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"time"
@@ -20,20 +21,40 @@ type LogLineLabel struct {
 	Value string `json:"value"`
 }
 
-type LogSubscriptionFilter struct {
-	Query string         `json:"query"`
+type LogSubscriptionFilterBatch struct {
 	Since *time.Duration `json:"since"`
 	Limit *int           `json:"limit"`
 }
 
+type LogSubscriptionFilter struct {
+	Query        string                      `json:"query"`
+	InitialBatch *LogSubscriptionFilterBatch `json:"initialBatch"`
+}
+
 func (f *LogSubscriptionFilter) Validate() error {
 	verr := validate.New()
-	v := url.Values{}
-	v.Set("query", f.Query)
 
-	if _, err := loghttp.ParseTailQuery(&http.Request{Form: v}); err != nil {
+	if _, err := loghttp.ParseTailQuery(&http.Request{Form: f.lokiQueryParameters()}); err != nil {
 		verr.Add("query", "Unable to parse query")
 	}
 
 	return verr.NilIfEmpty()
+}
+
+func (f *LogSubscriptionFilter) lokiQueryParameters() url.Values {
+	values := url.Values{}
+
+	values.Set("query", f.Query)
+
+	if f.InitialBatch != nil {
+		if f.InitialBatch.Limit != nil {
+			values.Set("limit", fmt.Sprintf("%d", *f.InitialBatch.Limit))
+		}
+
+		if f.InitialBatch.Since != nil {
+			values.Set("start", fmt.Sprintf("%d", time.Now().Add(-*f.InitialBatch.Since).UnixNano()))
+		}
+	}
+
+	return values
 }
