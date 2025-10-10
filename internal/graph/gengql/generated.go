@@ -17009,10 +17009,10 @@ input LogSubscriptionFilter {
 	"""
 	query: String!
 
-  """
-  Specify an initial batch of log lines to be sent when the subscription starts.
-  """
-  initialBatch: LogSubscriptionInitialBatch = {}
+	"""
+	Specify an initial batch of log lines to be sent when the subscription starts.
+	"""
+	initialBatch: LogSubscriptionInitialBatch = {}
 }
 
 type LogLine {
