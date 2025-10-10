@@ -37,6 +37,7 @@ autobind:
   - "github.com/nais/api/internal/github/repository"
   - "github.com/nais/api/internal/graph/model"
   - "github.com/nais/api/internal/issue"
+  - "github.com/nais/api/internal/loki"
   - "github.com/nais/api/internal/kubernetes/event/pubsublog"
   - "github.com/nais/api/internal/persistence"
   - "github.com/nais/api/internal/persistence/bigquery"
@@ -103,6 +104,10 @@ models:
   Date:
     model:
       - github.com/nais/api/internal/graph/scalar.Date
+
+  Duration:
+    model:
+      - github.com/nais/api/internal/graph/scalar.Duration
 
   Time:
     model:

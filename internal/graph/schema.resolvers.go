@@ -16,7 +16,10 @@ func (r *Resolver) Mutation() gengql.MutationResolver { return &mutationResolver
 
 func (r *Resolver) Query() gengql.QueryResolver { return &queryResolver{r} }
 
+func (r *Resolver) Subscription() gengql.SubscriptionResolver { return &subscriptionResolver{r} }
+
 type (
-	mutationResolver struct{ *Resolver }
-	queryResolver    struct{ *Resolver }
+	mutationResolver     struct{ *Resolver }
+	queryResolver        struct{ *Resolver }
+	subscriptionResolver struct{ *Resolver }
 )

@@ -1,0 +1,63 @@
+extend type Subscription {
+	"""
+	Subscribe to log lines
+
+	This subscription is used to stream log lines.
+	"""
+	log(filter: LogSubscriptionFilter!): LogLine!
+}
+
+input LogSubscriptionInitialBatch {
+	"""
+	Specifies how far back in time to begin streaming log lines, relative to the moment the subscription starts.
+
+	See the Duration scalar for supported formats.
+	"""
+	since: Duration = "1h"
+
+	"""
+	Initial batch of past log lines before streaming starts.
+	"""
+	limit: Int = 100
+}
+
+input LogSubscriptionFilter {
+	"""
+	Filter log lines by specifying a query.
+	"""
+	query: String!
+
+	"""
+	Specify an initial batch of log lines to be sent when the subscription starts.
+	"""
+	logSubscriptionInitialBatch: LogSubscriptionInitialBatch = {}
+}
+
+type LogLine {
+	"""
+	Timestamp of the log line.
+	"""
+	time: Time!
+
+	"""
+	The log line message.
+	"""
+	message: String!
+
+	"""
+	Labels attached to the log line.
+	"""
+	labels: [LogLineLabel!]!
+}
+
+type LogLineLabel {
+	"""
+	The key of the label.
+	"""
+	key: String!
+
+	"""
+	The value of the label.
+	"""
+	value: String!
+}

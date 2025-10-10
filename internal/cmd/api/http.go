@@ -28,6 +28,7 @@ import (
 	apik8s "github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/kubernetes/watchers"
+	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/kafkatopic"
@@ -88,6 +89,7 @@ func runHttpServer(
 	bifrostAPIURL string,
 	defaultLogDestinations []logging.SupportedLogDestination,
 	notifier *notify.Notifier,
+	logQuerier loki.Querier,
 	log logrus.FieldLogger,
 ) error {
 	router := chi.NewRouter()
@@ -112,6 +114,7 @@ func runHttpServer(
 		bifrostAPIURL,
 		defaultLogDestinations,
 		notifier,
+		logQuerier,
 		log,
 	)
 	if err != nil {
@@ -208,6 +211,7 @@ func ConfigureGraph(
 	bifrostAPIURL string,
 	defaultLogDestinations []logging.SupportedLogDestination,
 	notifier *notify.Notifier,
+	logQuerier loki.Querier,
 	log logrus.FieldLogger,
 ) (func(http.Handler) http.Handler, error) {
 	searcher, err := search.New(ctx, pool, log.WithField("subsystem", "search_bleve"))
@@ -302,6 +306,7 @@ func ConfigureGraph(
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = issue.NewContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, watchers.NamespaceWatcher)
+		ctx = loki.NewLoaderContext(ctx, logQuerier)
 		ctx = user.NewLoaderContext(ctx, pool)
 		ctx = usersync.NewLoaderContext(ctx, pool)
 		ctx = cost.NewLoaderContext(ctx, pool, costOpts...)
