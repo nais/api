@@ -25,6 +25,7 @@ import (
 	"github.com/nais/api/internal/github/repository"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/model/donotuse"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/issue"
@@ -152,6 +153,7 @@ type ResolverRoot interface {
 	WorkloadUtilization() WorkloadUtilizationResolver
 	WorkloadUtilizationData() WorkloadUtilizationDataResolver
 	WorkloadVulnerabilitySummary() WorkloadVulnerabilitySummaryResolver
+	LogSubscriptionFilter() LogSubscriptionFilterResolver
 }
 
 type DirectiveRoot struct {
@@ -3254,6 +3256,10 @@ type WorkloadUtilizationDataResolver interface {
 }
 type WorkloadVulnerabilitySummaryResolver interface {
 	Workload(ctx context.Context, obj *vulnerability.WorkloadVulnerabilitySummary) (workload.Workload, error)
+}
+
+type LogSubscriptionFilterResolver interface {
+	InitialBatch(ctx context.Context, obj *loki.LogSubscriptionFilter, data *donotuse.LogSubscriptionInitialBatch) error
 }
 
 type executableSchema struct {
@@ -13487,6 +13493,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputKafkaTopicAclOrder,
 		ec.unmarshalInputKafkaTopicOrder,
 		ec.unmarshalInputLogSubscriptionFilter,
+		ec.unmarshalInputLogSubscriptionInitialBatch,
 		ec.unmarshalInputOpenSearchAccessOrder,
 		ec.unmarshalInputOpenSearchOrder,
 		ec.unmarshalInputReconcilerConfigInput,
@@ -16983,25 +16990,30 @@ extend enum SearchType {
 	log(filter: LogSubscriptionFilter!): LogLine!
 }
 
+input LogSubscriptionInitialBatch {
+	"""
+	Specifies how far back in time to begin streaming log lines, relative to the moment the subscription starts.
+
+	See the Duration scalar for supported formats.
+	"""
+	since: Duration = "1h"
+
+	"""
+	Initial batch of past log lines before streaming starts.
+	"""
+	limit: Int = 100
+}
+
 input LogSubscriptionFilter {
 	"""
 	Filter log lines by specifying a query.
 	"""
 	query: String!
 
-	"""
-	Specifies how far back in time to begin streaming log lines, relative to the moment the subscription starts.
-
-	See the Duration scalar for supported formats.
-
-	Defaults to 1 hour.
-	"""
-	since: Duration
-
-	"""
-	Initial batch of past log lines before streaming starts. Defaults to 100.
-	"""
-	limit: Int
+  """
+  Specify an initial batch of log lines to be sent when the subscription starts.
+  """
+  initialBatch: LogSubscriptionInitialBatch = {}
 }
 
 type LogLine {
@@ -84261,7 +84273,11 @@ func (ec *executionContext) unmarshalInputLogSubscriptionFilter(ctx context.Cont
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"query", "since", "limit"}
+	if _, present := asMap["initialBatch"]; !present {
+		asMap["initialBatch"] = map[string]any{}
+	}
+
+	fieldsInOrder := [...]string{"query", "initialBatch"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -84275,6 +84291,42 @@ func (ec *executionContext) unmarshalInputLogSubscriptionFilter(ctx context.Cont
 				return it, err
 			}
 			it.Query = data
+		case "initialBatch":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("initialBatch"))
+			data, err := ec.unmarshalOLogSubscriptionInitialBatch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋdonotuseᚐLogSubscriptionInitialBatch(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.LogSubscriptionFilter().InitialBatch(ctx, &it, data); err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputLogSubscriptionInitialBatch(ctx context.Context, obj any) (donotuse.LogSubscriptionInitialBatch, error) {
+	var it donotuse.LogSubscriptionInitialBatch
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	if _, present := asMap["since"]; !present {
+		asMap["since"] = "1h"
+	}
+	if _, present := asMap["limit"]; !present {
+		asMap["limit"] = 100
+	}
+
+	fieldsInOrder := [...]string{"since", "limit"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
 		case "since":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("since"))
 			data, err := ec.unmarshalODuration2ᚖtimeᚐDuration(ctx, v)
@@ -126108,6 +126160,14 @@ func (ec *executionContext) unmarshalOKafkaTopicOrder2ᚖgithubᚗcomᚋnaisᚋa
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputKafkaTopicOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOLogSubscriptionInitialBatch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋdonotuseᚐLogSubscriptionInitialBatch(ctx context.Context, v any) (*donotuse.LogSubscriptionInitialBatch, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputLogSubscriptionInitialBatch(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
