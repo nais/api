@@ -28,7 +28,7 @@ type LogSubscriptionInitialBatch struct {
 
 type LogSubscriptionFilter struct {
 	Query                       string                      `json:"query"`
-	LogSubscriptionInitialBatch LogSubscriptionInitialBatch `json:"initialBatch"`
+	LogSubscriptionInitialBatch LogSubscriptionInitialBatch `json:"logSubscriptionInitialBatch"`
 }
 
 func (f *LogSubscriptionFilter) Validate() error {
