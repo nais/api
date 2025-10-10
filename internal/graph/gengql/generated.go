@@ -29,7 +29,7 @@ import (
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/kubernetes/event/pubsublog"
-	"github.com/nais/api/internal/logstreamer"
+	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/persistence"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/bucket"
@@ -1935,7 +1935,7 @@ type ComplexityRoot struct {
 	}
 
 	Subscription struct {
-		Log         func(childComplexity int, filter logstreamer.LogSubscriptionFilter) int
+		Log         func(childComplexity int, filter loki.LogSubscriptionFilter) int
 		WorkloadLog func(childComplexity int, filter podlog.WorkloadLogSubscriptionFilter) int
 	}
 
@@ -3088,7 +3088,7 @@ type SqlInstanceVersionIssueResolver interface {
 	SQLInstance(ctx context.Context, obj *issue.SqlInstanceVersionIssue) (*sqlinstance.SQLInstance, error)
 }
 type SubscriptionResolver interface {
-	Log(ctx context.Context, filter logstreamer.LogSubscriptionFilter) (<-chan *logstreamer.LogLine, error)
+	Log(ctx context.Context, filter loki.LogSubscriptionFilter) (<-chan *loki.LogLine, error)
 	WorkloadLog(ctx context.Context, filter podlog.WorkloadLogSubscriptionFilter) (<-chan *podlog.WorkloadLogLine, error)
 }
 type TeamResolver interface {
@@ -10222,7 +10222,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Subscription.Log(childComplexity, args["filter"].(logstreamer.LogSubscriptionFilter)), true
+		return e.complexity.Subscription.Log(childComplexity, args["filter"].(loki.LogSubscriptionFilter)), true
 
 	case "Subscription.workloadLog":
 		if e.complexity.Subscription.WorkloadLog == nil {
@@ -16976,71 +16976,59 @@ extend enum SearchType {
 `, BuiltIn: false},
 	{Name: "../schema/log.graphqls", Input: `extend type Subscription {
 	"""
-	Subscribe to logs
+	Subscribe to log lines
 
-	This subscription is used to stream logs.
+	This subscription is used to stream log lines.
 	"""
 	log(filter: LogSubscriptionFilter!): LogLine!
 }
 
 input LogSubscriptionFilter {
 	"""
-	Filter logs to a specific team.
+	Filter log lines by specifying a query.
 	"""
-	teamSlug: Slug!
+	query: String!
 
 	"""
-	TODO: write docs
-	"""
-	environmentName: String
+	Specifies how far back in time to begin streaming log lines, relative to the moment the subscription starts.
 
-	"""
-	TODO: write docs
-	"""
-	workloadName: String
+	See the Duration scalar for supported formats.
 
-	"""
-	TODO: write docs
+	Defaults to 1 hour.
 	"""
 	since: Duration
 
 	"""
-	TODO: write docs
+	Initial batch of past log lines before streaming starts. Defaults to 100.
 	"""
 	limit: Int
 }
 
-"""
-TODO: write docs
-"""
 type LogLine {
 	"""
-	TODO: write docs
+	Timestamp of the log line.
 	"""
 	time: Time!
 
 	"""
-	TODO: write docs
+	The log line message.
 	"""
 	message: String!
 
 	"""
-	TODO: write docs
+	Labels attached to the log line.
 	"""
 	labels: [LogLineLabel!]!
 }
 
-"""
-TODO: write docs
-"""
 type LogLineLabel {
 	"""
-	TODO: write docs
+	The key of the label.
 	"""
 	key: String!
 
 	"""
-	TODO: write docs
+	The value of the label.
 	"""
 	value: String!
 }
@@ -25178,18 +25166,18 @@ func (ec *executionContext) field_Subscription_log_args(ctx context.Context, raw
 func (ec *executionContext) field_Subscription_log_argsFilter(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (logstreamer.LogSubscriptionFilter, error) {
+) (loki.LogSubscriptionFilter, error) {
 	if _, ok := rawArgs["filter"]; !ok {
-		var zeroVal logstreamer.LogSubscriptionFilter
+		var zeroVal loki.LogSubscriptionFilter
 		return zeroVal, nil
 	}
 
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
 	if tmp, ok := rawArgs["filter"]; ok {
-		return ec.unmarshalNLogSubscriptionFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋlogstreamerᚐLogSubscriptionFilter(ctx, tmp)
+		return ec.unmarshalNLogSubscriptionFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogSubscriptionFilter(ctx, tmp)
 	}
 
-	var zeroVal logstreamer.LogSubscriptionFilter
+	var zeroVal loki.LogSubscriptionFilter
 	return zeroVal, nil
 }
 
@@ -43061,7 +43049,7 @@ func (ec *executionContext) fieldContext_LogDestinationSecureLogs_id(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _LogLine_time(ctx context.Context, field graphql.CollectedField, obj *logstreamer.LogLine) (ret graphql.Marshaler) {
+func (ec *executionContext) _LogLine_time(ctx context.Context, field graphql.CollectedField, obj *loki.LogLine) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_LogLine_time(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -43105,7 +43093,7 @@ func (ec *executionContext) fieldContext_LogLine_time(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _LogLine_message(ctx context.Context, field graphql.CollectedField, obj *logstreamer.LogLine) (ret graphql.Marshaler) {
+func (ec *executionContext) _LogLine_message(ctx context.Context, field graphql.CollectedField, obj *loki.LogLine) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_LogLine_message(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -43149,7 +43137,7 @@ func (ec *executionContext) fieldContext_LogLine_message(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _LogLine_labels(ctx context.Context, field graphql.CollectedField, obj *logstreamer.LogLine) (ret graphql.Marshaler) {
+func (ec *executionContext) _LogLine_labels(ctx context.Context, field graphql.CollectedField, obj *loki.LogLine) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_LogLine_labels(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -43175,9 +43163,9 @@ func (ec *executionContext) _LogLine_labels(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*logstreamer.LogLineLabel)
+	res := resTmp.([]*loki.LogLineLabel)
 	fc.Result = res
-	return ec.marshalNLogLineLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlogstreamerᚐLogLineLabelᚄ(ctx, field.Selections, res)
+	return ec.marshalNLogLineLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLineLabelᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_LogLine_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -43199,7 +43187,7 @@ func (ec *executionContext) fieldContext_LogLine_labels(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _LogLineLabel_key(ctx context.Context, field graphql.CollectedField, obj *logstreamer.LogLineLabel) (ret graphql.Marshaler) {
+func (ec *executionContext) _LogLineLabel_key(ctx context.Context, field graphql.CollectedField, obj *loki.LogLineLabel) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_LogLineLabel_key(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -43243,7 +43231,7 @@ func (ec *executionContext) fieldContext_LogLineLabel_key(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _LogLineLabel_value(ctx context.Context, field graphql.CollectedField, obj *logstreamer.LogLineLabel) (ret graphql.Marshaler) {
+func (ec *executionContext) _LogLineLabel_value(ctx context.Context, field graphql.CollectedField, obj *loki.LogLineLabel) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_LogLineLabel_value(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -64173,7 +64161,7 @@ func (ec *executionContext) _Subscription_log(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Subscription().Log(rctx, fc.Args["filter"].(logstreamer.LogSubscriptionFilter))
+		return ec.resolvers.Subscription().Log(rctx, fc.Args["filter"].(loki.LogSubscriptionFilter))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -64187,7 +64175,7 @@ func (ec *executionContext) _Subscription_log(ctx context.Context, field graphql
 	}
 	return func(ctx context.Context) graphql.Marshaler {
 		select {
-		case res, ok := <-resTmp.(<-chan *logstreamer.LogLine):
+		case res, ok := <-resTmp.(<-chan *loki.LogLine):
 			if !ok {
 				return nil
 			}
@@ -64195,7 +64183,7 @@ func (ec *executionContext) _Subscription_log(ctx context.Context, field graphql
 				w.Write([]byte{'{'})
 				graphql.MarshalString(field.Alias).MarshalGQL(w)
 				w.Write([]byte{':'})
-				ec.marshalNLogLine2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlogstreamerᚐLogLine(ctx, field.Selections, res).MarshalGQL(w)
+				ec.marshalNLogLine2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLine(ctx, field.Selections, res).MarshalGQL(w)
 				w.Write([]byte{'}'})
 			})
 		case <-ctx.Done():
@@ -84266,41 +84254,27 @@ func (ec *executionContext) unmarshalInputKafkaTopicOrder(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputLogSubscriptionFilter(ctx context.Context, obj any) (logstreamer.LogSubscriptionFilter, error) {
-	var it logstreamer.LogSubscriptionFilter
+func (ec *executionContext) unmarshalInputLogSubscriptionFilter(ctx context.Context, obj any) (loki.LogSubscriptionFilter, error) {
+	var it loki.LogSubscriptionFilter
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"teamSlug", "environmentName", "workloadName", "since", "limit"}
+	fieldsInOrder := [...]string{"query", "since", "limit"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "teamSlug":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+		case "query":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.TeamSlug = data
-		case "environmentName":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.EnvironmentName = data
-		case "workloadName":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workloadName"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.WorkloadName = data
+			it.Query = data
 		case "since":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("since"))
 			data, err := ec.unmarshalODuration2ᚖtimeᚐDuration(ctx, v)
@@ -97082,7 +97056,7 @@ func (ec *executionContext) _LogDestinationSecureLogs(ctx context.Context, sel a
 
 var logLineImplementors = []string{"LogLine"}
 
-func (ec *executionContext) _LogLine(ctx context.Context, sel ast.SelectionSet, obj *logstreamer.LogLine) graphql.Marshaler {
+func (ec *executionContext) _LogLine(ctx context.Context, sel ast.SelectionSet, obj *loki.LogLine) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, logLineImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -97131,7 +97105,7 @@ func (ec *executionContext) _LogLine(ctx context.Context, sel ast.SelectionSet, 
 
 var logLineLabelImplementors = []string{"LogLineLabel"}
 
-func (ec *executionContext) _LogLineLabel(ctx context.Context, sel ast.SelectionSet, obj *logstreamer.LogLineLabel) graphql.Marshaler {
+func (ec *executionContext) _LogLineLabel(ctx context.Context, sel ast.SelectionSet, obj *loki.LogLineLabel) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, logLineLabelImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -119913,11 +119887,11 @@ func (ec *executionContext) marshalNLogDestination2ᚕgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) marshalNLogLine2githubᚗcomᚋnaisᚋapiᚋinternalᚋlogstreamerᚐLogLine(ctx context.Context, sel ast.SelectionSet, v logstreamer.LogLine) graphql.Marshaler {
+func (ec *executionContext) marshalNLogLine2githubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLine(ctx context.Context, sel ast.SelectionSet, v loki.LogLine) graphql.Marshaler {
 	return ec._LogLine(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNLogLine2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlogstreamerᚐLogLine(ctx context.Context, sel ast.SelectionSet, v *logstreamer.LogLine) graphql.Marshaler {
+func (ec *executionContext) marshalNLogLine2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLine(ctx context.Context, sel ast.SelectionSet, v *loki.LogLine) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -119927,7 +119901,7 @@ func (ec *executionContext) marshalNLogLine2ᚖgithubᚗcomᚋnaisᚋapiᚋinter
 	return ec._LogLine(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNLogLineLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlogstreamerᚐLogLineLabelᚄ(ctx context.Context, sel ast.SelectionSet, v []*logstreamer.LogLineLabel) graphql.Marshaler {
+func (ec *executionContext) marshalNLogLineLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLineLabelᚄ(ctx context.Context, sel ast.SelectionSet, v []*loki.LogLineLabel) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -119951,7 +119925,7 @@ func (ec *executionContext) marshalNLogLineLabel2ᚕᚖgithubᚗcomᚋnaisᚋapi
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNLogLineLabel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlogstreamerᚐLogLineLabel(ctx, sel, v[i])
+			ret[i] = ec.marshalNLogLineLabel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLineLabel(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -119971,7 +119945,7 @@ func (ec *executionContext) marshalNLogLineLabel2ᚕᚖgithubᚗcomᚋnaisᚋapi
 	return ret
 }
 
-func (ec *executionContext) marshalNLogLineLabel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlogstreamerᚐLogLineLabel(ctx context.Context, sel ast.SelectionSet, v *logstreamer.LogLineLabel) graphql.Marshaler {
+func (ec *executionContext) marshalNLogLineLabel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLineLabel(ctx context.Context, sel ast.SelectionSet, v *loki.LogLineLabel) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -119981,7 +119955,7 @@ func (ec *executionContext) marshalNLogLineLabel2ᚖgithubᚗcomᚋnaisᚋapiᚋ
 	return ec._LogLineLabel(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNLogSubscriptionFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋlogstreamerᚐLogSubscriptionFilter(ctx context.Context, v any) (logstreamer.LogSubscriptionFilter, error) {
+func (ec *executionContext) unmarshalNLogSubscriptionFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogSubscriptionFilter(ctx context.Context, v any) (loki.LogSubscriptionFilter, error) {
 	res, err := ec.unmarshalInputLogSubscriptionFilter(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
