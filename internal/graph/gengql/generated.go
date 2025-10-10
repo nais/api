@@ -25,7 +25,6 @@ import (
 	"github.com/nais/api/internal/github/repository"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/model/donotuse"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/issue"
@@ -3259,7 +3258,7 @@ type WorkloadVulnerabilitySummaryResolver interface {
 }
 
 type LogSubscriptionFilterResolver interface {
-	InitialBatch(ctx context.Context, obj *loki.LogSubscriptionFilter, data *donotuse.LogSubscriptionInitialBatch) error
+	InitialBatch(ctx context.Context, obj *loki.LogSubscriptionFilter, data *loki.LogSubscriptionInitialBatch) error
 }
 
 type executableSchema struct {
@@ -84293,7 +84292,7 @@ func (ec *executionContext) unmarshalInputLogSubscriptionFilter(ctx context.Cont
 			it.Query = data
 		case "initialBatch":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("initialBatch"))
-			data, err := ec.unmarshalOLogSubscriptionInitialBatch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋdonotuseᚐLogSubscriptionInitialBatch(ctx, v)
+			data, err := ec.unmarshalOLogSubscriptionInitialBatch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogSubscriptionInitialBatch(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -84306,8 +84305,8 @@ func (ec *executionContext) unmarshalInputLogSubscriptionFilter(ctx context.Cont
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputLogSubscriptionInitialBatch(ctx context.Context, obj any) (donotuse.LogSubscriptionInitialBatch, error) {
-	var it donotuse.LogSubscriptionInitialBatch
+func (ec *executionContext) unmarshalInputLogSubscriptionInitialBatch(ctx context.Context, obj any) (loki.LogSubscriptionInitialBatch, error) {
+	var it loki.LogSubscriptionInitialBatch
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -84329,14 +84328,14 @@ func (ec *executionContext) unmarshalInputLogSubscriptionInitialBatch(ctx contex
 		switch k {
 		case "since":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("since"))
-			data, err := ec.unmarshalODuration2ᚖtimeᚐDuration(ctx, v)
+			data, err := ec.unmarshalODuration2timeᚐDuration(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Since = data
 		case "limit":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -125923,19 +125922,13 @@ func (ec *executionContext) marshalODeploymentKey2ᚖgithubᚗcomᚋnaisᚋapi�
 	return ec._DeploymentKey(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalODuration2ᚖtimeᚐDuration(ctx context.Context, v any) (*time.Duration, error) {
-	if v == nil {
-		return nil, nil
-	}
+func (ec *executionContext) unmarshalODuration2timeᚐDuration(ctx context.Context, v any) (time.Duration, error) {
 	res, err := scalar.UnmarshalDuration(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalODuration2ᚖtimeᚐDuration(ctx context.Context, sel ast.SelectionSet, v *time.Duration) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := scalar.MarshalDuration(*v)
+func (ec *executionContext) marshalODuration2timeᚐDuration(ctx context.Context, sel ast.SelectionSet, v time.Duration) graphql.Marshaler {
+	res := scalar.MarshalDuration(v)
 	return res
 }
 
@@ -126033,6 +126026,16 @@ func (ec *executionContext) marshalOImageVulnerabilitySuppressionState2ᚖgithub
 		return graphql.Null
 	}
 	return v
+}
+
+func (ec *executionContext) unmarshalOInt2int(ctx context.Context, v any) (int, error) {
+	res, err := graphql.UnmarshalInt(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalInt(v)
+	return res
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v any) (*int, error) {
@@ -126163,7 +126166,7 @@ func (ec *executionContext) unmarshalOKafkaTopicOrder2ᚖgithubᚗcomᚋnaisᚋa
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOLogSubscriptionInitialBatch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋdonotuseᚐLogSubscriptionInitialBatch(ctx context.Context, v any) (*donotuse.LogSubscriptionInitialBatch, error) {
+func (ec *executionContext) unmarshalOLogSubscriptionInitialBatch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogSubscriptionInitialBatch(ctx context.Context, v any) (*loki.LogSubscriptionInitialBatch, error) {
 	if v == nil {
 		return nil, nil
 	}

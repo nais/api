@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/graph/gengql"
-	"github.com/nais/api/internal/graph/model/donotuse"
 	"github.com/nais/api/internal/loki"
 )
 
@@ -13,7 +12,7 @@ func (r *subscriptionResolver) Log(ctx context.Context, filter loki.LogSubscript
 	return loki.LogStream(ctx, &filter)
 }
 
-func (r *logSubscriptionFilterResolver) InitialBatch(ctx context.Context, obj *loki.LogSubscriptionFilter, data *donotuse.LogSubscriptionInitialBatch) error {
+func (r *logSubscriptionFilterResolver) InitialBatch(ctx context.Context, obj *loki.LogSubscriptionFilter, data *loki.LogSubscriptionInitialBatch) error {
 	panic(fmt.Errorf("not implemented: InitialBatch - initialBatch"))
 }
 
