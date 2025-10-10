@@ -152,7 +152,6 @@ type ResolverRoot interface {
 	WorkloadUtilization() WorkloadUtilizationResolver
 	WorkloadUtilizationData() WorkloadUtilizationDataResolver
 	WorkloadVulnerabilitySummary() WorkloadVulnerabilitySummaryResolver
-	LogSubscriptionFilter() LogSubscriptionFilterResolver
 }
 
 type DirectiveRoot struct {
@@ -3255,10 +3254,6 @@ type WorkloadUtilizationDataResolver interface {
 }
 type WorkloadVulnerabilitySummaryResolver interface {
 	Workload(ctx context.Context, obj *vulnerability.WorkloadVulnerabilitySummary) (workload.Workload, error)
-}
-
-type LogSubscriptionFilterResolver interface {
-	InitialBatch(ctx context.Context, obj *loki.LogSubscriptionFilter, data *loki.LogSubscriptionInitialBatch) error
 }
 
 type executableSchema struct {
@@ -17012,7 +17007,7 @@ input LogSubscriptionFilter {
 	"""
 	Specify an initial batch of log lines to be sent when the subscription starts.
 	"""
-	initialBatch: LogSubscriptionInitialBatch = {}
+	logSubscriptionInitialBatch: LogSubscriptionInitialBatch = {}
 }
 
 type LogLine {
@@ -84272,11 +84267,11 @@ func (ec *executionContext) unmarshalInputLogSubscriptionFilter(ctx context.Cont
 		asMap[k] = v
 	}
 
-	if _, present := asMap["initialBatch"]; !present {
-		asMap["initialBatch"] = map[string]any{}
+	if _, present := asMap["logSubscriptionInitialBatch"]; !present {
+		asMap["logSubscriptionInitialBatch"] = map[string]any{}
 	}
 
-	fieldsInOrder := [...]string{"query", "initialBatch"}
+	fieldsInOrder := [...]string{"query", "logSubscriptionInitialBatch"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -84290,15 +84285,13 @@ func (ec *executionContext) unmarshalInputLogSubscriptionFilter(ctx context.Cont
 				return it, err
 			}
 			it.Query = data
-		case "initialBatch":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("initialBatch"))
-			data, err := ec.unmarshalOLogSubscriptionInitialBatch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogSubscriptionInitialBatch(ctx, v)
+		case "logSubscriptionInitialBatch":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("logSubscriptionInitialBatch"))
+			data, err := ec.unmarshalOLogSubscriptionInitialBatch2githubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogSubscriptionInitialBatch(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			if err = ec.resolvers.LogSubscriptionFilter().InitialBatch(ctx, &it, data); err != nil {
-				return it, err
-			}
+			it.LogSubscriptionInitialBatch = data
 		}
 	}
 
@@ -126166,12 +126159,9 @@ func (ec *executionContext) unmarshalOKafkaTopicOrder2ᚖgithubᚗcomᚋnaisᚋa
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOLogSubscriptionInitialBatch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogSubscriptionInitialBatch(ctx context.Context, v any) (*loki.LogSubscriptionInitialBatch, error) {
-	if v == nil {
-		return nil, nil
-	}
+func (ec *executionContext) unmarshalOLogSubscriptionInitialBatch2githubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogSubscriptionInitialBatch(ctx context.Context, v any) (loki.LogSubscriptionInitialBatch, error) {
 	res, err := ec.unmarshalInputLogSubscriptionInitialBatch(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOMaintenanceWindow2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋservicemaintenanceᚐMaintenanceWindow(ctx context.Context, sel ast.SelectionSet, v *servicemaintenance.MaintenanceWindow) graphql.Marshaler {
