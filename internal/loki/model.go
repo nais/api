@@ -45,8 +45,8 @@ func (f *LogSubscriptionFilter) lokiQueryParameters() url.Values {
 	values := url.Values{}
 
 	values.Set("query", f.Query)
-	values.Set("limit", fmt.Sprintf("%d", f.InitialBatch.Limit))
-	values.Set("start", fmt.Sprintf("%d", time.Now().Add(-f.InitialBatch.Since).UnixNano()))
+	values.Set("limit", fmt.Sprintf("%d", f.LogSubscriptionInitialBatch.Limit))
+	values.Set("start", fmt.Sprintf("%d", time.Now().Add(-f.LogSubscriptionInitialBatch.Since).UnixNano()))
 
 	return values
 }
