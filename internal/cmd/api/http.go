@@ -91,7 +91,7 @@ func runHttpServer(
 	defaultLogDestinations []logging.SupportedLogDestination,
 	notifier *notify.Notifier,
 	logQuerier loki.Querier,
-	logger logrus.FieldLogger,
+	log logrus.FieldLogger,
 ) error {
 	router := chi.NewRouter()
 	router.Method("GET", "/",
@@ -117,7 +117,7 @@ func runHttpServer(
 		defaultLogDestinations,
 		notifier,
 		logQuerier,
-		logger,
+		log,
 	)
 	if err != nil {
 		return err
@@ -178,21 +178,21 @@ func runHttpServer(
 		<-ctx.Done()
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		logger.Infof("HTTP server shutting down...")
+		log.Infof("HTTP server shutting down...")
 		if err := srv.Shutdown(ctx); err != nil && !errors.Is(err, context.Canceled) {
-			logger.WithError(err).Infof("HTTP server shutdown failed")
+			log.WithError(err).Infof("HTTP server shutdown failed")
 			return err
 		}
 		return nil
 	})
 
 	wg.Go(func() error {
-		logger.Infof("HTTP server accepting requests on %q", listenAddress)
+		log.Infof("HTTP server accepting requests on %q", listenAddress)
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			logger.WithError(err).Infof("unexpected error from HTTP server")
+			log.WithError(err).Infof("unexpected error from HTTP server")
 			return err
 		}
-		logger.Infof("HTTP server finished, terminating...")
+		log.Infof("HTTP server finished, terminating...")
 		return nil
 	})
 	return wg.Wait()
@@ -217,9 +217,9 @@ func ConfigureGraph(
 	defaultLogDestinations []logging.SupportedLogDestination,
 	notifier *notify.Notifier,
 	logQuerier loki.Querier,
-	logger logrus.FieldLogger,
+	log logrus.FieldLogger,
 ) (func(http.Handler) http.Handler, error) {
-	searcher, err := search.New(ctx, pool, logger.WithField("subsystem", "search_bleve"))
+	searcher, err := search.New(ctx, pool, log.WithField("subsystem", "search_bleve"))
 	if err != nil {
 		return nil, fmt.Errorf("init bleve: %w", err)
 	}
@@ -233,14 +233,14 @@ func ConfigureGraph(
 	opensearch.AddSearch(searcher, watchers.OpenSearchWatcher)
 	sqlinstance.AddSearch(searcher, watchers.SqlInstanceWatcher)
 	valkey.AddSearch(searcher, watchers.ValkeyWatcher)
-	team.AddSearch(searcher, pool, notifier, logger.WithField("subsystem", "team_search"))
+	team.AddSearch(searcher, pool, notifier, log.WithField("subsystem", "team_search"))
 
 	// Re-index all to initialize the search index
 	if err := searcher.ReIndex(ctx); err != nil {
 		return nil, fmt.Errorf("reindex all: %w", err)
 	}
 
-	sqlAdminService, err := sqlinstance.NewClient(ctx, logger, sqlinstance.WithFakeClients(fakes.WithFakeCloudSQL), sqlinstance.WithInstanceWatcher(watchers.SqlInstanceWatcher))
+	sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(fakes.WithFakeCloudSQL), sqlinstance.WithInstanceWatcher(watchers.SqlInstanceWatcher))
 	if err != nil {
 		return nil, fmt.Errorf("create SQL Admin service: %w", err)
 	}
@@ -248,9 +248,9 @@ func ConfigureGraph(
 	var priceRetriever price.Retriever
 	if fakes.WithFakePriceClient {
 		priceRetriever = fakeprice.NewClient()
-		logger.Warn("Using fake price retriever")
+		log.Warn("Using fake price retriever")
 	} else {
-		priceRetriever, err = price.NewClient(ctx, logger)
+		priceRetriever, err = price.NewClient(ctx, log)
 		if err != nil {
 			return nil, fmt.Errorf("create price service: %w", err)
 		}
@@ -261,7 +261,7 @@ func ConfigureGraph(
 		prometheusClient = promfake.NewFakeClient(clusters, nil, nil)
 	} else {
 		var err error
-		prometheusClient, err = promclient.New(clusters, tenantName, logger)
+		prometheusClient, err = promclient.New(clusters, tenantName, log)
 		if err != nil {
 			return nil, fmt.Errorf("create utilization client: %w", err)
 		}
@@ -277,7 +277,7 @@ func ConfigureGraph(
 		if err != nil {
 			return nil, fmt.Errorf("create k8s client sets: %w", err)
 		}
-		podLogStreamer = podlog.NewLogStreamer(clients, logger)
+		podLogStreamer = podlog.NewLogStreamer(clients, log)
 		secretClientCreator = secret.CreatorFromConfig(ctx, k8sClients)
 	}
 
@@ -294,19 +294,19 @@ func ConfigureGraph(
 
 	setupContext := func(ctx context.Context) context.Context {
 		ctx = podlog.NewLoaderContext(ctx, podLogStreamer)
-		ctx = application.NewLoaderContext(ctx, watchers.AppWatcher, watchers.IngressWatcher, prometheusClient, logger)
+		ctx = application.NewLoaderContext(ctx, watchers.AppWatcher, watchers.IngressWatcher, prometheusClient, log)
 		ctx = bigquery.NewLoaderContext(ctx, watchers.BqWatcher)
 		ctx = bucket.NewLoaderContext(ctx, watchers.BucketWatcher)
 		ctx = job.NewLoaderContext(ctx, watchers.JobWatcher, watchers.RunWatcher)
 		ctx = kafkatopic.NewLoaderContext(ctx, watchers.KafkaTopicWatcher)
 		ctx = workload.NewLoaderContext(ctx, watchers.PodWatcher)
-		ctx = secret.NewLoaderContext(ctx, secretClientCreator, clusters, logger)
+		ctx = secret.NewLoaderContext(ctx, secretClientCreator, clusters, log)
 		ctx = aiven.NewLoaderContext(ctx, aivenProjects)
-		ctx = opensearch.NewLoaderContext(ctx, tenantName, watchers.OpenSearchWatcher, aivenClient, logger)
+		ctx = opensearch.NewLoaderContext(ctx, tenantName, watchers.OpenSearchWatcher, aivenClient, log)
 		ctx = valkey.NewLoaderContext(ctx, tenantName, watchers.ValkeyWatcher, aivenClient)
-		ctx = price.NewLoaderContext(ctx, priceRetriever, logger)
-		ctx = utilization.NewLoaderContext(ctx, prometheusClient, logger)
-		ctx = alerts.NewLoaderContext(ctx, prometheusClient, logger)
+		ctx = price.NewLoaderContext(ctx, priceRetriever, log)
+		ctx = utilization.NewLoaderContext(ctx, prometheusClient, log)
+		ctx = alerts.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, watchers.SqlDatabaseWatcher, watchers.SqlInstanceWatcher)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = issue.NewContext(ctx, pool)
@@ -318,14 +318,14 @@ func ConfigureGraph(
 		ctx = repository.NewLoaderContext(ctx, pool)
 		ctx = authz.NewLoaderContext(ctx, pool)
 		ctx = activitylog.NewLoaderContext(ctx, pool)
-		ctx = vulnerability.NewLoaderContext(ctx, vulnMgr, logger)
-		ctx = servicemaintenance.NewLoaderContext(ctx, serviceMaintenanceManager, logger)
+		ctx = vulnerability.NewLoaderContext(ctx, vulnMgr, log)
+		ctx = servicemaintenance.NewLoaderContext(ctx, serviceMaintenanceManager, log)
 		ctx = reconciler.NewLoaderContext(ctx, pool)
 		ctx = deployment.NewLoaderContext(ctx, pool, hookdClient)
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)
 		ctx = session.NewLoaderContext(ctx, pool)
 		ctx = search.NewLoaderContext(ctx, pool, searcher)
-		ctx = unleash.NewLoaderContext(ctx, tenantName, watchers.UnleashWatcher, bifrostAPIURL, allowedClusters, logger)
+		ctx = unleash.NewLoaderContext(ctx, tenantName, watchers.UnleashWatcher, bifrostAPIURL, allowedClusters, log)
 		ctx = logging.NewPackageContext(ctx, tenantName, defaultLogDestinations)
 		ctx = environment.NewLoaderContext(ctx, pool)
 		ctx = feature.NewLoaderContext(
