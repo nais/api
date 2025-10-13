@@ -22,6 +22,18 @@ Locally, most external services are replaced with fake clients, and the Kubernet
 The test suite uses [testcontainers](https://testcontainers.com/), and if you are using Colima you might need to follow
 the guidelines in the [testcontainers documentation](https://golang.testcontainers.org/system_requirements/using_colima/).
 
+### Local development of logging API
+
+To develop the logging API with real data:
+
+```bash
+TENANT_NAME="nav.no"
+MANAGEMENT_CONTEXT="nav-management-v2"
+narc jita grant k8s-admin "$TENANT_NAME" --duration 1h --reason "port forward for loki local testing"
+kubectl --context "$MANAGEMENT_CONTEXT" --namespace nais-system port-forward svc/loki-query-frontend 3100 &
+LOGGING_LOKI_ADDRESS="http://127.0.0.1:3100" mise run local && kill %%
+```
+
 ## Development practices
 
 Check practices used in this project here: [docs/practices.md](docs/practices.md)
