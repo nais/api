@@ -20,7 +20,7 @@ func StartValkeyMaintenance(ctx context.Context, input StartValkeyMaintenanceInp
 		return err
 	}
 
-	if err := fromContext(ctx).maintenanceMutator.aivenClient.ServiceMaintenanceStart(ctx, vk.AivenProject, input.ServiceName); err != nil {
+	if err := fromContext(ctx).maintenanceMutator.aivenClient.ServiceMaintenanceStart(ctx, vk.AivenProject, vk.FullyQualifiedName()); err != nil {
 		fromContext(ctx).log.WithError(err).Error("Failed to start Valkey maintenance")
 		return err
 	}
@@ -28,9 +28,9 @@ func StartValkeyMaintenance(ctx context.Context, input StartValkeyMaintenanceInp
 	return activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          servicemaintenanceal.ActivityLogEntryActionMaintenanceStarted,
 		ResourceType:    valkey.ActivityLogEntryResourceTypeValkey,
-		TeamSlug:        &input.TeamSlug,
-		EnvironmentName: &input.EnvironmentName,
-		ResourceName:    input.ServiceName,
+		TeamSlug:        &vk.TeamSlug,
+		EnvironmentName: &vk.EnvironmentName,
+		ResourceName:    vk.Name,
 		Actor:           authz.ActorFromContext(ctx).User,
 	})
 }
@@ -41,7 +41,7 @@ func StartOpenSearchMaintenance(ctx context.Context, input StartOpenSearchMainte
 		return err
 	}
 
-	if err := fromContext(ctx).maintenanceMutator.aivenClient.ServiceMaintenanceStart(ctx, instance.AivenProject, input.ServiceName); err != nil {
+	if err := fromContext(ctx).maintenanceMutator.aivenClient.ServiceMaintenanceStart(ctx, instance.AivenProject, instance.FullyQualifiedName()); err != nil {
 		fromContext(ctx).log.WithError(err).Error("Failed to start OpenSearch maintenance")
 		return err
 	}
@@ -49,9 +49,9 @@ func StartOpenSearchMaintenance(ctx context.Context, input StartOpenSearchMainte
 	return activitylog.Create(ctx, activitylog.CreateInput{
 		Action:          servicemaintenanceal.ActivityLogEntryActionMaintenanceStarted,
 		ResourceType:    opensearch.ActivityLogEntryResourceTypeOpenSearch,
-		TeamSlug:        &input.TeamSlug,
-		EnvironmentName: &input.EnvironmentName,
-		ResourceName:    input.ServiceName,
+		TeamSlug:        &instance.TeamSlug,
+		EnvironmentName: &instance.EnvironmentName,
+		ResourceName:    instance.Name,
 		Actor:           authz.ActorFromContext(ctx).User,
 	})
 }
