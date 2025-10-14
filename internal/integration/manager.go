@@ -243,6 +243,7 @@ func newGQLRunner(
 		clusters(),
 		fakeHookd.New(),
 		unleash.FakeBifrostURL,
+		"dev,staging,dev-fss,dev-gcp",
 		[]logging.SupportedLogDestination{logging.Loki},
 		notifier,
 		log,

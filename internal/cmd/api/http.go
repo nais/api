@@ -86,6 +86,7 @@ func runHttpServer(
 	vulnMgr *vulnerability.Manager,
 	hookdClient hookd.Client,
 	bifrostAPIURL string,
+	allowedClusters string,
 	defaultLogDestinations []logging.SupportedLogDestination,
 	notifier *notify.Notifier,
 	log logrus.FieldLogger,
@@ -95,7 +96,7 @@ func runHttpServer(
 		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL playground", "/graphql"), "playground")),
 	)
 
-	contextDependencies, err := ConfigureGraph(
+	graphMiddleware, err := ConfigureGraph(
 		ctx,
 		fakes,
 		watchers,
@@ -110,6 +111,7 @@ func runHttpServer(
 		clusters,
 		hookdClient,
 		bifrostAPIURL,
+		allowedClusters,
 		defaultLogDestinations,
 		notifier,
 		log,
@@ -117,6 +119,8 @@ func runHttpServer(
 	if err != nil {
 		return err
 	}
+
+	contextDependencies := graphMiddleware
 
 	router.Route("/graphql", func(r chi.Router) {
 		middlewares := []func(http.Handler) http.Handler{
@@ -206,6 +210,7 @@ func ConfigureGraph(
 	clusters []string,
 	hookdClient hookd.Client,
 	bifrostAPIURL string,
+	allowedClusters string,
 	defaultLogDestinations []logging.SupportedLogDestination,
 	notifier *notify.Notifier,
 	log logrus.FieldLogger,
@@ -315,7 +320,7 @@ func ConfigureGraph(
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)
 		ctx = session.NewLoaderContext(ctx, pool)
 		ctx = search.NewLoaderContext(ctx, pool, searcher)
-		ctx = unleash.NewLoaderContext(ctx, tenantName, watchers.UnleashWatcher, bifrostAPIURL, log)
+		ctx = unleash.NewLoaderContext(ctx, tenantName, watchers.UnleashWatcher, bifrostAPIURL, allowedClusters, log)
 		ctx = logging.NewPackageContext(ctx, tenantName, defaultLogDestinations)
 		ctx = environment.NewLoaderContext(ctx, pool)
 		ctx = feature.NewLoaderContext(

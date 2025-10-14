@@ -65,6 +65,7 @@ unleash:
   enabled: false
   namespace: "bifrost-unleash"
   bifrostApiUrl: "http://bifrost-backend"
+  allowedClusters: "" # mapped in fasit
 
 replicas: 2
 
