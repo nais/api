@@ -315,7 +315,7 @@ func ConfigureGraph(
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)
 		ctx = session.NewLoaderContext(ctx, pool)
 		ctx = search.NewLoaderContext(ctx, pool, searcher)
-		ctx = unleash.NewLoaderContext(ctx, tenantName, watchers.UnleashWatcher, bifrostAPIURL, log)
+		ctx = unleash.NewLoaderContext(ctx, tenantName, watchers.UnleashWatcher, bifrostAPIURL, cfg.Unleash.AllowedClusters, log)
 		ctx = logging.NewPackageContext(ctx, tenantName, defaultLogDestinations)
 		ctx = environment.NewLoaderContext(ctx, pool)
 		ctx = feature.NewLoaderContext(

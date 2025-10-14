@@ -98,6 +98,9 @@ type oAuthConfig struct {
 type unleashConfig struct {
 	// BifrostApiEndpoint is the endpoint for the Bifrost API
 	BifrostApiUrl string `env:"UNLEASH_BIFROST_API_URL,default=*fake*"`
+
+	// AllowedClusters is a comma-separated list of clusters that Unleash instances can federate to
+	AllowedClusters string `env:"UNLEASH_ALLOWED_CLUSTERS,default=dev-gcp,prod-gcp,dev-fss,prod-fss"`
 }
 
 type loggingConfig struct {
