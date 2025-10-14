@@ -91,63 +91,72 @@ func (q *querier) Tail(ctx context.Context, filter *LogSubscriptionFilter) (<-ch
 	lokiUrl.Path = "/loki/api/v1/tail"
 	lokiUrl.RawQuery = filter.lokiQueryParameters().Encode()
 
-	conn, _, err := websocket.DefaultDialer.DialContext(ctx, lokiUrl.String(), nil)
+	conn, err := connect(ctx, lokiUrl, q.log)
 	if err != nil {
 		return nil, err
 	}
 
 	logLines := make(chan *LogLine, 1)
 
-	go streamLogLines(ctx, conn, logLines, q.log)
+	go func() {
+		if err := streamLogLines(ctx, conn, logLines); err != nil {
+			q.log.WithError(err).Errorf("streaming log lines")
+		}
+		close(logLines)
+	}()
 
 	return logLines, nil
 }
 
-func streamLogLines(ctx context.Context, conn *websocket.Conn, logLines chan *LogLine, log logrus.FieldLogger) {
-	defer func() {
+func connect(ctx context.Context, u url.URL, log logrus.FieldLogger) (*websocket.Conn, error) {
+	conn, _, err := websocket.DefaultDialer.DialContext(ctx, u.String(), nil)
+	if err != nil {
+		return nil, fmt.Errorf("connect to loki: %w", err)
+	}
+
+	go func() {
+		<-ctx.Done()
 		log.Debugf("closing log streamer connection")
 		_ = conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 		_ = conn.Close()
-		close(logLines)
 	}()
 
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
+	return conn, nil
+}
 
-	go func() {
-		defer cancel()
-		for ctx.Err() == nil {
-			_, message, err := conn.ReadMessage()
-			if err != nil {
-				log.WithError(err).Errorf("read log message from loki")
-				return
+func streamLogLines(ctx context.Context, conn *websocket.Conn, logLines chan *LogLine) error {
+	for ctx.Err() == nil {
+		_, message, err := conn.ReadMessage()
+		if err != nil {
+			if !strings.Contains(err.Error(), "use of closed network connection") {
+				return fmt.Errorf("read log message from loki: %w", err)
+			}
+			return nil
+		}
+
+		var resp loghttp.TailResponse
+		if err := json.NewDecoder(bytes.NewReader(message)).Decode(&resp); err != nil {
+			return fmt.Errorf("parse log message from loki: %w", err)
+		}
+
+		for _, stream := range resp.Streams {
+			labels := make([]*LogLineLabel, 0)
+			for k, v := range stream.Labels {
+				labels = append(labels, &LogLineLabel{
+					Key:   k,
+					Value: v,
+				})
 			}
 
-			var resp loghttp.TailResponse
-			if err := json.NewDecoder(bytes.NewReader(message)).Decode(&resp); err != nil {
-				log.WithError(err).Errorf("parse log message from loki")
-				return
-			}
-
-			for _, stream := range resp.Streams {
-				labels := make([]*LogLineLabel, 0)
-				for k, v := range stream.Labels {
-					labels = append(labels, &LogLineLabel{
-						Key:   k,
-						Value: v,
-					})
-				}
-
-				for _, entry := range stream.Entries {
-					logLines <- &LogLine{
-						Time:    entry.Timestamp,
-						Message: entry.Line,
-						Labels:  labels,
-					}
+			for _, entry := range stream.Entries {
+				logLines <- &LogLine{
+					Time:    entry.Timestamp,
+					Message: entry.Line,
+					Labels:  labels,
 				}
 			}
 		}
-	}()
+	}
 
-	<-ctx.Done()
+	return nil
 }
