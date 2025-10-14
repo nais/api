@@ -7,8 +7,8 @@ FROM
 WHERE
 	team_slug = @team_slug
 	AND (
-		sqlc.narg('filter')::TEXT[] [] IS NULL
-		OR sqlc.narg('filter')::TEXT[] [] @> ARRAY[resource_type, action]
+		sqlc.narg('filter')::TEXT[] IS NULL
+		OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
 	)
 ORDER BY
 	created_at DESC
@@ -28,8 +28,8 @@ WHERE
 	resource_type = @resource_type
 	AND resource_name = @resource_name
 	AND (
-		sqlc.narg('filter')::TEXT[] [] IS NULL
-		OR sqlc.narg('filter')::TEXT[] [] @> ARRAY[resource_type, action]
+		sqlc.narg('filter')::TEXT[] IS NULL
+		OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
 	)
 ORDER BY
 	created_at DESC
@@ -51,8 +51,8 @@ WHERE
 	AND resource_name = @resource_name
 	AND environment = @environment_name
 	AND (
-		sqlc.narg('filter')::TEXT[] [] IS NULL
-		OR sqlc.narg('filter')::TEXT[] [] @> ARRAY[resource_type, action]
+		sqlc.narg('filter')::TEXT[] IS NULL
+		OR (resource_type || ':' || action) = ANY (sqlc.narg('filter')::TEXT[])
 	)
 ORDER BY
 	created_at DESC
