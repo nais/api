@@ -23,6 +23,11 @@ input LogSubscriptionInitialBatch {
 
 input LogSubscriptionFilter {
 	"""
+	Specify the environment to stream log lines from.
+	"""
+	environmentName: String!
+
+	"""
 	Filter log lines by specifying a query.
 	"""
 	query: String!

@@ -101,9 +101,8 @@ type unleashConfig struct {
 }
 
 type loggingConfig struct {
-	LokiAddress       string `env:"LOGGING_LOKI_ADDRESS,default=http://loki-query-frontend:3100"`
-	LokiDefault       bool   `env:"LOGGING_LOKI_CLUSTER_DEFAULT"`
-	SecureLogsDefault bool   `env:"LOGGING_SECURE_LOGS_CLUSTER_DEFAULT"`
+	LokiDefault       bool `env:"LOGGING_LOKI_CLUSTER_DEFAULT"`
+	SecureLogsDefault bool `env:"LOGGING_SECURE_LOGS_CLUSTER_DEFAULT"`
 }
 
 type zitadelConfig struct {

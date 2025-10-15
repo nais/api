@@ -268,9 +268,14 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		}
 	}
 
-	logQuerier, err := loki.NewQuerier(cfg.Logging.LokiAddress, log.WithField("subsystem", "log_querier"))
+	var lokiClientOpts []loki.OptionFunc
+	if addr, ok := os.LookupEnv("LOGGING_LOKI_ADDRESS"); ok {
+		lokiClientOpts = append(lokiClientOpts, loki.WithLocalLoki(addr))
+	}
+
+	lokiClient, err := loki.NewClient(cfg.K8s.Clusters, cfg.Tenant, log.WithField("subsystem", "loki_client"), lokiClientOpts...)
 	if err != nil {
-		return fmt.Errorf("create log querier: %w", err)
+		return fmt.Errorf("create loki client: %w", err)
 	}
 
 	// HTTP server
@@ -297,7 +302,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			cfg.K8s.AllClusterNames(),
 			cfg.Logging.DefaultLogDestinations(),
 			notifier,
-			logQuerier,
+			lokiClient,
 			log.WithField("subsystem", "http"),
 		)
 	})

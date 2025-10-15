@@ -17000,6 +17000,11 @@ input LogSubscriptionInitialBatch {
 
 input LogSubscriptionFilter {
 	"""
+	Specify the environment to stream log lines from.
+	"""
+	environmentName: String!
+
+	"""
 	Filter log lines by specifying a query.
 	"""
 	query: String!
@@ -84271,13 +84276,20 @@ func (ec *executionContext) unmarshalInputLogSubscriptionFilter(ctx context.Cont
 		asMap["initialBatch"] = map[string]any{}
 	}
 
-	fieldsInOrder := [...]string{"query", "initialBatch"}
+	fieldsInOrder := [...]string{"environmentName", "query", "initialBatch"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "environmentName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EnvironmentName = data
 		case "query":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
 			data, err := ec.unmarshalNString2string(ctx, v)

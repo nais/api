@@ -139,9 +139,13 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 
 		watchers := watchers.SetupWatchers(ctx, watcherMgr, managementWatcherMgr)
 
-		logQuerier, err := loki.NewQuerier("http://localhost:3100", log.WithField("subsystem", "log_querier"))
+		lokiClient, err := loki.NewClient(clusters(), "tenant", log.WithField("subsystem", "loki_client"), loki.WithLocalLoki("http://127.0.0.1:3100"))
+		if err != nil {
+			done()
+			return ctx, nil, nil, err
+		}
 
-		gqlRunner, gqlCleanup, err := newGQLRunner(ctx, config, pool, topic, watchers, watcherMgr, clusterConfig, fakeAivenClient, logQuerier)
+		gqlRunner, gqlCleanup, err := newGQLRunner(ctx, config, pool, topic, watchers, watcherMgr, clusterConfig, fakeAivenClient, lokiClient)
 		if err != nil {
 			done()
 			return ctx, nil, nil, err
@@ -198,7 +202,7 @@ func newGQLRunner(
 	watcherMgr *watcher.Manager,
 	clusterConfig kubernetes.ClusterConfigMap,
 	fakeAivenClient *aiven.FakeAivenClient,
-	logQuerier loki.Querier,
+	lokiClient loki.Client,
 ) (spec.Runner, func(), error) {
 	log := logrus.New()
 	log.Out = io.Discard
@@ -250,7 +254,7 @@ func newGQLRunner(
 		[]string{"dev", "staging", "dev-fss", "dev-gcp"},
 		[]logging.SupportedLogDestination{logging.Loki},
 		notifier,
-		logQuerier,
+		lokiClient,
 		log,
 	)
 	if err != nil {
