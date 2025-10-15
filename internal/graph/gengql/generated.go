@@ -17007,7 +17007,7 @@ input LogSubscriptionFilter {
 	"""
 	Specify an initial batch of log lines to be sent when the subscription starts.
 	"""
-	logSubscriptionInitialBatch: LogSubscriptionInitialBatch = {}
+	initialBatch: LogSubscriptionInitialBatch = {}
 }
 
 type LogLine {
@@ -84267,11 +84267,11 @@ func (ec *executionContext) unmarshalInputLogSubscriptionFilter(ctx context.Cont
 		asMap[k] = v
 	}
 
-	if _, present := asMap["logSubscriptionInitialBatch"]; !present {
-		asMap["logSubscriptionInitialBatch"] = map[string]any{}
+	if _, present := asMap["initialBatch"]; !present {
+		asMap["initialBatch"] = map[string]any{}
 	}
 
-	fieldsInOrder := [...]string{"query", "logSubscriptionInitialBatch"}
+	fieldsInOrder := [...]string{"query", "initialBatch"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -84285,13 +84285,13 @@ func (ec *executionContext) unmarshalInputLogSubscriptionFilter(ctx context.Cont
 				return it, err
 			}
 			it.Query = data
-		case "logSubscriptionInitialBatch":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("logSubscriptionInitialBatch"))
+		case "initialBatch":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("initialBatch"))
 			data, err := ec.unmarshalOLogSubscriptionInitialBatch2githubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogSubscriptionInitialBatch(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.LogSubscriptionInitialBatch = data
+			it.InitialBatch = data
 		}
 	}
 
