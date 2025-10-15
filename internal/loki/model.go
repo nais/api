@@ -27,8 +27,8 @@ type LogSubscriptionInitialBatch struct {
 }
 
 type LogSubscriptionFilter struct {
-	Query                       string                      `json:"query"`
-	LogSubscriptionInitialBatch LogSubscriptionInitialBatch `json:"logSubscriptionInitialBatch"`
+	Query        string                      `json:"query"`
+	InitialBatch LogSubscriptionInitialBatch `json:"initialBatch"`
 }
 
 func (f *LogSubscriptionFilter) Validate() error {
@@ -45,8 +45,8 @@ func (f *LogSubscriptionFilter) lokiQueryParameters() url.Values {
 	values := url.Values{}
 
 	values.Set("query", f.Query)
-	values.Set("limit", fmt.Sprintf("%d", f.LogSubscriptionInitialBatch.Limit))
-	values.Set("start", fmt.Sprintf("%d", time.Now().Add(-f.LogSubscriptionInitialBatch.Since).UnixNano()))
+	values.Set("limit", fmt.Sprintf("%d", f.InitialBatch.Limit))
+	values.Set("start", fmt.Sprintf("%d", time.Now().Add(-f.InitialBatch.Since).UnixNano()))
 
 	return values
 }
