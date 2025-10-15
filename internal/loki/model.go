@@ -1,12 +1,14 @@
 package loki
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
 	"time"
 
 	"github.com/grafana/loki/v3/pkg/loghttp"
+	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/validate"
 )
 
@@ -27,15 +29,20 @@ type LogSubscriptionInitialBatch struct {
 }
 
 type LogSubscriptionFilter struct {
-	Query        string                      `json:"query"`
-	InitialBatch LogSubscriptionInitialBatch `json:"initialBatch"`
+	EnvironmentName string                      `json:"environmentName"`
+	Query           string                      `json:"query"`
+	InitialBatch    LogSubscriptionInitialBatch `json:"initialBatch"`
 }
 
-func (f *LogSubscriptionFilter) Validate() error {
+func (f *LogSubscriptionFilter) Validate(ctx context.Context) error {
 	verr := validate.New()
 
+	if _, err := environment.Get(ctx, f.EnvironmentName); err != nil {
+		verr.Add("environmentName", "Environment does not exist.")
+	}
+
 	if _, err := loghttp.ParseTailQuery(&http.Request{Form: f.lokiQueryParameters()}); err != nil {
-		verr.Add("query", "Unable to parse query")
+		verr.Add("query", "Unable to parse log query.")
 	}
 
 	return verr.NilIfEmpty()

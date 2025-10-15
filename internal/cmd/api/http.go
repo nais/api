@@ -90,7 +90,7 @@ func runHttpServer(
 	allowedClusters []string,
 	defaultLogDestinations []logging.SupportedLogDestination,
 	notifier *notify.Notifier,
-	logQuerier loki.Querier,
+	lokiClient loki.Client,
 	log logrus.FieldLogger,
 ) error {
 	router := chi.NewRouter()
@@ -116,7 +116,7 @@ func runHttpServer(
 		allowedClusters,
 		defaultLogDestinations,
 		notifier,
-		logQuerier,
+		lokiClient,
 		log,
 	)
 	if err != nil {
@@ -216,7 +216,7 @@ func ConfigureGraph(
 	allowedClusters []string,
 	defaultLogDestinations []logging.SupportedLogDestination,
 	notifier *notify.Notifier,
-	logQuerier loki.Querier,
+	lokiClient loki.Client,
 	log logrus.FieldLogger,
 ) (func(http.Handler) http.Handler, error) {
 	searcher, err := search.New(ctx, pool, log.WithField("subsystem", "search_bleve"))
@@ -311,7 +311,7 @@ func ConfigureGraph(
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = issue.NewContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, watchers.NamespaceWatcher)
-		ctx = loki.NewLoaderContext(ctx, logQuerier)
+		ctx = loki.NewLoaderContext(ctx, lokiClient)
 		ctx = user.NewLoaderContext(ctx, pool)
 		ctx = usersync.NewLoaderContext(ctx, pool)
 		ctx = cost.NewLoaderContext(ctx, pool, costOpts...)
