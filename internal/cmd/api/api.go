@@ -288,7 +288,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			vulnMgr,
 			hookdClient,
 			cfg.Unleash.BifrostApiUrl,
-			cfg.Unleash.AllowedClusters,
+			cfg.K8s.AllClusterNames(),
 			cfg.Logging.DefaultLogDestinations(),
 			notifier,
 			log.WithField("subsystem", "http"),

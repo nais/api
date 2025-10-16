@@ -9,11 +9,13 @@ import (
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	bifrost "github.com/nais/bifrost/pkg/unleash"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
+	"github.com/sirupsen/logrus"
 )
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*UnleashInstance, error) {
@@ -50,11 +52,24 @@ func Create(ctx context.Context, input *CreateUnleashForTeamInput) (*UnleashInst
 	// }
 
 	// TODO implement auth, set iap header with actor from context or use psk - must update bifrost to support this
+	clusters := fromContext(ctx).allowedClusters
+	mappedClusters := make([]string, len(clusters))
+	for i, cluster := range clusters {
+		mappedClusters[i] = environmentmapper.EnvironmentName(cluster)
+	}
+
+	fromContext(ctx).log.WithFields(logrus.Fields{
+		"team":            input.TeamSlug.String(),
+		"clusters":        clusters,
+		"mappedClusters":  mappedClusters,
+		"allowedClusters": strings.Join(mappedClusters, ","),
+	}).Debug("creating unleash instance with allowed clusters")
+
 	bi := bifrost.UnleashConfig{
 		Name:             input.TeamSlug.String(),
 		AllowedTeams:     input.TeamSlug.String(),
 		EnableFederation: true,
-		AllowedClusters:  fromContext(ctx).allowedClusters,
+		AllowedClusters:  strings.Join(mappedClusters, ","),
 	}
 	unleashResponse, err := client.Post(ctx, "/unleash/new", bi)
 	if err != nil {

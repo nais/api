@@ -26,7 +26,7 @@ const (
 
 // NewLoaderContext creates a new context with a loaders value.
 // If *fake* is provided as bifrostAPIURL, a fake client will be used.
-func NewLoaderContext(ctx context.Context, tenantName string, appWatcher *watcher.Watcher[*UnleashInstance], bifrostAPIURL string, allowedClusters string, log logrus.FieldLogger) context.Context {
+func NewLoaderContext(ctx context.Context, tenantName string, appWatcher *watcher.Watcher[*UnleashInstance], bifrostAPIURL string, allowedClusters []string, log logrus.FieldLogger) context.Context {
 	return context.WithValue(ctx, loadersKey, newLoaders(tenantName, appWatcher, bifrostAPIURL, allowedClusters, log))
 }
 
@@ -44,10 +44,11 @@ type loaders struct {
 	unleashWatcher  *watcher.Watcher[*UnleashInstance]
 	prometheus      Prometheus
 	bifrostClient   BifrostClient
-	allowedClusters string
+	allowedClusters []string
+	log             logrus.FieldLogger
 }
 
-func newLoaders(tenantName string, appWatcher *watcher.Watcher[*UnleashInstance], bifrostAPIURL string, allowedClusters string, log logrus.FieldLogger) *loaders {
+func newLoaders(tenantName string, appWatcher *watcher.Watcher[*UnleashInstance], bifrostAPIURL string, allowedClusters []string, log logrus.FieldLogger) *loaders {
 	var client BifrostClient
 	var prometheus Prometheus
 	if bifrostAPIURL == FakeBifrostURL {
@@ -70,6 +71,7 @@ func newLoaders(tenantName string, appWatcher *watcher.Watcher[*UnleashInstance]
 		bifrostClient:   client,
 		prometheus:      prometheus,
 		allowedClusters: allowedClusters,
+		log:             log,
 	}
 }
 
