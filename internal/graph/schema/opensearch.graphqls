@@ -63,6 +63,7 @@ type OpenSearch implements Persistence & Node {
 	terminationProtection: Boolean!
 	state: OpenSearchState!
 	workload: Workload
+		@deprecated(reason: "OpenSearch does not have a owner, so this field will always be null.")
 	access(
 		first: Int
 		after: Cursor
