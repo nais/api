@@ -54,7 +54,7 @@ func Create(ctx context.Context, input *CreateUnleashForTeamInput) (*UnleashInst
 		Name:             input.TeamSlug.String(),
 		AllowedTeams:     input.TeamSlug.String(),
 		EnableFederation: true,
-		AllowedClusters:  "dev-gcp,prod-gcp,dev-fss,prod-fss",
+		AllowedClusters:  fromContext(ctx).allowedClusters,
 	}
 	unleashResponse, err := client.Post(ctx, "/unleash/new", bi)
 	if err != nil {

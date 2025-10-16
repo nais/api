@@ -73,6 +73,8 @@ spec:
               value: "{{ .Values.unleash.namespace }}"
             - name: UNLEASH_BIFROST_API_URL
               value: "{{ .Values.unleash.bifrostApiUrl }}"
+            - name: UNLEASH_ALLOWED_CLUSTERS
+              value: "{{ .Values.unleash.allowedClusters }}"
             {{- if .Values.usersync.adminGroupPrefix }}
             - name: USERSYNC_ADMIN_GROUP_PREFIX
               value: "{{ .Values.usersync.adminGroupPrefix }}"

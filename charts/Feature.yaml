@@ -180,6 +180,21 @@ values:
       template: |
         {{ .Management.bifrost_unleash_namespace | quote }}
 
+  unleash.allowedClusters:
+    displayName: Unleash allowed clusters
+    description: Comma-separated list of clusters that Unleash instances can federate to
+    config:
+      type: string
+    computed:
+      template: |
+        {{ if (eq .Tenant.Name "nav") }}
+        {{- $tenantEnvs := filter "kind" "legacy" .Envs -}}
+        {{ eachOf $tenantEnvs "name" | sortAlpha | join "," }}
+        {{ else }}
+        {{- $tenantEnvs := filter "kind" "tenant" .Envs -}}
+        {{ eachOf $tenantEnvs "name" | sortAlpha | join "," }}
+        {{ end }}
+
   replaceEnvironmentNames:
     displayName: Replace environment names
     description: Mapping of environment names from current name to expected name. Format `currentName1:expectedName1,currentName2:expectedName2`
