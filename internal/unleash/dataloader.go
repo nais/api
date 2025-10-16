@@ -3,8 +3,10 @@ package unleash
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 	promapi "github.com/prometheus/client_golang/api"
@@ -26,7 +28,7 @@ const (
 
 // NewLoaderContext creates a new context with a loaders value.
 // If *fake* is provided as bifrostAPIURL, a fake client will be used.
-func NewLoaderContext(ctx context.Context, tenantName string, appWatcher *watcher.Watcher[*UnleashInstance], bifrostAPIURL string, allowedClusters string, log logrus.FieldLogger) context.Context {
+func NewLoaderContext(ctx context.Context, tenantName string, appWatcher *watcher.Watcher[*UnleashInstance], bifrostAPIURL string, allowedClusters []string, log logrus.FieldLogger) context.Context {
 	return context.WithValue(ctx, loadersKey, newLoaders(tenantName, appWatcher, bifrostAPIURL, allowedClusters, log))
 }
 
@@ -45,9 +47,10 @@ type loaders struct {
 	prometheus      Prometheus
 	bifrostClient   BifrostClient
 	allowedClusters string
+	log             logrus.FieldLogger
 }
 
-func newLoaders(tenantName string, appWatcher *watcher.Watcher[*UnleashInstance], bifrostAPIURL string, allowedClusters string, log logrus.FieldLogger) *loaders {
+func newLoaders(tenantName string, appWatcher *watcher.Watcher[*UnleashInstance], bifrostAPIURL string, allowedClusters []string, log logrus.FieldLogger) *loaders {
 	var client BifrostClient
 	var prometheus Prometheus
 	if bifrostAPIURL == FakeBifrostURL {
@@ -65,11 +68,24 @@ func newLoaders(tenantName string, appWatcher *watcher.Watcher[*UnleashInstance]
 		prometheus = promv1.NewAPI(promClient)
 	}
 
+	mappedClusters := make([]string, len(allowedClusters))
+	for i, cluster := range allowedClusters {
+		mappedClusters[i] = environmentmapper.EnvironmentName(cluster)
+	}
+
+	allowedClustersStr := strings.Join(mappedClusters, ",")
+	log.WithFields(logrus.Fields{
+		"clusters":        allowedClusters,
+		"mappedClusters":  mappedClusters,
+		"allowedClusters": allowedClustersStr,
+	}).Debug("initialized unleash with allowed clusters")
+
 	return &loaders{
 		unleashWatcher:  appWatcher,
 		bifrostClient:   client,
 		prometheus:      prometheus,
-		allowedClusters: allowedClusters,
+		allowedClusters: allowedClustersStr,
+		log:             log,
 	}
 }
 
