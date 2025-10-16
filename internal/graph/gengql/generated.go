@@ -17061,6 +17061,7 @@ type OpenSearch implements Persistence & Node {
 	terminationProtection: Boolean!
 	state: OpenSearchState!
 	workload: Workload
+		@deprecated(reason: "OpenSearch does not have a owner, so this field will always be null.")
 	access(
 		first: Int
 		after: Cursor
@@ -21693,6 +21694,7 @@ type Valkey implements Persistence & Node {
 		orderBy: ValkeyAccessOrder
 	): ValkeyAccessConnection!
 	workload: Workload
+		@deprecated(reason: "Owners of valkeys have been removed, so this will always be null.")
 	state: ValkeyState!
 	"Availability tier for the Valkey instance."
 	tier: ValkeyTier!

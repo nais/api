@@ -71,6 +71,7 @@ type Valkey implements Persistence & Node {
 		orderBy: ValkeyAccessOrder
 	): ValkeyAccessConnection!
 	workload: Workload
+		@deprecated(reason: "Owners of valkeys have been removed, so this will always be null.")
 	state: ValkeyState!
 	"Availability tier for the Valkey instance."
 	tier: ValkeyTier!
