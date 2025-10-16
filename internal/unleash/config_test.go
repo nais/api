@@ -87,18 +87,19 @@ func TestAllowedClustersMapping(t *testing.T) {
 			// Create a bifrost client
 			client := NewBifrostClient(s.URL, logger)
 
-			// Simulate what happens in Create function
+			// Simulate what happens in newLoaders function
 			mappedClusters := make([]string, len(tt.clusters))
 			for i, cluster := range tt.clusters {
 				mappedClusters[i] = environmentmapper.EnvironmentName(cluster)
 			}
+			allowedClustersStr := strings.Join(mappedClusters, ",")
 
-			// Create the bifrost config
+			// Create the bifrost config (as done in Create function)
 			bi := bifrost.UnleashConfig{
 				Name:             "test-team",
 				AllowedTeams:     "test-team",
 				EnableFederation: true,
-				AllowedClusters:  strings.Join(mappedClusters, ","),
+				AllowedClusters:  allowedClustersStr,
 			}
 
 			// Make the request

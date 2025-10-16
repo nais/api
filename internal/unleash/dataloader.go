@@ -3,8 +3,10 @@ package unleash
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 	promapi "github.com/prometheus/client_golang/api"
@@ -44,7 +46,7 @@ type loaders struct {
 	unleashWatcher  *watcher.Watcher[*UnleashInstance]
 	prometheus      Prometheus
 	bifrostClient   BifrostClient
-	allowedClusters []string
+	allowedClusters string
 	log             logrus.FieldLogger
 }
 
@@ -66,11 +68,23 @@ func newLoaders(tenantName string, appWatcher *watcher.Watcher[*UnleashInstance]
 		prometheus = promv1.NewAPI(promClient)
 	}
 
+	mappedClusters := make([]string, len(allowedClusters))
+	for i, cluster := range allowedClusters {
+		mappedClusters[i] = environmentmapper.EnvironmentName(cluster)
+	}
+
+	allowedClustersStr := strings.Join(mappedClusters, ",")
+	log.WithFields(logrus.Fields{
+		"clusters":        allowedClusters,
+		"mappedClusters":  mappedClusters,
+		"allowedClusters": allowedClustersStr,
+	}).Debug("initialized unleash with allowed clusters")
+
 	return &loaders{
 		unleashWatcher:  appWatcher,
 		bifrostClient:   client,
 		prometheus:      prometheus,
-		allowedClusters: allowedClusters,
+		allowedClusters: allowedClustersStr,
 		log:             log,
 	}
 }
