@@ -6,9 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/gorilla/websocket"
 	"github.com/grafana/loki/v3/pkg/loghttp"
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/sirupsen/logrus"
 )
 
@@ -18,13 +20,25 @@ type Client interface {
 	Tail(context.Context, *LogSubscriptionFilter) (<-chan *LogLine, error)
 }
 
+func DefaultLokiUrlGenerator(clusterName, tenant string) (*url.URL, error) {
+	if tenant == "nav" {
+		clusterName = strings.TrimSuffix(clusterName, "-fss")
+	}
+
+	u, err := url.Parse(fmt.Sprintf("http://loki.%s.%s.cloud.nais.io", clusterName, tenant))
+	if err != nil {
+		return nil, fmt.Errorf("parse loki URL: %w", err)
+	}
+	return u, nil
+}
+
 type querier struct {
-	// lokis is a map from cluster names to Loki URLs
+	// lokis is a map from environment names to Loki URLs
 	lokis map[string]url.URL
 	log   logrus.FieldLogger
 }
 
-type lokiUrlGeneratorFunc func(cluster, tenant string) (*url.URL, error)
+type lokiUrlGeneratorFunc func(clusterName, tenant string) (*url.URL, error)
 
 type setup struct {
 	urlGenerator lokiUrlGeneratorFunc
@@ -48,13 +62,7 @@ func NewClient(clusters []string, tenant string, log logrus.FieldLogger, opts ..
 	}
 
 	if s.urlGenerator == nil {
-		s.urlGenerator = func(cluster, tenant string) (*url.URL, error) {
-			u, err := url.Parse(fmt.Sprintf("http://loki.%s.%s.cloud.nais.io", cluster, tenant))
-			if err != nil {
-				return nil, fmt.Errorf("parse loki URL: %w", err)
-			}
-			return u, nil
-		}
+		s.urlGenerator = DefaultLokiUrlGenerator
 	}
 
 	lokis := make(map[string]url.URL, len(clusters))
@@ -64,7 +72,7 @@ func NewClient(clusters []string, tenant string, log logrus.FieldLogger, opts ..
 			return nil, fmt.Errorf("unable to generate Loki URL for cluster %q and tenant %q: %v", cluster, tenant, err)
 		}
 
-		lokis[cluster] = *u
+		lokis[environmentmapper.EnvironmentName(cluster)] = *u
 	}
 
 	return &querier{
