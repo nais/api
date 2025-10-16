@@ -273,7 +273,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		lokiClientOpts = append(lokiClientOpts, loki.WithLocalLoki(addr))
 	}
 
-	lokiClient, err := loki.NewClient(cfg.K8s.Clusters, cfg.Tenant, log.WithField("subsystem", "loki_client"), lokiClientOpts...)
+	lokiClient, err := loki.NewClient(cfg.K8s.AllClusterNames(), cfg.Tenant, log.WithField("subsystem", "loki_client"), lokiClientOpts...)
 	if err != nil {
 		return fmt.Errorf("create loki client: %w", err)
 	}
