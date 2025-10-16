@@ -9,6 +9,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/ravilushqa/otelgqlgen"
@@ -128,9 +129,19 @@ func (t deprecationTracer) processField(ctx context.Context, fieldCtx *graphql.F
 	}
 	name := fieldCtx.Field.ObjectDefinition.Name + "/" + fieldCtx.Field.Name
 	t.log.WithField("field", name).Debug("deprecated field used")
-	t.stats.Add(ctx, 1, metric.WithAttributes(
+
+	attrs := []attribute.KeyValue{
 		attribute.String("field", name),
-	))
+	}
+
+	usr := authz.ActorFromContext(ctx)
+	if usr != nil && usr.User.IsServiceAccount() {
+		attrs = append(attrs, attribute.String("service_account", usr.User.Identity()))
+	} else {
+		attrs = append(attrs, attribute.Bool("user", true))
+	}
+
+	t.stats.Add(ctx, 1, metric.WithAttributes(attrs...))
 }
 
 func (t deprecationTracer) ExtensionName() string {
