@@ -14,6 +14,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	bifrost "github.com/nais/bifrost/pkg/unleash"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
+	"github.com/sirupsen/logrus"
 )
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*UnleashInstance, error) {
@@ -43,18 +44,18 @@ func ForTeam(ctx context.Context, teamSlug slug.Slug) (*UnleashInstance, error) 
 
 func Create(ctx context.Context, input *CreateUnleashForTeamInput) (*UnleashInstance, error) {
 	client := fromContext(ctx).bifrostClient
-	// if !m.settings.unleashEnabled {
-	// 	return &model.Unleash{
-	// 		Enabled: false,
-	// 	}, fmt.Errorf("unleash is not enabled")
-	// }
 
 	// TODO implement auth, set iap header with actor from context or use psk - must update bifrost to support this
+	fromContext(ctx).log.WithFields(logrus.Fields{
+		"team":            input.TeamSlug.String(),
+		"allowedClusters": fromContext(ctx).allowedClusters,
+	}).Debug("creating unleash instance with allowed clusters")
+
 	bi := bifrost.UnleashConfig{
 		Name:             input.TeamSlug.String(),
 		AllowedTeams:     input.TeamSlug.String(),
 		EnableFederation: true,
-		AllowedClusters:  "dev-gcp,prod-gcp,dev-fss,prod-fss",
+		AllowedClusters:  fromContext(ctx).allowedClusters,
 	}
 	unleashResponse, err := client.Post(ctx, "/unleash/new", bi)
 	if err != nil {
@@ -82,9 +83,6 @@ func Create(ctx context.Context, input *CreateUnleashForTeamInput) (*UnleashInst
 }
 
 func alterTeamAccess(ctx context.Context, teamSlug slug.Slug, allowedTeams []slug.Slug) (*UnleashInstance, error) {
-	// if !m.settings.unleashEnabled {
-	// 	return &model.Unleash{Enabled: false}, fmt.Errorf("unleash is not enabled")
-	// }
 	client := fromContext(ctx).bifrostClient
 
 	allowed := make([]string, len(allowedTeams))
@@ -117,7 +115,6 @@ func AllowTeamAccess(ctx context.Context, input AllowTeamAccessToUnleashInput) (
 	}
 
 	if hasAccessToUnleash(input.AllowedTeamSlug, unleash) {
-		// Early exit, nothing to update
 		return unleash, nil
 	}
 
@@ -150,7 +147,6 @@ func RevokeTeamAccess(ctx context.Context, input RevokeTeamAccessToUnleashInput)
 	}
 
 	if !hasAccessToUnleash(input.TeamSlug, unleash) {
-		// Early exit, nothing to update
 		return unleash, nil
 	}
 

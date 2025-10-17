@@ -1,3 +1,5 @@
+Helper.readK8sResources("k8s_resources/secrets")
+
 local user = User.new("username-1", "user@example.com", "e")
 local otherUser = User.new("username-2", "user2@example.com", "e2")
 
@@ -54,6 +56,36 @@ Test.gql("Create secret for team that does not exist", function(t)
 		errors = {
 			{
 				message = Contains("You are authenticated"),
+				path = {
+					"createSecret",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Create secret that already exists", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		mutation {
+			createSecret(input: {
+				name: "unmanaged-secret-in-dev"
+				environment: "dev"
+				team: "myteam"
+			}) {
+				secret {
+					name
+				}
+			}
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				message = "A secret with this name already exists.",
 				path = {
 					"createSecret",
 				},

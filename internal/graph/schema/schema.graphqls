@@ -19,6 +19,11 @@ The mutation root for the Nais GraphQL API.
 type Mutation
 
 """
+The subscription root for the Nais GraphQL API.
+"""
+type Subscription
+
+"""
 This interface is implemented by types that supports the [Global Object Identification specification](https://graphql.org/learn/global-object-identification/).
 """
 interface Node {

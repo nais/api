@@ -28,6 +28,7 @@ import (
 	apik8s "github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/kubernetes/watchers"
+	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/kafkatopic"
@@ -61,7 +62,7 @@ import (
 	"github.com/rs/cors"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.34.0"
 	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/sync/errgroup"
 )
@@ -86,8 +87,10 @@ func runHttpServer(
 	vulnMgr *vulnerability.Manager,
 	hookdClient hookd.Client,
 	bifrostAPIURL string,
+	allowedClusters []string,
 	defaultLogDestinations []logging.SupportedLogDestination,
 	notifier *notify.Notifier,
+	lokiClient loki.Client,
 	log logrus.FieldLogger,
 ) error {
 	router := chi.NewRouter()
@@ -95,7 +98,7 @@ func runHttpServer(
 		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL playground", "/graphql"), "playground")),
 	)
 
-	contextDependencies, err := ConfigureGraph(
+	graphMiddleware, err := ConfigureGraph(
 		ctx,
 		fakes,
 		watchers,
@@ -110,13 +113,17 @@ func runHttpServer(
 		clusters,
 		hookdClient,
 		bifrostAPIURL,
+		allowedClusters,
 		defaultLogDestinations,
 		notifier,
+		lokiClient,
 		log,
 	)
 	if err != nil {
 		return err
 	}
+
+	contextDependencies := graphMiddleware
 
 	router.Route("/graphql", func(r chi.Router) {
 		middlewares := []func(http.Handler) http.Handler{
@@ -206,8 +213,10 @@ func ConfigureGraph(
 	clusters []string,
 	hookdClient hookd.Client,
 	bifrostAPIURL string,
+	allowedClusters []string,
 	defaultLogDestinations []logging.SupportedLogDestination,
 	notifier *notify.Notifier,
+	lokiClient loki.Client,
 	log logrus.FieldLogger,
 ) (func(http.Handler) http.Handler, error) {
 	searcher, err := search.New(ctx, pool, log.WithField("subsystem", "search_bleve"))
@@ -302,6 +311,7 @@ func ConfigureGraph(
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = issue.NewContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, watchers.NamespaceWatcher)
+		ctx = loki.NewLoaderContext(ctx, lokiClient)
 		ctx = user.NewLoaderContext(ctx, pool)
 		ctx = usersync.NewLoaderContext(ctx, pool)
 		ctx = cost.NewLoaderContext(ctx, pool, costOpts...)
@@ -315,7 +325,7 @@ func ConfigureGraph(
 		ctx = serviceaccount.NewLoaderContext(ctx, pool)
 		ctx = session.NewLoaderContext(ctx, pool)
 		ctx = search.NewLoaderContext(ctx, pool, searcher)
-		ctx = unleash.NewLoaderContext(ctx, tenantName, watchers.UnleashWatcher, bifrostAPIURL, log)
+		ctx = unleash.NewLoaderContext(ctx, tenantName, watchers.UnleashWatcher, bifrostAPIURL, allowedClusters, log)
 		ctx = logging.NewPackageContext(ctx, tenantName, defaultLogDestinations)
 		ctx = environment.NewLoaderContext(ctx, pool)
 		ctx = feature.NewLoaderContext(

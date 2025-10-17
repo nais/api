@@ -26,8 +26,9 @@ import (
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/kubernetes/watchers"
+	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/persistence/sqlinstance"
-	servicemaintenance "github.com/nais/api/internal/servicemaintenance"
+	"github.com/nais/api/internal/servicemaintenance"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/unleash"
@@ -138,7 +139,13 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 
 		watchers := watchers.SetupWatchers(ctx, watcherMgr, managementWatcherMgr)
 
-		gqlRunner, gqlCleanup, err := newGQLRunner(ctx, config, pool, topic, watchers, watcherMgr, clusterConfig, fakeAivenClient)
+		lokiClient, err := loki.NewClient(clusters(), "tenant", log.WithField("subsystem", "loki_client"), loki.WithLocalLoki("http://127.0.0.1:3100"))
+		if err != nil {
+			done()
+			return ctx, nil, nil, err
+		}
+
+		gqlRunner, gqlCleanup, err := newGQLRunner(ctx, config, pool, topic, watchers, watcherMgr, clusterConfig, fakeAivenClient, lokiClient)
 		if err != nil {
 			done()
 			return ctx, nil, nil, err
@@ -195,6 +202,7 @@ func newGQLRunner(
 	watcherMgr *watcher.Manager,
 	clusterConfig kubernetes.ClusterConfigMap,
 	fakeAivenClient *aiven.FakeAivenClient,
+	lokiClient loki.Client,
 ) (spec.Runner, func(), error) {
 	log := logrus.New()
 	log.Out = io.Discard
@@ -243,8 +251,10 @@ func newGQLRunner(
 		clusters(),
 		fakeHookd.New(),
 		unleash.FakeBifrostURL,
+		[]string{"dev", "staging", "dev-fss", "dev-gcp"},
 		[]logging.SupportedLogDestination{logging.Loki},
 		notifier,
+		lokiClient,
 		log,
 	)
 	if err != nil {

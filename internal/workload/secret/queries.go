@@ -189,7 +189,7 @@ func Create(ctx context.Context, teamSlug slug.Slug, environment, name string) (
 	s, err := client.Namespace(teamSlug.String()).Create(ctx, &unstructured.Unstructured{Object: u}, v1.CreateOptions{})
 	if err != nil {
 		if k8serrors.IsAlreadyExists(err) {
-			return nil, fmt.Errorf("%q: %w", name, ErrUnmanagedSecret)
+			return nil, ErrAlreadyExists
 		}
 		return nil, fmt.Errorf("creating secret: %w", err)
 	}
@@ -245,7 +245,7 @@ func AddSecretValue(ctx context.Context, teamSlug slug.Slug, environment, secret
 	}
 
 	if !secretIsManagedByConsole(obj) {
-		return nil, ErrUnmanagedSecret
+		return nil, ErrUnmanaged
 	}
 
 	secret := &corev1.Secret{}
@@ -319,7 +319,7 @@ func UpdateSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 	}
 
 	if !secretIsManagedByConsole(obj) {
-		return nil, ErrUnmanagedSecret
+		return nil, ErrUnmanaged
 	}
 
 	secret := &corev1.Secret{}
@@ -384,7 +384,7 @@ func RemoveSecretValue(ctx context.Context, teamSlug slug.Slug, environment, sec
 	}
 
 	if !secretIsManagedByConsole(obj) {
-		return nil, ErrUnmanagedSecret
+		return nil, ErrUnmanaged
 	}
 
 	secret := &corev1.Secret{}

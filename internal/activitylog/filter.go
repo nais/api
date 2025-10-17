@@ -31,22 +31,19 @@ func RegisterFilter(activityType ActivityLogActivityType, action ActivityLogEntr
 	}
 }
 
-func withFilters(filter *ActivityLogFilter) [][]string {
+func withFilters(filter *ActivityLogFilter) []string {
 	if filter == nil {
 		return nil
 	}
 
-	var ret [][]string
+	var ret []string
 	for _, f := range filter.ActivityTypes {
 		kf, ok := knownFilters[f]
 		if !ok {
 			continue
 		}
 		for _, resourceType := range kf.resourceType {
-			ret = append(ret, []string{
-				string(resourceType),
-				string(kf.action),
-			})
+			ret = append(ret, string(resourceType)+":"+string(kf.action))
 		}
 	}
 

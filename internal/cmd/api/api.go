@@ -31,6 +31,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/nais/api/internal/leaderelection"
 	"github.com/nais/api/internal/logger"
+	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/servicemaintenance"
 	"github.com/nais/api/internal/thirdparty/aiven"
@@ -267,6 +268,16 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		}
 	}
 
+	var lokiClientOpts []loki.OptionFunc
+	if addr, ok := os.LookupEnv("LOGGING_LOKI_ADDRESS"); ok {
+		lokiClientOpts = append(lokiClientOpts, loki.WithLocalLoki(addr))
+	}
+
+	lokiClient, err := loki.NewClient(cfg.K8s.AllClusterNames(), cfg.Tenant, log.WithField("subsystem", "loki_client"), lokiClientOpts...)
+	if err != nil {
+		return fmt.Errorf("create loki client: %w", err)
+	}
+
 	// HTTP server
 	wg.Go(func() error {
 		return runHttpServer(
@@ -288,8 +299,10 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			vulnMgr,
 			hookdClient,
 			cfg.Unleash.BifrostApiUrl,
+			cfg.K8s.AllClusterNames(),
 			cfg.Logging.DefaultLogDestinations(),
 			notifier,
+			lokiClient,
 			log.WithField("subsystem", "http"),
 		)
 	})

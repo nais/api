@@ -1,13 +1,25 @@
 package secret
 
-type errUnmanagedSecret struct{}
+type errUnmanaged struct{}
 
-func (errUnmanagedSecret) GraphError() string {
+func (errUnmanaged) GraphError() string {
 	return "The secret is not managed by Console, unable to modify."
 }
 
-func (errUnmanagedSecret) Error() string {
+func (errUnmanaged) Error() string {
 	return "unmanaged secret"
 }
 
-var ErrUnmanagedSecret = errUnmanagedSecret{}
+var ErrUnmanaged = errUnmanaged{}
+
+type errAlreadyExists struct{}
+
+func (errAlreadyExists) GraphError() string {
+	return "A secret with this name already exists."
+}
+
+func (errAlreadyExists) Error() string {
+	return "secret already exists"
+}
+
+var ErrAlreadyExists = errAlreadyExists{}
