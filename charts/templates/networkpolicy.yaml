@@ -20,11 +20,6 @@ spec:
     - to:
         - podSelector:
             matchLabels:
-              app.kubernetes.io/component: query-frontend
-              app.kubernetes.io/instance: loki
-    - to:
-        - podSelector:
-            matchLabels:
               app.kubernetes.io/name: hookd
     - to:
         - podSelector:
