@@ -87,7 +87,12 @@ func (q *querier) Tail(ctx context.Context, filter *LogSubscriptionFilter) (<-ch
 		return nil, fmt.Errorf("unable to select Loki for cluster %q", filter.EnvironmentName)
 	}
 
-	lokiUrl.Scheme = "ws"
+	if lokiUrl.Host == "localhost" || lokiUrl.Host == "127.0.0.1" {
+		lokiUrl.Scheme = "ws"
+	} else {
+		lokiUrl.Scheme = "wss"
+	}
+
 	lokiUrl.Path = "/loki/api/v1/tail"
 	lokiUrl.RawQuery = filter.lokiQueryParameters().Encode()
 
