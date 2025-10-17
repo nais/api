@@ -9,11 +9,9 @@ extend type Subscription {
 
 input LogSubscriptionInitialBatch {
 	"""
-	Specifies how far back in time to begin streaming log lines, relative to the moment the subscription starts.
-
-	See the Duration scalar for supported formats.
+	Specifies the start timestamp of the initial batch. Defaults to one hour ago.
 	"""
-	since: Duration = "1h"
+	start: Time
 
 	"""
 	Initial batch of past log lines before streaming starts.

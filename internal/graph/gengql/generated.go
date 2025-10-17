@@ -16982,11 +16982,9 @@ extend enum SearchType {
 
 input LogSubscriptionInitialBatch {
 	"""
-	Specifies how far back in time to begin streaming log lines, relative to the moment the subscription starts.
-
-	See the Duration scalar for supported formats.
+	Specifies the start timestamp of the initial batch. Defaults to one hour ago.
 	"""
-	since: Duration = "1h"
+	start: Time
 
 	"""
 	Initial batch of past log lines before streaming starts.
@@ -18059,26 +18057,6 @@ A cursor for use in pagination
 Cursors are opaque strings that are returned by the server for paginated results, and used when performing backwards / forwards pagination.
 """
 scalar Cursor
-
-"""
-Represents a span or length of time.
-
-Durations are expressed as human-readable strings composed of decimal numbers followed by unit suffixes. Supported units are:
-
-| Unit     | Meaning      | Example |
-| :------- | :----------- | :------ |
-| ns       | nanoseconds  | ` + "`" + `150ns` + "`" + ` |
-| us or µs | microseconds | ` + "`" + `250us` + "`" + ` |
-| ms       | milliseconds | ` + "`" + `500ms` + "`" + ` |
-| s        | seconds      | ` + "`" + `45s` + "`" + `   |
-| m        | minutes      | ` + "`" + `3m` + "`" + `    |
-| h        | hours        | ` + "`" + `2h` + "`" + `    |
-
-Durations can combine multiple units, e.g. ` + "`" + `1h30m` + "`" + `, ` + "`" + `2h45m30s` + "`" + `, or ` + "`" + `300ms` + "`" + `.
-
-A leading - sign indicates a negative duration, e.g. ` + "`" + `-15m` + "`" + `.
-"""
-scalar Duration
 `, BuiltIn: false},
 	{Name: "../schema/schema.graphqls", Input: `"""
 The query root for the Nais GraphQL API.
@@ -84193,27 +84171,24 @@ func (ec *executionContext) unmarshalInputLogSubscriptionInitialBatch(ctx contex
 		asMap[k] = v
 	}
 
-	if _, present := asMap["since"]; !present {
-		asMap["since"] = "1h"
-	}
 	if _, present := asMap["limit"]; !present {
 		asMap["limit"] = 100
 	}
 
-	fieldsInOrder := [...]string{"since", "limit"}
+	fieldsInOrder := [...]string{"start", "limit"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "since":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("since"))
-			data, err := ec.unmarshalODuration2timeᚐDuration(ctx, v)
+		case "start":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("start"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Since = data
+			it.Start = data
 		case "limit":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
 			data, err := ec.unmarshalOInt2int(ctx, v)
@@ -125801,18 +125776,6 @@ func (ec *executionContext) marshalODeploymentKey2ᚖgithubᚗcomᚋnaisᚋapi�
 		return graphql.Null
 	}
 	return ec._DeploymentKey(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalODuration2timeᚐDuration(ctx context.Context, v any) (time.Duration, error) {
-	res, err := scalar.UnmarshalDuration(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalODuration2timeᚐDuration(ctx context.Context, sel ast.SelectionSet, v time.Duration) graphql.Marshaler {
-	_ = sel
-	_ = ctx
-	res := scalar.MarshalDuration(v)
-	return res
 }
 
 func (ec *executionContext) unmarshalOEnvironmentOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentOrder(ctx context.Context, v any) (*environment.EnvironmentOrder, error) {
