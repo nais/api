@@ -20,7 +20,8 @@ spec:
     - to:
         - podSelector:
             matchLabels:
-              app.kubernetes.io/name: loki
+              app.kubernetes.io/component: query-frontend
+              app.kubernetes.io/instance: loki
     - to:
         - podSelector:
             matchLabels:
