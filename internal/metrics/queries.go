@@ -5,11 +5,21 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/thirdparty/promclient"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
 	"k8s.io/utils/ptr"
+)
+
+const (
+	// minStepSeconds is the minimum allowed step size in seconds for range queries
+	minStepSeconds = 10
+	// maxRangeDuration is the maximum allowed time range for queries
+	maxRangeDuration = 30 * 24 * time.Hour // 30 days
+	// maxDataPoints is the maximum number of data points allowed in a range query
+	maxDataPoints = 11000
 )
 
 type ctxKey int
@@ -52,7 +62,7 @@ func Query(ctx context.Context, input MetricsQueryInput) (*MetricsQueryResult, e
 func executeInstantQuery(ctx context.Context, loader *loaders, input MetricsQueryInput, environmentName string, queryTime time.Time) (*MetricsQueryResult, error) {
 	vector, err := loader.client.Query(ctx, environmentName, input.Query, promclient.WithTime(queryTime))
 	if err != nil {
-		return nil, fmt.Errorf("failed to query prometheus: %w", err)
+		return nil, apierror.Errorf("Failed to query metrics: %v", err)
 	}
 
 	series := convertVectorToSeries(vector)
@@ -63,6 +73,26 @@ func executeInstantQuery(ctx context.Context, loader *loaders, input MetricsQuer
 }
 
 func executeRangeQuery(ctx context.Context, loader *loaders, input MetricsQueryInput) (*MetricsQueryResult, error) {
+	// Validate step size
+	if input.Range.Step < minStepSeconds {
+		return nil, apierror.Errorf("Query step size must be at least %d seconds. Please increase the step size to reduce the number of data points.", minStepSeconds)
+	}
+
+	// Validate time range
+	timeRange := input.Range.End.Sub(input.Range.Start)
+	if timeRange <= 0 {
+		return nil, apierror.Errorf("The end time must be after the start time. Please check your time range.")
+	}
+	if timeRange > maxRangeDuration {
+		return nil, apierror.Errorf("The time range is too large. Maximum allowed is 30 days, but you requested %v. Please reduce the time range.", timeRange)
+	}
+
+	// Calculate and validate number of data points
+	dataPoints := int64(timeRange.Seconds()) / int64(input.Range.Step)
+	if dataPoints > maxDataPoints {
+		return nil, apierror.Errorf("This query would return too many data points (%d). The maximum allowed is %d. Please increase the step size or reduce the time range.", dataPoints, maxDataPoints)
+	}
+
 	promRange := promv1.Range{
 		Start: input.Range.Start,
 		End:   input.Range.End,
@@ -71,7 +101,7 @@ func executeRangeQuery(ctx context.Context, loader *loaders, input MetricsQueryI
 
 	value, warnings, err := loader.client.QueryRange(ctx, input.EnvironmentName, input.Query, promRange)
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute range query: %w", err)
+		return nil, apierror.Errorf("Failed to execute metrics query: %v", err)
 	}
 
 	if len(warnings) > 0 {
