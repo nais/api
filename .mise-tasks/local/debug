@@ -3,13 +3,11 @@
 
 set -e
 
-env=()
-
 if [[ "$WITH_LOG_PROXY" == "true" ]]; then
 	kubectl --context "${CONTEXT:-dev}" --namespace nais-system port-forward svc/loki-query-frontend 3100 &
 	proxy_pid="$!"
-	env+=("LOGGING_LOKI_ADDRESS=http://127.0.0.1:3100")
+	env="LOGGING_LOKI_ADDRESS=http://127.0.0.1:3100"
 	trap 'kill $proxy_pid' SIGINT SIGTERM EXIT
 fi
 
-env "${env[@]}" dlv debug --headless --listen=:2345 --api-version=2 ./cmd/api
+env "$env" dlv debug --headless --listen=:2345 --api-version=2 ./cmd/api
