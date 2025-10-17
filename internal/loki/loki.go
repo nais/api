@@ -93,6 +93,11 @@ func (q *querier) Tail(ctx context.Context, filter *LogSubscriptionFilter) (<-ch
 
 	conn, err := connect(ctx, lokiUrl, q.log)
 	if err != nil {
+		q.log.
+			WithError(err).
+			WithField("lokiUrl", lokiUrl.String()).
+			WithField("filter", filter).
+			Error("unable to connect to Loki")
 		return nil, err
 	}
 
