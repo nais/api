@@ -8,7 +8,6 @@ import (
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
@@ -186,14 +185,6 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environmentName, name strin
 
 func Trigger(ctx context.Context, teamSlug slug.Slug, environmentName, name, runName string) (*JobRun, error) {
 	w := fromContext(ctx).jobWatcher
-	job, err := w.Get(environmentName, teamSlug.String(), name)
-	if err != nil {
-		return nil, err
-	}
-
-	if job.Spec.Schedule == "" {
-		return nil, apierror.Errorf("Only Jobs with a schedule is supported")
-	}
 
 	cjClient, err := w.ImpersonatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(batchv1.SchemeGroupVersion.WithResource("cronjobs")))
 	if err != nil {
