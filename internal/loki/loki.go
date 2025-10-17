@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/grafana/loki/v3/pkg/loghttp"
@@ -82,25 +83,24 @@ func NewClient(clusters []string, tenant string, log logrus.FieldLogger, opts ..
 }
 
 func (q *querier) Tail(ctx context.Context, filter *LogSubscriptionFilter) (<-chan *LogLine, error) {
-	lokiUrl, ok := q.lokis[filter.EnvironmentName]
+	lokiURL, ok := q.lokis[filter.EnvironmentName]
 	if !ok {
 		return nil, fmt.Errorf("unable to select Loki for cluster %q", filter.EnvironmentName)
 	}
 
-	if lokiUrl.Host == "localhost" || lokiUrl.Host == "127.0.0.1" {
-		lokiUrl.Scheme = "ws"
-	} else {
-		lokiUrl.Scheme = "wss"
+	lokiURL.Scheme = "wss"
+	if strings.HasPrefix(lokiURL.Host, "localhost") || strings.HasPrefix(lokiURL.Host, "127.0.0.1") {
+		lokiURL.Scheme = "ws"
 	}
 
-	lokiUrl.Path = "/loki/api/v1/tail"
-	lokiUrl.RawQuery = filter.lokiQueryParameters().Encode()
+	lokiURL.Path = "/loki/api/v1/tail"
+	lokiURL.RawQuery = filter.lokiQueryParameters().Encode()
 
-	conn, err := connect(ctx, lokiUrl, q.log)
+	conn, err := connect(ctx, lokiURL, q.log)
 	if err != nil {
 		q.log.
 			WithError(err).
-			WithField("lokiUrl", lokiUrl.String()).
+			WithField("lokiUrl", lokiURL.String()).
 			WithField("filter", filter).
 			Error("unable to connect to Loki")
 		return nil, err
@@ -111,6 +111,10 @@ func (q *querier) Tail(ctx context.Context, filter *LogSubscriptionFilter) (<-ch
 	go func() {
 		if err := streamLogLines(ctx, conn, logLines); err != nil {
 			q.log.WithError(err).Errorf("streaming log lines")
+			logLines <- &LogLine{
+				Time:    time.Now(),
+				Message: fmt.Sprintf("error streaming log lines: %v", err),
+			}
 		}
 		close(logLines)
 	}()
