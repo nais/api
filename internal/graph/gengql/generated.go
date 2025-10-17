@@ -17202,20 +17202,32 @@ input MetricsQueryInput {
 	environmentName: String!
 
 	"""
-	Optional timestamp for the query.
-	If not provided, uses current time minus 5 minutes.
+	Optional timestamp for instant queries.
+	Specifies the exact point in time to evaluate the query.
+	If not provided, defaults to current time minus 5 minutes.
+	This parameter is ignored when range is provided.
 	"""
 	time: Time
 
 	"""
 	Optional range query parameters.
 	If provided, executes a range query instead of an instant query.
+
+	Limits to prevent excessive memory usage:
+	- Minimum step: 10 seconds
+	- Maximum time range: 30 days
+	- Maximum data points: 11,000
 	"""
 	range: MetricsRangeInput
 }
 
 """
 Input for Prometheus range queries.
+
+To prevent excessive memory usage, queries are subject to limits:
+- Step must be at least 10 seconds
+- Time range (end - start) cannot exceed 30 days
+- Total data points cannot exceed 11,000
 """
 input MetricsRangeInput {
 	"""
@@ -17225,11 +17237,13 @@ input MetricsRangeInput {
 
 	"""
 	End timestamp for the range query.
+	Must be after start time.
 	"""
 	end: Time!
 
 	"""
 	Query resolution step width in seconds.
+	Must be at least 10 seconds.
 	Example: 60 for 1-minute intervals
 	"""
 	step: Int!
