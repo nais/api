@@ -27,27 +27,31 @@ Test.gql("Metrics - instant query for specific environment", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query([[
 		query {
-			metrics(input: {query: "up", environmentName: "dev"}) {
-				series {
-					labels {
-						name
-						value
+		  environment(name: "dev") {
+				metrics(input: {query: "up"}) {
+					series {
+						labels {
+							name
+							value
+						}
+						values {
+							timestamp
+							value
+						}
 					}
-					values {
-						timestamp
-						value
-					}
+					warnings
 				}
-				warnings
 			}
 		}
 	]])
 
 	t.check {
 		data = {
-			metrics = {
-				series = NotNull(),
-				warnings = Null,
+			environment = {
+				metrics = {
+					series = NotNull(),
+					warnings = Null,
+				},
 			},
 		},
 	}
@@ -58,22 +62,23 @@ Test.gql("Metrics - instant query with specific time", function(t)
 	t.query(string.format(
 		[[
 		query {
-			metrics(input: {
-				query: "up"
-				environmentName: "dev"
-				time: "%s"
-			}) {
-				series {
-					labels {
-						name
-						value
+		  environment(name: "dev") {
+				metrics(input: {
+					query: "up"
+					time: "%s"
+				}) {
+					series {
+						labels {
+							name
+							value
+						}
+						values {
+							timestamp
+							value
+						}
 					}
-					values {
-						timestamp
-						value
-					}
+					warnings
 				}
-				warnings
 			}
 		}
 	]],
@@ -82,9 +87,11 @@ Test.gql("Metrics - instant query with specific time", function(t)
 
 	t.check {
 		data = {
-			metrics = {
-				series = NotNull(),
-				warnings = Null,
+			environment = {
+				metrics = {
+					series = NotNull(),
+					warnings = Null,
+				},
 			},
 		},
 	}
@@ -94,30 +101,33 @@ Test.gql("Metrics - custom PromQL instant query", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query([[
 		query {
-			metrics(input: {
-				query: "kube_pod_container_resource_requests{resource=\"cpu\"}"
-				environmentName: "dev"
-			}) {
-				series {
-					labels {
-						name
-						value
+		  environment(name: "dev") {
+				metrics(input: {
+					query: "kube_pod_container_resource_requests{resource=\"cpu\"}"
+				}) {
+					series {
+						labels {
+							name
+							value
+						}
+						values {
+							timestamp
+							value
+						}
 					}
-					values {
-						timestamp
-						value
-					}
+					warnings
 				}
-				warnings
 			}
 		}
 	]])
 
 	t.check {
 		data = {
-			metrics = {
-				series = NotNull(),
-				warnings = Null,
+			environment = {
+				metrics = {
+					series = NotNull(),
+					warnings = Null,
+				},
 			},
 		},
 	}
@@ -130,22 +140,23 @@ Test.gql("Metrics - range query with valid parameters", function(t)
 	t.query(string.format(
 		[[
 		query {
-			metrics(input: {
-				query: "rate(container_cpu_usage_seconds_total[5m])"
-				environmentName: "dev"
-				range: {start: "%s", end: "%s", step: 60}
-			}) {
-				series {
-					labels {
-						name
-						value
+		  environment(name: "dev") {
+				metrics(input: {
+					query: "rate(container_cpu_usage_seconds_total[5m])"
+					range: {start: "%s", end: "%s", step: 60}
+				}) {
+					series {
+						labels {
+							name
+							value
+						}
+						values {
+							timestamp
+							value
+						}
 					}
-					values {
-						timestamp
-						value
-					}
+					warnings
 				}
-				warnings
 			}
 		}
 	]],
@@ -155,9 +166,11 @@ Test.gql("Metrics - range query with valid parameters", function(t)
 
 	t.check {
 		data = {
-			metrics = {
-				series = NotNull(),
-				warnings = Null,
+			environment = {
+				metrics = {
+					series = NotNull(),
+					warnings = Null,
+				},
 			},
 		},
 	}
@@ -168,22 +181,23 @@ Test.gql("Metrics - range query with minimum step (10 seconds)", function(t)
 	t.query(string.format(
 		[[
 		query {
-			metrics(input: {
-				query: "up"
-				environmentName: "dev"
-				range: {start: "%s", end: "%s", step: 10}
-			}) {
-				series {
-					labels {
-						name
-						value
+		  environment(name: "dev") {
+				metrics(input: {
+					query: "up"
+					range: {start: "%s", end: "%s", step: 10}
+				}) {
+					series {
+						labels {
+							name
+							value
+						}
+						values {
+							timestamp
+							value
+						}
 					}
-					values {
-						timestamp
-						value
-					}
+					warnings
 				}
-				warnings
 			}
 		}
 	]],
@@ -193,9 +207,11 @@ Test.gql("Metrics - range query with minimum step (10 seconds)", function(t)
 
 	t.check {
 		data = {
-			metrics = {
-				series = NotNull(),
-				warnings = Null,
+			environment = {
+				metrics = {
+					series = NotNull(),
+					warnings = Null,
+				},
 			},
 		},
 	}
@@ -206,22 +222,23 @@ Test.gql("Metrics - range query with maximum allowed time range (30 days)", func
 	t.query(string.format(
 		[[
 		query {
-			metrics(input: {
-				query: "up"
-				environmentName: "dev"
-				range: {start: "%s", end: "%s", step: 300}
-			}) {
-				series {
-					labels {
-						name
-						value
+		  environment(name: "dev") {
+				metrics(input: {
+					query: "up"
+					range: {start: "%s", end: "%s", step: 300}
+				}) {
+					series {
+						labels {
+							name
+							value
+						}
+						values {
+							timestamp
+							value
+						}
 					}
-					values {
-						timestamp
-						value
-					}
+					warnings
 				}
-				warnings
 			}
 		}
 	]],
@@ -231,9 +248,11 @@ Test.gql("Metrics - range query with maximum allowed time range (30 days)", func
 
 	t.check {
 		data = {
-			metrics = {
-				series = NotNull(),
-				warnings = Null,
+			environment = {
+				metrics = {
+					series = NotNull(),
+					warnings = Null,
+				},
 			},
 		},
 	}
@@ -246,22 +265,23 @@ Test.gql("Metrics - error on step less than 10 seconds", function(t)
 	t.query(string.format(
 		[[
 		query {
-			metrics(input: {
-				query: "up"
-				environmentName: "dev"
-				range: {start: "%s", end: "%s", step: 5}
-			}) {
-				series {
-					labels {
-						name
-						value
+		  environment(name: "dev") {
+				metrics(input: {
+					query: "up"
+					range: {start: "%s", end: "%s", step: 5}
+				}) {
+					series {
+						labels {
+							name
+							value
+						}
+						values {
+							timestamp
+							value
+						}
 					}
-					values {
-						timestamp
-						value
-					}
+					warnings
 				}
-				warnings
 			}
 		}
 	]],
@@ -274,7 +294,7 @@ Test.gql("Metrics - error on step less than 10 seconds", function(t)
 		errors = {
 			{
 				message = "Query step size must be at least 10 seconds. Please increase the step size to reduce the number of data points.",
-				path = { "metrics" },
+				path = { "environment", "metrics" },
 			},
 		},
 	}
@@ -285,22 +305,23 @@ Test.gql("Metrics - error on time range exceeding 30 days", function(t)
 	t.query(string.format(
 		[[
 		query {
-			metrics(input: {
-				query: "up"
-				environmentName: "dev"
-				range: {start: "%s", end: "%s", step: 60}
-			}) {
-				series {
-					labels {
-						name
-						value
+		  environment(name: "dev") {
+				metrics(input: {
+					query: "up"
+					range: {start: "%s", end: "%s", step: 60}
+				}) {
+					series {
+						labels {
+							name
+							value
+						}
+						values {
+							timestamp
+							value
+						}
 					}
-					values {
-						timestamp
-						value
-					}
+					warnings
 				}
-				warnings
 			}
 		}
 	]],
@@ -313,7 +334,7 @@ Test.gql("Metrics - error on time range exceeding 30 days", function(t)
 		errors = {
 			{
 				message = "The time range is too large. Maximum allowed is 30 days, but you requested 744h0m0s. Please reduce the time range.",
-				path = { "metrics" },
+				path = { "environment", "metrics" },
 			},
 		},
 	}
@@ -326,22 +347,23 @@ Test.gql("Metrics - error on exceeding maximum data points (11000)", function(t)
 	t.query(string.format(
 		[[
 		query {
-			metrics(input: {
-				query: "up"
-				environmentName: "dev"
-				range: {start: "%s", end: "%s", step: 10}
-			}) {
-				series {
-					labels {
-						name
-						value
+		  environment(name: "dev") {
+				metrics(input: {
+					query: "up"
+					range: {start: "%s", end: "%s", step: 10}
+				}) {
+					series {
+						labels {
+							name
+							value
+						}
+						values {
+							timestamp
+							value
+						}
 					}
-					values {
-						timestamp
-						value
-					}
+					warnings
 				}
-				warnings
 			}
 		}
 	]],
@@ -353,8 +375,8 @@ Test.gql("Metrics - error on exceeding maximum data points (11000)", function(t)
 		data = Null,
 		errors = {
 			{
-				message = "This query would return too many data points (259200). The maximum allowed is 11000. Please increase the step size or reduce the time range.",
-				path = { "metrics" },
+				message = "This query would return too many data points (259201). The maximum allowed is 11000. Please increase the step size or reduce the time range.",
+				path = { "environment", "metrics" },
 			},
 		},
 	}
@@ -365,22 +387,23 @@ Test.gql("Metrics - error on end time before start time", function(t)
 	t.query(string.format(
 		[[
 		query {
-			metrics(input: {
-				query: "up"
-				environmentName: "dev"
-				range: {start: "%s", end: "%s", step: 60}
-			}) {
-				series {
-					labels {
-						name
-						value
+		  environment(name: "dev") {
+				metrics(input: {
+					query: "up"
+					range: {start: "%s", end: "%s", step: 60}
+				}) {
+					series {
+						labels {
+							name
+							value
+						}
+						values {
+							timestamp
+							value
+						}
 					}
-					values {
-						timestamp
-						value
-					}
+					warnings
 				}
-				warnings
 			}
 		}
 	]],
@@ -393,7 +416,7 @@ Test.gql("Metrics - error on end time before start time", function(t)
 		errors = {
 			{
 				message = "The end time must be after the start time. Please check your time range.",
-				path = { "metrics" },
+				path = { "environment", "metrics" },
 			},
 		},
 	}
@@ -403,18 +426,20 @@ Test.gql("Metrics - error on empty query", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query([[
 		query {
-			metrics(input: {query: "", environmentName: "dev"}) {
-				series {
-					labels {
-						name
-						value
+		  environment(name: "dev") {
+				metrics(input: {query: ""}) {
+					series {
+						labels {
+							name
+							value
+						}
+						values {
+							timestamp
+							value
+						}
 					}
-					values {
-						timestamp
-						value
-					}
+					warnings
 				}
-				warnings
 			}
 		}
 	]])
@@ -424,7 +449,7 @@ Test.gql("Metrics - error on empty query", function(t)
 		errors = {
 			{
 				message = "Failed to query metrics: unknown position: parse error: no expression found in input",
-				path = { "metrics" },
+				path = { "environment", "metrics" },
 			},
 		},
 	}
@@ -436,30 +461,33 @@ Test.gql("Metrics - complex aggregation query", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query([[
 		query {
-			metrics(input: {
-				query: "sum(rate(http_requests_total[5m])) by (job)"
-				environmentName: "dev"
-			}) {
-				series {
-					labels {
-						name
-						value
+		  environment(name: "dev") {
+				metrics(input: {
+					query: "sum(rate(http_requests_total[5m])) by (job)"
+				}) {
+					series {
+						labels {
+							name
+							value
+						}
+						values {
+							timestamp
+							value
+						}
 					}
-					values {
-						timestamp
-						value
-					}
+					warnings
 				}
-				warnings
 			}
 		}
 	]])
 
 	t.check {
 		data = {
-			metrics = {
-				series = NotNull(),
-				warnings = Null,
+			environment = {
+				metrics = {
+					series = NotNull(),
+					warnings = Null,
+				},
 			},
 		},
 	}
@@ -469,30 +497,33 @@ Test.gql("Metrics - query with label filters", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query([[
 		query {
-			metrics(input: {
-				query: "up{job=\"prometheus\",instance=~\".*:9090\"}"
-				environmentName: "dev"
-			}) {
-				series {
-					labels {
-						name
-						value
+		  environment(name: "dev") {
+				metrics(input: {
+					query: "up{job=\"prometheus\",instance=~\".*:9090\"}"
+				}) {
+					series {
+						labels {
+							name
+							value
+						}
+						values {
+							timestamp
+							value
+						}
 					}
-					values {
-						timestamp
-						value
-					}
+					warnings
 				}
-				warnings
 			}
 		}
 	]])
 
 	t.check {
 		data = {
-			metrics = {
-				series = NotNull(),
-				warnings = Null,
+			environment = {
+				metrics = {
+					series = NotNull(),
+					warnings = Null,
+				},
 			},
 		},
 	}
@@ -503,22 +534,23 @@ Test.gql("Metrics - range query with rate function", function(t)
 	t.query(string.format(
 		[[
 		query {
-			metrics(input: {
-				query: "rate(process_cpu_seconds_total[1m])"
-				environmentName: "dev"
-				range: {start: "%s", end: "%s", step: 30}
-			}) {
-				series {
-					labels {
-						name
-						value
+		  environment(name: "dev") {
+				metrics(input: {
+					query: "rate(process_cpu_seconds_total[1m])"
+					range: {start: "%s", end: "%s", step: 30}
+				}) {
+					series {
+						labels {
+							name
+							value
+						}
+						values {
+							timestamp
+							value
+						}
 					}
-					values {
-						timestamp
-						value
-					}
+					warnings
 				}
-				warnings
 			}
 		}
 	]],
@@ -528,9 +560,11 @@ Test.gql("Metrics - range query with rate function", function(t)
 
 	t.check {
 		data = {
-			metrics = {
-				series = NotNull(),
-				warnings = Null,
+			environment = {
+				metrics = {
+					series = NotNull(),
+					warnings = Null,
+				},
 			},
 		},
 	}

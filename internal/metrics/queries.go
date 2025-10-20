@@ -44,7 +44,7 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 // Query executes a Prometheus query based on the input
-func Query(ctx context.Context, input MetricsQueryInput) (*MetricsQueryResult, error) {
+func Query(ctx context.Context, input MetricsQueryInput, environmentName string) (*MetricsQueryResult, error) {
 	loader := fromContext(ctx)
 
 	// Determine query time
@@ -52,11 +52,11 @@ func Query(ctx context.Context, input MetricsQueryInput) (*MetricsQueryResult, e
 
 	// Execute range query if range is specified
 	if input.Range != nil {
-		return executeRangeQuery(ctx, loader, input)
+		return executeRangeQuery(ctx, loader, input, environmentName)
 	}
 
 	// Execute instant query
-	return executeInstantQuery(ctx, loader, input, input.EnvironmentName, queryTime)
+	return executeInstantQuery(ctx, loader, input, environmentName, queryTime)
 }
 
 func executeInstantQuery(ctx context.Context, loader *loaders, input MetricsQueryInput, environmentName string, queryTime time.Time) (*MetricsQueryResult, error) {
@@ -72,7 +72,7 @@ func executeInstantQuery(ctx context.Context, loader *loaders, input MetricsQuer
 	}, nil
 }
 
-func executeRangeQuery(ctx context.Context, loader *loaders, input MetricsQueryInput) (*MetricsQueryResult, error) {
+func executeRangeQuery(ctx context.Context, loader *loaders, input MetricsQueryInput, environmentName string) (*MetricsQueryResult, error) {
 	// Validate step size
 	if input.Range.Step < minStepSeconds {
 		return nil, apierror.Errorf("Query step size must be at least %d seconds. Please increase the step size to reduce the number of data points.", minStepSeconds)
@@ -88,7 +88,8 @@ func executeRangeQuery(ctx context.Context, loader *loaders, input MetricsQueryI
 	}
 
 	// Calculate and validate number of data points
-	dataPoints := int64(timeRange.Seconds()) / int64(input.Range.Step)
+	// Use (duration/step)+1 to include the final sample point
+	dataPoints := (int64(timeRange.Seconds()) / int64(input.Range.Step)) + 1
 	if dataPoints > maxDataPoints {
 		return nil, apierror.Errorf("This query would return too many data points (%d). The maximum allowed is %d. Please increase the step size or reduce the time range.", dataPoints, maxDataPoints)
 	}
@@ -99,14 +100,14 @@ func executeRangeQuery(ctx context.Context, loader *loaders, input MetricsQueryI
 		Step:  time.Duration(input.Range.Step) * time.Second,
 	}
 
-	value, warnings, err := loader.client.QueryRange(ctx, input.EnvironmentName, input.Query, promRange)
+	value, warnings, err := loader.client.QueryRange(ctx, environmentName, input.Query, promRange)
 	if err != nil {
 		return nil, apierror.Errorf("Failed to execute metrics query: %v", err)
 	}
 
 	if len(warnings) > 0 {
 		loader.log.WithFields(logrus.Fields{
-			"environment": input.EnvironmentName,
+			"environment": environmentName,
 			"warnings":    warnings,
 		}).Warn("prometheus query warnings")
 	}

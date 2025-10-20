@@ -636,6 +636,7 @@ type ComplexityRoot struct {
 
 	Environment struct {
 		ID        func(childComplexity int) int
+		Metrics   func(childComplexity int, input metrics.MetricsQueryInput) int
 		Name      func(childComplexity int) int
 		Workloads func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) int
 	}
@@ -1286,7 +1287,6 @@ type ComplexityRoot struct {
 		Features                  func(childComplexity int) int
 		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
 		Me                        func(childComplexity int) int
-		Metrics                   func(childComplexity int, input metrics.MetricsQueryInput) int
 		Node                      func(childComplexity int, id ident.Ident) int
 		Reconcilers               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Roles                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -2861,6 +2861,7 @@ type DeprecatedRegistryIssueResolver interface {
 	Workload(ctx context.Context, obj *issue.DeprecatedRegistryIssue) (workload.Workload, error)
 }
 type EnvironmentResolver interface {
+	Metrics(ctx context.Context, obj *environment.Environment, input metrics.MetricsQueryInput) (*metrics.MetricsQueryResult, error)
 	Workloads(ctx context.Context, obj *environment.Environment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) (*pagination.Connection[workload.Workload], error)
 }
 type FailedSynchronizationIssueResolver interface {
@@ -3028,7 +3029,6 @@ type QueryResolver interface {
 	Environments(ctx context.Context, orderBy *environment.EnvironmentOrder) (*pagination.Connection[*environment.Environment], error)
 	Environment(ctx context.Context, name string) (*environment.Environment, error)
 	Features(ctx context.Context) (*feature.Features, error)
-	Metrics(ctx context.Context, input metrics.MetricsQueryInput) (*metrics.MetricsQueryResult, error)
 	CurrentUnitPrices(ctx context.Context) (*price.CurrentUnitPrices, error)
 	Reconcilers(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*reconciler.Reconciler], error)
 	Search(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) (*pagination.Connection[search.SearchNode], error)
@@ -4963,6 +4963,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Environment.ID(childComplexity), true
+	case "Environment.metrics":
+		if e.complexity.Environment.Metrics == nil {
+			break
+		}
+
+		args, err := ec.field_Environment_metrics_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Environment.Metrics(childComplexity, args["input"].(metrics.MetricsQueryInput)), true
 	case "Environment.name":
 		if e.complexity.Environment.Name == nil {
 			break
@@ -7685,17 +7696,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.Me(childComplexity), true
-	case "Query.metrics":
-		if e.complexity.Query.Metrics == nil {
-			break
-		}
-
-		args, err := ec.field_Query_metrics_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Metrics(childComplexity, args["input"].(metrics.MetricsQueryInput)), true
 	case "Query.node":
 		if e.complexity.Query.Node == nil {
 			break
@@ -17177,10 +17177,10 @@ type LogDestinationSecureLogs implements LogDestination & Node {
 	id: ID!
 }
 `, BuiltIn: false},
-	{Name: "../schema/metrics.graphqls", Input: `extend type Query {
+	{Name: "../schema/metrics.graphqls", Input: `extend type Environment {
 	"""
-	Query Prometheus metrics directly using PromQL.
-	This allows for flexible metric queries across environments.
+	Query Prometheus metrics directly using PromQL for this environment.
+	This allows for flexible metric queries within the specific environment.
 	Supports both instant queries and range queries.
 	"""
 	metrics(input: MetricsQueryInput!): MetricsQueryResult!
@@ -17195,11 +17195,6 @@ input MetricsQueryInput {
 	Example: "rate(http_requests_total[5m])"
 	"""
 	query: String!
-
-	"""
-	The environment name to query metrics from.
-	"""
-	environmentName: String!
 
 	"""
 	Optional timestamp for instant queries.
@@ -23858,6 +23853,17 @@ func (ec *executionContext) field_Deployment_statuses_args(ctx context.Context, 
 	return args, nil
 }
 
+func (ec *executionContext) field_Environment_metrics_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNMetricsQueryInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Environment_workloads_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -24838,17 +24844,6 @@ func (ec *executionContext) field_Query_imageVulnerabilityHistory_args(ctx conte
 		return nil, err
 	}
 	args["from"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_metrics_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNMetricsQueryInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryInput)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg0
 	return args, nil
 }
 
@@ -36056,6 +36051,53 @@ func (ec *executionContext) fieldContext_Environment_name(_ context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Environment_metrics(ctx context.Context, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Environment_metrics,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Environment().Metrics(ctx, obj, fc.Args["input"].(metrics.MetricsQueryInput))
+		},
+		nil,
+		ec.marshalNMetricsQueryResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryResult,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Environment_metrics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Environment",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "series":
+				return ec.fieldContext_MetricsQueryResult_series(ctx, field)
+			case "warnings":
+				return ec.fieldContext_MetricsQueryResult_warnings(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type MetricsQueryResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Environment_metrics_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Environment_workloads(ctx context.Context, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -36178,6 +36220,8 @@ func (ec *executionContext) fieldContext_EnvironmentConnection_nodes(_ context.C
 				return ec.fieldContext_Environment_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Environment_name(ctx, field)
+			case "metrics":
+				return ec.fieldContext_Environment_metrics(ctx, field)
 			case "workloads":
 				return ec.fieldContext_Environment_workloads(ctx, field)
 			}
@@ -36279,6 +36323,8 @@ func (ec *executionContext) fieldContext_EnvironmentEdge_node(_ context.Context,
 				return ec.fieldContext_Environment_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Environment_name(ctx, field)
+			case "metrics":
+				return ec.fieldContext_Environment_metrics(ctx, field)
 			case "workloads":
 				return ec.fieldContext_Environment_workloads(ctx, field)
 			}
@@ -50314,6 +50360,8 @@ func (ec *executionContext) fieldContext_Query_environment(ctx context.Context, 
 				return ec.fieldContext_Environment_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Environment_name(ctx, field)
+			case "metrics":
+				return ec.fieldContext_Environment_metrics(ctx, field)
 			case "workloads":
 				return ec.fieldContext_Environment_workloads(ctx, field)
 			}
@@ -50371,53 +50419,6 @@ func (ec *executionContext) fieldContext_Query_features(_ context.Context, field
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Features", field.Name)
 		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_metrics(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Query_metrics,
-		func(ctx context.Context) (any, error) {
-			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Metrics(ctx, fc.Args["input"].(metrics.MetricsQueryInput))
-		},
-		nil,
-		ec.marshalNMetricsQueryResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryResult,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_Query_metrics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "series":
-				return ec.fieldContext_MetricsQueryResult_series(ctx, field)
-			case "warnings":
-				return ec.fieldContext_MetricsQueryResult_warnings(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type MetricsQueryResult", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_metrics_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -68908,6 +68909,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_environment(_ context.C
 				return ec.fieldContext_Environment_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Environment_name(ctx, field)
+			case "metrics":
+				return ec.fieldContext_Environment_metrics(ctx, field)
 			case "workloads":
 				return ec.fieldContext_Environment_workloads(ctx, field)
 			}
@@ -84840,7 +84843,7 @@ func (ec *executionContext) unmarshalInputMetricsQueryInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"query", "environmentName", "time", "range"}
+	fieldsInOrder := [...]string{"query", "time", "range"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -84854,13 +84857,6 @@ func (ec *executionContext) unmarshalInputMetricsQueryInput(ctx context.Context,
 				return it, err
 			}
 			it.Query = data
-		case "environmentName":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.EnvironmentName = data
 		case "time":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("time"))
 			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
@@ -93651,6 +93647,42 @@ func (ec *executionContext) _Environment(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "metrics":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Environment_metrics(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "workloads":
 			field := field
 
@@ -100793,28 +100825,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_features(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "metrics":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_metrics(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

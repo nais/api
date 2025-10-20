@@ -1,7 +1,7 @@
-extend type Query {
+extend type Environment {
 	"""
-	Query Prometheus metrics directly using PromQL.
-	This allows for flexible metric queries across environments.
+	Query Prometheus metrics directly using PromQL for this environment.
+	This allows for flexible metric queries within the specific environment.
 	Supports both instant queries and range queries.
 	"""
 	metrics(input: MetricsQueryInput!): MetricsQueryResult!
@@ -16,11 +16,6 @@ input MetricsQueryInput {
 	Example: "rate(http_requests_total[5m])"
 	"""
 	query: String!
-
-	"""
-	The environment name to query metrics from.
-	"""
-	environmentName: String!
 
 	"""
 	Optional timestamp for instant queries.

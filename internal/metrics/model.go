@@ -24,10 +24,9 @@ type MetricSeries struct {
 
 // MetricsQueryInput represents the input for querying Prometheus metrics.
 type MetricsQueryInput struct {
-	Query           string             `json:"query"`
-	EnvironmentName string             `json:"environmentName"`
-	Time            *time.Time         `json:"time,omitempty"`
-	Range           *MetricsRangeInput `json:"range,omitempty"`
+	Query string             `json:"query"`
+	Time  *time.Time         `json:"time,omitempty"`
+	Range *MetricsRangeInput `json:"range,omitempty"`
 }
 
 // MetricsRangeInput represents the input for Prometheus range queries.
