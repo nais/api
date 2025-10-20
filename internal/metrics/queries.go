@@ -125,18 +125,24 @@ func executeRangeQuery(ctx context.Context, loader *loaders, input MetricsQueryI
 	}, nil
 }
 
+// buildLabels converts Prometheus metric labels to MetricLabel slice
+func buildLabels(metric prom.Metric) []*MetricLabel {
+	labels := make([]*MetricLabel, 0, len(metric))
+	for name, value := range metric {
+		labels = append(labels, &MetricLabel{
+			Name:  string(name),
+			Value: string(value),
+		})
+	}
+	return labels
+}
+
 // convertVectorToSeries converts a Prometheus vector to MetricSeries
 func convertVectorToSeries(vector prom.Vector) []*MetricSeries {
 	series := make([]*MetricSeries, 0, len(vector))
 
 	for _, sample := range vector {
-		labels := make([]*MetricLabel, 0, len(sample.Metric))
-		for name, value := range sample.Metric {
-			labels = append(labels, &MetricLabel{
-				Name:  string(name),
-				Value: string(value),
-			})
-		}
+		labels := buildLabels(sample.Metric)
 
 		series = append(series, &MetricSeries{
 			Labels: labels,
@@ -157,13 +163,7 @@ func convertMatrixToSeries(matrix prom.Matrix) []*MetricSeries {
 	series := make([]*MetricSeries, 0, len(matrix))
 
 	for _, sampleStream := range matrix {
-		labels := make([]*MetricLabel, 0, len(sampleStream.Metric))
-		for name, value := range sampleStream.Metric {
-			labels = append(labels, &MetricLabel{
-				Name:  string(name),
-				Value: string(value),
-			})
-		}
+		labels := buildLabels(sampleStream.Metric)
 
 		values := make([]*MetricValue, 0, len(sampleStream.Values))
 		for _, pair := range sampleStream.Values {
