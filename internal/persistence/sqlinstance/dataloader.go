@@ -21,8 +21,10 @@ func NewLoaderContext(
 	client *Client,
 	sqlDatabaseWatcher *watcher.Watcher[*SQLDatabase],
 	sqlInstanceWatcher *watcher.Watcher[*SQLInstance],
+	auditLogProjectID string,
+	auditLogLocation string,
 ) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(client, sqlDatabaseWatcher, sqlInstanceWatcher))
+	return context.WithValue(ctx, loadersKey, newLoaders(client, sqlDatabaseWatcher, sqlInstanceWatcher, auditLogProjectID, auditLogLocation))
 }
 
 func NewInstanceWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*SQLInstance] {
@@ -61,18 +63,28 @@ func fromContext(ctx context.Context) *loaders {
 	return ctx.Value(loadersKey).(*loaders)
 }
 
+// GetAuditLogConfig returns the audit log configuration from context
+func GetAuditLogConfig(ctx context.Context) (projectID, location string) {
+	loaders := fromContext(ctx)
+	return loaders.auditLogProjectID, loaders.auditLogLocation
+}
+
 type loaders struct {
 	sqlAdminService    *SQLAdminService
 	sqlMetricsService  *Metrics
 	sqlDatabaseWatcher *watcher.Watcher[*SQLDatabase]
 	sqlInstanceWatcher *watcher.Watcher[*SQLInstance]
 	remoteSQLInstance  *dataloadgen.Loader[instanceKey, *sqladmin.DatabaseInstance]
+	auditLogProjectID  string
+	auditLogLocation   string
 }
 
 func newLoaders(
 	client *Client,
 	sqlDatabaseWatcher *watcher.Watcher[*SQLDatabase],
 	sqlInstanceWatcher *watcher.Watcher[*SQLInstance],
+	auditLogProjectID string,
+	auditLogLocation string,
 ) *loaders {
 	dataloader := dataloader{sqlAdminService: client.Admin}
 	return &loaders{
@@ -81,6 +93,8 @@ func newLoaders(
 		sqlDatabaseWatcher: sqlDatabaseWatcher,
 		sqlInstanceWatcher: sqlInstanceWatcher,
 		remoteSQLInstance:  dataloadgen.NewLoader(dataloader.remoteInstance, loader.DefaultDataLoaderOptions...),
+		auditLogProjectID:  auditLogProjectID,
+		auditLogLocation:   auditLogLocation,
 	}
 }
 

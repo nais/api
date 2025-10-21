@@ -1,4 +1,9 @@
 apiserverIP:
+
+auditLog:
+  projectID: # mapped in fasit
+  location: # must be configured
+
 database: # mapped in fasit
   instance:
   name:

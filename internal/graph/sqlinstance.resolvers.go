@@ -3,6 +3,9 @@ package graph
 import (
 	"context"
 	"errors"
+	"fmt"
+	"net/url"
+	"strings"
 
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
@@ -119,6 +122,52 @@ func (r *sqlInstanceResolver) Issues(ctx context.Context, obj *sqlinstance.SQLIn
 	}
 
 	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, f)
+}
+
+func isFlagEnabled(value string) bool {
+	switch strings.ToLower(value) {
+	case "on", "true", "1", "yes", "enabled":
+		return true
+	default:
+		return false
+	}
+}
+
+func (r *sqlInstanceResolver) AuditLog(ctx context.Context, obj *sqlinstance.SQLInstance) (*sqlinstance.AuditLog, error) {
+	var pgauditEnabled bool
+	for _, flag := range obj.Flags {
+		if flag.Name == "cloudsql.enable_pgaudit" && isFlagEnabled(flag.Value) {
+			pgauditEnabled = true
+			break
+		}
+	}
+
+	if !pgauditEnabled {
+		return nil, nil
+	}
+
+	auditLogProjectID, auditLogLocation := sqlinstance.GetAuditLogConfig(ctx)
+
+	if auditLogProjectID == "" {
+		return nil, fmt.Errorf("NAIS_AUDIT_LOG_PROJECT_ID environment variable is required but not set")
+	}
+	if auditLogLocation == "" {
+		return nil, fmt.Errorf("NAIS_AUDIT_LOG_LOCATION environment variable is required but not set")
+	}
+
+	databaseID := fmt.Sprintf("%s:%s", obj.ProjectID, obj.Name)
+
+	query := fmt.Sprintf("resource.labels.database_id=\"%s\"", databaseID)
+	storageScope := fmt.Sprintf("storage,projects/%s/locations/%s/buckets/%s/views/_AllLogs", auditLogProjectID, auditLogLocation, obj.TeamSlug.String())
+
+	logURL := fmt.Sprintf("https://console.cloud.google.com/logs/query;query=%s;storageScope=%s?project=%s",
+		url.QueryEscape(query),
+		url.QueryEscape(storageScope),
+		obj.ProjectID)
+
+	return &sqlinstance.AuditLog{
+		LogURL: logURL,
+	}, nil
 }
 
 func (r *sqlInstanceMetricsResolver) CPU(ctx context.Context, obj *sqlinstance.SQLInstanceMetrics) (*sqlinstance.SQLInstanceCPU, error) {

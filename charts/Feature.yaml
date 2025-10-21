@@ -24,6 +24,18 @@ values:
       type: string
       secret: true
 
+  auditLog.projectID:
+    displayName: NAIS audit log project ID
+    computed:
+      template: |
+        {{ .Env.nais_audit_log_project | quote }}
+
+  auditLog.location:
+    displayName: NAIS audit log location
+    description: The GCP location where audit log buckets are created
+    config:
+      type: string
+
   host:
     displayName: Ingress hostname
     computed:

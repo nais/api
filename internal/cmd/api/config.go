@@ -78,6 +78,11 @@ type hookdConfig struct {
 	PSK      string `env:"HOOKD_PSK"`
 }
 
+type auditLogConfig struct {
+	ProjectID string `env:"NAIS_AUDIT_LOG_PROJECT_ID"`
+	Location  string `env:"NAIS_AUDIT_LOG_LOCATION"`
+}
+
 type oAuthConfig struct {
 	// Issuer The issuer of the OAuth 2.0 client to use for the OAuth login flow.
 	Issuer string `env:"OAUTH_ISSUER,default=https://accounts.google.com"`
@@ -193,6 +198,7 @@ type Config struct {
 	Zitadel            zitadelConfig
 	Fakes              Fakes
 	JWT                JWTConfig
+	AuditLog           auditLogConfig
 }
 
 type Fakes struct {

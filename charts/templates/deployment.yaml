@@ -97,6 +97,10 @@ spec:
               value: {{ .Values.zitadel.organizationID | quote }}
             - name: CLOUD_SQL_INSTANCE
               value: {{ .Values.database.instance | quote }}
+            - name: NAIS_AUDIT_LOG_PROJECT_ID
+              value: {{ .Values.auditLog.projectID | quote }}
+            - name: NAIS_AUDIT_LOG_LOCATION
+              value: {{ .Values.auditLog.location | quote }}
           envFrom:
             - secretRef:
                 name: "{{ .Release.Name }}"
