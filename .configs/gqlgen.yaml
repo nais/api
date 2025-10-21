@@ -4,7 +4,8 @@ schema:
 
 # Where should the generated server code go?
 exec:
-  filename: internal/graph/gengql/generated.go
+  layout: follow-schema
+  dir: internal/graph/gengql
   package: gengql
 
 # Where should any generated models go?
