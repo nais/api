@@ -20085,7 +20085,7 @@ type SqlInstance implements Persistence & Node {
 }
 
 type AuditLog {
-	"Indicates whether audit logging is enabled for this SQL instance."
+	"Indicates whether audit logging is enabled for this SQL instance and provides a link to the logs if set."
 	logUrl: String!
 }
 

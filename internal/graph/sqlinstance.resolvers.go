@@ -124,16 +124,16 @@ func (r *sqlInstanceResolver) Issues(ctx context.Context, obj *sqlinstance.SQLIn
 	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, f)
 }
 
-func isFlagEnabled(value string) bool {
-	switch strings.ToLower(value) {
-	case "on", "true", "1", "yes", "enabled":
-		return true
-	default:
-		return false
-	}
-}
-
 func (r *sqlInstanceResolver) AuditLog(ctx context.Context, obj *sqlinstance.SQLInstance) (*sqlinstance.AuditLog, error) {
+	isFlagEnabled := func(value string) bool {
+		switch strings.ToLower(value) {
+		case "on", "true", "1", "yes", "enabled":
+			return true
+		default:
+			return false
+		}
+	}
+
 	var pgauditEnabled bool
 	for _, flag := range obj.Flags {
 		if flag.Name == "cloudsql.enable_pgaudit" && isFlagEnabled(flag.Value) {
