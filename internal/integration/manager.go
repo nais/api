@@ -255,6 +255,8 @@ func newGQLRunner(
 		[]logging.SupportedLogDestination{logging.Loki},
 		notifier,
 		lokiClient,
+		"test-audit-project", // auditLogProjectID for testing
+		"test-location",      // auditLogLocation for testing
 		log,
 	)
 	if err != nil {
