@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: audit-team
+  annotations:
+    cnrm.cloud.google.com/project-id: nais-dev-2e7b
+  labels:
+    team: audit-team
