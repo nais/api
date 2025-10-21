@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/thirdparty/promclient"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
@@ -60,7 +61,7 @@ func Query(ctx context.Context, input MetricsQueryInput, environmentName string)
 }
 
 func executeInstantQuery(ctx context.Context, loader *loaders, input MetricsQueryInput, environmentName string, queryTime time.Time) (*MetricsQueryResult, error) {
-	vector, err := loader.client.Query(ctx, environmentName, input.Query, promclient.WithTime(queryTime))
+	vector, err := loader.client.Query(ctx, environmentmapper.ClusterName(environmentName), input.Query, promclient.WithTime(queryTime))
 	if err != nil {
 		return nil, apierror.Errorf("Failed to query metrics: %v", err)
 	}
@@ -100,7 +101,7 @@ func executeRangeQuery(ctx context.Context, loader *loaders, input MetricsQueryI
 		Step:  time.Duration(input.Range.Step) * time.Second,
 	}
 
-	value, warnings, err := loader.client.QueryRange(ctx, environmentName, input.Query, promRange)
+	value, warnings, err := loader.client.QueryRange(ctx, environmentmapper.ClusterName(environmentName), input.Query, promRange)
 	if err != nil {
 		return nil, apierror.Errorf("Failed to execute metrics query: %v", err)
 	}
