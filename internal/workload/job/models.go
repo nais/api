@@ -343,24 +343,33 @@ func toGraphJob(job *nais_io_v1.Naisjob, environmentName string) *Job {
 	}
 }
 
-func ToGraphJobRun(run *batchv1.Job, environmentName string) *JobRun {
+func ToGraphJobRun(job *batchv1.Job, environmentName string) *JobRun {
 	var startTime *time.Time
 
-	if run.Status.StartTime != nil {
-		startTime = &run.Status.StartTime.Time
+	if job.Status.StartTime != nil {
+		startTime = &job.Status.StartTime.Time
 	}
 
 	return &JobRun{
-		Name:            run.Name,
+		Name:            job.Name,
 		EnvironmentName: environmentName,
-		TeamSlug:        slug.Slug(run.Namespace),
+		TeamSlug:        slug.Slug(job.Namespace),
 		StartTime:       startTime,
-		CreationTime:    run.CreationTimestamp.Time,
-		Trigger:         trigger(run),
-		Failed:          run.Status.Failed > 0,
-		Message:         statusMessage(run),
-		spec:            run,
+		CreationTime:    job.CreationTimestamp.Time,
+		Trigger:         trigger(job),
+		Failed:          failed(job),
+		Message:         statusMessage(job),
+		spec:            job,
 	}
+}
+
+func failed(job *batchv1.Job) bool {
+	for _, cond := range job.Status.Conditions {
+		if cond.Status == corev1.ConditionTrue && cond.Type == batchv1.JobFailed {
+			return true
+		}
+	}
+	return false
 }
 
 func trigger(run *batchv1.Job) *JobRunTrigger {

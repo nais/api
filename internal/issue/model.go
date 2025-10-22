@@ -190,7 +190,7 @@ const (
 	IssueTypeDeprecatedIngress     IssueType = "DEPRECATED_INGRESS"
 	IssueTypeDeprecatedRegistry    IssueType = "DEPRECATED_REGISTRY"
 	IssueTypeNoRunningInstances    IssueType = "NO_RUNNING_INSTANCES"
-	IssueTypeFailedJobRuns         IssueType = "FAILED_JOB_RUNS"
+	IssueTypeLastRunFailed         IssueType = "LAST_RUN_FAILED"
 	IssueTypeFailedSynchronization IssueType = "FAILED_SYNCHRONIZATION"
 	IssueTypeInvalidSpec           IssueType = "INVALID_SPEC"
 	IssueTypeVulnerableImage       IssueType = "VULNERABLE_IMAGE"
@@ -204,7 +204,7 @@ var AllIssueType = []IssueType{
 	IssueTypeDeprecatedIngress,
 	IssueTypeDeprecatedRegistry,
 	IssueTypeNoRunningInstances,
-	IssueTypeFailedJobRuns,
+	IssueTypeLastRunFailed,
 	IssueTypeInvalidSpec,
 	IssueTypeFailedSynchronization,
 	IssueTypeVulnerableImage,
@@ -213,7 +213,7 @@ var AllIssueType = []IssueType{
 
 func (e IssueType) IsValid() bool {
 	switch e {
-	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeFailedJobRuns, IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage, IssueTypeMissingSBOM:
+	case IssueTypeOpenSearch, IssueTypeValkey, IssueTypeSqlInstanceState, IssueTypeSqlInstanceVersion, IssueTypeDeprecatedIngress, IssueTypeDeprecatedRegistry, IssueTypeNoRunningInstances, IssueTypeLastRunFailed, IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage, IssueTypeMissingSBOM:
 		return true
 	}
 	return false
@@ -328,13 +328,13 @@ func (NoRunningInstancesIssue) IsIssue() {}
 
 func (NoRunningInstancesIssue) IsNode() {}
 
-type FailedJobRunsIssue struct {
+type LastRunFailedIssue struct {
 	Base
 }
 
-func (FailedJobRunsIssue) IsIssue() {}
+func (LastRunFailedIssue) IsIssue() {}
 
-func (FailedJobRunsIssue) IsNode() {}
+func (LastRunFailedIssue) IsNode() {}
 
 type InvalidSpecIssue struct {
 	Base

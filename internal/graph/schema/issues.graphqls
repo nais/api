@@ -157,7 +157,7 @@ enum IssueType {
 	DEPRECATED_INGRESS
 	DEPRECATED_REGISTRY
 	NO_RUNNING_INSTANCES
-	FAILED_JOB_RUNS
+	LAST_RUN_FAILED
 	FAILED_SYNCHRONIZATION
 	INVALID_SPEC
 	MISSING_SBOM
@@ -269,7 +269,7 @@ type NoRunningInstancesIssue implements Issue & Node {
 	workload: Workload!
 }
 
-type FailedJobRunsIssue implements Issue & Node {
+type LastRunFailedIssue implements Issue & Node {
 	id: ID!
 	teamEnvironment: TeamEnvironment!
 	severity: Severity!

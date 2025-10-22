@@ -55,7 +55,7 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 		}
 		env := environmentmapper.EnvironmentName(job.Cluster)
 		ret = appendIssues(ret, deprecatedRegistry(image, job.Obj.Name, job.Obj.Namespace, env, issue.ResourceTypeJob))
-		ret = appendIssues(ret, w.failedJobRuns(job.GetName(), job.GetNamespace(), env))
+		ret = appendIssues(ret, w.lastRunFailed(job.GetName(), job.GetNamespace(), env))
 		ret = appendIssues(ret, w.specErrors(job.Obj, env, issue.ResourceTypeJob))
 	}
 
