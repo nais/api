@@ -20081,11 +20081,13 @@ type SqlInstance implements Persistence & Node {
 		"Filtering options for items returned from the connection."
 		filter: ResourceIssueFilter
 	): IssueConnection!
+
+	"Indicates whether audit logging is enabled for this SQL instance and provides a link to the logs if set."
 	auditLog: AuditLog
 }
 
 type AuditLog {
-	"Indicates whether audit logging is enabled for this SQL instance and provides a link to the logs if set."
+	"Link to the audit log for this SQL instance."
 	logUrl: String!
 }
 
