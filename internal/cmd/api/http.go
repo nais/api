@@ -91,6 +91,8 @@ func runHttpServer(
 	defaultLogDestinations []logging.SupportedLogDestination,
 	notifier *notify.Notifier,
 	lokiClient loki.Client,
+	auditLogProjectID string,
+	auditLogLocation string,
 	log logrus.FieldLogger,
 ) error {
 	router := chi.NewRouter()
@@ -117,6 +119,8 @@ func runHttpServer(
 		defaultLogDestinations,
 		notifier,
 		lokiClient,
+		auditLogProjectID,
+		auditLogLocation,
 		log,
 	)
 	if err != nil {
@@ -217,6 +221,8 @@ func ConfigureGraph(
 	defaultLogDestinations []logging.SupportedLogDestination,
 	notifier *notify.Notifier,
 	lokiClient loki.Client,
+	auditLogProjectID string,
+	auditLogLocation string,
 	log logrus.FieldLogger,
 ) (func(http.Handler) http.Handler, error) {
 	searcher, err := search.New(ctx, pool, log.WithField("subsystem", "search_bleve"))
@@ -307,7 +313,7 @@ func ConfigureGraph(
 		ctx = price.NewLoaderContext(ctx, priceRetriever, log)
 		ctx = utilization.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = alerts.NewLoaderContext(ctx, prometheusClient, log)
-		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, watchers.SqlDatabaseWatcher, watchers.SqlInstanceWatcher)
+		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, watchers.SqlDatabaseWatcher, watchers.SqlInstanceWatcher, auditLogProjectID, auditLogLocation)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = issue.NewContext(ctx, pool)
 		ctx = team.NewLoaderContext(ctx, pool, watchers.NamespaceWatcher)

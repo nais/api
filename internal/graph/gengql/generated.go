@@ -328,6 +328,10 @@ type ComplexityRoot struct {
 		ServiceAccount func(childComplexity int) int
 	}
 
+	AuditLog struct {
+		LogURL func(childComplexity int) int
+	}
+
 	BigQueryDataset struct {
 		Access          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetAccessOrder) int
 		CascadingDelete func(childComplexity int) int
@@ -1795,6 +1799,7 @@ type ComplexityRoot struct {
 	}
 
 	SqlInstance struct {
+		AuditLog            func(childComplexity int) int
 		BackupConfiguration func(childComplexity int) int
 		CascadingDelete     func(childComplexity int) int
 		ConnectionName      func(childComplexity int) int
@@ -3070,6 +3075,7 @@ type SqlInstanceResolver interface {
 	Metrics(ctx context.Context, obj *sqlinstance.SQLInstance) (*sqlinstance.SQLInstanceMetrics, error)
 	State(ctx context.Context, obj *sqlinstance.SQLInstance) (sqlinstance.SQLInstanceState, error)
 	Issues(ctx context.Context, obj *sqlinstance.SQLInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*pagination.Connection[issue.Issue], error)
+	AuditLog(ctx context.Context, obj *sqlinstance.SQLInstance) (*sqlinstance.AuditLog, error)
 	Cost(ctx context.Context, obj *sqlinstance.SQLInstance) (*cost.SQLInstanceCost, error)
 }
 type SqlInstanceMetricsResolver interface {
@@ -3951,6 +3957,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AssignRoleToServiceAccountPayload.ServiceAccount(childComplexity), true
+
+	case "AuditLog.logUrl":
+		if e.complexity.AuditLog.LogURL == nil {
+			break
+		}
+
+		return e.complexity.AuditLog.LogURL(childComplexity), true
 
 	case "BigQueryDataset.access":
 		if e.complexity.BigQueryDataset.Access == nil {
@@ -9711,6 +9724,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.SqlDatabase.TeamEnvironment(childComplexity), true
 
+	case "SqlInstance.auditLog":
+		if e.complexity.SqlInstance.AuditLog == nil {
+			break
+		}
+
+		return e.complexity.SqlInstance.AuditLog(childComplexity), true
 	case "SqlInstance.backupConfiguration":
 		if e.complexity.SqlInstance.BackupConfiguration == nil {
 			break
@@ -20062,6 +20081,14 @@ type SqlInstance implements Persistence & Node {
 		"Filtering options for items returned from the connection."
 		filter: ResourceIssueFilter
 	): IssueConnection!
+
+	"Indicates whether audit logging is enabled for this SQL instance and provides a link to the logs if set."
+	auditLog: AuditLog
+}
+
+type AuditLog {
+	"Link to the audit log for this SQL instance."
+	logUrl: String!
 }
 
 type SqlInstanceBackupConfiguration {
@@ -30008,6 +30035,35 @@ func (ec *executionContext) fieldContext_AssignRoleToServiceAccountPayload_servi
 				return ec.fieldContext_ServiceAccount_tokens(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ServiceAccount", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditLog_logUrl(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.AuditLog) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AuditLog_logUrl,
+		func(ctx context.Context) (any, error) {
+			return obj.LogURL, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AuditLog_logUrl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditLog",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -62128,6 +62184,39 @@ func (ec *executionContext) fieldContext_SqlInstance_issues(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _SqlInstance_auditLog(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_SqlInstance_auditLog,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.SqlInstance().AuditLog(ctx, obj)
+		},
+		nil,
+		ec.marshalOAuditLog2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐAuditLog,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_SqlInstance_auditLog(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "logUrl":
+				return ec.fieldContext_AuditLog_logUrl(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuditLog", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SqlInstance_cost(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -62425,6 +62514,8 @@ func (ec *executionContext) fieldContext_SqlInstanceConnection_nodes(_ context.C
 				return ec.fieldContext_SqlInstance_state(ctx, field)
 			case "issues":
 				return ec.fieldContext_SqlInstance_issues(ctx, field)
+			case "auditLog":
+				return ec.fieldContext_SqlInstance_auditLog(ctx, field)
 			case "cost":
 				return ec.fieldContext_SqlInstance_cost(ctx, field)
 			}
@@ -62717,6 +62808,8 @@ func (ec *executionContext) fieldContext_SqlInstanceEdge_node(_ context.Context,
 				return ec.fieldContext_SqlInstance_state(ctx, field)
 			case "issues":
 				return ec.fieldContext_SqlInstance_issues(ctx, field)
+			case "auditLog":
+				return ec.fieldContext_SqlInstance_auditLog(ctx, field)
 			case "cost":
 				return ec.fieldContext_SqlInstance_cost(ctx, field)
 			}
@@ -63441,6 +63534,8 @@ func (ec *executionContext) fieldContext_SqlInstanceStateIssue_sqlInstance(_ con
 				return ec.fieldContext_SqlInstance_state(ctx, field)
 			case "issues":
 				return ec.fieldContext_SqlInstance_issues(ctx, field)
+			case "auditLog":
+				return ec.fieldContext_SqlInstance_auditLog(ctx, field)
 			case "cost":
 				return ec.fieldContext_SqlInstance_cost(ctx, field)
 			}
@@ -63973,6 +64068,8 @@ func (ec *executionContext) fieldContext_SqlInstanceVersionIssue_sqlInstance(_ c
 				return ec.fieldContext_SqlInstance_state(ctx, field)
 			case "issues":
 				return ec.fieldContext_SqlInstance_issues(ctx, field)
+			case "auditLog":
+				return ec.fieldContext_SqlInstance_auditLog(ctx, field)
 			case "cost":
 				return ec.fieldContext_SqlInstance_cost(ctx, field)
 			}
@@ -68663,6 +68760,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_sqlInstance(ctx context
 				return ec.fieldContext_SqlInstance_state(ctx, field)
 			case "issues":
 				return ec.fieldContext_SqlInstance_issues(ctx, field)
+			case "auditLog":
+				return ec.fieldContext_SqlInstance_auditLog(ctx, field)
 			case "cost":
 				return ec.fieldContext_SqlInstance_cost(ctx, field)
 			}
@@ -89684,6 +89783,45 @@ func (ec *executionContext) _AssignRoleToServiceAccountPayload(ctx context.Conte
 	return out
 }
 
+var auditLogImplementors = []string{"AuditLog"}
+
+func (ec *executionContext) _AuditLog(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.AuditLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditLogImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuditLog")
+		case "logUrl":
+			out.Values[i] = ec._AuditLog_logUrl(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var bigQueryDatasetImplementors = []string{"BigQueryDataset", "Persistence", "Node", "SearchNode"}
 
 func (ec *executionContext) _BigQueryDataset(ctx context.Context, sel ast.SelectionSet, obj *bigquery.BigQueryDataset) graphql.Marshaler {
@@ -105120,6 +105258,39 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "auditLog":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SqlInstance_auditLog(ctx, field, obj)
 				return res
 			}
 
@@ -125683,6 +125854,13 @@ func (ec *executionContext) unmarshalOApplicationOrder2ᚖgithubᚗcomᚋnaisᚋ
 	}
 	res, err := ec.unmarshalInputApplicationOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOAuditLog2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐAuditLog(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.AuditLog) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._AuditLog(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOBigQueryDatasetAccessOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccessOrder(ctx context.Context, v any) (*bigquery.BigQueryDatasetAccessOrder, error) {

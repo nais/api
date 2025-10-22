@@ -44,6 +44,8 @@ spec:
     databaseFlags:
       - name: cloudsql.iam_authentication
         value: "on"
+      - name: cloudsql.enable_pgaudit
+        value: "on"
     diskAutoresize: false
     diskSize: 10
     diskType: PD_SSD

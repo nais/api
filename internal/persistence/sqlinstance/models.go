@@ -402,3 +402,7 @@ type TeamServiceUtilizationSQLInstancesDisk struct {
 	Requested   int     `json:"requested"`
 	Utilization float64 `json:"utilization"`
 }
+
+type AuditLog struct {
+	LogURL string `json:"logUrl"`
+}

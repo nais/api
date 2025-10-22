@@ -303,6 +303,8 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			cfg.Logging.DefaultLogDestinations(),
 			notifier,
 			lokiClient,
+			cfg.AuditLog.ProjectID,
+			cfg.AuditLog.Location,
 			log.WithField("subsystem", "http"),
 		)
 	})
