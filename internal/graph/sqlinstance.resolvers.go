@@ -158,7 +158,7 @@ func (r *sqlInstanceResolver) AuditLog(ctx context.Context, obj *sqlinstance.SQL
 	databaseID := fmt.Sprintf("%s:%s", obj.ProjectID, obj.Name)
 
 	query := fmt.Sprintf("resource.labels.database_id=\"%s\"", databaseID)
-	storageScope := fmt.Sprintf("storage,projects/%s/locations/%s/buckets/%s/views/_AllLogs", auditLogProjectID, auditLogLocation, obj.TeamSlug.String())
+	storageScope := fmt.Sprintf("storage,projects/%s/locations/%s/buckets/%s-%s/views/_AllLogs", auditLogProjectID, auditLogLocation, obj.TeamSlug.String(), obj.EnvironmentName)
 
 	logURL := fmt.Sprintf("https://console.cloud.google.com/logs/query;query=%s;storageScope=%s?project=%s",
 		url.QueryEscape(query),
