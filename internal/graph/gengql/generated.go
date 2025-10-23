@@ -30,6 +30,7 @@ import (
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/kubernetes/event/pubsublog"
 	"github.com/nais/api/internal/loki"
+	"github.com/nais/api/internal/metrics"
 	"github.com/nais/api/internal/persistence"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/bucket"
@@ -635,6 +636,7 @@ type ComplexityRoot struct {
 
 	Environment struct {
 		ID        func(childComplexity int) int
+		Metrics   func(childComplexity int, input metrics.MetricsQueryInput) int
 		Name      func(childComplexity int) int
 		Workloads func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) int
 	}
@@ -1008,6 +1010,26 @@ type ComplexityRoot struct {
 
 	MaskinportenAuthIntegration struct {
 		Name func(childComplexity int) int
+	}
+
+	MetricLabel struct {
+		Name  func(childComplexity int) int
+		Value func(childComplexity int) int
+	}
+
+	MetricSeries struct {
+		Labels func(childComplexity int) int
+		Values func(childComplexity int) int
+	}
+
+	MetricValue struct {
+		Timestamp func(childComplexity int) int
+		Value     func(childComplexity int) int
+	}
+
+	MetricsQueryResult struct {
+		Series   func(childComplexity int) int
+		Warnings func(childComplexity int) int
 	}
 
 	MissingSbomIssue struct {
@@ -2839,6 +2861,7 @@ type DeprecatedRegistryIssueResolver interface {
 	Workload(ctx context.Context, obj *issue.DeprecatedRegistryIssue) (workload.Workload, error)
 }
 type EnvironmentResolver interface {
+	Metrics(ctx context.Context, obj *environment.Environment, input metrics.MetricsQueryInput) (*metrics.MetricsQueryResult, error)
 	Workloads(ctx context.Context, obj *environment.Environment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) (*pagination.Connection[workload.Workload], error)
 }
 type FailedSynchronizationIssueResolver interface {
@@ -4940,6 +4963,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Environment.ID(childComplexity), true
+	case "Environment.metrics":
+		if e.complexity.Environment.Metrics == nil {
+			break
+		}
+
+		args, err := ec.field_Environment_metrics_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Environment.Metrics(childComplexity, args["input"].(metrics.MetricsQueryInput)), true
 	case "Environment.name":
 		if e.complexity.Environment.Name == nil {
 			break
@@ -6306,6 +6340,58 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.MaskinportenAuthIntegration.Name(childComplexity), true
+
+	case "MetricLabel.name":
+		if e.complexity.MetricLabel.Name == nil {
+			break
+		}
+
+		return e.complexity.MetricLabel.Name(childComplexity), true
+	case "MetricLabel.value":
+		if e.complexity.MetricLabel.Value == nil {
+			break
+		}
+
+		return e.complexity.MetricLabel.Value(childComplexity), true
+
+	case "MetricSeries.labels":
+		if e.complexity.MetricSeries.Labels == nil {
+			break
+		}
+
+		return e.complexity.MetricSeries.Labels(childComplexity), true
+	case "MetricSeries.values":
+		if e.complexity.MetricSeries.Values == nil {
+			break
+		}
+
+		return e.complexity.MetricSeries.Values(childComplexity), true
+
+	case "MetricValue.timestamp":
+		if e.complexity.MetricValue.Timestamp == nil {
+			break
+		}
+
+		return e.complexity.MetricValue.Timestamp(childComplexity), true
+	case "MetricValue.value":
+		if e.complexity.MetricValue.Value == nil {
+			break
+		}
+
+		return e.complexity.MetricValue.Value(childComplexity), true
+
+	case "MetricsQueryResult.series":
+		if e.complexity.MetricsQueryResult.Series == nil {
+			break
+		}
+
+		return e.complexity.MetricsQueryResult.Series(childComplexity), true
+	case "MetricsQueryResult.warnings":
+		if e.complexity.MetricsQueryResult.Warnings == nil {
+			break
+		}
+
+		return e.complexity.MetricsQueryResult.Warnings(childComplexity), true
 
 	case "MissingSbomIssue.id":
 		if e.complexity.MissingSbomIssue.ID == nil {
@@ -13503,6 +13589,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputKafkaTopicOrder,
 		ec.unmarshalInputLogSubscriptionFilter,
 		ec.unmarshalInputLogSubscriptionInitialBatch,
+		ec.unmarshalInputMetricsQueryInput,
+		ec.unmarshalInputMetricsRangeInput,
 		ec.unmarshalInputOpenSearchAccessOrder,
 		ec.unmarshalInputOpenSearchOrder,
 		ec.unmarshalInputReconcilerConfigInput,
@@ -17087,6 +17175,137 @@ type LogDestinationLoki implements LogDestination & Node {
 type LogDestinationSecureLogs implements LogDestination & Node {
 	"The globally unique ID of the log destination."
 	id: ID!
+}
+`, BuiltIn: false},
+	{Name: "../schema/metrics.graphqls", Input: `extend type Environment {
+	"""
+	Query Prometheus metrics directly using PromQL for this environment.
+	This allows for flexible metric queries within the specific environment.
+	Supports both instant queries and range queries.
+	"""
+	metrics(input: MetricsQueryInput!): MetricsQueryResult!
+}
+
+"""
+Input for querying Prometheus metrics.
+"""
+input MetricsQueryInput {
+	"""
+	The PromQL query to execute.
+	Example: "rate(http_requests_total[5m])"
+	"""
+	query: String!
+
+	"""
+	Optional timestamp for instant queries.
+	Specifies the exact point in time to evaluate the query.
+	If not provided, defaults to current time minus 5 minutes.
+	This parameter is ignored when range is provided.
+	"""
+	time: Time
+
+	"""
+	Optional range query parameters.
+	If provided, executes a range query instead of an instant query.
+
+	Limits to prevent excessive memory usage:
+	- Minimum step: 10 seconds
+	- Maximum time range: 30 days
+	- Maximum data points: 11,000
+	"""
+	range: MetricsRangeInput
+}
+
+"""
+Input for Prometheus range queries.
+
+To prevent excessive memory usage, queries are subject to limits:
+- Step must be at least 10 seconds
+- Time range (end - start) cannot exceed 30 days
+- Total data points cannot exceed 11,000
+"""
+input MetricsRangeInput {
+	"""
+	Start timestamp for the range query.
+	"""
+	start: Time!
+
+	"""
+	End timestamp for the range query.
+	Must be after start time.
+	"""
+	end: Time!
+
+	"""
+	Query resolution step width in seconds.
+	Must be at least 10 seconds.
+	Example: 60 for 1-minute intervals
+	"""
+	step: Int!
+}
+
+"""
+Result from a Prometheus metrics query.
+"""
+type MetricsQueryResult {
+	"""
+	Time series data from the query.
+	For instant queries, each series contains a single value.
+	For range queries, each series contains multiple values over time.
+	"""
+	series: [MetricSeries!]!
+
+	"""
+	Warnings returned by Prometheus, if any.
+	"""
+	warnings: [String!]!
+}
+
+"""
+A time series with its labels and data points.
+"""
+type MetricSeries {
+	"""
+	The metric labels as key-value pairs.
+	"""
+	labels: [MetricLabel!]!
+
+	"""
+	The data points for this time series.
+	Instant queries will have a single value.
+	Range queries will have multiple values over time.
+	"""
+	values: [MetricValue!]!
+}
+
+"""
+A key-value pair representing a Prometheus label.
+"""
+type MetricLabel {
+	"""
+	The label name.
+	"""
+	name: String!
+
+	"""
+	The label value.
+	"""
+	value: String!
+}
+
+"""
+A single data point in a time series.
+"""
+type MetricValue {
+	"""
+	The timestamp of the data point.
+	"""
+	timestamp: Time!
+
+	"""
+	The value at the given timestamp.
+	"""
+	value: Float!
 }
 `, BuiltIn: false},
 	{Name: "../schema/netpol.graphqls", Input: `extend interface Workload {
@@ -23631,6 +23850,17 @@ func (ec *executionContext) field_Deployment_statuses_args(ctx context.Context, 
 		return nil, err
 	}
 	args["before"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_Environment_metrics_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNMetricsQueryInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -35821,6 +36051,53 @@ func (ec *executionContext) fieldContext_Environment_name(_ context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Environment_metrics(ctx context.Context, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Environment_metrics,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Environment().Metrics(ctx, obj, fc.Args["input"].(metrics.MetricsQueryInput))
+		},
+		nil,
+		ec.marshalNMetricsQueryResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryResult,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Environment_metrics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Environment",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "series":
+				return ec.fieldContext_MetricsQueryResult_series(ctx, field)
+			case "warnings":
+				return ec.fieldContext_MetricsQueryResult_warnings(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type MetricsQueryResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Environment_metrics_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Environment_workloads(ctx context.Context, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -35943,6 +36220,8 @@ func (ec *executionContext) fieldContext_EnvironmentConnection_nodes(_ context.C
 				return ec.fieldContext_Environment_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Environment_name(ctx, field)
+			case "metrics":
+				return ec.fieldContext_Environment_metrics(ctx, field)
 			case "workloads":
 				return ec.fieldContext_Environment_workloads(ctx, field)
 			}
@@ -36044,6 +36323,8 @@ func (ec *executionContext) fieldContext_EnvironmentEdge_node(_ context.Context,
 				return ec.fieldContext_Environment_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Environment_name(ctx, field)
+			case "metrics":
+				return ec.fieldContext_Environment_metrics(ctx, field)
 			case "workloads":
 				return ec.fieldContext_Environment_workloads(ctx, field)
 			}
@@ -43311,6 +43592,256 @@ func (ec *executionContext) fieldContext_MaskinportenAuthIntegration_name(_ cont
 	return fc, nil
 }
 
+func (ec *executionContext) _MetricLabel_name(ctx context.Context, field graphql.CollectedField, obj *metrics.MetricLabel) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_MetricLabel_name,
+		func(ctx context.Context) (any, error) {
+			return obj.Name, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_MetricLabel_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MetricLabel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MetricLabel_value(ctx context.Context, field graphql.CollectedField, obj *metrics.MetricLabel) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_MetricLabel_value,
+		func(ctx context.Context) (any, error) {
+			return obj.Value, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_MetricLabel_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MetricLabel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MetricSeries_labels(ctx context.Context, field graphql.CollectedField, obj *metrics.MetricSeries) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_MetricSeries_labels,
+		func(ctx context.Context) (any, error) {
+			return obj.Labels, nil
+		},
+		nil,
+		ec.marshalNMetricLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricLabelᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_MetricSeries_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MetricSeries",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_MetricLabel_name(ctx, field)
+			case "value":
+				return ec.fieldContext_MetricLabel_value(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type MetricLabel", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MetricSeries_values(ctx context.Context, field graphql.CollectedField, obj *metrics.MetricSeries) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_MetricSeries_values,
+		func(ctx context.Context) (any, error) {
+			return obj.Values, nil
+		},
+		nil,
+		ec.marshalNMetricValue2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricValueᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_MetricSeries_values(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MetricSeries",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "timestamp":
+				return ec.fieldContext_MetricValue_timestamp(ctx, field)
+			case "value":
+				return ec.fieldContext_MetricValue_value(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type MetricValue", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MetricValue_timestamp(ctx context.Context, field graphql.CollectedField, obj *metrics.MetricValue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_MetricValue_timestamp,
+		func(ctx context.Context) (any, error) {
+			return obj.Timestamp, nil
+		},
+		nil,
+		ec.marshalNTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_MetricValue_timestamp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MetricValue",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MetricValue_value(ctx context.Context, field graphql.CollectedField, obj *metrics.MetricValue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_MetricValue_value,
+		func(ctx context.Context) (any, error) {
+			return obj.Value, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_MetricValue_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MetricValue",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MetricsQueryResult_series(ctx context.Context, field graphql.CollectedField, obj *metrics.MetricsQueryResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_MetricsQueryResult_series,
+		func(ctx context.Context) (any, error) {
+			return obj.Series, nil
+		},
+		nil,
+		ec.marshalNMetricSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricSeriesᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_MetricsQueryResult_series(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MetricsQueryResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "labels":
+				return ec.fieldContext_MetricSeries_labels(ctx, field)
+			case "values":
+				return ec.fieldContext_MetricSeries_values(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type MetricSeries", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MetricsQueryResult_warnings(ctx context.Context, field graphql.CollectedField, obj *metrics.MetricsQueryResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_MetricsQueryResult_warnings,
+		func(ctx context.Context) (any, error) {
+			return obj.Warnings, nil
+		},
+		nil,
+		ec.marshalNString2ᚕstringᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_MetricsQueryResult_warnings(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MetricsQueryResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _MissingSbomIssue_id(ctx context.Context, field graphql.CollectedField, obj *issue.MissingSbomIssue) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -49829,6 +50360,8 @@ func (ec *executionContext) fieldContext_Query_environment(ctx context.Context, 
 				return ec.fieldContext_Environment_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Environment_name(ctx, field)
+			case "metrics":
+				return ec.fieldContext_Environment_metrics(ctx, field)
 			case "workloads":
 				return ec.fieldContext_Environment_workloads(ctx, field)
 			}
@@ -68376,6 +68909,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_environment(_ context.C
 				return ec.fieldContext_Environment_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Environment_name(ctx, field)
+			case "metrics":
+				return ec.fieldContext_Environment_metrics(ctx, field)
 			case "workloads":
 				return ec.fieldContext_Environment_workloads(ctx, field)
 			}
@@ -84301,6 +84836,88 @@ func (ec *executionContext) unmarshalInputLogSubscriptionInitialBatch(ctx contex
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputMetricsQueryInput(ctx context.Context, obj any) (metrics.MetricsQueryInput, error) {
+	var it metrics.MetricsQueryInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"query", "time", "range"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "query":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Query = data
+		case "time":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("time"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Time = data
+		case "range":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("range"))
+			data, err := ec.unmarshalOMetricsRangeInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsRangeInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Range = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputMetricsRangeInput(ctx context.Context, obj any) (metrics.MetricsRangeInput, error) {
+	var it metrics.MetricsRangeInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"start", "end", "step"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "start":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("start"))
+			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Start = data
+		case "end":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("end"))
+			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.End = data
+		case "step":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("step"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Step = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputOpenSearchAccessOrder(ctx context.Context, obj any) (opensearch.OpenSearchAccessOrder, error) {
 	var it opensearch.OpenSearchAccessOrder
 	asMap := map[string]any{}
@@ -93030,6 +93647,42 @@ func (ec *executionContext) _Environment(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "metrics":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Environment_metrics(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "workloads":
 			field := field
 
@@ -97249,6 +97902,182 @@ func (ec *executionContext) _MaskinportenAuthIntegration(ctx context.Context, se
 			out.Values[i] = graphql.MarshalString("MaskinportenAuthIntegration")
 		case "name":
 			out.Values[i] = ec._MaskinportenAuthIntegration_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var metricLabelImplementors = []string{"MetricLabel"}
+
+func (ec *executionContext) _MetricLabel(ctx context.Context, sel ast.SelectionSet, obj *metrics.MetricLabel) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, metricLabelImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("MetricLabel")
+		case "name":
+			out.Values[i] = ec._MetricLabel_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "value":
+			out.Values[i] = ec._MetricLabel_value(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var metricSeriesImplementors = []string{"MetricSeries"}
+
+func (ec *executionContext) _MetricSeries(ctx context.Context, sel ast.SelectionSet, obj *metrics.MetricSeries) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, metricSeriesImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("MetricSeries")
+		case "labels":
+			out.Values[i] = ec._MetricSeries_labels(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "values":
+			out.Values[i] = ec._MetricSeries_values(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var metricValueImplementors = []string{"MetricValue"}
+
+func (ec *executionContext) _MetricValue(ctx context.Context, sel ast.SelectionSet, obj *metrics.MetricValue) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, metricValueImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("MetricValue")
+		case "timestamp":
+			out.Values[i] = ec._MetricValue_timestamp(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "value":
+			out.Values[i] = ec._MetricValue_value(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var metricsQueryResultImplementors = []string{"MetricsQueryResult"}
+
+func (ec *executionContext) _MetricsQueryResult(ctx context.Context, sel ast.SelectionSet, obj *metrics.MetricsQueryResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, metricsQueryResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("MetricsQueryResult")
+		case "series":
+			out.Values[i] = ec._MetricsQueryResult_series(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "warnings":
+			out.Values[i] = ec._MetricsQueryResult_warnings(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -120038,6 +120867,187 @@ func (ec *executionContext) unmarshalNLogSubscriptionFilter2githubᚗcomᚋnais�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNMetricLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricLabelᚄ(ctx context.Context, sel ast.SelectionSet, v []*metrics.MetricLabel) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNMetricLabel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricLabel(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNMetricLabel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricLabel(ctx context.Context, sel ast.SelectionSet, v *metrics.MetricLabel) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._MetricLabel(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNMetricSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricSeriesᚄ(ctx context.Context, sel ast.SelectionSet, v []*metrics.MetricSeries) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNMetricSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricSeries(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNMetricSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricSeries(ctx context.Context, sel ast.SelectionSet, v *metrics.MetricSeries) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._MetricSeries(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNMetricValue2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricValueᚄ(ctx context.Context, sel ast.SelectionSet, v []*metrics.MetricValue) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNMetricValue2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricValue(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNMetricValue2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricValue(ctx context.Context, sel ast.SelectionSet, v *metrics.MetricValue) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._MetricValue(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNMetricsQueryInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryInput(ctx context.Context, v any) (metrics.MetricsQueryInput, error) {
+	res, err := ec.unmarshalInputMetricsQueryInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNMetricsQueryResult2githubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryResult(ctx context.Context, sel ast.SelectionSet, v metrics.MetricsQueryResult) graphql.Marshaler {
+	return ec._MetricsQueryResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNMetricsQueryResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryResult(ctx context.Context, sel ast.SelectionSet, v *metrics.MetricsQueryResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._MetricsQueryResult(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNNetworkPolicy2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicy(ctx context.Context, sel ast.SelectionSet, v netpol.NetworkPolicy) graphql.Marshaler {
 	return ec._NetworkPolicy(ctx, sel, &v)
 }
@@ -126202,6 +127212,14 @@ func (ec *executionContext) marshalOMaintenanceWindow2ᚖgithubᚗcomᚋnaisᚋa
 		return graphql.Null
 	}
 	return ec._MaintenanceWindow(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOMetricsRangeInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsRangeInput(ctx context.Context, v any) (*metrics.MetricsRangeInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputMetricsRangeInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalONode2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐNode(ctx context.Context, sel ast.SelectionSet, v model.Node) graphql.Marshaler {
