@@ -11,7 +11,7 @@ import (
 	"k8s.io/apimachinery/pkg/selection"
 )
 
-func (w Workload) failedJobRuns(name, team, env string) *Issue {
+func (w Workload) lastRunFailed(name, team, env string) *Issue {
 	lastRun, err := w.lastRun(name, team, env)
 	if err != nil {
 		w.log.WithError(err).Error("fetch last job run")
@@ -28,13 +28,13 @@ func (w Workload) failedJobRuns(name, team, env string) *Issue {
 
 	if lastRun.Failed {
 		return &Issue{
-			IssueType:    issue.IssueTypeFailedJobRuns,
+			IssueType:    issue.IssueTypeLastRunFailed,
 			ResourceName: name,
 			ResourceType: issue.ResourceTypeJob,
 			Team:         team,
 			Env:          env,
 			Severity:     issue.SeverityWarning,
-			Message:      fmt.Sprintf("Job has failing runs. Last run '%s' failed with message: %s", lastRun.Name, lastRun.Message),
+			Message:      fmt.Sprintf("Last run %q failed with message: %s", lastRun.Name, lastRun.Message),
 		}
 	}
 

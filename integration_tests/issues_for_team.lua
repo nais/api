@@ -399,7 +399,7 @@ Test.gql("DeprecatedRegistryIssue", function(t)
 	}
 end)
 
-Test.gql("FailedJobRunsIssue", function(t)
+Test.gql("LastRunFailedIssue", function(t)
 	checker:runChecks()
 	t.addHeader("x-user-email", user:email())
 
@@ -408,14 +408,14 @@ Test.gql("FailedJobRunsIssue", function(t)
 			team(slug: "myteam") {
 				issues(
 					filter: {
-						issueType: FAILED_JOB_RUNS
+						issueType: LAST_RUN_FAILED
 					},
 				) {
 					nodes {
 						__typename
 						severity
 						message
-						... on FailedJobRunsIssue {
+						... on LastRunFailedIssue {
 							job {
 								name
 							}
@@ -432,8 +432,8 @@ Test.gql("FailedJobRunsIssue", function(t)
 				issues = {
 					nodes = {
 						{
-							__typename = "FailedJobRunsIssue",
-							message = "Job has failing runs. Last run 'job-failed' failed with message: Run failed after 1 attempts",
+							__typename = "LastRunFailedIssue",
+							message = "Last run \"job-failed\" failed with message: Run failed after 1 attempts",
 							severity = "WARNING",
 							job = {
 								name = "job-failed",

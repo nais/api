@@ -31,14 +31,6 @@ func (r *deprecatedRegistryIssueResolver) Workload(ctx context.Context, obj *iss
 	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
-func (r *failedJobRunsIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.FailedJobRunsIssue) (*team.TeamEnvironment, error) {
-	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
-}
-
-func (r *failedJobRunsIssueResolver) Job(ctx context.Context, obj *issue.FailedJobRunsIssue) (*job.Job, error) {
-	return job.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName)
-}
-
 func (r *failedSynchronizationIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.FailedSynchronizationIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
@@ -53,6 +45,14 @@ func (r *invalidSpecIssueResolver) TeamEnvironment(ctx context.Context, obj *iss
 
 func (r *invalidSpecIssueResolver) Workload(ctx context.Context, obj *issue.InvalidSpecIssue) (workload.Workload, error) {
 	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
+}
+
+func (r *lastRunFailedIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.LastRunFailedIssue) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *lastRunFailedIssueResolver) Job(ctx context.Context, obj *issue.LastRunFailedIssue) (*job.Job, error) {
+	return job.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName)
 }
 
 func (r *missingSbomIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.MissingSbomIssue) (*team.TeamEnvironment, error) {
@@ -128,16 +128,16 @@ func (r *Resolver) DeprecatedRegistryIssue() gengql.DeprecatedRegistryIssueResol
 	return &deprecatedRegistryIssueResolver{r}
 }
 
-func (r *Resolver) FailedJobRunsIssue() gengql.FailedJobRunsIssueResolver {
-	return &failedJobRunsIssueResolver{r}
-}
-
 func (r *Resolver) FailedSynchronizationIssue() gengql.FailedSynchronizationIssueResolver {
 	return &failedSynchronizationIssueResolver{r}
 }
 
 func (r *Resolver) InvalidSpecIssue() gengql.InvalidSpecIssueResolver {
 	return &invalidSpecIssueResolver{r}
+}
+
+func (r *Resolver) LastRunFailedIssue() gengql.LastRunFailedIssueResolver {
+	return &lastRunFailedIssueResolver{r}
 }
 
 func (r *Resolver) MissingSbomIssue() gengql.MissingSbomIssueResolver {
@@ -169,9 +169,9 @@ func (r *Resolver) VulnerableImageIssue() gengql.VulnerableImageIssueResolver {
 type (
 	deprecatedIngressIssueResolver     struct{ *Resolver }
 	deprecatedRegistryIssueResolver    struct{ *Resolver }
-	failedJobRunsIssueResolver         struct{ *Resolver }
 	failedSynchronizationIssueResolver struct{ *Resolver }
 	invalidSpecIssueResolver           struct{ *Resolver }
+	lastRunFailedIssueResolver         struct{ *Resolver }
 	missingSbomIssueResolver           struct{ *Resolver }
 	noRunningInstancesIssueResolver    struct{ *Resolver }
 	openSearchIssueResolver            struct{ *Resolver }

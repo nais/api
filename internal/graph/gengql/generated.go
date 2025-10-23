@@ -94,7 +94,6 @@ type ResolverRoot interface {
 	DeprecatedIngressIssue() DeprecatedIngressIssueResolver
 	DeprecatedRegistryIssue() DeprecatedRegistryIssueResolver
 	Environment() EnvironmentResolver
-	FailedJobRunsIssue() FailedJobRunsIssueResolver
 	FailedSynchronizationIssue() FailedSynchronizationIssueResolver
 	Ingress() IngressResolver
 	IngressMetrics() IngressMetricsResolver
@@ -103,6 +102,7 @@ type ResolverRoot interface {
 	JobRun() JobRunResolver
 	KafkaTopic() KafkaTopicResolver
 	KafkaTopicAcl() KafkaTopicAclResolver
+	LastRunFailedIssue() LastRunFailedIssueResolver
 	MissingSbomIssue() MissingSbomIssueResolver
 	Mutation() MutationResolver
 	NetworkPolicyRule() NetworkPolicyRuleResolver
@@ -660,14 +660,6 @@ type ComplexityRoot struct {
 		Target func(childComplexity int) int
 	}
 
-	FailedJobRunsIssue struct {
-		ID              func(childComplexity int) int
-		Job             func(childComplexity int) int
-		Message         func(childComplexity int) int
-		Severity        func(childComplexity int) int
-		TeamEnvironment func(childComplexity int) int
-	}
-
 	FailedSynchronizationIssue struct {
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
@@ -979,6 +971,14 @@ type ComplexityRoot struct {
 	KafkaTopicEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	LastRunFailedIssue struct {
+		ID              func(childComplexity int) int
+		Job             func(childComplexity int) int
+		Message         func(childComplexity int) int
+		Severity        func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
 	}
 
 	LogDestinationLoki struct {
@@ -2841,11 +2841,6 @@ type DeprecatedRegistryIssueResolver interface {
 type EnvironmentResolver interface {
 	Workloads(ctx context.Context, obj *environment.Environment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) (*pagination.Connection[workload.Workload], error)
 }
-type FailedJobRunsIssueResolver interface {
-	TeamEnvironment(ctx context.Context, obj *issue.FailedJobRunsIssue) (*team.TeamEnvironment, error)
-
-	Job(ctx context.Context, obj *issue.FailedJobRunsIssue) (*job.Job, error)
-}
 type FailedSynchronizationIssueResolver interface {
 	TeamEnvironment(ctx context.Context, obj *issue.FailedSynchronizationIssue) (*team.TeamEnvironment, error)
 
@@ -2906,6 +2901,11 @@ type KafkaTopicAclResolver interface {
 	Team(ctx context.Context, obj *kafkatopic.KafkaTopicACL) (*team.Team, error)
 	Workload(ctx context.Context, obj *kafkatopic.KafkaTopicACL) (workload.Workload, error)
 	Topic(ctx context.Context, obj *kafkatopic.KafkaTopicACL) (*kafkatopic.KafkaTopic, error)
+}
+type LastRunFailedIssueResolver interface {
+	TeamEnvironment(ctx context.Context, obj *issue.LastRunFailedIssue) (*team.TeamEnvironment, error)
+
+	Job(ctx context.Context, obj *issue.LastRunFailedIssue) (*job.Job, error)
 }
 type MissingSbomIssueResolver interface {
 	TeamEnvironment(ctx context.Context, obj *issue.MissingSbomIssue) (*team.TeamEnvironment, error)
@@ -5016,37 +5016,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.ExternalNetworkPolicyIpv4.Target(childComplexity), true
 
-	case "FailedJobRunsIssue.id":
-		if e.complexity.FailedJobRunsIssue.ID == nil {
-			break
-		}
-
-		return e.complexity.FailedJobRunsIssue.ID(childComplexity), true
-	case "FailedJobRunsIssue.job":
-		if e.complexity.FailedJobRunsIssue.Job == nil {
-			break
-		}
-
-		return e.complexity.FailedJobRunsIssue.Job(childComplexity), true
-	case "FailedJobRunsIssue.message":
-		if e.complexity.FailedJobRunsIssue.Message == nil {
-			break
-		}
-
-		return e.complexity.FailedJobRunsIssue.Message(childComplexity), true
-	case "FailedJobRunsIssue.severity":
-		if e.complexity.FailedJobRunsIssue.Severity == nil {
-			break
-		}
-
-		return e.complexity.FailedJobRunsIssue.Severity(childComplexity), true
-	case "FailedJobRunsIssue.teamEnvironment":
-		if e.complexity.FailedJobRunsIssue.TeamEnvironment == nil {
-			break
-		}
-
-		return e.complexity.FailedJobRunsIssue.TeamEnvironment(childComplexity), true
-
 	case "FailedSynchronizationIssue.id":
 		if e.complexity.FailedSynchronizationIssue.ID == nil {
 			break
@@ -6234,6 +6203,37 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.KafkaTopicEdge.Node(childComplexity), true
+
+	case "LastRunFailedIssue.id":
+		if e.complexity.LastRunFailedIssue.ID == nil {
+			break
+		}
+
+		return e.complexity.LastRunFailedIssue.ID(childComplexity), true
+	case "LastRunFailedIssue.job":
+		if e.complexity.LastRunFailedIssue.Job == nil {
+			break
+		}
+
+		return e.complexity.LastRunFailedIssue.Job(childComplexity), true
+	case "LastRunFailedIssue.message":
+		if e.complexity.LastRunFailedIssue.Message == nil {
+			break
+		}
+
+		return e.complexity.LastRunFailedIssue.Message(childComplexity), true
+	case "LastRunFailedIssue.severity":
+		if e.complexity.LastRunFailedIssue.Severity == nil {
+			break
+		}
+
+		return e.complexity.LastRunFailedIssue.Severity(childComplexity), true
+	case "LastRunFailedIssue.teamEnvironment":
+		if e.complexity.LastRunFailedIssue.TeamEnvironment == nil {
+			break
+		}
+
+		return e.complexity.LastRunFailedIssue.TeamEnvironment(childComplexity), true
 
 	case "LogDestinationLoki.grafanaURL":
 		if e.complexity.LogDestinationLoki.GrafanaURL == nil {
@@ -16251,7 +16251,7 @@ enum IssueType {
 	DEPRECATED_INGRESS
 	DEPRECATED_REGISTRY
 	NO_RUNNING_INSTANCES
-	FAILED_JOB_RUNS
+	LAST_RUN_FAILED
 	FAILED_SYNCHRONIZATION
 	INVALID_SPEC
 	MISSING_SBOM
@@ -16363,7 +16363,7 @@ type NoRunningInstancesIssue implements Issue & Node {
 	workload: Workload!
 }
 
-type FailedJobRunsIssue implements Issue & Node {
+type LastRunFailedIssue implements Issue & Node {
 	id: ID!
 	teamEnvironment: TeamEnvironment!
 	severity: Severity!
@@ -36169,247 +36169,6 @@ func (ec *executionContext) fieldContext_ExternalNetworkPolicyIpv4_ports(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _FailedJobRunsIssue_id(ctx context.Context, field graphql.CollectedField, obj *issue.FailedJobRunsIssue) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_FailedJobRunsIssue_id,
-		func(ctx context.Context) (any, error) {
-			return obj.ID, nil
-		},
-		nil,
-		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_FailedJobRunsIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "FailedJobRunsIssue",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _FailedJobRunsIssue_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *issue.FailedJobRunsIssue) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_FailedJobRunsIssue_teamEnvironment,
-		func(ctx context.Context) (any, error) {
-			return ec.resolvers.FailedJobRunsIssue().TeamEnvironment(ctx, obj)
-		},
-		nil,
-		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_FailedJobRunsIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "FailedJobRunsIssue",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_TeamEnvironment_id(ctx, field)
-			case "name":
-				return ec.fieldContext_TeamEnvironment_name(ctx, field)
-			case "gcpProjectID":
-				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
-			case "slackAlertsChannel":
-				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
-			case "team":
-				return ec.fieldContext_TeamEnvironment_team(ctx, field)
-			case "alerts":
-				return ec.fieldContext_TeamEnvironment_alerts(ctx, field)
-			case "application":
-				return ec.fieldContext_TeamEnvironment_application(ctx, field)
-			case "bigQueryDataset":
-				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
-			case "bucket":
-				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
-			case "cost":
-				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
-			case "environment":
-				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
-			case "job":
-				return ec.fieldContext_TeamEnvironment_job(ctx, field)
-			case "kafkaTopic":
-				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
-			case "openSearch":
-				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
-			case "secret":
-				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
-			case "sqlInstance":
-				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
-			case "valkey":
-				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
-			case "workload":
-				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _FailedJobRunsIssue_severity(ctx context.Context, field graphql.CollectedField, obj *issue.FailedJobRunsIssue) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_FailedJobRunsIssue_severity,
-		func(ctx context.Context) (any, error) {
-			return obj.Severity, nil
-		},
-		nil,
-		ec.marshalNSeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐSeverity,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_FailedJobRunsIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "FailedJobRunsIssue",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Severity does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _FailedJobRunsIssue_message(ctx context.Context, field graphql.CollectedField, obj *issue.FailedJobRunsIssue) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_FailedJobRunsIssue_message,
-		func(ctx context.Context) (any, error) {
-			return obj.Message, nil
-		},
-		nil,
-		ec.marshalNString2string,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_FailedJobRunsIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "FailedJobRunsIssue",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _FailedJobRunsIssue_job(ctx context.Context, field graphql.CollectedField, obj *issue.FailedJobRunsIssue) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_FailedJobRunsIssue_job,
-		func(ctx context.Context) (any, error) {
-			return ec.resolvers.FailedJobRunsIssue().Job(ctx, obj)
-		},
-		nil,
-		ec.marshalNJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_FailedJobRunsIssue_job(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "FailedJobRunsIssue",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Job_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Job_name(ctx, field)
-			case "team":
-				return ec.fieldContext_Job_team(ctx, field)
-			case "environment":
-				return ec.fieldContext_Job_environment(ctx, field)
-			case "teamEnvironment":
-				return ec.fieldContext_Job_teamEnvironment(ctx, field)
-			case "image":
-				return ec.fieldContext_Job_image(ctx, field)
-			case "resources":
-				return ec.fieldContext_Job_resources(ctx, field)
-			case "authIntegrations":
-				return ec.fieldContext_Job_authIntegrations(ctx, field)
-			case "schedule":
-				return ec.fieldContext_Job_schedule(ctx, field)
-			case "runs":
-				return ec.fieldContext_Job_runs(ctx, field)
-			case "manifest":
-				return ec.fieldContext_Job_manifest(ctx, field)
-			case "deletionStartedAt":
-				return ec.fieldContext_Job_deletionStartedAt(ctx, field)
-			case "activityLog":
-				return ec.fieldContext_Job_activityLog(ctx, field)
-			case "state":
-				return ec.fieldContext_Job_state(ctx, field)
-			case "issues":
-				return ec.fieldContext_Job_issues(ctx, field)
-			case "bigQueryDatasets":
-				return ec.fieldContext_Job_bigQueryDatasets(ctx, field)
-			case "buckets":
-				return ec.fieldContext_Job_buckets(ctx, field)
-			case "cost":
-				return ec.fieldContext_Job_cost(ctx, field)
-			case "deployments":
-				return ec.fieldContext_Job_deployments(ctx, field)
-			case "kafkaTopicAcls":
-				return ec.fieldContext_Job_kafkaTopicAcls(ctx, field)
-			case "logDestinations":
-				return ec.fieldContext_Job_logDestinations(ctx, field)
-			case "networkPolicy":
-				return ec.fieldContext_Job_networkPolicy(ctx, field)
-			case "openSearch":
-				return ec.fieldContext_Job_openSearch(ctx, field)
-			case "secrets":
-				return ec.fieldContext_Job_secrets(ctx, field)
-			case "sqlInstances":
-				return ec.fieldContext_Job_sqlInstances(ctx, field)
-			case "valkeys":
-				return ec.fieldContext_Job_valkeys(ctx, field)
-			case "imageVulnerabilityHistory":
-				return ec.fieldContext_Job_imageVulnerabilityHistory(ctx, field)
-			case "vulnerabilityFixHistory":
-				return ec.fieldContext_Job_vulnerabilityFixHistory(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _FailedSynchronizationIssue_id(ctx context.Context, field graphql.CollectedField, obj *issue.FailedSynchronizationIssue) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -42981,6 +42740,247 @@ func (ec *executionContext) fieldContext_KafkaTopicEdge_node(_ context.Context, 
 				return ec.fieldContext_KafkaTopic_pool(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type KafkaTopic", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LastRunFailedIssue_id(ctx context.Context, field graphql.CollectedField, obj *issue.LastRunFailedIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_LastRunFailedIssue_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_LastRunFailedIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LastRunFailedIssue",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LastRunFailedIssue_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *issue.LastRunFailedIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_LastRunFailedIssue_teamEnvironment,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.LastRunFailedIssue().TeamEnvironment(ctx, obj)
+		},
+		nil,
+		ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_LastRunFailedIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LastRunFailedIssue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "alerts":
+				return ec.fieldContext_TeamEnvironment_alerts(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
+			case "bucket":
+				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			case "cost":
+				return ec.fieldContext_TeamEnvironment_cost(ctx, field)
+			case "environment":
+				return ec.fieldContext_TeamEnvironment_environment(ctx, field)
+			case "job":
+				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			case "secret":
+				return ec.fieldContext_TeamEnvironment_secret(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			case "valkey":
+				return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
+			case "workload":
+				return ec.fieldContext_TeamEnvironment_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LastRunFailedIssue_severity(ctx context.Context, field graphql.CollectedField, obj *issue.LastRunFailedIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_LastRunFailedIssue_severity,
+		func(ctx context.Context) (any, error) {
+			return obj.Severity, nil
+		},
+		nil,
+		ec.marshalNSeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐSeverity,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_LastRunFailedIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LastRunFailedIssue",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Severity does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LastRunFailedIssue_message(ctx context.Context, field graphql.CollectedField, obj *issue.LastRunFailedIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_LastRunFailedIssue_message,
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_LastRunFailedIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LastRunFailedIssue",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LastRunFailedIssue_job(ctx context.Context, field graphql.CollectedField, obj *issue.LastRunFailedIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_LastRunFailedIssue_job,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.LastRunFailedIssue().Job(ctx, obj)
+		},
+		nil,
+		ec.marshalNJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_LastRunFailedIssue_job(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LastRunFailedIssue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Job_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Job_name(ctx, field)
+			case "team":
+				return ec.fieldContext_Job_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_Job_environment(ctx, field)
+			case "teamEnvironment":
+				return ec.fieldContext_Job_teamEnvironment(ctx, field)
+			case "image":
+				return ec.fieldContext_Job_image(ctx, field)
+			case "resources":
+				return ec.fieldContext_Job_resources(ctx, field)
+			case "authIntegrations":
+				return ec.fieldContext_Job_authIntegrations(ctx, field)
+			case "schedule":
+				return ec.fieldContext_Job_schedule(ctx, field)
+			case "runs":
+				return ec.fieldContext_Job_runs(ctx, field)
+			case "manifest":
+				return ec.fieldContext_Job_manifest(ctx, field)
+			case "deletionStartedAt":
+				return ec.fieldContext_Job_deletionStartedAt(ctx, field)
+			case "activityLog":
+				return ec.fieldContext_Job_activityLog(ctx, field)
+			case "state":
+				return ec.fieldContext_Job_state(ctx, field)
+			case "issues":
+				return ec.fieldContext_Job_issues(ctx, field)
+			case "bigQueryDatasets":
+				return ec.fieldContext_Job_bigQueryDatasets(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Job_buckets(ctx, field)
+			case "cost":
+				return ec.fieldContext_Job_cost(ctx, field)
+			case "deployments":
+				return ec.fieldContext_Job_deployments(ctx, field)
+			case "kafkaTopicAcls":
+				return ec.fieldContext_Job_kafkaTopicAcls(ctx, field)
+			case "logDestinations":
+				return ec.fieldContext_Job_logDestinations(ctx, field)
+			case "networkPolicy":
+				return ec.fieldContext_Job_networkPolicy(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Job_openSearch(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Job_secrets(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Job_sqlInstances(ctx, field)
+			case "valkeys":
+				return ec.fieldContext_Job_valkeys(ctx, field)
+			case "imageVulnerabilityHistory":
+				return ec.fieldContext_Job_imageVulnerabilityHistory(ctx, field)
+			case "vulnerabilityFixHistory":
+				return ec.fieldContext_Job_vulnerabilityFixHistory(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
 		},
 	}
 	return fc, nil
@@ -86656,6 +86656,13 @@ func (ec *executionContext) _Issue(ctx context.Context, sel ast.SelectionSet, ob
 			return graphql.Null
 		}
 		return ec._MissingSbomIssue(ctx, sel, obj)
+	case issue.LastRunFailedIssue:
+		return ec._LastRunFailedIssue(ctx, sel, &obj)
+	case *issue.LastRunFailedIssue:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._LastRunFailedIssue(ctx, sel, obj)
 	case issue.InvalidSpecIssue:
 		return ec._InvalidSpecIssue(ctx, sel, &obj)
 	case *issue.InvalidSpecIssue:
@@ -86670,13 +86677,6 @@ func (ec *executionContext) _Issue(ctx context.Context, sel ast.SelectionSet, ob
 			return graphql.Null
 		}
 		return ec._FailedSynchronizationIssue(ctx, sel, obj)
-	case issue.FailedJobRunsIssue:
-		return ec._FailedJobRunsIssue(ctx, sel, &obj)
-	case *issue.FailedJobRunsIssue:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._FailedJobRunsIssue(ctx, sel, obj)
 	case issue.DeprecatedRegistryIssue:
 		return ec._DeprecatedRegistryIssue(ctx, sel, &obj)
 	case *issue.DeprecatedRegistryIssue:
@@ -87171,6 +87171,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._LogDestinationLoki(ctx, sel, obj)
+	case issue.LastRunFailedIssue:
+		return ec._LastRunFailedIssue(ctx, sel, &obj)
+	case *issue.LastRunFailedIssue:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._LastRunFailedIssue(ctx, sel, obj)
 	case kafkatopic.KafkaTopic:
 		return ec._KafkaTopic(ctx, sel, &obj)
 	case *kafkatopic.KafkaTopic:
@@ -87206,13 +87213,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._FailedSynchronizationIssue(ctx, sel, obj)
-	case issue.FailedJobRunsIssue:
-		return ec._FailedJobRunsIssue(ctx, sel, &obj)
-	case *issue.FailedJobRunsIssue:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._FailedJobRunsIssue(ctx, sel, obj)
 	case issue.DeprecatedRegistryIssue:
 		return ec._DeprecatedRegistryIssue(ctx, sel, &obj)
 	case *issue.DeprecatedRegistryIssue:
@@ -93270,127 +93270,6 @@ func (ec *executionContext) _ExternalNetworkPolicyIpv4(ctx context.Context, sel 
 	return out
 }
 
-var failedJobRunsIssueImplementors = []string{"FailedJobRunsIssue", "Issue", "Node"}
-
-func (ec *executionContext) _FailedJobRunsIssue(ctx context.Context, sel ast.SelectionSet, obj *issue.FailedJobRunsIssue) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, failedJobRunsIssueImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("FailedJobRunsIssue")
-		case "id":
-			out.Values[i] = ec._FailedJobRunsIssue_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "teamEnvironment":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._FailedJobRunsIssue_teamEnvironment(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "severity":
-			out.Values[i] = ec._FailedJobRunsIssue_severity(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "message":
-			out.Values[i] = ec._FailedJobRunsIssue_message(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "job":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._FailedJobRunsIssue_job(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var failedSynchronizationIssueImplementors = []string{"FailedSynchronizationIssue", "Issue", "Node"}
 
 func (ec *executionContext) _FailedSynchronizationIssue(ctx context.Context, sel ast.SelectionSet, obj *issue.FailedSynchronizationIssue) graphql.Marshaler {
@@ -96962,6 +96841,127 @@ func (ec *executionContext) _KafkaTopicEdge(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var lastRunFailedIssueImplementors = []string{"LastRunFailedIssue", "Issue", "Node"}
+
+func (ec *executionContext) _LastRunFailedIssue(ctx context.Context, sel ast.SelectionSet, obj *issue.LastRunFailedIssue) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, lastRunFailedIssueImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("LastRunFailedIssue")
+		case "id":
+			out.Values[i] = ec._LastRunFailedIssue_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "teamEnvironment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._LastRunFailedIssue_teamEnvironment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "severity":
+			out.Values[i] = ec._LastRunFailedIssue_severity(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "message":
+			out.Values[i] = ec._LastRunFailedIssue_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "job":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._LastRunFailedIssue_job(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
