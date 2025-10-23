@@ -48,15 +48,12 @@ func fromContext(ctx context.Context) *loaders {
 func Query(ctx context.Context, input MetricsQueryInput, environmentName string) (*MetricsQueryResult, error) {
 	loader := fromContext(ctx)
 
-	// Determine query time
 	queryTime := ptr.Deref(input.Time, time.Now().Add(-5*time.Minute))
 
-	// Execute range query if range is specified
 	if input.Range != nil {
 		return executeRangeQuery(ctx, loader, input, environmentName)
 	}
 
-	// Execute instant query
 	return executeInstantQuery(ctx, loader, input, environmentName, queryTime)
 }
 
@@ -74,12 +71,10 @@ func executeInstantQuery(ctx context.Context, loader *loaders, input MetricsQuer
 }
 
 func executeRangeQuery(ctx context.Context, loader *loaders, input MetricsQueryInput, environmentName string) (*MetricsQueryResult, error) {
-	// Validate step size
 	if input.Range.Step < minStepSeconds {
 		return nil, apierror.Errorf("Query step size must be at least %d seconds. Please increase the step size to reduce the number of data points.", minStepSeconds)
 	}
 
-	// Validate time range
 	timeRange := input.Range.End.Sub(input.Range.Start)
 	if timeRange <= 0 {
 		return nil, apierror.Errorf("The end time must be after the start time. Please check your time range.")
@@ -88,7 +83,6 @@ func executeRangeQuery(ctx context.Context, loader *loaders, input MetricsQueryI
 		return nil, apierror.Errorf("The time range is too large. Maximum allowed is 30 days, but you requested %v. Please reduce the time range.", timeRange)
 	}
 
-	// Calculate and validate number of data points
 	// Use (duration/step)+1 to include the final sample point
 	dataPoints := (int64(timeRange.Seconds()) / int64(input.Range.Step)) + 1
 	if dataPoints > maxDataPoints {
