@@ -79,7 +79,7 @@ type MetricsQueryResult {
 	"""
 	Warnings returned by Prometheus, if any.
 	"""
-	warnings: [String!]
+	warnings: [String!]!
 }
 
 """

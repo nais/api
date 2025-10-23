@@ -50,7 +50,7 @@ Test.gql("Metrics - instant query for specific environment", function(t)
 			environment = {
 				metrics = {
 					series = NotNull(),
-					warnings = Null,
+					warnings = {},
 				},
 			},
 		},
@@ -90,7 +90,7 @@ Test.gql("Metrics - instant query with specific time", function(t)
 			environment = {
 				metrics = {
 					series = NotNull(),
-					warnings = Null,
+					warnings = {},
 				},
 			},
 		},
@@ -126,7 +126,7 @@ Test.gql("Metrics - custom PromQL instant query", function(t)
 			environment = {
 				metrics = {
 					series = NotNull(),
-					warnings = Null,
+					warnings = {},
 				},
 			},
 		},
@@ -169,7 +169,7 @@ Test.gql("Metrics - range query with valid parameters", function(t)
 			environment = {
 				metrics = {
 					series = NotNull(),
-					warnings = Null,
+					warnings = {},
 				},
 			},
 		},
@@ -210,7 +210,7 @@ Test.gql("Metrics - range query with minimum step (10 seconds)", function(t)
 			environment = {
 				metrics = {
 					series = NotNull(),
-					warnings = Null,
+					warnings = {},
 				},
 			},
 		},
@@ -251,7 +251,7 @@ Test.gql("Metrics - range query with maximum allowed time range (30 days)", func
 			environment = {
 				metrics = {
 					series = NotNull(),
-					warnings = Null,
+					warnings = {},
 				},
 			},
 		},
@@ -486,7 +486,7 @@ Test.gql("Metrics - complex aggregation query", function(t)
 			environment = {
 				metrics = {
 					series = NotNull(),
-					warnings = Null,
+					warnings = {},
 				},
 			},
 		},
@@ -522,7 +522,7 @@ Test.gql("Metrics - query with label filters", function(t)
 			environment = {
 				metrics = {
 					series = NotNull(),
-					warnings = Null,
+					warnings = {},
 				},
 			},
 		},
@@ -563,7 +563,7 @@ Test.gql("Metrics - range query with rate function", function(t)
 			environment = {
 				metrics = {
 					series = NotNull(),
-					warnings = Null,
+					warnings = {},
 				},
 			},
 		},

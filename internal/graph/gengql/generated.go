@@ -17258,7 +17258,7 @@ type MetricsQueryResult {
 	"""
 	Warnings returned by Prometheus, if any.
 	"""
-	warnings: [String!]
+	warnings: [String!]!
 }
 
 """
@@ -43823,9 +43823,9 @@ func (ec *executionContext) _MetricsQueryResult_warnings(ctx context.Context, fi
 			return obj.Warnings, nil
 		},
 		nil,
-		ec.marshalOString2ᚕstringᚄ,
+		ec.marshalNString2ᚕstringᚄ,
 		true,
-		false,
+		true,
 	)
 }
 
@@ -98078,6 +98078,9 @@ func (ec *executionContext) _MetricsQueryResult(ctx context.Context, sel ast.Sel
 			}
 		case "warnings":
 			out.Values[i] = ec._MetricsQueryResult_warnings(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
