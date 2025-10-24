@@ -91,6 +91,7 @@ interface Issue implements Node {
 	teamEnvironment: TeamEnvironment!
 	severity: Severity!
 	message: String!
+	resource: Resource!
 }
 
 extend enum ApplicationOrderField {
@@ -170,6 +171,7 @@ type VulnerableImageIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	workload: Workload!
 	riskScore: Int!
 	critical: Int!
@@ -181,6 +183,7 @@ type MissingSbomIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	workload: Workload!
 }
 
@@ -190,6 +193,7 @@ type InvalidSpecIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	workload: Workload!
 }
 
@@ -199,6 +203,7 @@ type FailedSynchronizationIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	workload: Workload!
 }
 
@@ -208,6 +213,7 @@ type OpenSearchIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	openSearch: OpenSearch!
 	event: String!
 }
@@ -218,6 +224,7 @@ type ValkeyIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	valkey: Valkey!
 	event: String!
 }
@@ -228,6 +235,7 @@ type SqlInstanceVersionIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	sqlInstance: SqlInstance!
 }
 
@@ -237,6 +245,7 @@ type SqlInstanceStateIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	state: SqlInstanceState!
 	sqlInstance: SqlInstance!
 }
@@ -247,6 +256,7 @@ type DeprecatedIngressIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	ingresses: [String!]!
 	application: Application!
 }
@@ -257,6 +267,7 @@ type DeprecatedRegistryIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	workload: Workload!
 }
 
@@ -266,6 +277,7 @@ type NoRunningInstancesIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	workload: Workload!
 }
 
@@ -275,5 +287,6 @@ type LastRunFailedIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	job: Job!
 }

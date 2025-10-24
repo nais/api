@@ -46,6 +46,7 @@ func (Job) IsNode()           {}
 func (Job) IsSearchNode()     {}
 func (Job) IsWorkload()       {}
 func (Job) IsActivityLogger() {}
+func (Job) IsResource()       {}
 
 // GetSecrets returns a list of secret names used by the job
 func (j *Job) GetSecrets() []string {

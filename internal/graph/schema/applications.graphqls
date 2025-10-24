@@ -91,7 +91,7 @@ An application lets you run one or more instances of a container image on the [N
 
 Learn more about how to create and configure your applications in the [Nais documentation](https://docs.nais.io/workloads/application/).
 """
-type Application implements Node & Workload & ActivityLogger {
+type Application implements Node & Resource & Workload & ActivityLogger {
 	"""
 	The globally unique ID of the application.
 	"""

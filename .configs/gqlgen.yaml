@@ -49,6 +49,7 @@ autobind:
   - "github.com/nais/api/internal/persistence/valkey"
   - "github.com/nais/api/internal/price"
   - "github.com/nais/api/internal/reconciler"
+  - "github.com/nais/api/internal/resource"
   - "github.com/nais/api/internal/search"
   - "github.com/nais/api/internal/serviceaccount"
   - "github.com/nais/api/internal/servicemaintenance"

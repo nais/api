@@ -11,6 +11,7 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/resource"
 	"github.com/nais/api/internal/slug"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -23,6 +24,7 @@ type (
 
 type Workload interface {
 	model.Node
+	resource.Resource
 	activitylog.ActivityLogger
 	IsWorkload()
 	GetName() string

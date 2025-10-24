@@ -82,7 +82,7 @@ extend type TeamEnvironment {
 """
 Interface for workloads.
 """
-interface Workload implements Node & ActivityLogger {
+interface Workload implements Node & Resource & ActivityLogger {
 	"""
 	The globally unique ID of the workload.
 	"""

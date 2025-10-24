@@ -54,7 +54,8 @@ input TeamJobsFilter {
 	"""
 	environments: [String!]
 }
-type Job implements Node & Workload & ActivityLogger {
+
+type Job implements Node & Resource & Workload & ActivityLogger {
 	"The globally unique ID of the job."
 	id: ID!
 

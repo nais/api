@@ -40,6 +40,7 @@ import (
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/price"
 	"github.com/nais/api/internal/reconciler"
+	"github.com/nais/api/internal/resource"
 	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/serviceaccount"
 	"github.com/nais/api/internal/servicemaintenance"
@@ -618,6 +619,7 @@ type ComplexityRoot struct {
 		ID              func(childComplexity int) int
 		Ingresses       func(childComplexity int) int
 		Message         func(childComplexity int) int
+		Resource        func(childComplexity int) int
 		Severity        func(childComplexity int) int
 		TeamEnvironment func(childComplexity int) int
 	}
@@ -625,6 +627,7 @@ type ComplexityRoot struct {
 	DeprecatedRegistryIssue struct {
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
+		Resource        func(childComplexity int) int
 		Severity        func(childComplexity int) int
 		TeamEnvironment func(childComplexity int) int
 		Workload        func(childComplexity int) int
@@ -665,6 +668,7 @@ type ComplexityRoot struct {
 	FailedSynchronizationIssue struct {
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
+		Resource        func(childComplexity int) int
 		Severity        func(childComplexity int) int
 		TeamEnvironment func(childComplexity int) int
 		Workload        func(childComplexity int) int
@@ -773,6 +777,7 @@ type ComplexityRoot struct {
 	InvalidSpecIssue struct {
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
+		Resource        func(childComplexity int) int
 		Severity        func(childComplexity int) int
 		TeamEnvironment func(childComplexity int) int
 		Workload        func(childComplexity int) int
@@ -979,6 +984,7 @@ type ComplexityRoot struct {
 		ID              func(childComplexity int) int
 		Job             func(childComplexity int) int
 		Message         func(childComplexity int) int
+		Resource        func(childComplexity int) int
 		Severity        func(childComplexity int) int
 		TeamEnvironment func(childComplexity int) int
 	}
@@ -1035,6 +1041,7 @@ type ComplexityRoot struct {
 	MissingSbomIssue struct {
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
+		Resource        func(childComplexity int) int
 		Severity        func(childComplexity int) int
 		TeamEnvironment func(childComplexity int) int
 		Workload        func(childComplexity int) int
@@ -1102,6 +1109,7 @@ type ComplexityRoot struct {
 	NoRunningInstancesIssue struct {
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
+		Resource        func(childComplexity int) int
 		Severity        func(childComplexity int) int
 		TeamEnvironment func(childComplexity int) int
 		Workload        func(childComplexity int) int
@@ -1185,6 +1193,7 @@ type ComplexityRoot struct {
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
 		OpenSearch      func(childComplexity int) int
+		Resource        func(childComplexity int) int
 		Severity        func(childComplexity int) int
 		TeamEnvironment func(childComplexity int) int
 	}
@@ -1918,6 +1927,7 @@ type ComplexityRoot struct {
 	SqlInstanceStateIssue struct {
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
+		Resource        func(childComplexity int) int
 		SQLInstance     func(childComplexity int) int
 		Severity        func(childComplexity int) int
 		State           func(childComplexity int) int
@@ -1948,6 +1958,7 @@ type ComplexityRoot struct {
 	SqlInstanceVersionIssue struct {
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
+		Resource        func(childComplexity int) int
 		SQLInstance     func(childComplexity int) int
 		Severity        func(childComplexity int) int
 		TeamEnvironment func(childComplexity int) int
@@ -2600,6 +2611,7 @@ type ComplexityRoot struct {
 		Event           func(childComplexity int) int
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
+		Resource        func(childComplexity int) int
 		Severity        func(childComplexity int) int
 		TeamEnvironment func(childComplexity int) int
 		Valkey          func(childComplexity int) int
@@ -2688,6 +2700,7 @@ type ComplexityRoot struct {
 		Critical        func(childComplexity int) int
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
+		Resource        func(childComplexity int) int
 		RiskScore       func(childComplexity int) int
 		Severity        func(childComplexity int) int
 		TeamEnvironment func(childComplexity int) int
@@ -2853,11 +2866,14 @@ type DeploymentResolver interface {
 type DeprecatedIngressIssueResolver interface {
 	TeamEnvironment(ctx context.Context, obj *issue.DeprecatedIngressIssue) (*team.TeamEnvironment, error)
 
+	Resource(ctx context.Context, obj *issue.DeprecatedIngressIssue) (resource.Resource, error)
+
 	Application(ctx context.Context, obj *issue.DeprecatedIngressIssue) (*application.Application, error)
 }
 type DeprecatedRegistryIssueResolver interface {
 	TeamEnvironment(ctx context.Context, obj *issue.DeprecatedRegistryIssue) (*team.TeamEnvironment, error)
 
+	Resource(ctx context.Context, obj *issue.DeprecatedRegistryIssue) (resource.Resource, error)
 	Workload(ctx context.Context, obj *issue.DeprecatedRegistryIssue) (workload.Workload, error)
 }
 type EnvironmentResolver interface {
@@ -2867,6 +2883,7 @@ type EnvironmentResolver interface {
 type FailedSynchronizationIssueResolver interface {
 	TeamEnvironment(ctx context.Context, obj *issue.FailedSynchronizationIssue) (*team.TeamEnvironment, error)
 
+	Resource(ctx context.Context, obj *issue.FailedSynchronizationIssue) (resource.Resource, error)
 	Workload(ctx context.Context, obj *issue.FailedSynchronizationIssue) (workload.Workload, error)
 }
 type IngressResolver interface {
@@ -2881,6 +2898,7 @@ type IngressMetricsResolver interface {
 type InvalidSpecIssueResolver interface {
 	TeamEnvironment(ctx context.Context, obj *issue.InvalidSpecIssue) (*team.TeamEnvironment, error)
 
+	Resource(ctx context.Context, obj *issue.InvalidSpecIssue) (resource.Resource, error)
 	Workload(ctx context.Context, obj *issue.InvalidSpecIssue) (workload.Workload, error)
 }
 type JobResolver interface {
@@ -2928,11 +2946,13 @@ type KafkaTopicAclResolver interface {
 type LastRunFailedIssueResolver interface {
 	TeamEnvironment(ctx context.Context, obj *issue.LastRunFailedIssue) (*team.TeamEnvironment, error)
 
+	Resource(ctx context.Context, obj *issue.LastRunFailedIssue) (resource.Resource, error)
 	Job(ctx context.Context, obj *issue.LastRunFailedIssue) (*job.Job, error)
 }
 type MissingSbomIssueResolver interface {
 	TeamEnvironment(ctx context.Context, obj *issue.MissingSbomIssue) (*team.TeamEnvironment, error)
 
+	Resource(ctx context.Context, obj *issue.MissingSbomIssue) (resource.Resource, error)
 	Workload(ctx context.Context, obj *issue.MissingSbomIssue) (workload.Workload, error)
 }
 type MutationResolver interface {
@@ -2989,6 +3009,7 @@ type NetworkPolicyRuleResolver interface {
 type NoRunningInstancesIssueResolver interface {
 	TeamEnvironment(ctx context.Context, obj *issue.NoRunningInstancesIssue) (*team.TeamEnvironment, error)
 
+	Resource(ctx context.Context, obj *issue.NoRunningInstancesIssue) (resource.Resource, error)
 	Workload(ctx context.Context, obj *issue.NoRunningInstancesIssue) (workload.Workload, error)
 }
 type OpenSearchResolver interface {
@@ -3012,6 +3033,7 @@ type OpenSearchAccessResolver interface {
 type OpenSearchIssueResolver interface {
 	TeamEnvironment(ctx context.Context, obj *issue.OpenSearchIssue) (*team.TeamEnvironment, error)
 
+	Resource(ctx context.Context, obj *issue.OpenSearchIssue) (resource.Resource, error)
 	OpenSearch(ctx context.Context, obj *issue.OpenSearchIssue) (*opensearch.OpenSearch, error)
 }
 type OpenSearchMaintenanceResolver interface {
@@ -3109,11 +3131,14 @@ type SqlInstanceMetricsResolver interface {
 type SqlInstanceStateIssueResolver interface {
 	TeamEnvironment(ctx context.Context, obj *issue.SqlInstanceStateIssue) (*team.TeamEnvironment, error)
 
+	Resource(ctx context.Context, obj *issue.SqlInstanceStateIssue) (resource.Resource, error)
+
 	SQLInstance(ctx context.Context, obj *issue.SqlInstanceStateIssue) (*sqlinstance.SQLInstance, error)
 }
 type SqlInstanceVersionIssueResolver interface {
 	TeamEnvironment(ctx context.Context, obj *issue.SqlInstanceVersionIssue) (*team.TeamEnvironment, error)
 
+	Resource(ctx context.Context, obj *issue.SqlInstanceVersionIssue) (resource.Resource, error)
 	SQLInstance(ctx context.Context, obj *issue.SqlInstanceVersionIssue) (*sqlinstance.SQLInstance, error)
 }
 type SubscriptionResolver interface {
@@ -3251,6 +3276,7 @@ type ValkeyAccessResolver interface {
 type ValkeyIssueResolver interface {
 	TeamEnvironment(ctx context.Context, obj *issue.ValkeyIssue) (*team.TeamEnvironment, error)
 
+	Resource(ctx context.Context, obj *issue.ValkeyIssue) (resource.Resource, error)
 	Valkey(ctx context.Context, obj *issue.ValkeyIssue) (*valkey.Valkey, error)
 }
 type ValkeyMaintenanceResolver interface {
@@ -3260,6 +3286,7 @@ type ValkeyMaintenanceResolver interface {
 type VulnerableImageIssueResolver interface {
 	TeamEnvironment(ctx context.Context, obj *issue.VulnerableImageIssue) (*team.TeamEnvironment, error)
 
+	Resource(ctx context.Context, obj *issue.VulnerableImageIssue) (resource.Resource, error)
 	Workload(ctx context.Context, obj *issue.VulnerableImageIssue) (workload.Workload, error)
 }
 type WorkloadCostResolver interface {
@@ -4906,6 +4933,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.DeprecatedIngressIssue.Message(childComplexity), true
+	case "DeprecatedIngressIssue.resource":
+		if e.complexity.DeprecatedIngressIssue.Resource == nil {
+			break
+		}
+
+		return e.complexity.DeprecatedIngressIssue.Resource(childComplexity), true
 	case "DeprecatedIngressIssue.severity":
 		if e.complexity.DeprecatedIngressIssue.Severity == nil {
 			break
@@ -4931,6 +4964,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.DeprecatedRegistryIssue.Message(childComplexity), true
+	case "DeprecatedRegistryIssue.resource":
+		if e.complexity.DeprecatedRegistryIssue.Resource == nil {
+			break
+		}
+
+		return e.complexity.DeprecatedRegistryIssue.Resource(childComplexity), true
 	case "DeprecatedRegistryIssue.severity":
 		if e.complexity.DeprecatedRegistryIssue.Severity == nil {
 			break
@@ -5062,6 +5101,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.FailedSynchronizationIssue.Message(childComplexity), true
+	case "FailedSynchronizationIssue.resource":
+		if e.complexity.FailedSynchronizationIssue.Resource == nil {
+			break
+		}
+
+		return e.complexity.FailedSynchronizationIssue.Resource(childComplexity), true
 	case "FailedSynchronizationIssue.severity":
 		if e.complexity.FailedSynchronizationIssue.Severity == nil {
 			break
@@ -5409,6 +5454,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.InvalidSpecIssue.Message(childComplexity), true
+	case "InvalidSpecIssue.resource":
+		if e.complexity.InvalidSpecIssue.Resource == nil {
+			break
+		}
+
+		return e.complexity.InvalidSpecIssue.Resource(childComplexity), true
 	case "InvalidSpecIssue.severity":
 		if e.complexity.InvalidSpecIssue.Severity == nil {
 			break
@@ -6256,6 +6307,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.LastRunFailedIssue.Message(childComplexity), true
+	case "LastRunFailedIssue.resource":
+		if e.complexity.LastRunFailedIssue.Resource == nil {
+			break
+		}
+
+		return e.complexity.LastRunFailedIssue.Resource(childComplexity), true
 	case "LastRunFailedIssue.severity":
 		if e.complexity.LastRunFailedIssue.Severity == nil {
 			break
@@ -6405,6 +6462,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.MissingSbomIssue.Message(childComplexity), true
+	case "MissingSbomIssue.resource":
+		if e.complexity.MissingSbomIssue.Resource == nil {
+			break
+		}
+
+		return e.complexity.MissingSbomIssue.Resource(childComplexity), true
 	case "MissingSbomIssue.severity":
 		if e.complexity.MissingSbomIssue.Severity == nil {
 			break
@@ -6954,6 +7017,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.NoRunningInstancesIssue.Message(childComplexity), true
+	case "NoRunningInstancesIssue.resource":
+		if e.complexity.NoRunningInstancesIssue.Resource == nil {
+			break
+		}
+
+		return e.complexity.NoRunningInstancesIssue.Resource(childComplexity), true
 	case "NoRunningInstancesIssue.severity":
 		if e.complexity.NoRunningInstancesIssue.Severity == nil {
 			break
@@ -7297,6 +7366,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.OpenSearchIssue.OpenSearch(childComplexity), true
+	case "OpenSearchIssue.resource":
+		if e.complexity.OpenSearchIssue.Resource == nil {
+			break
+		}
+
+		return e.complexity.OpenSearchIssue.Resource(childComplexity), true
 	case "OpenSearchIssue.severity":
 		if e.complexity.OpenSearchIssue.Severity == nil {
 			break
@@ -10186,6 +10261,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.SqlInstanceStateIssue.Message(childComplexity), true
+	case "SqlInstanceStateIssue.resource":
+		if e.complexity.SqlInstanceStateIssue.Resource == nil {
+			break
+		}
+
+		return e.complexity.SqlInstanceStateIssue.Resource(childComplexity), true
 	case "SqlInstanceStateIssue.sqlInstance":
 		if e.complexity.SqlInstanceStateIssue.SQLInstance == nil {
 			break
@@ -10281,6 +10362,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.SqlInstanceVersionIssue.Message(childComplexity), true
+	case "SqlInstanceVersionIssue.resource":
+		if e.complexity.SqlInstanceVersionIssue.Resource == nil {
+			break
+		}
+
+		return e.complexity.SqlInstanceVersionIssue.Resource(childComplexity), true
 	case "SqlInstanceVersionIssue.sqlInstance":
 		if e.complexity.SqlInstanceVersionIssue.SQLInstance == nil {
 			break
@@ -12883,6 +12970,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.ValkeyIssue.Message(childComplexity), true
+	case "ValkeyIssue.resource":
+		if e.complexity.ValkeyIssue.Resource == nil {
+			break
+		}
+
+		return e.complexity.ValkeyIssue.Resource(childComplexity), true
 	case "ValkeyIssue.severity":
 		if e.complexity.ValkeyIssue.Severity == nil {
 			break
@@ -13212,6 +13305,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.VulnerableImageIssue.Message(childComplexity), true
+	case "VulnerableImageIssue.resource":
+		if e.complexity.VulnerableImageIssue.Resource == nil {
+			break
+		}
+
+		return e.complexity.VulnerableImageIssue.Resource(childComplexity), true
 	case "VulnerableImageIssue.riskScore":
 		if e.complexity.VulnerableImageIssue.RiskScore == nil {
 			break
@@ -14386,7 +14485,7 @@ An application lets you run one or more instances of a container image on the [N
 
 Learn more about how to create and configure your applications in the [Nais documentation](https://docs.nais.io/workloads/application/).
 """
-type Application implements Node & Workload & ActivityLogger {
+type Application implements Node & Resource & Workload & ActivityLogger {
 	"""
 	The globally unique ID of the application.
 	"""
@@ -16273,6 +16372,7 @@ interface Issue implements Node {
 	teamEnvironment: TeamEnvironment!
 	severity: Severity!
 	message: String!
+	resource: Resource!
 }
 
 extend enum ApplicationOrderField {
@@ -16352,6 +16452,7 @@ type VulnerableImageIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	workload: Workload!
 	riskScore: Int!
 	critical: Int!
@@ -16363,6 +16464,7 @@ type MissingSbomIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	workload: Workload!
 }
 
@@ -16372,6 +16474,7 @@ type InvalidSpecIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	workload: Workload!
 }
 
@@ -16381,6 +16484,7 @@ type FailedSynchronizationIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	workload: Workload!
 }
 
@@ -16390,6 +16494,7 @@ type OpenSearchIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	openSearch: OpenSearch!
 	event: String!
 }
@@ -16400,6 +16505,7 @@ type ValkeyIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	valkey: Valkey!
 	event: String!
 }
@@ -16410,6 +16516,7 @@ type SqlInstanceVersionIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	sqlInstance: SqlInstance!
 }
 
@@ -16419,6 +16526,7 @@ type SqlInstanceStateIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	state: SqlInstanceState!
 	sqlInstance: SqlInstance!
 }
@@ -16429,6 +16537,7 @@ type DeprecatedIngressIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	ingresses: [String!]!
 	application: Application!
 }
@@ -16439,6 +16548,7 @@ type DeprecatedRegistryIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	workload: Workload!
 }
 
@@ -16448,6 +16558,7 @@ type NoRunningInstancesIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	workload: Workload!
 }
 
@@ -16457,6 +16568,7 @@ type LastRunFailedIssue implements Issue & Node {
 	severity: Severity!
 	message: String!
 
+	resource: Resource!
 	job: Job!
 }
 `, BuiltIn: false},
@@ -16516,7 +16628,8 @@ input TeamJobsFilter {
 	"""
 	environments: [String!]
 }
-type Job implements Node & Workload & ActivityLogger {
+
+type Job implements Node & Resource & Workload & ActivityLogger {
 	"The globally unique ID of the job."
 	id: ID!
 
@@ -18256,6 +18369,14 @@ extend enum ActivityLogActivityType {
 	"Repository was removed from a team."
 	REPOSITORY_REMOVED
 }
+`, BuiltIn: false},
+	{Name: "../schema/resource.graphqls", Input: `interface Resource implements Node {
+	id: ID!
+	name: String!
+	team: Team!
+	teamEnvironment: TeamEnvironment!
+}
+
 `, BuiltIn: false},
 	{Name: "../schema/scalars.graphqls", Input: `"""
 TimeOfDay is the time of day, represented as a string in the format HH:MM:SS.
@@ -23074,7 +23195,7 @@ extend type TeamEnvironment {
 """
 Interface for workloads.
 """
-interface Workload implements Node & ActivityLogger {
+interface Workload implements Node & Resource & ActivityLogger {
 	"""
 	The globally unique ID of the workload.
 	"""
@@ -35663,6 +35784,35 @@ func (ec *executionContext) fieldContext_DeprecatedIngressIssue_message(_ contex
 	return fc, nil
 }
 
+func (ec *executionContext) _DeprecatedIngressIssue_resource(ctx context.Context, field graphql.CollectedField, obj *issue.DeprecatedIngressIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_DeprecatedIngressIssue_resource,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.DeprecatedIngressIssue().Resource(ctx, obj)
+		},
+		nil,
+		ec.marshalNResource2githubᚗcomᚋnaisᚋapiᚋinternalᚋresourceᚐResource,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_DeprecatedIngressIssue_resource(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeprecatedIngressIssue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _DeprecatedIngressIssue_ingresses(ctx context.Context, field graphql.CollectedField, obj *issue.DeprecatedIngressIssue) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -35930,6 +36080,35 @@ func (ec *executionContext) fieldContext_DeprecatedRegistryIssue_message(_ conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DeprecatedRegistryIssue_resource(ctx context.Context, field graphql.CollectedField, obj *issue.DeprecatedRegistryIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_DeprecatedRegistryIssue_resource,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.DeprecatedRegistryIssue().Resource(ctx, obj)
+		},
+		nil,
+		ec.marshalNResource2githubᚗcomᚋnaisᚋapiᚋinternalᚋresourceᚐResource,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_DeprecatedRegistryIssue_resource(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeprecatedRegistryIssue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
 	}
 	return fc, nil
@@ -36599,6 +36778,35 @@ func (ec *executionContext) fieldContext_FailedSynchronizationIssue_message(_ co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FailedSynchronizationIssue_resource(ctx context.Context, field graphql.CollectedField, obj *issue.FailedSynchronizationIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_FailedSynchronizationIssue_resource,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.FailedSynchronizationIssue().Resource(ctx, obj)
+		},
+		nil,
+		ec.marshalNResource2githubᚗcomᚋnaisᚋapiᚋinternalᚋresourceᚐResource,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_FailedSynchronizationIssue_resource(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FailedSynchronizationIssue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
 	}
 	return fc, nil
@@ -38353,6 +38561,35 @@ func (ec *executionContext) fieldContext_InvalidSpecIssue_message(_ context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _InvalidSpecIssue_resource(ctx context.Context, field graphql.CollectedField, obj *issue.InvalidSpecIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_InvalidSpecIssue_resource,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.InvalidSpecIssue().Resource(ctx, obj)
+		},
+		nil,
+		ec.marshalNResource2githubᚗcomᚋnaisᚋapiᚋinternalᚋresourceᚐResource,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_InvalidSpecIssue_resource(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "InvalidSpecIssue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
 	}
 	return fc, nil
@@ -43180,6 +43417,35 @@ func (ec *executionContext) fieldContext_LastRunFailedIssue_message(_ context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _LastRunFailedIssue_resource(ctx context.Context, field graphql.CollectedField, obj *issue.LastRunFailedIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_LastRunFailedIssue_resource,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.LastRunFailedIssue().Resource(ctx, obj)
+		},
+		nil,
+		ec.marshalNResource2githubᚗcomᚋnaisᚋapiᚋinternalᚋresourceᚐResource,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_LastRunFailedIssue_resource(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LastRunFailedIssue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _LastRunFailedIssue_job(ctx context.Context, field graphql.CollectedField, obj *issue.LastRunFailedIssue) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -43991,6 +44257,35 @@ func (ec *executionContext) fieldContext_MissingSbomIssue_message(_ context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MissingSbomIssue_resource(ctx context.Context, field graphql.CollectedField, obj *issue.MissingSbomIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_MissingSbomIssue_resource,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.MissingSbomIssue().Resource(ctx, obj)
+		},
+		nil,
+		ec.marshalNResource2githubᚗcomᚋnaisᚋapiᚋinternalᚋresourceᚐResource,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_MissingSbomIssue_resource(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MissingSbomIssue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
 	}
 	return fc, nil
@@ -46473,6 +46768,35 @@ func (ec *executionContext) fieldContext_NoRunningInstancesIssue_message(_ conte
 	return fc, nil
 }
 
+func (ec *executionContext) _NoRunningInstancesIssue_resource(ctx context.Context, field graphql.CollectedField, obj *issue.NoRunningInstancesIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_NoRunningInstancesIssue_resource,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.NoRunningInstancesIssue().Resource(ctx, obj)
+		},
+		nil,
+		ec.marshalNResource2githubᚗcomᚋnaisᚋapiᚋinternalᚋresourceᚐResource,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_NoRunningInstancesIssue_resource(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NoRunningInstancesIssue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _NoRunningInstancesIssue_workload(ctx context.Context, field graphql.CollectedField, obj *issue.NoRunningInstancesIssue) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -48345,6 +48669,35 @@ func (ec *executionContext) fieldContext_OpenSearchIssue_message(_ context.Conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _OpenSearchIssue_resource(ctx context.Context, field graphql.CollectedField, obj *issue.OpenSearchIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_OpenSearchIssue_resource,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.OpenSearchIssue().Resource(ctx, obj)
+		},
+		nil,
+		ec.marshalNResource2githubᚗcomᚋnaisᚋapiᚋinternalᚋresourceᚐResource,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_OpenSearchIssue_resource(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearchIssue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
 	}
 	return fc, nil
@@ -63964,6 +64317,35 @@ func (ec *executionContext) fieldContext_SqlInstanceStateIssue_message(_ context
 	return fc, nil
 }
 
+func (ec *executionContext) _SqlInstanceStateIssue_resource(ctx context.Context, field graphql.CollectedField, obj *issue.SqlInstanceStateIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_SqlInstanceStateIssue_resource,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.SqlInstanceStateIssue().Resource(ctx, obj)
+		},
+		nil,
+		ec.marshalNResource2githubᚗcomᚋnaisᚋapiᚋinternalᚋresourceᚐResource,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_SqlInstanceStateIssue_resource(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstanceStateIssue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SqlInstanceStateIssue_state(ctx context.Context, field graphql.CollectedField, obj *issue.SqlInstanceStateIssue) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -64522,6 +64904,35 @@ func (ec *executionContext) fieldContext_SqlInstanceVersionIssue_message(_ conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SqlInstanceVersionIssue_resource(ctx context.Context, field graphql.CollectedField, obj *issue.SqlInstanceVersionIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_SqlInstanceVersionIssue_resource,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.SqlInstanceVersionIssue().Resource(ctx, obj)
+		},
+		nil,
+		ec.marshalNResource2githubᚗcomᚋnaisᚋapiᚋinternalᚋresourceᚐResource,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_SqlInstanceVersionIssue_resource(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstanceVersionIssue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
 	}
 	return fc, nil
@@ -78542,6 +78953,35 @@ func (ec *executionContext) fieldContext_ValkeyIssue_message(_ context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _ValkeyIssue_resource(ctx context.Context, field graphql.CollectedField, obj *issue.ValkeyIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ValkeyIssue_resource,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.ValkeyIssue().Resource(ctx, obj)
+		},
+		nil,
+		ec.marshalNResource2githubᚗcomᚋnaisᚋapiᚋinternalᚋresourceᚐResource,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ValkeyIssue_resource(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValkeyIssue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ValkeyIssue_valkey(ctx context.Context, field graphql.CollectedField, obj *issue.ValkeyIssue) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -80237,6 +80677,35 @@ func (ec *executionContext) fieldContext_VulnerableImageIssue_message(_ context.
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VulnerableImageIssue_resource(ctx context.Context, field graphql.CollectedField, obj *issue.VulnerableImageIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_VulnerableImageIssue_resource,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.VulnerableImageIssue().Resource(ctx, obj)
+		},
+		nil,
+		ec.marshalNResource2githubᚗcomᚋnaisᚋapiᚋinternalᚋresourceᚐResource,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_VulnerableImageIssue_resource(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VulnerableImageIssue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
 	}
 	return fc, nil
@@ -87029,20 +87498,6 @@ func (ec *executionContext) _ActivityLogger(ctx context.Context, sel ast.Selecti
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case valkey.Valkey:
-		return ec._Valkey(ctx, sel, &obj)
-	case *valkey.Valkey:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Valkey(ctx, sel, obj)
-	case opensearch.OpenSearch:
-		return ec._OpenSearch(ctx, sel, &obj)
-	case *opensearch.OpenSearch:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._OpenSearch(ctx, sel, obj)
 	case job.Job:
 		return ec._Job(ctx, sel, &obj)
 	case *job.Job:
@@ -87062,6 +87517,20 @@ func (ec *executionContext) _ActivityLogger(ctx context.Context, sel ast.Selecti
 			return graphql.Null
 		}
 		return ec._Workload(ctx, sel, obj)
+	case valkey.Valkey:
+		return ec._Valkey(ctx, sel, &obj)
+	case *valkey.Valkey:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Valkey(ctx, sel, obj)
+	case opensearch.OpenSearch:
+		return ec._OpenSearch(ctx, sel, &obj)
+	case *opensearch.OpenSearch:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._OpenSearch(ctx, sel, obj)
 	case team.Team:
 		return ec._Team(ctx, sel, &obj)
 	case *team.Team:
@@ -87363,20 +87832,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case valkey.Valkey:
-		return ec._Valkey(ctx, sel, &obj)
-	case *valkey.Valkey:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Valkey(ctx, sel, obj)
-	case opensearch.OpenSearch:
-		return ec._OpenSearch(ctx, sel, &obj)
-	case *opensearch.OpenSearch:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._OpenSearch(ctx, sel, obj)
 	case job.Job:
 		return ec._Job(ctx, sel, &obj)
 	case *job.Job:
@@ -87396,6 +87851,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Workload(ctx, sel, obj)
+	case valkey.Valkey:
+		return ec._Valkey(ctx, sel, &obj)
+	case *valkey.Valkey:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Valkey(ctx, sel, obj)
+	case opensearch.OpenSearch:
+		return ec._OpenSearch(ctx, sel, &obj)
+	case *opensearch.OpenSearch:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._OpenSearch(ctx, sel, obj)
 	case issue.VulnerableImageIssue:
 		return ec._VulnerableImageIssue(ctx, sel, &obj)
 	case *issue.VulnerableImageIssue:
@@ -87959,6 +88428,11 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Role(ctx, sel, obj)
+	case resource.Resource:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Resource(ctx, sel, obj)
 	case repository.Repository:
 		return ec._Repository(ctx, sel, &obj)
 	case *repository.Repository:
@@ -88159,6 +88633,34 @@ func (ec *executionContext) _Persistence(ctx context.Context, sel ast.SelectionS
 	}
 }
 
+func (ec *executionContext) _Resource(ctx context.Context, sel ast.SelectionSet, obj resource.Resource) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case job.Job:
+		return ec._Job(ctx, sel, &obj)
+	case *job.Job:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Job(ctx, sel, obj)
+	case application.Application:
+		return ec._Application(ctx, sel, &obj)
+	case *application.Application:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Application(ctx, sel, obj)
+	case workload.Workload:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Workload(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _ScalingStrategy(ctx context.Context, sel ast.SelectionSet, obj application.ScalingStrategy) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -88186,20 +88688,6 @@ func (ec *executionContext) _SearchNode(ctx context.Context, sel ast.SelectionSe
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case valkey.Valkey:
-		return ec._Valkey(ctx, sel, &obj)
-	case *valkey.Valkey:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Valkey(ctx, sel, obj)
-	case opensearch.OpenSearch:
-		return ec._OpenSearch(ctx, sel, &obj)
-	case *opensearch.OpenSearch:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._OpenSearch(ctx, sel, obj)
 	case job.Job:
 		return ec._Job(ctx, sel, &obj)
 	case *job.Job:
@@ -88214,6 +88702,20 @@ func (ec *executionContext) _SearchNode(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._Application(ctx, sel, obj)
+	case valkey.Valkey:
+		return ec._Valkey(ctx, sel, &obj)
+	case *valkey.Valkey:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Valkey(ctx, sel, obj)
+	case opensearch.OpenSearch:
+		return ec._OpenSearch(ctx, sel, &obj)
+	case *opensearch.OpenSearch:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._OpenSearch(ctx, sel, obj)
 	case team.Team:
 		return ec._Team(ctx, sel, &obj)
 	case *team.Team:
@@ -88710,7 +89212,7 @@ func (ec *executionContext) _AllowTeamAccessToUnleashPayload(ctx context.Context
 	return out
 }
 
-var applicationImplementors = []string{"Application", "Node", "Workload", "ActivityLogger", "SearchNode"}
+var applicationImplementors = []string{"Application", "Node", "Resource", "Workload", "ActivityLogger", "SearchNode"}
 
 func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionSet, obj *application.Application) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, applicationImplementors)
@@ -93402,6 +93904,42 @@ func (ec *executionContext) _DeprecatedIngressIssue(ctx context.Context, sel ast
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "resource":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._DeprecatedIngressIssue_resource(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "ingresses":
 			out.Values[i] = ec._DeprecatedIngressIssue_ingresses(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -93528,6 +94066,42 @@ func (ec *executionContext) _DeprecatedRegistryIssue(ctx context.Context, sel as
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "resource":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._DeprecatedRegistryIssue_resource(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "workload":
 			field := field
 
@@ -93985,6 +94559,42 @@ func (ec *executionContext) _FailedSynchronizationIssue(ctx context.Context, sel
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "resource":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._FailedSynchronizationIssue_resource(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "workload":
 			field := field
 
@@ -95075,6 +95685,42 @@ func (ec *executionContext) _InvalidSpecIssue(ctx context.Context, sel ast.Selec
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "resource":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._InvalidSpecIssue_resource(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "workload":
 			field := field
 
@@ -95227,7 +95873,7 @@ func (ec *executionContext) _IssueEdge(ctx context.Context, sel ast.SelectionSet
 	return out
 }
 
-var jobImplementors = []string{"Job", "Node", "Workload", "ActivityLogger", "SearchNode"}
+var jobImplementors = []string{"Job", "Node", "Resource", "Workload", "ActivityLogger", "SearchNode"}
 
 func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj *job.Job) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobImplementors)
@@ -97579,6 +98225,42 @@ func (ec *executionContext) _LastRunFailedIssue(ctx context.Context, sel ast.Sel
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "resource":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._LastRunFailedIssue_resource(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "job":
 			field := field
 
@@ -98166,6 +98848,42 @@ func (ec *executionContext) _MissingSbomIssue(ctx context.Context, sel ast.Selec
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "resource":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._MissingSbomIssue_resource(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "workload":
 			field := field
 
@@ -98814,6 +99532,42 @@ func (ec *executionContext) _NoRunningInstancesIssue(ctx context.Context, sel as
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "resource":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._NoRunningInstancesIssue_resource(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "workload":
 			field := field
 
@@ -99834,6 +100588,42 @@ func (ec *executionContext) _OpenSearchIssue(ctx context.Context, sel ast.Select
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "resource":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OpenSearchIssue_resource(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "openSearch":
 			field := field
 
@@ -106895,6 +107685,42 @@ func (ec *executionContext) _SqlInstanceStateIssue(ctx context.Context, sel ast.
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "resource":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SqlInstanceStateIssue_resource(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "state":
 			out.Values[i] = ec._SqlInstanceStateIssue_state(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -107196,6 +108022,42 @@ func (ec *executionContext) _SqlInstanceVersionIssue(ctx context.Context, sel as
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "resource":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SqlInstanceVersionIssue_resource(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "sqlInstance":
 			field := field
 
@@ -114797,6 +115659,42 @@ func (ec *executionContext) _ValkeyIssue(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "resource":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ValkeyIssue_resource(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "valkey":
 			field := field
 
@@ -115553,6 +116451,42 @@ func (ec *executionContext) _VulnerableImageIssue(ctx context.Context, sel ast.S
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "resource":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._VulnerableImageIssue_resource(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "workload":
 			field := field
 
@@ -122246,6 +123180,16 @@ func (ec *executionContext) marshalNRequestTeamDeletionPayload2ᚖgithubᚗcom�
 		return graphql.Null
 	}
 	return ec._RequestTeamDeletionPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNResource2githubᚗcomᚋnaisᚋapiᚋinternalᚋresourceᚐResource(ctx context.Context, sel ast.SelectionSet, v resource.Resource) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Resource(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNRestartApplicationInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐRestartApplicationInput(ctx context.Context, v any) (application.RestartApplicationInput, error) {
