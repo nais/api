@@ -2535,6 +2535,7 @@ type ComplexityRoot struct {
 		MaxMemoryPolicy       func(childComplexity int) int
 		Memory                func(childComplexity int) int
 		Name                  func(childComplexity int) int
+		NotifyKeyspaceEvents  func(childComplexity int) int
 		State                 func(childComplexity int) int
 		Team                  func(childComplexity int) int
 		TeamEnvironment       func(childComplexity int) int
@@ -12646,6 +12647,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Valkey.Name(childComplexity), true
+	case "Valkey.notifyKeyspaceEvents":
+		if e.complexity.Valkey.NotifyKeyspaceEvents == nil {
+			break
+		}
+
+		return e.complexity.Valkey.NotifyKeyspaceEvents(childComplexity), true
 	case "Valkey.state":
 		if e.complexity.Valkey.State == nil {
 			break
@@ -22077,7 +22084,10 @@ type Valkey implements Persistence & Node {
 	tier: ValkeyTier!
 	"Available memory for the Valkey instance."
 	memory: ValkeyMemory!
+	"Maximum memory policy for the Valkey instance."
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
+	"Keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."
+	notifyKeyspaceEvents: String
 	"Issues that affects the instance."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -22217,6 +22227,8 @@ input CreateValkeyInput {
 	memory: ValkeyMemory!
 	"Maximum memory policy for the Valkey instance."
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
+	"Configure keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."
+	notifyKeyspaceEvents: String
 }
 
 type CreateValkeyPayload {
@@ -22237,6 +22249,8 @@ input UpdateValkeyInput {
 	memory: ValkeyMemory!
 	"Maximum memory policy for the Valkey instance."
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
+	"Configure keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."
+	notifyKeyspaceEvents: String
 }
 
 type UpdateValkeyPayload {
@@ -33434,6 +33448,8 @@ func (ec *executionContext) fieldContext_CreateValkeyPayload_valkey(_ context.Co
 				return ec.fieldContext_Valkey_memory(ctx, field)
 			case "maxMemoryPolicy":
 				return ec.fieldContext_Valkey_maxMemoryPolicy(ctx, field)
+			case "notifyKeyspaceEvents":
+				return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
 			case "issues":
 				return ec.fieldContext_Valkey_issues(ctx, field)
 			case "activityLog":
@@ -69366,6 +69382,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_valkey(ctx context.Cont
 				return ec.fieldContext_Valkey_memory(ctx, field)
 			case "maxMemoryPolicy":
 				return ec.fieldContext_Valkey_maxMemoryPolicy(ctx, field)
+			case "notifyKeyspaceEvents":
+				return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
 			case "issues":
 				return ec.fieldContext_Valkey_issues(ctx, field)
 			case "activityLog":
@@ -75495,6 +75513,8 @@ func (ec *executionContext) fieldContext_UpdateValkeyPayload_valkey(_ context.Co
 				return ec.fieldContext_Valkey_memory(ctx, field)
 			case "maxMemoryPolicy":
 				return ec.fieldContext_Valkey_maxMemoryPolicy(ctx, field)
+			case "notifyKeyspaceEvents":
+				return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
 			case "issues":
 				return ec.fieldContext_Valkey_issues(ctx, field)
 			case "activityLog":
@@ -77257,6 +77277,35 @@ func (ec *executionContext) fieldContext_Valkey_maxMemoryPolicy(_ context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _Valkey_notifyKeyspaceEvents(ctx context.Context, field graphql.CollectedField, obj *valkey.Valkey) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Valkey_notifyKeyspaceEvents,
+		func(ctx context.Context) (any, error) {
+			return obj.NotifyKeyspaceEvents, nil
+		},
+		nil,
+		ec.marshalOString2string,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Valkey_notifyKeyspaceEvents(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Valkey",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Valkey_issues(ctx context.Context, field graphql.CollectedField, obj *valkey.Valkey) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -77753,6 +77802,8 @@ func (ec *executionContext) fieldContext_ValkeyConnection_nodes(_ context.Contex
 				return ec.fieldContext_Valkey_memory(ctx, field)
 			case "maxMemoryPolicy":
 				return ec.fieldContext_Valkey_maxMemoryPolicy(ctx, field)
+			case "notifyKeyspaceEvents":
+				return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
 			case "issues":
 				return ec.fieldContext_Valkey_issues(ctx, field)
 			case "activityLog":
@@ -78373,6 +78424,8 @@ func (ec *executionContext) fieldContext_ValkeyEdge_node(_ context.Context, fiel
 				return ec.fieldContext_Valkey_memory(ctx, field)
 			case "maxMemoryPolicy":
 				return ec.fieldContext_Valkey_maxMemoryPolicy(ctx, field)
+			case "notifyKeyspaceEvents":
+				return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
 			case "issues":
 				return ec.fieldContext_Valkey_issues(ctx, field)
 			case "activityLog":
@@ -78590,6 +78643,8 @@ func (ec *executionContext) fieldContext_ValkeyIssue_valkey(_ context.Context, f
 				return ec.fieldContext_Valkey_memory(ctx, field)
 			case "maxMemoryPolicy":
 				return ec.fieldContext_Valkey_maxMemoryPolicy(ctx, field)
+			case "notifyKeyspaceEvents":
+				return ec.fieldContext_Valkey_notifyKeyspaceEvents(ctx, field)
 			case "issues":
 				return ec.fieldContext_Valkey_issues(ctx, field)
 			case "activityLog":
@@ -83976,7 +84031,7 @@ func (ec *executionContext) unmarshalInputCreateValkeyInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "maxMemoryPolicy"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "maxMemoryPolicy", "notifyKeyspaceEvents"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -84025,6 +84080,13 @@ func (ec *executionContext) unmarshalInputCreateValkeyInput(ctx context.Context,
 				return it, err
 			}
 			it.MaxMemoryPolicy = data
+		case "notifyKeyspaceEvents":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("notifyKeyspaceEvents"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NotifyKeyspaceEvents = data
 		}
 	}
 
@@ -86349,7 +86411,7 @@ func (ec *executionContext) unmarshalInputUpdateValkeyInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "maxMemoryPolicy"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "tier", "memory", "maxMemoryPolicy", "notifyKeyspaceEvents"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -86398,6 +86460,13 @@ func (ec *executionContext) unmarshalInputUpdateValkeyInput(ctx context.Context,
 				return it, err
 			}
 			it.MaxMemoryPolicy = data
+		case "notifyKeyspaceEvents":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("notifyKeyspaceEvents"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NotifyKeyspaceEvents = data
 		}
 	}
 
@@ -114126,6 +114195,8 @@ func (ec *executionContext) _Valkey(ctx context.Context, sel ast.SelectionSet, o
 			}
 		case "maxMemoryPolicy":
 			out.Values[i] = ec._Valkey_maxMemoryPolicy(ctx, field, obj)
+		case "notifyKeyspaceEvents":
+			out.Values[i] = ec._Valkey_notifyKeyspaceEvents(ctx, field, obj)
 		case "issues":
 			field := field
 

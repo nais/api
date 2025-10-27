@@ -283,6 +283,7 @@ Test.gql("Update Valkey as team-member", function(t)
 		      tier: HIGH_AVAILABILITY
 		      memory: GB_4
 		      maxMemoryPolicy: ALLKEYS_RANDOM
+		      notifyKeyspaceEvents: "Exd"
 		    }
 		  ) {
 		    valkey {
@@ -329,6 +330,7 @@ Test.k8s("Validate Valkey resource after update", function(t)
 			terminationProtection = true,
 			userConfig = {
 				valkey_maxmemory_policy = "allkeys-random",
+				valkey_notify_keyspace_events = "Exd",
 			},
 			tags = {
 				environment = "dev",
@@ -450,6 +452,7 @@ Test.gql("List valkeys for team", function(t)
 		        tier
 		        memory
 		        maxMemoryPolicy
+		        notifyKeyspaceEvents
 		      }
 		    }
 		  }
@@ -466,24 +469,28 @@ Test.gql("List valkeys for team", function(t)
 							tier = "HIGH_AVAILABILITY",
 							memory = "GB_4",
 							maxMemoryPolicy = "ALLKEYS_RANDOM",
+							notifyKeyspaceEvents = "Exd",
 						},
 						{
 							name = "foobar-hobbyist",
 							tier = "SINGLE_NODE",
 							memory = "GB_1",
 							maxMemoryPolicy = "",
+							notifyKeyspaceEvents = "",
 						},
 						{
 							name = "valkey-someteamname-hobbyist-not-managed",
 							tier = "SINGLE_NODE",
 							memory = "GB_1",
 							maxMemoryPolicy = "",
+							notifyKeyspaceEvents = "",
 						},
 						{
 							name = "valkey-someteamname-not-managed",
 							tier = "SINGLE_NODE",
 							memory = "GB_4",
 							maxMemoryPolicy = "",
+							notifyKeyspaceEvents = "",
 						},
 					},
 				},
@@ -504,6 +511,7 @@ Test.gql("Update non-console managed Valkey as team-member", function(t)
 		      tier: HIGH_AVAILABILITY
 		      memory: GB_4
 		      maxMemoryPolicy: ALLKEYS_RANDOM
+		      notifyKeyspaceEvents: "Exd"
 		    }
 		  ) {
 		    valkey {
@@ -538,6 +546,7 @@ Test.gql("Update Valkey with tier and memory equivalent to hobbyist plan", funct
 		      tier: SINGLE_NODE
 		      memory: GB_1
 		      maxMemoryPolicy: ALLKEYS_RANDOM
+		      notifyKeyspaceEvents: "Exd"
 		    }
 		  ) {
 		    valkey {
@@ -584,6 +593,7 @@ Test.k8s("Validate hobbyist Valkey resource after update", function(t)
 			terminationProtection = true,
 			userConfig = {
 				valkey_maxmemory_policy = "allkeys-random",
+				valkey_notify_keyspace_events = "Exd",
 			},
 			tags = {
 				environment = "dev",

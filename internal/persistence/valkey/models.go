@@ -35,6 +35,7 @@ type Valkey struct {
 	Tier                  ValkeyTier            `json:"tier"`
 	Memory                ValkeyMemory          `json:"memory"`
 	MaxMemoryPolicy       ValkeyMaxMemoryPolicy `json:"maxMemoryPolicy,omitempty"`
+	NotifyKeyspaceEvents  string                `json:"notifyKeyspaceEvents,omitempty"`
 	TeamSlug              slug.Slug             `json:"-"`
 	EnvironmentName       string                `json:"-"`
 	WorkloadReference     *workload.Reference   `json:"-"`
@@ -155,12 +156,15 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 	}
 
 	// Liberator doesn't contain this field, so we read it directly from the unstructured object
-	terminationProtection, _, _ := unstructured.NestedBool(u.Object, "spec", "terminationProtection")
-	maxMemoryPolicyStr, _, _ := unstructured.NestedString(u.Object, "spec", "userConfig", "valkey_maxmemory_policy")
+	terminationProtection, _, _ := unstructured.NestedBool(u.Object, specTerminationProtection...)
+
+	maxMemoryPolicyStr, _, _ := unstructured.NestedString(u.Object, specMaxMemoryPolicy...)
 	maxMemoryPolicy, err := ValkeyMaxMemoryPolicyFromAivenString(maxMemoryPolicyStr)
 	if err != nil {
 		maxMemoryPolicy = ""
 	}
+
+	notifyKeyspaceEvents, _, _ := unstructured.NestedString(u.Object, specNotifyKeyspaceEvents...)
 
 	machine, err := machineTypeFromPlan(obj.Spec.Plan)
 	if err != nil {
@@ -180,12 +184,13 @@ func toValkey(u *unstructured.Unstructured, envName string) (*Valkey, error) {
 			Conditions: obj.Status.Conditions,
 			State:      obj.Status.State,
 		},
-		TeamSlug:          slug.Slug(obj.GetNamespace()),
-		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
-		AivenProject:      obj.Spec.Project,
-		Tier:              machine.Tier,
-		Memory:            machine.Memory,
-		MaxMemoryPolicy:   maxMemoryPolicy,
+		TeamSlug:             slug.Slug(obj.GetNamespace()),
+		WorkloadReference:    workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
+		AivenProject:         obj.Spec.Project,
+		Tier:                 machine.Tier,
+		Memory:               machine.Memory,
+		MaxMemoryPolicy:      maxMemoryPolicy,
+		NotifyKeyspaceEvents: notifyKeyspaceEvents,
 	}, nil
 }
 
@@ -223,9 +228,10 @@ func (v *ValkeyMetadataInput) ValidationErrors(ctx context.Context) *validate.Va
 
 type ValkeyInput struct {
 	ValkeyMetadataInput
-	Tier            ValkeyTier             `json:"tier"`
-	Memory          ValkeyMemory           `json:"memory"`
-	MaxMemoryPolicy *ValkeyMaxMemoryPolicy `json:"maxMemoryPolicy,omitempty"`
+	Tier                 ValkeyTier             `json:"tier"`
+	Memory               ValkeyMemory           `json:"memory"`
+	MaxMemoryPolicy      *ValkeyMaxMemoryPolicy `json:"maxMemoryPolicy,omitempty"`
+	NotifyKeyspaceEvents *string                `json:"notifyKeyspaceEvents,omitempty"`
 }
 
 func (v *ValkeyInput) Validate(ctx context.Context) error {

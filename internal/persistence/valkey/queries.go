@@ -22,6 +22,13 @@ import (
 	"k8s.io/utils/ptr"
 )
 
+var (
+	specPlan                  = []string{"spec", "plan"}
+	specTerminationProtection = []string{"spec", "terminationProtection"}
+	specMaxMemoryPolicy       = []string{"spec", "userConfig", "valkey_maxmemory_policy"}
+	specNotifyKeyspaceEvents  = []string{"spec", "userConfig", "valkey_notify_keyspace_events"}
+)
+
 func GetByIdent(ctx context.Context, id ident.Ident) (*Valkey, error) {
 	teamSlug, environment, name, err := parseIdent(id)
 	if err != nil {
@@ -152,7 +159,14 @@ func Create(ctx context.Context, input CreateValkeyInput) (*CreateValkeyPayload,
 
 	if input.MaxMemoryPolicy != nil {
 		maxMemoryPolicy := input.MaxMemoryPolicy.ToAivenString()
-		err := unstructured.SetNestedField(res.Object, maxMemoryPolicy, "spec", "userConfig", "valkey_maxmemory_policy")
+		err := unstructured.SetNestedField(res.Object, maxMemoryPolicy, specMaxMemoryPolicy...)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if input.NotifyKeyspaceEvents != nil {
+		err := unstructured.SetNestedField(res.Object, *input.NotifyKeyspaceEvents, specNotifyKeyspaceEvents...)
 		if err != nil {
 			return nil, err
 		}
@@ -225,6 +239,12 @@ func Update(ctx context.Context, input UpdateValkeyInput) (*UpdateValkeyPayload,
 	}
 	changes = append(changes, res...)
 
+	res, err = updateNotifyKeyspaceEvents(valkey, input)
+	if err != nil {
+		return nil, err
+	}
+	changes = append(changes, res...)
+
 	if len(changes) == 0 {
 		vk, err := toValkey(valkey, input.EnvironmentName)
 		if err != nil {
@@ -286,7 +306,7 @@ func updatePlan(valkey *unstructured.Unstructured, input UpdateValkeyInput) ([]*
 		return nil, err
 	}
 
-	oldPlan, found, err := unstructured.NestedString(valkey.Object, "spec", "plan")
+	oldPlan, found, err := unstructured.NestedString(valkey.Object, specPlan...)
 	if err != nil {
 		return nil, err
 	}
@@ -320,7 +340,7 @@ func updatePlan(valkey *unstructured.Unstructured, input UpdateValkeyInput) ([]*
 		})
 	}
 
-	if err := unstructured.SetNestedField(valkey.Object, desired.AivenPlan, "spec", "plan"); err != nil {
+	if err := unstructured.SetNestedField(valkey.Object, desired.AivenPlan, specPlan...); err != nil {
 		return nil, err
 	}
 
@@ -334,7 +354,7 @@ func updateMaxMemoryPolicy(valkey *unstructured.Unstructured, input UpdateValkey
 		return changes, nil
 	}
 
-	oldAivenPolicy, found, err := unstructured.NestedString(valkey.Object, "spec", "userConfig", "valkey_maxmemory_policy")
+	oldAivenPolicy, found, err := unstructured.NestedString(valkey.Object, specMaxMemoryPolicy...)
 	if err != nil {
 		return nil, err
 	}
@@ -360,7 +380,41 @@ func updateMaxMemoryPolicy(valkey *unstructured.Unstructured, input UpdateValkey
 	})
 
 	maxMemoryPolicy := input.MaxMemoryPolicy.ToAivenString()
-	if err := unstructured.SetNestedField(valkey.Object, maxMemoryPolicy, "spec", "userConfig", "valkey_maxmemory_policy"); err != nil {
+	if err := unstructured.SetNestedField(valkey.Object, maxMemoryPolicy, specMaxMemoryPolicy...); err != nil {
+		return nil, err
+	}
+
+	return changes, nil
+}
+
+func updateNotifyKeyspaceEvents(valkey *unstructured.Unstructured, input UpdateValkeyInput) ([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, error) {
+	changes := make([]*ValkeyUpdatedActivityLogEntryDataUpdatedField, 0)
+
+	if input.NotifyKeyspaceEvents == nil {
+		return changes, nil
+	}
+
+	oldValue, found, err := unstructured.NestedString(valkey.Object, specNotifyKeyspaceEvents...)
+	if err != nil {
+		return nil, err
+	}
+
+	if found && oldValue == *input.NotifyKeyspaceEvents {
+		return changes, nil
+	}
+
+	var oldValPtr *string
+	if found {
+		oldValPtr = ptr.To(oldValue)
+	}
+
+	changes = append(changes, &ValkeyUpdatedActivityLogEntryDataUpdatedField{
+		Field:    "notifyKeyspaceEvents",
+		OldValue: oldValPtr,
+		NewValue: input.NotifyKeyspaceEvents,
+	})
+
+	if err := unstructured.SetNestedField(valkey.Object, *input.NotifyKeyspaceEvents, specNotifyKeyspaceEvents...); err != nil {
 		return nil, err
 	}
 
@@ -387,12 +441,12 @@ func Delete(ctx context.Context, input DeleteValkeyInput) (*DeleteValkeyPayload,
 		return nil, apierror.Errorf("Valkey %s/%s is not managed by Console", input.TeamSlug, input.Name)
 	}
 
-	terminationProtection, found, err := unstructured.NestedBool(valkey.Object, "spec", "terminationProtection")
+	terminationProtection, found, err := unstructured.NestedBool(valkey.Object, specTerminationProtection...)
 	if err != nil {
 		return nil, err
 	}
 	if found && terminationProtection {
-		if err := unstructured.SetNestedField(valkey.Object, false, "spec", "terminationProtection"); err != nil {
+		if err := unstructured.SetNestedField(valkey.Object, false, specTerminationProtection...); err != nil {
 			return nil, err
 		}
 

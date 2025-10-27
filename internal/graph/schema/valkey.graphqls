@@ -77,7 +77,10 @@ type Valkey implements Persistence & Node {
 	tier: ValkeyTier!
 	"Available memory for the Valkey instance."
 	memory: ValkeyMemory!
+	"Maximum memory policy for the Valkey instance."
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
+	"Keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."
+	notifyKeyspaceEvents: String
 	"Issues that affects the instance."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -217,6 +220,8 @@ input CreateValkeyInput {
 	memory: ValkeyMemory!
 	"Maximum memory policy for the Valkey instance."
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
+	"Configure keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."
+	notifyKeyspaceEvents: String
 }
 
 type CreateValkeyPayload {
@@ -237,6 +242,8 @@ input UpdateValkeyInput {
 	memory: ValkeyMemory!
 	"Maximum memory policy for the Valkey instance."
 	maxMemoryPolicy: ValkeyMaxMemoryPolicy
+	"Configure keyspace notifications for the Valkey instance. See https://valkey.io/topics/notifications/ for details."
+	notifyKeyspaceEvents: String
 }
 
 type UpdateValkeyPayload {
