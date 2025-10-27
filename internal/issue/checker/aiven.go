@@ -44,7 +44,7 @@ func (a Aiven) Run(ctx context.Context) ([]Issue, error) {
 				Env:          env,
 				Team:         getTeamFromServiceName(*alert.ServiceName), // lookup team by project and service type and name
 				IssueType:    issueType,
-				Message:      fmt.Sprintf(mapEvent(alert.Event), *alert.ServiceType, *alert.ServiceName, alert.Event),
+				Message:      message(alert.Event, *alert.ServiceType, *alert.ServiceName, alert.Event),
 				IssueDetails: issue.AivenIssueDetails{
 					Event: alert.Event,
 				},
@@ -60,12 +60,13 @@ func (a Aiven) Run(ctx context.Context) ([]Issue, error) {
 	return ret, nil
 }
 
-func mapEvent(event string) string {
+func message(event, serviceType, serviceName, eventDetail string) string {
 	switch event {
 	case "user_alert_resource_usage_disk":
-		return "Your %s service %s is low on disk space. Write operations will be denied and other functionality may become unavailable."
+		return fmt.Sprintf("Your %s service %s is low on disk space. Write operations will be denied and other functionality may become unavailable.", serviceType, serviceName)
+	default:
+		return fmt.Sprintf("Your %s service %s reports: %s", serviceType, serviceName, eventDetail)
 	}
-	return "Your %s service %s reports: %s"
 }
 
 func issueTypeFromServiceType(serviceType string) issue.IssueType {
