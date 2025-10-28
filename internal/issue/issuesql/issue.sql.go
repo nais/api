@@ -134,7 +134,7 @@ ORDER BY
 	CASE
 		WHEN $7::TEXT = 'severity:desc' THEN severity
 	END DESC,
-	severity,
+	severity DESC,
 	id
 OFFSET
 	$8

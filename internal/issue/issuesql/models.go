@@ -13,9 +13,9 @@ import (
 type SeverityLevel string
 
 const (
-	SeverityLevelCRITICAL SeverityLevel = "CRITICAL"
-	SeverityLevelWARNING  SeverityLevel = "WARNING"
 	SeverityLevelTODO     SeverityLevel = "TODO"
+	SeverityLevelWARNING  SeverityLevel = "WARNING"
+	SeverityLevelCRITICAL SeverityLevel = "CRITICAL"
 )
 
 func (e *SeverityLevel) Scan(src interface{}) error {
@@ -55,9 +55,9 @@ func (ns NullSeverityLevel) Value() (driver.Value, error) {
 
 func (e SeverityLevel) Valid() bool {
 	switch e {
-	case SeverityLevelCRITICAL,
+	case SeverityLevelTODO,
 		SeverityLevelWARNING,
-		SeverityLevelTODO:
+		SeverityLevelCRITICAL:
 		return true
 	}
 	return false
@@ -65,9 +65,9 @@ func (e SeverityLevel) Valid() bool {
 
 func AllSeverityLevelValues() []SeverityLevel {
 	return []SeverityLevel{
-		SeverityLevelCRITICAL,
-		SeverityLevelWARNING,
 		SeverityLevelTODO,
+		SeverityLevelWARNING,
+		SeverityLevelCRITICAL,
 	}
 }
 

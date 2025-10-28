@@ -5,25 +5,23 @@ Team.new("sortteam", "purpose", "#slack_channel")
 local checker = IssueChecker.new()
 checker:runChecks()
 
-Test.gql("Applications sorted by issues", function(t)
+Test.gql("Order by severity", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query [[
 		query {
 			team(slug: "sortteam") {
-				applications(
+				issues(
 					orderBy: {
-						field: ISSUES,
+						field: SEVERITY,
 						direction: DESC
+					}
+					filter: {
+						resourceType: APPLICATION
 					}
 				) {
 					nodes {
-						name
-						issues {
-							nodes {
-								severity
-							}
-						}
+						severity
 					}
 				}
 			}
@@ -33,250 +31,22 @@ Test.gql("Applications sorted by issues", function(t)
 	t.check {
 		data = {
 			team = {
-				applications = {
+				issues = {
 					nodes = {
 						{
-							name = "app-critical",
-							issues = {
-								nodes = {
-									{ severity = "CRITICAL" },
-								},
-							},
+							severity = "CRITICAL",
 						},
 						{
-							name = "app-warning-todo",
-							issues = {
-								nodes = {
-									{ severity = "WARNING" },
-									{ severity = "TODO" },
-								},
-							},
+							severity = "WARNING",
 						},
 						{
-							name = "app-warning",
-							issues = {
-								nodes = {
-									{ severity = "WARNING" },
-								},
-							},
+							severity = "WARNING",
 						},
 						{
-							name = "app-todo",
-							issues = {
-								nodes = {
-									{ severity = "TODO" },
-								},
-							},
+							severity = "TODO",
 						},
 						{
-							name = "app-no-issues",
-							issues = {
-								nodes = {},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-end)
-
-Test.gql("Jobs sorted by issues", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.query [[
-		query {
-			team(slug: "sortteam") {
-				jobs(
-					orderBy: {
-						field: ISSUES,
-						direction: DESC
-					}
-				) {
-					nodes {
-						name
-						issues {
-							nodes {
-								severity
-							}
-						}
-					}
-				}
-			}
-		}
-	]]
-
-	t.check {
-		data = {
-			team = {
-				jobs = {
-					nodes = {
-						{
-							name = "job-warning",
-							issues = {
-								nodes = {
-									{ severity = "WARNING" },
-								},
-							},
-						},
-						{
-							name = "job-no-issues",
-							issues = {
-								nodes = {},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-end)
-
-Test.gql("OpenSearches sorted by issues", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.query [[
-		query {
-			team(slug: "sortteam") {
-				openSearches(
-					orderBy: {
-						field: ISSUES,
-						direction: DESC
-					}
-				) {
-					nodes {
-						name
-						issues {
-							nodes {
-								severity
-							}
-						}
-					}
-				}
-			}
-		}
-	]]
-
-	t.check {
-		data = {
-			team = {
-				openSearches = {
-					nodes = {
-						{
-							name = "opensearch-sortteam-critical",
-							issues = {
-								nodes = {
-									{ severity = "CRITICAL" },
-								},
-							},
-						},
-						{
-							name = "opensearch-sortteam-running",
-							issues = {
-								nodes = {},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-end)
-
-Test.gql("Valkeys sorted by issues", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.query [[
-		query {
-			team(slug: "sortteam") {
-				valkeys(
-					orderBy: {
-						field: ISSUES,
-						direction: DESC
-					}
-				) {
-					nodes {
-						name
-						issues {
-							nodes {
-								severity
-							}
-						}
-					}
-				}
-			}
-		}
-	]]
-
-	t.check {
-		data = {
-			team = {
-				valkeys = {
-					nodes = {
-						{
-							name = "valkey-sortteam-critical",
-							issues = {
-								nodes = {
-									{ severity = "CRITICAL" },
-								},
-							},
-						},
-						{
-							name = "valkey-sortteam-running",
-							issues = {
-								nodes = {},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-end)
-
-Test.gql("SqlInstances sorted by issues", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.query [[
-		query {
-			team(slug: "sortteam") {
-				sqlInstances(
-					orderBy: {
-						field: ISSUES,
-						direction: DESC
-					}
-				) {
-					nodes {
-						name
-						issues {
-							nodes {
-								severity
-							}
-						}
-					}
-				}
-			}
-		}
-	]]
-
-	t.check {
-		data = {
-			team = {
-				sqlInstances = {
-					nodes = {
-						{
-							name = "stopped",
-							issues = {
-								nodes = {
-									{ severity = "CRITICAL" },
-								},
-							},
-						},
-						{
-							name = "running",
-							issues = {
-								nodes = {},
-							},
+							severity = "TODO",
 						},
 					},
 				},
