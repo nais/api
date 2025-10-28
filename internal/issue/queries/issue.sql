@@ -85,7 +85,7 @@ ORDER BY
 	CASE
 		WHEN @order_by::TEXT = 'severity:desc' THEN severity
 	END DESC,
-	severity,
+	severity DESC,
 	id
 OFFSET
 	sqlc.arg('offset')
