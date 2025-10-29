@@ -18577,6 +18577,11 @@ Input for filtering the secrets of a team.
 """
 input SecretFilter {
 	"""
+	Filter by the name of the secret.
+	"""
+	name: String
+
+	"""
 	Filter by usage of the secret.
 	"""
 	inUse: Boolean
@@ -85443,13 +85448,20 @@ func (ec *executionContext) unmarshalInputSecretFilter(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"inUse"}
+	fieldsInOrder := [...]string{"name", "inUse"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
 		case "inUse":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("inUse"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)

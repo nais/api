@@ -199,5 +199,6 @@ func (e SecretOrderField) MarshalGQL(w io.Writer) {
 }
 
 type SecretFilter struct {
-	InUse *bool `json:"inUse"`
+	Name  string `json:"name"`
+	InUse *bool  `json:"inUse"`
 }
