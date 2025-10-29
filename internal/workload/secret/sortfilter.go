@@ -33,25 +33,38 @@ func init() {
 	}, "NAME", "ENVIRONMENT")
 
 	SortFilter.RegisterFilter(func(ctx context.Context, v *Secret, filter *SecretFilter) bool {
-		if filter.InUse == nil {
-			return true
-		}
-		uses := 0
-
-		applications := application.ListAllForTeam(ctx, v.TeamSlug, nil, nil)
-		for _, app := range applications {
-			if slices.Contains(app.GetSecrets(), v.Name) {
-				uses++
+		if filter.Name != "" {
+			if !strings.Contains(strings.ToLower(v.Name), strings.ToLower(filter.Name)) {
+				return false
 			}
 		}
 
-		jobs := job.ListAllForTeam(ctx, v.TeamSlug, nil, nil)
-		for _, j := range jobs {
-			if slices.Contains(j.GetSecrets(), v.Name) {
-				uses++
+		if filter.InUse != nil {
+			inUse := false
+
+			applications := application.ListAllForTeam(ctx, v.TeamSlug, nil, nil)
+			for _, app := range applications {
+				if slices.Contains(app.GetSecrets(), v.Name) {
+					inUse = true
+					break
+				}
+			}
+
+			if !inUse {
+				jobs := job.ListAllForTeam(ctx, v.TeamSlug, nil, nil)
+				for _, j := range jobs {
+					if slices.Contains(j.GetSecrets(), v.Name) {
+						inUse = true
+						break
+					}
+				}
+			}
+
+			if inUse != *filter.InUse {
+				return false
 			}
 		}
 
-		return (uses > 0) == *filter.InUse
+		return true
 	})
 }
