@@ -33,12 +33,12 @@ func init() {
 	}, "NAME", "ENVIRONMENT")
 
 	SortFilter.RegisterFilter(func(ctx context.Context, v *Secret, filter *SecretFilter) bool {
-		if filter.Name != "" {
-			if !strings.Contains(strings.ToLower(v.Name), strings.ToLower(filter.Name)) {
-				return false
-			}
+		// Fast path: check name filter first to avoid expensive InUse checks
+		if filter.Name != "" && !strings.Contains(strings.ToLower(v.Name), strings.ToLower(filter.Name)) {
+			return false
 		}
 
+		// Expensive path: check InUse filter only if name filter passed (or wasn't set)
 		if filter.InUse != nil {
 			uses := 0
 
