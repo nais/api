@@ -40,23 +40,27 @@ func init() {
 		}
 
 		if filter.InUse != nil {
-			uses := 0
+			inUse := false
 
 			applications := application.ListAllForTeam(ctx, v.TeamSlug, nil, nil)
 			for _, app := range applications {
 				if slices.Contains(app.GetSecrets(), v.Name) {
-					uses++
+					inUse = true
+					break
 				}
 			}
 
-			jobs := job.ListAllForTeam(ctx, v.TeamSlug, nil, nil)
-			for _, j := range jobs {
-				if slices.Contains(j.GetSecrets(), v.Name) {
-					uses++
+			if !inUse {
+				jobs := job.ListAllForTeam(ctx, v.TeamSlug, nil, nil)
+				for _, j := range jobs {
+					if slices.Contains(j.GetSecrets(), v.Name) {
+						inUse = true
+						break
+					}
 				}
 			}
 
-			if (uses > 0) != *filter.InUse {
+			if inUse != *filter.InUse {
 				return false
 			}
 		}
