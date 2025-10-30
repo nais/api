@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/google/uuid"
@@ -52,14 +53,18 @@ func GitHubOIDC(ctx context.Context, log logrus.FieldLogger) func(next http.Hand
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
-			token := r.Header.Get("Authorization")
-			if token == "" {
+			authHeader := r.Header.Get("Authorization")
+			if authHeader == "" {
 				next.ServeHTTP(w, r)
 				return
 			}
 
+			token := strings.TrimPrefix(authHeader, "Bearer ")
+			token = strings.TrimPrefix(token, "bearer ")
+
 			idToken, err := verifier.Verify(r.Context(), token)
 			if err != nil {
+				log.WithError(err).Warn("failed to verify token")
 				next.ServeHTTP(w, r)
 				return
 			}
