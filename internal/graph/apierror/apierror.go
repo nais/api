@@ -44,6 +44,7 @@ func Errorf(format string, args ...any) Error {
 var (
 	ErrAlreadyExists = Errorf("Resource already exists.")
 	ErrNotFound      = Errorf("Resource not found.")
+	ErrForbidden     = Errorf("You do not have permission to access this resource.")
 )
 
 // GetErrorPresenter returns a GraphQL error presenter that filters out error messages not intended for end users.
@@ -57,10 +58,13 @@ func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
 			return err
 		}
 
-		if k8serrors.IsAlreadyExists(unwrappedError) {
+		switch {
+		case k8serrors.IsAlreadyExists(unwrappedError):
 			unwrappedError = ErrAlreadyExists
-		} else if k8serrors.IsNotFound(unwrappedError) {
+		case k8serrors.IsNotFound(unwrappedError):
 			unwrappedError = ErrNotFound
+		case k8serrors.IsForbidden(unwrappedError):
+			unwrappedError = ErrForbidden
 		}
 
 		switch originalError := unwrappedError.(type) {
