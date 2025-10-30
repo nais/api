@@ -33,6 +33,7 @@ type ghClaims struct {
 }
 
 func GitHubOIDC(ctx context.Context, log logrus.FieldLogger) func(next http.Handler) http.Handler {
+	log = log.WithField("subsystem", "github_oidc")
 	provider, err := oidc.NewProvider(ctx, "https://token.actions.githubusercontent.com")
 	if err != nil {
 		log.WithError(err).Error("failed to initialize GitHub OIDC provider. Will not support GitHub OIDC authentication")
@@ -65,20 +66,20 @@ func GitHubOIDC(ctx context.Context, log logrus.FieldLogger) func(next http.Hand
 
 			claims := &ghClaims{}
 			if err := idToken.Claims(claims); err != nil {
-				log.WithError(err).Debug("failed to parse claims from token")
+				log.WithError(err).Warn("failed to parse claims from token")
 				next.ServeHTTP(w, r)
 				return
 			}
 
 			repos, err := repository.GetByName(ctx, claims.Repository)
 			if err != nil {
-				log.WithError(err).Debug("failed to get repository from token claims")
+				log.WithError(err).Warn("failed to get repository from token claims")
 				next.ServeHTTP(w, r)
 				return
 			}
 
 			if len(repos) == 0 {
-				log.WithField("repository", claims.Repository).Debug("no repository found matching token claims")
+				log.WithField("repository", claims.Repository).Warn("no repository found matching token claims")
 				next.ServeHTTP(w, r)
 				return
 			}
@@ -87,7 +88,7 @@ func GitHubOIDC(ctx context.Context, log logrus.FieldLogger) func(next http.Hand
 			for _, repo := range repos {
 				repoRoles, err := authz.ForGitHubRepo(ctx, repo.TeamSlug)
 				if err != nil {
-					log.WithError(err).Debug("failed to get roles for github repo")
+					log.WithError(err).Warn("failed to get roles for github repo")
 					next.ServeHTTP(w, r)
 					return
 				}
