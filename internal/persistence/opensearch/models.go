@@ -157,7 +157,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 	}
 
 	// Liberator doesn't contain this field, so we read it directly from the unstructured object
-	terminationProtection, _, _ := unstructured.NestedBool(u.Object, "spec", "terminationProtection")
+	terminationProtection, _, _ := unstructured.NestedBool(u.Object, specTerminationProtection...)
 
 	machine, err := machineTypeFromPlan(obj.Spec.Plan)
 	if err != nil {
@@ -170,7 +170,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 	}
 
 	majorVersion := OpenSearchMajorVersion("")
-	if v, found, _ := unstructured.NestedString(u.Object, "spec", "userConfig", "opensearch_version"); found {
+	if v, found, _ := unstructured.NestedString(u.Object, specOpenSearchVersion...); found {
 		version, err := OpenSearchMajorVersionFromAivenString(v)
 		if err == nil {
 			majorVersion = version
@@ -179,7 +179,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 
 	// default to minimum storage capacity for the selected plan, in case the field is not set explicitly
 	storageGB := machine.StorageMin
-	if v, found, _ := unstructured.NestedString(u.Object, "spec", "disk_space"); found {
+	if v, found, _ := unstructured.NestedString(u.Object, specDiskSpace...); found {
 		storageGB, err = StorageGBFromAivenString(v)
 		if err != nil {
 			return nil, err
