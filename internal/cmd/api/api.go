@@ -34,6 +34,7 @@ import (
 	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/servicemaintenance"
+	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
@@ -143,13 +144,13 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("creating cluster config map: %w", err)
 	}
 
-	watcherMgr, err := watcher.NewManager(scheme, clusterConfig, log.WithField("subsystem", "k8s_watcher"), watcherOpts...)
+	watcherMgr, err := watcher.NewManager(scheme, clusterConfig, team.ListGoogleGroupByTeamSlugs, log.WithField("subsystem", "k8s_watcher"), watcherOpts...)
 	if err != nil {
 		return fmt.Errorf("create k8s watcher manager: %w", err)
 	}
 	defer watcherMgr.Stop()
 
-	mgmtWatcher, err := watcher.NewManager(scheme, kubernetes.ClusterConfigMap{"management": nil}, log.WithField("subsystem", "k8s_watcher"), watcherOpts...)
+	mgmtWatcher, err := watcher.NewManager(scheme, kubernetes.ClusterConfigMap{"management": nil}, nil, log.WithField("subsystem", "k8s_watcher"), watcherOpts...)
 	if err != nil {
 		return fmt.Errorf("create k8s watcher manager for management: %w", err)
 	}

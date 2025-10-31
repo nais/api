@@ -23,15 +23,17 @@ type clusterManager struct {
 	createdFilteredInformers []dynamicinformer.DynamicSharedInformerFactory
 	scheme                   *runtime.Scheme
 	log                      logrus.FieldLogger
+	groupByTeamSlug          GroupsByTeamSlug
 }
 
-func newClusterManager(scheme *runtime.Scheme, client dynamic.Interface, discoveryClient KindResolver, config *rest.Config, log logrus.FieldLogger) (*clusterManager, error) {
+func newClusterManager(scheme *runtime.Scheme, client dynamic.Interface, discoveryClient KindResolver, config *rest.Config, gbtsFn GroupsByTeamSlug, log logrus.FieldLogger) (*clusterManager, error) {
 	return &clusterManager{
-		config:         config,
-		client:         client,
-		scheme:         scheme,
-		log:            log,
-		resourceMapper: discoveryClient,
+		config:          config,
+		client:          client,
+		scheme:          scheme,
+		log:             log,
+		resourceMapper:  discoveryClient,
+		groupByTeamSlug: gbtsFn,
 	}, nil
 }
 

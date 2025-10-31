@@ -6,7 +6,6 @@ import (
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/user"
 	"github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -186,7 +185,7 @@ func (w *clusterWatcher[T]) ImpersonatedClient(ctx context.Context, opts ...Impe
 			}
 		}
 
-		g, err := team.ListGoogleGroupByTeamSlugs(ctx, teamSlugs)
+		g, err := w.manager.groupByTeamSlug(ctx, teamSlugs)
 		if err != nil {
 			return nil, fmt.Errorf("getting GCP groups for service account: %w", err)
 		}
