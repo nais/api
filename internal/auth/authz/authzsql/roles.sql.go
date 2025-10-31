@@ -208,6 +208,33 @@ func (q *Queries) GetRolesForUsers(ctx context.Context, userIds []uuid.UUID) ([]
 	return items, nil
 }
 
+const gitHubAuthorizationRoleCheck = `-- name: GitHubAuthorizationRoleCheck :one
+SELECT
+	(
+		EXISTS (
+			SELECT
+				1
+			FROM
+				role_authorizations ra
+			WHERE
+				ra.role_name = $1
+				AND ra.authorization_name = $2
+		)
+	)::BOOLEAN
+`
+
+type GitHubAuthorizationRoleCheckParams struct {
+	RoleName          string
+	AuthorizationName string
+}
+
+func (q *Queries) GitHubAuthorizationRoleCheck(ctx context.Context, arg GitHubAuthorizationRoleCheckParams) (bool, error) {
+	row := q.db.QueryRow(ctx, gitHubAuthorizationRoleCheck, arg.RoleName, arg.AuthorizationName)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const hasGlobalAuthorization = `-- name: HasGlobalAuthorization :one
 SELECT
 	(

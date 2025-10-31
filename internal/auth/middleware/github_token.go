@@ -121,4 +121,6 @@ func (g *GitHubRepoActor) Identity() string {
 
 func (g *GitHubRepoActor) IsServiceAccount() bool { return true }
 
+func (g *GitHubRepoActor) IsGitHubActions() {}
+
 func (g *GitHubRepoActor) IsAdmin() bool { return false }

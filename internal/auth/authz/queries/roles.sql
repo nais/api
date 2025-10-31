@@ -330,3 +330,18 @@ SELECT
 		)
 	)::BOOLEAN
 ;
+
+-- name: GitHubAuthorizationRoleCheck :one
+SELECT
+	(
+		EXISTS (
+			SELECT
+				1
+			FROM
+				role_authorizations ra
+			WHERE
+				ra.role_name = @role_name
+				AND ra.authorization_name = @authorization_name
+		)
+	)::BOOLEAN
+;
