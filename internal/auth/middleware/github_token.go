@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/google/uuid"
@@ -13,6 +12,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// ghClaims represents the claims present in a GitHub OIDC token
+// See https://docs.github.com/en/actions/reference/security/oidc#oidc-token-claims.
 type ghClaims struct {
 	// Ref               string `json:"ref"`
 	Repository string `json:"repository"`
@@ -53,14 +54,12 @@ func GitHubOIDC(ctx context.Context, log logrus.FieldLogger) func(next http.Hand
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
-			authHeader := r.Header.Get("Authorization")
-			if authHeader == "" {
+			token, ok := BearerAuth(r)
+			if !ok {
+				log.Debug("no valid bearer token found in request")
 				next.ServeHTTP(w, r)
 				return
 			}
-
-			token := strings.TrimPrefix(authHeader, "Bearer ")
-			token = strings.TrimPrefix(token, "bearer ")
 
 			idToken, err := verifier.Verify(r.Context(), token)
 			if err != nil {

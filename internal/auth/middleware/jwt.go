@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/lestrrat-go/httprc/v3"
@@ -72,14 +71,13 @@ func (j *jwtAuth) validate(ctx context.Context, token string) (jwt.Token, error)
 
 func (j *jwtAuth) handler(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-
-		scheme, token, ok := strings.Cut(r.Header.Get("Authorization"), " ")
-		if !ok || scheme != "Bearer" || token == "" {
+		token, ok := BearerAuth(r)
+		if !ok {
 			next.ServeHTTP(w, r)
 			return
 		}
 
+		ctx := r.Context()
 		tok, err := j.validate(ctx, token)
 		if err != nil {
 			j.log.WithError(err).Debug("failed to validate token")
