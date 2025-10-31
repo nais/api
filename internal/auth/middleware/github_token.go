@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/google/uuid"
@@ -13,6 +12,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// ghClaims represents the claims present in a GitHub OIDC token
+// See https://docs.github.com/en/actions/reference/security/oidc#oidc-token-claims.
 type ghClaims struct {
 	// Ref               string `json:"ref"`
 	Repository string `json:"repository"`
@@ -53,38 +54,36 @@ func GitHubOIDC(ctx context.Context, log logrus.FieldLogger) func(next http.Hand
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
-			authHeader := r.Header.Get("Authorization")
-			if authHeader == "" {
+			token, ok := BearerAuth(r)
+			if !ok {
+				log.Debug("no valid bearer token found in request")
 				next.ServeHTTP(w, r)
 				return
 			}
 
-			token := strings.TrimPrefix(authHeader, "Bearer ")
-			token = strings.TrimPrefix(token, "bearer ")
-
 			idToken, err := verifier.Verify(r.Context(), token)
 			if err != nil {
-				log.WithError(err).Warn("failed to verify token")
+				log.WithError(err).Debug("failed to verify token")
 				next.ServeHTTP(w, r)
 				return
 			}
 
 			claims := &ghClaims{}
 			if err := idToken.Claims(claims); err != nil {
-				log.WithError(err).Warn("failed to parse claims from token")
+				log.WithError(err).Debug("failed to parse claims from token")
 				next.ServeHTTP(w, r)
 				return
 			}
 
 			repos, err := repository.GetByName(ctx, claims.Repository)
 			if err != nil {
-				log.WithError(err).Warn("failed to get repository from token claims")
+				log.WithError(err).Debug("failed to get repository from token claims")
 				next.ServeHTTP(w, r)
 				return
 			}
 
 			if len(repos) == 0 {
-				log.WithField("repository", claims.Repository).Warn("no repository found matching token claims")
+				log.WithField("repository", claims.Repository).Debug("no repository found matching token claims")
 				next.ServeHTTP(w, r)
 				return
 			}
@@ -93,7 +92,7 @@ func GitHubOIDC(ctx context.Context, log logrus.FieldLogger) func(next http.Hand
 			for _, repo := range repos {
 				repoRoles, err := authz.ForGitHubRepo(ctx, repo.TeamSlug)
 				if err != nil {
-					log.WithError(err).Warn("failed to get roles for github repo")
+					log.WithError(err).Debug("failed to get roles for github repo")
 					next.ServeHTTP(w, r)
 					return
 				}
