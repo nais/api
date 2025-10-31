@@ -574,3 +574,7 @@ func NamespaceExists(ctx context.Context, teamSlug slug.Slug) bool {
 
 	return false
 }
+
+func ListGoogleGroupByTeamSlugs(ctx context.Context, teamSlugs []slug.Slug) ([]string, error) {
+	return db(ctx).ListGoogleGroupByTeamSlugs(ctx, teamSlugs)
+}

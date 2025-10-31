@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/user"
 	"github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -175,9 +177,26 @@ func WithImpersonatedClientGVR(gvr schema.GroupVersionResource) ImpersonatedClie
 func (w *clusterWatcher[T]) ImpersonatedClient(ctx context.Context, opts ...ImpersonatedClientOption) (dynamic.NamespaceableResourceInterface, error) {
 	actor := authz.ActorFromContext(ctx)
 
-	groups, err := user.ListGCPGroupsForUser(ctx, actor.User.GetID())
-	if err != nil {
-		return nil, fmt.Errorf("listing GCP groups for user: %w", err)
+	var groups []string
+	if actor.User.IsServiceAccount() {
+		teamSlugs := []slug.Slug{}
+		for _, r := range actor.Roles {
+			if r.TargetTeamSlug != nil {
+				teamSlugs = append(teamSlugs, *r.TargetTeamSlug)
+			}
+		}
+
+		g, err := team.ListGoogleGroupByTeamSlugs(ctx, teamSlugs)
+		if err != nil {
+			return nil, fmt.Errorf("getting GCP groups for service account: %w", err)
+		}
+		groups = g
+	} else {
+		g, err := user.ListGCPGroupsForUser(ctx, actor.User.GetID())
+		if err != nil {
+			return nil, fmt.Errorf("listing GCP groups for user: %w", err)
+		}
+		groups = g
 	}
 
 	settings := &impersonatedSettings{}
