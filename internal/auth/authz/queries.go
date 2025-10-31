@@ -290,12 +290,22 @@ func RequireGlobalAdmin(ctx context.Context) error {
 }
 
 func requireTeamAuthorization(ctx context.Context, teamSlug slug.Slug, authorizationName string) error {
-	user := ActorFromContext(ctx).User
+	actor := ActorFromContext(ctx)
+	user := actor.User
 	var (
 		hasAuthorization bool
 		err              error
 	)
+
+	type githubActions interface {
+		IsGitHubActions()
+	}
 	if user.IsServiceAccount() {
+		if _, ok := user.(githubActions); ok {
+			// This is a cheat to support OIDC from GitHubActions. See middleware.GitHubOIDC for how the roles are assigned
+			return isAuthorizedThroughRoles(ctx, authorizationName, teamSlug, actor.Roles)
+		}
+
 		hasAuthorization, err = db(ctx).ServiceAccountHasTeamAuthorization(ctx, authzsql.ServiceAccountHasTeamAuthorizationParams{
 			ServiceAccountID:  user.GetID(),
 			AuthorizationName: authorizationName,
@@ -353,4 +363,26 @@ func requireAuthorization(ctx context.Context, authorizationName string, teamSlu
 	}
 
 	return requireTeamAuthorization(ctx, *teamSlug, authorizationName)
+}
+
+func isAuthorizedThroughRoles(ctx context.Context, authorizationName string, teamSlug slug.Slug, roles []*Role) error {
+	for _, r := range roles {
+		matchesTeamSlug := r.TargetTeamSlug != nil && *r.TargetTeamSlug == teamSlug
+		if !matchesTeamSlug {
+			continue
+		}
+
+		ok, err := db(ctx).GitHubAuthorizationRoleCheck(ctx, authzsql.GitHubAuthorizationRoleCheckParams{
+			RoleName:          r.Name,
+			AuthorizationName: authorizationName,
+		})
+		if err != nil {
+			return err
+		}
+		if ok {
+			return nil
+		}
+	}
+
+	return newMissingAuthorizationError(authorizationName)
 }
