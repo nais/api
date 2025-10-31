@@ -268,8 +268,23 @@ func (o *OpenSearchInput) Validate(ctx context.Context) error {
 		o.StorageGB = machine.StorageMin
 	}
 
-	if o.StorageGB < machine.StorageMin || o.StorageGB > machine.StorageMax {
-		verr.Add("storageGB", "Storage capacity must be between %dG and %dG for tier %q and memory %q.", machine.StorageMin, machine.StorageMax, o.Tier, o.Memory)
+	isOutsideBounds := o.StorageGB < machine.StorageMin || o.StorageGB > machine.StorageMax
+	isInvalidIncrement := (o.StorageGB-machine.StorageMin)%machine.StorageIncrements != 0
+	if isOutsideBounds || isInvalidIncrement {
+		var examples []string
+		for i := machine.StorageMin; i <= machine.StorageMax && len(examples) < 3; i += machine.StorageIncrements {
+			examples = append(examples, i.String())
+		}
+
+		verr.Add("storageGB",
+			"Storage capacity for tier %q and memory %q must be in the range [%d, %d] in increments of %d. Examples: [%s, ...]",
+			o.Tier,
+			o.Memory,
+			machine.StorageMin,
+			machine.StorageMax,
+			machine.StorageIncrements,
+			strings.Join(examples, ", "),
+		)
 	}
 
 	return verr.NilIfEmpty()
