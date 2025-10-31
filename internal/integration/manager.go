@@ -29,6 +29,7 @@ import (
 	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/servicemaintenance"
+	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	fakeHookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/unleash"
@@ -120,7 +121,7 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 			return ctx, nil, nil, fmt.Errorf("creating cluster config map: %w", err)
 		}
 
-		watcherMgr, err := watcher.NewManager(k8sRunner.Scheme, clusterConfig, log.WithField("subsystem", "k8s_watcher"), watcher.WithClientCreator(k8sRunner.ClientCreator))
+		watcherMgr, err := watcher.NewManager(k8sRunner.Scheme, clusterConfig, team.ListGoogleGroupByTeamSlugs, log.WithField("subsystem", "k8s_watcher"), watcher.WithClientCreator(k8sRunner.ClientCreator))
 		if err != nil {
 			done()
 			return ctx, nil, nil, fmt.Errorf("failed to create watcher manager: %w", err)
@@ -129,6 +130,7 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 		managementWatcherMgr, err := watcher.NewManager(
 			k8sRunner.Scheme,
 			kubernetes.ClusterConfigMap{"management": nil},
+			nil,
 			log.WithField("subsystem", "mgmt_k8s_watcher"),
 			watcher.WithClientCreator(k8sRunner.ClientCreator),
 		)

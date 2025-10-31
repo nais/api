@@ -206,7 +206,7 @@ func TestFakeQueryAll(t *testing.T) {
 		t.Fatalf("failed to create cluster config map: %v", err)
 	}
 
-	mgr, err := watcher.NewManager(scheme, ccm, logrus.New(), watcher.WithClientCreator(fake.Clients(os.DirFS("./testdata/"))))
+	mgr, err := watcher.NewManager(scheme, ccm, nil, logrus.New(), watcher.WithClientCreator(fake.Clients(os.DirFS("./testdata/"))))
 	if err != nil {
 		t.Fatalf("failed to create watcher manager: %v", err)
 	}

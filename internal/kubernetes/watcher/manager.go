@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/metric"
@@ -36,20 +37,29 @@ func WithClientCreator(fn func(cluster string) (dynamic.Interface, KindResolver,
 	}
 }
 
+type GroupsByTeamSlug func(ctx context.Context, teamSlugs []slug.Slug) ([]string, error)
+
 type Manager struct {
 	managers map[string]*clusterManager
 	scheme   *runtime.Scheme
 	log      logrus.FieldLogger
 
-	cacheSyncs      []cache.InformerSynced
-	resourceCounter metric.Int64UpDownCounter
+	cacheSyncs       []cache.InformerSynced
+	resourceCounter  metric.Int64UpDownCounter
+	groupsByTeamSlug GroupsByTeamSlug
 }
 
-func NewManager(scheme *runtime.Scheme, clusterConfig kubernetes.ClusterConfigMap, log logrus.FieldLogger, opts ...Option) (*Manager, error) {
+func NewManager(scheme *runtime.Scheme, clusterConfig kubernetes.ClusterConfigMap, gbtsFn GroupsByTeamSlug, log logrus.FieldLogger, opts ...Option) (*Manager, error) {
 	meter := otel.GetMeterProvider().Meter("nais_api_watcher")
 	udCounter, err := meter.Int64UpDownCounter("nais_api_watcher_resources", metric.WithDescription("Number of resources watched by the watcher"))
 	if err != nil {
 		return nil, fmt.Errorf("creating resources counter: %w", err)
+	}
+
+	if gbtsFn == nil {
+		gbtsFn = func(ctx context.Context, teamSlugs []slug.Slug) ([]string, error) {
+			return []string{}, nil
+		}
 	}
 
 	s := &settings{
@@ -96,7 +106,7 @@ func NewManager(scheme *runtime.Scheme, clusterConfig kubernetes.ClusterConfigMa
 		if err != nil {
 			return nil, fmt.Errorf("creating client for cluster %s: %w", cluster, err)
 		}
-		mgr, err := newClusterManager(scheme, client, discovery, cfg, log.WithField("cluster", cluster))
+		mgr, err := newClusterManager(scheme, client, discovery, cfg, gbtsFn, log.WithField("cluster", cluster))
 		if err != nil {
 			return nil, fmt.Errorf("creating cluster manager: %w", err)
 		}

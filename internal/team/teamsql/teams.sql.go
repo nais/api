@@ -478,6 +478,23 @@ func (q *Queries) ListEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg Li
 	return items, nil
 }
 
+const listGoogleGroupByTeamSlugs = `-- name: ListGoogleGroupByTeamSlugs :one
+SELECT
+	ARRAY_AGG(teams.google_group_email)::TEXT[]
+FROM
+	teams
+WHERE
+	slug = ANY ($1::slug[])
+	AND google_group_email IS NOT NULL
+`
+
+func (q *Queries) ListGoogleGroupByTeamSlugs(ctx context.Context, teamSlugs []slug.Slug) ([]string, error) {
+	row := q.db.QueryRow(ctx, listGoogleGroupByTeamSlugs, teamSlugs)
+	var column_1 []string
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const removeSlackAlertsChannel = `-- name: RemoveSlackAlertsChannel :exec
 UPDATE team_environments
 SET
