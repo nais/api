@@ -157,7 +157,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 	}
 
 	// Liberator doesn't contain this field, so we read it directly from the unstructured object
-	terminationProtection, _, _ := unstructured.NestedBool(u.Object, "spec", "terminationProtection")
+	terminationProtection, _, _ := unstructured.NestedBool(u.Object, specTerminationProtection...)
 
 	machine, err := machineTypeFromPlan(obj.Spec.Plan)
 	if err != nil {
@@ -170,7 +170,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 	}
 
 	majorVersion := OpenSearchMajorVersion("")
-	if v, found, _ := unstructured.NestedString(u.Object, "spec", "userConfig", "opensearch_version"); found {
+	if v, found, _ := unstructured.NestedString(u.Object, specOpenSearchVersion...); found {
 		version, err := OpenSearchMajorVersionFromAivenString(v)
 		if err == nil {
 			majorVersion = version
@@ -179,7 +179,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 
 	// default to minimum storage capacity for the selected plan, in case the field is not set explicitly
 	storageGB := machine.StorageMin
-	if v, found, _ := unstructured.NestedString(u.Object, "spec", "disk_space"); found {
+	if v, found, _ := unstructured.NestedString(u.Object, specDiskSpace...); found {
 		storageGB, err = StorageGBFromAivenString(v)
 		if err != nil {
 			return nil, err
@@ -268,8 +268,23 @@ func (o *OpenSearchInput) Validate(ctx context.Context) error {
 		o.StorageGB = machine.StorageMin
 	}
 
-	if o.StorageGB < machine.StorageMin || o.StorageGB > machine.StorageMax {
-		verr.Add("storageGB", "Storage capacity must be between %dG and %dG for tier %q and memory %q.", machine.StorageMin, machine.StorageMax, o.Tier, o.Memory)
+	isOutsideBounds := o.StorageGB < machine.StorageMin || o.StorageGB > machine.StorageMax
+	isInvalidIncrement := (o.StorageGB-machine.StorageMin)%machine.StorageIncrements != 0
+	if isOutsideBounds || isInvalidIncrement {
+		var examples []string
+		for i := machine.StorageMin; i <= machine.StorageMax && len(examples) < 3; i += machine.StorageIncrements {
+			examples = append(examples, i.String())
+		}
+
+		verr.Add("storageGB",
+			"Storage capacity for tier %q and memory %q must be in the range [%d, %d] in increments of %d. Examples: [%s, ...]",
+			o.Tier,
+			o.Memory,
+			machine.StorageMin,
+			machine.StorageMax,
+			machine.StorageIncrements,
+			strings.Join(examples, ", "),
+		)
 	}
 
 	return verr.NilIfEmpty()

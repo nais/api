@@ -22,6 +22,13 @@ import (
 	"k8s.io/utils/ptr"
 )
 
+var (
+	specDiskSpace             = []string{"spec", "disk_space"}
+	specPlan                  = []string{"spec", "plan"}
+	specTerminationProtection = []string{"spec", "terminationProtection"}
+	specOpenSearchVersion     = []string{"spec", "userConfig", "opensearch_version"}
+)
+
 func GetByIdent(ctx context.Context, id ident.Ident) (*OpenSearch, error) {
 	teamSlug, environment, name, err := parseIdent(id)
 	if err != nil {
@@ -335,7 +342,7 @@ func updatePlan(openSearch *unstructured.Unstructured, input UpdateOpenSearchInp
 		return nil, err
 	}
 
-	oldPlan, found, err := unstructured.NestedString(openSearch.Object, "spec", "plan")
+	oldPlan, found, err := unstructured.NestedString(openSearch.Object, specPlan...)
 	if err != nil {
 		return nil, err
 	}
@@ -369,7 +376,7 @@ func updatePlan(openSearch *unstructured.Unstructured, input UpdateOpenSearchInp
 		})
 	}
 
-	if err := unstructured.SetNestedField(openSearch.Object, desired.AivenPlan, "spec", "plan"); err != nil {
+	if err := unstructured.SetNestedField(openSearch.Object, desired.AivenPlan, specPlan...); err != nil {
 		return nil, err
 	}
 	return changes, nil
@@ -378,7 +385,7 @@ func updatePlan(openSearch *unstructured.Unstructured, input UpdateOpenSearchInp
 func updateVersion(ctx context.Context, openSearch *unstructured.Unstructured, input UpdateOpenSearchInput) ([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, error) {
 	changes := make([]*OpenSearchUpdatedActivityLogEntryDataUpdatedField, 0)
 
-	oldVersion, found, err := unstructured.NestedString(openSearch.Object, "spec", "userConfig", "opensearch_version")
+	oldVersion, found, err := unstructured.NestedString(openSearch.Object, specOpenSearchVersion...)
 	if err != nil {
 		return nil, err
 	}
@@ -419,7 +426,7 @@ func updateVersion(ctx context.Context, openSearch *unstructured.Unstructured, i
 		NewValue: ptr.To(input.Version.String()),
 	})
 
-	if err := unstructured.SetNestedField(openSearch.Object, input.Version.ToAivenString(), "spec", "userConfig", "opensearch_version"); err != nil {
+	if err := unstructured.SetNestedField(openSearch.Object, input.Version.ToAivenString(), specOpenSearchVersion...); err != nil {
 		return nil, err
 	}
 	return changes, nil
@@ -433,7 +440,7 @@ func updateStorage(openSearch *unstructured.Unstructured, input UpdateOpenSearch
 		return nil, err
 	}
 
-	oldAivenDiskSpace, found, err := unstructured.NestedString(openSearch.Object, "spec", "disk_space")
+	oldAivenDiskSpace, found, err := unstructured.NestedString(openSearch.Object, specDiskSpace...)
 	if err != nil {
 		return nil, err
 	}
@@ -461,7 +468,7 @@ func updateStorage(openSearch *unstructured.Unstructured, input UpdateOpenSearch
 		NewValue: ptr.To(input.StorageGB.String()),
 	})
 
-	if err := unstructured.SetNestedField(openSearch.Object, input.StorageGB.ToAivenString(), "spec", "disk_space"); err != nil {
+	if err := unstructured.SetNestedField(openSearch.Object, input.StorageGB.ToAivenString(), specDiskSpace...); err != nil {
 		return nil, err
 	}
 	return changes, nil
@@ -487,12 +494,12 @@ func Delete(ctx context.Context, input DeleteOpenSearchInput) (*DeleteOpenSearch
 		return nil, apierror.Errorf("OpenSearch %s/%s is not managed by Console", input.TeamSlug, input.Name)
 	}
 
-	terminationProtection, found, err := unstructured.NestedBool(os.Object, "spec", "terminationProtection")
+	terminationProtection, found, err := unstructured.NestedBool(os.Object, specTerminationProtection...)
 	if err != nil {
 		return nil, err
 	}
 	if found && terminationProtection {
-		if err := unstructured.SetNestedField(os.Object, false, "spec", "terminationProtection"); err != nil {
+		if err := unstructured.SetNestedField(os.Object, false, specTerminationProtection...); err != nil {
 			return nil, err
 		}
 

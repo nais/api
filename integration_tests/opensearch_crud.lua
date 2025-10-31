@@ -210,7 +210,45 @@ Test.gql("Create opensearch with invalid storage capacity", function(t)
 				extensions = {
 					field = "storageGB",
 				},
-				message = "Storage capacity must be between 240G and 1200G for tier \"HIGH_AVAILABILITY\" and memory \"GB_4\".",
+				message = "Storage capacity for tier \"HIGH_AVAILABILITY\" and memory \"GB_4\" must be in the range [240, 1200] in increments of 30. Examples: [240, 270, 300, ...]",
+				path = {
+					"createOpenSearch",
+				},
+			},
+		},
+		data = Null,
+	}
+end)
+
+Test.gql("Create opensearch with invalid storage capacity increment", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		mutation CreateOpenSearch {
+		  createOpenSearch(
+		    input: {
+		      name: "foobar"
+		      environmentName: "dev"
+		      teamSlug: "someteamname"
+		      tier: SINGLE_NODE
+		      memory: GB_8
+		      version: V2
+		      storageGB: 180
+		    }
+		  ) {
+		    openSearch {
+		      name
+		    }
+		  }
+		}
+	]]
+
+	t.check {
+		errors = {
+			{
+				extensions = {
+					field = "storageGB",
+				},
+				message = "Storage capacity for tier \"SINGLE_NODE\" and memory \"GB_8\" must be in the range [175, 875] in increments of 10. Examples: [175, 185, 195, ...]",
 				path = {
 					"createOpenSearch",
 				},
@@ -479,7 +517,7 @@ Test.gql("Update OpenSearch as team-member", function(t)
 		      tier: HIGH_AVAILABILITY
 		      memory: GB_4
 		      version: V2
-		      storageGB: 1000
+		      storageGB: 1020
 		    }
 		  ) {
 		    openSearch {
@@ -523,7 +561,7 @@ Test.k8s("Validate OpenSearch resource after update", function(t)
 			projectVpcId = "aiven-vpc",
 			plan = "business-4",
 			cloudName = "google-europe-north1",
-			disk_space = "1000G",
+			disk_space = "1020G",
 			terminationProtection = true,
 			tags = {
 				environment = "dev",
